@@ -152,7 +152,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                 SequenceNumber = newSequenceNumber,
                 CustomerName = priorDn.CustomerName,
                 ProjectName = priorDn.ProjectName,
-                Status = "Draft",
+                Status = "Dispatching",
                 DeliveryType = "Dummy",
                 IsFoc = false,
                 DriverName = "",

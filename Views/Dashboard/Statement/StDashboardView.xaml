@@ -3,8 +3,7 @@
      PROJECT: ProGlassAutomation
      MODULE: Account Statement Dashboard
 
-     SOFT-CARD REDESIGN — the reference dashboard markup supplied by the
-     user, applied identically across all 7 dashboards. The look lives
+     LAYOUT-03 BENTO MOSAIC — Statements. Scalar KPI bindings and row template unchanged. The look lives
      in Styles/DashboardStyles.xaml (Soft* keys).
 
      WHAT THIS REPLACES
@@ -207,272 +206,147 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="24">
+            <Grid Margin="20,16,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="220" MinHeight="180"/>
+                </Grid.RowDefinitions>
 
-                <!-- HERO -->
-                <Border Style="{StaticResource SoftHeroStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Statements"
-                                       Style="{StaticResource SoftHeroTitleStyle}"/>
-                            <TextBlock Text="Customer balances, outstanding value and collection risk"
-                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
-                            <Border Style="{StaticResource SoftChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8" Height="8"
-                                             Margin="0,0,6,0"
-                                             VerticalAlignment="Center"
-                                             Fill="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="Live"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <TextBlock Text="{Binding LastRefreshed}"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ACTIONS -->
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Quick actions"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
-                                   VerticalAlignment="Center"/>
-
-                        <WrapPanel Grid.Column="1"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center">
-                            <Button Content="New Statement"
-                                    Tag="&#xE710;"
-                                    Style="{StaticResource SoftPillAccentStyle}"
-                                    ToolTip="Create a new account statement"
-                                    Command="{Binding NewStatementCommand}"/>
-                            <Button Content="View All Statements"
-                                    Tag="&#xE8FD;"
-                                    Margin="0"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open the statements list"
-                                    Command="{Binding GoToStatementsCommand}"/>
-                        </WrapPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════
-                     KPI ROW — four scalar cards (see header note).
-                ═══════════════════════════════════════════════════ -->
-                <TextBlock Text="Statement Overview"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-
-                <Grid Margin="0,0,0,18">
+                <Grid Grid.Row="0" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Statements"
+                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                        <TextBlock Text="Customer balances, outstanding value and collection risk"
+                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                         VerticalAlignment="Center"
+                                         Fill="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Button Content="New Statement" Tag="&#xE710;"
+                                Style="{StaticResource SoftPillAccentStyle}"
+                                Command="{Binding NewStatementCommand}"/>
+                        <Button Content="View All" Tag="&#xE8FD;" Margin="0"
+                                Style="{StaticResource SoftPillButtonStyle}"
+                                Command="{Binding GoToStatementsCommand}"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Row="1">
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Visibility="{Binding IsLoading,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Loading statements…"
+                                   Style="{StaticResource SoftKpiFootStyle}"/>
+                    </Border>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Total statements -->
-                    <Border Grid.Column="0"
-                            Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,10,0">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0" MinHeight="168">
                         <Grid>
-                            <StackPanel Margin="0,0,48,0">
-                                <TextBlock Text="Total Statements"
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="OUTSTANDING"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left"
-                                         Stretch="Uniform"
-                                         StretchDirection="DownOnly"
-                                         Margin="0,8,0,4">
-                                    <TextBlock Text="{Binding TotalStatements}"
-                                               Style="{StaticResource SoftKpiValueStyle}"
-                                               Margin="0"/>
-                                </Viewbox>
-                                <TextBlock Text="Generated to date"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                            </StackPanel>
-                            <Border Style="{StaticResource SoftBadgeStyle}"
-                                    Background="{DynamicResource AccentBrush}">
-                                <TextBlock Text="&#xE9D9;"
-                                           Style="{StaticResource SoftBadgeGlyphStyle}"/>
-                            </Border>
-                        </Grid>
-                    </Border>
-
-                    <!-- Total invoiced -->
-                    <Border Grid.Column="1"
-                            Style="{StaticResource SoftCardStyle}"
-                            Margin="10,0,10,0">
-                        <Grid>
-                            <StackPanel Margin="0,0,48,0">
-                                <TextBlock Text="Total Invoiced"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left"
-                                         Stretch="Uniform"
-                                         StretchDirection="DownOnly"
-                                         Margin="0,8,0,4">
-                                    <TextBlock Text="{Binding TotalInvoicedDisplay}"
-                                               Style="{StaticResource SoftKpiValueStyle}"
-                                               Margin="0"/>
-                                </Viewbox>
-                                <TextBlock Text="Across all statements"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                            </StackPanel>
-                            <Border Style="{StaticResource SoftBadgeStyle}"
-                                    Background="{DynamicResource InfoBrush}">
-                                <TextBlock Text="&#xE8EF;"
-                                           Style="{StaticResource SoftBadgeGlyphStyle}"/>
-                            </Border>
-                        </Grid>
-                    </Border>
-
-                    <!-- Outstanding -->
-                    <Border Grid.Column="2"
-                            Style="{StaticResource SoftCardStyle}"
-                            Margin="10,0,10,0">
-                        <Grid>
-                            <StackPanel Margin="0,0,48,0">
-                                <TextBlock Text="Outstanding"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left"
-                                         Stretch="Uniform"
-                                         StretchDirection="DownOnly"
-                                         Margin="0,8,0,4">
+                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                         StretchDirection="DownOnly" Margin="0,8,12,4">
                                     <TextBlock Text="{Binding TotalOutstandingDisplay}"
                                                Style="{StaticResource SoftKpiValueStyle}"
                                                Margin="0"
                                                Foreground="{DynamicResource WarningBrush}"/>
                                 </Viewbox>
-                                <TextBlock Text="Awaiting payment"
+                                <TextBlock Text="Awaiting payment across all statements"
+                                           Style="{StaticResource SoftKpiFootStyle}"/>
+                                <TextBlock Margin="0,12,0,0"
+                                           Style="{StaticResource SoftKpiLabelStyle}"
+                                           Text="TOTAL INVOICED"/>
+                                <TextBlock Text="{Binding TotalInvoicedDisplay}"
+                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           FontSize="22"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Margin="16,0,0,0">
+                                <TextBlock Text="STATEMENTS"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalStatements}"
+                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           Foreground="{DynamicResource InfoBrush}"/>
+                                <TextBlock Text="Generated to date"
                                            Style="{StaticResource SoftKpiFootStyle}"/>
                             </StackPanel>
-                            <Border Style="{StaticResource SoftBadgeStyle}"
-                                    Background="{DynamicResource WarningBrush}">
-                                <TextBlock Text="&#xE823;"
-                                           Style="{StaticResource SoftBadgeGlyphStyle}"/>
-                            </Border>
                         </Grid>
                     </Border>
 
-                    <!-- Overdue — cap and badge turn red only when there IS
-                         overdue value, so the colour carries meaning. -->
-                    <Border Grid.Column="3"
-                            Style="{StaticResource SoftCardStyle}"
-                            Margin="10,0,0,0">
-                        <Grid>
-                            <StackPanel Margin="0,0,48,0">
-                                <TextBlock Text="Overdue"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left"
-                                         Stretch="Uniform"
-                                         StretchDirection="DownOnly"
-                                         Margin="0,8,0,4">
-                                    <TextBlock Text="{Binding OverdueAmountDisplay}"
-                                               Margin="0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock"
-                                                   BasedOn="{StaticResource SoftKpiValueStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                                        <Setter Property="Foreground"
-                                                                Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Viewbox>
-                                <TextBlock Text="Past payment terms"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                            </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Collection mix"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Collected vs outstanding vs overdue"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            <donut:DonutChartControl Height="150"
+                                                     Slices="{Binding BalanceMixSlices}"
+                                                     HoleLabel="AED"
+                                                     EmptyMessage="No statement balances yet."
+                                                     Thickness="16"/>
+                        </StackPanel>
+                    </Border>
 
-                            <Border>
-                                <Border.Style>
-                                    <Style TargetType="Border"
-                                           BasedOn="{StaticResource SoftBadgeStyle}">
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource SuccessBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource DangerBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="&#xE7BA;"
-                                           Style="{StaticResource SoftBadgeGlyphStyle}"/>
-                            </Border>
-                        </Grid>
+                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Padding="16,12">
+                        <StackPanel>
+                            <TextBlock Text="OVERDUE"
+                                       Style="{StaticResource SoftKpiLabelStyle}"/>
+                            <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                     StretchDirection="DownOnly" Margin="0,8,0,4">
+                                <TextBlock Text="{Binding OverdueAmountDisplay}" Margin="0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock"
+                                               BasedOn="{StaticResource SoftKpiValueStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasOverdue}" Value="True">
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Viewbox>
+                            <TextBlock Text="Past payment terms"
+                                       Style="{StaticResource SoftKpiFootStyle}"/>
+                        </StackPanel>
                     </Border>
                 </Grid>
 
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="1.1*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel VerticalAlignment="Center" Margin="0,0,16,0">
-                            <TextBlock Text="Collection mix"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Collected vs outstanding vs overdue — theme-safe donut"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                        </StackPanel>
-                        <Border Grid.Column="1" Style="{StaticResource SoftChartWellStyle}">
-                            <donut:DonutChartControl
-                                Height="180"
-                                Slices="{Binding BalanceMixSlices}"
-                                HoleLabel="AED"
-                                EmptyMessage="No statement balances yet."
-                                Thickness="18"/>
-                        </Border>
-                    </Grid>
-                </Border>
+                <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Recent statements"
+                                   Style="{StaticResource SoftSectionTitleStyle}"
+                                   Margin="0,0,0,8"/>
 
-                <!-- ═══════════════════════════════════════════════════
-                     RECENT STATEMENTS
-                ═══════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Recent Statements"
-                                   Style="{StaticResource SoftSectionTitleStyle}"/>
-                        <TextBlock Text="Most recently generated statements"
-                                   Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                        <!-- LOADING -->
-                        <Border Padding="0,40"
-                                Visibility="{Binding IsLoading,
-                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="&#xE895;"
-                                           Style="{StaticResource DashEmptyStateGlyphStyle}"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="Loading statements…"
-                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- EMPTY -->
                         <Border Padding="0,40"
                                 Visibility="{Binding IsEmpty,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
@@ -490,20 +364,20 @@
                                         Margin="0"
                                         HorizontalAlignment="Center"
                                         Style="{StaticResource SoftPillAccentStyle}"
-                                        ToolTip="Create a new account statement"
                                         Command="{Binding NewStatementCommand}"/>
                             </StackPanel>
                         </Border>
 
-                        <!-- LIST -->
-                        <ItemsControl ItemsSource="{Binding RecentStatements}"
-                                      ItemTemplate="{StaticResource StStatementRowTemplate}"
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
                                       Visibility="{Binding HasStatements,
-                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    </StackPanel>
+                                          Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding RecentStatements}"
+                                          ItemTemplate="{StaticResource StStatementRowTemplate}"/>
+                        </ScrollViewer>
+                    </DockPanel>
                 </Border>
-
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>

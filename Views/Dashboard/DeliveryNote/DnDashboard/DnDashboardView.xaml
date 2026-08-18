@@ -1,35 +1,4 @@
-<!-- ════════════════════════════════════════════════════════════════════
-     FILE: Views/Dashboard/DeliveryNote/DnDashboard/DnDashboardView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Delivery Note Dashboard
-
-     SOFT-CARD REDESIGN — the reference dashboard markup supplied by
-     the user, applied identically across all 7 dashboards. The look is
-     defined ONCE in Styles/DashboardStyles.xaml (the Soft* keys) so the
-     seven pages cannot drift apart the way the old per-file CardStyle
-     copies did.
-
-     Reference traits reproduced: hero band radius 22 with a 30px Bold
-     title, cards radius 18 / padding 20 / margin 0,0,0,20, hairline
-     border + DropShadow(10, 2, .08), a 4px full-bleed colour cap on
-     each KPI card, 11px label + 28px Bold value + 12px status line, a
-     40x40 radius-10 badge top-right, radius-10 pill buttons and a
-     recessed radius-12 chart well.
-
-     DEVIATIONS, EACH FORCED (see DashboardStyles.xaml for detail):
-       1. Colour resolves via DynamicResource, not hardcoded hex, or
-          every card would stay white in Dark theme.
-       2. Charts use TrendChartControl: LiveChartsCore is not a
-          PackageReference in this project and NuGet is unreachable
-          from the build sandbox.
-       3. Segoe MDL2 glyphs, never emoji.
-
-     BINDINGS — UNCHANGED. NO VIEWMODEL WAS EDITED.
-       KpiCards, StatusBars, TypeBars, RecentFeed,
-       HasStatusData, HasRecentFeed, IsLoading, HasError,
-       ErrorMessage, LastRefreshed
-══════════════════════════════════════════════════════════════════════ -->
-
+<!-- LAYOUT-03 BENTO MOSAIC — Deliveries. Bindings unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard.DnDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -52,116 +21,145 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="24">
+            <Grid Margin="20,16,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="220" MinHeight="180"/>
+                </Grid.RowDefinitions>
 
-                <!-- HERO -->
-                <Border Style="{StaticResource SoftHeroStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Deliveries"
-                                       Style="{StaticResource SoftHeroTitleStyle}"/>
-                            <TextBlock Text="Dispatch flow, delivery balance and recent movements"
-                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
-                            <Border Style="{StaticResource SoftChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8" Height="8"
-                                             Margin="0,0,6,0"
-                                             VerticalAlignment="Center"
-                                             Fill="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="Live"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <TextBlock Text="{Binding LastRefreshed}"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- LOADING -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Visibility="{Binding IsLoading,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE895;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Loading delivery note data…"
-                                   Style="{StaticResource SoftKpiFootStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ERROR -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        Visibility="{Binding HasError,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE783;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- KPI ROW -->
-                <TextBlock Text="Delivery Overview"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding KpiCards}"
-                              ItemTemplate="{StaticResource SoftKpiCardTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,18"/>
-
-                <!-- CHART ROW -->
-                <Grid>
+                <Grid Grid.Row="0" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Deliveries"
+                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                        <TextBlock Text="Dispatch flow, delivery balance and recent movements"
+                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                         VerticalAlignment="Center"
+                                         Fill="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <TextBlock Text="{Binding LastRefreshed}"
+                                   Style="{StaticResource SoftMetaStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Row="1">
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Visibility="{Binding IsLoading,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Loading delivery note data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"/>
+                    </Border>
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Background="{DynamicResource TintRedBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            Visibility="{Binding HasError,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="0.9*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0" MinHeight="168">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Dispatch pulse"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Notes, pending pcs and returns"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding KpiCards}"
+                                          ItemTemplate="{StaticResource SoftKpiCardTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0">
+                        <StackPanel>
+                            <TextBlock Text="Delivery mix"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Notes grouped by current status"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            <donut:DonutChartControl Height="150"
+                                                     Slices="{Binding StatusMixSlices}"
+                                                     HoleLabel="DNs"
+                                                     EmptyMessage="No delivery mix yet."
+                                                     Thickness="16"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="By type"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Dummy / split / master"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            </StackPanel>
+                            <Border Style="{StaticResource SoftChartWellStyle}">
+                                <trend:TrendChartControl
+                                    Points="{Binding TypeBars}"
+                                    SeriesKind="Bar"
+                                    EmptyMessage="No type data yet."
+                                    SeriesBrush="{DynamicResource AccentBrush}"
+                                    GridBrush="{DynamicResource DividerBrush}"
+                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="0,0,10,20">
-                        <StackPanel>
-                            <TextBlock Text="Status Distribution"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Delivery notes grouped by current status"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,10,0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Status distribution"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Delivery note count"
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
                             <Grid>
                                 <Border Style="{StaticResource SoftChartWellStyle}"
                                         Visibility="{Binding HasStatusData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
-                                        Height="260"
                                         Points="{Binding StatusBars}"
                                         SeriesKind="Bar"
                                         EmptyMessage="Delivery note count by status — no data yet."
@@ -169,8 +167,7 @@
                                         GridBrush="{DynamicResource DividerBrush}"
                                         LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                                 </Border>
-
-                                <Border Padding="0,60"
+                                <Border Padding="0,40"
                                         Visibility="{Binding HasStatusData,
                                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <StackPanel HorizontalAlignment="Center">
@@ -181,87 +178,40 @@
                                     </StackPanel>
                                 </Border>
                             </Grid>
-
-                            <TextBlock Text="Delivery note count by status"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,12,2,0"/>
-                        </StackPanel>
+                        </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="10,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Status mix"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Shared donut — same control every dashboard uses"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                            <Grid>
-                                <Border Style="{StaticResource SoftChartWellStyle}"
-                                        Visibility="{Binding HasStatusData,
-                                            Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <donut:DonutChartControl
-                                        Height="200"
-                                        Slices="{Binding StatusMixSlices}"
-                                        HoleLabel="DNs"
-                                        EmptyMessage="No delivery mix yet."
-                                        Thickness="20"/>
-                                </Border>
-
-                                <Border Padding="0,60"
-                                        Visibility="{Binding HasStatusData,
-                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="&#xE8FD;"
-                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                        <TextBlock Text="No type data yet"
-                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-
-                            <TextBlock Text="Delivery note count by type"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,12,2,0"/>
-                        </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Recent deliveries"
+                                       Style="{StaticResource SoftSectionTitleStyle}"
+                                       Margin="0,0,0,8"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding HasRecentFeed,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding RecentFeed}"
+                                              ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
+                            </ScrollViewer>
+                            <Border Padding="0,40"
+                                    Visibility="{Binding HasRecentFeed,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE806;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                    <TextBlock Text="No delivery notes yet"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="Create a delivery note from a Job Order."
+                                               Style="{StaticResource SoftMetaStyle}"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               Margin="0,6,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </DockPanel>
                     </Border>
                 </Grid>
-
-                <!-- FEED -->
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Recent Delivery Notes"
-                                   Style="{StaticResource SoftSectionTitleStyle}"/>
-                        <TextBlock Text="Last 10 delivery notes, most recently updated first"
-                                   Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                        <ItemsControl ItemsSource="{Binding RecentFeed}"
-                                      ItemTemplate="{StaticResource SoftFeedRowTemplate}"
-                                      Visibility="{Binding HasRecentFeed,
-                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                        <Border Padding="0,40"
-                                Visibility="{Binding HasRecentFeed,
-                                    Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="&#xE806;"
-                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                <TextBlock Text="No delivery notes yet"
-                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                <TextBlock Text="Create a delivery note from a Job Order to get started."
-                                           Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Center"
-                                           TextAlignment="Center"
-                                           Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
-
-            </StackPanel>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>

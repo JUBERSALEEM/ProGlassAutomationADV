@@ -149,6 +149,56 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_deliveryMixSlices == value) return; _deliveryMixSlices = value; OnPropertyChanged(); }
         }
 
+        // LAYOUT-03 bento tiles
+        private string _pulseDisplay = "AED 0.00";
+        public string PulseDisplay
+        {
+            get => _pulseDisplay;
+            private set { if (_pulseDisplay == value) return; _pulseDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _pulseHint = "";
+        public string PulseHint
+        {
+            get => _pulseHint;
+            private set { if (_pulseHint == value) return; _pulseHint = value; OnPropertyChanged(); }
+        }
+
+        private string _pulseSpark = "";
+        public string PulseSpark
+        {
+            get => _pulseSpark;
+            private set { if (_pulseSpark == value) return; _pulseSpark = value; OnPropertyChanged(); }
+        }
+
+        private string _inProductionDisplay = "0";
+        public string InProductionDisplay
+        {
+            get => _inProductionDisplay;
+            private set { if (_inProductionDisplay == value) return; _inProductionDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _overdueDisplay = "0";
+        public string OverdueDisplay
+        {
+            get => _overdueDisplay;
+            private set { if (_overdueDisplay == value) return; _overdueDisplay = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasOverdueJobs;
+        public bool HasOverdueJobs
+        {
+            get => _hasOverdueJobs;
+            private set { if (_hasOverdueJobs == value) return; _hasOverdueJobs = value; OnPropertyChanged(); }
+        }
+
+        private string _pendingPcsDisplay = "0";
+        public string PendingPcsDisplay
+        {
+            get => _pendingPcsDisplay;
+            private set { if (_pendingPcsDisplay == value) return; _pendingPcsDisplay = value; OnPropertyChanged(); }
+        }
+
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR

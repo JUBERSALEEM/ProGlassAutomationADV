@@ -678,7 +678,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
-            var dialog = new JobOrderPickerDialog(jobOrders)
+            List<ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteListItem> dns = new();
+            try
+            {
+                if (App.DeliveryNotes != null)
+                    dns = await App.DeliveryNotes.GetAllAsync();
+            }
+            catch { /* picker still searches JO fields */ }
+
+            var dialog = new JobOrderPickerDialog(jobOrders, dns)
             {
                 Owner = Application.Current.MainWindow
             };

@@ -6,6 +6,7 @@ using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail;
 using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
 using ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -275,6 +276,30 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             {
                 var existingDraft = await CheckForExistingDraftAsync(proformaId);
                 if (existingDraft.OpenExisting) return;
+
+                if (App.DeliveryNotes != null)
+                {
+                    var siblings = await App.DeliveryNotes.GetAllAsync();
+                    bool hasDelivered = siblings.Any(d =>
+                        string.Equals(d.ProformaId, proformaId,
+                            StringComparison.OrdinalIgnoreCase)
+                        && d.TotalDeliveredQty > 0
+                        && !string.Equals(d.Status, "Dispatching",
+                            StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(d.Status, "Draft",
+                            StringComparison.OrdinalIgnoreCase));
+                    if (!hasDelivered)
+                    {
+                        MessageBox.Show(
+                            "No dispatched delivery yet for this Job Order.\n\n" +
+                            "Create the DN, enter qty, then click Make DN.\n" +
+                            "Master Invoice uses dispatched pcs only.",
+                            "Nothing to Invoice",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
+                        return;
+                    }
+                }
 
                 // Master Invoice — aggregate all sibling DNs' delivered qty
                 await DetailVM.InitFromDeliveryNoteFamilyAsync(proformaId);

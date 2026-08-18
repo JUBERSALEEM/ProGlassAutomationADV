@@ -31,23 +31,17 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
 
         // ─────────────────────────────────────────────────────────────────
 
-        public JobOrderPickerDialog(List<SavedJobOrder> jobOrders)
+        public JobOrderPickerDialog(
+            List<SavedJobOrder> jobOrders,
+            IEnumerable<ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteListItem>? deliveryNotes = null)
         {
             InitializeComponent();
             _allJobs = jobOrders
                 .OrderByDescending(j => j.CreatedAt)
                 .ToList();
-            _ = LoadRelatedDnsAsync();
-            RenderList(_allJobs);
-        }
-
-        private async System.Threading.Tasks.Task LoadRelatedDnsAsync()
-        {
-            if (App.DeliveryNotes == null) return;
-            try
+            if (deliveryNotes != null)
             {
-                var all = await App.DeliveryNotes.GetAllAsync();
-                _dnsByJob = all
+                _dnsByJob = deliveryNotes
                     .Where(d => !string.IsNullOrWhiteSpace(d.JobOrderId))
                     .GroupBy(d => d.JobOrderId, StringComparer.OrdinalIgnoreCase)
                     .ToDictionary(
@@ -55,7 +49,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
                         g => g.Select(x => x.DeliveryNoteId ?? "").ToList(),
                         StringComparer.OrdinalIgnoreCase);
             }
-            catch { /* search still works on JO fields */ }
+            RenderList(_allJobs);
         }
 
         // ── Render job order rows ─────────────────────────────────────────

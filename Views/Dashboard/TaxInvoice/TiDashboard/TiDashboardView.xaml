@@ -3,8 +3,7 @@
      PROJECT: ProGlassAutomation
      MODULE: Tax Invoice Dashboard
 
-     SOFT-CARD REDESIGN — the reference dashboard markup supplied by the
-     user, applied identically across all 7 dashboards. The look lives
+     LAYOUT-03 BENTO MOSAIC — Tax Invoices. Bindings and local row templates unchanged. The look lives
      in Styles/DashboardStyles.xaml (Soft* keys). This file previously
      carried ~200 lines of private card/button/tile styles that had
      drifted from every other dashboard; those are gone and the shared
@@ -327,317 +326,191 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="24">
+            <Grid Margin="20,16,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="220" MinHeight="180"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- HERO -->
-                <Border Style="{StaticResource SoftHeroStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Tax Invoices"
-                                       Style="{StaticResource SoftHeroTitleStyle}"/>
-                            <TextBlock Text="Revenue, ageing and collection health"
-                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
-                            <Border Style="{StaticResource SoftChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8" Height="8"
-                                             Margin="0,0,6,0"
-                                             VerticalAlignment="Center"
-                                             Fill="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="Live"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <TextBlock Text="{Binding LastRefreshed}"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ACTIONS -->
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Quick actions"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
-                                   VerticalAlignment="Center"/>
-
-                        <WrapPanel Grid.Column="1"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center">
-                            <Button Content="New Tax Invoice"
-                                    Tag="&#xE710;"
-                                    Style="{StaticResource SoftPillAccentStyle}"
-                                    ToolTip="Create a new tax invoice"
-                                    Command="{Binding CreateTaxInvoiceCommand}"/>
-                            <Button Content="View All"
-                                    Tag="&#xE8FD;"
-                                    Margin="0"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open the tax invoice list"
-                                    Command="{Binding ViewAllInvoicesCommand}"/>
-                        </WrapPanel>
-                    </Grid>
-                </Border>
-
-                <!-- LOADING -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Visibility="{Binding IsLoading,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE895;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Loading tax invoice data…"
-                                   Style="{StaticResource SoftKpiFootStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ERROR -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        Visibility="{Binding HasError,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE783;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- OVERDUE ALERT -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        Visibility="{Binding HasOverdueInvoices,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="&#xE7BA;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock FontSize="12"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource DangerBrush}">
-                                    <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
-                                    <Run Text=" invoice(s) overdue — total "/>
-                                    <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
-                                </TextBlock>
-                                <TextBlock Text="Action required: follow up with customers on outstanding payments."
-                                           FontSize="11"
-                                           Margin="0,2,0,0"
-                                           Foreground="{DynamicResource DangerBrush}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Button Grid.Column="1"
-                                Content="View Overdue"
-                                Tag="&#xE7BA;"
-                                Margin="12,0,0,0"
-                                VerticalAlignment="Center"
-                                Style="{StaticResource SoftPillButtonStyle}"
-                                Background="{DynamicResource DangerBrush}"
-                                Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                ToolTip="Show only overdue invoices"
-                                Command="{Binding ViewOverdueCommand}"/>
-                    </Grid>
-                </Border>
-
-                <!-- KPI ROW -->
-                <TextBlock Text="Revenue Overview"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding KpiTiles}"
-                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,18"/>
-
-                <!-- ROW: RECENT INVOICES + AGEING -->
-                <Grid>
+                <Grid Grid.Row="0" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="0,0,10,20">
-                        <StackPanel>
-                            <TextBlock Text="Recent Invoices"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Last 5 invoices · click a row to open it"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                            <ItemsControl ItemsSource="{Binding RecentInvoices}"
-                                          ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"
-                                          Visibility="{Binding HasRecentInvoices,
-                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                            <Border Padding="0,40"
-                                    Visibility="{Binding HasRecentInvoices,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE8EF;"
-                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No invoices yet"
-                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    <TextBlock Text="Create your first Tax Invoice to see data."
-                                               Style="{StaticResource SoftMetaStyle}"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,6,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="1"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="10,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Invoice Ageing"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Overdue amounts grouped by bracket"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                            <Border Style="{StaticResource SoftChartWellStyle}"
-                                    Margin="0,0,0,12"
-                                    Visibility="{Binding HasAgingData,
-                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                <donut:DonutChartControl
-                                    Height="180"
-                                    Slices="{Binding AgingMixSlices}"
-                                    HoleLabel="AGE"
-                                    EmptyMessage="No ageing mix."
-                                    Thickness="18"/>
-                            </Border>
-
-                            <ItemsControl ItemsSource="{Binding AgingBrackets}"
-                                          ItemTemplate="{StaticResource TiAgingRowTemplate}"
-                                          Visibility="{Binding HasAgingData,
-                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                            <Border Padding="0,40"
-                                    Visibility="{Binding HasAgingData,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE73E;"
-                                               Style="{StaticResource DashEmptyStateGlyphStyle}"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="No overdue invoices"
-                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    <TextBlock Text="All invoices are within payment terms."
-                                               Style="{StaticResource SoftMetaStyle}"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,6,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                    </Border>
+                    <StackPanel>
+                        <TextBlock Text="Tax Invoices"
+                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                        <TextBlock Text="Revenue, ageing and collection health"
+                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                         VerticalAlignment="Center"
+                                         Fill="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Button Content="New Invoice" Tag="&#xE710;"
+                                Style="{StaticResource SoftPillAccentStyle}"
+                                Command="{Binding CreateTaxInvoiceCommand}"/>
+                        <Button Content="View All" Tag="&#xE8FD;" Margin="0"
+                                Style="{StaticResource SoftPillButtonStyle}"
+                                Command="{Binding ViewAllInvoicesCommand}"/>
+                    </StackPanel>
                 </Grid>
 
-                <!-- ROW: TOP CUSTOMERS + REVENUE -->
-                <Grid>
+                <StackPanel Grid.Row="1">
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Visibility="{Binding IsLoading,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="Loading tax invoice data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"/>
+                    </Border>
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Background="{DynamicResource TintRedBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            Visibility="{Binding HasError,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </Border>
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Background="{DynamicResource TintRedBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            Visibility="{Binding HasOverdueInvoices,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock FontSize="12" FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource DangerBrush}">
+                                <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
+                                <Run Text=" invoice(s) overdue — "/>
+                                <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
+                            </TextBlock>
+                            <Button Grid.Column="1"
+                                    Content="View Overdue"
+                                    Tag="&#xE7BA;"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    Background="{DynamicResource DangerBrush}"
+                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                    Command="{Binding ViewOverdueCommand}"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                <Grid Grid.Row="2" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="0,0,10,20">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0" MinHeight="168">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Collections pulse"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Invoiced, VAT, paid and pending"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding KpiTiles}"
+                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0">
                         <StackPanel>
-                            <TextBlock Text="Top Customers"
+                            <TextBlock Text="Ageing mix"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="By invoiced amount, last 12 months"
+                            <TextBlock Text="Overdue amounts by bracket"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                            <ItemsControl ItemsSource="{Binding TopCustomers}"
-                                          ItemTemplate="{StaticResource TiTopCustomerTemplate}"
-                                          Visibility="{Binding HasTopCustomers,
-                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                            <Border Padding="0,40"
-                                    Visibility="{Binding HasTopCustomers,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE735;"
-                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No customer data"
-                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    <TextBlock Text="Issue invoices to see top customers."
-                                               Style="{StaticResource SoftMetaStyle}"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,6,0,0"/>
-                                </StackPanel>
-                            </Border>
+                            <donut:DonutChartControl Height="150"
+                                                     Slices="{Binding AgingMixSlices}"
+                                                     HoleLabel="AGE"
+                                                     EmptyMessage="No ageing mix."
+                                                     Thickness="16"/>
                         </StackPanel>
                     </Border>
 
-                    <Border Grid.Column="1"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="10,0,0,20">
-                        <StackPanel>
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock Text="Revenue Trend"
-                                               Style="{StaticResource SoftSectionTitleStyle}"/>
-                                    <TextBlock Text="Amounts in AED · excludes Draft, Cancelled and Void"
-                                               Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                                </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                            <StackPanel>
+                                <TextBlock Text="OVERDUE"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding OverdueCount}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SoftKpiValueStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasOverdueInvoices}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="Invoices past terms"
+                                           Style="{StaticResource SoftKpiFootStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
+                            <StackPanel>
+                                <TextBlock Text="OVERDUE AED"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                         StretchDirection="DownOnly" Margin="0,8,0,4">
+                                    <TextBlock Text="{Binding OverdueAmountDisplay}"
+                                               Style="{StaticResource SoftKpiValueStyle}"
+                                               Margin="0"
+                                               Foreground="{DynamicResource WarningBrush}"/>
+                                </Viewbox>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="3" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,10,0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Revenue trend"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding RevenueChartTitle}"
                                            Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Top"/>
+                                           HorizontalAlignment="Right"/>
                             </Grid>
-
                             <Grid>
                                 <Border Style="{StaticResource SoftChartWellStyle}"
                                         Visibility="{Binding HasRevenueData,
                                             Converter={StaticResource BoolToVisibilityConverter}}">
                                     <trend:TrendChartControl
-                                        Height="260"
                                         Points="{Binding RevenueBars}"
                                         SeriesKind="Bar"
                                         ValuePrefix="AED "
@@ -646,8 +519,7 @@
                                         GridBrush="{DynamicResource DividerBrush}"
                                         LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                                 </Border>
-
-                                <Border Padding="0,60"
+                                <Border Padding="0,40"
                                         Visibility="{Binding HasRevenueData,
                                             Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                     <StackPanel HorizontalAlignment="Center">
@@ -655,18 +527,102 @@
                                                    Style="{StaticResource DashEmptyStateGlyphStyle}"/>
                                         <TextBlock Text="No revenue data yet"
                                                    Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                        <TextBlock Text="Issue Tax Invoices to see the revenue trend."
-                                                   Style="{StaticResource SoftMetaStyle}"
-                                                   HorizontalAlignment="Center"
-                                                   Margin="0,6,0,0"/>
                                     </StackPanel>
                                 </Border>
                             </Grid>
-                        </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Recent invoices"
+                                       Style="{StaticResource SoftSectionTitleStyle}"
+                                       Margin="0,0,0,8"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding HasRecentInvoices,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding RecentInvoices}"
+                                              ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"/>
+                            </ScrollViewer>
+                            <Border Padding="0,40"
+                                    Visibility="{Binding HasRecentInvoices,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE8EF;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                    <TextBlock Text="No invoices yet"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </DockPanel>
                     </Border>
                 </Grid>
 
-            </StackPanel>
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,8,0">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Top customers"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="By invoiced amount, last 12 months"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            </StackPanel>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding HasTopCustomers,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding TopCustomers}"
+                                              ItemTemplate="{StaticResource TiTopCustomerTemplate}"/>
+                            </ScrollViewer>
+                            <Border Padding="0,30"
+                                    Visibility="{Binding HasTopCustomers,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE735;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                    <TextBlock Text="No customer data"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="8,0,0,0">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Ageing brackets"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Overdue amounts grouped by age"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            </StackPanel>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding HasAgingData,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding AgingBrackets}"
+                                              ItemTemplate="{StaticResource TiAgingRowTemplate}"/>
+                            </ScrollViewer>
+                            <Border Padding="0,30"
+                                    Visibility="{Binding HasAgingData,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE73E;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="No overdue invoices"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                </StackPanel>
+                            </Border>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>
