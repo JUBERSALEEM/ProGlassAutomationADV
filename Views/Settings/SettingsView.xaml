@@ -207,6 +207,25 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- DEMO CENTER -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Demo">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDemoPage}" Value="True">
+                                        <Setter Property="Tag" Value="Active"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE714;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Demo Center"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- ABOUT & HELP -->
                     <Button Command="{Binding SwitchSettingsPageCommand}"
                             CommandParameter="About">

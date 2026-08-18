@@ -1,0 +1,89 @@
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:demo="clr-namespace:ProGlassAutomation.Agent.Demo"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.DataContext>
+        <demo:DemoCenterViewModel/>
+    </UserControl.DataContext>
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="32,26,32,14">
+            <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="Isolated storyboard recording of real modules. Never writes over customer data."
+                       Style="{StaticResource PageSubtitleStyle}"
+                       TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="32,0,32,32">
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="Module"
+                                   Style="{StaticResource RowTitleStyle}"
+                                   Margin="0,12,0,6"/>
+                        <ComboBox ItemsSource="{Binding ModuleOptions}"
+                                  SelectedItem="{Binding SelectedModule}"
+                                  MinWidth="220"
+                                  Padding="10,7"
+                                  FontSize="13"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="GENERATE SELECTED"
+                                    Command="{Binding GenerateSelectedCommand}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="GENERATE ALL"
+                                    Command="{Binding GenerateAllCommand}"
+                                    Margin="10,0,0,0"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="CANCEL"
+                                    Command="{Binding CancelCommand}"
+                                    Margin="10,0,0,0"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OPEN OUTPUT"
+                                    Command="{Binding OpenOutputCommand}"
+                                    Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="STATUS" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="{Binding StateText}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding StatusText}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding FfmpegStatus}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

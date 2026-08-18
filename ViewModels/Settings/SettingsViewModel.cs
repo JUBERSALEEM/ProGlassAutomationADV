@@ -72,6 +72,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged(nameof(IsUpdatesPage));
                 OnPropertyChanged(nameof(IsDataPage));
                 OnPropertyChanged(nameof(IsAboutPage));
+                OnPropertyChanged(nameof(IsDemoPage));
             }
         }
 
@@ -85,6 +86,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         public bool IsUpdatesPage    => SettingsPage == "Updates";
         public bool IsDataPage       => SettingsPage == "Data";
         public bool IsAboutPage      => SettingsPage == "About";
+        public bool IsDemoPage       => SettingsPage == "Demo";
 
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }

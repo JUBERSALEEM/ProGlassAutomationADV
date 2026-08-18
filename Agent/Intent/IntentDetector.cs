@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Agent.Nlu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,8 +65,19 @@ namespace ProGlassAutomation.Agent.Intent
         /// </summary>
         private static readonly (string[] Keys, string Tool)[] ToolCatalog =
         {
-            (new[] { "inventory", "stock", "how many sheets", "sheets do we have" },
+            (new[] { "inventory", "stock", "how many sheets", "sheets do we have",
+                     "howmuch glass", "glass left" },
                 "get_inventory"),
+
+            (new[] { "purchased", "purchase quantity", "how much did we buy",
+                     "how much did we purchase", "consumed", "how much used",
+                     "last purchase", "which supplier", "running low",
+                     "stock breakdown", "available quantity" },
+                "get_stock_detail"),
+
+            (new[] { "create a demo", "make a demo", "record a demo",
+                     "demo video", "workflow demo", "generate demo" },
+                "create_demo_package"),
 
             // Verb-led forms PLUS the bare plural noun. People say "show me
             // the customers" far more often than "search customer", and the
@@ -188,7 +200,44 @@ namespace ProGlassAutomation.Agent.Intent
             string raw = (text ?? "").Trim();
             if (raw.Length == 0) return "answer";
 
-            string lower = raw.ToLowerInvariant();
+            var parsed = ErpQueryParser.Parse(raw);
+            string lower = string.IsNullOrEmpty(parsed.Prepared)
+                ? raw.ToLowerInvariant()
+                : parsed.Prepared;
+
+            var stockAdjust = StockAdjustPattern.Match(raw);
+            if (stockAdjust.Success)
+                return $"tool:update_sheet_stock:{Clean(stockAdjust.Value)}";
+
+            if (parsed.WantsDemo)
+            {
+                string arg = parsed.DemoModule ?? "";
+                ConversationSlots.Remember(parsed, "create_demo_package");
+                return arg.Length > 0
+                    ? $"tool:create_demo_package:{arg}"
+                    : "tool:create_demo_package";
+            }
+
+            if (parsed.Metric is ErpMetric.Purchased or ErpMetric.Consumed
+                or ErpMetric.Supplier or ErpMetric.LastPurchase
+                or ErpMetric.Wastage or ErpMetric.LowStock)
+            {
+                string filter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, "get_stock_detail");
+                return filter.Length > 0
+                    ? $"tool:get_stock_detail:{filter}"
+                    : "tool:get_stock_detail";
+            }
+
+            if (parsed.HasMaterialHint
+                && parsed.Metric is ErpMetric.Available or ErpMetric.Unknown)
+            {
+                string filter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, "get_inventory");
+                return filter.Length > 0
+                    ? $"tool:get_inventory:{filter}"
+                    : "tool:get_inventory";
+            }
 
             // 1 ── help
             if (HelpKeys.Any(k => lower.Contains(k)))
@@ -246,7 +295,20 @@ namespace ProGlassAutomation.Agent.Intent
                 if (!keys.Any(k => lower.Contains(k))) continue;
 
                 string query = ExtractQuery(raw, keys);
+                if (query.Length == 0 && parsed.HasMaterialHint)
+                    query = parsed.FilterText();
+                ConversationSlots.Remember(parsed, tool);
                 return query.Length > 0 ? $"tool:{tool}:{query}" : $"tool:{tool}";
+            }
+
+            if (parsed.IsFollowUp && ConversationSlots.HasSubject)
+            {
+                string resume = ConversationSlots.LastTool ?? "get_inventory";
+                string filter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, resume);
+                return filter.Length > 0
+                    ? $"tool:{resume}:{filter}"
+                    : $"tool:{resume}";
             }
 
             // 5 ── navigation

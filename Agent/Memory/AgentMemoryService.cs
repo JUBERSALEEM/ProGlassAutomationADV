@@ -128,6 +128,7 @@ namespace ProGlassAutomation.Agent.Memory
             // told to forget - which is exactly the behaviour a privacy
             // control is supposed to prevent.
             ProGlassAutomation.Agent.Context.AgentScreenContext.Clear();
+            ProGlassAutomation.Agent.Nlu.ConversationSlots.Clear();
 
             _audit?.Teaching("", "Conversation cleared",
                 "session memory and screen trail only");

@@ -53,14 +53,45 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         "stock figures.");
 
                 // Optional filter, e.g. "get_inventory clear".
-                string term = (argument ?? "").Trim();
-                if (term.Length > 0)
+                var parsed = ProGlassAutomation.Agent.Nlu.ErpQueryParser.Parse(argument);
+                ProGlassAutomation.Agent.Nlu.ConversationSlots.ApplyMissing(parsed);
+
+                string term = parsed.HasMaterialHint
+                    ? parsed.FilterText()
+                    : (argument ?? "").Trim();
+
+                if (parsed.ThicknessMm.HasValue)
+                    sheets = sheets.Where(s => s.ThicknessMm == parsed.ThicknessMm.Value).ToList();
+                if (!string.IsNullOrWhiteSpace(parsed.Color))
+                    sheets = sheets.Where(s =>
+                        ReadToolHelpers.Hit(s.Color, parsed.Color) ||
+                        ReadToolHelpers.Hit(s.Category, parsed.Color)).ToList();
+                else if (term.Length > 0 && !parsed.ThicknessMm.HasValue)
                 {
                     sheets = sheets.Where(s =>
                         ReadToolHelpers.Hit(s.Color, term) ||
                         ReadToolHelpers.Hit(s.Category, term) ||
                         ReadToolHelpers.Hit(s.ThicknessDisplay, term)).ToList();
                 }
+
+                if (parsed.HasMaterialHint
+                    && sheets.Count == 0)
+                {
+                    return ToolResult.Ok(
+                        $"No sheet types match {parsed.FilterText()}.");
+                }
+
+                if (parsed.HasMaterialHint
+                    && sheets.Select(s => s.Color).Distinct(StringComparer.OrdinalIgnoreCase).Count() > 1
+                    && string.IsNullOrWhiteSpace(parsed.Color))
+                {
+                    var colours = string.Join(", ",
+                        sheets.Select(s => s.Color).Distinct(StringComparer.OrdinalIgnoreCase));
+                    return ToolResult.Ok(
+                        $"Which colour do you mean for {parsed.ThicknessMm}mm — {colours}, or all?");
+                }
+
+                ProGlassAutomation.Agent.Nlu.ConversationSlots.Remember(parsed, Definition.Name);
 
                 if (sheets.Count == 0)
                 {
