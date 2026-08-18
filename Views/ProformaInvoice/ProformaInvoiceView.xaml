@@ -232,7 +232,7 @@ CHAT 17 — LAYOUT FIX
                                    Style="{StaticResource ModulePageTitleStyle}"/>
                         <TextBlock Text="Browse, create, edit and export proforma invoices with ease."
                                    Style="{StaticResource ModulePageSubtitleStyle}"/>
-                    </StackPanel
+                    </StackPanel>
 
                     <Button Grid.Column="1"
                             Command="{Binding NewInvoiceCommand}"

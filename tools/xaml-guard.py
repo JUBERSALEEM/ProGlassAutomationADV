@@ -3,8 +3,10 @@
 xaml-guard — fail a commit if WPF markup would not compile.
 
 Catches the errors that repeatedly burn this repo:
+  * Well-formedness (MC3000) — unclosed tags, missing '>', raw '<'
   * Style= attribute AND <Element.Style> on the same element (MC3024)
   * Content= attribute AND <Element.Content> on the same element
+  * Undeclared xmlns prefixes
   * LetterSpacing / CharacterSpacing (not valid on WPF TextBlock)
   * Duplicate attributes on one opening tag (real ones, not Binding Mode=)
 
@@ -18,10 +20,11 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from xml.etree import ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Attribute named exactly Style= (not FontStyle, BasedOn="{StaticResource XStyle}")
+# Attribute named exactly Style= (not FontStyle)
 STYLE_ATTR = re.compile(
     r"<([A-Za-z][\w.]*)\b([^>]*?(?<![A-Za-z])Style\s*=\s*\"[^\"]+\"[^>]*)>",
     re.S,
@@ -33,15 +36,17 @@ CONTENT_ATTR = re.compile(
 OPEN_TAG = re.compile(
     r"<([A-Za-z][\w.]*)((?:\s+[\w.:]+\s*=\s*\"[^\"]*\")+)\s*/?>"
 )
-# Binding Mode= appears twice in MultiBinding sometimes — only flag
-# duplicate *element* attributes, not nested markup-extension keys.
-ELEM_ATTR = re.compile(r"(?<!\{)\b([A-Za-z][\w.]*)\s*=")
+# </StackPanel  with no closing >
+UNCLOSED_END = re.compile(r"</[A-Za-z][\w.]*(?:\s[^>]*)?$", re.M)
+UNCLOSED_START = re.compile(r"<[A-Za-z][\w.:]*(?:\s[^>]*)?$", re.M)
 
 INVALID_PROPS = (
     "LetterSpacing",
     "CharacterSpacing",
     "letter-spacing",
 )
+
+XMLNS_DECL = re.compile(r"xmlns:([A-Za-z_][\w]*)\s*=")
 
 
 def xaml_files() -> list[Path]:
@@ -53,10 +58,42 @@ def xaml_files() -> list[Path]:
     ]
 
 
+def check_wellformed(path: Path, text: str, errors: list[str]) -> None:
+    # Fast line-level: a tag that starts and never closes on that line
+    # and is not continued (next non-empty line starts a new tag).
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        stripped = line.rstrip()
+        if not stripped or stripped.lstrip().startswith("<!--"):
+            continue
+        # End tag missing '>'
+        if UNCLOSED_END.search(stripped) and ">" not in stripped[stripped.rfind("</") :]:
+            errors.append(
+                f"{path.relative_to(ROOT)}:{i + 1}: "
+                f"unclosed end tag (MC3000) — missing '>' : {stripped.strip()!r}"
+            )
+            continue
+        # Start tag that ends mid-attribute and the next line does not
+        # continue the tag (doesn't start with whitespace + attr or '>').
+        if stripped.startswith("<") and ">" not in stripped and not stripped.startswith("</"):
+            nxt = lines[i + 1] if i + 1 < len(lines) else ""
+            if nxt and not nxt[:1].isspace() and not nxt.lstrip().startswith((">", "/", "<!--")):
+                errors.append(
+                    f"{path.relative_to(ROOT)}:{i + 1}: "
+                    f"unclosed start tag (MC3000) — missing '>' : {stripped.strip()!r}"
+                )
+
+    try:
+        ET.fromstring(text)
+    except ET.ParseError as exc:
+        errors.append(
+            f"{path.relative_to(ROOT)}: XML is not well-formed (MC3000): {exc}"
+        )
+
+
 def check_style_plus_element(path: Path, text: str, errors: list[str]) -> None:
     for m in STYLE_ATTR.finditer(text):
         tag = m.group(1)
-        # Look a short way ahead for <Tag.Style>
         window = text[m.end() : m.end() + 240]
         if re.match(rf"\s*<{re.escape(tag)}\.Style>", window):
             line = text[: m.start()].count("\n") + 1
@@ -88,25 +125,23 @@ def check_invalid_props(path: Path, text: str, errors: list[str]) -> None:
                 )
 
 
-XMLNS_DECL = re.compile(r"xmlns:([A-Za-z_][\w]*)\s*=")
-PREFIX_USE = re.compile(r"<(?:/?|!--)?([A-Za-z_][\w]*)(?:[.:])")
-
-
 def check_undeclared_prefixes(path: Path, text: str, errors: list[str]) -> None:
-    declared = set(XMLNS_DECL.findall(text)) | {"x", "d", "mc", "po", "sys"}
-    # x/d/mc/po/sys are declared in almost every file; still count real decls.
-    declared |= set(XMLNS_DECL.findall(text))
-    # Always-legal with no prefix, plus presentation/x that App.xaml provides
-    # via the document root in every view we ship.
-    declared.update({"x", "d", "mc", "po"})
-    used = set()
+    declared = set(XMLNS_DECL.findall(text))
+    declared.update({"x", "d", "mc", "po", "sys"})
+    seen: set[str] = set()
+    in_comment = False
     for i, line in enumerate(text.splitlines(), 1):
-        if line.lstrip().startswith("<!--"):
+        if "<!--" in line:
+            in_comment = "-->" not in line
+            continue
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
             continue
         for m in re.finditer(r"</?([A-Za-z_][\w]*):", line):
             prefix = m.group(1)
-            if prefix not in declared and prefix not in used:
-                used.add(prefix)
+            if prefix not in declared and prefix not in seen:
+                seen.add(prefix)
                 errors.append(
                     f"{path.relative_to(ROOT)}:{i}: "
                     f"undeclared xmlns prefix '{prefix}:' — WPF will fail to compile"
@@ -119,8 +154,6 @@ def check_duplicate_attrs(path: Path, text: str, errors: list[str]) -> None:
         attrs = re.findall(r"([\w.:]+)\s*=", m.group(2))
         seen: dict[str, int] = {}
         for a in attrs:
-            # Markup-extension internals (Converter, Mode, ElementName, Path)
-            # commonly repeat inside a single attribute value's nested bindings.
             if a in {
                 "Converter",
                 "Mode",
@@ -149,10 +182,12 @@ def main() -> int:
     files = xaml_files()
     for p in files:
         text = p.read_text(errors="replace")
+        check_wellformed(p, text, errors)
         check_style_plus_element(p, text, errors)
         check_content_plus_element(p, text, errors)
         check_invalid_props(p, text, errors)
         check_duplicate_attrs(p, text, errors)
+        check_undeclared_prefixes(p, text, errors)
 
     if errors:
         print(f"xaml-guard: {len(errors)} violation(s) in {len(files)} files")
