@@ -138,13 +138,13 @@ namespace ProGlassAutomation.Tests.Agent
     public class UpdateDownloadCompletenessTests
     {
         [Theory]
-        [InlineData(1000, 1000, true)]   // exact match = complete
-        [InlineData(1000, 0, false)]     // nothing copied
-        [InlineData(1000, 999, false)]   // one byte short = truncated
-        [InlineData(1000, 1001, false)]  // overshoot (server lied / chunk overlap)
-        [InlineData(null, 0, true)]      // no declared length = cannot verify
-        [InlineData(null, 12345, true)]
-        [InlineData(0, 0, true)]         // zero-length payload declared and received
+        [InlineData(1000L, 1000L, true)]   // exact match = complete
+        [InlineData(1000L, 0L, false)]     // nothing copied
+        [InlineData(1000L, 999L, false)]   // one byte short = truncated
+        [InlineData(1000L, 1001L, false)]  // overshoot (server lied / chunk overlap)
+        [InlineData(null, 0L, true)]       // no declared length = cannot verify
+        [InlineData(null, 12345L, true)]
+        [InlineData(0L, 0L, true)]         // zero-length payload declared and received
         public void IsDownloadComplete_reports_truncation(
             long? total, long copied, bool expected)
         {

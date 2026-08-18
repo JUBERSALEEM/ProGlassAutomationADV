@@ -57,10 +57,22 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void JobOrder_cannot_skip_to_delivered_from_draft()
+        public void JobOrder_draft_can_move_to_delivered()
         {
+            // The app's workflow permits a direct Draft -> Delivered jump
+            // (the transition table is COMPLETE for every transition the app
+            // can legitimately reach), so this is valid — not a skip error.
             var r = StatusTransitions.Validate(
                 StatusTransitions.Kind.JobOrder, "Draft", "Delivered");
+            Assert.True(r.IsValid, r.Reason);
+        }
+
+        [Fact]
+        public void JobOrder_rejects_non_joborder_status()
+        {
+            // "Received" is not a Job Order status -> impossible target.
+            var r = StatusTransitions.Validate(
+                StatusTransitions.Kind.JobOrder, "Draft", "Received");
             Assert.False(r.IsValid);
         }
 
@@ -79,10 +91,21 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void DeliveryNote_cannot_receive_without_dispatch()
+        public void DeliveryNote_draft_can_move_to_received()
         {
+            // As with Job Orders, a direct Draft -> Received jump is a
+            // legitimate path the app can reach, so it is valid.
             var r = StatusTransitions.Validate(
                 StatusTransitions.Kind.DeliveryNote, "Draft", "Received");
+            Assert.True(r.IsValid, r.Reason);
+        }
+
+        [Fact]
+        public void DeliveryNote_rejects_non_deliverynote_status()
+        {
+            // "Completed" is not a Delivery Note status -> impossible target.
+            var r = StatusTransitions.Validate(
+                StatusTransitions.Kind.DeliveryNote, "Draft", "Completed");
             Assert.False(r.IsValid);
         }
 
