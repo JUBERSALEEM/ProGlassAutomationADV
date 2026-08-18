@@ -1,60 +1,11 @@
-<!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Dashboard/Overview/OverviewDashboardView.xaml
-     PROJECT: ProGlassAutomation
-
-     SOFT-CARD REDESIGN — adopts the reference dashboard markup the
-     user supplied, applied identically across all 7 dashboards.
-
-     THE REFERENCE LANGUAGE (from the user's markup)
-     ───────────────────────────────────────────────
-       hero band radius 22 · 30px Bold title · 13px muted subtitle
-       cards radius 18 · padding 20 · stacking margin 0,0,0,20
-       hairline border + DropShadow(Blur 10, Depth 2, Opacity .08)
-       4px full-bleed colour cap across the top of every KPI card
-       11px label · 28px Bold value · 12px status line
-       40x40 radius-10 tinted badge, top-right
-       pill buttons radius 10, padding 14,8
-       recessed #F8FAFC radius-12 chart well
-     All of it lives in Styles/DashboardStyles.xaml as the Soft* keys,
-     so the seven dashboards share ONE definition of the look.
-
-     THREE DEVIATIONS FROM THE PASTED MARKUP, EACH FORCED
-     ────────────────────────────────────────────────────
-     1. COLOUR comes from DynamicResource, not hardcoded hex. The
-        reference hardcodes #F1F5F9 / White / #0F172A. ThemeManager
-        swaps the theme dictionary at RUNTIME, so hardcoded cards stay
-        white with invisible text in Dark theme. In LIGHT theme these
-        keys evaluate to the reference's own values, so the look is
-        what was asked for; dark theme also works.
-     2. CHARTS use TrendChartControl, not lvc:CartesianChart.
-        LiveChartsCore is not referenced by the .csproj and NuGet is
-        unreachable from the build sandbox, so the xmlns in the
-        reference would not compile. The chart well reproduces the
-        reference's recessed framing exactly.
-     3. NO EMOJI. The reference used literal ✓ ↩ ⏳ characters. Those
-        render through a colour font, ignore Foreground, and look like
-        clip-art beside real UI. Segoe MDL2 glyphs replace them.
-
-     BINDING CONTRACT — UNCHANGED, NO VIEWMODEL EDIT
-     ───────────────────────────────────────────────
-       SalesTiles / ProductionTiles / DeliveryTiles / InventoryTiles
-         (KpiTileModel: Icon, Label, DisplayValue, Accent, IsAlert)
-       RecentActivity / HasRecentActivity (ActivityFeedItem)
-       MonthlySalesBars / ChartTitle (ChartBarModel)
-       IsLoading, HasError, ErrorMessage, LastRefreshed
-       NewInvoiceCommand, SavedInvoicesCommand, ViewStockCommand,
-       ViewJobsCommand, ViewDeliveriesCommand
-     ExportReportCommand stays unsurfaced: it is wired as
-     RelayCommand(_ => { }, _ => false) — a permanently disabled no-op,
-     so a button for it would be dead furniture.
-═══════════════════════════════════════════════════════════════════════ -->
-
+<!-- LAYOUT-03 BENTO MOSAIC — Overview. Bindings unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
+             xmlns:mini="clr-namespace:ProGlassAutomation.Controls.MiniBarChart"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -71,199 +22,167 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="24">
+            <Grid Margin="20,16,20,20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="220" MinHeight="180"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <!-- ═══════════════════════════════════════════════════
-                     HERO
-                ═══════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SoftHeroStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                <!-- HERO STRIP -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Factory pulse"
+                                   Style="{StaticResource SoftHeroTitleStyle}"/>
+                        <TextBlock Text="Operational analytics — invoices, jobs, delivery, stock"
+                                   Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <Border Style="{StaticResource SoftChipStyle}" Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal">
+                                <Ellipse Width="8" Height="8" Margin="0,0,6,0"
+                                         VerticalAlignment="Center"
+                                         Fill="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Button Content="New Invoice" Tag="&#xE710;"
+                                Style="{StaticResource SoftPillAccentStyle}"
+                                Command="{Binding NewInvoiceCommand}"/>
+                        <Button Content="Jobs" Tag="&#xE9F9;"
+                                Style="{StaticResource SoftPillButtonStyle}"
+                                Command="{Binding ViewJobsCommand}"/>
+                        <Button Content="Deliveries" Tag="&#xE806;" Margin="0"
+                                Style="{StaticResource SoftPillButtonStyle}"
+                                Command="{Binding ViewDeliveriesCommand}"/>
+                    </StackPanel>
+                </Grid>
 
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Overview"
-                                       Style="{StaticResource SoftHeroTitleStyle}"/>
-                            <TextBlock Text="Operational analytics for invoices, jobs, delivery flow, and inventory"
-                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center">
-                            <Border Style="{StaticResource SoftChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="8" Height="8"
-                                             Margin="0,0,6,0"
-                                             VerticalAlignment="Center"
-                                             Fill="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text="Live"
-                                               FontSize="11"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <TextBlock Text="{Binding LastRefreshed}"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"
-                                       Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════
-                     ACTION BAR — the reference's filter-bar row.
-                ═══════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SoftSectionStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <TextBlock Text="Quick actions"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
-                                   VerticalAlignment="Center"/>
-
-                        <WrapPanel Grid.Column="1"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center">
-                            <Button Content="New Invoice"
-                                    Tag="&#xE710;"
-                                    Style="{StaticResource SoftPillAccentStyle}"
-                                    ToolTip="Start a new proforma invoice"
-                                    Command="{Binding NewInvoiceCommand}"/>
-                            <Button Content="Saved Invoices"
-                                    Tag="&#xE8A5;"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open saved invoices"
-                                    Command="{Binding SavedInvoicesCommand}"/>
-                            <Button Content="Stock"
-                                    Tag="&#xE7B8;"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open sheet store"
-                                    Command="{Binding ViewStockCommand}"/>
-                            <Button Content="Jobs"
-                                    Tag="&#xE9F9;"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open job orders"
-                                    Command="{Binding ViewJobsCommand}"/>
-                            <Button Content="Deliveries"
-                                    Tag="&#xE806;"
-                                    Margin="0"
-                                    Style="{StaticResource SoftPillButtonStyle}"
-                                    ToolTip="Open delivery notes"
-                                    Command="{Binding ViewDeliveriesCommand}"/>
-                        </WrapPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════
-                     STATUS — collapsed when idle so it costs no space.
-                ═══════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
+                <Border Grid.Row="1" Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,12"
                         Visibility="{Binding IsLoading,
                             Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE895;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Loading live business data…"
-                                   Style="{StaticResource SoftKpiFootStyle}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="Loading live business data…"
+                               Style="{StaticResource SoftKpiFootStyle}"/>
                 </Border>
 
-                <Border Style="{StaticResource SoftSectionStyle}"
-                        Padding="16,14"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        Visibility="{Binding HasError,
-                            Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="&#xE783;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource DangerBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════
-                     SALES
-                ═══════════════════════════════════════════════════ -->
-                <TextBlock Text="Sales"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding SalesTiles}"
-                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,10"/>
-
-                <!-- PRODUCTION -->
-                <TextBlock Text="Production"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding ProductionTiles}"
-                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,10"/>
-
-                <!-- DELIVERY -->
-                <TextBlock Text="Delivery"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding DeliveryTiles}"
-                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,10"/>
-
-                <!-- INVENTORY -->
-                <TextBlock Text="Inventory"
-                           Style="{StaticResource SoftGroupHeadingStyle}"/>
-                <ItemsControl ItemsSource="{Binding InventoryTiles}"
-                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
-                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
-                              Margin="-5,0,-5,18"/>
-
-                <!-- ═══════════════════════════════════════════════════
-                     ANALYSIS — trend (2fr) beside activity (1fr).
-                ═══════════════════════════════════════════════════ -->
-                <Grid>
+                <!-- ROW: pulse | mix | in-prod / overdue / pending -->
+                <Grid Grid.Row="2" Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="0,0,10,20">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0" MinHeight="168">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="140"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="FACTORY PULSE"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                         StretchDirection="DownOnly" Margin="0,8,12,4">
+                                    <TextBlock Text="{Binding PulseDisplay}"
+                                               Style="{StaticResource SoftKpiValueStyle}"
+                                               Margin="0"/>
+                                </Viewbox>
+                                <TextBlock Text="{Binding PulseHint}"
+                                           Style="{StaticResource SoftKpiFootStyle}"/>
+                            </StackPanel>
+                            <mini:MiniBarChartControl Grid.Column="1"
+                                                      Height="72"
+                                                      VerticalAlignment="Bottom"
+                                                      Margin="0,24,0,0"
+                                                      Values="{Binding PulseSpark}"
+                                                      BarBrush="{DynamicResource AccentBrush}"
+                                                      HighlightBrush="{DynamicResource InfoBrush}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
+                            Margin="0,0,10,0">
                         <StackPanel>
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock Text="Revenue Trend"
-                                               Style="{StaticResource SoftSectionTitleStyle}"/>
-                                    <TextBlock Text="Monthly invoiced value"
-                                               Style="{StaticResource SoftSectionSubtitleStyle}"/>
-                                </StackPanel>
+                            <TextBlock Text="Delivery mix"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Notes and remaining pcs"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            <donut:DonutChartControl Height="150"
+                                                     Slices="{Binding DeliveryMixSlices}"
+                                                     HoleLabel="MIX"
+                                                     EmptyMessage="No delivery movement yet."
+                                                     Thickness="16"/>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Grid.Column="2">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                            <StackPanel>
+                                <TextBlock Text="IN PRODUCTION"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding InProductionDisplay}"
+                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           Foreground="{DynamicResource InfoBrush}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                            <StackPanel>
+                                <TextBlock Text="OVERDUE"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding OverdueDisplay}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource SoftKpiValueStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasOverdueJobs}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+                        <Border Style="{StaticResource SoftCardStyle}" Padding="16,12">
+                            <StackPanel>
+                                <TextBlock Text="PENDING PCS"
+                                           Style="{StaticResource SoftKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding PendingPcsDisplay}"
+                                           Style="{StaticResource SoftKpiValueStyle}"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ROW: trend + activity -->
+                <Grid Grid.Row="3" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,10,0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Revenue trend"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
                                 <TextBlock Text="{Binding ChartTitle}"
                                            Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Top"/>
+                                           HorizontalAlignment="Right"/>
                             </Grid>
-
                             <Border Style="{StaticResource SoftChartWellStyle}">
                                 <trend:TrendChartControl
-                                    Height="260"
                                     Points="{Binding MonthlySalesBars}"
                                     SeriesKind="Bar"
                                     ValuePrefix="AED "
@@ -272,38 +191,56 @@
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>
-                        </StackPanel>
+                        </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1"
-                            Style="{StaticResource SoftSectionStyle}"
-                            Margin="10,0,0,20">
-                        <StackPanel>
-                            <TextBlock Text="Recent Activity"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Latest movements across modules"
-                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
-
-                            <ItemsControl ItemsSource="{Binding RecentActivity}"
-                                          ItemTemplate="{StaticResource SoftFeedRowTemplate}"
-                                          Visibility="{Binding HasRecentActivity,
-                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                            <Border Padding="0,40"
-                                    Visibility="{Binding HasRecentActivity,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE81C;"
-                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No activity yet"
-                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="Recent documents"
+                                       Style="{StaticResource SoftSectionTitleStyle}"
+                                       Margin="0,0,0,8"/>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding RecentActivity}"
+                                              ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
+                            </ScrollViewer>
+                        </DockPanel>
                     </Border>
                 </Grid>
 
-            </StackPanel>
+                <!-- ROW: sales / production / inventory strips -->
+                <Grid Grid.Row="4">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,8,0">
+                        <StackPanel>
+                            <TextBlock Text="Sales" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding SalesTiles}"
+                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="4,0">
+                        <StackPanel>
+                            <TextBlock Text="Production" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding ProductionTiles}"
+                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="8,0,0,0">
+                        <StackPanel>
+                            <TextBlock Text="Sheet store" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
+                            <ItemsControl ItemsSource="{Binding InventoryTiles}"
+                                          ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                                          ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Grid>
         </ScrollViewer>
     </Grid>
 </UserControl>

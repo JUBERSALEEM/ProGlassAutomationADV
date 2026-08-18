@@ -89,11 +89,12 @@ namespace ProGlassAutomation.Services.Workflow
         private static readonly Dictionary<string, HashSet<string>> DeliveryNote =
             BuildTable(new (string, string[])[]
             {
-                ("Draft",      new[] { "Draft", "Dispatched", "Delivered", "Signed", "Received" }),
-                ("Dispatched", new[] { "Dispatched", "Delivered", "Signed", "Received" }),
-                ("Delivered",  new[] { "Delivered", "Signed", "Received" }),
-                ("Signed",     new[] { "Signed", "Received" }),
-                ("Received",   new[] { "Received" }),
+                ("Draft",        new[] { "Draft", "Dispatching", "Dispatched", "Delivered", "Signed", "Received" }),
+                ("Dispatching",  new[] { "Dispatching", "Dispatched", "Delivered", "Signed", "Received", "Draft" }),
+                ("Dispatched",   new[] { "Dispatched", "Delivered", "Signed", "Received" }),
+                ("Delivered",    new[] { "Delivered", "Signed", "Received" }),
+                ("Signed",       new[] { "Signed", "Received" }),
+                ("Received",     new[] { "Received" }),
             });
 
         private static readonly Dictionary<string, HashSet<string>> TaxInvoice =

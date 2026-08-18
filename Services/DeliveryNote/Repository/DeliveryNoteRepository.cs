@@ -157,13 +157,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (masterDn == null) return;
 
-            // Confirmed real DNs only. Drafts must not inflate Master
-            // Prev/Balance — same rule as GetPreviouslyDeliveredMapAsync.
+            // Every real DN counts — Dispatching/Draft with saved qty
+            // is already in the list and must move Master balance.
             var realDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId &&
                             !x.IsMasterDn &&
-                            x.DeliveryType != "Dummy" &&
-                            x.Status != "Draft")
+                            x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -172,18 +171,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                             realDnIds.Contains(i.DeliveryNoteId))
                 .ToListAsync();
 
-            var deliveredMap = allRealItems
-                .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Sum(i => i.DeliveredQty));
+            var deliveredMap = BuildDeliveredLookup(allRealItems);
 
             foreach (var masterItem in masterDn.Items)
             {
-                var key = $"{masterItem.SpecGroupNumber}|{masterItem.SerialNumber}";
-                int totalDelivered =
-                    deliveredMap.TryGetValue(key, out var d) ? d : 0;
-
+                int totalDelivered = LookupDelivered(deliveredMap, masterItem);
                 masterItem.PreviouslyDeliveredQty = totalDelivered;
                 masterItem.DeliveredQty = 0;
                 masterItem.BalanceQty = Math.Max(0,
@@ -363,8 +355,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
-                .Where(x => x.Status == "Draft" &&
-                            !x.IsMasterDn)
+                .Where(x => !x.IsMasterDn &&
+                            (x.Status == "Draft" ||
+                             x.Status == "Dispatching"))
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();

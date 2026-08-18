@@ -461,7 +461,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             try
             {
-                // Check for existing Master DN
+                try
+                {
+                    await App.DeliveryNotes.UpdateMasterDnAsync(
+                        jobOrder.JobOrderId, "");
+                }
+                catch { /* display still works from heal */ }
+
                 var masterDn = await App.DeliveryNotes
                     .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId);
 
@@ -579,9 +585,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 .GetByJobOrderIdAsync(jobOrder.JobOrderId);
 
             var existingDraft = existingDns
-                .FirstOrDefault(d => string.Equals(
-                    d.Status, "Draft",
-                    StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(d =>
+                    string.Equals(d.Status, "Draft",
+                        StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(d.Status, "Dispatching",
+                        StringComparison.OrdinalIgnoreCase));
 
             if (existingDraft != null)
             {
@@ -686,6 +694,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             dnEntity.TotalBalanceQty = dnEntity.Items.Sum(i => i.BalanceQty);
             dnEntity.TotalOrderedQty = dnEntity.Items.Sum(i => i.OrderedQty);
 
+            if (dnEntity.Items.Count == 0)
+            {
+                MessageBox.Show(
+                    "Nothing left to deliver on this Job Order.\n\n" +
+                    "Master DN already shows zero remaining balance.",
+                    "Fully Delivered",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
             var saved = await App.DeliveryNotes.InsertAsync(dnEntity);
 
             await DetailVM.LoadAsync(saved.Id);
@@ -752,7 +771,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     SequenceNumber = nextSeq,
                     CustomerName = masterDn.CustomerName,
                     ProjectName = masterDn.ProjectName,
-                    Status = "Draft",
+                    Status = "Dispatching",
                     DeliveryType = "Original",
                     IsMasterDn = false,
                     IsFoc = false,
@@ -801,6 +820,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         ReturnedQty = 0,
                         Notes = ""
                     });
+            }
+
+            if (items.Count == 0)
+            {
+                MessageBox.Show(
+                    "Master DN has no remaining balance to deliver.",
+                    "Nothing to Create",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
             }
 
             newDn.Items = items;

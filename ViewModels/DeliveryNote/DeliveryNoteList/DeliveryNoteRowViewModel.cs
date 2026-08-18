@@ -87,7 +87,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         /// The stored Status string is kept intact for the detail/production
         /// flows; this is the user-facing list status.
         /// </summary>
-        public string DisplayStatus => IsInvoiced ? "Invoiced" : "Dn created";
+        public string DisplayStatus =>
+            IsInvoiced
+                ? "Invoiced"
+                : string.Equals(Status, "Draft", StringComparison.OrdinalIgnoreCase)
+                    ? "Dispatching"
+                    : (string.IsNullOrWhiteSpace(Status) ? "Dispatching" : Status);
 
         public string StatusLabel { get; }
         public string StatusBrushKey { get; }

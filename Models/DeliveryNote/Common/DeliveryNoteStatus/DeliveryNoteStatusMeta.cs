@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus
 {
@@ -17,7 +17,8 @@ namespace ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus
             new Dictionary<string, StatusInfo>(
                 System.StringComparer.OrdinalIgnoreCase)
             {
-                ["Draft"] = new("Draft", "📝", "TintAmberBrush"),
+                ["Draft"] = new("Dispatching", "📝", "TintAmberBrush"),
+                ["Dispatching"] = new("Dispatching", "📝", "TintAmberBrush"),
                 ["Dispatched"] = new("Dispatched", "🚚", "TintBlueBrush"),
                 ["Delivered"] = new("Delivered", "📦", "TintIndigoBrush"),
                 ["Signed"] = new("Signed", "✍️", "TintGreenBrush"),

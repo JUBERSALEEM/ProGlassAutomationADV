@@ -1,8 +1,9 @@
-﻿namespace ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus
+namespace ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus
 {
     /// <summary>
     /// Status flow for Delivery Notes:
-    /// Draft → Dispatched → Delivered → Signed → Received
+    /// Dispatching → Dispatched → Signed → Received
+    /// (Draft kept as a legacy alias of Dispatching.)
     ///
     /// Stored as STRING in DB — never cast to/from int.
     /// Use DeliveryNoteStatusValues constants for comparisons.
@@ -24,6 +25,7 @@
     public static class DeliveryNoteStatusValues
     {
         public const string Draft = "Draft";
+        public const string Dispatching = "Dispatching";
         public const string Dispatched = "Dispatched";
         public const string Delivered = "Delivered";
         public const string Signed = "Signed";

@@ -428,7 +428,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Dn created", "Invoiced"
+            "All Statuses", "Dispatching", "Dispatched", "Signed", "Received", "Invoiced"
         };
 
         // CHAT 19: Dummy removed — Master DN is internal, not in any list

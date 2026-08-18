@@ -305,7 +305,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ── Editable fields ──────────────────────────────────────────────
 
-        private string _status = "Draft";
+        private string _status = "Dispatching";
         // ── v2 §28: unsaved-changes tracking ────────────────────────────
         private bool _hasUnsavedChanges;
         public bool HasUnsavedChanges
@@ -414,7 +414,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public System.Collections.Generic.List<string> StatusOptions { get; } = new()
         {
-            "Draft", "Dispatched", "Delivered", "Signed", "Received"
+            "Dispatching", "Dispatched", "Signed", "Received", "Draft"
         };
 
         // ── Delivery items grid ───────────────────────────────────────────
@@ -493,6 +493,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged();
             }
         }
+
+        private static bool IsOpenForDispatch(string? status) =>
+            string.Equals(status, "Dispatching", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(status, "Draft", StringComparison.OrdinalIgnoreCase);
 
         private static bool DetectMaster(SavedDeliveryNote entity)
         {
@@ -800,7 +804,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             MakeDnCommand = new RelayCommand(
                 async _ => await ConfirmDispatchAsync(),
-                _ => Status == "Draft" && !IsSaving && !IsMasterDn);
+                _ => IsOpenForDispatch(Status) && !IsSaving && !IsMasterDn);
 
             DeleteDnCommand = new RelayCommand(
                 async _ => await DeleteDnAsync(),
@@ -2043,6 +2047,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         dlg.FileName, _deliveryNoteId,
                         renameDlg.ResultFileName);
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
+                await MarkReceivedAfterSignedCopyAsync();
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
 
                 AuditService.Log(
@@ -2109,6 +2114,32 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ─────────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Signed copy attached → customer received. Only after the
+        /// truck has left (Dispatched / Delivered / Signed).
+        /// </summary>
+        private async Task MarkReceivedAfterSignedCopyAsync()
+        {
+            if (_entity == null || App.DeliveryNotes == null || IsMasterDn)
+                return;
+            if (string.Equals(Status, "Received", StringComparison.OrdinalIgnoreCase))
+                return;
+            if (IsOpenForDispatch(Status))
+                return;
+
+            try
+            {
+                Status = "Received";
+                _entity.Status = "Received";
+                await App.DeliveryNotes.UpdateAsync(_entity);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[DN] MarkReceived skipped: {ex.Message}");
+            }
+        }
 
         private void OnItemDeliveredQtyChanged()
         {

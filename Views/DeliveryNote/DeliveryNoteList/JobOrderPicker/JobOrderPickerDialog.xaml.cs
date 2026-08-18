@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -26,6 +26,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
 
         // ── State ─────────────────────────────────────────────────────────
         private List<SavedJobOrder> _allJobs = new();
+        private Dictionary<string, List<string>> _dnsByJob = new(StringComparer.OrdinalIgnoreCase);
         private SavedJobOrder? _highlighted;
 
         // ─────────────────────────────────────────────────────────────────
@@ -36,7 +37,25 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
             _allJobs = jobOrders
                 .OrderByDescending(j => j.CreatedAt)
                 .ToList();
+            _ = LoadRelatedDnsAsync();
             RenderList(_allJobs);
+        }
+
+        private async System.Threading.Tasks.Task LoadRelatedDnsAsync()
+        {
+            if (App.DeliveryNotes == null) return;
+            try
+            {
+                var all = await App.DeliveryNotes.GetAllAsync();
+                _dnsByJob = all
+                    .Where(d => !string.IsNullOrWhiteSpace(d.JobOrderId))
+                    .GroupBy(d => d.JobOrderId, StringComparer.OrdinalIgnoreCase)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(x => x.DeliveryNoteId ?? "").ToList(),
+                        StringComparer.OrdinalIgnoreCase);
+            }
+            catch { /* search still works on JO fields */ }
         }
 
         // ── Render job order rows ─────────────────────────────────────────
@@ -213,10 +232,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
 
             var filtered = string.IsNullOrWhiteSpace(q)
                 ? _allJobs
-                : _allJobs.Where(j =>
-                    j.JobOrderId.ToLowerInvariant().Contains(q) ||
-                    j.CustomerName.ToLowerInvariant().Contains(q) ||
-                    j.ProjectName.ToLowerInvariant().Contains(q)).ToList();
+                : _allJobs.Where(j => MatchesSearch(j, q)).ToList();
 
             _highlighted = null;
             SelectedJobOrder = null;
@@ -224,6 +240,18 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
             ConfirmButton.IsEnabled = false;
 
             RenderList(filtered);
+        }
+
+        private bool MatchesSearch(SavedJobOrder j, string q)
+        {
+            if ((j.JobOrderId ?? "").ToLowerInvariant().Contains(q)) return true;
+            if ((j.CustomerName ?? "").ToLowerInvariant().Contains(q)) return true;
+            if ((j.ProjectName ?? "").ToLowerInvariant().Contains(q)) return true;
+            if ((j.SourceProformaId ?? "").ToLowerInvariant().Contains(q)) return true;
+            if (_dnsByJob.TryGetValue(j.JobOrderId ?? "", out var dns) &&
+                dns.Any(id => (id ?? "").ToLowerInvariant().Contains(q)))
+                return true;
+            return false;
         }
 
         // ── Buttons ───────────────────────────────────────────────────────

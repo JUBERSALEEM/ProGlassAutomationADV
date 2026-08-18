@@ -407,6 +407,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             MonthlySalesBars = new ObservableCollection<ChartBarModel>(rawBars);
             HasChartData = anyData;
             ChartTitle = $"{months.First():MMM yyyy} → {months.Last():MMM yyyy}";
+            PulseDisplay = $"AED {totalSales:N2}";
+            PulseHint = $"This month  AED {salesMtd:N2}";
+            PulseSpark = string.Join(",", rawBars.Select(b =>
+                b.RawValue.ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            InProductionDisplay = jobInProduction.ToString("N0");
+            OverdueDisplay = jobOverdue.ToString("N0");
+            HasOverdueJobs = jobOverdue > 0;
+            PendingPcsDisplay = dnPendingPcs.ToString("N0");
 
             DeliveryMixSlices = new ObservableCollection<ChartSliceModel>
             {

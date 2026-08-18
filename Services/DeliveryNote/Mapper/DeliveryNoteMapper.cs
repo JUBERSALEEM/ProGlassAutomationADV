@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Utilities;
 using System;
@@ -59,7 +59,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                 SequenceNumber = sequenceNumber,
                 CustomerName = jobOrder.CustomerName,
                 ProjectName = jobOrder.ProjectName,
-                Status = "Draft",
+                Status = "Dispatching",
                 DeliveryType = "Original",
                 IsFoc = false,
                 DriverName = "",

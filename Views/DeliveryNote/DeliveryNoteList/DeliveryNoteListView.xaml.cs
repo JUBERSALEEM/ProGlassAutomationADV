@@ -155,7 +155,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             };
             foreach (var status in new[]
             {
-                "Draft", "Dispatched", "Delivered", "Signed", "Received"
+                "Dispatching", "Dispatched", "Signed", "Received"
             })
             {
                 var s = status;
