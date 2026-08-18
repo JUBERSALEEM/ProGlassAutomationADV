@@ -106,26 +106,53 @@ namespace ProGlassAutomation.Views.SheetStore
             }
         }
 
+        private bool _actionsMenuOpen;
+
+        // ACTIONS menu: single LEFT click opens, second LEFT click closes.
         private void ActionsMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            // The ContextMenu lives in resources (a ContextMenu cannot be a
-            // visual child). Toggle: single click opens, second click closes.
-            if (Resources["ActionsMenu"] is not ContextMenu menu) return;
-
-            if (menu.IsOpen)
-            {
-                menu.IsOpen = false;
-            }
-            else
-            {
-                // A ContextMenu in resources is not in the visual tree, so it
-                // does not inherit the UserControl's DataContext. Wire it
-                // explicitly so the MenuItem Command bindings resolve.
-                menu.DataContext = DataContext;
-                menu.PlacementTarget = ActionsMenuButton;
-                menu.IsOpen = true;
-            }
+            if (ActionsMenuPopup == null) return;
+            _actionsMenuOpen = !_actionsMenuOpen;
+            ActionsMenuPopup.IsOpen = _actionsMenuOpen;
             e.Handled = true;
+        }
+
+        private void MenuActionClicked(object sender, RoutedEventArgs e)
+        {
+            // Run the bound command (the Click fires alongside the Command),
+            // then close the dropdown.
+            _actionsMenuOpen = false;
+            if (ActionsMenuPopup != null)
+                ActionsMenuPopup.IsOpen = false;
+        }
+
+        // Close the dropdown when the user clicks anywhere that is not the
+        // ACTIONS button and not inside the popup.
+        private void Root_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!_actionsMenuOpen) return;
+
+            var source = e.OriginalSource as DependencyObject;
+            bool insideButton = source != null && IsDescendantOf(source, ActionsMenuButton);
+            bool insidePopup = source != null && ActionsMenuPopup.Child != null
+                               && IsDescendantOf(source, ActionsMenuPopup.Child);
+
+            if (!insideButton && !insidePopup)
+            {
+                _actionsMenuOpen = false;
+                ActionsMenuPopup.IsOpen = false;
+            }
+        }
+
+        private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
+        {
+            DependencyObject? current = element;
+            while (current != null)
+            {
+                if (ReferenceEquals(current, root)) return true;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+            }
+            return false;
         }
     }
 
