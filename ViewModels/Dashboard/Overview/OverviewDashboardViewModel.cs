@@ -29,7 +29,6 @@
 // REGRESSION RISK: ZERO
 //   Only 2 hex color literals changed. All comments and logic intact.
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Services.Database;
@@ -45,25 +44,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Dashboard
 {
-    /// <summary>
-    /// Overview dashboard page — Phase 10.9a redesign.
-    ///
-    /// Layout: 2-column grid of parent cards, each with nested tiles.
-    ///   💰 Sales        | 🏭 Production
-    ///   🚚 Delivery     | 💬 Recent Activity (chat style, scrolls)
-    ///   📦 Inventory    | 📈 Sales Chart
-    ///
-    /// FIXES APPLIED:
-    ///   FIX-1 (Currency): Money values use N2 (2 decimals) not N0 (rounded).
-    ///   FIX-2 (Pending Balance): Shows actual PIECES not JOB count (Gotcha #40).
-    ///   FIX-3 (Dispatched): Includes Delivered/Signed/Received (all sent-out).
-    ///   FIX-4 (4 tiles): Added Delivered Today tile.
-    ///   FIX-5 (5 tiles): Added Total Delivered (pcs) — comprehensive delivery view.
-    ///
-    /// Chat 23 v2.0.1: Chart bar colors updated to industrial blue palette
-    ///                 (regular = #3B82F6, highlight = #1D4ED8). Zero
-    ///                 other logic changes.
-    /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Overview";
@@ -671,18 +651,5 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
         private static bool Eq(string? a, string b) =>
             string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  KPI TILE MODEL
-    // ═════════════════════════════════════════════════════════════════════
-
-    public class KpiTileModel : ViewModelBase
-    {
-        public string Icon { get; set; } = "";
-        public string Label { get; set; } = "";
-        public string DisplayValue { get; set; } = "";
-        public string Accent { get; set; } = "Green";  // Green|Blue|Amber|Red
-        public bool IsAlert { get; set; }
     }
 }

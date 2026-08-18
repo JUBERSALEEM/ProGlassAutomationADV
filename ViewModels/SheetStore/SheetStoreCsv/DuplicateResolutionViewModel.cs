@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.Commands;
+
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -6,21 +7,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreCsv
 {
-    /// <summary>
-    /// Represents the user's choice for a duplicate row during CSV import.
-    /// </summary>
-    public enum DuplicateAction
-    {
-        Skip,
-        AddToStock,
-        UpdateAll,
-        Cancel
-    }
-
-    /// <summary>
-    /// ViewModel for the duplicate resolution dialog.
-    /// Shows existing vs incoming side-by-side and lets user choose an action.
-    /// </summary>
     public class DuplicateResolutionViewModel : ViewModelBase
     {
         public GlassSheet Existing { get; }
