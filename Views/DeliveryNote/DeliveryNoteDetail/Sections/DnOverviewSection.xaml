@@ -388,262 +388,251 @@
                                           Focusable="True"
                                           FocusVisualStyle="{x:Null}"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <ItemsControl ItemsSource="{Binding VisibleItemRows}"
+                            <ItemsControl ItemsSource="{Binding VisibleGroups}"
                                           MinWidth="980">
-                                <ItemsControl.GroupStyle>
-                                    <GroupStyle>
-                                        <GroupStyle.ContainerStyle>
-                                            <Style TargetType="GroupItem">
-                                                <Setter Property="Template">
-                                                    <Setter.Value>
-                                                        <ControlTemplate TargetType="GroupItem">
-                                                            <Border Style="{StaticResource SpecGroupCardStyle}">
-                                                                <StackPanel>
-                                                                    <Border Style="{StaticResource SpecGroupHeaderStyle}">
-                                                                        <Border.Background>
-                                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                                                                <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                                                            </LinearGradientBrush>
-                                                                        </Border.Background>
-                                                                        <StackPanel Orientation="Horizontal">
-                                                                            <Border Width="4" CornerRadius="2"
-                                                                                    Background="White"
-                                                                                    Margin="0,0,10,0"/>
-                                                                            <TextBlock Text="SPEC:  "
-                                                                                       FontSize="12" FontWeight="Bold"
-                                                                                       Foreground="#CCFFFFFF"
-                                                                                       VerticalAlignment="Center"/>
-                                                                            <TextBlock Text="{Binding Name}"
-                                                                                       FontSize="14" FontWeight="Bold"
-                                                                                       Foreground="White"
-                                                                                       VerticalAlignment="Center"/>
-                                                                        </StackPanel>
-                                                                    </Border>
-
-                                                                    <!-- Column headers -->
-                                                                    <Border Style="{StaticResource LineItemsHeaderStyle}">
-                                                                        <Grid>
-                                                                            <Grid.ColumnDefinitions>
-                                                                                <ColumnDefinition Width="40"/>
-                                                                                <ColumnDefinition Width="*" MinWidth="200"/>
-                                                                                <ColumnDefinition Width="60"/>
-                                                                                <ColumnDefinition Width="60"/>
-                                                                                <ColumnDefinition Width="60"/>
-                                                                                <ColumnDefinition Width="60"/>
-                                                                                <ColumnDefinition Width="55"/>
-                                                                                <ColumnDefinition Width="70"/>
-                                                                                <ColumnDefinition Width="80"/>
-                                                                                <ColumnDefinition Width="Auto"/>
-                                                                                <ColumnDefinition Width="65"/>
-                                                                                <ColumnDefinition Width="Auto"/>
-                                                                                <ColumnDefinition Width="95"/>
-                                                                                <ColumnDefinition Width="Auto"/>
-                                                                                <ColumnDefinition Width="70"/>
-                                                                            </Grid.ColumnDefinitions>
-                                                                            <TextBlock Grid.Column="0" Text="#"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Center"/>
-                                                                            <TextBlock Grid.Column="1" Text="GLASS REF"
-                                                                                       Style="{StaticResource GridHeaderCell}"/>
-                                                                            <TextBlock Grid.Column="2" Text="W1"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="3" Text="H1"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="4" Text="W2"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="5" Text="H2"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="6" Text="QTY"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="7" Text="SQM"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <TextBlock Grid.Column="8" Text="TOTAL SQM"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <Border Grid.Column="9"
-                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                            <TextBlock Grid.Column="10" Text="PREV"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                            <Border Grid.Column="11"
-                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                            <TextBlock Grid.Column="12"
-                                                                                       Style="{StaticResource ThisDnHeaderStyle}"/>
-                                                                            <Border Grid.Column="13"
-                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                            <TextBlock Grid.Column="14" Text="BALANCE"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right"
-                                                                                       Margin="6,8,10,8"/>
-                                                                        </Grid>
-                                                                    </Border>
-
-                                                                    <ItemsPresenter/>
-
-                                                                    <Border Background="{DynamicResource TintIndigoBrush}"
-                                                                            BorderBrush="{DynamicResource OutlineBrush}"
-                                                                            BorderThickness="0,1,0,0"
-                                                                            Padding="16,10"
-                                                                            CornerRadius="0,0,12,12">
-                                                                        <StackPanel Orientation="Horizontal"
-                                                                                    HorizontalAlignment="Right">
-                                                                            <TextBlock Text="SPEC TOTAL: "
-                                                                                       FontSize="11" FontWeight="Bold"
-                                                                                       Foreground="{DynamicResource AccentBrush}"
-                                                                                       VerticalAlignment="Center"/>
-                                                                            <TextBlock FontSize="11"
-                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                                       VerticalAlignment="Center"
-                                                                                       Margin="8,0,0,0">
-                                                                                <Run Text="{Binding ItemCount, Mode=OneWay}"
-                                                                                     FontWeight="SemiBold"/>
-                                                                                <Run Text=" items"/>
-                                                                            </TextBlock>
-                                                                        </StackPanel>
-                                                                    </Border>
-                                                                </StackPanel>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Setter.Value>
-                                                </Setter>
-                                            </Style>
-                                        </GroupStyle.ContainerStyle>
-                                    </GroupStyle>
-                                </ItemsControl.GroupStyle>
-
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
-                                                Padding="0,2">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="Transparent"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HasBalance}"
-                                                                     Value="True">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource TintAmberBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="40"/>
-                                                    <ColumnDefinition Width="*" MinWidth="200"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                    <ColumnDefinition Width="55"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="80"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="65"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="95"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                </Grid.ColumnDefinitions>
+                                        <Border Style="{StaticResource SpecGroupCardStyle}">
+                                            <StackPanel>
+                                                <Border Style="{StaticResource SpecGroupHeaderStyle}">
+                                                    <Border.Background>
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Border.Background>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Border Width="4" CornerRadius="2"
+                                                                Background="White"
+                                                                Margin="0,0,10,0"/>
+                                                        <TextBlock Text="SPEC:  "
+                                                                   FontSize="12" FontWeight="Bold"
+                                                                   Foreground="#CCFFFFFF"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding SpecGroupName}"
+                                                                   FontSize="14" FontWeight="Bold"
+                                                                   Foreground="White"
+                                                                   VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
 
-                                                <TextBlock Grid.Column="0"
-                                                           Text="{Binding SerialNumber}"
-                                                           Style="{StaticResource GridDataCell}"
-                                                           HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding GlassRef}"
-                                                           Style="{StaticResource GridDataCell}"
-                                                           FontWeight="SemiBold"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding GlassRef}"/>
-                                                <TextBlock Grid.Column="2" Text="{Binding W1}"
-                                                           Style="{StaticResource GridNumericCell}"/>
-                                                <TextBlock Grid.Column="3" Text="{Binding H1}"
-                                                           Style="{StaticResource GridNumericCell}"/>
-                                                <TextBlock Grid.Column="4">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock"
-                                                               BasedOn="{StaticResource OptionalDimStyle}">
-                                                            <Setter Property="Text" Value="{Binding W2}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding W2}" Value="0">
-                                                                    <Setter Property="Text" Value="—"/>
-                                                                    <Setter Property="Foreground"
-                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                                <TextBlock Grid.Column="5">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock"
-                                                               BasedOn="{StaticResource OptionalDimStyle}">
-                                                            <Setter Property="Text" Value="{Binding H2}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding H2}" Value="0">
-                                                                    <Setter Property="Text" Value="—"/>
-                                                                    <Setter Property="Foreground"
-                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                                <TextBlock Grid.Column="6"
-                                                           Text="{Binding OrderedQty}"
-                                                           Style="{StaticResource GridNumericCell}"/>
-                                                <TextBlock Grid.Column="7"
-                                                           Text="{Binding Sqm, StringFormat={}{0:0.000}}"
-                                                           Style="{StaticResource GridNumericCell}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                <TextBlock Grid.Column="8"
-                                                           Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
-                                                           Style="{StaticResource GridNumericCell}"
-                                                           FontWeight="Bold"/>
-                                                <Border Grid.Column="9"
-                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                <TextBlock Grid.Column="10"
-                                                           Text="{Binding PreviouslyDeliveredQty}"
-                                                           Style="{StaticResource GridNumericCell}"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                <Border Grid.Column="11"
-                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                <Border Style="{StaticResource LineItemsHeaderStyle}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="40"/>
+                                                            <ColumnDefinition Width="*" MinWidth="200"/>
+                                                            <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="60"/>
+                                                            <ColumnDefinition Width="55"/>
+                                                            <ColumnDefinition Width="70"/>
+                                                            <ColumnDefinition Width="80"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="65"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="95"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="70"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0" Text="#"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="1" Text="GLASS REF"
+                                                                   Style="{StaticResource GridHeaderCell}"/>
+                                                        <TextBlock Grid.Column="2" Text="W1"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="3" Text="H1"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="4" Text="W2"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="5" Text="H2"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="6" Text="QTY"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="7" Text="SQM"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <TextBlock Grid.Column="8" Text="TOTAL SQM"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <Border Grid.Column="9"
+                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                        <TextBlock Grid.Column="10" Text="PREV"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                        <Border Grid.Column="11"
+                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                        <TextBlock Grid.Column="12"
+                                                                   Style="{StaticResource ThisDnHeaderStyle}"/>
+                                                        <Border Grid.Column="13"
+                                                                Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                        <TextBlock Grid.Column="14" Text="BALANCE"
+                                                                   Style="{StaticResource GridHeaderCell}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Margin="6,8,10,8"/>
+                                                    </Grid>
+                                                </Border>
 
-                                                <!-- TextBox on real DN -->
-                                                <TextBox Grid.Column="12"
-                                                         Text="{Binding DeliveredQty,
-                                                                UpdateSourceTrigger=PropertyChanged}"
-                                                         behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                         Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
+                                                <ItemsControl ItemsSource="{Binding Items}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
+                                                                    BorderThickness="0,0,0,1"
+                                                                    Padding="0,2">
+                                                                <Border.Style>
+                                                                    <Style TargetType="Border">
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding HasBalance}"
+                                                                                         Value="True">
+                                                                                <Setter Property="Background"
+                                                                                        Value="{DynamicResource TintAmberBrush}"/>
+                                                                            </DataTrigger>
+                                                                            <DataTrigger Binding="{Binding IsFullyDeliveredLine}"
+                                                                                         Value="True">
+                                                                                <Setter Property="Background"
+                                                                                        Value="{DynamicResource TintGreenBrush}"/>
+                                                                                <Setter Property="Opacity" Value="0.72"/>
+                                                                            </DataTrigger>
+                                                                        </Style.Triggers>
+                                                                    </Style>
+                                                                </Border.Style>
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="40"/>
+                                                                        <ColumnDefinition Width="*" MinWidth="200"/>
+                                                                        <ColumnDefinition Width="60"/>
+                                                                        <ColumnDefinition Width="60"/>
+                                                                        <ColumnDefinition Width="60"/>
+                                                                        <ColumnDefinition Width="60"/>
+                                                                        <ColumnDefinition Width="55"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="80"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="65"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="95"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                    </Grid.ColumnDefinitions>
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{Binding SerialNumber}"
+                                                                               Style="{StaticResource GridDataCell}"
+                                                                               HorizontalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text="{Binding GlassRef}"
+                                                                               Style="{StaticResource GridDataCell}"
+                                                                               FontWeight="SemiBold"
+                                                                               TextTrimming="CharacterEllipsis"
+                                                                               ToolTip="{Binding GlassRef}"/>
+                                                                    <TextBlock Grid.Column="2" Text="{Binding W1}"
+                                                                               Style="{StaticResource GridNumericCell}"/>
+                                                                    <TextBlock Grid.Column="3" Text="{Binding H1}"
+                                                                               Style="{StaticResource GridNumericCell}"/>
+                                                                    <TextBlock Grid.Column="4">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock"
+                                                                                   BasedOn="{StaticResource OptionalDimStyle}">
+                                                                                <Setter Property="Text" Value="{Binding W2}"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding W2}" Value="0">
+                                                                                        <Setter Property="Text" Value="—"/>
+                                                                                        <Setter Property="Foreground"
+                                                                                                Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                    <TextBlock Grid.Column="5">
+                                                                        <TextBlock.Style>
+                                                                            <Style TargetType="TextBlock"
+                                                                                   BasedOn="{StaticResource OptionalDimStyle}">
+                                                                                <Setter Property="Text" Value="{Binding H2}"/>
+                                                                                <Style.Triggers>
+                                                                                    <DataTrigger Binding="{Binding H2}" Value="0">
+                                                                                        <Setter Property="Text" Value="—"/>
+                                                                                        <Setter Property="Foreground"
+                                                                                                Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                                    </DataTrigger>
+                                                                                </Style.Triggers>
+                                                                            </Style>
+                                                                        </TextBlock.Style>
+                                                                    </TextBlock>
+                                                                    <TextBlock Grid.Column="6"
+                                                                               Text="{Binding OrderedQty}"
+                                                                               Style="{StaticResource GridNumericCell}"/>
+                                                                    <TextBlock Grid.Column="7"
+                                                                               Text="{Binding Sqm, StringFormat={}{0:0.000}}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                    <TextBlock Grid.Column="8"
+                                                                               Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               FontWeight="Bold"/>
+                                                                    <Border Grid.Column="9"
+                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                    <TextBlock Grid.Column="10"
+                                                                               Text="{Binding PreviouslyDeliveredQty}"
+                                                                               Style="{StaticResource GridNumericCell}"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                    <Border Grid.Column="11"
+                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                    <TextBox Grid.Column="12"
+                                                                             Text="{Binding DeliveredQty,
+                                                                                    UpdateSourceTrigger=PropertyChanged}"
+                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
+                                                                             Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
+                                                                    <TextBlock Grid.Column="12"
+                                                                               Text="{Binding DeliveredQty}"
+                                                                               Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
+                                                                    <Border Grid.Column="13"
+                                                                            Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                    <TextBlock Grid.Column="14"
+                                                                               Text="{Binding BalanceQty}"
+                                                                               Style="{StaticResource BalanceCellStyle}"/>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
 
-                                                <!-- TextBlock on Master DN -->
-                                                <TextBlock Grid.Column="12"
-                                                           Text="{Binding DeliveredQty}"
-                                                           Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
-
-                                                <Border Grid.Column="13"
-                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                <TextBlock Grid.Column="14"
-                                                           Text="{Binding BalanceQty}"
-                                                           Style="{StaticResource BalanceCellStyle}"/>
-                                            </Grid>
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                                        BorderThickness="0,1,0,0"
+                                                        Padding="16,10"
+                                                        CornerRadius="0,0,12,12">
+                                                    <StackPanel Orientation="Horizontal"
+                                                                HorizontalAlignment="Right">
+                                                        <TextBlock Text="SPEC TOTAL: "
+                                                                   FontSize="11" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource AccentBrush}"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock FontSize="11"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="8,0,0,0">
+                                                            <Run Text="{Binding ItemCount, Mode=OneWay}"
+                                                                 FontWeight="SemiBold"/>
+                                                            <Run Text=" items"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
                                         </Border>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

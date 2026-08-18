@@ -716,29 +716,26 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 var newDn = DeliveryNoteMapper.FromJobOrder(
                     _entity, _snapshot, newDnId, nextSeq);
 
-                // ── If prior DNs exist, adjust PreviouslyDeliveredQty ─────
-                //     so BalanceQty reflects true remaining amount
-                if (nextSeq > 1)
+                // Always heal PREV from confirmed siblings and drop
+                // fully delivered lines — including the first real DN
+                // after a partial dispatch already exists.
+                foreach (var item in newDn.Items)
                 {
-                    foreach (var item in newDn.Items)
-                    {
-                        int previouslyDelivered = await App.DeliveryNotes
-                            .GetPreviouslyDeliveredQtyAsync(
-                                _entity.JobOrderId,
-                                item.SpecGroupNumber,
-                                item.SerialNumber);
+                    int previouslyDelivered = await App.DeliveryNotes
+                        .GetPreviouslyDeliveredQtyAsync(
+                            _entity.JobOrderId,
+                            item.SpecGroupNumber,
+                            item.SerialNumber);
 
-                        item.PreviouslyDeliveredQty = previouslyDelivered;
-                        item.BalanceQty = Math.Max(0,
-                            item.OrderedQty - previouslyDelivered - item.DeliveredQty);
-                    }
-
-                    // Recalculate DN-level totals after adjustment
-                    newDn.TotalBalanceQty = newDn.Items.Sum(i => i.BalanceQty);
-
-                    // Remove items with zero balance (already fully delivered)
-                    newDn.Items = newDn.Items.Where(i => i.BalanceQty > 0).ToList();
+                    item.PreviouslyDeliveredQty = previouslyDelivered;
+                    item.BalanceQty = Math.Max(0,
+                        item.OrderedQty - previouslyDelivered - item.DeliveredQty);
                 }
+
+                newDn.TotalPreviouslyDeliveredQty =
+                    newDn.Items.Sum(i => i.PreviouslyDeliveredQty);
+                newDn.TotalBalanceQty = newDn.Items.Sum(i => i.BalanceQty);
+                newDn.Items = newDn.Items.Where(i => i.BalanceQty > 0).ToList();
 
                 // ── Save to DB ────────────────────────────────────────────
                 await App.DeliveryNotes.InsertAsync(newDn);

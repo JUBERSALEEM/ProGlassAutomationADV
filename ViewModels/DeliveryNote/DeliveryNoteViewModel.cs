@@ -669,6 +669,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             var dnEntity = DeliveryNoteMapper.FromJobOrder(
                 jobOrder, joSnapshot, dnId, nextSeq);
 
+            foreach (var item in dnEntity.Items)
+            {
+                int previouslyDelivered = await App.DeliveryNotes
+                    .GetPreviouslyDeliveredQtyAsync(
+                        jobOrder.JobOrderId,
+                        item.SpecGroupNumber,
+                        item.SerialNumber);
+                item.PreviouslyDeliveredQty = previouslyDelivered;
+                item.BalanceQty = Math.Max(0,
+                    item.OrderedQty - previouslyDelivered - item.DeliveredQty);
+            }
+            dnEntity.Items = dnEntity.Items.Where(i => i.BalanceQty > 0).ToList();
+            dnEntity.TotalPreviouslyDeliveredQty =
+                dnEntity.Items.Sum(i => i.PreviouslyDeliveredQty);
+            dnEntity.TotalBalanceQty = dnEntity.Items.Sum(i => i.BalanceQty);
+            dnEntity.TotalOrderedQty = dnEntity.Items.Sum(i => i.OrderedQty);
+
             var saved = await App.DeliveryNotes.InsertAsync(dnEntity);
 
             await DetailVM.LoadAsync(saved.Id);

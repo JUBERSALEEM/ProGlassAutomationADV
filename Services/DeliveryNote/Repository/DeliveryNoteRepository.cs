@@ -563,16 +563,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            var confirmedDnIds = await ctx.DeliveryNotes
+            var siblingIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
-                         && x.Status != "Draft"
                          && !x.IsMasterDn
                          && x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
             return await ctx.DeliveryNoteItems
-                .Where(i => confirmedDnIds.Contains(i.DeliveryNoteId)
+                .Where(i => siblingIds.Contains(i.DeliveryNoteId)
                          && i.JobOrderId == jobOrderId
                          && i.SpecGroupNumber == specGroupNumber
                          && i.SerialNumber == serialNumber)
@@ -584,28 +583,58 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            var confirmedDnIds = await ctx.DeliveryNotes
+            var siblingIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
-                         && x.Status != "Draft"
                          && x.DeliveryNoteId != excludeDnId
                          && !x.IsMasterDn
                          && x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
-            if (confirmedDnIds.Count == 0)
+            if (siblingIds.Count == 0)
                 return new Dictionary<string, int>();
 
             var items = await ctx.DeliveryNoteItems
-                .Where(i => confirmedDnIds.Contains(i.DeliveryNoteId)
+                .Where(i => siblingIds.Contains(i.DeliveryNoteId)
                          && i.JobOrderId == jobOrderId)
                 .ToListAsync();
 
-            return items
-                .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Sum(i => i.DeliveredQty));
+            return BuildDeliveredLookup(items);
+        }
+
+        private static Dictionary<string, int> BuildDeliveredLookup(
+            IEnumerable<DeliveryNoteItem> items)
+        {
+            var map = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in items)
+            {
+                if (item.DeliveredQty <= 0) continue;
+                Acc(map, SpecKey(item), item.DeliveredQty);
+                Acc(map, GlassKey(item), item.DeliveredQty);
+            }
+            return map;
+        }
+
+        private static int LookupDelivered(
+            Dictionary<string, int> map, DeliveryNoteItem item)
+        {
+            if (map.TryGetValue(SpecKey(item), out var bySpec) && bySpec > 0)
+                return bySpec;
+            if (map.TryGetValue(GlassKey(item), out var byGlass) && byGlass > 0)
+                return byGlass;
+            return 0;
+        }
+
+        private static string SpecKey(DeliveryNoteItem i) =>
+            $"{i.SpecGroupNumber}|{i.SerialNumber}";
+
+        private static string GlassKey(DeliveryNoteItem i) =>
+            $"G|{i.GlassRef}|{i.W1}|{i.H1}|{i.W2}|{i.H2}";
+
+        private static void Acc(Dictionary<string, int> map, string key, int qty)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return;
+            map[key] = map.TryGetValue(key, out var n) ? n + qty : qty;
         }
 
         // ── SQM aggregation ──────────────────────────────────────────────

@@ -463,48 +463,72 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public int VisiblePendingRowCount => _visibleRows.Count;
 
         public bool HasHiddenFullyDeliveredRows =>
-            _isMasterDn && !_showFullMaster && HiddenFullyDeliveredCount > 0;
+            !_showFullMaster && HiddenFullyDeliveredCount > 0;
 
         public bool HasNoPendingBalanceItems =>
-            _isMasterDn && !_showFullMaster
-            && _itemRows.Count > 0 && _visibleRows.Count == 0;
+            _itemRows.Count > 0 && _visibleRows.Count == 0 && !_showFullMaster;
 
         public string HiddenFullyDeliveredSummary =>
-            HiddenFullyDeliveredCount == 1
-                ? "1 item fully delivered — hidden. Showing remaining balance only."
-                : $"{HiddenFullyDeliveredCount} items fully delivered — hidden. Showing remaining balance only.";
+            _isMasterDn
+                ? (HiddenFullyDeliveredCount == 1
+                    ? "1 item fully delivered — hidden. Showing remaining balance only."
+                    : $"{HiddenFullyDeliveredCount} items fully delivered — hidden. Showing remaining balance only.")
+                : (HiddenFullyDeliveredCount == 1
+                    ? "1 item already fully delivered — hidden. No qty left on this DN."
+                    : $"{HiddenFullyDeliveredCount} items already fully delivered — hidden. No qty left on this DN.");
 
         /// <summary>
-        /// Materialized remaining (or full) rows. Do not bind the grid to
-        /// ItemRows or to ICollectionView.Filter — GroupStyle ignores Filter
-        /// and would keep Prev=1 / This=0 / Balance=0 lines on screen.
+        /// Materialized remaining (or live) rows. Never bind the grid to
+        /// ItemRows — leftover closed lines live there for KPI totals.
         /// </summary>
         public ObservableCollection<DnItemRowViewModel> VisibleItemRows => _visibleRows;
 
+        private ObservableCollection<DnSpecGroupViewModel> _visibleGroups = new();
+        public ObservableCollection<DnSpecGroupViewModel> VisibleGroups
+        {
+            get => _visibleGroups;
+            private set
+            {
+                _visibleGroups = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private static bool DetectMaster(SavedDeliveryNote entity)
+        {
+            if (entity.IsMasterDn) return true;
+            if (!string.IsNullOrWhiteSpace(entity.DeliveryNoteId) &&
+                entity.DeliveryNoteId.StartsWith("MDN-", StringComparison.OrdinalIgnoreCase))
+                return true;
+            return entity.SequenceNumber == 0 &&
+                   string.Equals(entity.DeliveryType, "Dummy",
+                       StringComparison.OrdinalIgnoreCase);
+        }
+
         /// <summary>
-        /// Master DN is a balance tracker. ICollectionView.Filter is ignored
-        /// once GroupStyle is applied, so completed rows are omitted from
-        /// the source unless the user asks for the full original JO set.
-        /// Real DNs keep every line so qty can be entered.
+        /// Master: remaining balance only (unless SHOW FULL MASTER).
+        /// Real DN: hide leftover closed lines (This=0 and Balance=0).
+        /// Those are JO copies whose pcs already left on a sibling DN —
+        /// they look like "empty rows" and must not stay in the grid.
         /// </summary>
+        private bool ShouldDisplayRow(DnItemRowViewModel row)
+        {
+            if (_showFullMaster) return true;
+            if (_isMasterDn) return row.BalanceQty > 0;
+            return row.DeliveredQty > 0 || row.BalanceQty > 0;
+        }
+
         private void RebuildGroupedView()
         {
-            IEnumerable<DnItemRowViewModel> source = _itemRows;
-            if (_isMasterDn && !_showFullMaster)
-                source = _itemRows.Where(r => r.BalanceQty > 0);
+            var displayed = _itemRows.Where(ShouldDisplayRow).ToList();
+            _visibleRows = new ObservableCollection<DnItemRowViewModel>(displayed);
+            HiddenFullyDeliveredCount = _itemRows.Count - displayed.Count;
 
-            _visibleRows = new ObservableCollection<DnItemRowViewModel>(source);
-            HiddenFullyDeliveredCount = _isMasterDn
-                ? _itemRows.Count(r => r.BalanceQty <= 0)
-                : 0;
+            VisibleGroups = new ObservableCollection<DnSpecGroupViewModel>(
+                displayed
+                    .GroupBy(r => r.SpecGroupName)
+                    .Select(g => new DnSpecGroupViewModel(g.Key, g)));
 
-            var view = CollectionViewSource.GetDefaultView(_visibleRows);
-            view.GroupDescriptions.Clear();
-            view.GroupDescriptions.Add(
-                new PropertyGroupDescription(
-                    nameof(DnItemRowViewModel.SpecGroupName)));
-
-            GroupedItemsView = view;
             OnPropertyChanged(nameof(VisibleItemRows));
             OnPropertyChanged(nameof(VisiblePendingRowCount));
             OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
@@ -1021,8 +1045,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     _entity.DeliveryDate.ToString("dd MMM yyyy");
                 DeliveryTime = _entity.DeliveryTime;
 
-                // CHAT 19: set Master DN flag BEFORE RebuildGroupedView
-                IsMasterDn = _entity.IsMasterDn;
+                // Master = flagged, MDN- id, or seq-0 Dummy tracker.
+                IsMasterDn = DetectMaster(_entity);
                 ShowFullMaster = false;
 
                 var joRef = _snapshot?.JobOrderRef;
@@ -1038,11 +1062,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // Persist confirmed totals onto Master, then heal PREV so
-                // the grid uses the same map as dispatch (Drafts excluded).
+                // Persist sibling totals onto Master (saved Drafts count),
+                // then heal PREV with spec+glass fallback so closed lines
+                // actually drop out of VisibleGroups.
                 await SyncMasterBalancesAsync();
                 await HealItemPrevQtyAsync(_entity);
-                if (_entity.IsMasterDn)
+                if (IsMasterDn)
                 {
                     foreach (var item in _entity.Items)
                     {
@@ -1104,20 +1129,31 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             foreach (var item in entity.Items)
             {
-                var key = $"{item.SpecGroupNumber}|{item.SerialNumber}";
-                item.PreviouslyDeliveredQty =
-                    prevMap.TryGetValue(key, out var prev) ? prev : 0;
+                item.PreviouslyDeliveredQty = LookupPrev(prevMap, item);
             }
         }
 
+        private static int LookupPrev(
+            Dictionary<string, int> map, DeliveryNoteItem item)
+        {
+            if (map.TryGetValue(
+                    $"{item.SpecGroupNumber}|{item.SerialNumber}",
+                    out var bySpec) && bySpec > 0)
+                return bySpec;
+            if (map.TryGetValue(
+                    $"G|{item.GlassRef}|{item.W1}|{item.H1}|{item.W2}|{item.H2}",
+                    out var byGlass) && byGlass > 0)
+                return byGlass;
+            return 0;
+        }
+
         /// <summary>
-        /// Writes confirmed sibling totals onto the Master row so the DB
-        /// matches what the grid heals. Drafts are ignored (same rule as
-        /// GetPreviouslyDeliveredMapAsync). View-only users skip persist.
+        /// Writes sibling totals onto the Master row so the DB matches
+        /// the grid. Saved Drafts count — they are already in the list.
         /// </summary>
         private async Task SyncMasterBalancesAsync()
         {
-            if (_entity == null || !_entity.IsMasterDn) return;
+            if (_entity == null || !DetectMaster(_entity)) return;
             if (App.DeliveryNotes == null) return;
             if (!PermissionService.Can(AppPermissions.DeliveryNoteEdit))
                 return;
@@ -1250,6 +1286,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
+
+                try
+                {
+                    await App.DeliveryNotes.UpdateMasterDnAsync(
+                        _entity.JobOrderId, _entity.DeliveryNoteId);
+                }
+                catch (Exception masterEx)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[DN] Master update after save skipped: {masterEx.Message}");
+                }
 
                 HasUnsavedChanges = false;   // v2 §28: clean after save
 
