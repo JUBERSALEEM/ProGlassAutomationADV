@@ -22,10 +22,10 @@
 //    buys is an accurate audit trail and real per-role permissions.
 //    Claiming more than that would be dishonest.
 //
-//  • Lockout is in-memory and per-process only. It slows down guessing
-//    at the UI; it does not survive a restart. Persisting it would let
-//    a mistyped password lock a user out of their own offline data with
-//    no recovery path, which is the worse failure for this product.
+//  • Lockout is PERSISTED in audit.db (Phase 13) so it survives an app
+//    restart. Threshold and window are governed by
+//    AuditService.MaxFailedAttemptsBeforeLock / LockoutMinutes. The first-run
+//    seeded credential is forced to be rotated before the app opens.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Audit;
@@ -42,11 +42,8 @@ namespace ProGlassAutomation.Views.Login
         /// <summary>True only after a verified sign-in.</summary>
         public bool SignedIn { get; private set; }
 
-        private int _failedAttempts;
-        private DateTime _lockedUntilUtc = DateTime.MinValue;
-
-        private const int MaxAttemptsBeforeDelay = 3;
-        private const int LockoutSeconds = 15;
+        // PHASE 13 — lockout is persisted in audit.db (AuditService) so it
+        // survives an app restart. There is no separate in-memory state here.
 
         public LoginWindow()
         {
@@ -95,14 +92,6 @@ namespace ProGlassAutomation.Views.Login
 
         private async Task TrySignInAsync()
         {
-            if (DateTime.UtcNow < _lockedUntilUtc)
-            {
-                int wait = (int)Math.Ceiling(
-                    (_lockedUntilUtc - DateTime.UtcNow).TotalSeconds);
-                ShowError($"Too many attempts. Try again in {wait}s.");
-                return;
-            }
-
             string username = UsernameBox.Text?.Trim() ?? "";
             string password = PasswordBox.Password ?? "";
 
@@ -110,6 +99,16 @@ namespace ProGlassAutomation.Views.Login
             {
                 ShowError("Enter your username.");
                 UsernameBox.Focus();
+                return;
+            }
+
+            // PHASE 13 — surfaced from the persisted lockout so the user sees
+            // the exact remaining wait (survives an app restart).
+            int remaining = await AuditService.LockoutRemainingSecondsAsync(
+                username);
+            if (remaining > 0)
+            {
+                ShowError($"Too many attempts. Try again in {remaining}s.");
                 return;
             }
 
@@ -121,45 +120,64 @@ namespace ProGlassAutomation.Views.Login
                 var (ok, error) = await AuditService.SwitchUserAsync(
                     username, password);
 
-                if (ok)
+                if (!ok)
                 {
-                    AuditService.LogSessionBoundary(login: true);
-                    SignedIn = true;
+                    // The message is intentionally the same for an unknown
+                    // user and a wrong password, so the dialog cannot be used
+                    // to enumerate valid usernames. The precise reason is in
+                    // the audit trail, which only an administrator can read.
+                    // If the account just hit the lockout threshold, surface
+                    // the real countdown instead of the generic message.
+                    if (error != null &&
+                        error.StartsWith("Account temporarily locked.",
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        ShowError(error);
+                    }
+                    else
+                    {
+                        ShowError("Incorrect username or password.");
+                    }
+
+                    AppLogService.Warning(
+                        $"Failed sign-in attempt for '{username}': {error}",
+                        new LogContext
+                        {
+                            Module = "Auth",
+                            Class = nameof(LoginWindow),
+                            Operation = "SignIn"
+                        });
+
                     PasswordBox.Clear();
-                    Close();
+                    PasswordBox.Focus();
                     return;
                 }
 
-                _failedAttempts++;
-
-                // The message is intentionally the same for an unknown user
-                // and a wrong password, so the dialog cannot be used to
-                // enumerate valid usernames. The precise reason is in the
-                // audit trail, which only an administrator can read.
-                ShowError("Incorrect username or password.");
-
-                AppLogService.Warning(
-                    $"Failed sign-in attempt for '{username}' "
-                    + $"(attempt {_failedAttempts}): {error}",
-                    new LogContext
-                    {
-                        Module = "Auth",
-                        Class = nameof(LoginWindow),
-                        Operation = "SignIn"
-                    });
-
-                if (_failedAttempts >= MaxAttemptsBeforeDelay)
+                // PHASE 13 — force the seeded default credential to be
+                // rotated before the app opens.
+                bool usingDefault =
+                    await AuditService.IsUsingDefaultPasswordAsync(username);
+                if (usingDefault)
                 {
-                    _lockedUntilUtc =
-                        DateTime.UtcNow.AddSeconds(LockoutSeconds);
-                    _failedAttempts = 0;
-
-                    ShowError(
-                        $"Too many attempts. Try again in {LockoutSeconds}s.");
+                    var force = new ForcePasswordChangeWindow(username);
+                    bool? changed = force.ShowDialog();
+                    if (changed != true)
+                    {
+                        // User declined to rotate — do NOT enter the app.
+                        AuditService.LogSessionBoundary(login: false);
+                        SignedIn = false;
+                        PasswordBox.Clear();
+                        PasswordBox.Focus();
+                        ShowError("You must change the default password before continuing.");
+                        return;
+                    }
                 }
 
+                AuditService.LogSessionBoundary(login: true);
+                SignedIn = true;
                 PasswordBox.Clear();
-                PasswordBox.Focus();
+                Close();
+                return;
             }
             catch (Exception ex)
             {

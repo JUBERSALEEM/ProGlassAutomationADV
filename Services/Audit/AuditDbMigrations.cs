@@ -39,6 +39,15 @@ namespace ProGlassAutomation.Services.Audit
                 AddColumnIfMissing(connection,
                     "ActivityLog", "Reason", "TEXT NOT NULL DEFAULT ''");
 
+                // PHASE 13 — persisted login lockout state on users.
+                // These columns are additive so existing installs keep their
+                // users; a fresh DB gets them from the EF model on EnsureCreated.
+                AddColumnIfMissing(connection,
+                    "AppUsers", "FailedAttemptCount", "INTEGER NOT NULL DEFAULT 0");
+
+                AddColumnIfMissing(connection,
+                    "AppUsers", "LockedUntilUtc", "TEXT NULL");
+
                 Execute(connection, @"
                     CREATE TABLE IF NOT EXISTS RecordMetadata (
                         EntityType     TEXT NOT NULL,

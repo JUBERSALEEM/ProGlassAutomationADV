@@ -59,5 +59,18 @@ namespace ProGlassAutomation.Models.Audit
 
         /// <summary>Last time this user was made the active user.</summary>
         public DateTime? LastActiveAtUtc { get; set; }
+
+        /// <summary>
+        /// Consecutive failed sign-in attempts. Persisted so the lockout
+        /// survives an app restart (Phase 13). Reset to 0 on a successful
+        /// sign-in and when a lockout window is triggered.
+        /// </summary>
+        public int FailedAttemptCount { get; set; }
+
+        /// <summary>
+        /// UTC instant before which this account rejects sign-ins because of
+        /// too many consecutive failed attempts (Phase 13). Null = not locked.
+        /// </summary>
+        public DateTime? LockedUntilUtc { get; set; }
     }
 }

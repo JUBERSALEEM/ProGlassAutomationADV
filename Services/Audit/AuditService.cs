@@ -453,8 +453,36 @@ namespace ProGlassAutomation.Services.Audit
                 if (!user.IsActive)
                     return (false, "This user is deactivated.");
 
+                // PHASE 13 — persisted lockout: reject sign-ins while the
+                // account is locked (survives an app restart).
+                int lockoutSeconds = LockoutRemainingSeconds(user);
+                if (lockoutSeconds > 0)
+                    return (false,
+                        $"Account temporarily locked. Try again in {lockoutSeconds}s.");
+
                 if (!VerifyPassword(user, password, out bool needsUpgrade))
+                {
+                    // PHASE 13 — persist the failed attempt and trigger a
+                    // lockout window once the threshold is reached. The count
+                    // is reset when a window fires, so a user who waits out
+                    // the window gets a fresh attempt budget.
+                    user.FailedAttemptCount += 1;
+                    if (user.FailedAttemptCount >= MaxFailedAttemptsBeforeLock)
+                    {
+                        user.LockedUntilUtc =
+                            DateTime.UtcNow.AddMinutes(LockoutMinutes);
+                        user.FailedAttemptCount = 0;
+                    }
+                    await db.SaveChangesAsync();
                     return (false, "Incorrect password.");
+                }
+
+                // Success: clear any persisted lockout state.
+                if (user.FailedAttemptCount != 0 || user.LockedUntilUtc != null)
+                {
+                    user.FailedAttemptCount = 0;
+                    user.LockedUntilUtc = null;
+                }
 
                 user.LastActiveAtUtc = DateTime.UtcNow;
                 await db.SaveChangesAsync();
@@ -583,6 +611,44 @@ namespace ProGlassAutomation.Services.Audit
         // ══════════════════════════════════════════════════════════════
         //  PASSWORD HASHING
         // ══════════════════════════════════════════════════════════════
+
+        // PHASE 13 — persisted lockout policy.
+        /// <summary>Consecutive failed attempts allowed before a lockout window.</summary>
+        public const int MaxFailedAttemptsBeforeLock = 5;
+
+        /// <summary>Length of the lockout window after the threshold is hit.</summary>
+        public const int LockoutMinutes = 5;
+
+        /// <summary>
+        /// Seconds remaining in the persisted lockout window for
+        /// <paramref name="username"/> (0 = not locked). Used by the sign-in
+        /// UI to show a countdown. Never throws.
+        /// </summary>
+        public static async Task<int> LockoutRemainingSecondsAsync(
+            string username)
+        {
+            try
+            {
+                using var db = new AuditDbContext();
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+                return user == null ? 0 : LockoutRemainingSeconds(user);
+            }
+            catch
+            {
+                // A failed check must never crash the sign-in flow.
+                return 0;
+            }
+        }
+
+        private static int LockoutRemainingSeconds(AppUser user)
+        {
+            if (user.LockedUntilUtc == null) return 0;
+            var remaining = user.LockedUntilUtc.Value - DateTime.UtcNow;
+            return remaining.TotalSeconds > 0
+                ? (int)Math.Ceiling(remaining.TotalSeconds)
+                : 0;
+        }
 
         /// <summary>Seeded first-run administrator account name.</summary>
         public const string DefaultAdminUsername = "admin";
