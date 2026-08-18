@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Splash/SplashView.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Splash Screen (Chat 23 v3.1)
@@ -114,12 +114,12 @@ namespace ProGlassAutomation.Views.Splash
             {
                 new FeatureItem("\uE9F9", "Dashboard",    frost),
                 new FeatureItem("\uE8A5", "Proforma",     cerulean),
-                new FeatureItem("\uE7B8", "Sheet Store",  azure),
-                new FeatureItem("\uE822", "Job Orders",   sapphire),
-                new FeatureItem("\uE7F4", "Delivery",     royal),
-                new FeatureItem("\uE8C8", "Tax Invoice",  navy),
-                new FeatureItem("\uE81C", "Statements",   sapphire),
-                new FeatureItem("\uE8A5", "Reports",      azure),
+                new FeatureItem("\uEA37", "Sheet Store",  azure),
+                new FeatureItem("\uE9D9", "Job Orders",   sapphire),
+                new FeatureItem("\uE7B8", "Delivery",     royal),
+                new FeatureItem("\uE8C7", "Tax Invoice",  navy),
+                new FeatureItem("\uE8F7", "Statements",   sapphire),
+                new FeatureItem("\uE8C8", "Reports",      azure),
                 new FeatureItem("\uE8F2", "AI Assistant", royal),
             };
         }
