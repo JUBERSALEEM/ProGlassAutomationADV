@@ -29,17 +29,19 @@
 | 11/12 (God-VM) | Extracted `PnLMeasurement` (SafeYield, MeasureGroup, BuildRowDescription) from ProfitLossStep VM | `a4943c0` | ✅ (static; needs Windows build) |
 | 11/12 (God-VM) | Extracted `PaymentTermsResolver` (label→due-days) from TaxInvoiceDetail VM + `PaymentTermsResolverTests` | `34e1343` | ✅ (static; needs Windows build/test) |
 | 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
+| 9 — Design system | Consolidated hardcoded `CornerRadius` values matching the canonical tokens (10/14/20/999) to the token resources across 58 views/controls (149 occurrences) — behavior-identical, no local overrides; Login glyph-prefixed input chrome left untouched | `ac42788` | ✅ (static; needs Windows build) |
+| 10 — Performance | Adopted `SheetStoreRepository.SearchAsync` in the Sheet Store VM (categorical filters pushed to SQL WHERE; generation-guarded async; `_allSheets` retained for import duplicate-detection) | `5749066` | ✅ (static; needs Windows build) |
+| 13 — Security | Persisted login lockout (survives restart, 5 fails → 5 min window) + forced first-run password rotation via new `ForcePasswordChangeWindow`; additive audit.db columns | `ead18f5` | ✅ (static; needs Windows build) |
 | 19 — Verdict | Final Production-Readiness verdict recorded below | — | ✅ (report) |
 
 **Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows. The God-VM refactor (`b49c02a`) is new since that confirmation and still needs the user's next Windows build to confirm — no compile errors are expected (pure static renames only).
 
-**Remaining (requires Windows build + business sign-off — not blind-applicable):**
-- Phase 9 remainder — rewiring the ~30 views to the design system (module-specific input chrome like Login's glyph-prefixed fields is intentionally kept per the prompt).
-- Phase 10 remainder — adopting `SearchAsync` in the Sheet Store VM (behavior change; the import duplicate-detection relies on the full `_allSheets`, so it needs careful build-tested rework).
+**Remaining (requires Windows build/runtime review + business sign-off — not blind-applicable):**
+- Phase 9 remainder — the **visual** redesign of the remaining module detail headers / wizard steps still needs Windows rendering review (the token consolidation is applied; appearance is unchanged by design).
 - Phase 11/12 remainder — further incremental God-ViewModel extraction (DeliveryNoteDetail 2134, TaxInvoiceDetail 2129, Settings 1795) is ongoing; each batch is a small, build-verified step.
-- Phase 13 remainder — force-first-run-password-change + persisted login lockout (behavior-changing; needs migration strategy + sign-off).
-- Phase 17 — `dotnet test` execution of the added test suite (requires Windows).
-- Phase 18 — Release build (requires Windows).
+- Phase 17 — `dotnet test` execution of the added test suite (requires Windows). **Not yet run/confirmed green.**
+- Phase 18 — Release build (requires Windows). **Not yet run.**
+- Windows build confirmation of the Phase 9/10/13 commits (`ac42788`, `5749066`, `ead18f5`) — they compile statically but must be built + smoke-tested (fresh-DB first-run force-password + lockout paths) on Windows.
 
 ---
 
@@ -79,6 +81,13 @@
 - `Services/Statement/Workflow/StatementSnapshotProjector.cs` + `Tests/Agent/StatementSnapshotProjectorTests.cs`
 - `ViewModels/ProformaInvoice/Step9ProfitLoss/PnLMeasurement.cs`
 - `Services/TaxInvoice/PaymentTermsResolver.cs` + `Tests/Agent/PaymentTermsResolverTests.cs`
+
+**Phase 9 — design-system radii (58 views/controls consolidated to tokens):**
+`Controls/EmptyState`, `Controls/GlobalSearch`, `Controls/GradientHeroCard`, `Views/About`, `Views/AI`, `Views/CompanyCenter`, `Views/Dashboard/*`, `Views/DeliveryNote/*`, `Views/JobOrder/*`, `Views/ProformaInvoice/*`, `Views/Reports/*`, `Views/Settings/*`, `Views/Shared/*`, `Views/SheetStore/*`, `Views/TaxInvoice/*`, `Views/UserCenter` — hardcoded `CornerRadius` values matching the canonical tokens replaced with `{DynamicResource ControlCornerRadius|CardCornerRadius|CardCornerRadiusLarge|PillCornerRadius}`.
+
+**Phase 10 — Sheet Store SQL filtering:** `ViewModels/SheetStore/SheetStoreViewModel.cs`
+
+**Phase 13 — Security:** `Models/Audit/AppUser.cs`, `Services/Audit/AuditDbMigrations.cs`, `Services/Audit/AuditService.cs`, `Views/Login/LoginWindow.xaml.cs`, `Views/Login/ForcePasswordChangeWindow.xaml(.cs)`
 - `ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs`
 - `ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs`
 - `ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs`
@@ -113,9 +122,10 @@ Per the strict standard in the master prompt, the honest verdict is:
 - **`dotnet test` has NOT yet been run/confirmed green** on Windows (Phase 17).
 - **The Release build has NOT been run** (Phase 18).
 - Production/Optimization modules remain placeholders (honestly marked — they must be built before a full production claim).
-- Remaining P1/business items (VM-level `SearchAsync` adoption, full God-VM split, first-run password force, persisted login lockout) are still pending build-test + sign-off.
+- The Phase 9/10/13 work is applied but **not yet build-verified on Windows** (`ac42788`, `5749066`, `ead18f5`).
+- Remaining P1/business items (full God-VM split, further Phase 9 visual redesign) are still pending build-test + sign-off.
 
-A **Production-Ready** claim cannot be made until: `dotnet test` passes green on Windows, the Release build succeeds, the placeholder Production modules are delivered, and the behavior-changing P1 items are applied with build verification + business sign-off. Until then the honest status is **BETA READY (quote→invoice vertical)**.
+A **Production-Ready** claim cannot be made until: `dotnet test` passes green on Windows, the Release build succeeds, the placeholder Production modules are delivered, and the remaining behavior-changing items are applied with build verification + business sign-off. Until then the honest status is **BETA READY (quote→invoice vertical)**.
 
 ---
 
