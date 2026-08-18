@@ -1510,7 +1510,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             foreach (var item in e.NewItems.OfType<string>())
             {
-                var severity = InferLogSeverity(item);
+                var severity = StatementLogHelper.InferLogSeverity(item);
                 LiveAddLogEntry(severity, "› " + item);
 
                 if (severity == LogSeverity.Info)
@@ -1554,18 +1554,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     Text = text
                 });
             });
-        }
-
-        private static LogSeverity InferLogSeverity(string text)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return LogSeverity.Info;
-
-            if (text.Contains("✅") || text.Contains("✓")) return LogSeverity.Success;
-            if (text.Contains("❌") || text.Contains("✗")) return LogSeverity.Error;
-            if (text.Contains("⚠")) return LogSeverity.Warning;
-            if (text.Contains("⏭")) return LogSeverity.Info;
-
-            return LogSeverity.Info;
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -1793,7 +1781,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 foreach (var (_, fileName) in invPdf.Attachments)
                 {
-                    bool isImage = IsImageFileName(fileName);
+                    bool isImage = StatementLogHelper.IsImageFileName(fileName);
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "📎",
@@ -1810,7 +1798,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 for (int i = 0; i < dn.AttachmentFileNames.Count; i++)
                 {
                     string fileName = dn.AttachmentFileNames[i];
-                    bool isImage = IsImageFileName(fileName);
+                    bool isImage = StatementLogHelper.IsImageFileName(fileName);
 
                     MergedPdfSections.Add(new PdfSection
                     {
@@ -1880,14 +1868,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             OnPropertyChanged(nameof(MergedSectionCount));
             OnPropertyChanged(nameof(BalanceSectionCount));
             OnPropertyChanged(nameof(AlertsSectionCount));
-        }
-
-        private static bool IsImageFileName(string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(fileName)) return false;
-            string ext = Path.GetExtension(fileName).ToLowerInvariant();
-            return ext == ".png" || ext == ".jpg" || ext == ".jpeg" ||
-                   ext == ".bmp" || ext == ".gif";
         }
 
         // ═════════════════════════════════════════════════════════════════
