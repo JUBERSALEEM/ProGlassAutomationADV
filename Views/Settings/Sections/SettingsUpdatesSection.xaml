@@ -58,7 +58,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="0"
+                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="0"
                                     Background="{DynamicResource MenuHoverBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="14,10" Margin="0,0,6,0">
@@ -74,7 +74,7 @@
                                     </TextBlock>
                                 </StackPanel>
                             </Border>
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="1"
+                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="1"
                                     Background="{DynamicResource TintBlueBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="14,10" Margin="6,0,0,0">
@@ -168,7 +168,7 @@
                         </ProgressBar>
 
                         <!-- Release details -->
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Margin="0,14,0,0"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Margin="0,14,0,0"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="14,12">

@@ -51,23 +51,9 @@
                     <StackPanel>
                         <TextBlock Text="THEME MODE"
                                    Style="{StaticResource SectionLabelStyle}"/>
-                        <DockPanel Margin="0,6,0,0">
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center">
-                                <TextBlock Text="&#xE706;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="16"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="Dark Mode"
-                                           Style="{StaticResource RowTitleStyle}"/>
-                            </StackPanel>
-                            <ToggleButton HorizontalAlignment="Right"
-                                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                          Style="{StaticResource ModernToggleSwitch}"/>
-                        </DockPanel>
+                        <!-- Dark Mode was MOVED to the top bar (before the AI
+                             agent) — a single switch accessible from any
+                             module. It is no longer here. -->
 
                         <TextBlock Text="Visual Theme"
                                    Style="{StaticResource RowTitleStyle}"
@@ -109,6 +95,42 @@
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="Draws a strong dark outline on rounded cards and pill buttons so they stay clearly separate from tinted surfaces instead of blending into them. Applies everywhere in the app and adapts to Light and Dark themes."/>
+
+                        <Border Height="1" Margin="0,18,0,16"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <!-- Global card border thickness — one control restyles
+                             every card instead of editing them individually. -->
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xE72D;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="Card Border Thickness"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       FontSize="13" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                <Run Text="{Binding CardBorderThickness, StringFormat={}{0:0.#}}"/>
+                                <Run Text=" DIP"/>
+                            </TextBlock>
+                        </DockPanel>
+                        <Slider Margin="0,8,0,0"
+                                Minimum="0" Maximum="4"
+                                TickFrequency="0.25" IsSnapToTickEnabled="True"
+                                Value="{Binding CardBorderThickness, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Sets the edge weight of every card and panel across the whole app (0 = no border). One setting, applied everywhere."/>
                     </StackPanel>
                 </Border>
 

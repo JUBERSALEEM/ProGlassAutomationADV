@@ -345,7 +345,7 @@
                     <Border x:Name="bd"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1.5"
+                            BorderThickness="{StaticResource CardBorderThickness}"
                             CornerRadius="17"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True"
@@ -398,7 +398,7 @@
                             Padding="{TemplateBinding Padding}"
                             Background="Transparent"
                             BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="1.5"
+                            BorderThickness="{StaticResource CardBorderThickness}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
                         <ContentPresenter HorizontalAlignment="Center"

@@ -64,7 +64,7 @@
                 <Border Grid.Row="1"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1.5"
+                        BorderThickness="{StaticResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         ClipToBounds="True">
                     <Grid>

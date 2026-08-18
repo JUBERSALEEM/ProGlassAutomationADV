@@ -237,7 +237,7 @@
              model's medal emoji.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Margin="0,0,0,10"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="12"
                     SnapsToDevicePixels="True"

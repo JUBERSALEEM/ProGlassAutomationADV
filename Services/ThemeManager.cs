@@ -103,6 +103,11 @@ namespace ProGlassAutomation.Services
             // "defined edge" choice on every Light/Dark swap.
             ReapplyOutline();
 
+            // Same for the card border thickness — a fresh dictionary resets
+            // CardBorderThickness to the theme default, so re-apply the user's
+            // saved value after every theme swap.
+            ReapplyCardBorderThickness();
+
             ThemeChanged?.Invoke(null, EventArgs.Empty);
         }
 
@@ -436,6 +441,37 @@ namespace ProGlassAutomation.Services
         /// </para>
         /// </summary>
         public static void ReapplyOutlinePreference() => ReapplyOutline();
+
+        private static double _cardBorderThickness = 1.5;
+
+        /// <summary>
+        /// Current global card border thickness in DIPs.
+        /// </summary>
+        public static double CardBorderThickness => _cardBorderThickness;
+
+        /// <summary>
+        /// Applies a uniform border thickness to every card / panel via the
+        /// shared CardBorderThickness theme resource. Cards reference it with
+        /// {StaticResource CardBorderThickness}, so one call restyles the whole
+        /// app instead of editing hundreds of individual card declarations.
+        /// </summary>
+        public static void ApplyCardBorderThickness(double thickness)
+        {
+            if (thickness < 0.0) thickness = 0.0;
+            _cardBorderThickness = thickness;
+
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            resources["CardBorderThickness"] = new Thickness(thickness);
+        }
+
+        /// <summary>
+        /// Re-applies the saved card border thickness. Called after a theme
+        /// swap because loading a new dictionary restores that theme's default.
+        /// </summary>
+        public static void ReapplyCardBorderThickness()
+            => ApplyCardBorderThickness(_cardBorderThickness);
 
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)

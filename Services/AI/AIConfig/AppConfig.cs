@@ -27,6 +27,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public bool UseDefinedOutline { get; set; }
 
+        /// <summary>
+        /// Uniform border thickness (in DIPs) for every card / panel in the
+        /// app. Defaults to 1.5. Applied globally through the
+        /// CardBorderThickness theme resource so one setting controls all
+        /// cards instead of editing them individually.
+        /// </summary>
+        public double CardBorderThickness { get; set; } = 1.5;
+
         /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";
 

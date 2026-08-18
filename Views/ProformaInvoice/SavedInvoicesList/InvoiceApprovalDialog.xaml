@@ -35,7 +35,7 @@
                                 CornerRadius="10"
                                 Background="{DynamicResource WindowBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1.5"
+                                BorderThickness="{StaticResource CardBorderThickness}"
                                 SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="14,0"
@@ -58,7 +58,7 @@
     <Border CornerRadius="18"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1.5"
+            BorderThickness="{StaticResource CardBorderThickness}"
             Margin="16">
         <Border.Effect>
             <DropShadowEffect BlurRadius="28" ShadowDepth="4"

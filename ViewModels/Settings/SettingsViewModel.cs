@@ -315,6 +315,33 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
+        /// <summary>
+        /// Global card border thickness (DIPs). One setting restyles every
+        /// card / panel in the app through the CardBorderThickness theme
+        /// resource. Persisted so the choice survives a restart.
+        /// </summary>
+        public double CardBorderThickness
+        {
+            get => App.Config?.Appearance?.CardBorderThickness ?? 1.5;
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                double v = value < 0 ? 0 : value;
+                if (Math.Abs(App.Config.Appearance.CardBorderThickness - v) < 0.01) return;
+
+                App.Config.Appearance.CardBorderThickness = v;
+                ThemeManager.ApplyCardBorderThickness(v);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Card border thickness changed",
+                    $"{v:0.#} DIP");
+
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsDarkTheme
         {
             get => ThemeManager.CurrentTheme == AppTheme.Dark;

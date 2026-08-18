@@ -17,7 +17,7 @@
     <Border CornerRadius="16"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1.5">
+            BorderThickness="{StaticResource CardBorderThickness}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="32" ShadowDepth="0"
                               Opacity="0.22" Color="#000000"/>
@@ -121,7 +121,7 @@
                     Visibility="Collapsed"
                     Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
-                    BorderThickness="1.5">
+                    BorderThickness="{StaticResource CardBorderThickness}">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"

@@ -270,6 +270,11 @@
     <CornerRadius x:Key="CardCornerRadiusLarge">20</CornerRadius>
     <CornerRadius x:Key="PillCornerRadius">999</CornerRadius>
 
+    <!-- Card border thickness — one source of truth for every card/panel
+         edge. Driven by the Appearance > Border Thickness setting; cards
+         reference this via {StaticResource CardBorderThickness}. -->
+    <Thickness x:Key="CardBorderThickness">1.5</Thickness>
+
     <!-- Motion defaults (pre-profile values; tuned at startup). -->
     <sys:Double x:Key="MotionSpeedRatio">1.0</sys:Double>
     <Duration x:Key="MotionDurationFast">0:0:0.12</Duration>

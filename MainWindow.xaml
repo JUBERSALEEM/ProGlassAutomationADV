@@ -689,6 +689,25 @@
                             Background="{DynamicResource DividerBrush}"
                             Margin="0,0,16,0"/>
 
+                    <!-- DARK MODE TOGGLE — moved from Appearance to the top
+                         bar, before the AI agent pill. -->
+                    <Button x:Name="DarkModeButton"
+                            Margin="0,0,10,0"
+                            ToolTip="Toggle Light / Dark theme"
+                            Command="{Binding ToggleThemeCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
+                                <Setter Property="Content" Value="&#xE708;"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDarkTheme}" Value="True">
+                                        <Setter Property="Content" Value="&#xE706;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
                     <!-- AI AGENT PULSE PILL (theme-based accent) -->
                     <Border Height="36"
                             CornerRadius="18"
@@ -1311,7 +1330,7 @@
                     CornerRadius="16"
                     ClipToBounds="True"
                     BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="1.5"
+                    BorderThickness="{StaticResource CardBorderThickness}"
                     Effect="{StaticResource DrawerLeftShadow}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter}}">

@@ -28,14 +28,14 @@
             CornerRadius="12"
             Padding="10"
             Margin="0,6,0,0"
-            BorderThickness="1.5"
+            BorderThickness="{StaticResource CardBorderThickness}"
             BorderBrush="{DynamicResource OutlineBrush}">
         <StackPanel>
 
             <!-- ── Live spec preview ── -->
             <Border Background="{DynamicResource TintPurpleBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1.5"
+                    BorderThickness="{StaticResource CardBorderThickness}"
                     CornerRadius="6"
                     Padding="8,5"
                     Margin="0,0,0,6">

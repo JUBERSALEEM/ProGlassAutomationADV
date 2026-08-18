@@ -250,7 +250,7 @@
                 Margin="24,14,24,0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1.5"
+                BorderThickness="{StaticResource CardBorderThickness}"
                 CornerRadius="12"
                 Padding="12,10">
             <Grid>
@@ -387,7 +387,7 @@
                 Margin="24,10,24,0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1.5"
+                BorderThickness="{StaticResource CardBorderThickness}"
                 CornerRadius="10"
                 Padding="16,8"
                 Visibility="{Binding IsListVisible,
@@ -468,7 +468,7 @@
 
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1.5"
+                    BorderThickness="{StaticResource CardBorderThickness}"
                     CornerRadius="14"
                     Visibility="{Binding IsEmpty,
                         Converter={StaticResource BoolToVisibilityConverter}}">
@@ -581,7 +581,7 @@
                     <DataTemplate>
                         <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1.5"
+                                BorderThickness="{StaticResource CardBorderThickness}"
                                 CornerRadius="12"
                                 ClipToBounds="True">
                             <Border.Style>

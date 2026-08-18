@@ -129,7 +129,7 @@
                         <!-- ── MODEL STATUS CARD ──────────────────── -->
                         <Border CornerRadius="12" Padding="16,12"
                                 Margin="0,12,0,12"
-                                BorderThickness="1.5"
+                                BorderThickness="{StaticResource CardBorderThickness}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
                             <Border.Style>
@@ -350,7 +350,7 @@
                                 <!-- Model file location -->
                                 <Border Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1.5" CornerRadius="8"
+                                        BorderThickness="{StaticResource CardBorderThickness}" CornerRadius="8"
                                         Padding="10,8" Margin="0,10,0,0"
                                         SnapsToDevicePixels="True"
                                         UseLayoutRounding="True"

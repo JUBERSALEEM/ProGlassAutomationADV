@@ -502,6 +502,28 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        // ── theme toggle (top bar, before the AI agent) ──────────────────
+
+        private bool _isDarkTheme;
+        /// <summary>True when Dark theme is active (mirrors Settings).</summary>
+        public bool IsDarkTheme
+        {
+            get => _isDarkTheme;
+            private set
+            {
+                if (_isDarkTheme == value) return;
+                _isDarkTheme = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Toggles Light/Dark theme from the top-bar switch. Delegates to the
+        /// Settings ViewModel so the visual-theme rebuild + audit trail are
+        /// exactly the same path as the Appearance screen.
+        /// </summary>
+        public ICommand ToggleThemeCommand { get; private set; }
+
         // ── commands ──────────────────────────────────────────────────────
 
         /// <summary>Toggles the left navigation drawer.</summary>
@@ -550,6 +572,21 @@ namespace ProGlassAutomation.ViewModels
             // PHASE L: agent chat toggle.
             ToggleAgentChatCommand = new RelayCommand(
                 _ => IsAgentChatOpen = !IsAgentChatOpen);
+
+            // ── theme toggle (top bar) ────────────────────────────────────
+            IsDarkTheme =
+                ProGlassAutomation.Services.ThemeManager.CurrentTheme
+                == ProGlassAutomation.Services.AppTheme.Dark;
+            SettingsVM.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(SettingsViewModel.IsDarkTheme))
+                    IsDarkTheme = SettingsVM.IsDarkTheme;
+            };
+            ToggleThemeCommand = new RelayCommand(_ =>
+            {
+                // Reuses the full Settings path (visual theme rebuild + audit).
+                SettingsVM.IsDarkTheme = !SettingsVM.IsDarkTheme;
+            });
 
             // PHASE E: global search navigates through the SAME Navigate()
             // switch the sidebar uses, so wallpaper + AI screen context stay

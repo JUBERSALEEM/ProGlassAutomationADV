@@ -468,6 +468,11 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyOutline(
                 Config.Appearance?.UseDefinedOutline ?? false);
 
+            // 9g) Restore the persisted global card border thickness so the
+            //     saved Appearance > Border Thickness value applies on launch.
+            ProGlassAutomation.Services.ThemeManager.ApplyCardBorderThickness(
+                Config.Appearance?.CardBorderThickness ?? 1.5);
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");

@@ -89,7 +89,7 @@
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="16,14"
                 Margin="0,0,12,12"
-                BorderThickness="1.5"
+                BorderThickness="{StaticResource CardBorderThickness}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 Background="{Binding TintBrushKey,
                              Converter={StaticResource BrushKeyConverter}}"

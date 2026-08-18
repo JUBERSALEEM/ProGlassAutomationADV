@@ -143,7 +143,7 @@
             <!-- FILTERS + SORT + SEARCH -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1.5"
+                    BorderThickness="{StaticResource CardBorderThickness}"
                     CornerRadius="12" Padding="16,12" Margin="8,0,8,12"
                     SnapsToDevicePixels="True">
                 <StackPanel>
@@ -218,7 +218,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="8" Padding="12,7" Margin="0,10,0,0"
                             SnapsToDevicePixels="True">
@@ -255,7 +255,7 @@
                 <Border Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1.5"
+                        BorderThickness="{StaticResource CardBorderThickness}"
                         CornerRadius="14,14,0,0" Padding="12,10"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -378,17 +378,17 @@
                                             <TextBlock Grid.Column="10" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
                                                        FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
                                                        VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="11"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="11"
                                                     Background="{DynamicResource TintGreenBrush}" CornerRadius="6"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Stock}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                             </Border>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="12"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="12"
                                                     Background="{DynamicResource TintRedBrush}" CornerRadius="6"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Used}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                             </Border>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="13"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="13"
                                                     Background="{DynamicResource TintAmberBrush}" CornerRadius="6"
                                                     Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
@@ -443,7 +443,7 @@
                 <Border Width="340"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1.5"
+                        BorderThickness="{StaticResource CardBorderThickness}"
                         CornerRadius="16"
                         Padding="18"
                         SnapsToDevicePixels="True">
