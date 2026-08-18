@@ -30,30 +30,63 @@ namespace ProGlassAutomation.Agent.Demo.Data
 
             try
             {
+                // Startup only EnsureCreated the production folder.
+                // After the switch these files are new and have no tables
+                // until we create them — otherwise PI cards throw
+                // SQLite error 1 (no such table: Companies / Clients / Projects).
+                await InitializeCurrentFolderAsync(ct).ConfigureAwait(false);
+
                 var (canSeed, reason) = await DemoIsolation.CanSeedAsync()
                     .ConfigureAwait(false);
-                if (!canSeed)
+
+                if (canSeed)
                 {
-                    // Already has demo records, or isolation refused.
-                    // Still OK to record against the isolated folder.
-                    if (AppDataRoot.IsDemo
-                        && !DemoIsolation.IsProductionPath(AppDataRoot.CurrentFolder))
-                    {
-                        return (true, reason);
-                    }
-                    AppDataRoot.ExitDemo();
-                    return (false, reason);
+                    ct.ThrowIfCancellationRequested();
+                    string seeded = await SampleDataService.SeedAsync().ConfigureAwait(false);
+                    await SampleDataService.SeedMasterProfilesAsync().ConfigureAwait(false);
+                    return (true, "Demo folder active. " + seeded);
                 }
 
-                ct.ThrowIfCancellationRequested();
-                string seeded = await SampleDataService.SeedAsync().ConfigureAwait(false);
-                return (true, "Demo folder active. " + seeded);
+                if (AppDataRoot.IsDemo
+                    && !DemoIsolation.IsProductionPath(AppDataRoot.CurrentFolder))
+                {
+                    await SampleDataService.SeedMasterProfilesAsync().ConfigureAwait(false);
+                    return (true, reason);
+                }
+
+                AppDataRoot.ExitDemo();
+                return (false, reason);
             }
             catch (Exception ex)
             {
                 AppDataRoot.ExitDemo();
                 return (false, "Could not enter Demo Mode: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Creates schema on whatever folder AppDataRoot currently points at.
+        /// Must run after EnterDemo before any GetAll query.
+        /// </summary>
+        public static async Task InitializeCurrentFolderAsync(CancellationToken ct)
+        {
+            DatabaseInitializer.Initialize();
+
+            if (App.Specs != null)
+                await App.Specs.InitializeAsync().ConfigureAwait(false);
+            ct.ThrowIfCancellationRequested();
+            if (App.Invoices != null)
+                await App.Invoices.InitializeAsync().ConfigureAwait(false);
+            if (App.Jobs != null)
+                await App.Jobs.InitializeAsync().ConfigureAwait(false);
+            if (App.DeliveryNotes != null)
+                await App.DeliveryNotes.InitializeAsync().ConfigureAwait(false);
+            if (App.MasterData != null)
+                await App.MasterData.InitializeAsync().ConfigureAwait(false);
+            if (App.TaxInvoices != null)
+                await App.TaxInvoices.InitializeAsync().ConfigureAwait(false);
+            if (App.Statements != null)
+                await App.Statements.InitializeAsync().ConfigureAwait(false);
         }
 
         public static void Exit() => AppDataRoot.ExitDemo();

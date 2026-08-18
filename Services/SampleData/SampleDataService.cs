@@ -20,12 +20,15 @@
 //   • Logs the operation to the audit trail.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.SheetStore;
 using System;
 using System.Text.Json;
@@ -232,6 +235,97 @@ namespace ProGlassAutomation.Services.SampleData
                    $"• Tax Invoices: {ti} removed\n\n" +
                    "The database is empty and ready for real data.";
         }
+
+        /// <summary>
+        /// Inserts company / client / project / salesman cards when those
+        /// tables are empty. Uses the DbContext directly so it does not
+        /// trip OperationGuard. Safe to call after a folder switch.
+        /// </summary>
+        public static async Task SeedMasterProfilesAsync()
+        {
+            using var db = new MasterDataDbContext();
+            await db.Database.EnsureCreatedAsync();
+
+            var now = DateTime.Now;
+            bool added = false;
+
+            if (!await db.Companies.AnyAsync())
+            {
+                db.Companies.Add(new SavedCompany
+                {
+                    CompanyName = "ProGlass Automation Demo",
+                    CompanyTrn = "100234567800003",
+                    CompanyLocation = "Sharjah, UAE",
+                    Representative = "Demo User",
+                    IsDefault = true,
+                    UsageCount = 4,
+                    CreatedAt = now,
+                    LastUsedAt = now
+                });
+                added = true;
+            }
+
+            if (!await db.Clients.AnyAsync())
+            {
+                db.Clients.Add(Client("Demo Glass Contractor", now, 4));
+                db.Clients.Add(Client("Skyline Interiors LLC", now, 3));
+                db.Clients.Add(Client("Desert Rose Contracting", now, 2));
+                db.Clients.Add(Client("Al Noor Glass Trading", now, 1));
+                added = true;
+            }
+
+            if (!await db.Projects.AnyAsync())
+            {
+                db.Projects.Add(Project("Demo Tower Fit-Out", "Demo Glass Contractor", now, 4));
+                db.Projects.Add(Project("Marina Tower — Fit-Out", "Skyline Interiors LLC", now, 3));
+                db.Projects.Add(Project("Palm Villa 17", "Desert Rose Contracting", now, 2));
+                db.Projects.Add(Project("Showroom Partition Works", "Al Noor Glass Trading", now, 1));
+                added = true;
+            }
+
+            if (!await db.Salesmen.AnyAsync())
+            {
+                db.Salesmen.Add(new SavedSalesman
+                {
+                    Name = "A. Rahman",
+                    Department = "Sales",
+                    UsageCount = 4,
+                    CreatedAt = now,
+                    LastUsedAt = now
+                });
+                added = true;
+            }
+
+            if (added)
+                await db.SaveChangesAsync();
+        }
+
+        private static SavedClient Client(string name, DateTime now, int uses) => new()
+        {
+            CustomerName = name,
+            CustomerTrn = "100987654300003",
+            BillingAddress = "PO Box 12345, Sharjah, UAE",
+            SalesRepresentative = "A. Rahman",
+            DocumentPreparedBy = "Demo User",
+            ClientContactPhone = "+971 50 123 4567",
+            UsageCount = uses,
+            CreatedAt = now,
+            LastUsedAt = now
+        };
+
+        private static SavedProject Project(
+            string name, string customer, DateTime now, int uses) => new()
+        {
+            ProjectIdentifierName = name,
+            ProjectContractNo = "CTR-2026-11",
+            ProjectReference = name,
+            SiteDeliveryLocation = "Sharjah Industrial Area",
+            LpoNumber = "LPO-889",
+            CustomerName = customer,
+            UsageCount = uses,
+            CreatedAt = now,
+            LastUsedAt = now
+        };
 
         // ── builders ──────────────────────────────────────────────────
 
