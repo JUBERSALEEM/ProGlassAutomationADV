@@ -41,7 +41,7 @@ namespace ProGlassAutomation.Views.SheetStore
                 DetailPanel.Visibility = Visibility.Visible;
                 PanelSlide.BeginAnimation(
                     TranslateTransform.XProperty,
-                    new DoubleAnimation(360, 0, TimeSpan.FromMilliseconds(220))
+                    new DoubleAnimation(400, 0, TimeSpan.FromMilliseconds(220))
                     {
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                     });
@@ -50,7 +50,7 @@ namespace ProGlassAutomation.Views.SheetStore
             {
                 PanelSlide.BeginAnimation(
                     TranslateTransform.XProperty,
-                    new DoubleAnimation(360, TimeSpan.FromMilliseconds(180)));
+                    new DoubleAnimation(400, TimeSpan.FromMilliseconds(180)));
                 // Delay collapse until the slide-out finishes.
                 var timer = new System.Windows.Threading.DispatcherTimer
                 {
