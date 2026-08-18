@@ -1,3 +1,4 @@
+
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using System;
@@ -9,66 +10,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 {
-    /// <summary>
-    /// Represents a glass structure type option (SGU / DGU / LAM / DGU+LAM).
-    /// </summary>
-    public class GlassTypeCard : ViewModelBase
-    {
-        public string Code { get; set; } = "";
-        public string Title { get; set; } = "";
-        public string Description { get; set; } = "";
-        public string Icon { get; set; } = "";
-        public string AccentColor { get; set; } = "";
-
-        private bool _isSelected;
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set { _isSelected = value; OnPropertyChanged(); }
-        }
-    }
-
-    /// <summary>
-    /// Represents a specification target group (visual preview only —
-    /// diverges from Step 5's real SpecGroups by design).
-    ///
-    /// BUG-43: This is a Step-4-only visual collection for the "Apply Rate
-    ///         to Specs" picker. It does NOT sync with Step5VM.SpecGroups.
-    ///         Users pick which specs the calculated rate applies to;
-    ///         those specs are then updated in the Step 5 grid separately.
-    /// </summary>
-    public class SpecTargetGroup : ViewModelBase
-    {
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-
-        private bool _isSelected;
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set { _isSelected = value; OnPropertyChanged(); }
-        }
-    }
-
-    /// <summary>
-    /// ViewModel for Step 4 of the Proforma Invoice wizard.
-    /// Smart Pricing Estimator: glass type selection, per-glass-type
-    /// parameter panels, processing treatments, spec target groups,
-    /// and live rate calculation.
-    /// APPLY button saves the current spec to specifications.db.
-    ///
-    /// BUG-40/41 [HIGH]: Invalid yield factor no longer silently reset —
-    ///                    warning message shown via YieldFactorWarning.
-    /// BUG-42 [HIGH]: DGU+LAM hybrid returns "" for spec name so save
-    ///                is blocked instead of writing "not yet implemented"
-    ///                garbage to the DB. Save command disabled via
-    ///                CanExecute check.
-    /// BUG-43 [MEDIUM]: SpecGroups documented — divergent from Step5 by design.
-    /// BUG-44 [MEDIUM]: Save success shows one-line status instead of blocking
-    ///                  MessageBox (matches DN pattern — non-blocking UX).
-    /// BUG-45 [LOW]: Property-changed switches consolidated — recalculates
-    ///               whenever the active panel changes any tracked property.
-    /// </summary>
     public class PricingEstimatorViewModel : ViewModelBase
     {
         // === Panel ViewModels (one per glass type) ===
