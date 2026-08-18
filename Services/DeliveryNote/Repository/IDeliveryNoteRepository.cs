@@ -77,6 +77,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         /// Recalculates Master DN delivered/balance totals after a real
         /// DN is dispatched. Updates PreviouslyDeliveredQty on each item
         /// so SELECT ALL REMAINING shows correct balance pcs.
+        /// Confirmed (non-Draft) real DNs only — drafts do not count.
         /// triggeredByDnId = the real DN that caused this update (audit).
         /// </summary>
         Task UpdateMasterDnAsync(string jobOrderId, string triggeredByDnId);

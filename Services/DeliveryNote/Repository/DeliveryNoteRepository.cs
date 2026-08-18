@@ -157,10 +157,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (masterDn == null) return;
 
+            // Confirmed real DNs only. Drafts must not inflate Master
+            // Prev/Balance — same rule as GetPreviouslyDeliveredMapAsync.
             var realDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId &&
                             !x.IsMasterDn &&
-                            x.DeliveryType != "Dummy")
+                            x.DeliveryType != "Dummy" &&
+                            x.Status != "Draft")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 

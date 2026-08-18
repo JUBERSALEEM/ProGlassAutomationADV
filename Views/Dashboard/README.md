@@ -1,4 +1,4 @@
-﻿# Dashboard Module — Phase 8.1
+# Dashboard Module — Phase 8.1
 
 ## Summary
 Multi-page dashboard shell with underline tab navigation.
@@ -47,7 +47,10 @@ All charts are pure WPF (no NuGet) using ChartBarModel + ScaleConverter.
     OnViewLoaded() refreshes active page on every navigation to Dashboard.
 
 ## Charts (pure WPF)
-    Overview:         Monthly Sales vertical bars — last 6 months
+    Shared kit:       Docs/DASHBOARD_2050_KIT.md
+                      TrendChartControl + MiniBarChart + DonutChartControl
+                      ChartSliceModel for donuts (Accent = Green|Blue|Amber|Red)
+    Overview:         Monthly Sales bars + Delivery mix donut
     Sheet Store:      Available SQM per category — vertical bars
     Proforma Invoice: Status distribution bars + Top 5 customers bars
 

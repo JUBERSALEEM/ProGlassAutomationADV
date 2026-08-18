@@ -301,6 +301,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         // Phase 10.5 — create DN from this JO
         public ICommand CreateDeliveryNoteCommand { get; }
 
+        /// <summary>Opens the Master DN created from this Job Order.</summary>
+        public ICommand OpenMasterDnCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -575,6 +578,73 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         //  PHASE 10.5 — CREATE DELIVERY NOTE FROM THIS JO
         // ═════════════════════════════════════════════════════════════════
 
+        private async Task OpenMasterDnAsync()
+        {
+            if (_entity == null || string.IsNullOrWhiteSpace(_entity.JobOrderId))
+            {
+                MessageBox.Show(
+                    "Load a job order first.",
+                    "Master DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (App.DeliveryNotes == null)
+            {
+                MessageBox.Show(
+                    "Delivery Notes database not initialized.",
+                    "Master DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                var master = await App.DeliveryNotes
+                    .GetMasterDnForJobOrderAsync(_entity.JobOrderId);
+                if (master == null)
+                {
+                    try
+                    {
+                        master = await ProGlassAutomation.Services.DeliveryNote
+                            .MasterDeliveryNoteService
+                            .EnsureForJobOrderAsync(_entity);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            "Could not create Master DN.\n\n" + ex.Message,
+                            "Master DN",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
+                if (master == null)
+                {
+                    MessageBox.Show(
+                        "No Master DN exists for this Job Order yet.",
+                        "Master DN",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                OnRequestOpenDeliveryNote?.Invoke(master.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to open Master DN:\\n\\n{ex.Message}",
+                    "Master DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         private async Task CreateDeliveryNoteAsync()
         {
             if (_entity == null || _snapshot == null)
@@ -631,6 +701,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     await ProGlassAutomation.Services.DeliveryNote
                         .MasterDeliveryNoteService
                         .EnsureForJobOrderAsync(_entity);
+                    await App.DeliveryNotes.UpdateMasterDnAsync(
+                        _entity.JobOrderId, "");
                 }
                 catch { /* real DN still created */ }
 

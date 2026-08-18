@@ -261,6 +261,13 @@
                                 Command="{Binding DataContext.OpenGroupCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
+                        <Button Style="{StaticResource RowOutlinedButton}"
+                                Tag="&#xE718;" Content="MASTER DN"
+                                Margin="0,6,0,0"
+                                ToolTip="Open the Master DN created from this Job Order."
+                                Command="{Binding DataContext.OpenMasterCommand,
+                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
                         <Button Style="{StaticResource RowSuccessButton}"
                                 Tag="&#xE8A5;" Content="MASTER INVOICE"
                                 Margin="0,6,0,0"

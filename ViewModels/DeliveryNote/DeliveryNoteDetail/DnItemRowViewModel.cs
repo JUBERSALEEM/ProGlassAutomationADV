@@ -67,6 +67,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 : $"{W1}×{H1}";
 
         public bool HasBalance => BalanceQty > 0;
+        public bool IsFullyDeliveredLine =>
+            BalanceQty <= 0 && PreviouslyDeliveredQty > 0;
         public decimal Sqm => SqmCalculator.CalculatePanel(W1, H1);
         public decimal TotalSqm =>
             SqmCalculator.CalculateTotal(W1, H1, OrderedQty);

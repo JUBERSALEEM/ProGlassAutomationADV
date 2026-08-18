@@ -195,6 +195,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 return await OnRequestAutoCreateTaxInvoice(dnId);
             };
 
+            DetailVM.OnRequestOpenMasterDn = jobOrderId => SafeFireAsync(
+                () => OpenMasterForJobOrderAsync(jobOrderId));
+
+            ListVM.OnRequestOpenMaster = jobOrderId => SafeFireAsync(
+                () => OpenMasterForJobOrderAsync(jobOrderId));
+
             // ── Chat 14: DN Detail Convert → single-DN invoice ────────────
             DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
             {
@@ -359,6 +365,58 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public async Task OpenDeliveryNoteAsync(int deliveryNoteId)
         {
             await DetailVM.LoadAsync(deliveryNoteId);
+            IsListView = false;
+            await SafeLoadListAsync();
+        }
+
+        /// <summary>
+        /// Opens the Master DN created from this Job Order. Remaining
+        /// balance is the default grid; the user can toggle the original
+        /// full JO set on the Master itself.
+        /// </summary>
+        public async Task OpenMasterForJobOrderAsync(string jobOrderId)
+        {
+            if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(jobOrderId))
+                return;
+
+            var master = await App.DeliveryNotes
+                .GetMasterDnForJobOrderAsync(jobOrderId);
+
+            if (master == null && App.Jobs != null)
+            {
+                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (jo != null)
+                {
+                    try
+                    {
+                        master = await Services.DeliveryNote
+                            .MasterDeliveryNoteService
+                            .EnsureForJobOrderAsync(jo);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            "Could not open Master DN.\n\n" + ex.Message,
+                            "Master DN",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+            }
+
+            if (master == null)
+            {
+                MessageBox.Show(
+                    $"No Master DN exists for '{jobOrderId}'.\n\n" +
+                    "Approve the Proforma / create the Job Order first.",
+                    "Master DN Not Found",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            await DetailVM.LoadAsync(master.Id);
             IsListView = false;
             await SafeLoadListAsync();
         }
@@ -635,6 +693,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote masterDn)
         {
             if (App.DeliveryNotes == null) return;
+
+            try
+            {
+                await App.DeliveryNotes.UpdateMasterDnAsync(
+                    jobOrder.JobOrderId, masterDn.DeliveryNoteId);
+                masterDn = await App.DeliveryNotes
+                    .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId)
+                    ?? masterDn;
+            }
+            catch { /* use the in-memory Master if persist is denied */ }
 
             int nextSeq = await App.DeliveryNotes
                 .GetNextSequenceAsync(jobOrder.JobOrderId);

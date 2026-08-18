@@ -131,6 +131,16 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 vm.OpenGroupCommand.Execute(group);
             menu.Items.Add(openItem);
 
+            var masterItem = new MenuItem
+            {
+                Header = "📋  View Master DN (original from Job Order)",
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
+            masterItem.Click += (_, __) =>
+                vm.OpenMasterCommand.Execute(group);
+            menu.Items.Add(masterItem);
+
             menu.Items.Add(new Separator
             {
                 Style = (Style)FindResource("ModernMenuSeparatorStyle")

@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/OverviewDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Dashboard Overview (Chat 23 v2.0.1)
@@ -140,6 +140,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             get => _hasChartData;
             private set { if (_hasChartData == value) return; _hasChartData = value; OnPropertyChanged(); }
+        }
+
+        private ObservableCollection<ChartSliceModel> _deliveryMixSlices = new();
+        public ObservableCollection<ChartSliceModel> DeliveryMixSlices
+        {
+            get => _deliveryMixSlices;
+            private set { if (_deliveryMixSlices == value) return; _deliveryMixSlices = value; OnPropertyChanged(); }
         }
 
 
@@ -401,6 +408,38 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             HasChartData = anyData;
             ChartTitle = $"{months.First():MMM yyyy} → {months.Last():MMM yyyy}";
 
+            DeliveryMixSlices = new ObservableCollection<ChartSliceModel>
+            {
+                new ChartSliceModel
+                {
+                    Label = "Preparing",
+                    RawValue = dnDraft,
+                    ValueDisplay = $"{dnDraft:N0} notes",
+                    Accent = "Amber"
+                },
+                new ChartSliceModel
+                {
+                    Label = "Dispatched",
+                    RawValue = dnDispatched,
+                    ValueDisplay = $"{dnDispatched:N0} notes",
+                    Accent = "Blue"
+                },
+                new ChartSliceModel
+                {
+                    Label = "Delivered pcs",
+                    RawValue = dnTotalDeliveredPcs,
+                    ValueDisplay = $"{dnTotalDeliveredPcs:N0} pcs",
+                    Accent = "Green"
+                },
+                new ChartSliceModel
+                {
+                    Label = "Pending pcs",
+                    RawValue = dnPendingPcs,
+                    ValueDisplay = $"{dnPendingPcs:N0} pcs",
+                    Accent = dnPendingPcs > 0 ? "Red" : "Amber"
+                }
+            };
+
             // ═════════════════════════════════════════════════════════════
             //  💬 RECENT ACTIVITY — merge all module events
             // ═════════════════════════════════════════════════════════════
@@ -558,6 +597,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             DeliveryTiles = new ObservableCollection<KpiTileModel>(_deliveryTiles);
             InventoryTiles = new ObservableCollection<KpiTileModel>(_inventoryTiles);
             RecentActivity = new ObservableCollection<ActivityFeedItem>(_recentActivity);
+            DeliveryMixSlices = new ObservableCollection<ChartSliceModel>(_deliveryMixSlices);
         }
 
         // ═════════════════════════════════════════════════════════════════

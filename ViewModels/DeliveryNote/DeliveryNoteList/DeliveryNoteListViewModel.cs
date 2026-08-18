@@ -37,6 +37,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
         public Func<string, Task>? OnRequestOpenTaxInvoiceForProforma { get; set; }
+        public Action<string>? OnRequestOpenMaster { get; set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  SELECTION
@@ -454,6 +455,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand CreateDnCommand { get; }
         public ICommand GenerateInvoiceCommand { get; }
         public ICommand OpenGroupCommand { get; }
+        public ICommand OpenMasterCommand { get; }
         public ICommand GenerateMasterInvoiceCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
@@ -515,6 +517,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 if (param is JobOrderGroupRowViewModel group)
                     OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
+            });
+
+            OpenMasterCommand = new RelayCommand(param =>
+            {
+                string? joId = param switch
+                {
+                    JobOrderGroupRowViewModel group => group.JobOrderId,
+                    string id => id,
+                    _ => null
+                };
+                if (!string.IsNullOrWhiteSpace(joId))
+                    OnRequestOpenMaster?.Invoke(joId);
             });
 
             GenerateMasterInvoiceCommand = new RelayCommand(

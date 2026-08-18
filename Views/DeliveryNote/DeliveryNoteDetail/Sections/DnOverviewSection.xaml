@@ -317,6 +317,8 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
                                 <StackPanel Grid.Column="0">
@@ -324,15 +326,22 @@
                                     <TextBlock Style="{StaticResource ItemsSectionSubtitleStyle}"/>
                                 </StackPanel>
 
-                                <!-- SELECT ALL REMAINING -->
                                 <Button Grid.Column="1"
+                                        Style="{StaticResource MasterScopeButtonStyle}"
+                                        Tag="&#xE8A5;"
+                                        Content="{Binding MasterScopeButtonText}"
+                                        Command="{Binding ToggleFullMasterCommand}"
+                                        ToolTip="Remaining balance only, or the original Job Order Master."/>
+
+                                <!-- SELECT ALL REMAINING -->
+                                <Button Grid.Column="3"
                                         Style="{StaticResource RowPrimaryButton}"
                                         Tag="&#xE73E;" Content="SELECT ALL REMAINING"
                                         Command="{Binding FillRemainingCommand}"
                                         ToolTip="Fill ALL balance quantities into Delivered column."/>
 
                                 <!-- RESET QTY — NEW CHAT 19 -->
-                                <Button Grid.Column="3"
+                                <Button Grid.Column="5"
                                         Style="{StaticResource RowOutlinedButton}"
                                         Tag="&#xE72C;" Content="RESET QTY"
                                         Command="{Binding ResetQtyCommand}"
@@ -379,7 +388,7 @@
                                           Focusable="True"
                                           FocusVisualStyle="{x:Null}"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <ItemsControl ItemsSource="{Binding GroupedItemsView}"
+                            <ItemsControl ItemsSource="{Binding VisibleItemRows}"
                                           MinWidth="980">
                                 <ItemsControl.GroupStyle>
                                     <GroupStyle>

@@ -58,6 +58,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// </summary>
         public Func<string, Task<string>>? OnRequestAutoCreateTaxInvoice { get; set; }
 
+        /// <summary>
+        /// Opens the Master DN created from this job order (remaining
+        /// balance by default; full original via the toggle).
+        /// </summary>
+        public Action<string>? OnRequestOpenMasterDn { get; set; }
+
         // ── loaded entity + snapshot ──────────────────────────────────────
         private SavedDeliveryNote? _entity;
         private DeliveryNoteSnapshot? _snapshot;
@@ -81,6 +87,35 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         public bool IsNotMasterDn => !_isMasterDn;
+
+        private bool _showFullMaster;
+        /// <summary>
+        /// Master default is remaining balance only. When true, show the
+        /// original Job Order set (including fully delivered lines).
+        /// </summary>
+        public bool ShowFullMaster
+        {
+            get => _showFullMaster;
+            set
+            {
+                if (_showFullMaster == value) return;
+                _showFullMaster = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsShowingRemainingOnly));
+                OnPropertyChanged(nameof(MasterScopeButtonText));
+                OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
+                OnPropertyChanged(nameof(HasNoPendingBalanceItems));
+                OnPropertyChanged(nameof(HiddenFullyDeliveredSummary));
+                RebuildGroupedView();
+            }
+        }
+
+        public bool IsShowingRemainingOnly => _isMasterDn && !_showFullMaster;
+
+        public string MasterScopeButtonText =>
+            _showFullMaster
+                ? "REMAINING ONLY"
+                : "SHOW FULL MASTER";
 
         // ── loading state ─────────────────────────────────────────────────
 
@@ -428,10 +463,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public int VisiblePendingRowCount => _visibleRows.Count;
 
         public bool HasHiddenFullyDeliveredRows =>
-            _isMasterDn && HiddenFullyDeliveredCount > 0;
+            _isMasterDn && !_showFullMaster && HiddenFullyDeliveredCount > 0;
 
         public bool HasNoPendingBalanceItems =>
-            _isMasterDn && _itemRows.Count > 0 && _visibleRows.Count == 0;
+            _isMasterDn && !_showFullMaster
+            && _itemRows.Count > 0 && _visibleRows.Count == 0;
 
         public string HiddenFullyDeliveredSummary =>
             HiddenFullyDeliveredCount == 1
@@ -439,14 +475,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 : $"{HiddenFullyDeliveredCount} items fully delivered — hidden. Showing remaining balance only.";
 
         /// <summary>
+        /// Materialized remaining (or full) rows. Do not bind the grid to
+        /// ItemRows or to ICollectionView.Filter — GroupStyle ignores Filter
+        /// and would keep Prev=1 / This=0 / Balance=0 lines on screen.
+        /// </summary>
+        public ObservableCollection<DnItemRowViewModel> VisibleItemRows => _visibleRows;
+
+        /// <summary>
         /// Master DN is a balance tracker. ICollectionView.Filter is ignored
         /// once GroupStyle is applied, so completed rows are omitted from
-        /// the source. Real DNs keep every line so qty can be entered.
+        /// the source unless the user asks for the full original JO set.
+        /// Real DNs keep every line so qty can be entered.
         /// </summary>
         private void RebuildGroupedView()
         {
             IEnumerable<DnItemRowViewModel> source = _itemRows;
-            if (_isMasterDn)
+            if (_isMasterDn && !_showFullMaster)
                 source = _itemRows.Where(r => r.BalanceQty > 0);
 
             _visibleRows = new ObservableCollection<DnItemRowViewModel>(source);
@@ -461,8 +505,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     nameof(DnItemRowViewModel.SpecGroupName)));
 
             GroupedItemsView = view;
+            OnPropertyChanged(nameof(VisibleItemRows));
             OnPropertyChanged(nameof(VisiblePendingRowCount));
+            OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
             OnPropertyChanged(nameof(HasNoPendingBalanceItems));
+            OnPropertyChanged(nameof(HiddenFullyDeliveredSummary));
         }
 
         // ── Qty summary ───────────────────────────────────────────────────
@@ -699,6 +746,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// </summary>
         public ICommand CreateNewDnFromMasterCommand { get; }
 
+        /// <summary>Master: remaining-only vs original Job Order set.</summary>
+        public ICommand ToggleFullMasterCommand { get; }
+
+        /// <summary>Opens the Master DN created from this job order.</summary>
+        public ICommand OpenMasterCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -809,6 +862,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                      !IsSaving &&
                      _entity != null &&
                      _itemRows.Any(r => r.BalanceQty > 0));
+
+            ToggleFullMasterCommand = new RelayCommand(
+                _ => ShowFullMaster = !ShowFullMaster,
+                _ => IsMasterDn && !IsLoading);
+
+            OpenMasterCommand = new RelayCommand(
+                _ =>
+                {
+                    if (!string.IsNullOrWhiteSpace(JobOrderId))
+                        OnRequestOpenMasterDn?.Invoke(JobOrderId);
+                },
+                _ => !IsMasterDn &&
+                     !IsLoading &&
+                     !string.IsNullOrWhiteSpace(JobOrderId));
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -956,6 +1023,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 // CHAT 19: set Master DN flag BEFORE RebuildGroupedView
                 IsMasterDn = _entity.IsMasterDn;
+                ShowFullMaster = false;
 
                 var joRef = _snapshot?.JobOrderRef;
                 CustomerName = joRef?.CustomerName ?? _entity.CustomerName;
@@ -970,10 +1038,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // Heal PREV from confirmed sibling DNs. Master DN used to
-                // skip this, so fully delivered rows still had Prev=0 and
-                // looked pending. Same map excludes this DN id (master
-                // itself has no delivered qty).
+                // Persist confirmed totals onto Master, then heal PREV so
+                // the grid uses the same map as dispatch (Drafts excluded).
+                await SyncMasterBalancesAsync();
                 await HealItemPrevQtyAsync(_entity);
                 if (_entity.IsMasterDn)
                 {
@@ -1040,6 +1107,42 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 var key = $"{item.SpecGroupNumber}|{item.SerialNumber}";
                 item.PreviouslyDeliveredQty =
                     prevMap.TryGetValue(key, out var prev) ? prev : 0;
+            }
+        }
+
+        /// <summary>
+        /// Writes confirmed sibling totals onto the Master row so the DB
+        /// matches what the grid heals. Drafts are ignored (same rule as
+        /// GetPreviouslyDeliveredMapAsync). View-only users skip persist.
+        /// </summary>
+        private async Task SyncMasterBalancesAsync()
+        {
+            if (_entity == null || !_entity.IsMasterDn) return;
+            if (App.DeliveryNotes == null) return;
+            if (!PermissionService.Can(AppPermissions.DeliveryNoteEdit))
+                return;
+
+            try
+            {
+                await App.DeliveryNotes.UpdateMasterDnAsync(
+                    _entity.JobOrderId, _entity.DeliveryNoteId);
+
+                var fresh = await App.DeliveryNotes
+                    .GetMasterDnForJobOrderAsync(_entity.JobOrderId);
+                if (fresh == null) return;
+
+                _entity.Items = fresh.Items;
+                _entity.TotalOrderedQty = fresh.TotalOrderedQty;
+                _entity.TotalDeliveredQty = fresh.TotalDeliveredQty;
+                _entity.TotalBalanceQty = fresh.TotalBalanceQty;
+                _entity.TotalPreviouslyDeliveredQty =
+                    fresh.TotalPreviouslyDeliveredQty;
+                _entity.LastUpdatedFromDnId = fresh.LastUpdatedFromDnId;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[DN] SyncMasterBalances skipped: {ex.Message}");
             }
         }
 

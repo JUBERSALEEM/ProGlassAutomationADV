@@ -561,8 +561,8 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Geometry from the reference ─────────────────────────────── -->
-    <CornerRadius x:Key="SoftCardRadius">18</CornerRadius>
-    <CornerRadius x:Key="SoftHeroRadius">22</CornerRadius>
+    <CornerRadius x:Key="SoftCardRadius">12</CornerRadius>
+    <CornerRadius x:Key="SoftHeroRadius">12</CornerRadius>
     <CornerRadius x:Key="SoftPillRadius">10</CornerRadius>
     <CornerRadius x:Key="SoftBadgeRadius">10</CornerRadius>
     <Thickness    x:Key="SoftCardPadding">20</Thickness>

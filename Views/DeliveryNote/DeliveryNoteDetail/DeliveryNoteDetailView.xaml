@@ -558,6 +558,10 @@
                                         Tag="&#xE81C;" Content="Version history"
                                         Command="{Binding ShowVersionsCommand}"
                                         Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE718;" Content="View Master DN"
+                                        Command="{Binding OpenMasterCommand}"
+                                        Click="MenuActionClicked"/>
                                 <Border Height="1" Margin="10,4"
                                         Background="{DynamicResource OutlineBrush}"/>
                                 <Button Style="{StaticResource DnMenuActionItem}"
@@ -610,8 +614,8 @@
                                Margin="0,4,0,0" TextWrapping="Wrap">
                         <Run Text="Auto-created from Job Order. Read-only."/>
                         <Run Text=" Updates automatically after each dispatch."/>
-                        <Run Text=" Only items with remaining balance are shown."/>
-                        <Run Text=" Click 'Create New DN from Balance' to deliver."/>
+                        <Run Text=" Remaining balance is shown by default."/>
+                        <Run Text=" Use SHOW FULL MASTER for the original JO set."/>
                     </TextBlock>
                 </StackPanel>
                 <StackPanel Grid.Column="2" VerticalAlignment="Center"
