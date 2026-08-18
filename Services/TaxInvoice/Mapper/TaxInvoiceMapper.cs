@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.TaxInvoice.Attachment;
+using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Utilities;
 using System;
@@ -58,8 +58,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
     {
         // ── Constants ─────────────────────────────────────────────────────
 
-        private const decimal VatRate = 0.05m;
-
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             WriteIndented = false,
@@ -89,11 +87,13 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
             var (items, subtotal) = BuildItemsAndSubtotal(
                 state.SpecGroups, invoiceNumber);
 
-            decimal discountAmt = Math.Round(
-                subtotal * (state.DiscountPercent / 100m), 2);
-            decimal afterDiscount = subtotal - discountAmt;
-            decimal vatAmount = Math.Round(afterDiscount * VatRate, 2);
-            decimal grandTotal = afterDiscount + vatAmount;
+            // Phase 11/12: shared financial-total rule (UAE 5% VAT).
+            var totals = InvoiceTotalsCalculator.Compute(
+                subtotal, state.DiscountPercent);
+            decimal discountAmt = totals.DiscountAmount;
+            decimal afterDiscount = totals.AfterDiscount;
+            decimal vatAmount = totals.VatAmount;
+            decimal grandTotal = totals.GrandTotal;
 
             int totalQty = items.Sum(i => i.Qty);
             decimal totalSqm = Math.Round(items.Sum(i => i.TotalSqm), 3);

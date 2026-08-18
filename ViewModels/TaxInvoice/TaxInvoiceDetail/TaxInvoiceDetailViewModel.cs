@@ -1705,16 +1705,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 subtotal += group.GroupTotalValue;
             }
 
-            decimal discountAmt = Math.Round(subtotal * (_discountPercent / 100m), 2);
-            decimal afterDiscount = subtotal - discountAmt;
-            decimal vatAmount = Math.Round(afterDiscount * 0.05m, 2);
-            decimal grandTotal = afterDiscount + vatAmount;
+            // Phase 11/12: shared financial-total rule (UAE 5% VAT).
+            var totals = ProGlassAutomation.Services.TaxInvoice
+                .InvoiceTotalsCalculator.Compute(subtotal, _discountPercent);
 
             Subtotal = Math.Round(subtotal, 2);
-            DiscountAmount = discountAmt;
-            AfterDiscount = afterDiscount;
-            VatAmount = vatAmount;
-            GrandTotal = grandTotal;
+            DiscountAmount = totals.DiscountAmount;
+            AfterDiscount = totals.AfterDiscount;
+            VatAmount = totals.VatAmount;
+            GrandTotal = totals.GrandTotal;
         }
 
         // ══════════════════════════════════════════════════════════════════
