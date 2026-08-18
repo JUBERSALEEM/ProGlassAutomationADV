@@ -45,6 +45,7 @@
 | 11/12 (God-VM) | Extracted `InvRowViewModel`, `UserRowViewModel`, `ActivityRowViewModel`, `GlobalSearchResult`, `CompanyProfileCard`, `JobOrderRowViewModel`, `RecentStatementItem` to per-class files | `7537306` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `DuplicateAction` enum, `JobProfitabilityRow`, `KpiTileModel` to per-class files | `2bb307f` | ✅ (static) |
 | 11/12 (arch) | Extracted `FindReplaceDialog` out of `DataGridNavigationBehavior` (1243→963) | `58e9822` | ✅ (static) |
+| 15 (testing) | Added `TextParsingTests` + `StatementLogHelperTests` for the Phase 11/12 extracted helpers | `1c9a29c` | ✅ (static; needs dotnet test) |
 | 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
 | 9 — Design system | Consolidated hardcoded `CornerRadius` values matching the canonical tokens (10/14/20/999) to the token resources across 58 views/controls (149 occurrences) — behavior-identical, no local overrides; Login glyph-prefixed input chrome left untouched | `ac42788` | ✅ (static; needs Windows build) |
 | 10 — Performance | Adopted `SheetStoreRepository.SearchAsync` in the Sheet Store VM (categorical filters pushed to SQL WHERE; generation-guarded async; `_allSheets` retained for import duplicate-detection) | `5749066` | ✅ (static; needs Windows build) |
