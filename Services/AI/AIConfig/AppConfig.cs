@@ -92,5 +92,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public AiSettings Ai { get; set; } = new AiSettings();
         public bool OnlineFeaturesEnabled { get; set; } = true;
         public AppearanceSettings Appearance { get; set; } = new();
+
+        /// <summary>
+        /// Last signed-in username. Never a password. Restored on the
+        /// login screen so the operator does not retype it every launch.
+        /// </summary>
+        public string LastUsername { get; set; } = "";
+
+        /// <summary>When false the last username is cleared on sign-in.</summary>
+        public bool RememberUsername { get; set; } = true;
     }
 }

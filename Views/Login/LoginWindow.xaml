@@ -16,70 +16,57 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
-
-        <!-- ── Full-bleed brand background: stylish BLURRED BLUE (deliberate
-             design override from the theme-driven gradient to a smooth,
-             fluid blue backdrop). Decorative orbs are blurred in markup so
-             the stage feels soft and premium regardless of theme. -->
-        <LinearGradientBrush x:Key="LoginBlueBase" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#081426" Offset="0.0"/>
-            <GradientStop Color="#0C2A6B" Offset="0.34"/>
-            <GradientStop Color="#1D4ED8" Offset="0.70"/>
-            <GradientStop Color="#3B82F6" Offset="1.0"/>
+        <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#040B1C" Offset="0.0"/>
+            <GradientStop Color="#0A1A44" Offset="0.42"/>
+            <GradientStop Color="#0B2A6E" Offset="1.0"/>
         </LinearGradientBrush>
-
-        <!-- Soft blurred "orb" used for the floating glow shapes behind the
-             card. Fades to transparent so blurring is smooth and fluid. -->
-        <RadialGradientBrush x:Key="LoginOrb"
-                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-            <GradientStop Color="#9CC4FF" Offset="0.0"/>
-            <GradientStop Color="#6699FF" Offset="0.55"/>
-            <GradientStop Color="#006699FF" Offset="1.0"/>
+        <RadialGradientBrush x:Key="OrbRight" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#4D82F6FF" Offset="0.0"/>
+            <GradientStop Color="#1D4ED84D" Offset="0.55"/>
+            <GradientStop Color="#1D4ED800" Offset="1.0"/>
         </RadialGradientBrush>
+        <RadialGradientBrush x:Key="OrbLeft" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#60A5FA66" Offset="0.0"/>
+            <GradientStop Color="#3B82F633" Offset="0.55"/>
+            <GradientStop Color="#3B82F600" Offset="1.0"/>
+        </RadialGradientBrush>
+        <LinearGradientBrush x:Key="GlassCard" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#28FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#10FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
+            <GradientStop Color="#FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#BFDBFE" Offset="0.5"/>
+            <GradientStop Color="#93C5FD" Offset="1.0"/>
+        </LinearGradientBrush>
+        <SolidColorBrush x:Key="Ice" Color="#DBEAFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Frost" Color="#BFDBFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Snow" Color="#F8FAFC" po:Freeze="True"/>
+        <SolidColorBrush x:Key="DangerOnGlass" Color="#FCA5A5" po:Freeze="True"/>
+        <SolidColorBrush x:Key="WarningOnGlass" Color="#FCD34D" po:Freeze="True"/>
+        <DropShadowEffect x:Key="CardGlow" Color="#1D4ED8" BlurRadius="36" ShadowDepth="0" Opacity="0.45"/>
 
-        <DropShadowEffect x:Key="LoginCardShadow" po:Freeze="True"
-                          BlurRadius="42" ShadowDepth="14"
-                          Direction="270" Opacity="0.38" Color="#020A1C"/>
-
-        <!-- Phase 9/UI — the login card is a light frosted-glass surface on
-             the blue stage. These window-scope overrides pin its text and
-             input chrome to a fixed dark-on-light scheme so it stays
-             readable in BOTH the Light and Dark app themes. -->
-        <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="#14213D"/>
-        <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#33415C"/>
-        <SolidColorBrush x:Key="MutedForegroundBrush" Color="#5B6B86"/>
-        <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#EAF2FB"/>
-        <SolidColorBrush x:Key="OutlineBrush" Color="#263B82"/>
-        <SolidColorBrush x:Key="MenuHoverBrush" Color="#0A1D4ED8"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#1D4ED8"/>
-        <SolidColorBrush x:Key="AccentHoverBrush" Color="#2563EB"/>
-        <SolidColorBrush x:Key="AccentDarkBrush" Color="#1E40AF"/>
-        <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
-        <SolidColorBrush x:Key="WarningBrush" Color="#D97706"/>
-
-        <!-- ── Form field label ─────────────────────────────────────────── -->
         <Style x:Key="FieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin" Value="2,0,0,6"/>
+            <Setter Property="Foreground" Value="{StaticResource Frost}"/>
+            <Setter Property="Margin" Value="2,0,0,8"/>
         </Style>
 
-        <!-- Rounded input chrome. TextBox and PasswordBox do not share a
-             common templated base, so each gets its own template. -->
         <Style x:Key="RoundedTextBox" TargetType="TextBox">
-            <Setter Property="FontSize" Value="13.5"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="{StaticResource Snow}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="Chrome"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource WindowBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="12"
+                                Background="#18FFFFFF"
+                                BorderBrush="#66BFDBFE"
+                                BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -89,13 +76,13 @@
                                 <TextBlock Grid.Column="0"
                                            Text="{TemplateBinding Tag}"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="15"
-                                           Margin="14,0,0,0"
+                                           FontSize="16"
+                                           Margin="16,0,0,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                           Foreground="{StaticResource Cerulean}"/>
                                 <ScrollViewer Grid.Column="1"
                                               x:Name="PART_ContentHost"
-                                              Margin="12,0,14,0"
+                                              Margin="12,0,16,0"
                                               VerticalAlignment="Center"
                                               Focusable="False"
                                               HorizontalScrollBarVisibility="Hidden"
@@ -104,13 +91,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Chrome" Property="BorderThickness" Value="1.6"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
+                                <Setter TargetName="Chrome" Property="Background" Value="#22FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -119,17 +104,17 @@
         </Style>
 
         <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
-            <Setter Property="FontSize" Value="13.5"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="{StaticResource Snow}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
                         <Border x:Name="Chrome"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource WindowBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="12"
+                                Background="#18FFFFFF"
+                                BorderBrush="#66BFDBFE"
+                                BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -139,13 +124,13 @@
                                 <TextBlock Grid.Column="0"
                                            Text="{TemplateBinding Tag}"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="15"
-                                           Margin="14,0,0,0"
+                                           FontSize="16"
+                                           Margin="16,0,0,0"
                                            VerticalAlignment="Center"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                           Foreground="{StaticResource Cerulean}"/>
                                 <ScrollViewer Grid.Column="1"
                                               x:Name="PART_ContentHost"
-                                              Margin="12,0,14,0"
+                                              Margin="12,0,16,0"
                                               VerticalAlignment="Center"
                                               Focusable="False"
                                               HorizontalScrollBarVisibility="Hidden"
@@ -154,13 +139,11 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Chrome" Property="BorderThickness" Value="1.6"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
+                                <Setter TargetName="Chrome" Property="Background" Value="#22FFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -168,21 +151,18 @@
             </Setter>
         </Style>
 
-        <!-- Primary action -->
         <Style x:Key="SignInButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="15"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="12"
                                 Background="{DynamicResource AccentBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -208,242 +188,251 @@
         <Style x:Key="GhostButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="{StaticResource Frost}"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="12"
                                 Background="Transparent"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                BorderBrush="#40FFFFFF"
+                                BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="#22FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
     </Window.Resources>
 
-    <!-- Full-bleed branded stage with ONE centered floating card. Everything
-         lives inside the card (vertical StackPanel), so nothing can overlap;
-         the card scrolls on very short windows instead of clipping. -->
-    <Grid Background="{StaticResource LoginBlueBase}">
-
-        <!-- Full-bleed blurred-blue stage: a few large soft orbs floating
-             behind the card give depth without hard edges. -->
-        <Ellipse Width="640" Height="640"
-                 Fill="{StaticResource LoginOrb}"
-                 HorizontalAlignment="Left" VerticalAlignment="Top"
-                 Margin="-190,-190,0,0">
-            <Ellipse.Effect>
-                <BlurEffect Radius="95"/>
-            </Ellipse.Effect>
-        </Ellipse>
-
-        <Ellipse Width="760" Height="760"
-                 Fill="{StaticResource LoginOrb}"
-                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                 Margin="0,0,-240,-240" Opacity="0.85">
+    <Grid Background="{StaticResource PageBg}">
+        <Ellipse Width="900" Height="900"
+                 Fill="{StaticResource OrbRight}"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-320,-320,0" IsHitTestVisible="False">
             <Ellipse.Effect>
                 <BlurEffect Radius="120"/>
             </Ellipse.Effect>
         </Ellipse>
-
-        <Ellipse Width="460" Height="460"
-                 Fill="{StaticResource LoginOrb}"
-                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                 Margin="0,0,0,-170" Opacity="0.5">
+        <Ellipse Width="760" Height="760"
+                 Fill="{StaticResource OrbLeft}"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-280,0,0,-280" IsHitTestVisible="False">
             <Ellipse.Effect>
-                <BlurEffect Radius="85"/>
+                <BlurEffect Radius="110"/>
             </Ellipse.Effect>
         </Ellipse>
 
-        <Border Width="430"
+        <Border HorizontalAlignment="Left" VerticalAlignment="Top"
+                Margin="40,36,0,0" Padding="16,8" CornerRadius="12"
+                Background="#16FFFFFF" BorderBrush="#40BFDBFE" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="13" Foreground="{StaticResource Ice}"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="MADE FOR UAE" FontSize="11" FontWeight="Bold"
+                           Foreground="{StaticResource Ice}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Top"
+                Margin="0,36,40,0" Padding="16,8" CornerRadius="12"
+                Background="#16FFFFFF" BorderBrush="#40BFDBFE" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="13" Foreground="{StaticResource Ice}"
+                           VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock Text="OFFLINE · SECURE" FontSize="11" FontWeight="Bold"
+                           Foreground="{StaticResource Ice}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <Border Width="540"
+                MaxWidth="560"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Background="#EDF7FFFF"
-                BorderBrush="#4DFFFFFF"
+                CornerRadius="12"
+                Background="{StaticResource GlassCard}"
+                BorderBrush="#55FFFFFF"
                 BorderThickness="1"
-                Effect="{StaticResource LoginCardShadow}"
+                Effect="{StaticResource CardGlow}"
                 SnapsToDevicePixels="True">
-
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled"
                           PanningMode="VerticalOnly"
                           Focusable="False"
                           FocusVisualStyle="{x:Null}">
-                <Border Padding="38,34,38,30">
-                <StackPanel>
+                <Border Padding="44,40,44,36">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Border Width="64" Height="64" CornerRadius="12"
+                                    SnapsToDevicePixels="True">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                                Stretch="UniformToFill"/>
+                                </Border.Background>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                                <TextBlock Text="ProGlass Automation"
+                                           FontSize="22" FontWeight="Bold"
+                                           Foreground="{StaticResource NameGradient}"/>
+                                <TextBlock Text="Industrial ERP for glass production"
+                                           FontSize="13"
+                                           Foreground="{StaticResource Cerulean}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
 
-                    <!-- App mark + name -->
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Border Width="56" Height="56"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                SnapsToDevicePixels="True">
-                            <Border.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                            Stretch="UniformToFill"/>
-                            </Border.Background>
+                        <TextBlock Text="Welcome back"
+                                   FontSize="32" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,32,0,0"
+                                   Foreground="White"/>
+                        <TextBlock Text="Sign in to continue to your workspace"
+                                   FontSize="15"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,8,0,0"
+                                   Foreground="{StaticResource Frost}"/>
+
+                        <Border x:Name="DefaultCredWarning"
+                                Margin="0,26,0,0" Padding="16,12"
+                                CornerRadius="12"
+                                Background="#22F59E0B"
+                                BorderBrush="{StaticResource WarningOnGlass}"
+                                BorderThickness="1"
+                                Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE7BA;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           VerticalAlignment="Top"
+                                           Margin="0,1,12,0"
+                                           Foreground="{StaticResource WarningOnGlass}"/>
+                                <TextBlock TextWrapping="Wrap" FontSize="13"
+                                           MaxWidth="380"
+                                           Foreground="{StaticResource Ice}">
+                                    <Run Text="First run:" FontWeight="Bold"/>
+                                    <Run Text=" sign in as"/>
+                                    <Run Text=" admin / admin" FontWeight="Bold"/>
+                                    <Run Text=" — then change the password in User Center."/>
+                                </TextBlock>
+                            </StackPanel>
                         </Border>
-                        <StackPanel VerticalAlignment="Center" Margin="14,0,0,0">
-                            <TextBlock Text="ProGlass Automation"
-                                       FontSize="16" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="Glass manufacturing ERP"
-                                       FontSize="10.5"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
 
-                    <TextBlock Text="Welcome back"
-                               FontSize="24" FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,26,0,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Sign in to continue to your workspace"
-                               FontSize="12.5"
-                               HorizontalAlignment="Center"
-                               Margin="0,6,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                    <!-- First-run credential hint -->
-                    <Border x:Name="DefaultCredWarning"
-                            Margin="0,22,0,0" Padding="14,11"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource WindowBackgroundBrush}"
-                            BorderBrush="{DynamicResource WarningBrush}"
-                            BorderThickness="1"
-                            Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE7BA;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
-                                       VerticalAlignment="Top"
-                                       Margin="0,1,11,0"
-                                       Foreground="{DynamicResource WarningBrush}"/>
-                            <TextBlock TextWrapping="Wrap" FontSize="11"
-                                       MaxWidth="300"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                <Run Text="First run:" FontWeight="Bold"/>
-                                <Run Text="sign in as"/>
-                                <Run Text="admin / admin" FontWeight="Bold"/>
-                                <Run Text="— then change the password in User Center straight away."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
-                               Margin="2,24,0,6"/>
-                    <TextBox x:Name="UsernameBox"
-                             Height="46"
-                             Tag="&#xE77B;"
-                             Style="{StaticResource RoundedTextBox}"
-                             KeyDown="Field_KeyDown"/>
-
-                    <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
-                               Margin="2,16,0,6"/>
-                    <PasswordBox x:Name="PasswordBox"
-                                 Height="46"
-                                 Tag="&#xE72E;"
-                                 Style="{StaticResource RoundedPasswordBox}"
+                        <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
+                                   Margin="2,28,0,8"/>
+                        <TextBox x:Name="UsernameBox"
+                                 Height="52"
+                                 Tag="&#xE77B;"
+                                 Style="{StaticResource RoundedTextBox}"
                                  KeyDown="Field_KeyDown"/>
 
-                    <Border x:Name="ErrorPanel"
-                            Margin="0,14,0,0" Padding="12,9"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Background="{DynamicResource WindowBackgroundBrush}"
-                            BorderBrush="{DynamicResource DangerBrush}"
-                            BorderThickness="1"
-                            Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xEA39;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,9,0"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock x:Name="ErrorText"
-                                       FontSize="11.5" FontWeight="SemiBold"
-                                       TextWrapping="Wrap"
-                                       MaxWidth="300"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                        </StackPanel>
-                    </Border>
+                        <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
+                                   Margin="2,18,0,8"/>
+                        <PasswordBox x:Name="PasswordBox"
+                                     Height="52"
+                                     Tag="&#xE72E;"
+                                     Style="{StaticResource RoundedPasswordBox}"
+                                     KeyDown="Field_KeyDown"/>
 
-                    <Button x:Name="SignInButton"
-                            Content="SIGN IN"
-                            Height="46"
-                            Margin="0,22,0,0"
-                            Style="{StaticResource SignInButtonStyle}"
-                            Click="SignIn_Click"/>
+                        <CheckBox x:Name="RememberUserCheck"
+                                  Content="Remember username on this computer"
+                                  IsChecked="True"
+                                  Margin="2,16,0,0"
+                                  FontSize="13"
+                                  Foreground="{StaticResource Frost}"
+                                  Cursor="Hand"/>
 
-                    <!-- Forgot / reset password (admin-mediated reset). -->
-                    <Button x:Name="ForgotPasswordButton"
-                            Content="Forgot password?"
-                            Height="30"
-                            Margin="0,6,0,0"
-                            HorizontalAlignment="Center"
-                            Click="ForgotPassword_Click">
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-                                <Setter Property="Background" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="0"/>
-                                <Setter Property="Cursor" Value="Hand"/>
-                                <Setter Property="FontSize" Value="11.5"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                    </Button>
+                        <Border x:Name="ErrorPanel"
+                                Margin="0,16,0,0" Padding="14,10"
+                                CornerRadius="12"
+                                Background="#33DC2626"
+                                BorderBrush="{StaticResource DangerOnGlass}"
+                                BorderThickness="1"
+                                Visibility="Collapsed">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xEA39;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           Foreground="{StaticResource DangerOnGlass}"/>
+                                <TextBlock x:Name="ErrorText"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           TextWrapping="Wrap"
+                                           MaxWidth="380"
+                                           VerticalAlignment="Center"
+                                           Foreground="{StaticResource DangerOnGlass}"/>
+                            </StackPanel>
+                        </Border>
 
-                    <Button x:Name="ExitButton"
-                            Content="Exit"
-                            Height="38"
-                            Margin="0,10,0,0"
-                            Style="{StaticResource GhostButtonStyle}"
-                            Click="Exit_Click"/>
+                        <Button x:Name="SignInButton"
+                                Content="SIGN IN"
+                                Height="52"
+                                Margin="0,24,0,0"
+                                Style="{StaticResource SignInButtonStyle}"
+                                Click="SignIn_Click"/>
 
-                    <TextBlock Text="Sign-in identifies who signs each document and audit entry."
-                               FontSize="10.5"
-                               TextWrapping="Wrap"
-                               TextAlignment="Center"
-                               Margin="0,20,0,0"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <Button x:Name="ForgotPasswordButton"
+                                Content="Forgot password?"
+                                Height="34"
+                                Margin="0,10,0,0"
+                                HorizontalAlignment="Center"
+                                Click="ForgotPassword_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Foreground" Value="{StaticResource Cerulean}"/>
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Cursor" Value="Hand"/>
+                                    <Setter Property="FontSize" Value="13"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
 
-                    <TextBlock HorizontalAlignment="Center"
-                               FontSize="10"
-                               Opacity="0.6"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,14,0,0">
-                        <Run Text="Version"/>
-                        <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    </TextBlock>
-                </StackPanel>
+                        <Button x:Name="ExitButton"
+                                Content="Exit"
+                                Height="44"
+                                Margin="0,12,0,0"
+                                Style="{StaticResource GhostButtonStyle}"
+                                Click="Exit_Click"/>
+
+                        <TextBlock Text="Sign-in identifies who signs each document and audit entry. The password is never saved."
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   Margin="0,24,0,0"
+                                   Foreground="{StaticResource Cerulean}"/>
+
+                        <TextBlock HorizontalAlignment="Center"
+                                   FontSize="11"
+                                   Foreground="{StaticResource Frost}"
+                                   Opacity="0.7"
+                                   Margin="0,16,0,0">
+                            <Run Text="Version"/>
+                            <Run Text=" "/>
+                            <Run Text="{x:Static updates:AppInfo.Version}"/>
+                        </TextBlock>
+                    </StackPanel>
                 </Border>
             </ScrollViewer>
         </Border>

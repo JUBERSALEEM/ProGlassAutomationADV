@@ -3,31 +3,11 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Authentication
 //
-// AUTH-1. Closes the gap recorded as Remaining Risks #1: the app had no
-// sign-in screen at all. It started as the lowest-Id active user, which
-// on a fresh install is an Administrator, so the A-1 permission guards
-// authorized an identity that was never established.
-//
-// DESIGN NOTES (deliberate, and each one is a trade-off):
-//
-//  • Reuses AuditService.SwitchUserAsync. That method already verifies
-//    the password against both hash schemes, migrates legacy SHA-256 on
-//    success, sets CurrentUser and writes the audit entry. Writing a
-//    second authentication path would have meant two places to get
-//    right, so this calls the existing one.
-//
-//  • Offline-first, single-operator reality: this is a LOCAL identity
-//    gate, not a security boundary against an attacker with the machine.
-//    Anyone with the SQLite files can read the data regardless. What it
-//    buys is an accurate audit trail and real per-role permissions.
-//    Claiming more than that would be dishonest.
-//
-//  • Lockout is PERSISTED in audit.db (Phase 13) so it survives an app
-//    restart. Threshold and window are governed by
-//    AuditService.MaxFailedAttemptsBeforeLock / LockoutMinutes. The first-run
-//    seeded credential is forced to be rotated before the app opens.
+// Local identity gate. Reuses AuditService.SwitchUserAsync.
+// Username may be remembered. Password is NEVER persisted.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
@@ -42,9 +22,6 @@ namespace ProGlassAutomation.Views.Login
         /// <summary>True only after a verified sign-in.</summary>
         public bool SignedIn { get; private set; }
 
-        // PHASE 13 — lockout is persisted in audit.db (AuditService) so it
-        // survives an app restart. There is no separate in-memory state here.
-
         public LoginWindow()
         {
             InitializeComponent();
@@ -53,26 +30,37 @@ namespace ProGlassAutomation.Views.Login
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
         {
-            UsernameBox.Focus();
-
-            // Show the first-run hint only while the seeded credential is
-            // genuinely still in force, so it disappears once rotated and
-            // never advertises a password that no longer works.
             try
             {
+                bool remember = App.Config?.RememberUsername ?? true;
+                string saved = (App.Config?.LastUsername ?? "").Trim();
+                RememberUserCheck.IsChecked = remember;
+
+                if (remember && saved.Length > 0)
+                {
+                    UsernameBox.Text = saved;
+                    PasswordBox.Focus();
+                }
+                else
+                {
+                    UsernameBox.Focus();
+                }
+
+                // First-run hint only while the seeded credential still works.
                 if (await AuditService.IsUsingDefaultPasswordAsync())
                 {
                     DefaultCredWarning.Visibility = Visibility.Visible;
-                    UsernameBox.Text = AuditService.DefaultAdminUsername;
+                    if (UsernameBox.Text.Length == 0)
+                        UsernameBox.Text = AuditService.DefaultAdminUsername;
                     PasswordBox.Focus();
                 }
             }
             catch (Exception ex)
             {
-                // Never block sign-in because the hint could not be resolved.
                 AppLogService.Warning(
-                    "Could not determine default-credential state: " + ex.Message,
+                    "Could not restore last username: " + ex.Message,
                     new LogContext { Module = "Auth", Class = nameof(LoginWindow) });
+                UsernameBox.Focus();
             }
         }
 
@@ -94,8 +82,6 @@ namespace ProGlassAutomation.Views.Login
         {
             var reset = new ResetPasswordWindow { Owner = this };
             reset.ShowDialog();
-            // After a successful reset the user can sign in with the new
-            // password — the sign-in fields are left intact for them.
             PasswordBox.Focus();
         }
 
@@ -111,10 +97,7 @@ namespace ProGlassAutomation.Views.Login
                 return;
             }
 
-            // PHASE 13 — surfaced from the persisted lockout so the user sees
-            // the exact remaining wait (survives an app restart).
-            int remaining = await AuditService.LockoutRemainingSecondsAsync(
-                username);
+            int remaining = await AuditService.LockoutRemainingSecondsAsync(username);
             if (remaining > 0)
             {
                 ShowError($"Too many attempts. Try again in {remaining}s.");
@@ -131,12 +114,6 @@ namespace ProGlassAutomation.Views.Login
 
                 if (!ok)
                 {
-                    // The message is intentionally the same for an unknown
-                    // user and a wrong password, so the dialog cannot be used
-                    // to enumerate valid usernames. The precise reason is in
-                    // the audit trail, which only an administrator can read.
-                    // If the account just hit the lockout threshold, surface
-                    // the real countdown instead of the generic message.
                     if (error != null &&
                         error.StartsWith("Account temporarily locked.",
                             StringComparison.OrdinalIgnoreCase))
@@ -162,8 +139,8 @@ namespace ProGlassAutomation.Views.Login
                     return;
                 }
 
-                // PHASE 13 — force the seeded default credential to be
-                // rotated before the app opens.
+                PersistRememberedUsername(username);
+
                 bool usingDefault =
                     await AuditService.IsUsingDefaultPasswordAsync(username);
                 if (usingDefault)
@@ -172,7 +149,6 @@ namespace ProGlassAutomation.Views.Login
                     bool? changed = force.ShowDialog();
                     if (changed != true)
                     {
-                        // User declined to rotate — do NOT enter the app.
                         AuditService.LogSessionBoundary(login: false);
                         SignedIn = false;
                         PasswordBox.Clear();
@@ -186,12 +162,9 @@ namespace ProGlassAutomation.Views.Login
                 SignedIn = true;
                 PasswordBox.Clear();
                 Close();
-                return;
             }
             catch (Exception ex)
             {
-                // A crash here must not become an authentication bypass:
-                // SignedIn stays false and the window stays open.
                 AppLogService.Error(
                     "Sign-in failed unexpectedly.", ex,
                     new LogContext
@@ -210,11 +183,29 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
+        /// <summary>
+        /// Stores the username only. Password is never written to disk.
+        /// </summary>
+        private void PersistRememberedUsername(string username)
+        {
+            try
+            {
+                if (App.Config == null) return;
+                bool remember = RememberUserCheck.IsChecked == true;
+                App.Config.RememberUsername = remember;
+                App.Config.LastUsername = remember ? username : "";
+                ConfigService.Save(App.Config);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not save last username: " + ex.Message,
+                    new LogContext { Module = "Auth", Class = nameof(LoginWindow) });
+            }
+        }
+
         private void ShowError(string message)
         {
-            // The message lives inside ErrorPanel (icon + text), so the
-            // PANEL is what gets shown — setting the TextBlock's own
-            // Visibility would leave an empty bordered box on screen.
             ErrorText.Text = message;
             ErrorPanel.Visibility = Visibility.Visible;
         }

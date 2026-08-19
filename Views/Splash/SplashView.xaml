@@ -153,8 +153,8 @@
             <Setter Property="BorderBrush" Value="#66B8D8FF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="17"/>
-            <Setter Property="Height" Value="34"/>
-            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="18,0"/>
             <Setter Property="Opacity" Value="0"/>
             <Setter Property="Effect" Value="{StaticResource GlassGlow}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -170,7 +170,7 @@
         </Style>
 
         <Style x:Key="ChipTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{StaticResource Ice}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -179,7 +179,7 @@
         <!-- ═══ GLASS FEATURE BADGE TEMPLATE (data-driven, animated) ═══ -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
             <StackPanel Opacity="0" x:Name="FeatureItemPanel">
-                <Border Width="64" Height="64"
+                <Border Width="76" Height="76"
                         CornerRadius="20"
                         BorderThickness="1"
                         BorderBrush="{Binding BorderBrush}"
@@ -200,7 +200,7 @@
                                 IsHitTestVisible="False"/>
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="24"
+                                   FontSize="28"
                                    Foreground="{StaticResource Ice}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -208,7 +208,7 @@
                     </Grid>
                 </Border>
                 <TextBlock Text="{Binding Label}"
-                           FontSize="10"
+                           FontSize="12"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource Frost}"
                            HorizontalAlignment="Center"
@@ -403,8 +403,8 @@
         </Border>
 
         <!-- ═══ LEFT CAPABILITY RAIL — 2050 glass panel ═══ -->
-        <Border HorizontalAlignment="Left" VerticalAlignment="Center"
-                Margin="56,0,0,0" Width="300"
+                <Border HorizontalAlignment="Left" VerticalAlignment="Center"
+                Margin="48,0,0,0" Width="340"
                 Style="{StaticResource GlassRailPanelStyle}"
                 IsHitTestVisible="False">
             <StackPanel>
@@ -494,8 +494,8 @@
         </Border>
 
         <!-- ═══ RIGHT CAPABILITY RAIL — 2050 glass panel (mirrored) ═══ -->
-        <Border HorizontalAlignment="Right" VerticalAlignment="Center"
-                Margin="0,0,56,0" Width="300"
+                <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                Margin="0,0,48,0" Width="340"
                 Style="{StaticResource GlassRailPanelStyle}"
                 IsHitTestVisible="False">
             <StackPanel>
@@ -609,32 +609,32 @@
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
             <!-- Glass logo core with halo, orbit ring + shimmer -->
-            <Border x:Name="LogoBorder" Width="240" Height="240"
+            <Border x:Name="LogoBorder" Width="280" Height="280"
                     HorizontalAlignment="Center"
                     IsHitTestVisible="False">
                 <Border.RenderTransform>
                     <ScaleTransform x:Name="LogoScale" ScaleX="0" ScaleY="0"/>
                 </Border.RenderTransform>
                 <Grid>
-                    <Ellipse Width="240" Height="240"
+                    <Ellipse Width="280" Height="280"
                              Fill="{StaticResource IconHalo}"
                              IsHitTestVisible="False"/>
                     <!-- dashed orbit ring (glass satellite) -->
-                    <Ellipse Width="224" Height="224"
+                    <Ellipse Width="260" Height="260"
                              Stroke="#664F8EF7" StrokeThickness="2"
                              StrokeDashArray="6 12"
                              IsHitTestVisible="False"/>
-                    <Ellipse Width="206" Height="206"
+                    <Ellipse Width="240" Height="240"
                              Stroke="#334F8EF7" StrokeThickness="1"
                              IsHitTestVisible="False"/>
 
                     <!-- frosted glass plate carrying the app icon -->
-                    <Border Width="166" Height="166"
+                    <Border Width="188" Height="188"
                             CornerRadius="42"
                             Effect="{StaticResource IconShadow}"
                             Background="{StaticResource GlassPlate}"
                             SnapsToDevicePixels="True">
-                        <Border Width="152" Height="152"
+                        <Border Width="172" Height="172"
                                 CornerRadius="38"
                                 BorderBrush="#66FFFFFF"
                                 BorderThickness="1"
@@ -667,7 +667,7 @@
             <!-- Brand name -->
             <TextBlock x:Name="AppNameText"
                        Text="ProGlass Automation"
-                       FontSize="46"
+                       FontSize="58"
                        FontWeight="Bold"
                        HorizontalAlignment="Center"
                        Margin="0,28,0,0"
@@ -685,7 +685,7 @@
 
             <TextBlock x:Name="TaglineText"
                        Text="Industrial ERP for Glass Production Workflow"
-                       FontSize="14"
+                       FontSize="17"
                        HorizontalAlignment="Center"
                        Margin="0,10,0,0"
                        Foreground="{StaticResource Cerulean}"
@@ -706,7 +706,7 @@
             </ItemsControl>
 
             <!-- Luminous progress -->
-            <Grid Width="420" Margin="0,38,0,0">
+            <Grid Width="560" Margin="0,42,0,0">
                 <Border Height="5" CornerRadius="2.5"
                         Background="#22FFFFFF"
                         SnapsToDevicePixels="True"/>

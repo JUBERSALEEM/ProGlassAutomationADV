@@ -190,7 +190,7 @@ namespace ProGlassAutomation.Views.Splash
             var progressAnim = new DoubleAnimation
             {
                 From = 0,
-                To = 360,
+                To = 560,
                 Duration = TimeSpan.FromMilliseconds(2200),
                 BeginTime = TimeSpan.FromMilliseconds(700),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
