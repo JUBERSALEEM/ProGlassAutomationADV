@@ -185,8 +185,9 @@ namespace ProGlassAutomation.Agent.Core
 
             return AgentResponse.Ok(
                 sb.ToString().TrimEnd(),
-                "I can look up documents and stock, open screens, and learn " +
-                "phrases you approve. I cannot change any record.");
+                "I can look up documents and stock, open screens, change " +
+                "sheet stock after you confirm, and learn phrases you approve. " +
+                "I cannot create or approve documents.");
         }
 
         /// <summary>Stores a proposed rule. It stays inert until approved.</summary>

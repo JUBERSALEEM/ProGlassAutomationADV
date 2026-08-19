@@ -113,6 +113,39 @@ namespace ProGlassAutomation.Agent.Demo.Video
             return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// JPEG sequence + optional WAV → H.264/AAC MP4 at the requested
+        /// size and frame rate. Even dimensions are forced for yuv420p.
+        /// </summary>
+        public static async Task<string?> ComposeFramesAudioAsync(
+            string framesFolder, string pattern, string? wavPath, string mp4Path,
+            int fps, int width, int height, CancellationToken ct)
+        {
+            string? ffmpeg = Find();
+            if (ffmpeg == null) return null;
+            if (string.IsNullOrWhiteSpace(framesFolder) || !Directory.Exists(framesFolder))
+                return null;
+
+            fps = Math.Clamp(fps, 1, 60);
+            int w = Math.Max(2, width) & ~1;
+            int h = Math.Max(2, height) & ~1;
+            string input = Path.Combine(framesFolder, pattern);
+            string vf =
+                $"scale={w}:{h}:force_original_aspect_ratio=decrease," +
+                $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,format=yuv420p";
+
+            Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+            string args = wavPath != null && File.Exists(wavPath)
+                ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset veryfast -crf 20 " +
+                  $"-c:a aac -b:a 192k -shortest -movflags +faststart \"{mp4Path}\""
+                : $"-y -framerate {fps} -i \"{input}\" " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset veryfast -crf 20 " +
+                  $"-movflags +faststart \"{mp4Path}\"";
+
+            return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);
+        }
+
         public static async Task<string?> ComposeAsync(
             string framesGlobOrConcat, string? wavPath, string mp4Path,
             int fps, CancellationToken ct)

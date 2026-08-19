@@ -71,15 +71,18 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
             try
             {
-                IsLoading = true;
+                UiDispatch.Run(() => IsLoading = true);
 
                 var items = await App.TaxInvoices.GetAllAsync();
 
-                _allRows = new ObservableCollection<TaxInvoiceListItem>(
-                    items.OrderByDescending(i => i.CreatedAt));
-
-                RebuildKpis();
-                ApplyFilter();
+                UiDispatch.Run(() =>
+                {
+                    _allRows = new ObservableCollection<TaxInvoiceListItem>(
+                        items.OrderByDescending(i => i.CreatedAt));
+                    RebuildKpis();
+                    ApplyFilter();
+                    IsLoading = false;
+                });
 
                 AuditService.Log(
                     AuditSections.TaxInvoice,
@@ -90,10 +93,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[TI GodView] Load failed: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
+                UiDispatch.Run(() => IsLoading = false);
             }
         }
 

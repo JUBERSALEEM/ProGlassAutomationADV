@@ -70,11 +70,16 @@ namespace ProGlassAutomation.ViewModels.Shared
             var entries = await AuditService.GetRecentAsync(
                 MaxRows, string.IsNullOrEmpty(_section) ? null : _section);
 
-            Rows.Clear();
-            foreach (var e in entries)
-                Rows.Add(ToRow(e));
-
-            IsEmpty = Rows.Count == 0;
+            // GetRecentAsync resumes on a thread-pool thread. Bound
+            // ObservableCollection mutations must run on the dispatcher
+            // (ERR-A65374 crashed demo recording on the Activity tab).
+            UiDispatch.Run(() =>
+            {
+                Rows.Clear();
+                foreach (var e in entries)
+                    Rows.Add(ToRow(e));
+                IsEmpty = Rows.Count == 0;
+            });
         }
 
         private void OnActivityLogged(object? sender, ActivityEventArgs e)

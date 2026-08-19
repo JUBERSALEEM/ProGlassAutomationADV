@@ -15,17 +15,25 @@ namespace ProGlassAutomation.Agent.Demo.Video
         {
             if (jpegPaths == null || jpegPaths.Count == 0)
                 throw new InvalidOperationException("No frames to encode.");
-            fps = Math.Clamp(fps, 1, 30);
+            fps = Math.Clamp(fps, 1, 60);
 
-            var frames = new List<byte[]>(jpegPaths.Count);
+            // Stream one JPEG at a time — loading a 4K/60 sequence into
+            // RAM is what used to OOM the demo encode.
             int w = 0, h = 0;
+            int maxFrame = 0;
             foreach (var p in jpegPaths)
             {
-                var bytes = File.ReadAllBytes(p);
-                frames.Add(bytes);
-                ReadJpegSize(bytes, out int jw, out int jh);
-                if (jw > w) w = jw;
-                if (jh > h) h = jh;
+                var info = new FileInfo(p);
+                if (!info.Exists) continue;
+                int padded = ((int)info.Length + 1) & ~1;
+                if (padded > maxFrame) maxFrame = padded;
+                if (w == 0 || h == 0)
+                {
+                    var peek = File.ReadAllBytes(p);
+                    ReadJpegSize(peek, out int jw, out int jh);
+                    if (jw > w) w = jw;
+                    if (jh > h) h = jh;
+                }
             }
             if (w <= 0) w = 1280;
             if (h <= 0) h = 720;
@@ -34,21 +42,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             using var fs = File.Create(aviPath);
             using var bw = new BinaryWriter(fs, Encoding.ASCII, leaveOpen: true);
 
-            int n = frames.Count;
-            int maxFrame = 0;
-            long moviSize = 4; // 'movi'
-            foreach (var f in frames)
-            {
-                int padded = (f.Length + 1) & ~1;
-                if (padded > maxFrame) maxFrame = padded;
-                moviSize += 8 + padded;
-            }
-
-            int hdrlSize = 4 + 8 + 56 + 8 + (4 + 8 + 56 + 8 + 40);
-            // We'll write header after we know sizes — use a conservative layout:
-            // RIFF size = 4 + LIST hdrl + LIST movi + idx1
-            int idx1Size = 8 + n * 16;
-            int hdrlList = 4 + 64 + 8 + (12 + 48 + 8 + 40); // avih + strl
+            int n = jpegPaths.Count;
             // Simpler fixed structure used by many MJPEG writers:
             WriteFour(bw, "RIFF");
             var riffSizePos = fs.Position;
@@ -107,8 +101,9 @@ namespace ProGlassAutomation.Agent.Demo.Video
             WriteFour(bw, "movi");
             var offsets = new List<int>(n);
             long moviStart = fs.Position - 4;
-            foreach (var f in frames)
+            foreach (var p in jpegPaths)
             {
+                var f = File.ReadAllBytes(p);
                 offsets.Add((int)(fs.Position - moviStart - 4));
                 WriteFour(bw, "00dc");
                 bw.Write(f.Length);

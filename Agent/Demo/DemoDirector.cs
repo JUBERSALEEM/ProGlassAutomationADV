@@ -40,7 +40,7 @@ namespace ProGlassAutomation.Agent.Demo
     /// </summary>
     public sealed class DemoDirector
     {
-        public const int RecordFps = 8;
+        public ScreenRecordSettings RecordSettings { get; set; } = new();
 
         public DemoJobState State { get; private set; } = DemoJobState.Idle;
         public string Status { get; private set; } = "";
@@ -101,11 +101,13 @@ namespace ProGlassAutomation.Agent.Demo
                 LastOutputFolder = folder;
                 log.AppendLine("Output: " + folder);
 
-                Set(DemoJobState.Recording, "Recording the live " + module + " workflow.");
+                var rec = (RecordSettings ?? new ScreenRecordSettings()).Clone().Clamp();
+                Set(DemoJobState.Recording,
+                    "Recording the live " + module + " window at " + rec.Summary + ".");
                 var framesDir = Path.Combine(folder, "frames");
                 Directory.CreateDirectory(framesDir);
                 using var recorder = new WindowScreenRecorder();
-                recorder.Start(framesDir, RecordFps);
+                recorder.Start(framesDir, rec);
 
                 IReadOnlyList<VerifiedEvent> events;
                 try
@@ -199,7 +201,6 @@ namespace ProGlassAutomation.Agent.Demo
                 }
 
                 File.WriteAllText(Path.Combine(folder, "narration.txt"), narration.ToString());
-                CaptionWriter.Write(folder, beats);
 
                 string narrationWav = Path.Combine(folder, "narration.wav");
                 TimeSpan totalAudio;
@@ -218,23 +219,39 @@ namespace ProGlassAutomation.Agent.Demo
                     return Status;
                 }
 
-                Set(DemoJobState.Rendering, "Encoding AVI then asking ffmpeg for MP4.");
-                string avi = Path.Combine(folder, "recording.avi");
-                try
+                string? liveWav = recorder.LiveAudioPath;
+                TimeSpan liveDur = TimeSpan.Zero;
+                if (!string.IsNullOrEmpty(liveWav) && File.Exists(liveWav))
                 {
-                    MjpegAviWriter.Write(avi, jpegs, RecordFps);
-                    log.AppendLine("AVI written: " + new FileInfo(avi).Length + " bytes");
+                    try { liveDur = WaveFileSpeech.WavDuration(liveWav); }
+                    catch { liveDur = TimeSpan.Zero; }
                 }
-                catch (Exception ex)
-                {
-                    Fail(module, "AVI encode failed: " + ex.Message, log, folder);
-                    return Status;
-                }
+                bool liveOk = liveDur > TimeSpan.FromMilliseconds(250);
+                log.AppendLine(liveOk
+                    ? $"Live loopback audio: {liveDur.TotalSeconds:0.00}s"
+                    : "Live loopback unused — muxing generated TTS WAV. " +
+                      (recorder.AudioError ?? (rec.CaptureLiveAudio
+                          ? "loopback was silent or failed to start"
+                          : "live audio was off")));
+
+                if (liveOk)
+                    CaptionWriter.Write(folder, BeatsFromEvents(events, recorder.StartedUtc, recorder.Duration));
+                else
+                    CaptionWriter.Write(folder, beats);
+
+                var (outW, outH) = rec.OutputSize;
+                Set(DemoJobState.Rendering,
+                    $"Encoding {outW}×{outH} @ {rec.Fps} fps MP4 with ffmpeg.");
+                log.AppendLine(
+                    $"Recorder {rec.Summary}; frames={jpegs.Count} dropped={recorder.DroppedFrames}");
 
                 string mp4Name = runner.OutputFileName;
                 string mp4 = Path.Combine(folder, mp4Name);
+                string audioForMux = liveOk ? liveWav! : narrationWav;
                 string? produced = await FfmpegMp4Composer
-                    .ComposeAviWavAsync(avi, narrationWav, mp4, ct)
+                    .ComposeFramesAudioAsync(
+                        framesDir, "f%05d.jpg", audioForMux, mp4,
+                        rec.Fps, outW, outH, ct)
                     .ConfigureAwait(false);
 
                 Set(DemoJobState.Validating, "Checking the MP4 is a real ISO-BMFF file.");
@@ -370,6 +387,22 @@ namespace ProGlassAutomation.Agent.Demo
             string dir = Path.Combine(root, safe, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
             Directory.CreateDirectory(dir);
             return dir;
+        }
+
+        private static List<(string Text, TimeSpan Duration)> BeatsFromEvents(
+            IReadOnlyList<VerifiedEvent> events, DateTime startedUtc, TimeSpan recorded)
+        {
+            var beats = new List<(string, TimeSpan)>();
+            if (events == null || events.Count == 0) return beats;
+            var end = startedUtc + (recorded > TimeSpan.Zero ? recorded : TimeSpan.FromSeconds(1));
+            for (int i = 0; i < events.Count; i++)
+            {
+                var from = events[i].Utc < startedUtc ? startedUtc : events[i].Utc;
+                var to = i + 1 < events.Count ? events[i + 1].Utc : end;
+                if (to <= from) to = from + TimeSpan.FromMilliseconds(400);
+                beats.Add((events[i].Narration, to - from));
+            }
+            return beats;
         }
 
         private void Fail(string module, string message, StringBuilder log, string? folder)

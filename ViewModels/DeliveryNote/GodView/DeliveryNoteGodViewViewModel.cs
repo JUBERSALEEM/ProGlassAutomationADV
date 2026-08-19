@@ -74,15 +74,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
 
             try
             {
-                IsLoading = true;
+                UiDispatch.Run(() => IsLoading = true);
 
                 var items = await App.DeliveryNotes.GetAllAsync();
 
-                _allRows = new ObservableCollection<DeliveryNoteListItem>(
-                    items.OrderByDescending(i => i.CreatedAt));
-
-                RebuildKpis();
-                ApplyFilter();
+                UiDispatch.Run(() =>
+                {
+                    _allRows = new ObservableCollection<DeliveryNoteListItem>(
+                        items.OrderByDescending(i => i.CreatedAt));
+                    RebuildKpis();
+                    ApplyFilter();
+                    IsLoading = false;
+                });
 
                 AuditService.Log(
                     AuditSections.DeliveryNote,
@@ -93,10 +96,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[DN GodView] Load failed: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
+                UiDispatch.Run(() => IsLoading = false);
             }
         }
 

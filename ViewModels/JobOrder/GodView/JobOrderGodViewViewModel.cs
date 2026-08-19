@@ -71,15 +71,18 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
             try
             {
-                IsLoading = true;
+                UiDispatch.Run(() => IsLoading = true);
 
                 var items = await App.Jobs.GetAllAsync();
 
-                _allRows = new ObservableCollection<SavedJobOrder>(
-                    items.OrderByDescending(i => i.CreatedAt));
-
-                RebuildKpis();
-                ApplyFilter();
+                UiDispatch.Run(() =>
+                {
+                    _allRows = new ObservableCollection<SavedJobOrder>(
+                        items.OrderByDescending(i => i.CreatedAt));
+                    RebuildKpis();
+                    ApplyFilter();
+                    IsLoading = false;
+                });
 
                 AuditService.Log(
                     AuditSections.JobOrder,
@@ -90,10 +93,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[JO GodView] Load failed: {ex.Message}");
-            }
-            finally
-            {
-                IsLoading = false;
+                UiDispatch.Run(() => IsLoading = false);
             }
         }
 

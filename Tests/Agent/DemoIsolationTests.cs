@@ -1,5 +1,6 @@
 using ProGlassAutomation.Agent.Demo;
 using ProGlassAutomation.Agent.Demo.Data;
+using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Demo.Workflows;
 using ProGlassAutomation.Services.Database;
@@ -130,6 +131,9 @@ namespace ProGlassAutomation.Tests.Agent
             var d = new DemoDirector();
             Assert.Equal(DemoJobState.Idle, d.State);
             Assert.False(d.IsRunning);
+            Assert.Equal(ScreenRecordQuality.FullHd, d.RecordSettings.Quality);
+            Assert.Equal(30, d.RecordSettings.Fps);
+            Assert.True(d.RecordSettings.CaptureLiveAudio);
         }
 
         [Fact]

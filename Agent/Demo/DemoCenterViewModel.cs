@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Data;
+using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Tools.Demo;
 using ProGlassAutomation.Commands;
@@ -34,6 +35,8 @@ namespace ProGlassAutomation.Agent.Demo
 
             SelectedWorkflow = DemoWorkflowCatalog.Find("ProformaInvoice")
                 ?? DemoWorkflowCatalog.All[0];
+            SelectedQuality = ScreenRecordSettings.Qualities[1];
+            SelectedFps = ScreenRecordSettings.FpsOptions[0];
 
             GenerateSelectedCommand = new RelayCommand(
                 async _ => await StartAsync(SelectedModule).ConfigureAwait(true),
@@ -146,8 +149,61 @@ namespace ProGlassAutomation.Agent.Demo
                 ? ""
                 : SelectedWorkflow.Title + " — " + SelectedWorkflow.Purpose;
 
+        public IReadOnlyList<ScreenRecordQualityOption> Qualities =>
+            ScreenRecordSettings.Qualities;
+
+        public IReadOnlyList<ScreenRecordFpsOption> FpsChoices =>
+            ScreenRecordSettings.FpsOptions;
+
+        private ScreenRecordQualityOption _selectedQuality = ScreenRecordSettings.Qualities[1];
+        public ScreenRecordQualityOption SelectedQuality
+        {
+            get => _selectedQuality;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedQuality, value)) return;
+                _selectedQuality = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(RecordHint));
+            }
+        }
+
+        private ScreenRecordFpsOption _selectedFps = ScreenRecordSettings.FpsOptions[0];
+        public ScreenRecordFpsOption SelectedFps
+        {
+            get => _selectedFps;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedFps, value)) return;
+                _selectedFps = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(RecordHint));
+            }
+        }
+
+        private bool _captureLiveAudio = true;
+        public bool CaptureLiveAudio
+        {
+            get => _captureLiveAudio;
+            set
+            {
+                if (_captureLiveAudio == value) return;
+                _captureLiveAudio = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(RecordHint));
+            }
+        }
+
+        public string RecordHint =>
+            "Records only this app window — not the desktop — at " +
+            (SelectedQuality?.Title ?? "1080p") + " / " +
+            (SelectedFps?.Title ?? "30 fps") +
+            (CaptureLiveAudio
+                ? ". Live narration is captured from the speakers."
+                : ". Live audio is off; generated TTS is muxed after the walk.");
+
         public string WorkflowHint =>
-            "Generate Selected records that module. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg, TTS or frames are missing.";
+            "Generate Selected records that module like a clerk using it. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg, TTS or frames are missing.";
 
         public string StatusText { get; private set; } =
             "A demo is successful only when a valid MP4 is written. " +
@@ -254,7 +310,14 @@ namespace ProGlassAutomation.Agent.Demo
                 return;
             }
 
-            SetLocalStatus("Starting " + label + "…");
+            _director.RecordSettings = new ScreenRecordSettings
+            {
+                Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd,
+                Fps = SelectedFps?.Fps ?? 30,
+                CaptureLiveAudio = CaptureLiveAudio
+            }.Clamp();
+
+            SetLocalStatus("Starting " + label + " at " + _director.RecordSettings.Summary + "…");
             RaiseFlags();
             try
             {

@@ -1,0 +1,103 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ProGlassAutomation.Agent.Demo.Recording
+{
+    public enum ScreenRecordQuality
+    {
+        Hd720 = 720,
+        FullHd = 1080,
+        Qhd2K = 1440,
+        Uhd4K = 2160
+    }
+
+    public sealed class ScreenRecordQualityOption
+    {
+        public ScreenRecordQuality Quality { get; init; }
+        public string Title { get; init; } = "";
+        public int Width { get; init; }
+        public int Height { get; init; }
+        public override string ToString() => Title;
+    }
+
+    public sealed class ScreenRecordFpsOption
+    {
+        public int Fps { get; init; }
+        public string Title => Fps + " fps";
+        public override string ToString() => Title;
+    }
+
+    /// <summary>
+    /// In-app capture of the running main window only.
+    /// 720 / 1080 / 2K / 4K at 30 / 40 / 50 / 60 fps.
+    /// </summary>
+    public sealed class ScreenRecordSettings
+    {
+        public static IReadOnlyList<ScreenRecordQualityOption> Qualities { get; } =
+        [
+            new() { Quality = ScreenRecordQuality.Hd720,  Title = "720p (1280 × 720)",   Width = 1280, Height = 720 },
+            new() { Quality = ScreenRecordQuality.FullHd, Title = "1080p (1920 × 1080)", Width = 1920, Height = 1080 },
+            new() { Quality = ScreenRecordQuality.Qhd2K,  Title = "2K (2560 × 1440)",    Width = 2560, Height = 1440 },
+            new() { Quality = ScreenRecordQuality.Uhd4K,  Title = "4K (3840 × 2160)",    Width = 3840, Height = 2160 }
+        ];
+
+        public static IReadOnlyList<ScreenRecordFpsOption> FpsOptions { get; } =
+        [
+            new() { Fps = 30 },
+            new() { Fps = 40 },
+            new() { Fps = 50 },
+            new() { Fps = 60 }
+        ];
+
+        public static readonly int[] AllowedFps = [30, 40, 50, 60];
+
+        public ScreenRecordQuality Quality { get; set; } = ScreenRecordQuality.FullHd;
+        public int Fps { get; set; } = 30;
+        public bool CaptureLiveAudio { get; set; } = true;
+        public int JpegQuality { get; set; } = 82;
+
+        public (int Width, int Height) OutputSize
+        {
+            get
+            {
+                var p = Qualities.FirstOrDefault(q => q.Quality == Quality) ?? Qualities[1];
+                return (p.Width, p.Height);
+            }
+        }
+
+        public string Summary
+        {
+            get
+            {
+                var (w, h) = OutputSize;
+                return $"{w}×{h} @ {Fps} fps" + (CaptureLiveAudio ? " + live audio" : "");
+            }
+        }
+
+        public ScreenRecordSettings Clone() => new()
+        {
+            Quality = Quality,
+            Fps = Fps,
+            CaptureLiveAudio = CaptureLiveAudio,
+            JpegQuality = JpegQuality
+        };
+
+        public ScreenRecordSettings Clamp()
+        {
+            if (Qualities.All(q => q.Quality != Quality))
+                Quality = ScreenRecordQuality.FullHd;
+
+            if (Array.IndexOf(AllowedFps, Fps) < 0)
+            {
+                Fps = Fps <= 35 ? 30
+                    : Fps <= 45 ? 40
+                    : Fps <= 55 ? 50
+                    : 60;
+            }
+
+            JpegQuality = Math.Clamp(JpegQuality, 50, 95);
+            return this;
+        }
+    }
+}

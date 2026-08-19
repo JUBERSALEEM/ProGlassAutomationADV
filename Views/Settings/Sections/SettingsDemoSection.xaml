@@ -101,6 +101,47 @@
 
                 <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
+                        <TextBlock Text="RECORDING" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="Captures only this running app window. Not the desktop, not other programs."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="Quality"
+                                   Style="{StaticResource RowTitleStyle}"
+                                   Margin="0,8,0,6"/>
+                        <ComboBox ItemsSource="{Binding Qualities}"
+                                  SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
+                                  DisplayMemberPath="Title"
+                                  IsSynchronizedWithCurrentItem="False"
+                                  MinWidth="260"
+                                  Padding="10,7"
+                                  FontSize="13"/>
+                        <TextBlock Text="Frame rate"
+                                   Style="{StaticResource RowTitleStyle}"
+                                   Margin="0,14,0,6"/>
+                        <ComboBox ItemsSource="{Binding FpsChoices}"
+                                  SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
+                                  DisplayMemberPath="Title"
+                                  IsSynchronizedWithCurrentItem="False"
+                                  MinWidth="180"
+                                  Padding="10,7"
+                                  FontSize="13"/>
+                        <DockPanel Margin="0,18,0,0">
+                            <TextBlock Text="Live audio"
+                                       Style="{StaticResource RowTitleStyle}"
+                                       VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
+                                          Style="{StaticResource ModernToggleSwitch}"
+                                          AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
+                        </DockPanel>
+                        <TextBlock Text="{Binding RecordHint}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
+                    <StackPanel>
                         <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Module"
                                    Style="{StaticResource RowTitleStyle}"

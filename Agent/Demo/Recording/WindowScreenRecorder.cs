@@ -1,10 +1,11 @@
-using ProGlassAutomation.Services.Export;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
@@ -19,27 +20,66 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     }
 
     /// <summary>
-    /// Captures the live main window at a stable frame rate while a workflow runs.
+    /// Captures only the running main window (not the desktop) at a
+    /// chosen quality and frame rate. Encode and disk I/O run off the
+    /// UI thread. A full dispatcher is never pumped — that was freezing
+    /// the demo walk.
     /// </summary>
     public sealed class WindowScreenRecorder : IDisposable
     {
+        private const int MaxPendingEncodes = 8;
+
         private readonly List<RecordedFrame> _frames = new();
+        private readonly object _framesGate = new();
+        private readonly WasapiLoopbackRecorder _audio = new();
         private CancellationTokenSource? _cts;
         private Task? _loop;
         private DateTime _started;
-        public IReadOnlyList<RecordedFrame> Frames => _frames;
-        public bool IsRecording => _loop != null && !_loop.IsCompleted;
+        private int _pendingEncodes;
+        private int _captureBusy;
+        private ScreenRecordSettings _settings = new();
 
-        public void Start(string framesFolder, int fps = 8)
+        public IReadOnlyList<RecordedFrame> Frames
+        {
+            get { lock (_framesGate) return _frames.ToArray(); }
+        }
+
+        public bool IsRecording => _loop != null && !_loop.IsCompleted;
+        public DateTime StartedUtc => _started;
+        public TimeSpan Duration { get; private set; }
+        public int DroppedFrames { get; private set; }
+        public int EncodedFrames { get; private set; }
+        public string? LiveAudioPath => _audio.Path;
+        public string? AudioError => _audio.Error;
+        public bool LiveAudioStarted { get; private set; }
+        public ScreenRecordSettings Settings => _settings;
+
+        public void Start(string framesFolder, int fps) =>
+            Start(framesFolder, new ScreenRecordSettings { Fps = fps });
+
+        public void Start(string framesFolder, ScreenRecordSettings settings)
         {
             try { _cts?.Cancel(); } catch { }
+            _settings = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
             Directory.CreateDirectory(framesFolder);
-            _frames.Clear();
+            lock (_framesGate) _frames.Clear();
+            DroppedFrames = 0;
+            EncodedFrames = 0;
+            Duration = TimeSpan.Zero;
             _started = DateTime.UtcNow;
             _cts = new CancellationTokenSource();
+
+            LiveAudioStarted = false;
+            if (_settings.CaptureLiveAudio)
+            {
+                string wav = System.IO.Path.Combine(
+                    Directory.GetParent(framesFolder)?.FullName ?? framesFolder,
+                    "live.wav");
+                LiveAudioStarted = _audio.Start(wav);
+            }
+
             var ct = _cts.Token;
-            int delay = Math.Max(40, 1000 / Math.Max(1, fps));
-            _loop = Task.Run(() => LoopAsync(framesFolder, delay, ct));
+            _loop = Task.Run(() => LoopAsync(framesFolder, ct));
         }
 
         public async Task StopAsync()
@@ -51,68 +91,245 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 catch (OperationCanceledException) { }
             }
             _loop = null;
+
+            var until = DateTime.UtcNow.AddSeconds(8);
+            while (Volatile.Read(ref _pendingEncodes) > 0 && DateTime.UtcNow < until)
+                await Task.Delay(40).ConfigureAwait(false);
+
+            Duration = DateTime.UtcNow - _started;
+            try { await _audio.StopAsync().ConfigureAwait(false); }
+            catch { /* loopback is optional */ }
         }
 
         public void Stop() => _cts?.Cancel();
 
-        [System.Runtime.InteropServices.DllImport("user32.dll")]
-        private static extern bool GetCursorPos(out Point pos);
+        [DllImport("user32.dll")]
+        private static extern bool GetCursorPos(out NativePoint pos);
 
-        [System.Runtime.InteropServices.StructLayout(
-            System.Runtime.InteropServices.LayoutKind.Sequential)]
-        private struct Point { public int X; public int Y; }
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NativePoint { public int X; public int Y; }
 
-        private async Task LoopAsync(string folder, int delayMs, CancellationToken ct)
+        private async Task LoopAsync(string folder, CancellationToken ct)
         {
+            int fps = Math.Max(1, _settings.Fps);
+            var interval = TimeSpan.FromMilliseconds(1000.0 / fps);
+            var next = DateTime.UtcNow;
             int i = 0;
+
             while (!ct.IsCancellationRequested)
             {
-                try
+                var now = DateTime.UtcNow;
+                if (now < next)
+                {
+                    try { await Task.Delay(next - now, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+                    now = DateTime.UtcNow;
+                }
+                else if (now > next + interval + interval)
+                {
+                    int missed = (int)((now - next).TotalMilliseconds / interval.TotalMilliseconds) - 1;
+                    if (missed > 0) DroppedFrames += missed;
+                    next = now;
+                }
+
+                if (Volatile.Read(ref _pendingEncodes) >= MaxPendingEncodes
+                    || Volatile.Read(ref _captureBusy) != 0)
+                {
+                    DroppedFrames++;
+                }
+                else
                 {
                     string path = System.IO.Path.Combine(folder, $"f{i:00000}.jpg");
-                    var captured = await CaptureJpegAsync(path, ct).ConfigureAwait(false);
-                    if (captured)
+                    var shot = await CapturePixelsAsync(ct).ConfigureAwait(false);
+                    if (shot != null)
                     {
-                    GetCursorPos(out var pos);
-                    _frames.Add(new RecordedFrame
-                    {
-                        Path = path,
-                        Timestamp = DateTime.UtcNow - _started,
-                        CursorX = pos.X,
-                        CursorY = pos.Y
-                    });
                         i++;
+                        Interlocked.Increment(ref _pendingEncodes);
+                        var copy = shot;
+                        _ = Task.Run(() => EncodeJpeg(copy, path), CancellationToken.None);
                     }
                 }
-                catch (OperationCanceledException) { break; }
-                catch { /* keep recording */ }
 
-                try { await Task.Delay(delayMs, ct).ConfigureAwait(false); }
-                catch (OperationCanceledException) { break; }
+                next += interval;
             }
         }
 
-        private static Task<bool> CaptureJpegAsync(string path, CancellationToken ct)
+        private sealed class PixelShot
+        {
+            public required byte[] Pixels { get; init; }
+            public int Width { get; init; }
+            public int Height { get; init; }
+            public int CursorX { get; init; }
+            public int CursorY { get; init; }
+            public TimeSpan Timestamp { get; init; }
+        }
+
+        private Task<PixelShot?> CapturePixelsAsync(CancellationToken ct)
         {
             var disp = Application.Current?.Dispatcher;
-            if (disp == null) return Task.FromResult(false);
-            return disp.InvokeAsync(() =>
+            if (disp == null) return Task.FromResult<PixelShot?>(null);
+            Interlocked.Exchange(ref _captureBusy, 1);
+            try
             {
-                ct.ThrowIfCancellationRequested();
-                var bmp = ScreenshotService.CaptureMainWindow(ScreenshotQuality.HD);
-                if (bmp == null) return false;
-                var enc = new JpegBitmapEncoder { QualityLevel = 85 };
-                enc.Frames.Add(BitmapFrame.Create(bmp));
-                using var fs = File.Create(path);
-                enc.Save(fs);
-                return File.Exists(path);
-            }, DispatcherPriority.Background, ct).Task;
+                return disp.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        return CaptureOnUi();
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref _captureBusy, 0);
+                    }
+                }, DispatcherPriority.Background, ct).Task
+                    .ContinueWith(t =>
+                    {
+                        Interlocked.Exchange(ref _captureBusy, 0);
+                        if (t.IsCanceled || t.IsFaulted) return null;
+                        return t.Result;
+                    }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+            }
+            catch
+            {
+                Interlocked.Exchange(ref _captureBusy, 0);
+                return Task.FromResult<PixelShot?>(null);
+            }
+        }
+
+        private PixelShot? CaptureOnUi()
+        {
+            var window = Application.Current?.MainWindow;
+            if (window == null || window.ActualWidth < 2 || window.ActualHeight < 2)
+                return null;
+
+            var (targetW, targetH) = _settings.OutputSize;
+            double dipW = Math.Max(1, window.ActualWidth);
+            double dipH = Math.Max(1, window.ActualHeight);
+            double scale = Math.Min(targetW / dipW, targetH / dipH);
+            if (scale <= 0) scale = 1;
+
+            int capW = Math.Max(2, ((int)Math.Round(dipW * scale)) & ~1);
+            int capH = Math.Max(2, ((int)Math.Round(dipH * scale)) & ~1);
+            capW = Math.Min(capW, targetW);
+            capH = Math.Min(capH, targetH);
+            int dpi = Math.Max(96, (int)Math.Round(96 * scale));
+
+            BitmapSource? bmp;
+            try
+            {
+                var rtb = new RenderTargetBitmap(capW, capH, dpi, dpi, PixelFormats.Pbgra32);
+                rtb.Render(window);
+                rtb.Freeze();
+                bmp = rtb;
+            }
+            catch
+            {
+                return null;
+            }
+
+            int stride = capW * 4;
+            var pixels = new byte[stride * capH];
+            bmp.CopyPixels(pixels, stride, 0);
+
+            GetCursorPos(out var pos);
+            int cx = 0, cy = 0;
+            try
+            {
+                var origin = window.PointToScreen(new Point(0, 0));
+                var dpiInfo = VisualTreeHelper.GetDpi(window);
+                double pxW = dipW * dpiInfo.DpiScaleX;
+                double pxH = dipH * dpiInfo.DpiScaleY;
+                if (pxW > 0 && pxH > 0)
+                {
+                    cx = (int)Math.Round((pos.X - origin.X) / pxW * capW);
+                    cy = (int)Math.Round((pos.Y - origin.Y) / pxH * capH);
+                }
+            }
+            catch { /* cursor overlay is optional */ }
+
+            DrawPointer(pixels, capW, capH, cx, cy);
+
+            return new PixelShot
+            {
+                Pixels = pixels,
+                Width = capW,
+                Height = capH,
+                CursorX = cx,
+                CursorY = cy,
+                Timestamp = DateTime.UtcNow - _started
+            };
+        }
+
+        private void EncodeJpeg(PixelShot shot, string path)
+        {
+            try
+            {
+                var src = BitmapSource.Create(
+                    shot.Width, shot.Height, 96, 96,
+                    PixelFormats.Pbgra32, null, shot.Pixels, shot.Width * 4);
+                src.Freeze();
+                var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQuality };
+                enc.Frames.Add(BitmapFrame.Create(src));
+                Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+                using (var fs = File.Create(path))
+                    enc.Save(fs);
+
+                if (File.Exists(path))
+                {
+                    lock (_framesGate)
+                    {
+                        _frames.Add(new RecordedFrame
+                        {
+                            Path = path,
+                            Timestamp = shot.Timestamp,
+                            CursorX = shot.CursorX,
+                            CursorY = shot.CursorY
+                        });
+                    }
+                    EncodedFrames++;
+                }
+            }
+            catch
+            {
+                DroppedFrames++;
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _pendingEncodes);
+            }
+        }
+
+        private static void DrawPointer(byte[] px, int w, int h, int cx, int cy)
+        {
+            if ((uint)cx >= (uint)w || (uint)cy >= (uint)h) return;
+            const int r = 8;
+            for (int y = cy - r - 1; y <= cy + r + 1; y++)
+            {
+                if ((uint)y >= (uint)h) continue;
+                for (int x = cx - r - 1; x <= cx + r + 1; x++)
+                {
+                    if ((uint)x >= (uint)w) continue;
+                    int dx = x - cx, dy = y - cy;
+                    int d2 = dx * dx + dy * dy;
+                    int i = (y * w + x) * 4;
+                    if (d2 <= 16)
+                    {
+                        px[i] = 220; px[i + 1] = 96; px[i + 2] = 37; px[i + 3] = 255;
+                    }
+                    else if (d2 <= r * r)
+                    {
+                        px[i] = 255; px[i + 1] = 255; px[i + 2] = 255; px[i + 3] = 255;
+                    }
+                }
+            }
         }
 
         public void Dispose()
         {
             try { Stop(); } catch { }
-            _cts?.Dispose();
+            try { _cts?.Dispose(); } catch { }
+            _audio.Dispose();
         }
     }
 }
