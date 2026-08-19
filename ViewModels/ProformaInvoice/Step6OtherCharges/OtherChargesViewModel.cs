@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
@@ -120,20 +120,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 });
             }
 
-            // Default metric from template DefaultSourceKey (Decision 3)
+            // Default metric from template DefaultSourceKey (Decision 3).
+            // TOTAL_PIECES is a legacy alias for QTY — NormalizeKey maps it.
             var template = PredefinedChargeTemplates.GetAll()
                 .FirstOrDefault(t => t.Key == row.TemplateKey);
 
-            if (template != null && !string.IsNullOrEmpty(template.DefaultSourceKey))
-            {
-                selection.SelectedMetric = selection.AvailableMetrics
-                    .FirstOrDefault(m => m.Key == template.DefaultSourceKey)
-                    ?? selection.AvailableMetrics.FirstOrDefault();
-            }
-            else
-            {
-                selection.SelectedMetric = selection.AvailableMetrics.FirstOrDefault();
-            }
+            string defaultKey = template?.DefaultSourceKey ?? "";
+            string normalized = MetricOption.NormalizeKey(defaultKey);
+            selection.SelectedMetric = selection.AvailableMetrics
+                .FirstOrDefault(m => m.Key == normalized)
+                ?? selection.AvailableMetrics.FirstOrDefault();
 
             return selection;
         }
@@ -275,7 +271,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             if (sender is OtherChargeRow row && row.IsPolishRow
                 && e.PropertyName is
                     nameof(OtherChargeRow.SelectedPolishSubType)
-                    or nameof(OtherChargeRow.IsActive))
+                    or nameof(OtherChargeRow.IsActive)
+                    or nameof(OtherChargeRow.TargetSelection))
             {
                 RequestPolishRecalculation();
             }
@@ -323,13 +320,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     continue;
                 }
 
+                var scoped = FilterSnapshotsForRow(specSnapshots, row);
                 decimal totalLm =
                     ProformaChargeMetricsCalculator.ComputePolishLm(
-                        specSnapshots,
+                        scoped,
                         row.SelectedPolishSubType.Type.ToString());
 
                 row.SetCalculatedPolishQty(totalLm);
             }
+        }
+
+        private static List<SpecGroupSnapshot> FilterSnapshotsForRow(
+            List<SpecGroupSnapshot> all, OtherChargeRow row)
+        {
+            if (row.TargetSelection == null)
+                return all;
+
+            var checkedNumbers = row.TargetSelection.AvailableSpecs
+                .Where(s => s.IsChecked)
+                .Select(s => s.SpecGroupNumber)
+                .ToHashSet();
+
+            if (checkedNumbers.Count == 0)
+                return new List<SpecGroupSnapshot>();
+
+            return all.Where(s => checkedNumbers.Contains(s.GroupNumber)).ToList();
         }
 
         private List<SpecGroupSnapshot> BuildSpecSnapshotsForCalculator()
@@ -458,6 +473,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             TotalOtherCharges = Math.Round(
                 predefinedSum + wastageSum + customSum, 2);
+        }
+
+        /// <summary>
+        /// Re-syncs live Step 5 metrics into every charge row. Called when
+        /// the user enters Step 6 so QTY / RESULT match the current grid.
+        /// </summary>
+        public void RefreshWorkspace()
+        {
+            MetricHub.Refresh();
+            SyncTargetSelectionsFromHub();
+            RecalculatePolishRowsImmediate();
+            WastagesSection?.SyncAllWastageSources();
+            RecalculateTotal();
+        }
+
+        /// <summary>
+        /// New invoice: predefined rows back to defaults, wastage and
+        /// custom lists emptied. Previous invoice selections must not leak.
+        /// </summary>
+        public void ResetForNewInvoice()
+        {
+            foreach (var row in ChargeRows)
+                row.PropertyChanged -= OnChargeRowChanged;
+
+            BuildChargeRows();
+
+            WastagesSection.WastageRows.Clear();
+            WastagesSection.RefreshTotal();
+
+            CustomChargesSection.AddedCharges.Clear();
+            CustomChargesSection.RefreshTotal();
+
+            RecalculatePolishRowsImmediate();
+            RecalculateTotal();
         }
     }
 }

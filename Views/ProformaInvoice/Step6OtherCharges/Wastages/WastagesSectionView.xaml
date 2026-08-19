@@ -131,13 +131,19 @@
                                      Margin="0,0,8,0"/>
                             <Grid Grid.Column="2" Margin="0,0,8,0">
                                 <ToggleButton x:Name="SourceToggle"
-                                              Content="Select sources"
-                                              Style="{StaticResource SourceToggleButtonStyle}"/>
+                                              Style="{StaticResource SourceToggleButtonStyle}"
+                                              ToolTip="{Binding SourceSummaryText}">
+                                    <TextBlock Text="{Binding SourceSummaryText}"
+                                               TextTrimming="CharacterEllipsis"
+                                               VerticalAlignment="Center"/>
+                                </ToggleButton>
                                 <Popup IsOpen="{Binding IsChecked, ElementName=SourceToggle}"
                                        StaysOpen="False"
                                        PlacementTarget="{Binding ElementName=SourceToggle}"
-                                       AllowsTransparency="True">
-                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                       AllowsTransparency="True"
+                                       PopupAnimation="Fade">
+                                    <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                            Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="1"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -145,25 +151,38 @@
                                             MaxHeight="320"
                                             Width="380">
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                            <ItemsControl ItemsSource="{Binding AvailableSources}">
-                                                <ItemsControl.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <CheckBox IsChecked="{Binding IsChecked}"
-                                                                  Margin="0,0,0,6"
-                                                                  Cursor="Hand">
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <TextBlock Text="{Binding DisplayLabel}"
-                                                                           FontSize="12"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
-                                                                           FontSize="11" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource AccentBrush}"
-                                                                           Margin="10,0,0,0"/>
-                                                            </StackPanel>
-                                                        </CheckBox>
-                                                    </DataTemplate>
-                                                </ItemsControl.ItemTemplate>
-                                            </ItemsControl>
+                                            <StackPanel>
+                                                <TextBlock Text="CHOOSE SQM SOURCES"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           Margin="0,0,0,10"/>
+                                                <ItemsControl ItemsSource="{Binding AvailableSources}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                      Margin="0,0,0,6"
+                                                                      Cursor="Hand">
+                                                                <StackPanel Orientation="Horizontal">
+                                                                    <TextBlock Text="{Binding DisplayLabel}"
+                                                                               FontSize="12"
+                                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                    <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
+                                                                               FontSize="11" FontWeight="Bold"
+                                                                               Foreground="{DynamicResource AccentBrush}"
+                                                                               Margin="10,0,0,0"/>
+                                                                </StackPanel>
+                                                            </CheckBox>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                                <TextBlock Text="{Binding SourceSummaryText}"
+                                                           FontSize="11"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           TextWrapping="Wrap"
+                                                           Margin="0,8,0,0"/>
+                                            </StackPanel>
                                         </ScrollViewer>
                                     </Border>
                                 </Popup>
@@ -175,8 +194,9 @@
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBox Grid.Column="4"
-                                     Text="{Binding Rate, StringFormat={}{0:0.##}}"
+                                     Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
                                      Style="{StaticResource RateInputStyle}"
+                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                      Margin="4,0"/>
                             <TextBlock Grid.Column="5"
                                        Text="{Binding FormulaDisplay}"

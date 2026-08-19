@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 
@@ -103,10 +103,17 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         private void OnTargetSelectionChanged(
             object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SpecTargetSelection.ComputedValue))
+            if (e.PropertyName is nameof(SpecTargetSelection.ComputedValue)
+                or nameof(SpecTargetSelection.SummaryText)
+                or nameof(SpecTargetSelection.SelectedMetric)
+                or null
+                or "")
             {
                 OnPropertyChanged(nameof(MetricQty));
                 Recalculate();
+                // Let the parent VM re-run polish LM when the user changes
+                // which specs this row targets.
+                OnPropertyChanged(nameof(TargetSelection));
             }
         }
 

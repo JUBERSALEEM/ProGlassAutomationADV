@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -105,7 +105,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             if (string.IsNullOrWhiteSpace(sourceKey))
                 return 0m;
 
-            return sourceKey switch
+            string key = NormalizeSourceKey(sourceKey);
+            return key switch
             {
                 "LM1" => m.TotalLm1,
                 "LM2" => m.TotalLm2,
@@ -115,6 +116,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 "SQM_COMBINED" => m.CombinedSqm,
                 "DGU_CAVITY" => m.DguCavityArea,
                 "TOTAL_PIECES" => m.TotalPieces,
+                "QTY" => m.TotalPieces,
                 "DOUBLE_GLASS" => m.DoubleGlassPieces,
                 _ => LogUnknownAndReturnZero(sourceKey)
             };
@@ -219,6 +221,63 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 "BothWidthSide" => (decimal)w / 1000m * 2m,
                 _ => 0m
             };
+        }
+
+        public static string FirstChargeSourceKey(params string?[] keys)
+        {
+            if (keys == null) return "";
+            foreach (var key in keys)
+            {
+                if (!string.IsNullOrWhiteSpace(key))
+                    return key.Trim();
+            }
+            return "";
+        }
+
+        public static List<SpecGroupSnapshot>? FilterSpecs(
+            List<SpecGroupSnapshot>? specGroups, List<int>? checkedNumbers)
+        {
+            if (specGroups == null) return null;
+            if (checkedNumbers == null || checkedNumbers.Count == 0)
+                return specGroups;
+
+            var allowed = checkedNumbers.ToHashSet();
+            return specGroups.Where(g => allowed.Contains(g.GroupNumber)).ToList();
+        }
+
+        public static string NormalizeSourceKey(string? sourceKey)
+        {
+            if (string.IsNullOrWhiteSpace(sourceKey))
+                return "";
+
+            return sourceKey.Trim() switch
+            {
+                "QTY" => "TOTAL_PIECES",
+                "TOTAL_QTY" => "TOTAL_PIECES",
+                _ => sourceKey.Trim()
+            };
+        }
+
+        /// <summary>
+        /// Metric for a charge row using the live selected metric key and
+        /// optional per-spec filter. Falls back to the full invoice when
+        /// no spec list was saved (legacy invoices).
+        /// </summary>
+        public static decimal ComputeTargetedMetric(
+            List<SpecGroupSnapshot>? specGroups,
+            string? metricKey,
+            List<int>? checkedSpecNumbers)
+        {
+            IEnumerable<SpecGroupSnapshot> groups =
+                specGroups ?? Enumerable.Empty<SpecGroupSnapshot>();
+
+            if (checkedSpecNumbers != null && checkedSpecNumbers.Count > 0)
+            {
+                var allowed = checkedSpecNumbers.ToHashSet();
+                groups = groups.Where(g => allowed.Contains(g.GroupNumber));
+            }
+
+            return LookupMetric(ComputeSpecMetrics(groups.ToList()), metricKey);
         }
 
         private static decimal LogUnknownAndReturnZero(string sourceKey)

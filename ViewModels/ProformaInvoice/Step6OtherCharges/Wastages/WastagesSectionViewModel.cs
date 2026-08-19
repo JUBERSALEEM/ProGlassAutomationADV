@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System.Collections.ObjectModel;
@@ -131,6 +131,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             }
             row.ForceRefreshSqm();
         }
+
+        public void RefreshTotal() => RecalculateTotal();
 
         private void RecalculateTotal()
         {

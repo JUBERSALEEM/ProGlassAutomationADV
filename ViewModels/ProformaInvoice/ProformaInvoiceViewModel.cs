@@ -448,6 +448,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (stepNumber == 5)
                 Step5VM.EnsureDefaultWorkspace();
 
+            if (stepNumber == 6)
+                Step6VM.RefreshWorkspace();
+
             // Step 8 shows disk state — refresh every time it is
             // entered so external changes are never shown stale.
             if (stepNumber == 8)
@@ -501,6 +504,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             // ── Reset Step 5 — one spec tab + empty row, selected ────
             Step5VM.ResetForNewInvoice();
+
+            // ── Reset Step 6 — drop previous invoice charge selections ─
+            Step6VM.ResetForNewInvoice();
 
             // ── S-05: Load cards from masterdata.db ───────────────────
             // Run all 3 card loads concurrently — faster than sequential.

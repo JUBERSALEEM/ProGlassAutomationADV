@@ -315,16 +315,21 @@
                                                 </ComboBox>
 
                                                 <ToggleButton x:Name="TargetToggle"
-                                                              Content="{Binding TargetSelection.SummaryText, FallbackValue='Select specs and metric…'}"
                                                               Style="{StaticResource SpecTargetToggleStyle}"
-                                                              IsEnabled="{Binding IsActive}"/>
+                                                              IsEnabled="{Binding IsActive}"
+                                                              ToolTip="{Binding TargetSelection.SummaryText}">
+                                                    <TextBlock Text="{Binding TargetSelection.SummaryText, FallbackValue='Select specs and metric…'}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               VerticalAlignment="Center"/>
+                                                </ToggleButton>
 
                                                 <Popup IsOpen="{Binding IsChecked, ElementName=TargetToggle}"
                                                        StaysOpen="False"
                                                        PlacementTarget="{Binding ElementName=TargetToggle}"
                                                        AllowsTransparency="True"
                                                        PopupAnimation="Fade">
-                                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                            Background="{DynamicResource ModuleBackgroundBrush}"
                                                             BorderBrush="{DynamicResource AccentBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -364,24 +369,38 @@
                                                                          Margin="0,0,0,10">
                                                                     <ListBox.ItemTemplate>
                                                                         <DataTemplate>
-                                                                            <RadioButton IsChecked="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
-                                                                                         Cursor="Hand"
-                                                                                         Margin="0,3"
-                                                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                                         ToolTip="{Binding DisplayName}">
-                                                                                <TextBlock Text="{Binding DisplayName}" FontSize="12" TextWrapping="Wrap" Margin="4,0,0,0"/>
-                                                                            </RadioButton>
+                                                                            <TextBlock Text="{Binding DisplayName}"
+                                                                                       FontSize="12"
+                                                                                       TextWrapping="Wrap"
+                                                                                       Margin="4,3"
+                                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                       ToolTip="{Binding DisplayName}"/>
                                                                         </DataTemplate>
                                                                     </ListBox.ItemTemplate>
                                                                     <ListBox.ItemContainerStyle>
                                                                         <Style TargetType="ListBoxItem">
-                                                                            <Setter Property="Padding" Value="0"/>
+                                                                            <Setter Property="Padding" Value="2,2"/>
                                                                             <Setter Property="Background" Value="Transparent"/>
                                                                             <Setter Property="BorderThickness" Value="0"/>
+                                                                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                                                            <Setter Property="Cursor" Value="Hand"/>
                                                                             <Setter Property="Template">
                                                                                 <Setter.Value>
                                                                                     <ControlTemplate TargetType="ListBoxItem">
-                                                                                        <ContentPresenter/>
+                                                                                        <Border x:Name="ItemBd"
+                                                                                                Background="Transparent"
+                                                                                                Padding="{TemplateBinding Padding}"
+                                                                                                CornerRadius="3">
+                                                                                            <ContentPresenter/>
+                                                                                        </Border>
+                                                                                        <ControlTemplate.Triggers>
+                                                                                            <Trigger Property="IsSelected" Value="True">
+                                                                                                <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                                                            </Trigger>
+                                                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                                                <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                                                            </Trigger>
+                                                                                        </ControlTemplate.Triggers>
                                                                                     </ControlTemplate>
                                                                                 </Setter.Value>
                                                                             </Setter>

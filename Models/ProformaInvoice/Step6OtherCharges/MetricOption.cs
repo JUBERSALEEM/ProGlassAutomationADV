@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/ProformaInvoice/Step6OtherCharges/MetricOption.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 17 — NEW FILE
@@ -54,5 +54,32 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>Returns only the metrics that match the given unit type.</summary>
         public static List<MetricOption> ForUnit(OtherChargeUnit unit)
             => All.Where(m => m.Unit == unit).ToList();
+
+        /// <summary>
+        /// Resolves a saved or template key to a metric for the given unit.
+        /// Accepts legacy aliases such as TOTAL_PIECES → QTY.
+        /// </summary>
+        public static MetricOption? FindForUnit(OtherChargeUnit unit, string? key)
+        {
+            string normalized = NormalizeKey(key);
+            if (string.IsNullOrEmpty(normalized))
+                return ForUnit(unit).FirstOrDefault();
+
+            return ForUnit(unit).FirstOrDefault(m => m.Key == normalized)
+                ?? ForUnit(unit).FirstOrDefault();
+        }
+
+        public static string NormalizeKey(string? key)
+        {
+            if (string.IsNullOrWhiteSpace(key))
+                return "";
+
+            return key.Trim() switch
+            {
+                "TOTAL_PIECES" => "QTY",
+                "TOTAL_QTY" => "QTY",
+                _ => key.Trim()
+            };
+        }
     }
 }

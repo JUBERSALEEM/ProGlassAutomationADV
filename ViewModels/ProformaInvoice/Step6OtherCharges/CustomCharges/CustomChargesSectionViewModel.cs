@@ -1,4 +1,4 @@
-﻿    using ProGlassAutomation.Commands;
+    using ProGlassAutomation.Commands;
     using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
     using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
     using System;
@@ -17,7 +17,17 @@
             // ── Input Form Properties ──────────────────────────────────────────
 
             private string _inputName = "";
-            public string InputName { get => _inputName; set { _inputName = value; OnPropertyChanged(); } }
+            public string InputName
+            {
+                get => _inputName;
+                set
+                {
+                    _inputName = value;
+                    OnPropertyChanged();
+                    if (AddChargeCommand is RelayCommand add)
+                        add.RaiseCanExecuteChanged();
+                }
+            }
 
             private decimal _inputQty = 1;
             public decimal InputQty { get => _inputQty; set { _inputQty = value; OnPropertyChanged(); } }
@@ -56,11 +66,7 @@
                     Rate = InputRate
                 };
 
-                row.PropertyChanged += (s, e) => {
-                    if (e.PropertyName == nameof(CustomChargeRow.ResultAmount) || e.PropertyName == nameof(CustomChargeRow.IsActive))
-                        RecalculateTotal();
-                };
-
+                AttachCharge(row);
                 AddedCharges.Add(row);
 
                 // Reset form
@@ -70,6 +76,26 @@
 
                 RecalculateTotal();
             }
+
+            /// <summary>
+            /// Hooks a charge created outside AddNewCharge (snapshot restore)
+            /// so toggling ON / editing rate still updates the section total.
+            /// </summary>
+            public void AttachCharge(CustomChargeRow row)
+            {
+                if (row == null) return;
+                row.PropertyChanged -= OnRestoredChargeChanged;
+                row.PropertyChanged += OnRestoredChargeChanged;
+            }
+
+            private void OnRestoredChargeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+            {
+                if (e.PropertyName == nameof(CustomChargeRow.ResultAmount)
+                    || e.PropertyName == nameof(CustomChargeRow.IsActive))
+                    RecalculateTotal();
+            }
+
+            public void RefreshTotal() => RecalculateTotal();
 
             private void RecalculateTotal()
             {

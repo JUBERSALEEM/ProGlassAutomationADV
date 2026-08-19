@@ -632,10 +632,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     if (row.TargetSelection != null)
                     {
                         // Restore selected metric
-                        if (!string.IsNullOrWhiteSpace(cSnap.SelectedMetricKey))
+                        string metricKey = !string.IsNullOrWhiteSpace(cSnap.SelectedMetricKey)
+                            ? cSnap.SelectedMetricKey
+                            : cSnap.SelectedSourceKey;
+                        if (!string.IsNullOrWhiteSpace(metricKey))
                         {
+                            string normalized = MetricOption.NormalizeKey(metricKey);
                             var metric = row.TargetSelection.AvailableMetrics
-                                .FirstOrDefault(m => m.Key == cSnap.SelectedMetricKey);
+                                .FirstOrDefault(m => m.Key == normalized);
                             if (metric != null)
                                 row.TargetSelection.SelectedMetric = metric;
                         }
@@ -689,6 +693,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     otherCharges.WastagesSection.WastageRows.Add(newRow);
                 }
             }
+            otherCharges.WastagesSection.RefreshTotal();
 
             otherCharges.CustomChargesSection.AddedCharges.Clear();
             if (snap.OtherCharges.CustomCharges != null)
@@ -705,9 +710,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     if (System.Enum.TryParse<OtherChargeUnit>(cSnap.Unit, out var unit))
                         custom.Unit = unit;
 
+                    otherCharges.CustomChargesSection.AttachCharge(custom);
                     otherCharges.CustomChargesSection.AddedCharges.Add(custom);
                 }
             }
+            otherCharges.CustomChargesSection.RefreshTotal();
         }
 
         private static void RestoreTerms(

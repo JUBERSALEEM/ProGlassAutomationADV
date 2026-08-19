@@ -522,10 +522,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 var templatesByKey = PredefinedChargeTemplates.GetAll()
                     .ToDictionary(t => t.Key, t => t);
 
-                // BUG-21: one call to shared calculator instead of duplicated code
-                var metrics = ProformaChargeMetricsCalculator
-                    .ComputeSpecMetrics(snapshot.SpecGroups);
-
                 // Predefined charges
                 foreach (var c in snapshot.OtherCharges.PredefinedCharges
                     .Where(c => c.IsActive))
@@ -553,21 +549,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         }
                         else
                         {
-                            // BUG-21: shared calculator
+                            var polishGroups = ProformaChargeMetricsCalculator.FilterSpecs(
+                                snapshot.SpecGroups, c.CheckedSpecGroupNumbers);
                             metricQty = ProformaChargeMetricsCalculator
-                                .ComputePolishLm(snapshot.SpecGroups, c.PolishSubType);
+                                .ComputePolishLm(polishGroups, c.PolishSubType);
                             if (!string.IsNullOrWhiteSpace(c.PolishSubType))
                                 friendlyName = $"Polish — {c.PolishSubType}";
                         }
                     }
                     else
                     {
-                        string sourceKey = !string.IsNullOrWhiteSpace(c.SelectedSourceKey)
-                            ? c.SelectedSourceKey
-                            : (template?.DefaultSourceKey ?? "");
-                        // BUG-21: shared calculator
+                        string sourceKey = ProformaChargeMetricsCalculator.FirstChargeSourceKey(
+                            c.SelectedMetricKey,
+                            c.SelectedSourceKey,
+                            template?.DefaultSourceKey);
                         metricQty = ProformaChargeMetricsCalculator
-                            .LookupMetric(metrics, sourceKey);
+                            .ComputeTargetedMetric(
+                                snapshot.SpecGroups,
+                                sourceKey,
+                                c.CheckedSpecGroupNumbers);
                     }
 
                     decimal amount = Math.Round(metricQty * c.Rate, 2);

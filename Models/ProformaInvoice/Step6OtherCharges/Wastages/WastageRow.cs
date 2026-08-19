@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -26,6 +26,29 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         }
 
         public ObservableCollection<SpecGroupColorSide> AvailableSources { get; } = new();
+
+        /// <summary>
+        /// Live label for the SOURCE toggle. Must update whenever the user
+        /// ticks or unticks a spec side — the XAML used to hardcode
+        /// "Select sources", so the field never reflected the choice.
+        /// </summary>
+        public string SourceSummaryText
+        {
+            get
+            {
+                var checkedSources = AvailableSources.Where(s => s.IsChecked).ToList();
+                if (checkedSources.Count == 0)
+                    return "Select sources";
+
+                if (checkedSources.Count == 1)
+                {
+                    var s = checkedSources[0];
+                    return $"{s.ShortLabel} · {s.SqmValue:0.000} sqm";
+                }
+
+                return $"{checkedSources.Count} sources · {TotalSqm:0.000} sqm";
+            }
+        }
 
         private decimal _totalSqm;
         public decimal TotalSqm
@@ -61,18 +84,34 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 
         public WastageRow()
         {
-            AvailableSources.CollectionChanged += (s, e) => {
-                if (e.NewItems != null) foreach (SpecGroupColorSide item in e.NewItems) item.PropertyChanged += OnSourceChanged;
-                if (e.OldItems != null) foreach (SpecGroupColorSide item in e.OldItems) item.PropertyChanged -= OnSourceChanged;
-            };
+            AvailableSources.CollectionChanged += OnSourcesCollectionChanged;
         }
 
-        private void OnSourceChanged(object sender, PropertyChangedEventArgs e)
+        private void OnSourcesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SpecGroupColorSide.IsChecked))
+            if (e.NewItems != null)
             {
-                TotalSqm = AvailableSources.Where(s => s.IsChecked).Sum(s => s.SqmValue);
-                OnPropertyChanged(nameof(FormulaDisplay));
+                foreach (SpecGroupColorSide item in e.NewItems)
+                    item.PropertyChanged += OnSourceChanged;
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (SpecGroupColorSide item in e.OldItems)
+                    item.PropertyChanged -= OnSourceChanged;
+            }
+
+            RecalcFromSources();
+        }
+
+        private void OnSourceChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(SpecGroupColorSide.IsChecked)
+                or nameof(SpecGroupColorSide.SqmValue)
+                or null
+                or "")
+            {
+                RecalcFromSources();
             }
         }
 
@@ -80,11 +119,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         {
             ResultAmount = _isActive ? Math.Round(TotalSqm * _rate, 2) : 0m;
             OnPropertyChanged(nameof(FormulaDisplay));
+            OnPropertyChanged(nameof(SourceSummaryText));
         }
 
         public void ForceRefreshSqm()
         {
+            RecalcFromSources();
+        }
+
+        private void RecalcFromSources()
+        {
             TotalSqm = AvailableSources.Where(s => s.IsChecked).Sum(s => s.SqmValue);
+            OnPropertyChanged(nameof(FormulaDisplay));
+            OnPropertyChanged(nameof(SourceSummaryText));
         }
     }
 }

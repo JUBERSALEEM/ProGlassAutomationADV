@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.ViewModels;
+using System;
+using ProGlassAutomation.ViewModels;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 {
@@ -23,5 +24,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         }
 
         public string DisplayLabel => $"Spec {SpecNumber} ({SpecName}) → {SideLabel}";
+
+        public string ShortLabel
+        {
+            get
+            {
+                bool inner = !string.IsNullOrEmpty(SideLabel)
+                    && SideLabel.Contains("Inner", StringComparison.OrdinalIgnoreCase);
+                return $"Spec {SpecNumber} {(inner ? "Inner" : "Outer")}";
+            }
+        }
     }
 }
