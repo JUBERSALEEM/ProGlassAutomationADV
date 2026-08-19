@@ -1,4 +1,4 @@
-<!-- Step 3 — flat form. PROJECT = ProjectReference. No identifier. No cards. -->
+<!-- Step 3 — flat form. PROJECT REFERENCE only. No identifier. No cards. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -21,12 +21,12 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <TextBlock Text="PROJECT" Style="{StaticResource PiSectionLabelStyle}"/>
-                <TextBlock Text="NAME" Style="{StaticResource PiFieldLabelStyle}"
-                           ToolTip="Full project name as it appears on the invoice"/>
+                <TextBlock Text="PROJECT REFERENCE" Style="{StaticResource PiFieldLabelStyle}"
+                           ToolTip="Full project reference as it appears on the invoice"/>
                 <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="e.g. HOUSE FOR IMAD HABIB" Margin="0,0,0,12"
                          AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
-                         AutomationProperties.Name="Project"/>
+                         AutomationProperties.Name="Project reference"/>
 
                 <TextBlock Text="CONTRACT NO" Style="{StaticResource PiFieldLabelStyle}"/>
                 <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"

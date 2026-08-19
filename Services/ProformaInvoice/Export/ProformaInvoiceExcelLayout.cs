@@ -106,7 +106,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             row++;
 
             AddSection(ws, ref row, "PROJECT DETAILS");
-            AddField(ws, ref row, "Project Name",
+            AddField(ws, ref row, "Project Reference",
                 _snapshot.Project?.ProjectReference
                 ?? _snapshot.Project?.ProjectContractNo
                 ?? _snapshot.Project?.ProjectIdentifierName

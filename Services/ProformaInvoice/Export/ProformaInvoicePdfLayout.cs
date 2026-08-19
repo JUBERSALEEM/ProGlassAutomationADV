@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         {
             PdfChrome.InfoCard(container, "Project", col =>
             {
-                PdfChrome.LabelValue(col, "Project", _ctx.ProjectName);
+                PdfChrome.LabelValue(col, "Project Reference", _ctx.ProjectName);
                 PdfChrome.LabelValue(col, "Code / ID", _ctx.ProjectContractNo);
                 PdfChrome.LabelValue(col, "Site", _ctx.SiteDelivery);
                 PdfChrome.LabelValue(col, "LPO / PO", _ctx.LpoNumber);

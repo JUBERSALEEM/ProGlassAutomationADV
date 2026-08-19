@@ -354,7 +354,7 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Project:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Project Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Project.ProjectReference, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Contract No:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
