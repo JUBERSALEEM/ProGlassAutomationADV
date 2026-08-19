@@ -180,16 +180,7 @@ namespace ProGlassAutomation.Agent.Permissions
             }
 
             bool destructive = tool.Risk == ToolRisk.Destructive;
-
-            string message = destructive
-                ? $"This is IRREVERSIBLE and will permanently change data.\n\n" +
-                  $"Action: {tool.Description}\n" +
-                  $"Details: {argument}\n\n" +
-                  "Are you sure you want me to continue?"
-                : $"This will change saved data.\n\n" +
-                  $"Action: {tool.Description}\n" +
-                  $"Details: {argument}\n\n" +
-                  "Do you want me to continue?";
+            string message = ConfirmText(tool, argument, destructive);
 
             try
             {
@@ -213,6 +204,35 @@ namespace ProGlassAutomation.Agent.Permissions
                 return PermissionDecision.Deny(
                     "I could not confirm that action with you, so I stopped.");
             }
+        }
+
+        internal static string ConfirmText(
+            ToolDefinition tool, string argument, bool destructive)
+        {
+            if (string.Equals(tool.Name, "create_demo_package", StringComparison.Ordinal))
+            {
+                return
+                    "This records a live walk in the isolated Demo folder " +
+                    "(%AppData%/ProGlassAutomation.Demo). Production files stay closed.\n\n" +
+                    "Module: " +
+                    (string.IsNullOrWhiteSpace(argument) ? "Proforma Invoice" : argument) +
+                    "\nffmpeg must be installed or the job will fail.\n\nContinue?";
+            }
+
+            if (destructive)
+            {
+                return
+                    "This is IRREVERSIBLE and will permanently change data.\n\n" +
+                    "Action: " + tool.Description + "\n" +
+                    "Details: " + argument + "\n\n" +
+                    "Are you sure you want me to continue?";
+            }
+
+            return
+                "This will change saved data.\n\n" +
+                "Action: " + tool.Description + "\n" +
+                "Details: " + argument + "\n\n" +
+                "Do you want me to continue?";
         }
     }
 }

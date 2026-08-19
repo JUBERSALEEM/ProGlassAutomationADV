@@ -233,6 +233,12 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
         {
             try
             {
+                if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+                    return (false,
+                        "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
+                        "restore always writes the production folder and must not " +
+                        "run while the isolated demo folder is active.");
+
                 if (!Directory.Exists(setFolder))
                     return (false, "Backup set not found.");
 
@@ -298,6 +304,9 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
         {
             try
             {
+                if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+                    return false;
+
                 var dbPath = AppDbContext.DatabaseFilePath;
                 if (!File.Exists(backupFilePath)) return false;
 

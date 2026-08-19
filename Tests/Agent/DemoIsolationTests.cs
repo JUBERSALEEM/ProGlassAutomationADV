@@ -137,6 +137,26 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Restore_is_refused_while_demo_mode_is_on()
+        {
+            bool was = AppDataRoot.IsDemo;
+            try
+            {
+                AppDataRoot.EnterDemo();
+                var (ok, message) = ProGlassAutomation.Services.Database
+                    .DatabaseBackup.BackupService.RestoreBackupSet(
+                        Path.Combine(Path.GetTempPath(), "no-such-backup-set"));
+                Assert.False(ok);
+                Assert.Contains("Demo Mode", message, StringComparison.OrdinalIgnoreCase);
+            }
+            finally
+            {
+                if (was) AppDataRoot.EnterDemo();
+                else AppDataRoot.ExitDemo();
+            }
+        }
+
+        [Fact]
         public void Ffmpeg_download_urls_are_https_and_named()
         {
             Assert.StartsWith("https://", FfmpegMp4Composer.WindowsEssentialsZipUrl);

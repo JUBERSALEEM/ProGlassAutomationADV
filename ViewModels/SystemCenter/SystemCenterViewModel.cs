@@ -14,6 +14,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -219,8 +220,11 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
                 IsCurrent = u.Username == AuditService.CurrentUsername
             }).ToList();
 
-            Users = new ObservableCollection<UserRowViewModel>(rows);
-            _lastUsersLoadUtc = DateTime.UtcNow;
+            UiDispatch.Run(() =>
+            {
+                Users = new ObservableCollection<UserRowViewModel>(rows);
+                _lastUsersLoadUtc = DateTime.UtcNow;
+            });
         }
 
         private async void CreateUser()
@@ -369,20 +373,20 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
             // PERF: single collection swap instead of 300 Add() calls.
             var rows = entries.Select(ToRow).ToList();
-            ActivityRows =
-                new ObservableCollection<Shared.ActivityRowViewModel>(rows);
-            _lastActivityLoadUtc = DateTime.UtcNow;
-
-            ActivityEmpty = rows.Count == 0;
-
-            // Refresh the section filter list (cheap, keeps it honest).
             var sections = await AuditService.GetSectionsWithActivityAsync();
             var filters = new List<string> { "All sections" };
             filters.AddRange(sections);
-            SectionFilters = filters;
 
-            if (!filters.Contains(SelectedSectionFilter))
-                SelectedSectionFilter = "All sections";
+            UiDispatch.Run(() =>
+            {
+                ActivityRows =
+                    new ObservableCollection<Shared.ActivityRowViewModel>(rows);
+                _lastActivityLoadUtc = DateTime.UtcNow;
+                ActivityEmpty = rows.Count == 0;
+                SectionFilters = filters;
+                if (!filters.Contains(SelectedSectionFilter))
+                    SelectedSectionFilter = "All sections";
+            });
         }
 
         private void OnActivityLogged(object? sender, ActivityEventArgs e)

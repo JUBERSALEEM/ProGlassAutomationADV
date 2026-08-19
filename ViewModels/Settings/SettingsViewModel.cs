@@ -1152,11 +1152,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             var entries = await Services.Updates.UpdateHistoryService
                 .ReadAllAsync();
 
-            UpdateHistory.Clear();
-            foreach (var e in entries.Take(MaxDisplayedHistory))
-                UpdateHistory.Add(e);
-
-            HasUpdateHistory = UpdateHistory.Count > 0;
+            ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
+            {
+                UpdateHistory.Clear();
+                foreach (var e in entries.Take(MaxDisplayedHistory))
+                    UpdateHistory.Add(e);
+                HasUpdateHistory = UpdateHistory.Count > 0;
+            });
         }
 
         /// <summary>
@@ -1696,6 +1698,20 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             RestoreSelectedBackupCommand = new RelayCommand(_ =>
             {
+                if (Services.Database.AppDataRoot.IsDemo)
+                {
+                    BackupStatus =
+                        "Restore is blocked in Demo Mode. Exit Demo Mode first — " +
+                        "restore writes the production folder.";
+                    System.Windows.MessageBox.Show(
+                        "Demo Mode is on. Restore would overwrite production files, " +
+                        "so it is blocked. Exit Demo Mode, then restore.",
+                        "Restore blocked",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
                 var selected = SelectedBackup;
                 if (selected == null)
                 {

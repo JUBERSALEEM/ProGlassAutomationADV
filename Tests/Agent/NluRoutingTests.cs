@@ -58,6 +58,43 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void How_much_is_left_keeps_last_glass()
+        {
+            Detect("how much 6 clr glas stok");
+            string second = Detect("how much is left");
+            Assert.Contains("get_inventory", second);
+            Assert.Contains("6mm", second);
+            Assert.Contains("Clear", second);
+        }
+
+        [Fact]
+        public void How_much_did_we_purchase_keeps_last_glass()
+        {
+            Detect("6mm clear stock");
+            string second = Detect("how much did we purchase");
+            Assert.Contains("get_stock_history", second);
+            Assert.Contains("6mm", second);
+        }
+
+        [Fact]
+        public void Which_supplier_keeps_last_glass()
+        {
+            Detect("6mm clear stock");
+            string second = Detect("which supplier");
+            Assert.Contains("get_stock_detail", second);
+            Assert.Contains("6mm", second);
+        }
+
+        [Fact]
+        public void Fresh_show_stock_does_not_force_last_colour()
+        {
+            Detect("6mm clear stock");
+            string second = Detect("show stock");
+            Assert.Contains("get_inventory", second);
+            Assert.DoesNotContain("Clear", second);
+        }
+
+        [Fact]
         public void Write_tool_still_requires_quantity_syntax()
         {
             Assert.Contains("update_sheet_stock", Detect("add 10 to sheet 42"));

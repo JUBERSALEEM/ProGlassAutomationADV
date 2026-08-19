@@ -157,15 +157,13 @@ namespace ProGlassAutomation.ViewModels.UserCenter
 
         public async System.Threading.Tasks.Task LoadAsync()
         {
-            _users.Clear();
             try
             {
                 var current = AuditService.CurrentUser;
-                foreach (var u in (await AuditService.GetUsersAsync())
+                var cards = (await AuditService.GetUsersAsync())
                     .OrderByDescending(x => x.IsActive)
-                    .ThenBy(x => x.DisplayName))
-                {
-                    _users.Add(new UserCard
+                    .ThenBy(x => x.DisplayName)
+                    .Select(u => new UserCard
                     {
                         Id = u.Id,
                         Username = u.Username,
@@ -174,18 +172,23 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                         IsActive = u.IsActive,
                         IsCurrent = current != null && current.Id == u.Id,
                         IsSelected = u.Id == _selectedUserId
-                    });
-                }
+                    })
+                    .ToList();
+
+                bool defaultPw = await AuditService.IsUsingDefaultPasswordAsync();
+
+                UiDispatch.Run(() =>
+                {
+                    _users.Clear();
+                    foreach (var card in cards)
+                        _users.Add(card);
+                    IsDefaultPasswordInUse = defaultPw;
+                });
             }
             catch (Exception ex)
             {
-                Status = "Load failed: " + ex.Message;
+                UiDispatch.Run(() => Status = "Load failed: " + ex.Message);
             }
-
-            // A-3: re-evaluate on every load so the banner disappears as
-            // soon as the password is rotated.
-            IsDefaultPasswordInUse =
-                await AuditService.IsUsingDefaultPasswordAsync();
         }
 
         /// <summary>

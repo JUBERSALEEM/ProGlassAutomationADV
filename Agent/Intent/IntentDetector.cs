@@ -208,6 +208,15 @@ namespace ProGlassAutomation.Agent.Intent
                 ? raw.ToLowerInvariant()
                 : parsed.Prepared;
 
+            bool leftoverAsk = lower.Contains("left") || lower.Contains("remaining")
+                || lower.Contains("bacha") || lower.Contains("available quantity");
+            bool mentionsStockWord = lower.Contains("inventory") || lower.Contains("stock")
+                || lower.Contains("sheets");
+            bool freshAllStock = !parsed.HasMaterialHint && !leftoverAsk && mentionsStockWord
+                && parsed.Metric is ErpMetric.Available or ErpMetric.Unknown;
+            if (!freshAllStock)
+                ConversationSlots.ApplyIfContinuing(parsed);
+
             var stockAdjust = StockAdjustPattern.Match(raw);
             if (stockAdjust.Success)
                 return $"tool:update_sheet_stock:{Clean(stockAdjust.Value)}";
@@ -244,6 +253,16 @@ namespace ProGlassAutomation.Agent.Intent
             if (parsed.HasMaterialHint
                 && parsed.Metric is ErpMetric.Available or ErpMetric.Unknown)
             {
+                string filter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, "get_inventory");
+                return filter.Length > 0
+                    ? $"tool:get_inventory:{filter}"
+                    : "tool:get_inventory";
+            }
+
+            if (leftoverAsk && ConversationSlots.HasSubject)
+            {
+                ConversationSlots.ApplyMissing(parsed);
                 string filter = parsed.FilterText();
                 ConversationSlots.Remember(parsed, "get_inventory");
                 return filter.Length > 0

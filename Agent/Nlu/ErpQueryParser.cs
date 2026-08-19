@@ -15,7 +15,10 @@ namespace ProGlassAutomation.Agent.Nlu
 
         private static readonly string[] FollowUps =
         {
-            "what about", "and the", "how about", "same for", "uska", "uski"
+            "what about", "and the", "how about", "same for", "uska", "uski",
+            "what did we", "how much did we", "when did we", "which supplier",
+            " and ", " it", " that", " this one", "the same",
+            "remaining", "bacha"
         };
 
         public static ErpQuery Parse(string? raw)
@@ -44,6 +47,10 @@ namespace ProGlassAutomation.Agent.Nlu
             q.WantsDemo = DetectDemo(prepared, out var module);
             q.DemoModule = module;
 
+            if (!q.HasMaterialHint && ContainsAny(prepared,
+                    "left", "remaining", "bacha", " it", " that", "this one"))
+                q.IsFollowUp = true;
+
             if (q.IsFollowUp)
                 ConversationSlots.ApplyMissing(q);
 
@@ -71,7 +78,8 @@ namespace ProGlassAutomation.Agent.Nlu
             if (ContainsAny(text, "used", "consumed", "consume")) return ErpMetric.Consumed;
             if (ContainsAny(text, "supplier", "who supplied", "which supplier"))
                 return ErpMetric.Supplier;
-            if (ContainsAny(text, "last purchase", "when did we buy"))
+            if (ContainsAny(text, "last purchase", "when did we buy",
+                    "when did we last", "last buy", "last bought"))
                 return ErpMetric.LastPurchase;
             if (ContainsAny(text, "low stock", "running low", "almost finished"))
                 return ErpMetric.LowStock;

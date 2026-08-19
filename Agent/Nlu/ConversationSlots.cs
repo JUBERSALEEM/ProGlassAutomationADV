@@ -49,6 +49,30 @@ namespace ProGlassAutomation.Agent.Nlu
             }
         }
 
+        /// <summary>
+        /// Fill gaps from the last subject when this turn is a continuation
+        /// (follow-up phrase, pronoun, metric-only, or only colour/thickness changed).
+        /// A fresh "show stock" / "inventory" does not inherit the last glass.
+        /// </summary>
+        public static void ApplyIfContinuing(ErpQuery query)
+        {
+            if (query == null || !HasSubject) return;
+
+            bool colour = !string.IsNullOrWhiteSpace(query.Color);
+            bool thick = query.ThicknessMm.HasValue;
+            bool partialMaterial = colour ^ thick;
+            bool metricOnly = query.Metric is ErpMetric.Purchased
+                or ErpMetric.Consumed
+                or ErpMetric.Delivered
+                or ErpMetric.Wastage
+                or ErpMetric.LowStock
+                or ErpMetric.LastPurchase
+                or ErpMetric.Supplier;
+
+            if (query.IsFollowUp || partialMaterial || metricOnly)
+                ApplyMissing(query);
+        }
+
         public static void Clear()
         {
             lock (Gate)
