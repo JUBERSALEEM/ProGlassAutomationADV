@@ -126,7 +126,8 @@
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
                       Header="AIR SPACER &amp; EXTRAS"
-                      Tag="{Binding SpacerWidth}">
+                      Tag="{Binding SpacerWidth}"
+                      IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -185,7 +186,9 @@
                  INNER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="INNER GLASS">
+                      Header="INNER GLASS"
+                      Tag="{Binding InnerThickness}"
+                      IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

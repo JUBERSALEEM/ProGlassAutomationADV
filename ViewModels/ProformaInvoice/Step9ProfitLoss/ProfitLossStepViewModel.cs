@@ -30,9 +30,9 @@
 //                  cutting, tempering and production for DGU.
 //   SGU prod.    = round(cutSqm · (CuttingCostPerSqm + TemperingCostPerSqm), 2)
 //
-//   Rows whose purchase price is unknown (≤ 0) are SKIPPED rather than
-//   costed at zero — a silent zero would fake a profit. The skip is
-//   surfaced through StatusMessage so the user knows the figure is partial.
+//   Unpriced panes are still SHOWN (so a DGU never collapses to only
+//   the air spacer) but their amount stays 0 and is excluded from profit.
+//   Step 4 pane rates are the fallback when Sheet Store has no match.
 //
 // TOTALS
 //   NetExVat = round(gross / 1.05, 2)   (5% UAE VAT)
@@ -63,7 +63,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
-using System.Text.RegularExpressions;
+using System.Text.RegularExpressions; // Match still used while production rows read spacer/pvb groups
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -91,66 +91,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private DguLamParametersViewModel? _dguLamVm;   // DGU+LAM hybrid
         private Func<decimal>? _grossProvider;
 
-        // ══════════════════════════════════════════════════════════════
-        //  SPEC NAME REGEXES
-        // ══════════════════════════════════════════════════════════════
-
-        private const string TreatmentAlternation =
-            @"(?:FT|Annealed|Heat\s+Strengthened|Heat\s+Soaked)";
-
-        /// <summary>
-        /// One glass pane, e.g. "6mm HD Grey FT Glass".
-        ///
-        /// THE COLOUR CLASS EXCLUDES '+' AND DIGITS, AND THAT IS
-        /// LOAD-BEARING — IT IS WHY THE INNER PANE WAS BEING SKIPPED.
-        ///
-        /// The colour was previously (?&lt;color&gt;.+?), a lazy wildcard that
-        /// happily crosses the '+' separator. On
-        ///
-        ///     "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass"
-        ///
-        /// the second match therefore began at the SPACER, taking thk=12
-        /// and colour="ASP + 6mm Clear". The inner-pane search then looked
-        /// for a match starting after the spacer and found none, because
-        /// the only remaining match had already been consumed by that
-        /// bogus one. Result: DGUs were costed with the outer pane only,
-        /// understating glass cost on every double-glazed job.
-        ///
-        /// [^+\d]+? cannot span a '+' or a thickness digit, so each pane
-        /// matches exactly its own segment.
-        /// </summary>
-        private static readonly Regex GlassPattern = new(
-            @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        // Allows an optional descriptor between the width and "ASP" so
-        // "+ 12mm Black Warm Edge ASP" is recognised, not just "+ 12mm ASP".
-        // Without it a warm-edge DGU matched nothing, the spacer cost was
-        // dropped, and the hybrid below was not detected at all.
-        // The class excludes '+' and digits so it cannot run past its own
-        // layer into the next one.
-        private static readonly Regex SpacerPattern = new(
-            @"\+\s*(?<mm>\d+)\s*mm\s+(?:[^+\d]*?\s+)?ASP\b",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        /// <summary>
-        /// PHASE J — laminated interlayer, e.g. "+ 1.52mm Clear PVB".
-        /// A LAM unit has TWO glass panes like a DGU, but the middle layer
-        /// is an interlayer priced per SQM of laminated area, not per LM of
-        /// perimeter.
-        ///
-        /// SGP and EVA are matched alongside PVB. All three are sold as
-        /// interlayers, and a spec naming SGP or EVA used to match nothing
-        /// here: its bonded pane and its interlayer cost both vanished from
-        /// the report while the job looked correctly costed.
-        ///
-        /// The colour group is bounded to [^+\d] — an unbounded ".+?" ran
-        /// straight through the '+' separators and, on the DGU+LAM hybrid,
-        /// captured "ASP + 6mm Clear FT Glass + 1.52mm Clear" as a colour.
-        /// </summary>
-        private static readonly Regex PvbPattern = new(
-            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>[^+\d]+?)\s+(?<type>PVB|SGP|EVA)\b",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        // Spec-name grammar lives in PnLSpecParser — one definition for
+        // the view-model and the tests. Do not re-declare those regexes.
 
         // ══════════════════════════════════════════════════════════════
         //  OUTPUTS
@@ -740,7 +682,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     string specName = group.SelectedSpecName ?? "";
 
                     // ── Parse the build out of the spec name ──────────────
-                    var spacerMatch = SpacerPattern.Match(specName);
+                    var spacerMatch = PnLSpecParser.Spacer(specName);
                     bool spacerDetected = spacerMatch.Success;
 
                     bool isDgu =
@@ -752,7 +694,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // from the spec name or the glass type. A LAM unit that
                     // is not a DGU still has an INNER pane, which the old
                     // code missed entirely (it costed only the outer).
-                    var pvbMatch = PvbPattern.Match(specName);
+                    var pvbMatch = PnLSpecParser.Interlayer(specName);
                     bool pvbDetected = pvbMatch.Success;
 
                     bool isLam =
@@ -792,129 +734,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // Either construction has a second pane to cost.
                     bool hasInnerPane = isDgu || isLam;
 
-                    // Outer = first glass match. Inner = first match that
-                    // starts after the spacer (so a DGU never double-counts
-                    // the outer pane).
-                    var glassMatches = GlassPattern.Matches(specName)
-                        .Cast<Match>()
-                        .ToList();
+                    // Physical layers the UI must show. Glass used to be
+                    // dropped when Sheet Store had no price, so a Clear/Clear
+                    // DGU rendered as ONLY the air spacer (which is priced
+                    // from Step 4, not the store). Every pane we can name is
+                    // now emitted; unpriced panes stay visible and are not
+                    // added into the profit total.
+                    var panesToCost = CollectPanes(
+                        specName, isDgu, isLam, isDguLam, hasInnerPane);
 
-                    var outerMatch = glassMatches.FirstOrDefault();
-
-                    Match? innerMatch = null;
-                    if (isDguLam)
-                    {
-                        // Three-pane hybrid: cost EVERY pane the spec names.
-                        // Handled in its own block below so the two-pane
-                        // outer/inner logic is left exactly as it was for
-                        // plain DGU and plain LAM units.
-                    }
-                    else if (hasInnerPane && glassMatches.Count > 0)
-                    {
-                        // Inner pane starts after the middle layer (ASP or
-                        // PVB), so a two-pane unit never double-counts the
-                        // outer pane.
-                        int after =
-                            spacerDetected ? spacerMatch.Index + spacerMatch.Length
-                          : pvbDetected   ? pvbMatch.Index + pvbMatch.Length
-                          : (outerMatch?.Index + outerMatch?.Length) ?? 0;
-
-                        innerMatch = glassMatches.FirstOrDefault(m => m.Index >= after);
-                    }
-
-                    // ── Glass rows ────────────────────────────────────────
-                    //
-                    //  ROW ORDER MIRRORS THE PHYSICAL BUILD.
-                    //
-                    //  Rows used to come out as: every pane of glass first,
-                    //  then the spacer and interlayer underneath. That reads
-                    //  nothing like the product and made a DGU indistinguishable
-                    //  from a laminate at a glance.
-                    //
-                    //  The layer rows are produced below as before, but they
-                    //  are captured into `middleRows` instead of being appended,
-                    //  then spliced in after the outer pane:
-                    //
-                    //      DGU      outer · ASP · inner
-                    //      LAM      outer · PVB/SGP/EVA · inner
-                    //      DGU+LAM  outer · ASP · lam outer · interlayer · lam inner
-                    //
-                    //  Only the ORDER changes. Every amount, every total and
-                    //  every Kind is exactly what it was.
                     int spacerInsertAt = -1;
                     int interlayerInsertAt = -1;
 
-                    if (isDguLam)
+                    for (int paneIndex = 0; paneIndex < panesToCost.Count; paneIndex++)
                     {
-                        // One row per pane actually present in the spec.
-                        // Labels follow the physical build so the P&L reads
-                        // the same way the glass is assembled.
-                        string[] paneLabels = { "Outer", "Lam Outer", "Lam Inner" };
+                        var pane = panesToCost[paneIndex];
+                        decimal fallback = FallbackPaneRate(
+                            pane.Side, isDgu, isLam, isDguLam);
 
-                        for (int paneIndex = 0; paneIndex < glassMatches.Count; paneIndex++)
+                        var paneRow = await BuildGlassRowAsync(
+                            group, pane.Side, pane.ThicknessMm, pane.Color,
+                            cutSqm, fallback)
+                            .ConfigureAwait(true);
+
+                        if (paneRow != null)
                         {
-                            string paneLabel = paneIndex < paneLabels.Length
-                                ? paneLabels[paneIndex]
-                                : $"Pane {paneIndex + 1}";
-
-                            var paneRow = await BuildGlassRowAsync(
-                                group, paneLabel, glassMatches[paneIndex], cutSqm)
-                                .ConfigureAwait(true);
-
-                            if (paneRow != null)
-                            {
-                                rows.Add(paneRow);
+                            rows.Add(paneRow);
+                            if (paneRow.Amount > 0m)
                                 glassCost += paneRow.Amount;
-                            }
-                            else skipped++;
+                            else
+                                skipped++;
+                        }
+                        else skipped++;
 
-                            // The spacer sits between pane 1 and pane 2, and
-                            // the interlayer between pane 2 and pane 3, so
-                            // remember where each boundary fell.
-                            //
-                            // The interlayer index allows for the spacer that
-                            // will be spliced in ahead of it. Both positions
-                            // are captured now, but the spacer is inserted
-                            // FIRST and pushes everything after it down by
-                            // one. Recording the raw index here produced
-                            //     outer · spacer · interlayer · lam outer
-                            // — the interlayer landing before the pane it is
-                            // supposed to sit behind.
+                        if (isDguLam)
+                        {
                             if (paneIndex == 0) spacerInsertAt = rows.Count;
                             if (paneIndex == 1) interlayerInsertAt = rows.Count + 1;
                         }
                     }
-                    else if (outerMatch != null)
-                    {
-                        var row = await BuildGlassRowAsync(
-                            group, "Outer", outerMatch, cutSqm)
-                            .ConfigureAwait(true);
-
-                        if (row != null)
-                        {
-                            rows.Add(row);
-                            glassCost += row.Amount;
-                        }
-                        else skipped++;
-                    }
 
                     // Two-pane builds: the middle layer belongs immediately
-                    // after the outer pane, before the inner one is appended.
-                    if (!isDguLam) spacerInsertAt = rows.Count;
-
-                    if (!isDguLam && hasInnerPane && innerMatch != null)
-                    {
-                        var row = await BuildGlassRowAsync(
-                            group, "Inner", innerMatch, cutSqm)
-                            .ConfigureAwait(true);
-
-                        if (row != null)
-                        {
-                            rows.Add(row);
-                            glassCost += row.Amount;
-                        }
-                        else skipped++;
-                    }
+                    // after the first glass pane.
+                    if (!isDguLam)
+                        spacerInsertAt = rows.Count > 0 ? 1 : rows.Count;
 
                     // Splice a layer row into build order rather than
                     // appending it, returning the next insert position.
@@ -1065,7 +928,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         {
                             int spacerMm = spacerDetected
                                 ? TextParsing.ParseInt(spacerMatch.Groups["mm"].Value)
-                                : 0;
+                                : SheetStorePricingService.ParseMm(_dguVm?.SpacerWidth);
 
                             decimal amount = Math.Round(cutSqm * spacerPrice, 2);
 
@@ -1293,7 +1156,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 $"VAT stripped at 5%.";
 
             return skipped > 0
-                ? basis + $" {skipped} pane(s) skipped — not priced in Sheet Store."
+                ? basis + $" {skipped} pane(s) shown unpriced — not in Sheet Store and no Step 4 rate; not included in profit."
                 : basis;
         }
 
@@ -1410,37 +1273,132 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>
-        /// Prices one pane against the Sheet Store. Returns null when the
-        /// store has no usable purchase price (caller counts it as skipped).
+        /// Physical panes this specification must show. Parsed from the
+        /// spec name first; missing DGU/LAM panes are synthesised from the
+        /// live Step 4 panel so a Clear/Clear unit cannot collapse to
+        /// "spacer only" just because a regex or the Sheet Store missed.
+        /// </summary>
+        private List<PnLPane> CollectPanes(
+            string specName, bool isDgu, bool isLam, bool isDguLam, bool hasInnerPane)
+        {
+            var panes = new List<PnLPane>();
+            var matches = PnLSpecParser.GlassMatches(specName);
+
+            if (isDguLam)
+            {
+                string[] labels = { "Outer", "Lam Outer", "Lam Inner" };
+                if (matches.Count > 0)
+                {
+                    for (int i = 0; i < matches.Count; i++)
+                    {
+                        string label = i < labels.Length ? labels[i] : $"Pane {i + 1}";
+                        panes.Add(PnLSpecParser.FromMatch(matches[i], label));
+                    }
+                }
+                else if (_dguLamVm != null)
+                {
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Outer",
+                        SheetStorePricingService.ParseMm(_dguLamVm.OuterThickness),
+                        _dguLamVm.OuterGlassColor));
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Lam Outer",
+                        SheetStorePricingService.ParseMm(_dguLamVm.LamOuterThickness),
+                        _dguLamVm.LamOuterColor));
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Lam Inner",
+                        SheetStorePricingService.ParseMm(_dguLamVm.LamInnerThickness),
+                        _dguLamVm.LamInnerColor));
+                }
+
+                return panes;
+            }
+
+            var (outer, inner) = PnLSpecParser.ResolveTwoPanes(specName);
+
+            if (outer != null)
+                panes.Add(outer);
+            else if (isDgu && _dguVm != null)
+                panes.Add(PnLSpecParser.FromParts(
+                    "Outer",
+                    SheetStorePricingService.ParseMm(_dguVm.OuterThickness),
+                    _dguVm.OuterGlassColor));
+            else if (isLam && _lamVm != null)
+                panes.Add(PnLSpecParser.FromParts(
+                    "Outer",
+                    SheetStorePricingService.ParseMm(_lamVm.OuterThickness),
+                    _lamVm.OuterGlassColor));
+            else if (!hasInnerPane && _sguVm != null && matches.Count == 0)
+                panes.Add(PnLSpecParser.FromParts(
+                    "Outer",
+                    SheetStorePricingService.ParseMm(_sguVm.SelectedThickness),
+                    _sguVm.GlassColor));
+
+            if (hasInnerPane)
+            {
+                if (inner != null)
+                    panes.Add(inner);
+                else if (isDgu && _dguVm != null)
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Inner",
+                        SheetStorePricingService.ParseMm(_dguVm.InnerThickness),
+                        _dguVm.InnerGlassColor));
+                else if (isLam && _lamVm != null)
+                    panes.Add(PnLSpecParser.FromParts(
+                        "Inner",
+                        SheetStorePricingService.ParseMm(_lamVm.InnerThickness),
+                        _lamVm.InnerGlassColor));
+            }
+
+            return panes;
+        }
+
+        /// <summary>
+        /// Step 4 already holds a typed rate for every pane. That is what
+        /// the spacer uses, and it is what glass must fall back to when
+        /// Sheet Store has no matching colour/thickness — otherwise the
+        /// sandwich collapses to "air spacer" on screen.
+        /// </summary>
+        private decimal FallbackPaneRate(
+            string side, bool isDgu, bool isLam, bool isDguLam)
+        {
+            if (isDguLam)
+            {
+                if (side.IndexOf("Lam Inner", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return _dguLamVm?.LamInnerBasePrice ?? 0m;
+                if (side.IndexOf("Lam Outer", StringComparison.OrdinalIgnoreCase) >= 0)
+                    return _dguLamVm?.LamOuterBasePrice ?? 0m;
+                return _dguLamVm?.OuterBasePrice ?? 0m;
+            }
+
+            bool inner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0;
+            if (isDgu)
+                return inner ? (_dguVm?.InnerBasePrice ?? 0m) : (_dguVm?.OuterBasePrice ?? 0m);
+            if (isLam)
+                return inner ? (_lamVm?.InnerBasePrice ?? 0m) : (_lamVm?.OuterBasePrice ?? 0m);
+            return _sguVm?.BasePricePerSqm ?? 0m;
+        }
+
+        /// <summary>
+        /// Prices one pane. Sheet Store wins; Step 4 pane rate is the
+        /// fallback; if both are empty the row is STILL emitted (amount 0)
+        /// so the physical build stays visible. Returns null only when the
+        /// pane itself cannot be identified.
         /// </summary>
         private async Task<ProfitLossRow?> BuildGlassRowAsync(
             SpecGroup group,
             string side,
-            Match glassMatch,
-            decimal cutSqm)
+            int thicknessMm,
+            string color,
+            decimal cutSqm,
+            decimal fallbackRate)
         {
             int specNumber = group.GroupNumber;
-
-            int thicknessMm = TextParsing.ParseInt(glassMatch.Groups["thk"].Value);
-            string color = (glassMatch.Groups["color"].Value ?? "").Trim();
+            color = (color ?? "").Trim();
 
             if (thicknessMm <= 0 || color.Length == 0) return null;
 
-            // ══════════════════════════════════════════════════════════
-            //  PHASE G — SHEET RESOLUTION, IN PRIORITY ORDER
-            //
-            //  1. The sheet the user CHOSE in Step 4 (carried on the spec
-            //     group). This wins: costing must reflect the decision
-            //     the user actually made.
-            //  2. The first sheet the Sheet Store stocks for this
-            //     colour + thickness.
-            //  3. The shop default (2440 × 1830).
-            //
-            //  The source is recorded on the row so a surprising number
-            //  is always explainable, instead of silently costing a
-            //  sheet nobody picked.
-            // ══════════════════════════════════════════════════════════
-            bool isInner = side.Equals("Inner", StringComparison.OrdinalIgnoreCase);
+            bool isInner = side.IndexOf("Inner", StringComparison.OrdinalIgnoreCase) >= 0;
 
             int sheetW = 0;
             int sheetH = 0;
@@ -1480,29 +1438,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             decimal sheetSqm = Math.Round((sheetW * (decimal)sheetH) / 1_000_000m, 4);
             if (sheetSqm <= 0m) return null;
 
-            // ══════════════════════════════════════════════════════════
-            //  PRICE MUST FOLLOW THE SHEET WE ARE COSTING.
-            //
-            //  This used to call TryGetPriceAsync(color, thickness), which
-            //  returns the CHEAPEST row for that colour+thickness
-            //  regardless of size. The amount below then multiplied that
-            //  price by the area of a DIFFERENT sheet - the one actually
-            //  chosen. So 6mm Clear costed at the 2440x1830 rate while
-            //  being multiplied by 3660x2440 of area silently understated
-            //  the cost on every jumbo job.
-            //
-            //  TryGetPriceForSizeAsync matches colour + thickness + size
-            //  (either orientation), and falls back to the cheapest
-            //  positive price only when that exact size is not stocked.
-            //  Same unit, same sheet, same money.
-            // ══════════════════════════════════════════════════════════
             var price = await SheetStorePricingService
                 .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
                 .ConfigureAwait(true);
 
-            // Which column of the Sheet Store row to cost against. Selling
-            // falls back to purchase (and vice versa) rather than costing a
-            // pane at zero, because a missing price must never look free.
             decimal purchaseRate = price?.PurchasePerSqm ?? 0m;
             decimal sellRate = price?.SellPerSqm ?? 0m;
 
@@ -1510,41 +1449,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ? (sellRate > 0m ? sellRate : purchaseRate)
                 : (purchaseRate > 0m ? purchaseRate : sellRate);
 
-            if (unitRate <= 0m) return null;
+            if (unitRate <= 0m && fallbackRate > 0m)
+            {
+                unitRate = fallbackRate;
+                source = $"Step 4 {CostBasisLabel} (not in Sheet Store)";
+            }
 
-            // ── Sheets required, wastage applied, always at least one ─────
-            //
-            // Wastage inflates the area BEFORE the sheet count is rounded up,
-            // so its effect is a step function: raising it from 10% to 20%
-            // often changes nothing, then a single extra point adds a whole
-            // sheet. That reads as "wastage is not being applied" when it is,
-            // so the row now states the inflated area it was rounded from —
-            // see the description below.
             decimal needed = cutSqm * (1m + (WastagePercent / 100m));
             int sheets = (int)Math.Ceiling(needed / sheetSqm);
             if (sheets < 1) sheets = 1;
 
-            decimal amount = Math.Round(sheetSqm * sheets * unitRate, 2);
+            decimal amount = unitRate > 0m
+                ? Math.Round(sheetSqm * sheets * unitRate, 2)
+                : 0m;
+
+            string detail = unitRate > 0m
+                ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm " +
+                  $"→ {sheets} sheet(s) · {source}"
+                : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
 
             return new ProfitLossRow
             {
                 Kind = "Glass",
                 SpecNumber = specNumber,
                 SpecName = group?.SelectedSpecName ?? "",
-                // Full specification from the Step 5 DataGrid, so the row
-                // reads as the product actually being quoted rather than a
-                // fragment. Falls back to the parsed pane when a group has
-                // no spec selected.
                 Description = PnLMeasurement.BuildRowDescription(
                     group,
                     $"{side} pane · {thicknessMm}mm {color}",
-                    // Shows the cut area, the wastage allowance and the area
-                    // actually rounded up, so the sheet count can be checked
-                    // by hand and wastage is visibly doing something even
-                    // when the count has not changed.
-                    $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm " +
-                    $"→ {sheets} sheet(s) · {source}"),
-                SheetSource = source,
+                    detail),
+                SheetSource = unitRate > 0m ? source : "unpriced",
                 SheetWidthMm = sheetW,
                 SheetHeightMm = sheetH,
                 SheetSqm = sheetSqm,

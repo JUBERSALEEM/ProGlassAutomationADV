@@ -26,57 +26,27 @@
 //   Pattern_matches_the_shipped_source() fails if they ever diverge.
 // ═══════════════════════════════════════════════════════════════════════
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
 {
     public class SpecParsingTests
     {
-        private const string TreatmentAlternation =
-            @"(?:FT|Annealed|Heat\s+Strengthened|Heat\s+Soaked)";
+        // Production grammar — not a mirror. If these tests fail, the
+        // shipped parser is wrong, not a stale copy.
+        private static readonly Regex GlassPattern = PnLSpecParser.GlassPattern;
+        private static readonly Regex SpacerPattern = PnLSpecParser.SpacerPattern;
+        private static readonly Regex PvbPattern = PnLSpecParser.InterlayerPattern;
 
-        /// <summary>Mirror of the shipped GlassPattern.</summary>
-        private static readonly Regex GlassPattern = new(
-            @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        // MIRRORS ProfitLossStepViewModel.SpacerPattern. Kept in step by
-        // hand — if the production pattern changes, change it here too, or
-        // these tests will keep passing against a regex that no longer ships.
-        private static readonly Regex SpacerPattern = new(
-            @"\+\s*(?<mm>\d+)\s*mm\s+(?:[^+\d]*?\s+)?ASP\b",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        // MIRRORS ProfitLossStepViewModel.PvbPattern.
-        private static readonly Regex PvbPattern = new(
-            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>[^+\d]+?)\s+(?<type>PVB|SGP|EVA)\b",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        /// <summary>Reproduces the view-model's outer/inner resolution.</summary>
         private static (string Outer, string Inner) ResolvePanes(string spec)
         {
-            var matches = GlassPattern.Matches(spec).Cast<Match>().ToList();
-            if (matches.Count == 0) return ("", "");
-
-            var outer = matches[0];
-
-            var spacer = SpacerPattern.Match(spec);
-            var pvb = PvbPattern.Match(spec);
-
-            int after =
-                spacer.Success ? spacer.Index + spacer.Length :
-                pvb.Success ? pvb.Index + pvb.Length :
-                outer.Index + outer.Length;
-
-            var inner = matches.FirstOrDefault(m => m.Index >= after);
-
-            string Describe(Match? m) => m == null
+            var (outer, inner) = PnLSpecParser.ResolveTwoPanes(spec);
+            string Describe(PnLPane? p) => p == null
                 ? ""
-                : $"{m.Groups["thk"].Value}mm {m.Groups["color"].Value.Trim()}";
-
+                : $"{p.ThicknessMm}mm {p.Color}";
             return (Describe(outer), Describe(inner));
         }
 
@@ -183,19 +153,9 @@ namespace ProGlassAutomation.Tests.Agent
         // ══════════════════════════════════════════════════════════════
 
         [Fact]
-        public void Pattern_matches_the_shipped_source()
+        public void Colour_class_still_excludes_plus_and_digits()
         {
-            // A mirrored regex that silently diverges from the shipped one
-            // tests nothing. This pins them together: if the view-model's
-            // pattern is edited without updating this file, it fails.
-            const string expected =
-                @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+";
-
-            Assert.Contains(expected, GlassPattern.ToString());
-
-            // And the colour class must still exclude '+' and digits —
-            // the two exclusions that fix the bug.
-            Assert.Contains("[^+", GlassPattern.ToString());
+            Assert.Contains("[^+", PnLSpecParser.GlassPattern.ToString());
         }
     
         // ══════════════════════════════════════════════════════════════
