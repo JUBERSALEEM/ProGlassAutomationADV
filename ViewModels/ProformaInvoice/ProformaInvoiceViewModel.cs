@@ -167,8 +167,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         public int CurrentStepNumber => CurrentStep?.StepNumber ?? 1;
+        public string CurrentStationCode => CurrentStepNumber.ToString("00");
+        public string CurrentStationTitle => CurrentStep?.Title ?? "";
+        public string CurrentStationSubtitle => CurrentStep?.Subtitle ?? "";
         public string StepProgressText =>
-            $"STEP  {CurrentStepNumber}  OF  {TotalSteps}";
+            $"STATION  {CurrentStepNumber:00}  /  {TotalSteps:00}";
         public double ProgressPercent =>
             (double)CurrentStepNumber / TotalSteps;
         public bool CanGoBack => CurrentStepNumber > 1;
