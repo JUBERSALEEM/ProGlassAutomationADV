@@ -17,7 +17,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// makes brush-key-driven card backgrounds swap instantly instead
     /// of waiting for a navigation-triggered DataTemplate rebuild.
     /// </summary>
-    public abstract class DashboardPageBase : ViewModelBase
+    public abstract class DashboardPageBase : ViewModelBase, IDisposable
     {
         private int _loadingFlag = 0;
 
@@ -80,6 +80,60 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         protected DashboardPageBase()
         {
             ThemeManager.ThemeChanged += OnThemeManagerChanged;
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // AUDIT M-2 — UNSUBSCRIBE FROM THE STATIC THEME EVENT
+        //
+        // ThemeManager.ThemeChanged is static, so it holds a strong
+        // reference to every page that ever subscribed. Nothing detached,
+        // which meant:
+        //
+        //   • each dashboard page (and everything it reaches — its KPI
+        //     models, chart bars and activity feed collections) stayed
+        //     alive for the whole session, and
+        //   • every one of those dead pages still ran OnThemeChanged on
+        //     each theme toggle, so the cost of switching Light/Dark grew
+        //     with the number of pages ever opened.
+        //
+        // Today DashboardViewModel is built once, so the leak is bounded.
+        // That is exactly the assumption DashboardFilterService was written
+        // to avoid relying on (see its header), and it stops being true the
+        // moment a page is created per navigation. Making the cleanup
+        // explicit costs nothing and removes the trap.
+        // ═════════════════════════════════════════════════════════════════
+
+        private bool _disposed;
+
+        /// <summary>
+        /// Detaches this page from ThemeManager. Idempotent. Override
+        /// <see cref="DisposeCore"/> in a sub-page that owns further
+        /// resources; do not hide this method.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            ThemeManager.ThemeChanged -= OnThemeManagerChanged;
+
+            try
+            {
+                DisposeCore();
+            }
+            catch
+            {
+                // Teardown must never throw out of Dispose.
+            }
+
+            GC.SuppressFinalize(this);
+        }
+
+        /// <summary>
+        /// Sub-page cleanup hook. Default does nothing.
+        /// </summary>
+        protected virtual void DisposeCore()
+        {
         }
 
         private void OnThemeManagerChanged(object sender, EventArgs e)

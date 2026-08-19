@@ -37,8 +37,27 @@ namespace ProGlassAutomation.Services.AI.AIService
     /// </summary>
     public class GeminiAiService : IAiService, IAiStreamingService
     {
-        private readonly HttpClient _http;
-        private readonly HttpClient _streamHttp;
+        // ══════════════════════════════════════════════════════════════
+        //  AUDIT H-1 — SHARED CLIENTS
+        //  Two clients per instance, neither disposed, and a new instance
+        //  on every provider switch / "Test connection" press. See the
+        //  detailed note in GroqAiService. The key is sent as the
+        //  x-goog-api-key header on each individual request, never on
+        //  DefaultRequestHeaders, so both clients are safe to share.
+        // ══════════════════════════════════════════════════════════════
+        private static readonly HttpClient _http = new()
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
+        // Streaming client: a streamed answer legitimately runs much longer
+        // than a single 30s request window. The caller's cancellation token
+        // is the primary stop mechanism; 180s is only a dead-connection net.
+        private static readonly HttpClient _streamHttp = new()
+        {
+            Timeout = TimeSpan.FromSeconds(180)
+        };
+
         private readonly AiSettings _settings;
 
         public string ProviderName => "Google Gemini";
@@ -55,19 +74,6 @@ namespace ProGlassAutomation.Services.AI.AIService
         public GeminiAiService(AiSettings settings)
         {
             _settings = settings ?? new AiSettings();
-            _http = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
-
-            // Streaming client: a streamed answer legitimately runs much
-            // longer than a single 30s request window. The user's cancel
-            // token (not this timeout) is the primary stop mechanism;
-            // 180s is only a safety net for a dead connection.
-            _streamHttp = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(180)
-            };
         }
 
         public async Task<AiTestResult> TestConnectionAsync()

@@ -55,9 +55,24 @@ namespace ProGlassAutomation.Services.Network
         // 10-second heartbeat (socket churn + allocations for nothing).
         private UdpClient? _sender;
         private readonly object _senderLock = new();
-        private string _username = "";
-        private string _displayName = "";
-        private bool _disposed;
+
+        // AUDIT C-4: _username / _displayName are written by the UI thread
+        // (UpdateIdentity on sign-in and user switch) and read by two timer
+        // callbacks and the receive loop on ThreadPool threads. Reference
+        // assignment is atomic, but without `volatile` the JIT is free to
+        // hoist the read out of the heartbeat loop, so a worker could keep
+        // broadcasting the OLD identity after a user switch. Marking them
+        // volatile makes the publication visible to the other threads.
+        private volatile string _username = "";
+        private volatile string _displayName = "";
+
+        // Read by the receive loop on a background thread while Dispose
+        // writes it from the UI thread — must not be cached in a register.
+        private volatile bool _disposed;
+
+        // Guards Start/Dispose against each other, so a Dispose racing a
+        // Start cannot leave a live socket behind with no owner.
+        private readonly object _lifecycleLock = new();
 
         /// <summary>Raised on the UI thread whenever the peer list changes.</summary>
         public event EventHandler? PeersChanged;
@@ -79,6 +94,18 @@ namespace ProGlassAutomation.Services.Network
         }
 
         public void Start(string username, string displayName)
+        {
+            lock (_lifecycleLock)
+            {
+                // A Start after Dispose would create sockets and timers
+                // nothing will ever clean up.
+                if (_disposed) return;
+
+                StartCore(username, displayName);
+            }
+        }
+
+        private void StartCore(string username, string displayName)
         {
             UpdateIdentity(username, displayName);
 
@@ -113,6 +140,10 @@ namespace ProGlassAutomation.Services.Network
 
         private void SendHeartbeat()
         {
+            // A timer callback already in flight when Dispose ran would
+            // otherwise resurrect the sender socket it just closed.
+            if (_disposed) return;
+
             if (string.IsNullOrWhiteSpace(_username))
                 return;
 
@@ -132,6 +163,10 @@ namespace ProGlassAutomation.Services.Network
                 UdpClient sender;
                 lock (_senderLock)
                 {
+                    // Re-check inside the lock: Dispose may have run
+                    // between the check above and here.
+                    if (_disposed) return;
+
                     if (_sender == null)
                         _sender = new UdpClient { EnableBroadcast = true };
                     sender = _sender;
@@ -157,46 +192,106 @@ namespace ProGlassAutomation.Services.Network
                 }
                 catch (ObjectDisposedException)
                 {
+                    // Dispose closed the socket — this is the exit signal.
                     break;
+                }
+                catch (SocketException)
+                {
+                    // Transient (cable pulled, adapter reset). Back off so a
+                    // persistently failing socket cannot spin this loop at
+                    // 100% CPU, and re-check _disposed on the next pass.
+                    if (_disposed) break;
+                    await Task.Delay(500).ConfigureAwait(false);
                 }
                 catch
                 {
-                    await Task.Delay(500);
+                    if (_disposed) break;
+                    await Task.Delay(500).ConfigureAwait(false);
                 }
             }
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  AUDIT S-10 — THIS INPUT IS UNAUTHENTICATED AND UNSOLICITED
+        //
+        //  Every field below arrives in a broadcast UDP datagram from
+        //  anyone on the LAN. There is no handshake and no signature, so
+        //  the contents are attacker-controlled by definition. Two limits
+        //  that were missing:
+        //
+        //  1. UNBOUNDED PEER TABLE. The dictionary key is built from the
+        //     sender's own user + machine strings, so a single host
+        //     spoofing a new identity per packet added an unbounded number
+        //     of entries. They are only removed after a 45s silence, so a
+        //     trivial flood grew the table (and the bound Users list) until
+        //     the process ran out of memory. Now capped.
+        //
+        //  2. UNBOUNDED STRING LENGTHS. A datagram could carry megabyte
+        //     display names straight into a WPF ItemsControl. Now clamped
+        //     to lengths a real username can never exceed.
+        //
+        //  Presence is cosmetic — it decorates a "who's online" list — so
+        //  discarding hostile input is always the right trade.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Hard cap on tracked peers (a LAN office, not a crowd).</summary>
+        private const int MaxPeers = 256;
+
+        /// <summary>Longest accepted value for any peer-supplied string.</summary>
+        private const int MaxFieldLength = 64;
+
+        private static string Clamp(string? value) =>
+            string.IsNullOrEmpty(value)
+                ? ""
+                : (value.Length <= MaxFieldLength
+                    ? value
+                    : value[..MaxFieldLength]);
 
         private void HandleDatagram(byte[] buffer)
         {
             try
             {
+                // Reject oversized datagrams before paying to parse them.
+                if (buffer == null || buffer.Length == 0 || buffer.Length > 4096)
+                    return;
+
                 var json = Encoding.UTF8.GetString(buffer);
                 using var doc = JsonDocument.Parse(json);
                 var root = doc.RootElement;
 
+                if (root.ValueKind != JsonValueKind.Object) return;
+
                 if (!root.TryGetProperty("magic", out var m) ||
+                    m.ValueKind != JsonValueKind.String ||
                     m.GetString() != Magic)
                     return;
 
-                var user = root.TryGetProperty("user", out var u)
-                    ? u.GetString() ?? "" : "";
+                var user = Clamp(root.TryGetProperty("user", out var u)
+                    ? u.GetString() ?? "" : "");
 
                 if (user.Length == 0 || user == _username)
                     return;   // never list ourselves as a peer
 
-                var machine = root.TryGetProperty("machine", out var mc)
-                    ? mc.GetString() ?? "" : "";
+                var machine = Clamp(root.TryGetProperty("machine", out var mc)
+                    ? mc.GetString() ?? "" : "");
 
                 lock (_peers)
                 {
                     var key = $"{user}@{machine}";
                     var isNew = !_peers.ContainsKey(key);
 
+                    // Refuse NEW identities once full; known peers may keep
+                    // refreshing their heartbeat so real colleagues are
+                    // never evicted by a flood.
+                    if (isNew && _peers.Count >= MaxPeers)
+                        return;
+
                     _peers[key] = new NetworkPeer
                     {
                         Username = user,
-                        DisplayName = root.TryGetProperty("display", out var d)
-                            ? d.GetString() ?? user : user,
+                        DisplayName = Clamp(
+                            root.TryGetProperty("display", out var d)
+                                ? d.GetString() ?? user : user),
                         MachineName = machine,
                         LastSeenUtc = DateTime.UtcNow
                     };
@@ -212,6 +307,8 @@ namespace ProGlassAutomation.Services.Network
 
         private void SweepExpired()
         {
+            if (_disposed) return;
+
             bool changed = false;
 
             lock (_peers)
@@ -246,16 +343,40 @@ namespace ProGlassAutomation.Services.Network
 
         public void Dispose()
         {
-            _disposed = true;
-            _heartbeat?.Dispose();
-            _sweeper?.Dispose();
-            try { _listener?.Close(); } catch { }
-
-            lock (_senderLock)
+            // Serialised against Start so the two cannot interleave and
+            // strand a socket that nothing owns.
+            lock (_lifecycleLock)
             {
-                try { _sender?.Close(); } catch { }
-                _sender = null;
+                if (_disposed) return;
+
+                // Set FIRST: the receive loop and both timer callbacks
+                // check this flag, so flipping it before tearing anything
+                // down is what stops them re-entering a closing socket.
+                _disposed = true;
+
+                _heartbeat?.Dispose();
+                _heartbeat = null;
+
+                _sweeper?.Dispose();
+                _sweeper = null;
+
+                // Dispose (not just Close) the listener: this both unblocks
+                // the pending ReceiveAsync — it completes with
+                // ObjectDisposedException, which the loop treats as its
+                // exit signal — and releases the bound UDP port. Closing
+                // without disposing left the socket handle to the finalizer,
+                // so a restart could still hit "address already in use".
+                try { _listener?.Dispose(); } catch { }
+                _listener = null;
+
+                lock (_senderLock)
+                {
+                    try { _sender?.Dispose(); } catch { }
+                    _sender = null;
+                }
             }
+
+            GC.SuppressFinalize(this);
         }
     }
 }

@@ -224,7 +224,27 @@ namespace ProGlassAutomation.Services.Audit
 
         private static void WriteEntry(ActivityLogEntry entry)
         {
-            _ = WriteEntryAsync(entry);
+            // Fire-and-forget by design (Log() is called from synchronous
+            // business code), but the task is explicitly observed:
+            // WriteEntryAsync already swallows and logs its own exceptions,
+            // and this continuation is the backstop for anything thrown
+            // outside that try — otherwise the failure would surface much
+            // later as an UnobservedTaskException with no context.
+            _ = WriteEntryAsync(entry).ContinueWith(t =>
+                {
+                    Logging.AppLogService.Error(
+                        "Audit write task faulted.", t.Exception,
+                        new Logging.LogContext
+                        {
+                            Module = "Audit",
+                            Class = nameof(AuditService),
+                            Operation = "WriteEntry"
+                        });
+                },
+                System.Threading.CancellationToken.None,
+                TaskContinuationOptions.OnlyOnFaulted |
+                TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Default);
         }
 
         private static async Task WriteEntryAsync(ActivityLogEntry entry)
@@ -241,9 +261,32 @@ namespace ProGlassAutomation.Services.Audit
             }
             catch (Exception ex)
             {
-                // Logging must never crash the app.
-                System.Diagnostics.Debug.WriteLine(
-                    $"[Audit] Write failed: {ex.Message}");
+                // AUDIT R-1 (RECURRENCE) — this was Debug.WriteLine only.
+                // System.Diagnostics.Debug is [Conditional("DEBUG")], so in
+                // the SHIPPED build the compiler removes the call and this
+                // becomes an empty catch. That meant a failed audit write —
+                // a locked, full or read-only audit.db — was completely
+                // invisible: the app carried on as though the action had
+                // been recorded when nothing was persisted.
+                //
+                // For an audit trail that is the one failure that must never
+                // be silent, because its whole purpose is to be trusted
+                // later. Routed to AppLogService, which writes to the
+                // rolling log file in every configuration.
+                //
+                // Still non-throwing: logging must not crash the business
+                // operation that triggered it.
+                Logging.AppLogService.Error(
+                    "Audit write failed — this activity was NOT recorded " +
+                    $"in the audit trail (section '{entry.Section}', " +
+                    $"action '{entry.Action}').",
+                    ex,
+                    new Logging.LogContext
+                    {
+                        Module = "Audit",
+                        Class = nameof(AuditService),
+                        Operation = "WriteEntry"
+                    });
             }
         }
 

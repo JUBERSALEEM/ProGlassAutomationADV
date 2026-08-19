@@ -858,7 +858,14 @@ namespace ProGlassAutomation
 
             BackupService.CreateBackup();
             if (Config != null) ConfigService.Save(Config);
+
+            // M-3: StopMonitoring only stops the poll timer. The service
+            // also holds a hook on the static
+            // NetworkChange.NetworkAvailabilityChanged event, so it must be
+            // disposed to actually release it.
             Connectivity?.StopMonitoring();
+            (Connectivity as IDisposable)?.Dispose();
+
             Presence?.Dispose();
             SpeechToText?.Dispose();
             TextToSpeech?.Dispose();

@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -252,10 +252,46 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         //  OPEN IN DEFAULT APP
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Opens an attachment with the OS default handler.
+        ///
+        /// SECURITY (S-9): UseShellExecute = true asks Windows to run the
+        /// file with whatever handler is registered for its extension. For
+        /// a .pdf or .png that is a viewer; for a .exe, .bat, .cmd, .ps1,
+        /// .js, .lnk or .scr it is EXECUTION with the user's privileges.
+        ///
+        /// The upload path validates extensions, but this method is public
+        /// and is called with FilePath read back out of the database. A row
+        /// written by an older build, a hand-edited database, a restored
+        /// backup, or any future caller that forgets to validate would
+        /// therefore be enough to launch an arbitrary binary from a click
+        /// in the attachments list.
+        ///
+        /// The allow-list is re-applied HERE, at the moment of launch,
+        /// because that is the only place the guarantee cannot be bypassed
+        /// by a caller. Anything not an approved image or PDF is refused.
+        /// </summary>
         public void OpenInDefaultApp(string filePath)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException(
+                    "No file path supplied.", nameof(filePath));
+
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"File not found: {filePath}");
+
+            var ext = Path.GetExtension(filePath).ToLowerInvariant();
+
+            bool allowed =
+                AttachmentLimits.ImageExtensions.Contains(ext) ||
+                AttachmentLimits.PdfExtensions.Contains(ext);
+
+            if (!allowed)
+            {
+                throw new InvalidOperationException(
+                    $"Refusing to open '{Path.GetFileName(filePath)}': " +
+                    "only image and PDF attachments can be opened.");
+            }
 
             Process.Start(new ProcessStartInfo
             {

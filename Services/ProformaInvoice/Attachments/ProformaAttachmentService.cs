@@ -262,10 +262,38 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
         //  OPEN IN DEFAULT APP
         // ══════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Opens an attachment with the OS default handler.
+        ///
+        /// SECURITY (S-9): identical reasoning to the delivery-note
+        /// service. UseShellExecute = true EXECUTES anything Windows has a
+        /// handler for, so a stored path ending in .exe / .bat / .ps1 /
+        /// .lnk would run rather than open. The manifest that supplies
+        /// FilePath is a plain JSON file in %AppData% and is therefore not
+        /// a trust boundary. The extension allow-list is re-checked at the
+        /// point of launch, where it cannot be bypassed.
+        /// </summary>
         public void OpenInDefaultApp(string filePath)
         {
+            if (string.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException(
+                    "No file path supplied.", nameof(filePath));
+
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"File not found: {filePath}");
+
+            var ext = Path.GetExtension(filePath).ToLowerInvariant();
+
+            bool allowed =
+                AttachmentLimits.ImageExtensions.Contains(ext) ||
+                AttachmentLimits.PdfExtensions.Contains(ext);
+
+            if (!allowed)
+            {
+                throw new InvalidOperationException(
+                    $"Refusing to open '{Path.GetFileName(filePath)}': " +
+                    "only image and PDF attachments can be opened.");
+            }
 
             Process.Start(new ProcessStartInfo
             {

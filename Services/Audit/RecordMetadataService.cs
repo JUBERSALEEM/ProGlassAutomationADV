@@ -139,10 +139,13 @@ namespace ProGlassAutomation.Services.Audit
                 {
                     EntityType = reader.GetString(0),
                     EntityId = reader.GetString(1),
-                    CreatedAtUtc = DateTime.Parse(reader.GetString(2)),
+                    // T-1: parsed as UTC, not current-culture Local. See
+                    // AuditTimestamp for why a bare DateTime.Parse here
+                    // double-shifted every "created/updated by" timestamp.
+                    CreatedAtUtc = AuditTimestamp.ParseUtc(reader.GetString(2)),
                     CreatedByUser = reader.GetString(3),
                     CreatedSession = reader.GetString(4),
-                    UpdatedAtUtc = DateTime.Parse(reader.GetString(5)),
+                    UpdatedAtUtc = AuditTimestamp.ParseUtc(reader.GetString(5)),
                     UpdatedByUser = reader.GetString(6),
                     UpdatedSession = reader.GetString(7),
                     UpdateCount = reader.GetInt32(8)

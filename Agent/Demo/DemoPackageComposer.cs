@@ -117,8 +117,24 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 using var proc = Process.Start(psi);
                 if (proc == null) return null;
+
+                // P-1: stderr is redirected, so it MUST be drained before
+                // waiting. ffmpeg writes a progress line per frame; once
+                // the ~4 KB pipe buffer fills it blocks on write and this
+                // await never returns — the demo export hangs and leaves an
+                // orphaned ffmpeg process behind. Reading concurrently is
+                // what lets the process actually reach exit.
+                var errTask = proc.StandardError.ReadToEndAsync();
+
                 await proc.WaitForExitAsync(ct).ConfigureAwait(false);
-                return proc.ExitCode == 0 && File.Exists(mp4) ? mp4 : null;
+                string err = await errTask.ConfigureAwait(false);
+
+                if (proc.ExitCode == 0 && File.Exists(mp4)) return mp4;
+
+                Debug.WriteLine(
+                    $"[Demo ffmpeg] exit {proc.ExitCode}: " +
+                    (err.Length > 300 ? err[^300..] : err));
+                return null;
             }
             catch (Exception ex)
             {

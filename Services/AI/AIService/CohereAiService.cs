@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIService/CohereAiService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Service (Chat 25 v3.0 — model update + better error logging)
@@ -34,7 +34,16 @@ namespace ProGlassAutomation.Services.AI.AIService
     {
         private const string BaseUrl = "https://api.cohere.com/v2/chat";
 
-        private readonly HttpClient _http;
+        // H-1: one shared, never-disposed-per-instance HttpClient. See the
+        // full reasoning in GroqAiService — provider objects are created on
+        // every provider switch and every "Test connection" press, so an
+        // instance-owned client leaked a handler and its socket pool each
+        // time. The API key is attached per-request, so sharing is safe.
+        private static readonly HttpClient _http = new()
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
         private readonly AiSettings _settings;
 
         public string ProviderName => "Cohere";
@@ -51,10 +60,6 @@ namespace ProGlassAutomation.Services.AI.AIService
         public CohereAiService(AiSettings settings)
         {
             _settings = settings ?? new AiSettings();
-            _http = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
         }
 
         public async Task<AiTestResult> TestConnectionAsync()

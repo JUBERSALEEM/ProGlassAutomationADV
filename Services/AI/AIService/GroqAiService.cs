@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIService/GroqAiService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Service (Chat 25 v3.0 — updated model + rate limit handling)
@@ -34,7 +34,35 @@ namespace ProGlassAutomation.Services.AI.AIService
         private const string BaseUrl =
             "https://api.groq.com/openai/v1/chat/completions";
 
-        private readonly HttpClient _http;
+        // ══════════════════════════════════════════════════════════════
+        //  AUDIT H-1 — ONE SHARED HttpClient, NOT ONE PER INSTANCE
+        //
+        //  Each provider used to allocate its own HttpClient in the
+        //  constructor and never dispose it. Provider instances are
+        //  created far more often than "once at startup":
+        //
+        //    • AiProviderFactory.CreateActive on every provider switch,
+        //    • CreateForProvider on every "Test connection" click —
+        //      three separate commands in Settings, each allocating a
+        //      fresh service and client per press.
+        //
+        //  An undisposed HttpClient keeps its HttpMessageHandler, and the
+        //  handler keeps its connection pool and sockets alive until the
+        //  finalizer eventually runs. Repeatedly creating them is the
+        //  textbook cause of socket exhaustion (sockets stranded in
+        //  TIME_WAIT) and, because DNS is cached per handler, of stale
+        //  DNS after a network change.
+        //
+        //  The client is stateless here: the API key travels on each
+        //  HttpRequestMessage, never on DefaultRequestHeaders, so one
+        //  static instance is safe to share across every service object
+        //  and across provider switches.
+        // ══════════════════════════════════════════════════════════════
+        private static readonly HttpClient _http = new()
+        {
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
         private readonly AiSettings _settings;
 
         public string ProviderName => "Groq";
@@ -51,10 +79,6 @@ namespace ProGlassAutomation.Services.AI.AIService
         public GroqAiService(AiSettings settings)
         {
             _settings = settings ?? new AiSettings();
-            _http = new HttpClient
-            {
-                Timeout = TimeSpan.FromSeconds(30)
-            };
         }
 
         public async Task<AiTestResult> TestConnectionAsync()

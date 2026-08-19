@@ -13,10 +13,65 @@
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Audit
 {
+    /// <summary>
+    /// Shared round-trip parser for the ISO-8601 ("o") timestamps this
+    /// module writes into audit.db.
+    ///
+    /// AUDIT T-1 — WHY THIS EXISTS
+    /// ───────────────────────────
+    /// Values are written with DateTime.UtcNow.ToString("o") and were read
+    /// back with a bare DateTime.Parse(). That overload uses the CURRENT
+    /// CULTURE and returns a DateTime whose Kind is Local, not Utc, so the
+    /// clock reading was reinterpreted as if it had been local time all
+    /// along. Every consumer then calls .ToLocalTime() on it
+    /// (SectionActivityViewModel, SystemCenterViewModel, VersionsDialog,
+    /// ActivityPanel), which shifts it a SECOND time.
+    ///
+    /// The visible result is version history and record metadata stamped
+    /// hours away from when the change actually happened — one UTC offset
+    /// for every read, in the wrong direction. On UTC+4 (this app's home
+    /// market) a save at 09:00 displays as 17:00. For an audit trail that
+    /// exists precisely to answer "who changed this, and when", a silently
+    /// wrong timestamp is worse than no timestamp.
+    ///
+    /// Parsing with RoundtripKind honours the trailing "Z" and yields a
+    /// DateTime with Kind = Utc, so the single .ToLocalTime() the UI
+    /// already performs is correct. InvariantCulture removes the
+    /// dependency on the operator's regional settings.
+    /// </summary>
+    internal static class AuditTimestamp
+    {
+        /// <summary>
+        /// Parses a stored ISO-8601 timestamp as UTC. Unparseable or
+        /// legacy values fall back to a UTC-kinded best effort rather than
+        /// throwing, so one bad row cannot blank an entire history list.
+        /// </summary>
+        internal static DateTime ParseUtc(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return DateTime.MinValue;
+
+            if (DateTime.TryParse(
+                    value,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.RoundtripKind |
+                    DateTimeStyles.AdjustToUniversal,
+                    out var parsed))
+            {
+                return parsed.Kind == DateTimeKind.Utc
+                    ? parsed
+                    : DateTime.SpecifyKind(parsed, DateTimeKind.Utc);
+            }
+
+            return DateTime.MinValue;
+        }
+    }
+
     /// <summary>One stored version of a record.</summary>
     public class RecordVersion
     {
@@ -128,7 +183,7 @@ namespace ProGlassAutomation.Services.Audit
                         EntityType = reader.GetString(1),
                         EntityId = reader.GetString(2),
                         VersionNo = reader.GetInt32(3),
-                        TimestampUtc = DateTime.Parse(reader.GetString(4)),
+                        TimestampUtc = AuditTimestamp.ParseUtc(reader.GetString(4)),
                         Username = reader.GetString(5),
                         SessionId = reader.GetString(6),
                         Summary = reader.GetString(7),
@@ -165,7 +220,7 @@ namespace ProGlassAutomation.Services.Audit
                     EntityType = reader.GetString(1),
                     EntityId = reader.GetString(2),
                     VersionNo = reader.GetInt32(3),
-                    TimestampUtc = DateTime.Parse(reader.GetString(4)),
+                    TimestampUtc = AuditTimestamp.ParseUtc(reader.GetString(4)),
                     Username = reader.GetString(5),
                     SessionId = reader.GetString(6),
                     Summary = reader.GetString(7),
