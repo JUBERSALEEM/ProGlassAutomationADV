@@ -128,6 +128,16 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(module, intent);
         }
 
+        [Theory]
+        [InlineData("what did we deliver", "search_delivery")]
+        [InlineData("show pending deliveries", "search_delivery")]
+        [InlineData("show today's orders", "search_joborder")]
+        [InlineData("show last purchase", "get_stock_detail")]
+        public void Natural_ops_questions_reach_real_tools(string phrase, string tool)
+        {
+            Assert.Contains(tool, Detect(phrase));
+        }
+
         [Fact]
         public void Soft_correct_does_not_invent_unknown_words()
         {

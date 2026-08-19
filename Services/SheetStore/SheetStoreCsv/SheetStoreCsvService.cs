@@ -1,8 +1,7 @@
-﻿using CsvHelper;
+using CsvHelper;
 using CsvHelper.Configuration;
 using ProGlassAutomation.Models.SheetStore;
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -54,6 +53,14 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreCsv
             var list = new List<GlassSheet>();
             await foreach (var record in csv.GetRecordsAsync<GlassSheet>())
             {
+                if (record == null) continue;
+                if (record.ThicknessMm <= 0 || record.WidthMm <= 0 || record.HeightMm <= 0)
+                    continue;
+                if (record.Stock < 0) record.Stock = 0;
+                if (record.Used < 0) record.Used = 0;
+                if (record.Used > record.Stock) record.Used = record.Stock;
+                if (string.IsNullOrWhiteSpace(record.Color)) record.Color = "Clear";
+                if (string.IsNullOrWhiteSpace(record.Category)) record.Category = "Clear";
                 list.Add(record);
             }
             return list;

@@ -16,6 +16,7 @@ using ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -395,11 +396,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             var final = filtered.ToList();
             if (generation != _filterGeneration) return;
 
-            Sheets.Clear();
-            foreach (var s in final) Sheets.Add(s);
-
-            RaiseStatsChanged();
-            OnPropertyChanged(nameof(HasActiveFilters));
+            UiDispatch.Run(() =>
+            {
+                if (generation != _filterGeneration) return;
+                Sheets.Clear();
+                foreach (var s in final) Sheets.Add(s);
+                RaiseStatsChanged();
+                OnPropertyChanged(nameof(HasActiveFilters));
+            });
         }
 
         private IEnumerable<GlassSheet> ApplySort(IEnumerable<GlassSheet> data)

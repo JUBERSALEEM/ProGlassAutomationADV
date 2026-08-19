@@ -96,11 +96,13 @@ namespace ProGlassAutomation.Agent.Intent
                 "search_proforma"),
 
             (new[] { "search job", "find job", "job order number", "search job order",
-                     "job orders", "job order", "jobs list" },
+                     "job orders", "job order", "jobs list",
+                     "today's orders", "todays orders", "today orders" },
                 "search_joborder"),
 
             (new[] { "search delivery", "find delivery", "delivery note number",
-                     "delivery notes", "delivery note", "deliveries" },
+                     "delivery notes", "delivery note", "deliveries",
+                     "pending deliveries", "pending delivery" },
                 "search_delivery"),
 
             (new[] { "search tax invoice", "find tax invoice", "search invoice",
@@ -238,6 +240,16 @@ namespace ProGlassAutomation.Agent.Intent
                 return histFilter.Length > 0
                     ? $"tool:get_stock_history:{histFilter}"
                     : "tool:get_stock_history";
+            }
+
+            if (parsed.Metric == ErpMetric.Delivered)
+            {
+                ConversationSlots.ApplyMissing(parsed);
+                string filter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, "search_delivery");
+                return filter.Length > 0
+                    ? $"tool:search_delivery:{filter}"
+                    : "tool:search_delivery";
             }
 
             if (parsed.Metric is ErpMetric.Supplier or ErpMetric.LastPurchase

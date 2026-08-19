@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIVoice/WhisperSpeechService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Voice (Chat 25 v5.0 — never hide mic + integrity check)
@@ -232,7 +232,9 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
                 _processor = await Task.Run(() =>
                 {
-                    var factory = WhisperFactory.FromPath(currentModelPath);
+                    // Factory holds native weights; dispose after Build
+                    // so a failed/reloaded model does not leak GGML memory.
+                    using var factory = WhisperFactory.FromPath(currentModelPath);
                     return factory.CreateBuilder()
                         .WithLanguage("en")
                         .WithNoContext()

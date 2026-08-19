@@ -1341,9 +1341,17 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ClearAllDataCommand = new RelayCommand(async _ =>
             {
+                string folder = Services.Database.AppDataRoot.IsDemo
+                    ? Services.Database.AppDataRoot.DemoFolder
+                    : Services.Database.AppDataRoot.ProductionFolder;
+                string which = Services.Database.AppDataRoot.IsDemo
+                    ? "the isolated DEMO folder (production files stay closed)"
+                    : "the PRODUCTION folder";
+
                 var confirm = System.Windows.MessageBox.Show(
-                    "This will PERMANENTLY DELETE every record in all " +
-                    "modules:\n\n" +
+                    "This will PERMANENTLY DELETE every record in " +
+                    which + ":\n\n" +
+                    folder + "\n\n" +
                     "  • Glass sheets\n" +
                     "  • Proforma invoices\n" +
                     "  • Job orders\n" +

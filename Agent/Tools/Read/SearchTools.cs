@@ -300,7 +300,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     .ToList();
 
                 return ToolResult.Ok(ReadToolHelpers.Format(
-                    $"Customers matching '{term}':", lines, matches.Count));
+                    term.Length == 0
+                        ? "Recent customers:"
+                        : $"Customers matching '{term}':",
+                    lines, matches.Count));
             }
             catch (Exception ex)
             {
