@@ -126,13 +126,22 @@
                                   Padding="10,7"
                                   FontSize="13"/>
                         <DockPanel Margin="0,18,0,0">
-                            <TextBlock Text="Live audio"
+                            <TextBlock Text="Internal audio (app / narration)"
                                        Style="{StaticResource RowTitleStyle}"
                                        VerticalAlignment="Center"/>
                             <ToggleButton HorizontalAlignment="Right"
                                           IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
                                           Style="{StaticResource ModernToggleSwitch}"
                                           AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
+                        </DockPanel>
+                        <DockPanel Margin="0,14,0,0">
+                            <TextBlock Text="Microphone"
+                                       Style="{StaticResource RowTitleStyle}"
+                                       VerticalAlignment="Center"/>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
+                                          Style="{StaticResource ModernToggleSwitch}"
+                                          AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
                         </DockPanel>
                         <TextBlock Text="{Binding RecordHint}"
                                    Style="{StaticResource HintTextStyle}"

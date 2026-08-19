@@ -13,7 +13,23 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(ScreenRecordQuality.FullHd, s.Quality);
             Assert.Equal(30, s.Fps);
             Assert.True(s.CaptureLiveAudio);
+            Assert.True(s.CaptureMicrophone);
             Assert.Equal((1920, 1080), s.OutputSize);
+        }
+
+        [Theory]
+        [InlineData(ScreenRecordQuality.Hd720, 1920, 1080, 92, 17)]
+        [InlineData(ScreenRecordQuality.FullHd, 2560, 1440, 94, 16)]
+        [InlineData(ScreenRecordQuality.Qhd2K, 3200, 1800, 95, 15)]
+        [InlineData(ScreenRecordQuality.Uhd4K, 3840, 2160, 96, 14)]
+        public void Quality_uses_oversample_and_crisp_encode(
+            ScreenRecordQuality quality, int capW, int capH, int jpeg, int crf)
+        {
+            var s = new ScreenRecordSettings { Quality = quality }.Clamp();
+            Assert.Equal((capW, capH), s.CaptureSize);
+            Assert.Equal(jpeg, s.JpegQualityFor);
+            Assert.Equal(crf, s.EncodeCrf);
+            Assert.True(s.JpegQuality >= jpeg);
         }
 
         [Theory]

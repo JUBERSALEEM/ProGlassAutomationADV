@@ -55,7 +55,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public ScreenRecordQuality Quality { get; set; } = ScreenRecordQuality.FullHd;
         public int Fps { get; set; } = 30;
         public bool CaptureLiveAudio { get; set; } = true;
-        public int JpegQuality { get; set; } = 82;
+        public bool CaptureMicrophone { get; set; } = true;
+        public int JpegQuality { get; set; } = 94;
 
         public (int Width, int Height) OutputSize
         {
@@ -66,12 +67,48 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
         }
 
+        /// <summary>
+        /// Oversampled capture size so ffmpeg lanczos-downscales to a
+        /// sharper 720 / 1080 / 2K / 4K. 4K captures native to avoid OOM.
+        /// </summary>
+        public (int Width, int Height) CaptureSize => Quality switch
+        {
+            ScreenRecordQuality.Hd720 => (1920, 1080),
+            ScreenRecordQuality.FullHd => (2560, 1440),
+            ScreenRecordQuality.Qhd2K => (3200, 1800),
+            ScreenRecordQuality.Uhd4K => (3840, 2160),
+            _ => (1920, 1080)
+        };
+
+        public int JpegQualityFor => Quality switch
+        {
+            ScreenRecordQuality.Hd720 => 92,
+            ScreenRecordQuality.FullHd => 94,
+            ScreenRecordQuality.Qhd2K => 95,
+            ScreenRecordQuality.Uhd4K => 96,
+            _ => 94
+        };
+
+        public int EncodeCrf => Quality switch
+        {
+            ScreenRecordQuality.Hd720 => 17,
+            ScreenRecordQuality.FullHd => 16,
+            ScreenRecordQuality.Qhd2K => 15,
+            ScreenRecordQuality.Uhd4K => 14,
+            _ => 16
+        };
+
         public string Summary
         {
             get
             {
                 var (w, h) = OutputSize;
-                return $"{w}×{h} @ {Fps} fps" + (CaptureLiveAudio ? " + live audio" : "");
+                string audio = CaptureLiveAudio || CaptureMicrophone
+                    ? (CaptureLiveAudio && CaptureMicrophone
+                        ? " + internal+mic"
+                        : CaptureLiveAudio ? " + internal audio" : " + mic")
+                    : "";
+                return $"{w}×{h} @ {Fps} fps{audio}";
             }
         }
 
@@ -80,6 +117,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Quality = Quality,
             Fps = Fps,
             CaptureLiveAudio = CaptureLiveAudio,
+            CaptureMicrophone = CaptureMicrophone,
             JpegQuality = JpegQuality
         };
 

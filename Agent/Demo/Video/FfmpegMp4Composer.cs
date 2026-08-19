@@ -119,7 +119,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
         /// </summary>
         public static async Task<string?> ComposeFramesAudioAsync(
             string framesFolder, string pattern, string? wavPath, string mp4Path,
-            int fps, int width, int height, CancellationToken ct)
+            int fps, int width, int height, CancellationToken ct,
+            int crf = 16)
         {
             string? ffmpeg = Find();
             if (ffmpeg == null) return null;
@@ -127,23 +128,71 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 return null;
 
             fps = Math.Clamp(fps, 1, 60);
+            crf = Math.Clamp(crf, 12, 23);
             int w = Math.Max(2, width) & ~1;
             int h = Math.Max(2, height) & ~1;
             string input = Path.Combine(framesFolder, pattern);
             string vf =
-                $"scale={w}:{h}:force_original_aspect_ratio=decrease," +
-                $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,format=yuv420p";
+                $"scale={w}:{h}:flags=lanczos:force_original_aspect_ratio=decrease," +
+                $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2," +
+                "unsharp=5:5:0.6:5:5:0.0,format=yuv420p";
 
             Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset veryfast -crf 20 " +
-                  $"-c:a aac -b:a 192k -shortest -movflags +faststart \"{mp4Path}\""
+                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
+                  $"-c:a aac -b:a 256k -ar 48000 -shortest -movflags +faststart \"{mp4Path}\""
                 : $"-y -framerate {fps} -i \"{input}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset veryfast -crf 20 " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
                   $"-movflags +faststart \"{mp4Path}\"";
 
             return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Mix loopback + microphone into one WAV. Returns the mixed path
+        /// or the single surviving input. Null if neither file is usable.
+        /// </summary>
+        public static async Task<string?> MixAudioAsync(
+            string? loopbackWav, string? micWav, string outputWav, CancellationToken ct)
+        {
+            bool loop = !string.IsNullOrEmpty(loopbackWav) && File.Exists(loopbackWav);
+            bool mic = !string.IsNullOrEmpty(micWav) && File.Exists(micWav);
+            if (loop && !mic) return loopbackWav;
+            if (mic && !loop) return micWav;
+            if (!loop && !mic) return null;
+
+            string? ffmpeg = Find();
+            if (ffmpeg == null) return loopbackWav ?? micWav;
+
+            Directory.CreateDirectory(Path.GetDirectoryName(outputWav)!);
+            string args =
+                $"-y -i \"{loopbackWav}\" -i \"{micWav}\" " +
+                "-filter_complex \"[0:a][1:a]amix=inputs=2:duration=longest:dropout_transition=0,dynaudnorm\" " +
+                $"-c:a pcm_s16le \"{outputWav}\"";
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = ffmpeg,
+                Arguments = args,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
+            try
+            {
+                using var p = Process.Start(psi);
+                if (p == null) return loopbackWav ?? micWav;
+                await p.WaitForExitAsync(ct).ConfigureAwait(false);
+                if (p.ExitCode == 0 && File.Exists(outputWav) && new FileInfo(outputWav).Length > 44)
+                    return outputWav;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[ffmpeg mix] " + ex.Message);
+            }
+            return loopbackWav ?? micWav;
         }
 
         public static async Task<string?> ComposeAsync(

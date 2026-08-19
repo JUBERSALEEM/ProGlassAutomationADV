@@ -108,6 +108,12 @@ namespace ProGlassAutomation.Agent.Demo
                 Directory.CreateDirectory(framesDir);
                 using var recorder = new WindowScreenRecorder();
                 recorder.Start(framesDir, rec);
+                DemoRecordingChrome.ShowRecording(module, recorder, Cancel);
+                DemoStage.Report = msg =>
+                {
+                    Set(DemoJobState.Recording, msg);
+                    DemoRecordingChrome.UpdateStage(msg);
+                };
 
                 IReadOnlyList<VerifiedEvent> events;
                 try
@@ -116,6 +122,7 @@ namespace ProGlassAutomation.Agent.Demo
                 }
                 finally
                 {
+                    DemoStage.Report = null;
                     await recorder.StopAsync().ConfigureAwait(false);
                 }
 
@@ -220,19 +227,25 @@ namespace ProGlassAutomation.Agent.Demo
                 }
 
                 string? liveWav = recorder.LiveAudioPath;
+                string? micWav = recorder.MicAudioPath;
+                string mixedWav = Path.Combine(folder, "mixed.wav");
+                string? liveMix = await FfmpegMp4Composer
+                    .MixAudioAsync(liveWav, micWav, mixedWav, ct)
+                    .ConfigureAwait(false);
                 TimeSpan liveDur = TimeSpan.Zero;
-                if (!string.IsNullOrEmpty(liveWav) && File.Exists(liveWav))
+                if (!string.IsNullOrEmpty(liveMix) && File.Exists(liveMix))
                 {
-                    try { liveDur = WaveFileSpeech.WavDuration(liveWav); }
+                    try { liveDur = WaveFileSpeech.WavDuration(liveMix); }
                     catch { liveDur = TimeSpan.Zero; }
                 }
                 bool liveOk = liveDur > TimeSpan.FromMilliseconds(250);
-                log.AppendLine(liveOk
-                    ? $"Live loopback audio: {liveDur.TotalSeconds:0.00}s"
-                    : "Live loopback unused — muxing generated TTS WAV. " +
-                      (recorder.AudioError ?? (rec.CaptureLiveAudio
-                          ? "loopback was silent or failed to start"
-                          : "live audio was off")));
+                string audioNote = liveOk
+                    ? $"live mix {liveDur.TotalSeconds:0.00}s" +
+                      (recorder.LiveAudioStarted ? " internal" : "") +
+                      (recorder.MicAudioStarted ? " mic" : "")
+                    : "TTS WAV (live mix unused: " +
+                      (recorder.AudioError ?? "silent or off") + ")";
+                log.AppendLine(audioNote);
 
                 if (liveOk)
                     CaptionWriter.Write(folder, BeatsFromEvents(events, recorder.StartedUtc, recorder.Duration));
@@ -247,11 +260,11 @@ namespace ProGlassAutomation.Agent.Demo
 
                 string mp4Name = runner.OutputFileName;
                 string mp4 = Path.Combine(folder, mp4Name);
-                string audioForMux = liveOk ? liveWav! : narrationWav;
+                string audioForMux = liveOk ? liveMix! : narrationWav;
                 string? produced = await FfmpegMp4Composer
                     .ComposeFramesAudioAsync(
                         framesDir, "f%05d.jpg", audioForMux, mp4,
-                        rec.Fps, outW, outH, ct)
+                        rec.Fps, outW, outH, ct, rec.EncodeCrf)
                     .ConfigureAwait(false);
 
                 Set(DemoJobState.Validating, "Checking the MP4 is a real ISO-BMFF file.");
@@ -299,6 +312,11 @@ namespace ProGlassAutomation.Agent.Demo
 
                 Set(DemoJobState.Completed,
                     $"Wrote {mp4Name} ({info.Length} bytes). {durationNote}. Demo Mode is still on — production files were not opened.");
+                DemoRecordingChrome.ShowSaved(
+                    mp4,
+                    probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
+                    jpegs.Count,
+                    audioNote);
                 return Status;
             }
             catch (OperationCanceledException)
@@ -426,6 +444,7 @@ namespace ProGlassAutomation.Agent.Demo
                 VerifiedEvents = VerifiedEventCount
             });
             Set(DemoJobState.Failed, message);
+            DemoRecordingChrome.ShowFailed(message);
         }
 
         private void Remember(DemoJobRecord rec)

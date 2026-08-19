@@ -194,13 +194,29 @@ namespace ProGlassAutomation.Agent.Demo
             }
         }
 
+        private bool _captureMicrophone = true;
+        public bool CaptureMicrophone
+        {
+            get => _captureMicrophone;
+            set
+            {
+                if (_captureMicrophone == value) return;
+                _captureMicrophone = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(RecordHint));
+            }
+        }
+
         public string RecordHint =>
             "Records only this app window — not the desktop — at " +
             (SelectedQuality?.Title ?? "1080p") + " / " +
             (SelectedFps?.Title ?? "30 fps") +
-            (CaptureLiveAudio
-                ? ". Live narration is captured from the speakers."
-                : ". Live audio is off; generated TTS is muxed after the walk.");
+            ". A REC bar with duration and STOP appears on the live window." +
+            (CaptureLiveAudio ? " Internal app audio is captured." : "") +
+            (CaptureMicrophone ? " Microphone is captured." : "") +
+            (!CaptureLiveAudio && !CaptureMicrophone
+                ? " Live audio is off; generated TTS is muxed after the walk."
+                : "");
 
         public string WorkflowHint =>
             "Generate Selected records that module like a clerk using it. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg, TTS or frames are missing.";
@@ -314,7 +330,8 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd,
                 Fps = SelectedFps?.Fps ?? 30,
-                CaptureLiveAudio = CaptureLiveAudio
+                CaptureLiveAudio = CaptureLiveAudio,
+                CaptureMicrophone = CaptureMicrophone
             }.Clamp();
 
             SetLocalStatus("Starting " + label + " at " + _director.RecordSettings.Summary + "…");
@@ -330,29 +347,6 @@ namespace ProGlassAutomation.Agent.Demo
             }
 
             RaiseStatus();
-
-            if (_director.State == DemoJobState.Failed)
-            {
-                Alert("Demo failed",
-                    string.IsNullOrWhiteSpace(_director.Status)
-                        ? "The walk did not produce a valid MP4."
-                        : _director.Status,
-                    MessageBoxImage.Warning);
-            }
-            else if (_director.State == DemoJobState.Completed)
-            {
-                Alert("Demo finished",
-                    _director.Status +
-                    (string.IsNullOrEmpty(_director.LastMp4Path)
-                        ? ""
-                        : "\n\n" + _director.LastMp4Path),
-                    MessageBoxImage.Information);
-            }
-            else if (_director.State == DemoJobState.Cancelled)
-            {
-                Alert("Demo cancelled", "Recording was cancelled. No MP4 was written.",
-                    MessageBoxImage.Information);
-            }
         }
 
         private void Alert(string title, string message, MessageBoxImage icon)

@@ -32,6 +32,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
         private readonly WasapiLoopbackRecorder _audio = new();
+        private readonly WasapiMicRecorder _mic = new();
         private CancellationTokenSource? _cts;
         private Task? _loop;
         private DateTime _started;
@@ -50,8 +51,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public int DroppedFrames { get; private set; }
         public int EncodedFrames { get; private set; }
         public string? LiveAudioPath => _audio.Path;
-        public string? AudioError => _audio.Error;
+        public string? MicAudioPath => _mic.Path;
+        public string? AudioError =>
+            string.Join(" · ", new[] { _audio.Error, _mic.Error }
+                .Where(s => !string.IsNullOrWhiteSpace(s)));
         public bool LiveAudioStarted { get; private set; }
+        public bool MicAudioStarted { get; private set; }
         public ScreenRecordSettings Settings => _settings;
 
         public void Start(string framesFolder, int fps) =>
@@ -70,13 +75,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             _cts = new CancellationTokenSource();
 
             LiveAudioStarted = false;
+            MicAudioStarted = false;
+            string parent = Directory.GetParent(framesFolder)?.FullName ?? framesFolder;
             if (_settings.CaptureLiveAudio)
-            {
-                string wav = System.IO.Path.Combine(
-                    Directory.GetParent(framesFolder)?.FullName ?? framesFolder,
-                    "live.wav");
-                LiveAudioStarted = _audio.Start(wav);
-            }
+                LiveAudioStarted = _audio.Start(System.IO.Path.Combine(parent, "live.wav"));
+            if (_settings.CaptureMicrophone)
+                MicAudioStarted = _mic.Start(System.IO.Path.Combine(parent, "mic.wav"));
 
             var ct = _cts.Token;
             _loop = Task.Run(() => LoopAsync(framesFolder, ct));
@@ -99,6 +103,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Duration = DateTime.UtcNow - _started;
             try { await _audio.StopAsync().ConfigureAwait(false); }
             catch { /* loopback is optional */ }
+            try { await _mic.StopAsync().ConfigureAwait(false); }
+            catch { /* mic is optional */ }
         }
 
         public void Stop() => _cts?.Cancel();
@@ -203,21 +209,26 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (window == null || window.ActualWidth < 2 || window.ActualHeight < 2)
                 return null;
 
-            var (targetW, targetH) = _settings.OutputSize;
+            var (targetW, targetH) = _settings.CaptureSize;
             double dipW = Math.Max(1, window.ActualWidth);
             double dipH = Math.Max(1, window.ActualHeight);
-            double scale = Math.Min(targetW / dipW, targetH / dipH);
-            if (scale <= 0) scale = 1;
+            var dpiInfo = VisualTreeHelper.GetDpi(window);
+            double nativeW = dipW * dpiInfo.DpiScaleX;
+            double nativeH = dipH * dpiInfo.DpiScaleY;
+            double scale = Math.Max(
+                Math.Min(targetW / Math.Max(1, nativeW), targetH / Math.Max(1, nativeH)),
+                1.0);
 
-            int capW = Math.Max(2, ((int)Math.Round(dipW * scale)) & ~1);
-            int capH = Math.Max(2, ((int)Math.Round(dipH * scale)) & ~1);
+            int capW = Math.Max(2, ((int)Math.Round(nativeW * scale)) & ~1);
+            int capH = Math.Max(2, ((int)Math.Round(nativeH * scale)) & ~1);
             capW = Math.Min(capW, targetW);
             capH = Math.Min(capH, targetH);
-            int dpi = Math.Max(96, (int)Math.Round(96 * scale));
+            int dpi = Math.Max(96, (int)Math.Round(96 * dpiInfo.DpiScaleX * scale));
 
             BitmapSource? bmp;
             try
             {
+                RenderOptions.SetBitmapScalingMode(window, BitmapScalingMode.HighQuality);
                 var rtb = new RenderTargetBitmap(capW, capH, dpi, dpi, PixelFormats.Pbgra32);
                 rtb.Render(window);
                 rtb.Freeze();
@@ -269,7 +280,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     shot.Width, shot.Height, 96, 96,
                     PixelFormats.Pbgra32, null, shot.Pixels, shot.Width * 4);
                 src.Freeze();
-                var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQuality };
+                var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQualityFor };
                 enc.Frames.Add(BitmapFrame.Create(src));
                 Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
                 using (var fs = File.Create(path))
