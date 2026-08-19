@@ -38,13 +38,7 @@ Theme: DynamicResource only (light / dark / Monet).
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Text="PROJECT SPECIFICATIONS"
-                       Style="{StaticResource ModulePageTitleStyle}"/>
-            <TextBlock Text="Site, contract and LPO references for this quotation."
-                       Style="{StaticResource ModulePageSubtitleStyle}"
-                       TextWrapping="Wrap"/>
-        </StackPanel>
+        <Border Grid.Row="0" Height="0"/>
 
         <Border Grid.Row="1"
                 CornerRadius="{DynamicResource ControlCornerRadius}"

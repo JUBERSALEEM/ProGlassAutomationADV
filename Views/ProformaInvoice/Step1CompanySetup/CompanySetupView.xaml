@@ -37,62 +37,16 @@ Theme: DynamicResource only (light / dark / Monet).
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,8">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel>
-                <TextBlock Text="COMPANY &amp; IDENTIFICATION"
-                           Style="{StaticResource ModulePageTitleStyle}"/>
-                <TextBlock Text="Letterhead, tax registration and the document identity for this quotation."
-                           Style="{StaticResource ModulePageSubtitleStyle}"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
-            <Button Grid.Column="1"
-                    VerticalAlignment="Center"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    ToolTip="Skip to the glass data grid — Step 5"
-                    Command="{Binding GoToGridCommand}">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="GoBorder"
-                                Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="14,0"
-                                Height="{DynamicResource DensityButtonHeight}">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="SKIP TO GRID"
-                                           FontSize="11"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="&#xE76C;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="GoBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="GoBorder"
-                                        Property="Background"
-                                        Value="{DynamicResource AccentDarkBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
-        </Grid>
+        <Button Grid.Row="0"
+                HorizontalAlignment="Right"
+                Margin="0,0,0,6"
+                Background="Transparent"
+                BorderThickness="0"
+                Cursor="Hand"
+                ToolTip="Skip to the glass data grid — Step 5"
+                Command="{Binding GoToGridCommand}"
+                Style="{StaticResource PiViewAllLinkStyle}"
+                Content="Skip to grid"/>
 
         <Border Grid.Row="1" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
             <Grid>

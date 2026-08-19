@@ -3,13 +3,11 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Proforma Invoice — Step 4 product visualization
 //
-// Isometric glass-assembly drawing for SGU / DGU / LAM / DGU+LAM.
-// Presentation only: every input is a bindable string/number from the
-// existing Step 4 parameter VMs. No pricing, persistence or navigation.
-//
-// Material tints (clear / grey / bronze / green / blue) are product
-// colours, not brand chrome. Theme tokens drive outline, text, shadow
-// and the showcase well so Light / Dark / Monet restyle the frame.
+// Manufacturing drawing for SGU / DGU / LAM / DGU+LAM.
+//   SGU     — wide single pane (the mockup hero sheet)
+//   DGU     — packed outer / spacer / inner sandwich
+//   LAM     — exploded outer / PVB / inner stack
+//   DGU+LAM — cutaway: vertical outer + cavity + laminated pair
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services;
@@ -35,7 +33,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             SnapsToDevicePixels = true;
             UseLayoutRounding = true;
             ClipToBounds = true;
-            MinHeight = 140;
+            MinHeight = 160;
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
         }
@@ -55,11 +53,8 @@ namespace ProGlassAutomation.Controls.GlassShowcase
         private void OnThemeChanged(object? sender, EventArgs e)
             => InvalidateVisual();
 
-        // ── Kind ──────────────────────────────────────────────────────
-
         public static readonly DependencyProperty KindProperty =
-            DependencyProperty.Register(
-                nameof(Kind), typeof(GlassAssemblyKind), typeof(GlassAssemblyShowcase),
+            DependencyProperty.Register(nameof(Kind), typeof(GlassAssemblyKind), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata(GlassAssemblyKind.Sgu, FrameworkPropertyMetadataOptions.AffectsRender));
 
         public GlassAssemblyKind Kind
@@ -68,379 +63,301 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             set => SetValue(KindProperty, value);
         }
 
-        // ── Outer / single pane ───────────────────────────────────────
-
         public static readonly DependencyProperty OuterColorProperty =
             DependencyProperty.Register(nameof(OuterColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string OuterColor
-        {
-            get => (string)GetValue(OuterColorProperty);
-            set => SetValue(OuterColorProperty, value);
-        }
+        public string OuterColor { get => (string)GetValue(OuterColorProperty); set => SetValue(OuterColorProperty, value); }
 
         public static readonly DependencyProperty OuterThicknessProperty =
             DependencyProperty.Register(nameof(OuterThickness), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("6mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string OuterThickness
-        {
-            get => (string)GetValue(OuterThicknessProperty);
-            set => SetValue(OuterThicknessProperty, value);
-        }
+        public string OuterThickness { get => (string)GetValue(OuterThicknessProperty); set => SetValue(OuterThicknessProperty, value); }
 
         public static readonly DependencyProperty OuterTreatmentProperty =
             DependencyProperty.Register(nameof(OuterTreatment), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string OuterTreatment
-        {
-            get => (string)GetValue(OuterTreatmentProperty);
-            set => SetValue(OuterTreatmentProperty, value);
-        }
-
-        // ── Inner pane ────────────────────────────────────────────────
+        public string OuterTreatment { get => (string)GetValue(OuterTreatmentProperty); set => SetValue(OuterTreatmentProperty, value); }
 
         public static readonly DependencyProperty InnerColorProperty =
             DependencyProperty.Register(nameof(InnerColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InnerColor
-        {
-            get => (string)GetValue(InnerColorProperty);
-            set => SetValue(InnerColorProperty, value);
-        }
+        public string InnerColor { get => (string)GetValue(InnerColorProperty); set => SetValue(InnerColorProperty, value); }
 
         public static readonly DependencyProperty InnerThicknessProperty =
             DependencyProperty.Register(nameof(InnerThickness), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("6mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InnerThickness
-        {
-            get => (string)GetValue(InnerThicknessProperty);
-            set => SetValue(InnerThicknessProperty, value);
-        }
+        public string InnerThickness { get => (string)GetValue(InnerThicknessProperty); set => SetValue(InnerThicknessProperty, value); }
 
         public static readonly DependencyProperty InnerTreatmentProperty =
             DependencyProperty.Register(nameof(InnerTreatment), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InnerTreatment
-        {
-            get => (string)GetValue(InnerTreatmentProperty);
-            set => SetValue(InnerTreatmentProperty, value);
-        }
-
-        // ── Spacer ────────────────────────────────────────────────────
+        public string InnerTreatment { get => (string)GetValue(InnerTreatmentProperty); set => SetValue(InnerTreatmentProperty, value); }
 
         public static readonly DependencyProperty SpacerWidthProperty =
             DependencyProperty.Register(nameof(SpacerWidth), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("12mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string SpacerWidth
-        {
-            get => (string)GetValue(SpacerWidthProperty);
-            set => SetValue(SpacerWidthProperty, value);
-        }
+        public string SpacerWidth { get => (string)GetValue(SpacerWidthProperty); set => SetValue(SpacerWidthProperty, value); }
 
         public static readonly DependencyProperty SpacerMaterialProperty =
             DependencyProperty.Register(nameof(SpacerMaterial), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string SpacerMaterial
-        {
-            get => (string)GetValue(SpacerMaterialProperty);
-            set => SetValue(SpacerMaterialProperty, value);
-        }
-
-        // ── Interlayer / PVB ──────────────────────────────────────────
+        public string SpacerMaterial { get => (string)GetValue(SpacerMaterialProperty); set => SetValue(SpacerMaterialProperty, value); }
 
         public static readonly DependencyProperty InterlayerColorProperty =
             DependencyProperty.Register(nameof(InterlayerColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InterlayerColor
-        {
-            get => (string)GetValue(InterlayerColorProperty);
-            set => SetValue(InterlayerColorProperty, value);
-        }
+        public string InterlayerColor { get => (string)GetValue(InterlayerColorProperty); set => SetValue(InterlayerColorProperty, value); }
 
         public static readonly DependencyProperty InterlayerThicknessProperty =
             DependencyProperty.Register(nameof(InterlayerThickness), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("1.52mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InterlayerThickness
-        {
-            get => (string)GetValue(InterlayerThicknessProperty);
-            set => SetValue(InterlayerThicknessProperty, value);
-        }
+        public string InterlayerThickness { get => (string)GetValue(InterlayerThicknessProperty); set => SetValue(InterlayerThicknessProperty, value); }
 
         public static readonly DependencyProperty InterlayerTypeProperty =
             DependencyProperty.Register(nameof(InterlayerType), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("PVB", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string InterlayerType
-        {
-            get => (string)GetValue(InterlayerTypeProperty);
-            set => SetValue(InterlayerTypeProperty, value);
-        }
-
-        // ── Laminated pair (DGU+LAM) ──────────────────────────────────
+        public string InterlayerType { get => (string)GetValue(InterlayerTypeProperty); set => SetValue(InterlayerTypeProperty, value); }
 
         public static readonly DependencyProperty LamOuterColorProperty =
             DependencyProperty.Register(nameof(LamOuterColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string LamOuterColor
-        {
-            get => (string)GetValue(LamOuterColorProperty);
-            set => SetValue(LamOuterColorProperty, value);
-        }
+        public string LamOuterColor { get => (string)GetValue(LamOuterColorProperty); set => SetValue(LamOuterColorProperty, value); }
 
         public static readonly DependencyProperty LamOuterThicknessProperty =
             DependencyProperty.Register(nameof(LamOuterThickness), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("6mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string LamOuterThickness
-        {
-            get => (string)GetValue(LamOuterThicknessProperty);
-            set => SetValue(LamOuterThicknessProperty, value);
-        }
+        public string LamOuterThickness { get => (string)GetValue(LamOuterThicknessProperty); set => SetValue(LamOuterThicknessProperty, value); }
 
         public static readonly DependencyProperty LamInnerColorProperty =
             DependencyProperty.Register(nameof(LamInnerColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string LamInnerColor
-        {
-            get => (string)GetValue(LamInnerColorProperty);
-            set => SetValue(LamInnerColorProperty, value);
-        }
+        public string LamInnerColor { get => (string)GetValue(LamInnerColorProperty); set => SetValue(LamInnerColorProperty, value); }
 
         public static readonly DependencyProperty LamInnerThicknessProperty =
             DependencyProperty.Register(nameof(LamInnerThickness), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("6mm", FrameworkPropertyMetadataOptions.AffectsRender));
-
-        public string LamInnerThickness
-        {
-            get => (string)GetValue(LamInnerThicknessProperty);
-            set => SetValue(LamInnerThicknessProperty, value);
-        }
+        public string LamInnerThickness { get => (string)GetValue(LamInnerThicknessProperty); set => SetValue(LamInnerThicknessProperty, value); }
 
         public static readonly DependencyProperty CaptionProperty =
             DependencyProperty.Register(nameof(Caption), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
+        public string Caption { get => (string)GetValue(CaptionProperty); set => SetValue(CaptionProperty, value); }
 
-        public string Caption
-        {
-            get => (string)GetValue(CaptionProperty);
-            set => SetValue(CaptionProperty, value);
-        }
+        public static readonly DependencyProperty ShowWellProperty =
+            DependencyProperty.Register(nameof(ShowWell), typeof(bool), typeof(GlassAssemblyShowcase),
+                new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
+        public bool ShowWell { get => (bool)GetValue(ShowWellProperty); set => SetValue(ShowWellProperty, value); }
 
-        // ── Render ────────────────────────────────────────────────────
+        public static readonly DependencyProperty ShowCaptionProperty =
+            DependencyProperty.Register(nameof(ShowCaption), typeof(bool), typeof(GlassAssemblyShowcase),
+                new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+        public bool ShowCaption { get => (bool)GetValue(ShowCaptionProperty); set => SetValue(ShowCaptionProperty, value); }
 
         protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);
-
             double w = ActualWidth;
             double h = ActualHeight;
             if (w < 40 || h < 40) return;
 
             var outline = ThemeColor("OutlineBrush", Color.FromRgb(0x94, 0xA3, 0xB8));
-            var well = ThemeColor("MenuHoverBrush", Color.FromRgb(0xF1, 0xF5, 0xF9));
+            var well = ThemeColor("MenuHoverBrush", Color.FromRgb(0xEE, 0xF2, 0xF7));
             var text = ThemeColor("PrimaryForegroundBrush", Color.FromRgb(0x0F, 0x17, 0x2A));
             var muted = ThemeColor("SecondaryForegroundBrush", Color.FromRgb(0x64, 0x74, 0x8B));
             var accent = ThemeColor("AccentBrush", Color.FromRgb(0x1D, 0x4E, 0xD8));
 
-            var wellBrush = new SolidColorBrush(well);
-            wellBrush.Freeze();
-            dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 8, 8);
-
-            var wellStroke = new Pen(new SolidColorBrush(outline) { Opacity = 0.55 }, 1);
-            wellStroke.Freeze();
-            dc.DrawRoundedRectangle(null, wellStroke, new Rect(0.5, 0.5, w - 1, h - 1), 8, 8);
+            if (ShowWell)
+            {
+                var wellBrush = new SolidColorBrush(well);
+                wellBrush.Freeze();
+                dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 10, 10);
+            }
 
             switch (Kind)
             {
                 case GlassAssemblyKind.Sgu:
-                    DrawSgu(dc, w, h, text, muted, outline);
+                    DrawSguSheet(dc, w, h, text, outline);
                     break;
                 case GlassAssemblyKind.Dgu:
-                    DrawDgu(dc, w, h, text, muted, outline, accent);
+                    DrawDguSandwich(dc, w, h, muted, outline, accent);
                     break;
                 case GlassAssemblyKind.Lam:
-                    DrawLam(dc, w, h, text, muted, outline);
+                    DrawLamExploded(dc, w, h, muted, outline);
                     break;
                 case GlassAssemblyKind.DguLam:
-                    DrawDguLam(dc, w, h, text, muted, outline, accent);
+                    DrawDguLamCutaway(dc, w, h, muted, outline, accent);
                     break;
             }
         }
 
-        private void DrawSgu(DrawingContext dc, double w, double h, Color text, Color muted, Color outline)
+        // Wide hero pane — matches the SGU mockup sheet.
+        private void DrawSguSheet(DrawingContext dc, double w, double h, Color text, Color outline)
         {
-            double paneW = Math.Min(w * 0.72, 520);
-            double paneD = Math.Min(h * 0.38, 88);
-            double thick = VisualThickness(OuterThickness, 10, 22);
-            var origin = new Point((w - paneW) * 0.5, h * 0.42);
-            DrawSlab(dc, origin, paneW, paneD, thick, GlassTint(OuterColor), outline, exploded: false);
-            DrawCaption(dc, w, h, BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment), text);
-        }
+            double paneW = w * 0.86;
+            double depth = Math.Min(h * 0.42, 110);
+            double thick = VisualThickness(OuterThickness, 14, 28);
+            double left = (w - paneW) * 0.5;
+            double frontY = h * 0.52;
 
-        private void DrawDgu(DrawingContext dc, double w, double h, Color text, Color muted, Color outline, Color accent)
-        {
-            double paneW = Math.Min(w * 0.62, 440);
-            double paneD = Math.Min(h * 0.26, 64);
-            double outerT = VisualThickness(OuterThickness, 8, 16);
-            double innerT = VisualThickness(InnerThickness, 8, 16);
-            double gap = Math.Clamp(ParseMm(SpacerWidth) * 0.7, 10, 22);
+            DrawWidePane(dc, left, frontY, paneW, depth, thick, GlassTint(OuterColor), outline);
 
-            double stack = outerT + gap + innerT + paneD;
-            var origin = new Point((w - paneW) * 0.5, (h - stack) * 0.42 + paneD);
-
-            // Back / inner first so outer sits on top.
-            var innerOrigin = new Point(origin.X + 10, origin.Y + gap + outerT);
-            DrawSlab(dc, innerOrigin, paneW - 8, paneD, innerT, GlassTint(InnerColor), outline, exploded: false);
-
-            DrawSpacerChannel(dc, new Point(origin.X + 6, origin.Y + outerT + 2), paneW - 12, paneD * 0.55, gap - 4, outline, accent);
-
-            DrawSlab(dc, origin, paneW, paneD, outerT, GlassTint(OuterColor), outline, exploded: false);
-
-            DrawSideLabel(dc, origin.X - 8, origin.Y - 4, "OUTER", muted, rightAlign: true);
-            DrawSideLabel(dc, origin.X - 8, origin.Y + outerT + gap * 0.3, SpacerWidth ?? "ASP", muted, rightAlign: true);
-            DrawSideLabel(dc, origin.X - 8, innerOrigin.Y + innerT * 0.2, "INNER", muted, rightAlign: true);
-            DrawCaption(dc, w, h, CaptionOrDefault(), text);
-        }
-
-        private void DrawLam(DrawingContext dc, double w, double h, Color text, Color muted, Color outline)
-        {
-            double paneW = Math.Min(w * 0.52, 380);
-            double paneD = Math.Min(h * 0.22, 56);
-            double outerT = VisualThickness(OuterThickness, 7, 14);
-            double innerT = VisualThickness(InnerThickness, 7, 14);
-            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 2.2, 5, 10);
-            double explode = 16;
-
-            double cx = (w - paneW) * 0.42;
-            double topY = h * 0.28;
-
-            DrawSlab(dc, new Point(cx + 28, topY + explode * 2 + outerT + filmT), paneW, paneD, innerT, GlassTint(InnerColor), outline, exploded: true);
-            DrawSlab(dc, new Point(cx + 14, topY + explode + outerT), paneW, paneD, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, exploded: true, isFilm: true);
-            DrawSlab(dc, new Point(cx, topY), paneW, paneD, outerT, GlassTint(OuterColor), outline, exploded: true);
-
-            DrawSideLabel(dc, cx - 10, topY + 4, "OUTER", muted, rightAlign: true);
-            DrawSideLabel(dc, cx + 4, topY + explode + outerT + 2, InterlayerLabel(), muted, rightAlign: true);
-            DrawSideLabel(dc, cx + 18, topY + explode * 2 + outerT + filmT + 2, "INNER", muted, rightAlign: true);
-            DrawCaption(dc, w, h, CaptionOrDefault(), text);
-        }
-
-        private void DrawDguLam(DrawingContext dc, double w, double h, Color text, Color muted, Color outline, Color accent)
-        {
-            double paneW = Math.Min(w * 0.48, 340);
-            double paneD = Math.Min(h * 0.18, 48);
-            double outerT = VisualThickness(OuterThickness, 6, 12);
-            double lamOutT = VisualThickness(LamOuterThickness, 6, 12);
-            double lamInT = VisualThickness(LamInnerThickness, 6, 12);
-            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 1.8, 4, 8);
-            double gap = Math.Clamp(ParseMm(SpacerWidth) * 0.55, 8, 16);
-            double explode = 10;
-
-            double cx = (w - paneW) * 0.38;
-            double y = h * 0.22;
-
-            // Bottom-most: lam inner
-            DrawSlab(dc, new Point(cx + explode * 3, y + explode * 3 + outerT + gap + lamOutT + filmT),
-                paneW, paneD, lamInT, GlassTint(LamInnerColor), outline, exploded: true);
-
-            DrawSlab(dc, new Point(cx + explode * 2, y + explode * 2 + outerT + gap + lamOutT),
-                paneW, paneD, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, exploded: true, isFilm: true);
-
-            DrawSlab(dc, new Point(cx + explode, y + explode + outerT + gap),
-                paneW, paneD, lamOutT, GlassTint(LamOuterColor), outline, exploded: true);
-
-            DrawSpacerChannel(dc,
-                new Point(cx + explode * 0.5, y + outerT + 2),
-                paneW - 8, paneD * 0.5, gap - 2, outline, accent);
-
-            DrawSlab(dc, new Point(cx, y), paneW, paneD, outerT, GlassTint(OuterColor), outline, exploded: true);
-
-            DrawSideLabel(dc, cx - 8, y + 2, "1 OUTER", muted, rightAlign: true);
-            DrawSideLabel(dc, cx - 8, y + outerT + 2, "2 ASP", muted, rightAlign: true);
-            DrawSideLabel(dc, cx + explode - 8, y + explode + outerT + gap + 2, "3 LAM OUT", muted, rightAlign: true);
-            DrawSideLabel(dc, cx + explode * 2 - 8, y + explode * 2 + outerT + gap + lamOutT, "4 " + InterlayerLabel(), muted, rightAlign: true);
-            DrawSideLabel(dc, cx + explode * 3 - 8, y + explode * 3 + outerT + gap + lamOutT + filmT, "5 LAM IN", muted, rightAlign: true);
-            DrawCaption(dc, w, h, CaptionOrDefault(), text);
-        }
-
-        private void DrawSlab(
-            DrawingContext dc,
-            Point origin,
-            double width,
-            double depth,
-            double thick,
-            Color glass,
-            Color outline,
-            bool exploded,
-            bool isFilm = false)
-        {
-            // Cabinet-style isometric: top parallelogram, front face, right face.
-            double skew = depth * 0.55;
-            double drop = depth * 0.42;
-
-            Point t0 = origin;                                      // top-front-left
-            Point t1 = new(origin.X + width, origin.Y);             // top-front-right
-            Point t2 = new(origin.X + width + skew, origin.Y - drop);
-            Point t3 = new(origin.X + skew, origin.Y - drop);
-
-            Point f0 = new(t0.X, t0.Y + thick);
-            Point f1 = new(t1.X, t1.Y + thick);
-            Point s1 = new(t2.X, t2.Y + thick);
-
-            var top = Mix(glass, Colors.White, isFilm ? 0.08 : 0.22);
-            var front = Mix(glass, Colors.Black, isFilm ? 0.12 : 0.18);
-            var side = Mix(glass, Colors.Black, isFilm ? 0.20 : 0.30);
-
-            DrawQuad(dc, t0, t1, t2, t3, top, outline, isFilm ? 0.92 : 0.78);
-            DrawQuad(dc, t0, t1, f1, f0, front, outline, isFilm ? 0.88 : 0.72);
-            DrawQuad(dc, t1, t2, s1, f1, side, outline, isFilm ? 0.86 : 0.70);
-
-            // Specular stripe on the top face.
-            if (!isFilm)
+            if (ShowCaption)
             {
-                var hi = new SolidColorBrush(Color.FromArgb(70, 255, 255, 255));
-                hi.Freeze();
-                var geo = new StreamGeometry();
-                using (var ctx = geo.Open())
-                {
-                    ctx.BeginFigure(Lerp(t0, t3, 0.18), true, true);
-                    ctx.LineTo(Lerp(t1, t2, 0.18), true, false);
-                    ctx.LineTo(Lerp(t1, t2, 0.34), true, false);
-                    ctx.LineTo(Lerp(t0, t3, 0.34), true, false);
-                }
-                geo.Freeze();
-                dc.DrawGeometry(hi, null, geo);
+                string label = string.IsNullOrWhiteSpace(Caption)
+                    ? BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)
+                    : Caption;
+                var ft = Format(label, 13, FontWeights.SemiBold, text);
+                dc.DrawText(ft, new Point((w - ft.Width) * 0.5, frontY - depth * 0.38 - ft.Height * 0.5));
             }
-
-            // Leading edge highlight.
-            var edge = new Pen(new SolidColorBrush(Color.FromArgb(110, 255, 255, 255)), 1.1);
-            edge.Freeze();
-            dc.DrawLine(edge, t0, t1);
         }
 
-        private void DrawSpacerChannel(
-            DrawingContext dc, Point origin, double width, double depth, double thick, Color outline, Color accent)
+        private void DrawDguSandwich(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
+        {
+            double paneW = w * 0.70;
+            double depth = Math.Min(h * 0.22, 70);
+            double outerT = VisualThickness(OuterThickness, 10, 18);
+            double innerT = VisualThickness(InnerThickness, 10, 18);
+            double gap = Math.Clamp(ParseMm(SpacerWidth) * 1.1, 14, 28);
+            double left = (w - paneW) * 0.5;
+            double y = h * 0.38;
+
+            DrawWidePane(dc, left + 14, y + gap + outerT, paneW - 16, depth, innerT, GlassTint(InnerColor), outline);
+            DrawSpacerBar(dc, left + 8, y + outerT + 3, paneW - 10, depth * 0.55, gap - 4, outline, accent);
+            DrawWidePane(dc, left, y, paneW, depth, outerT, GlassTint(OuterColor), outline);
+
+            DrawSideLabel(dc, left - 8, y + 2, "OUTER", muted, true);
+            DrawSideLabel(dc, left - 8, y + outerT + gap * 0.25, SpacerWidth ?? "ASP", muted, true);
+            DrawSideLabel(dc, left - 8, y + gap + outerT + 2, "INNER", muted, true);
+        }
+
+        private void DrawLamExploded(DrawingContext dc, double w, double h, Color muted, Color outline)
+        {
+            double paneW = Math.Min(w * 0.46, 420);
+            double depth = Math.Min(h * 0.20, 68);
+            double outerT = VisualThickness(OuterThickness, 10, 16);
+            double innerT = VisualThickness(InnerThickness, 10, 16);
+            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 3.2, 8, 14);
+            double explode = Math.Min(h * 0.12, 28);
+            double cx = (w - paneW) * 0.42;
+            double top = h * 0.22;
+
+            DrawWidePane(dc, cx + explode * 1.6, top + explode * 2 + outerT + filmT, paneW, depth, innerT, GlassTint(InnerColor), outline);
+            DrawWidePane(dc, cx + explode * 0.8, top + explode + outerT, paneW, depth, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
+            DrawWidePane(dc, cx, top, paneW, depth, outerT, GlassTint(OuterColor), outline);
+
+            DrawSideLabel(dc, cx - 10, top + 4, "OUTER", muted, true);
+            DrawSideLabel(dc, cx + explode * 0.4, top + explode + outerT + 2, InterlayerLabel(), muted, true);
+            DrawSideLabel(dc, cx + explode * 1.2, top + explode * 2 + outerT + filmT + 2, "INNER", muted, true);
+        }
+
+        // Cutaway: standing outer lite + air cavity + laminated pair.
+        private void DrawDguLamCutaway(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
+        {
+            double cx = w * 0.18;
+            double baseY = h * 0.78;
+            double liteH = h * 0.58;
+            double liteW = Math.Min(w * 0.10, 36);
+            double cavity = Math.Clamp(ParseMm(SpacerWidth) * 1.4, 18, 34);
+
+            // Standing outer lite (slight perspective).
+            DrawStandingLite(dc, cx, baseY, liteW, liteH, GlassTint(OuterColor), outline);
+
+            // Cavity / spacer.
+            var cavityFill = Mix(accent, Color.FromRgb(0x9C, 0xA3, 0xAF), 0.55);
+            cavityFill.A = 90;
+            dc.DrawRectangle(new SolidColorBrush(cavityFill),
+                new Pen(new SolidColorBrush(outline), 0.8),
+                new Rect(cx + liteW + 2, baseY - liteH * 0.92, cavity, liteH * 0.88));
+
+            // Laminated pair lying as a stack in front/right.
+            double stackX = cx + liteW + cavity + 16;
+            double paneW = Math.Min(w * 0.42, 260);
+            double depth = Math.Min(h * 0.16, 48);
+            double lamOutT = VisualThickness(LamOuterThickness, 8, 14);
+            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 2.4, 6, 11);
+            double lamInT = VisualThickness(LamInnerThickness, 8, 14);
+            double y = baseY - 18;
+
+            DrawWidePane(dc, stackX + 18, y, paneW, depth, lamInT, GlassTint(LamInnerColor), outline);
+            DrawWidePane(dc, stackX + 9, y - filmT - 6, paneW, depth, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
+            DrawWidePane(dc, stackX, y - filmT - lamOutT - 12, paneW, depth, lamOutT, GlassTint(LamOuterColor), outline);
+
+            DrawSideLabel(dc, cx, baseY - liteH - 4, "OUTER", muted, false);
+        }
+
+        private static void DrawStandingLite(
+            DrawingContext dc, double x, double baseY, double thickness, double height, Color glass, Color outline)
+        {
+            Point bl = new(x, baseY);
+            Point br = new(x + thickness, baseY - 8);
+            Point tr = new(x + thickness + 10, baseY - height);
+            Point tl = new(x + 8, baseY - height + 10);
+
+            DrawQuad(dc, tl, tr, br, bl, Mix(glass, Colors.White, 0.18), outline, 0.72);
+
+            var hi = new LinearGradientBrush(
+                Color.FromArgb(90, 255, 255, 255),
+                Color.FromArgb(0, 255, 255, 255),
+                new Point(0, 0), new Point(1, 1));
+            hi.Freeze();
+            var geo = Quad(tl, Lerp(tl, tr, 0.35), Lerp(bl, br, 0.35), bl);
+            dc.DrawGeometry(hi, null, geo);
+        }
+
+        private static void DrawWidePane(
+            DrawingContext dc, double left, double frontY, double width, double depth, double thick, Color glass, Color outline, bool film = false)
+        {
+            double skew = depth * 0.62;
+            double rise = depth * 0.48;
+
+            Point fl = new(left, frontY);
+            Point fr = new(left + width, frontY);
+            Point br = new(left + width + skew, frontY - rise);
+            Point bl = new(left + skew, frontY - rise);
+
+            Point flb = new(fl.X, fl.Y + thick);
+            Point frb = new(fr.X, fr.Y + thick);
+            Point brb = new(br.X, br.Y + thick);
+
+            var top = Mix(glass, Colors.White, film ? 0.06 : 0.28);
+            var front = Mix(glass, Colors.Black, film ? 0.10 : 0.16);
+            var side = Mix(glass, Colors.Black, film ? 0.18 : 0.28);
+
+            DrawQuad(dc, fl, fr, br, bl, top, outline, film ? 0.94 : 0.80);
+            DrawQuad(dc, fl, fr, frb, flb, front, outline, film ? 0.90 : 0.74);
+            DrawQuad(dc, fr, br, brb, frb, side, outline, film ? 0.88 : 0.70);
+
+            if (!film)
+            {
+                // Specular wash across the top face.
+                var hi = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(1, 0.35)
+                };
+                hi.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0));
+                hi.GradientStops.Add(new GradientStop(Color.FromArgb(120, 255, 255, 255), 0.22));
+                hi.GradientStops.Add(new GradientStop(Color.FromArgb(20, 255, 255, 255), 0.55));
+                hi.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 1));
+                hi.Freeze();
+                dc.DrawGeometry(hi, null, Quad(fl, fr, br, bl));
+
+                var edge = new Pen(new SolidColorBrush(Color.FromArgb(140, 255, 255, 255)), 1.4);
+                edge.Freeze();
+                dc.DrawLine(edge, fl, fr);
+            }
+        }
+
+        private static void DrawSpacerBar(
+            DrawingContext dc, double left, double y, double width, double depth, double thick, Color outline, Color accent)
         {
             var alu = ThemeManager.CurrentTheme == AppTheme.Dark
                 ? Color.FromRgb(0x6B, 0x72, 0x80)
                 : Color.FromRgb(0x9C, 0xA3, 0xAF);
-            var cavity = Mix(accent, alu, 0.55);
-            DrawSlab(dc, origin, width, depth, Math.Max(thick, 6), cavity, outline, exploded: false, isFilm: true);
+            DrawWidePane(dc, left, y, width, depth, Math.Max(thick, 8), Mix(accent, alu, 0.45), outline, film: true);
         }
 
-        private static void DrawQuad(
-            DrawingContext dc, Point a, Point b, Point c, Point d, Color fill, Color outline, double opacity)
+        private static StreamGeometry Quad(Point a, Point b, Point c, Point d)
         {
             var geo = new StreamGeometry();
             using (var ctx = geo.Open())
@@ -451,25 +368,20 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 ctx.LineTo(d, true, false);
             }
             geo.Freeze();
+            return geo;
+        }
 
+        private static void DrawQuad(DrawingContext dc, Point a, Point b, Point c, Point d, Color fill, Color outline, double opacity)
+        {
             fill.A = (byte)Math.Clamp((int)(opacity * 255), 40, 255);
             var brush = new SolidColorBrush(fill);
             brush.Freeze();
-            var pen = new Pen(new SolidColorBrush(Color.FromArgb(160, outline.R, outline.G, outline.B)), 0.8);
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(150, outline.R, outline.G, outline.B)), 0.9);
             pen.Freeze();
-            dc.DrawGeometry(brush, pen, geo);
+            dc.DrawGeometry(brush, pen, Quad(a, b, c, d));
         }
 
-        private void DrawCaption(DrawingContext dc, double w, double h, string text, Color color)
-        {
-            if (string.IsNullOrWhiteSpace(text)) return;
-            var ft = Format(text, 11, FontWeights.SemiBold, color);
-            double x = Math.Max(12, (w - ft.Width) * 0.5);
-            double y = h - ft.Height - 10;
-            dc.DrawText(ft, new Point(x, y));
-        }
-
-        private void DrawSideLabel(DrawingContext dc, double x, double y, string text, Color color, bool rightAlign)
+        private static void DrawSideLabel(DrawingContext dc, double x, double y, string text, Color color, bool rightAlign)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
             var ft = Format(text.ToUpperInvariant(), 9, FontWeights.Bold, color);
@@ -483,27 +395,9 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             var brush = new SolidColorBrush(color);
             brush.Freeze();
             return new FormattedText(
-                text,
-                CultureInfo.CurrentUICulture,
-                FlowDirection.LeftToRight,
+                text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
                 new Typeface(new FontFamily("Segoe UI"), FontStyles.Normal, weight, FontStretches.Normal),
-                size,
-                brush,
-                1.25);
-        }
-
-        private string CaptionOrDefault()
-        {
-            if (!string.IsNullOrWhiteSpace(Caption)) return Caption;
-            return Kind switch
-            {
-                GlassAssemblyKind.Sgu => BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment),
-                GlassAssemblyKind.Dgu =>
-                    $"{BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)} + {SpacerWidth} ASP + {BuildPaneLabel(InnerThickness, InnerColor, InnerTreatment)}",
-                GlassAssemblyKind.Lam =>
-                    $"{BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)} + {InterlayerThickness} {InterlayerColor} {InterlayerType} + {BuildPaneLabel(InnerThickness, InnerColor, InnerTreatment)}",
-                _ => Caption ?? ""
-            };
+                size, brush, 1.25);
         }
 
         private string InterlayerLabel()
@@ -533,11 +427,10 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 return Color.FromArgb(210, 130, 142, 156);
             if (n.Contains("silver") || n.Contains("reflect"))
                 return Color.FromArgb(200, 176, 190, 204);
-            // Clear / extra-clear / default — slightly cyan glass.
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             return dark
-                ? Color.FromArgb(195, 140, 188, 210)
-                : Color.FromArgb(200, 176, 214, 226);
+                ? Color.FromArgb(200, 140, 188, 210)
+                : Color.FromArgb(210, 168, 210, 222);
         }
 
         public static Color InterlayerTint(string? color, string? type)
@@ -550,7 +443,6 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 return Color.FromArgb(220, 196, 168, 48);
             if (t.Contains("sgp") || t.Contains("ionoplast"))
                 return Color.FromArgb(210, 214, 196, 120);
-            // PVB — safety amber.
             return Color.FromArgb(230, 214, 154, 48);
         }
 
@@ -564,15 +456,14 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             while (i < span.Length && (char.IsDigit(span[i]) || span[i] == '.')) i++;
             if (start == i) return 0;
             return double.TryParse(span[start..i], NumberStyles.Float, CultureInfo.InvariantCulture, out double v)
-                ? v
-                : 0;
+                ? v : 0;
         }
 
         private static double VisualThickness(string? raw, double minPx, double maxPx)
         {
             double mm = ParseMm(raw);
             if (mm <= 0) return (minPx + maxPx) * 0.5;
-            return Math.Clamp(4 + mm * 1.15, minPx, maxPx);
+            return Math.Clamp(5 + mm * 1.2, minPx, maxPx);
         }
 
         private static Color Mix(Color a, Color b, double t)

@@ -673,92 +673,71 @@ PRESERVED EXACTLY:
                             </Border.InputBindings>
                             <StackPanel>
 
-                                <!-- ── Group header row ── -->
-                                <Grid Margin="0,0,0,14">
+                                <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="10"/>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <Border Grid.Column="0"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Width="32" Height="32"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding GroupNumber}"
-                                                   FontSize="14"
-                                                   FontWeight="Bold"
-                                                   Foreground="White"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding GroupName}"
-                                               FontSize="15"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="12,0,0,0"
-                                               TextTrimming="CharacterEllipsis"/>
-
-                                    <StackPanel Grid.Column="2"
-                                                Orientation="Horizontal"
-                                                VerticalAlignment="Center"
-                                                Margin="0,0,14,0">
-                                        <TextBlock Text="BASE RATE:"
-                                                   Style="{StaticResource HeaderLabelStyle}"/>
-                                        <TextBox
-                                            Text="{Binding BaseRate,
-                                                StringFormat={}{0:0.##},
-                                                UpdateSourceTrigger=LostFocus}"
-                                            Style="{StaticResource CompactDecimalInputStyle}"/>
+                                    <StackPanel>
+                                        <TextBlock Text="GLASS TYPE" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                                        <ComboBox
+                                            ItemsSource="{Binding DataContext.GlassTypeOptions,
+                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            SelectedItem="{Binding SelectedGlassType}"
+                                            Style="{StaticResource ThemedComboBoxStyle}"
+                                            Height="32"/>
                                     </StackPanel>
-
-                                    <StackPanel Grid.Column="3"
-                                                Orientation="Horizontal"
-                                                VerticalAlignment="Center"
-                                                Margin="0,0,10,0">
-                                        <TextBlock Text="SURCHARGE %:"
-                                                   Style="{StaticResource HeaderLabelStyle}"/>
-                                        <TextBox
-                                            Text="{Binding SurchargePercent,
-                                                StringFormat={}{0:0.##},
-                                                UpdateSourceTrigger=LostFocus}"
-                                            Style="{StaticResource CompactDecimalInputStyle}"/>
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="SPECIFICATION" Style="{StaticResource FieldLabelStyle}" Margin="0,0,0,4"/>
+                                        <controls:AutoCompleteTextBox
+                                            ItemsSource="{Binding FilteredSpecs}"
+                                            Text="{Binding SpecTypedText,
+                                                Mode=TwoWay,
+                                                UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedItem="{Binding SelectedSpecItem,
+                                                Mode=TwoWay}"
+                                            IsDropDownOpen="{Binding IsSpecDropdownOpen,
+                                                Mode=TwoWay}"
+                                            DisplayMemberPath="SpecName"/>
                                     </StackPanel>
-
-                                    <Button Grid.Column="4"
+                                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
+                                        <TextBlock Text="BASE" Style="{StaticResource HeaderLabelStyle}"/>
+                                        <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
+                                                 Style="{StaticResource CompactDecimalInputStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,8,2">
+                                        <TextBlock Text="SURCH %" Style="{StaticResource HeaderLabelStyle}"/>
+                                        <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
+                                                 Style="{StaticResource CompactDecimalInputStyle}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="7"
                                             Command="{Binding DataContext.RemoveSpecGroupCommand,
                                                 RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Background="Transparent"
                                             BorderThickness="0"
                                             Cursor="Hand"
+                                            VerticalAlignment="Bottom"
                                             ToolTip="Remove Spec Group">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border x:Name="RB"
-                                                        Background="Transparent"
-                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                        Padding="8,6">
-                                                    <TextBlock Text="&#xE74D;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="14"
-                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                <Border x:Name="RB" Background="Transparent"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,6">
+                                                    <TextBlock Text="&#xE74D;" FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="14" Foreground="{DynamicResource DangerBrush}"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
                                                     <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter TargetName="RB"
-                                                                Property="Background"
-                                                                Value="{DynamicResource TintRedBrush}"/>
+                                                        <Setter TargetName="RB" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsEnabled" Value="False">
-                                                        <Setter TargetName="RB"
-                                                                Property="Opacity" Value="0.35"/>
+                                                        <Setter TargetName="RB" Property="Opacity" Value="0.35"/>
                                                     </Trigger>
                                                 </ControlTemplate.Triggers>
                                             </ControlTemplate>
@@ -766,9 +745,8 @@ PRESERVED EXACTLY:
                                     </Button>
                                 </Grid>
 
-                                <!-- Three-price display -->
                                <StackPanel Orientation="Horizontal"
-                                            Margin="0,0,0,14">
+                                            Margin="0,0,0,8">
 
                                     <!-- IMPORTED PRICE — fixed indigo badge -->
                                     <Border Background="{DynamicResource TintIndigoBrush}"
@@ -934,38 +912,7 @@ PRESERVED EXACTLY:
 
                                 </StackPanel>
 
-                                <!-- Glass type + specification -->
-                                <Grid Margin="0,0,0,14">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="200"/>
-                                        <ColumnDefinition Width="14"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="GLASS TYPE"
-                                                   Style="{StaticResource FieldLabelStyle}"/>
-                                        <ComboBox
-                                            ItemsSource="{Binding DataContext.GlassTypeOptions,
-                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            SelectedItem="{Binding SelectedGlassType}"
-                                            Style="{StaticResource ThemedComboBoxStyle}"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock
-                                            Text="SPECIFICATION (pick saved or type custom)"
-                                            Style="{StaticResource FieldLabelStyle}"/>
-                                        <controls:AutoCompleteTextBox
-                                            ItemsSource="{Binding FilteredSpecs}"
-                                            Text="{Binding SpecTypedText,
-                                                Mode=TwoWay,
-                                                UpdateSourceTrigger=PropertyChanged}"
-                                            SelectedItem="{Binding SelectedSpecItem,
-                                                Mode=TwoWay}"
-                                            IsDropDownOpen="{Binding IsSpecDropdownOpen,
-                                                Mode=TwoWay}"
-                                            DisplayMemberPath="SpecName"/>
-                                    </StackPanel>
-                                </Grid>
+
 
                                 <!-- GLASS PANEL ITEMS TABLE -->
                                 <Border
@@ -1570,45 +1517,7 @@ PRESERVED EXACTLY:
                 </Button>
             </Grid>
 
-            <!-- ── Add spec group button ── -->
-            <Button Command="{Binding AddSpecGroupCommand}"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Margin="0,4,0,0"
-                    Cursor="Hand"
-                    HorizontalAlignment="Left"
-                    ToolTip="Add new spec group (Ctrl+Shift+N)">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="AGB"
-                                Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="16,10">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="+"
-                                           FontSize="16"
-                                           FontWeight="Bold"
-                                           Foreground="White"
-                                           Margin="0,0,10,0"/>
-                                <TextBlock Text="ADD NEW SPEC GROUP"
-                                           FontSize="12"
-                                           FontWeight="Bold"
-                                           Foreground="White"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="AGB"
-                                        Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="AGB"
-                                        Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+
 
             <!-- ══════════════════════════════════════════════════════════
                  GRAND TOTAL SUMMARY

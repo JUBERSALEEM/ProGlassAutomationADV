@@ -226,8 +226,26 @@
         <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="3,0,0,0"/>
+        <Setter Property="Padding"         Value="12,8"/>
+        <Setter Property="Margin"          Value="0,0,0,6"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiMetricStripStyle" TargetType="Border">
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding"         Value="4,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiCostTileStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding"         Value="10,8"/>
-        <Setter Property="Margin"          Value="0,0,0,4"/>
+        <Setter Property="Margin"          Value="0,0,6,0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

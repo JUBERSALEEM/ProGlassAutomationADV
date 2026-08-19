@@ -37,13 +37,7 @@ Theme: DynamicResource only (light / dark / Monet).
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,8">
-            <TextBlock Text="CLIENT PROFILE &amp; REFERENCES"
-                       Style="{StaticResource ModulePageTitleStyle}"/>
-            <TextBlock Text="Customer identity, billing address and the salesman on this quotation."
-                       Style="{StaticResource ModulePageSubtitleStyle}"
-                       TextWrapping="Wrap"/>
-        </StackPanel>
+        <Border Grid.Row="0" Height="0"/>
 
         <Border Grid.Row="1" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
             <Grid>
