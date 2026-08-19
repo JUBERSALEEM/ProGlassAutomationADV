@@ -156,14 +156,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         if (!string.IsNullOrWhiteSpace(_invoice.Client?.CustomerTrn))
                             PdfChrome.LabelValue(col, "TRN", _invoice.Client.CustomerTrn);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectIdentifierName))
-                            PdfChrome.LabelValue(col, "Identifier",
+                            PdfChrome.LabelValue(col, "Project Name",
                                 _invoice.Project.ProjectIdentifierName);
-                        if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectContractNo))
-                            PdfChrome.LabelValue(col, "Name / No",
-                                _invoice.Project.ProjectContractNo);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectReference))
-                            PdfChrome.LabelValue(col, "Reference",
+                            PdfChrome.LabelValue(col, "Project Reference",
                                 _invoice.Project.ProjectReference);
+                        if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectContractNo))
+                            PdfChrome.LabelValue(col, "Contract No",
+                                _invoice.Project.ProjectContractNo);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.LpoNumber))
                             PdfChrome.LabelValue(col, "LPO", _invoice.Project.LpoNumber);
                     }));

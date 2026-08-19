@@ -115,12 +115,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 ProformaId = company.ProformaId ?? "",
                 CompanyName = company.CompanyName ?? "",
                 CustomerName = client.CustomerName ?? "",
-                // List / search / PDF "PROJECT" is the real project text
-                // (reference), not the unused identifier designation.
+                // Indexed list column is Project Name. Reference stays
+                // in the snapshot so JO / DN / TI can print both.
                 ProjectName = FirstNonEmpty(
-                    project.ProjectReference,
-                    project.ProjectContractNo,
-                    project.ProjectIdentifierName),
+                    project.ProjectIdentifierName,
+                    project.ProjectReference),
                 Status = effectiveStatus,
                 IssueDate = company.IssueDate,
                 ValidUntil = company.ValidUntil,
@@ -169,10 +168,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     attentionExecutiveName: client.AttentionExecutiveName ?? "",
                     clientContactPhone: client.ClientContactPhone ?? "",
 
-                    projectIdentifierName: FirstNonEmpty(
-                        project.ProjectReference,
-                        project.ProjectIdentifierName,
-                        project.ProjectContractNo),
+                    projectIdentifierName: project.ProjectIdentifierName ?? "",
                     projectContractNo: project.ProjectContractNo ?? "",
                     projectReference: project.ProjectReference ?? "",
                     siteDeliveryLocation: project.SiteDeliveryLocation ?? "",
@@ -229,13 +225,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
                 Project = new ProjectSnapshot
                 {
-                    // Keep identifier populated from the real project name so
-                    // older JO/DN readers that still look at IdentifierName
-                    // do not persist an empty project.
-                    ProjectIdentifierName = FirstNonEmpty(
-                        project.ProjectReference,
-                        project.ProjectIdentifierName,
-                        project.ProjectContractNo),
+                    ProjectIdentifierName = project.ProjectIdentifierName ?? "",
                     ProjectContractNo = project.ProjectContractNo ?? "",
                     ProjectReference = project.ProjectReference ?? "",
                     SiteDeliveryLocation = project.SiteDeliveryLocation ?? "",

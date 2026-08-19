@@ -34,12 +34,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
             UsageCount > 0 ? $"Used {UsageCount}×" : "New";
 
         /// <summary>
-        /// Canonical project label for lists: reference first, then contract, then identifier.
+        /// List title is Project Name. Reference is shown on the subtitle row.
         /// </summary>
         public string DisplayProjectName =>
-            !string.IsNullOrWhiteSpace(ProjectReference) ? ProjectReference
-            : !string.IsNullOrWhiteSpace(ProjectContractNo) ? ProjectContractNo
-            : ProjectIdentifierName;
+            !string.IsNullOrWhiteSpace(ProjectIdentifierName) ? ProjectIdentifierName
+            : !string.IsNullOrWhiteSpace(ProjectReference) ? ProjectReference
+            : ProjectContractNo;
 
         /// <summary>Customer context shown on card.</summary>
         public string CustomerPreview =>

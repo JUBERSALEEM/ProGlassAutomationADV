@@ -50,7 +50,7 @@
                                    TextTrimming="CharacterEllipsis">
                             <Run Text="{Binding ProjectIdentifierName, Mode=OneWay}"/>
                             <Run Text="  ·  "/>
-                            <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
+                            <Run Text="{Binding ProjectReference, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
                     <StackPanel Grid.Column="1" HorizontalAlignment="Right">

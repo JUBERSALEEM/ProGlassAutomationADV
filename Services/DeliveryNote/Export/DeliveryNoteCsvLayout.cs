@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
@@ -55,7 +55,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             writer.WriteField("DeliveryNoteId");
             writer.WriteField("JobOrderId");
             writer.WriteField("Customer");
-            writer.WriteField("Project");
+            writer.WriteField("ProjectName");
+            writer.WriteField("ProjectReference");
             writer.WriteField("Status");
             writer.WriteField("DeliveryType");
             writer.WriteField("IsFoc");
@@ -83,6 +84,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             string joId = _entity.JobOrderId;
             string customer = _joRef.CustomerName;
             string project = _joRef.ProjectName;
+            string projectReference = _joRef.ProjectReference;
             string status = _entity.Status;
             string type = _entity.DeliveryType;
             string foc = _entity.IsFoc ? "Yes" : "No";
@@ -107,6 +109,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 writer.WriteField(joId);
                 writer.WriteField(customer);
                 writer.WriteField(project);
+                writer.WriteField(projectReference);
                 writer.WriteField(status);
                 writer.WriteField(type);
                 writer.WriteField(foc);

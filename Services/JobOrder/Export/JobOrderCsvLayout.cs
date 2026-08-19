@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
@@ -62,9 +62,9 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             writer.WriteField("JobOrderId");
             writer.WriteField("SourceProformaId");
             writer.WriteField("Customer");
-            writer.WriteField("ProjectIdentifierName");   // CHAT 20: was "Project"
-            writer.WriteField("ProjectNameNo");           // CHAT 20: NEW
-            writer.WriteField("ProjectReference");        // CHAT 20: NEW
+            writer.WriteField("ProjectName");
+            writer.WriteField("ProjectReference");
+            writer.WriteField("ContractNo");
             writer.WriteField("LpoNumber");               // CHAT 20: NEW
             writer.WriteField("Status");
             writer.WriteField("Priority");
@@ -113,8 +113,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     writer.WriteField(sourcePi);
                     writer.WriteField(customer);
                     writer.WriteField(projectIdentifier);
-                    writer.WriteField(projectNameNo);
                     writer.WriteField(projectReference);
+                    writer.WriteField(projectNameNo);
                     writer.WriteField(lpoNumber);
                     writer.WriteField(status);
                     writer.WriteField(priority);

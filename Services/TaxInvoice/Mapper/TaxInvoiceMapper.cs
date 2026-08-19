@@ -116,11 +116,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 SequenceNumber = sequenceNumber,
                 Status = state.Status,
                 CustomerName = state.CustomerName,
-                // Store ProjectContractNo in entity.ProjectName for Statement filter matching.
-                // Falls back to ProjectIdentifierName if ContractNo is empty.
-                ProjectName = !string.IsNullOrWhiteSpace(state.ProjectContractNo)
-                    ? state.ProjectContractNo
-                    : state.ProjectIdentifierName,
+                ProjectName = !string.IsNullOrWhiteSpace(state.ProjectIdentifierName)
+                    ? state.ProjectIdentifierName
+                    : state.ProjectReference,
                 CompanyName = state.CompanyName,
                 CompanyTrn = state.CompanyTrn,
                 IssueDate = state.IssueDate == default ? now : state.IssueDate,

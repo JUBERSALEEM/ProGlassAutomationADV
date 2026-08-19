@@ -133,7 +133,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         col.Item().Text(_joRef.CustomerName)
                             .FontSize(DocumentStyle.FontSizeH2).Bold();
                         if (!string.IsNullOrWhiteSpace(_joRef.ProjectName))
-                            PdfChrome.LabelValue(col, "Project", _joRef.ProjectName);
+                            PdfChrome.LabelValue(col, "Project Name", _joRef.ProjectName);
+                        if (!string.IsNullOrWhiteSpace(_joRef.ProjectReference))
+                            PdfChrome.LabelValue(col, "Project Reference", _joRef.ProjectReference);
                         if (!string.IsNullOrWhiteSpace(_joRef.CompanyTrn))
                             PdfChrome.LabelValue(col, "TRN", _joRef.CompanyTrn);
                         PdfChrome.LabelValue(col, "Job order", _entity.JobOrderId);

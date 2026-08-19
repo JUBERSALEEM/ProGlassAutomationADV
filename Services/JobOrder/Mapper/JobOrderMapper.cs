@@ -97,11 +97,11 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
         private static string ResolveProjectName(ProjectSnapshot? project)
         {
             if (project == null) return string.Empty;
+            if (!string.IsNullOrWhiteSpace(project.ProjectIdentifierName))
+                return project.ProjectIdentifierName.Trim();
             if (!string.IsNullOrWhiteSpace(project.ProjectReference))
                 return project.ProjectReference.Trim();
-            if (!string.IsNullOrWhiteSpace(project.ProjectContractNo))
-                return project.ProjectContractNo.Trim();
-            return project.ProjectIdentifierName?.Trim() ?? string.Empty;
+            return project.ProjectContractNo?.Trim() ?? string.Empty;
         }
 
         public static string DeriveJobOrderId(string? proformaId)

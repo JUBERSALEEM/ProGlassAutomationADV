@@ -1,4 +1,4 @@
-<!-- Step 3 — flat form. PROJECT REFERENCE only. No identifier. No cards. -->
+<!-- Step 3 — PROJECT NAME then PROJECT REFERENCE. No cards. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -21,11 +21,18 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <TextBlock Text="PROJECT" Style="{StaticResource PiSectionLabelStyle}"/>
+                <TextBlock Text="PROJECT NAME" Style="{StaticResource PiFieldLabelStyle}"
+                           ToolTip="Project name as it appears on lists and invoices"/>
+                <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="e.g. IMAD HABIB" Margin="0,0,0,12"
+                         AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
+                         AutomationProperties.Name="Project name"/>
+
                 <TextBlock Text="PROJECT REFERENCE" Style="{StaticResource PiFieldLabelStyle}"
-                           ToolTip="Full project reference as it appears on the invoice"/>
+                           ToolTip="Full descriptive project reference"/>
                 <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="e.g. HOUSE FOR IMAD HABIB" Margin="0,0,0,12"
-                         AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
+                         AutomationProperties.AutomationId="ProformaInvoice.ProjectReference"
                          AutomationProperties.Name="Project reference"/>
 
                 <TextBlock Text="CONTRACT NO" Style="{StaticResource PiFieldLabelStyle}"/>
@@ -175,9 +182,9 @@
                                         <TextBlock Text="{Binding DisplayProjectName}" FontSize="12" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
-                                            <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
+                                            <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
-                                            <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"/>
+                                            <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
                                     <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="10"

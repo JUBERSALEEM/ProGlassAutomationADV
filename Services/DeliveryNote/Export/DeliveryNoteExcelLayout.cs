@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
@@ -87,6 +87,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             SectionHeader(ws, r, "CUSTOMER"); r++;
             LabelValue(ws, r++, "Customer Name", _joRef.CustomerName);
             LabelValue(ws, r++, "Project Name", _joRef.ProjectName);
+            LabelValue(ws, r++, "Project Reference", _joRef.ProjectReference);
             LabelValue(ws, r++, "Company Name", _joRef.CompanyName);
             LabelValue(ws, r++, "Company TRN", _joRef.CompanyTrn);
             LabelValue(ws, r++, "Location", _joRef.CompanyLocation);

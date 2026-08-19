@@ -75,7 +75,7 @@
                                FontSize="13" FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo, FallbackValue=—}"
+                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference, FallbackValue=—}"
                                FontSize="11"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextTrimming="CharacterEllipsis"/>

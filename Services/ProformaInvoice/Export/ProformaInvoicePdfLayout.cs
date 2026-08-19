@@ -147,8 +147,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         {
             PdfChrome.InfoCard(container, "Project", col =>
             {
-                PdfChrome.LabelValue(col, "Project Reference", _ctx.ProjectName);
-                PdfChrome.LabelValue(col, "Code / ID", _ctx.ProjectContractNo);
+                PdfChrome.LabelValue(col, "Project Name", _ctx.ProjectName);
+                PdfChrome.LabelValue(col, "Project Reference", _ctx.ProjectReference);
+                PdfChrome.LabelValue(col, "Contract No", _ctx.ProjectContractNo);
                 PdfChrome.LabelValue(col, "Site", _ctx.SiteDelivery);
                 PdfChrome.LabelValue(col, "LPO / PO", _ctx.LpoNumber);
                 PdfChrome.LabelValue(col, "Salesman", _ctx.SalesRepresentative);
@@ -432,10 +433,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 ValidUntil = snapshot.Company?.ValidUntil.ToString("dd MMM yyyy") ?? "",
                 ProformaStatus = snapshot.Company?.ProformaStatus ?? entity.Status,
 
-                ProjectName = snapshot.Project?.ProjectReference
-                    ?? snapshot.Project?.ProjectContractNo
-                    ?? snapshot.Project?.ProjectIdentifierName
+                ProjectName = snapshot.Project?.ProjectIdentifierName
                     ?? entity.ProjectName,
+                ProjectReference = snapshot.Project?.ProjectReference ?? "",
                 ProjectContractNo = snapshot.Project?.ProjectContractNo ?? "",
                 SiteDelivery = snapshot.Project?.SiteDeliveryLocation ?? "",
                 LpoNumber = snapshot.Project?.LpoNumber ?? "",
@@ -711,6 +711,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             public string ValidUntil { get; set; } = "";
             public string ProformaStatus { get; set; } = "";
             public string ProjectName { get; set; } = "";
+            public string ProjectReference { get; set; } = "";
             public string ProjectContractNo { get; set; } = "";
             public string SiteDelivery { get; set; } = "";
             public string LpoNumber { get; set; } = "";

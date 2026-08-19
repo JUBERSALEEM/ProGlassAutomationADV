@@ -279,6 +279,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        private string _projectReference = "";
+        public string ProjectReference
+        {
+            get => _projectReference;
+            private set
+            {
+                if (_projectReference == value) return;
+                _projectReference = value;
+                OnPropertyChanged();
+            }
+        }
+
         private string _companyName = "";
         public string CompanyName
         {
@@ -1056,6 +1068,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 var joRef = _snapshot?.JobOrderRef;
                 CustomerName = joRef?.CustomerName ?? _entity.CustomerName;
                 ProjectName = joRef?.ProjectName ?? _entity.ProjectName;
+                ProjectReference = joRef?.ProjectReference ?? "";
                 CompanyName = joRef?.CompanyName ?? "";
                 CompanyTrn = joRef?.CompanyTrn ?? "";
 

@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
@@ -107,9 +107,9 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             // — they didn't match what user sees in Step 3.
             // Also added Project Reference row (was completely missing).
             SectionHeader(ws, r, "PROJECT"); r++;
-            LabelValue(ws, r++, "Project Identifier Name", _invoice.Project?.ProjectIdentifierName ?? "");
-            LabelValue(ws, r++, "Project Name / No", _invoice.Project?.ProjectContractNo ?? "");
+            LabelValue(ws, r++, "Project Name", _invoice.Project?.ProjectIdentifierName ?? "");
             LabelValue(ws, r++, "Project Reference", _invoice.Project?.ProjectReference ?? "");
+            LabelValue(ws, r++, "Contract No", _invoice.Project?.ProjectContractNo ?? "");
             LabelValue(ws, r++, "LPO Number", _invoice.Project?.LpoNumber ?? "");
             LabelValue(ws, r++, "Site Location", _invoice.Project?.SiteDeliveryLocation ?? "");
             r++;

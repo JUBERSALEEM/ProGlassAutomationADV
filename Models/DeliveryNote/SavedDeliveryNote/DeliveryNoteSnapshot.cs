@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
@@ -63,6 +63,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string ProformaId { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
+        public string ProjectReference { get; set; } = "";
         public string CompanyName { get; set; } = "";
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";

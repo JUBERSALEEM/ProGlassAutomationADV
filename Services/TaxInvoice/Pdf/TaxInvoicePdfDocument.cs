@@ -210,10 +210,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     row.RelativeItem().Column(left =>
                     {
                         if (!string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName))
-                            PdfChrome.LabelValue(left, "Identifier",
+                            PdfChrome.LabelValue(left, "Project Name",
                                 _ctx.ProjectIdentifierName);
                         if (!string.IsNullOrWhiteSpace(_ctx.ProjectContractNo))
-                            PdfChrome.LabelValue(left, "Name / No",
+                            PdfChrome.LabelValue(left, "Contract No",
                                 _ctx.ProjectContractNo);
                     });
                     row.ConstantItem(16);
