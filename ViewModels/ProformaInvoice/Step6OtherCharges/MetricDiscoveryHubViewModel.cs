@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step6OtherCharges/MetricDiscoveryHubViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 20 — RESET BUG FIX
@@ -226,6 +226,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     existing.SpecDisplayName = BuildSpecDisplayName(g);
                     existing.GlassType = g.SelectedGlassType ?? "";
                     existing.IsDoubleGlass = isDoubleGlass;
+                    existing.IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
+                        g.SelectedSpecName, g.SelectedGlassType);
                     existing.Lm1 = System.Math.Round(g.FooterTotalLm1, 2);
                     existing.Lm2 = System.Math.Round(g.FooterTotalLm2, 2);
                     existing.Sqm1 = System.Math.Round(g.FooterTotalSqm, 2);
@@ -242,6 +244,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         SpecDisplayName = BuildSpecDisplayName(g),
                         GlassType = g.SelectedGlassType ?? "",
                         IsDoubleGlass = isDoubleGlass,
+                        IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
+                            g.SelectedSpecName, g.SelectedGlassType),
                         Lm1 = System.Math.Round(g.FooterTotalLm1, 2),
                         Lm2 = System.Math.Round(g.FooterTotalLm2, 2),
                         Sqm1 = System.Math.Round(g.FooterTotalSqm, 2),

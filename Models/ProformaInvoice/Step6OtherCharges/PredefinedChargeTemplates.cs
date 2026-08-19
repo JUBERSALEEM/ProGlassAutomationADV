@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 {
@@ -72,10 +72,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             {
                 Key = "POLISH",
                 ChargeName = "Polish (lm)",
-                Description = "Continuous flat edge polishing, arrising, and buffing. Sub-type controls formula.",
+                Description = "SGU, mixed laminate (HD Grey + Clear) or single-pane polish. Sub-type controls formula.",
                 Unit = OtherChargeUnit.Lm,
                 DefaultRate = 6m,
                 DefaultSourceKey = "" // Polish uses sub-type, not source dropdown
+            },
+            new Template
+            {
+                Key = "POLISH_MATCHED_LAM",
+                ChargeName = "Polish — same-glass laminate (2×)",
+                Description = "Auto 2× when both panes match (Clear + Clear LAM / DGU). Mixed glass stays on regular Polish.",
+                Unit = OtherChargeUnit.Lm,
+                DefaultRate = 6m,
+                DefaultSourceKey = ""
             },
             new Template
             {

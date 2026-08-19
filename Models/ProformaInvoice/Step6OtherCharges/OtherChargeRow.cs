@@ -46,7 +46,14 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         public OtherChargeUnit Unit { get; set; }
 
         /// <summary>True if this is a Polish row (activates sub-type UI).</summary>
-        public bool IsPolishRow => TemplateKey == "POLISH";
+        public bool IsPolishRow => TemplateKey == "POLISH"
+            || TemplateKey == "POLISH_MATCHED_LAM";
+
+        /// <summary>
+        /// Same-glass laminate / matching DGU — polish both panes at 2×
+        /// even when the grid only has W1/H1.
+        /// </summary>
+        public bool IsMatchedLamPolishRow => TemplateKey == "POLISH_MATCHED_LAM";
 
         /// <summary>
         /// True if this is a Delivery row (Chat 7 Bug 4c hack).
@@ -337,17 +344,27 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 
                 if (IsPolishRow)
                 {
+                    string prefix = IsMatchedLamPolishRow ? "SAME-GLASS LAM 2×" : "";
                     if (IsCustomPolish)
                     {
-                        hint = string.IsNullOrWhiteSpace(_customPolishDescription)
-                            ? "(CUSTOM POLISH)"
-                            : $"({_customPolishDescription.ToUpper()})";
+                        string custom = string.IsNullOrWhiteSpace(_customPolishDescription)
+                            ? "CUSTOM POLISH"
+                            : _customPolishDescription.ToUpper();
+                        hint = string.IsNullOrEmpty(prefix)
+                            ? $"({custom})"
+                            : $"({prefix} · {custom})";
                     }
                     else
                     {
-                        hint = _selectedPolishSubType == null
-                            ? ""
-                            : $"({_selectedPolishSubType.DisplayLabel.ToUpper()})";
+                        string sub = _selectedPolishSubType?.DisplayLabel.ToUpper() ?? "";
+                        if (!string.IsNullOrEmpty(prefix) && sub.Length > 0)
+                            hint = $"({prefix} · {sub})";
+                        else if (!string.IsNullOrEmpty(prefix))
+                            hint = $"({prefix})";
+                        else if (sub.Length > 0)
+                            hint = $"({sub})";
+                        else
+                            hint = "";
                     }
                 }
                 else

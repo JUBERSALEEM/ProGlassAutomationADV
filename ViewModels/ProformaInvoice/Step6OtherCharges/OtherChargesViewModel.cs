@@ -324,7 +324,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 decimal totalLm =
                     ProformaChargeMetricsCalculator.ComputePolishLm(
                         scoped,
-                        row.SelectedPolishSubType.Type.ToString());
+                        row.SelectedPolishSubType.Type.ToString(),
+                        matchedSameGlassOnly: row.IsMatchedLamPolishRow);
 
                 row.SetCalculatedPolishQty(totalLm);
             }
@@ -418,7 +419,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         private void OnSpecGroupPropertyChanged(
             object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(SpecGroup.SelectedGlassType))
+            if (e.PropertyName is nameof(SpecGroup.SelectedGlassType)
+                or nameof(SpecGroup.SelectedSpecName))
             {
                 RequestPolishRecalculation();
                 WastagesSection?.SyncAllWastageSources();

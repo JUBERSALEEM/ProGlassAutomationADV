@@ -539,7 +539,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         metricQty = 1m;
                         unitLabel = "TRIP";
                     }
-                    else if (c.TemplateKey == "POLISH")
+                    else if (c.TemplateKey == "POLISH"
+                          || c.TemplateKey == "POLISH_MATCHED_LAM")
                     {
                         if (c.PolishSubType == "Custom")
                         {
@@ -552,8 +553,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             var polishGroups = ProformaChargeMetricsCalculator.FilterSpecs(
                                 snapshot.SpecGroups, c.CheckedSpecGroupNumbers);
                             metricQty = ProformaChargeMetricsCalculator
-                                .ComputePolishLm(polishGroups, c.PolishSubType);
-                            if (!string.IsNullOrWhiteSpace(c.PolishSubType))
+                                .ComputePolishLm(
+                                    polishGroups,
+                                    c.PolishSubType,
+                                    matchedSameGlassOnly: c.TemplateKey == "POLISH_MATCHED_LAM");
+                            if (c.TemplateKey == "POLISH_MATCHED_LAM")
+                                friendlyName = "Polish — same-glass laminate (2×)";
+                            else if (!string.IsNullOrWhiteSpace(c.PolishSubType))
                                 friendlyName = $"Polish — {c.PolishSubType}";
                         }
                     }

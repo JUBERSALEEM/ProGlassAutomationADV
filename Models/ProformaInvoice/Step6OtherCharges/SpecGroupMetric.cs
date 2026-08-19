@@ -1,73 +1,103 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
-// FILE: Models/ProformaInvoice/Step6OtherCharges/SpecGroupMetric.cs
-// ═══════════════════════════════════════════════════════════════════════
-// CHAT 17 — NEW FILE
-//
-//   Simple POCO snapshot of one spec group's aggregated metrics.
-//   Populated by MetricDiscoveryHubViewModel.Refresh() per spec group.
-//   Consumed by OtherChargesViewModel.BuildSourcePool() to generate
-//   per-spec GridSourceOption entries in the "Charge Basis" dropdown.
-//
-//   NOT a ViewModel — no INotifyPropertyChanged. Rebuilt fresh
-//   on every Refresh() call. Immutable after construction.
-// ═══════════════════════════════════════════════════════════════════════
+using ProGlassAutomation.ViewModels;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 {
     /// <summary>
-    /// Aggregated metrics for a single spec group.
-    /// One instance per spec group, rebuilt on every MetricHub Refresh.
+    /// Aggregated metrics for a single spec group imported from Step 5.
+    /// Bound on the Step 6 top panel so LM1 / LM2 / SQM stay live.
     /// </summary>
-    public class SpecGroupMetric
+    public class SpecGroupMetric : ViewModelBase
     {
-        /// <summary>Spec group number (1-based, matches GroupNumber on SpecGroup VM).</summary>
-        public int SpecGroupNumber { get; set; }
+        private int _specGroupNumber;
+        public int SpecGroupNumber
+        {
+            get => _specGroupNumber;
+            set { if (_specGroupNumber == value) return; _specGroupNumber = value; OnPropertyChanged(); }
+        }
 
-        /// <summary>
-        /// Display name for dropdown grouping header.
-        /// Format: "SPEC 1 — 6mm Clear Tempered"
-        /// Built from SpecGroup.GroupNumber + SpecGroup.SelectedSpecName.
-        /// </summary>
-        public string SpecDisplayName { get; set; } = "";
+        private string _specDisplayName = "";
+        public string SpecDisplayName
+        {
+            get => _specDisplayName;
+            set { if (_specDisplayName == value) return; _specDisplayName = value; OnPropertyChanged(); }
+        }
 
-        /// <summary>Selected glass type code: SGU / DGU / LAM / DGU+LAM.</summary>
-        public string GlassType { get; set; } = "";
+        private string _glassType = "";
+        public string GlassType
+        {
+            get => _glassType;
+            set { if (_glassType == value) return; _glassType = value; OnPropertyChanged(); }
+        }
 
-        /// <summary>True for DGU, LAM, DGU+LAM — has two glass panes per unit.</summary>
-        public bool IsDoubleGlass { get; set; }
+        private bool _isDoubleGlass;
+        public bool IsDoubleGlass
+        {
+            get => _isDoubleGlass;
+            set { if (_isDoubleGlass == value) return; _isDoubleGlass = value; OnPropertyChanged(); }
+        }
 
-        // ── Perimeter (Linear Meters) ──────────────────────────────────
+        private bool _isMatchedSameGlass;
+        public bool IsMatchedSameGlass
+        {
+            get => _isMatchedSameGlass;
+            set
+            {
+                if (_isMatchedSameGlass == value) return;
+                _isMatchedSameGlass = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MatchHint));
+            }
+        }
 
-        /// <summary>LM1 = sum of 2×(W1+H1)/1000 × Qty across all rows in this spec group.</summary>
-        public decimal Lm1 { get; set; }
+        public string MatchHint => IsMatchedSameGlass
+            ? "Same glass · 2× polish"
+            : "";
 
-        /// <summary>LM2 = sum of 2×(W2+H2)/1000 × Qty (zero for SGU).</summary>
-        public decimal Lm2 { get; set; }
+        private decimal _lm1;
+        public decimal Lm1
+        {
+            get => _lm1;
+            set { if (_lm1 == value) return; _lm1 = value; OnPropertyChanged(); OnPropertyChanged(nameof(LmCombined)); }
+        }
 
-        /// <summary>LM1 + LM2.</summary>
+        private decimal _lm2;
+        public decimal Lm2
+        {
+            get => _lm2;
+            set { if (_lm2 == value) return; _lm2 = value; OnPropertyChanged(); OnPropertyChanged(nameof(LmCombined)); }
+        }
+
         public decimal LmCombined => Lm1 + Lm2;
 
-        // ── Area (Square Meters) ───────────────────────────────────────
+        private decimal _sqm1;
+        public decimal Sqm1
+        {
+            get => _sqm1;
+            set { if (_sqm1 == value) return; _sqm1 = value; OnPropertyChanged(); OnPropertyChanged(nameof(SqmCombined)); }
+        }
 
-        /// <summary>SQM1 = sum of (W1×H1)/1000000 × Qty.</summary>
-        public decimal Sqm1 { get; set; }
+        private decimal _sqm2;
+        public decimal Sqm2
+        {
+            get => _sqm2;
+            set { if (_sqm2 == value) return; _sqm2 = value; OnPropertyChanged(); OnPropertyChanged(nameof(SqmCombined)); }
+        }
 
-        /// <summary>SQM2 = sum of (W2×H2)/1000000 × Qty (zero for SGU).</summary>
-        public decimal Sqm2 { get; set; }
-
-        /// <summary>SQM1 + SQM2.</summary>
         public decimal SqmCombined => Sqm1 + Sqm2;
 
-        // ── Quantity ───────────────────────────────────────────────────
+        private int _qty;
+        public int Qty
+        {
+            get => _qty;
+            set
+            {
+                if (_qty == value) return;
+                _qty = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PhysicalPanes));
+            }
+        }
 
-        /// <summary>Total pieces (sum of Qty across all rows).</summary>
-        public int Qty { get; set; }
-
-        /// <summary>
-        /// Physical pane count:
-        ///   SGU → Qty × 1
-        ///   DGU/LAM/DGU+LAM → Qty × 2
-        /// </summary>
         public int PhysicalPanes => IsDoubleGlass ? Qty * 2 : Qty;
     }
 }

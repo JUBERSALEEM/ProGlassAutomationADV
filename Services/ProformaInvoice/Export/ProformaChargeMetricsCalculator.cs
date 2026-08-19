@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -128,7 +129,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         /// polish is length-based (LM), not area-based (SQM).
         /// </summary>
         public static decimal ComputePolishLm(
-            List<SpecGroupSnapshot>? specGroups, string? polishSubType)
+            List<SpecGroupSnapshot>? specGroups,
+            string? polishSubType,
+            bool matchedSameGlassOnly = false)
         {
             if (specGroups == null || string.IsNullOrWhiteSpace(polishSubType))
                 return 0m;
@@ -138,6 +141,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             foreach (var g in specGroups)
             {
                 if (g.ItemRows == null) continue;
+
+                bool matched = LaminateGlassMatcher.IsMatchedSameGlass(
+                    g.SelectedSpecName, g.SelectedGlassType);
+                if (matchedSameGlassOnly && !matched)
+                    continue;
 
                 bool isDoubleGlass =
                     g.SelectedGlassType == "DGU"
@@ -151,8 +159,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     decimal lm = 0m;
                     if (r.W1 > 0 && r.H1 > 0)
                         lm += CalcPolishSingle(r.W1, r.H1, polishSubType);
+
                     if (isDoubleGlass && r.W2 > 0 && r.H2 > 0)
+                    {
                         lm += CalcPolishSingle(r.W2, r.H2, polishSubType);
+                    }
+                    else if (matchedSameGlassOnly && matched
+                             && r.W1 > 0 && r.H1 > 0)
+                    {
+                        // Same-glass LAM often only has W1/H1 filled —
+                        // still polish both panes.
+                        lm += CalcPolishSingle(r.W1, r.H1, polishSubType);
+                    }
 
                     totalLm += lm * r.Qty;
                 }
