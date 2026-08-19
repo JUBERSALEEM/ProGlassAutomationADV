@@ -2,7 +2,7 @@
 
 **Status:** Steps 1–9 rebuilt to the approved mockup compositions (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
 
-Mockups in this folder are **structure boards**, not final pixels. Garbled sample text in the PNGs is image-model noise. The rules below are what was built.
+The PNG mockups in this folder are the visual source of truth for placement, field height (34 px), grid row height (40 px), chips (34 px), apply button (40 px), and 3D glass drawings. Garbled sample text in the PNGs is image-model noise. Theme colors stay `DynamicResource` so Light / Dark / Monet still work.
 
 Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`). Canvas / surface / outline / text / accent / success / danger all come from `DynamicResource`. Light, Dark and Monet re-skin the same layout.
 

@@ -107,7 +107,7 @@ Industrial wizard chrome (approved spec).
             </Grid.Style>
 
             <Grid.RowDefinitions>
-                <RowDefinition Height="32"/>
+                <RowDefinition Height="40"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="48"/>
             </Grid.RowDefinitions>
@@ -186,14 +186,14 @@ Industrial wizard chrome (approved spec).
                                                     Background="Transparent"
                                                     BorderBrush="Transparent"
                                                     BorderThickness="0"
-                                                    Height="32"
-                                                    Padding="4,0"
+                                                    Height="40"
+                                                    Padding="8,0"
                                                     SnapsToDevicePixels="True">
                                                 <StackPanel Orientation="Horizontal"
                                                             VerticalAlignment="Center"
                                                             HorizontalAlignment="Center">
                                                     <Border x:Name="NumberCircle"
-                                                            Width="16" Height="16"
+                                                            Width="20" Height="20"
                                                             CornerRadius="2"
                                                             Background="Transparent"
                                                             BorderBrush="{DynamicResource OutlineBrush}"
@@ -262,7 +262,7 @@ Industrial wizard chrome (approved spec).
             </Border>
 
             <!-- WORKBENCH — no extra wrapping card -->
-            <Grid Grid.Row="1" Margin="16,10,16,8">
+            <Grid Grid.Row="1" Margin="24,12,24,12">
                 <ContentControl Content="{Binding Step1VM}">
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">

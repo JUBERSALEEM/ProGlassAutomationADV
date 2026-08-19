@@ -27,28 +27,28 @@
 
     <UserControl.Resources>
         <Style x:Key="GridCellStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsIntCellStyle}">
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="MinHeight" Value="24"/>
-            <Setter Property="MaxHeight" Value="24"/>
-            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="MaxHeight" Value="36"/>
+            <Setter Property="Padding" Value="8,0"/>
         </Style>
         <Style x:Key="GridDecStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsDecimalCellStyle}">
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="MinHeight" Value="24"/>
-            <Setter Property="MaxHeight" Value="24"/>
-            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="MaxHeight" Value="36"/>
+            <Setter Property="Padding" Value="8,0"/>
         </Style>
         <Style x:Key="GridTextStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsTextCellStyle}">
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="MinHeight" Value="24"/>
-            <Setter Property="MaxHeight" Value="24"/>
-            <Setter Property="Padding" Value="4,0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="MaxHeight" Value="36"/>
+            <Setter Property="Padding" Value="8,0"/>
         </Style>
         <Style x:Key="GridRowStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="MinHeight" Value="26"/>
+            <Setter Property="MinHeight" Value="40"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -58,7 +58,7 @@
                         <Border x:Name="RowBorder"
                                 BorderThickness="0,0,0,1"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                Padding="0,1"
+                                Padding="0,2"
                                 Background="Transparent">
                             <ContentPresenter/>
                         </Border>
@@ -154,7 +154,7 @@
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                               SelectedItem="{Binding SelectedGlassType}"
                                               Style="{StaticResource PiComboBoxStyle}"
-                                              Height="28"/>
+                                              Height="34"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="SPECIFICATION" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
@@ -339,7 +339,6 @@
 
         <summary:GrandTotalSummaryView Grid.Row="2"
                                        DataContext="{Binding SummaryViewModel}"
-                                       Margin="0,6,0,0"
-                                       MaxHeight="120"/>
+                                       Margin="0,8,0,0"/>
     </Grid>
 </UserControl>

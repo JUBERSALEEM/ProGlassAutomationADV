@@ -20,7 +20,7 @@
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding"         Value="14,12"/>
+        <Setter Property="Padding"         Value="20,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -33,7 +33,9 @@
 
     <Style x:Key="PiFieldLabelStyle" TargetType="TextBlock"
            BasedOn="{StaticResource ModuleFieldLabelStyle}">
-        <Setter Property="Margin" Value="0,0,0,4"/>
+        <Setter Property="FontSize"   Value="11"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Margin"     Value="0,0,0,4"/>
     </Style>
 
     <!-- Slim letterhead / saved-profile row. -->
@@ -135,7 +137,7 @@
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Padding"         Value="12,0"/>
-        <Setter Property="Height"          Value="32"/>
+        <Setter Property="Height"          Value="40"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -149,7 +151,7 @@
     </Style>
 
     <Style x:Key="PiFooterGhostButton" TargetType="Button">
-        <Setter Property="Height"          Value="32"/>
+        <Setter Property="Height"          Value="40"/>
         <Setter Property="MinWidth"        Value="88"/>
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Background"      Value="Transparent"/>
@@ -185,7 +187,7 @@
     </Style>
 
     <Style x:Key="PiFooterPrimaryButton" TargetType="Button">
-        <Setter Property="Height"          Value="32"/>
+        <Setter Property="Height"          Value="40"/>
         <Setter Property="MinWidth"        Value="120"/>
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
@@ -294,7 +296,7 @@
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
         <Setter Property="FontSize"                 Value="13"/>
         <Setter Property="Padding"                  Value="10,0"/>
-        <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
+        <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -314,7 +316,7 @@
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
         <Setter Property="FontSize"                 Value="13"/>
         <Setter Property="Padding"                  Value="12,0"/>
-        <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
+        <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
@@ -428,7 +430,7 @@
     </Style>
 
     <Style x:Key="PiGhostChipButton" TargetType="Button">
-        <Setter Property="Height"          Value="28"/>
+        <Setter Property="Height"          Value="34"/>
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>

@@ -18,7 +18,13 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="16,14">
+    <UserControl.Resources>
+        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Height" Value="34"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource PiWorkSurfaceStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>

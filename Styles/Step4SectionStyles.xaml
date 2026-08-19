@@ -44,7 +44,7 @@
     </Style>
 
     <!-- ══════════════════════════════════════════════════════════════
-         TEXT INPUT — 26 px, borderless template inside its own Border
+         TEXT INPUT — 34 px to match the mockup field height
     ══════════════════════════════════════════════════════════════ -->
     <Style x:Key="Step4InputStyle" TargetType="TextBox">
         <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
@@ -52,9 +52,9 @@
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="FontSize"                 Value="12"/>
-        <Setter Property="Padding"                  Value="7,0"/>
-        <Setter Property="Height"                   Value="26"/>
+        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="Padding"                  Value="8,0"/>
+        <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Template">
@@ -98,7 +98,7 @@
         <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="FontSize"                 Value="12"/>
         <Setter Property="Padding"                  Value="6,0"/>
-        <Setter Property="Height"                   Value="26"/>
+        <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">

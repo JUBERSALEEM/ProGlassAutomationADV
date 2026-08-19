@@ -166,8 +166,8 @@
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Chip"
                                             Background="Transparent"
-                                            CornerRadius="14"
-                                            Height="28"
+                                            CornerRadius="6"
+                                            Height="34"
                                             Padding="16,0"
                                             BorderThickness="1"
                                             BorderBrush="{DynamicResource OutlineBrush}">
