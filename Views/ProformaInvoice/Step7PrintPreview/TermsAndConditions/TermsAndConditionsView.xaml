@@ -56,14 +56,15 @@
                         <StackPanel>
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="28"/>
+                                    <ColumnDefinition Width="64"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <CheckBox IsChecked="{Binding IsActive}"
-                                          VerticalAlignment="Center"
-                                          Cursor="Hand"
-                                          ToolTip="Include this clause on the printed invoice"/>
+                                <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                              IsChecked="{Binding IsActive}"
+                                              VerticalAlignment="Center"
+                                              ToolTip="Include this clause on the printed invoice"
+                                              AutomationProperties.Name="Include term"/>
                                 <TextBox Grid.Column="1"
                                          Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource TitleBoxStyle}"
@@ -97,10 +98,10 @@
                                      AcceptsReturn="True"
                                      TextWrapping="Wrap"
                                      MinHeight="40"
-                                     Margin="28,6,0,0"
+                                     Margin="64,6,0,0"
                                      VerticalContentAlignment="Top"/>
 
-                            <StackPanel Orientation="Horizontal" Margin="28,6,0,0">
+                            <StackPanel Orientation="Horizontal" Margin="64,6,0,0">
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
                                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -121,7 +122,7 @@
                                           MinWidth="72"/>
                             </StackPanel>
 
-                            <StackPanel Margin="28,8,0,0">
+                            <StackPanel Margin="64,8,0,0">
                                 <StackPanel.Style>
                                     <Style TargetType="StackPanel">
                                         <Setter Property="Visibility" Value="Collapsed"/>

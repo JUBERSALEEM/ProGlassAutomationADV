@@ -107,9 +107,11 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <TextBlock Text="{Binding Title}"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="Each spec stays on this page. Arrow keys move cells · Ctrl+N adds a row · Ctrl+V pastes."
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <TextBlock Text="05" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="CUT LIST" Style="{StaticResource PiStationTitleStyle}"/>
+                    </StackPanel>
+                    <TextBlock Text="GLASS REF · W1 H1 W2 H2 · QTY · SQM · TOTAL SQM · RATE · VALUE. Arrow keys · Ctrl+N · Ctrl+V."
                                Style="{StaticResource ModulePageSubtitleStyle}"
                                TextWrapping="Wrap"/>
                 </StackPanel>

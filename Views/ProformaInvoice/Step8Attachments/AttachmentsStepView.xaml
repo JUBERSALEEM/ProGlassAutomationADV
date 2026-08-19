@@ -15,10 +15,11 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
-                               Style="{StaticResource PiSectionLabelStyle}"
-                               Margin="0"
-                               VerticalAlignment="Center"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="08" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
+                                   Style="{StaticResource PiStationTitleStyle}"/>
+                    </StackPanel>
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
                         <Button Style="{StaticResource PiGhostChipButton}"
                                 Content="+ IMAGE"

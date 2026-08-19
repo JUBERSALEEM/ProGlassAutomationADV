@@ -45,6 +45,14 @@
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
         <Border Padding="0">
             <StackPanel>
+                <Border Style="{StaticResource PiStationIdentityStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="09" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="PROFIT &amp; LOSS" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="Wastage, sheet cost and quoted rate check"
+                                   Style="{StaticResource PiStationHintStyle}"/>
+                    </StackPanel>
+                </Border>
 
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
@@ -61,15 +69,18 @@
                                  Style="{StaticResource PlInputStyle}"
                                  ToolTip="Cutting allowance added to the required area before sheets are rounded up"/>
                     </StackPanel>
-                    <CheckBox Grid.Column="2"
-                              Content="Cost glass at SELLING price"
-                              IsChecked="{Binding CostAtSellingPrice}"
-                              Cursor="Hand"
-                              FontSize="12"
-                              Foreground="{DynamicResource PrimaryForegroundBrush}"
-                              VerticalAlignment="Bottom"
-                              Margin="0,0,0,8"
-                              ToolTip="Off = Sheet Store purchase price. On = selling price matching Step 4 base rates."/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                VerticalAlignment="Bottom" Margin="0,0,0,8">
+                        <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                      IsChecked="{Binding CostAtSellingPrice}"
+                                      ToolTip="Off = Sheet Store purchase price. On = selling price matching Step 4 base rates."
+                                      AutomationProperties.Name="Cost glass at selling price"/>
+                        <TextBlock Text="Cost glass at SELLING price"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                    </StackPanel>
                     <Button Grid.Column="4"
                             Content="RECALCULATE"
                             Command="{Binding RecalculateCommand}"

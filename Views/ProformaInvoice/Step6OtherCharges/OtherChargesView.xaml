@@ -131,6 +131,14 @@
         <Border Padding="0">
             <StackPanel>
 
+                <Border Style="{StaticResource PiStationIdentityStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="06" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="CHARGES" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="Predefined · wastage · custom — toggle ON to include"
+                                   Style="{StaticResource PiStationHintStyle}"/>
+                    </StackPanel>
+                </Border>
                 <TextBlock Text="IMPORTED FROM DATA GRID"
                            Style="{StaticResource PiSectionLabelStyle}"
                            Margin="0,0,0,4"/>
@@ -236,7 +244,7 @@
                 <Border Style="{StaticResource PiTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="56"/>
+                            <ColumnDefinition Width="64"/>
                             <ColumnDefinition Width="2.2*"/>
                             <ColumnDefinition Width="2.4*"/>
                             <ColumnDefinition Width="0.9*"/>
@@ -261,7 +269,7 @@
                                 <StackPanel>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="56"/>
+                                            <ColumnDefinition Width="64"/>
                                             <ColumnDefinition Width="2.2*"/>
                                             <ColumnDefinition Width="2.4*"/>
                                             <ColumnDefinition Width="0.9*"/>
@@ -269,11 +277,12 @@
                                             <ColumnDefinition Width="1.8*"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <CheckBox Grid.Column="0"
-                                                  IsChecked="{Binding IsActive, Mode=TwoWay}"
-                                                  HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"
-                                                  Cursor="Hand"/>
+                                        <ToggleButton Grid.Column="0"
+                                                      Style="{StaticResource PiToggleSwitch}"
+                                                      IsChecked="{Binding IsActive, Mode=TwoWay}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      AutomationProperties.Name="Charge on"/>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
                                             <TextBlock Text="{Binding ChargeName}"
@@ -486,7 +495,7 @@
                                         </TextBlock>
                                     </Grid>
 
-                                    <Grid Margin="56,8,0,0">
+                                    <Grid Margin="64,8,0,0">
                                         <Grid.Style>
                                             <Style TargetType="Grid">
                                                 <Setter Property="Visibility" Value="Collapsed"/>

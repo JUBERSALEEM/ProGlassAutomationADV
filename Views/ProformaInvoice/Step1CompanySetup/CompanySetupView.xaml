@@ -20,13 +20,25 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <Grid Margin="0,0,0,14">
-                    <TextBlock Text="COMPANY" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
-                    <Button HorizontalAlignment="Right" Command="{Binding GoToGridCommand}"
-                            Style="{StaticResource PiViewAllLinkStyle}" ToolTip="Skip to the glass data grid — Step 5">
-                        <TextBlock Text="Skip to grid" TextDecorations="Underline"/>
-                    </Button>
-                </Grid>
+                <Border Style="{StaticResource PiStationIdentityStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="01" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Grid.Column="1" Text="COMPANY" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Grid.Column="2" Text="Letterhead, TRN and bank details for this quotation"
+                                   Style="{StaticResource PiStationHintStyle}"/>
+                        <Button Grid.Column="3" Command="{Binding GoToGridCommand}"
+                                Style="{StaticResource PiViewAllLinkStyle}" ToolTip="Skip to the glass data grid — Step 5">
+                            <TextBlock Text="Skip to grid" TextDecorations="Underline"/>
+                        </Button>
+                    </Grid>
+                </Border>
+                <TextBlock Text="IDENTITY" Style="{StaticResource PiSectionLabelStyle}"/>
 
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>

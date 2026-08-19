@@ -146,6 +146,15 @@
             </Grid>
         </Border>
 
+        <Border DockPanel.Dock="Top" Style="{StaticResource PiStationIdentityStyle}">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="04" Style="{StaticResource PiStationCodeStyle}"/>
+                <TextBlock Text="GLASS BUILD" Style="{StaticResource PiStationTitleStyle}"/>
+                <TextBlock Text="SGU · DGU · LAM · DGU+LAM — structure, thickness, colour"
+                           Style="{StaticResource PiStationHintStyle}"/>
+            </StackPanel>
+        </Border>
+
         <!-- Type chips — industrial station switch -->
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
             <ItemsControl ItemsSource="{Binding GlassTypes}">

@@ -131,11 +131,12 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <CheckBox Grid.Column="0"
-                      IsChecked="{Binding IsVatApplicable, Mode=TwoWay}"
-                      VerticalAlignment="Center"
-                      Cursor="Hand"
-                      Margin="0,0,8,0"/>
+            <ToggleButton Grid.Column="0"
+                          Style="{StaticResource PiToggleSwitch}"
+                          IsChecked="{Binding IsVatApplicable, Mode=TwoWay}"
+                          VerticalAlignment="Center"
+                          Margin="0,0,8,0"
+                          AutomationProperties.Name="VAT applicable"/>
             <TextBlock Grid.Column="1"
                        Text="VAT"
                        FontSize="12" FontWeight="SemiBold"

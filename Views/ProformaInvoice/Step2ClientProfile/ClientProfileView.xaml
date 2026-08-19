@@ -20,7 +20,15 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="CLIENT" Style="{StaticResource PiSectionLabelStyle}"/>
+                <Border Style="{StaticResource PiStationIdentityStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="02" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="CLIENT" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="Bill-to party, TRN and sales contact"
+                                   Style="{StaticResource PiStationHintStyle}"/>
+                    </StackPanel>
+                </Border>
+                <TextBlock Text="BILL TO" Style="{StaticResource PiSectionLabelStyle}"/>
                 <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="1.3*"/><ColumnDefinition Width="12"/>

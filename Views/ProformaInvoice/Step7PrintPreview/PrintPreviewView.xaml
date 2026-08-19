@@ -92,6 +92,14 @@
                               HorizontalScrollBarVisibility="Disabled"
                               behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <StackPanel>
+                        <Border Style="{StaticResource PiStationIdentityStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="07" Style="{StaticResource PiStationCodeStyle}"/>
+                                <TextBlock Text="PREVIEW" Style="{StaticResource PiStationTitleStyle}"/>
+                                <TextBlock Text="Totals and terms on the left · A4 on the right"
+                                           Style="{StaticResource PiStationHintStyle}"/>
+                            </StackPanel>
+                        </Border>
                         <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
                         <terms:TermsAndConditionsView DataContext="{Binding Terms}" Margin="0,16,0,0"/>
                     </StackPanel>

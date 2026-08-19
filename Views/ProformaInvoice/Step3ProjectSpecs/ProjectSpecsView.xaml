@@ -20,7 +20,15 @@
 
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="PROJECT" Style="{StaticResource PiSectionLabelStyle}"/>
+                <Border Style="{StaticResource PiStationIdentityStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="03" Style="{StaticResource PiStationCodeStyle}"/>
+                        <TextBlock Text="PROJECT" Style="{StaticResource PiStationTitleStyle}"/>
+                        <TextBlock Text="Project name and project reference stay separate"
+                                   Style="{StaticResource PiStationHintStyle}"/>
+                    </StackPanel>
+                </Border>
+                <TextBlock Text="SITE" Style="{StaticResource PiSectionLabelStyle}"/>
                 <TextBlock Text="PROJECT NAME" Style="{StaticResource PiFieldLabelStyle}"
                            ToolTip="Project name as it appears on lists and invoices"/>
                 <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"

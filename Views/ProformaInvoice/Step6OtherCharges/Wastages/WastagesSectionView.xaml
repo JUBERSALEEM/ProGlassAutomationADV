@@ -87,7 +87,7 @@
         <Border Style="{StaticResource PiTableHeaderStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="48"/>
+                    <ColumnDefinition Width="64"/>
                     <ColumnDefinition Width="1.6*"/>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="0.9*"/>
@@ -112,7 +112,7 @@
                             Padding="8,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="48"/>
+                                <ColumnDefinition Width="64"/>
                                 <ColumnDefinition Width="1.6*"/>
                                 <ColumnDefinition Width="2*"/>
                                 <ColumnDefinition Width="0.9*"/>
@@ -120,11 +120,12 @@
                                 <ColumnDefinition Width="1.6*"/>
                                 <ColumnDefinition Width="36"/>
                             </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0"
-                                      IsChecked="{Binding IsActive}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      Cursor="Hand"/>
+                            <ToggleButton Grid.Column="0"
+                                          Style="{StaticResource PiToggleSwitch}"
+                                          IsChecked="{Binding IsActive}"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          AutomationProperties.Name="Wastage on"/>
                             <TextBox Grid.Column="1"
                                      Text="{Binding ColorName, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource RowInputStyle}"
