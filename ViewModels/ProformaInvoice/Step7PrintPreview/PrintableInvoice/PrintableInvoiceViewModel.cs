@@ -929,7 +929,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             {
                 "#", "GLASS REF / DESCRIPTION",
                 "W1", "H1", "W2", "H2", "QTY",
-                "AREA (sqm)", "TOTAL AREA", "RATE (AED)", "TOTAL (AED)"
+                "SQM", "TOTAL SQM", "RATE (AED)", "VALUE (AED)"
             };
             var alignments = new[]
             {
@@ -1004,7 +1004,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             stLeft.Children.Add(MakeText(
                 $"  QTY: {group.FooterTotalQty}", 9, FontWeights.Bold, DarkBrush, marginLeft: 6));
             stLeft.Children.Add(MakeText(
-                $"  •  AREA: {group.FooterTotalSqm:0.000} sqm",
+                $"  •  TOTAL SQM: {group.FooterTotalSqm:0.000}",
                 9, FontWeights.Bold, DarkBrush));
             Grid.SetColumn(stLeft, 0);
             stGrid.Children.Add(stLeft);
@@ -1045,7 +1045,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             var left = MakeText(
                 $"GRAND TOTAL:  {specCount} Spec{(specCount != 1 ? "s" : "")}  •  " +
-                $"QTY: {totalQty}  •  AREA: {totalArea:0.000} sqm",
+                $"QTY: {totalQty}  •  TOTAL SQM: {totalArea:0.000}",
                 10, FontWeights.Bold, Brushes.White);
             Grid.SetColumn(left, 0);
             g.Children.Add(left);

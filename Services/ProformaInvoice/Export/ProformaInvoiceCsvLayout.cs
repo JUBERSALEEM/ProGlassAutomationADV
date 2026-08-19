@@ -1,4 +1,4 @@
-﻿using CsvHelper;
+using CsvHelper;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Utilities;
@@ -12,7 +12,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     ///
     /// 13-column CSV:
     ///   Spec # | Spec Name | Row # | Glass Ref | W1 | H1 | W2 | H2 |
-    ///   Qty | Area (sqm) | Total Area (sqm) | Rate (AED) | Total (AED)
+    ///   Qty | SQM | TOTAL SQM | Rate (AED) | Total (AED)
     ///
     /// Followed by blank row + 3 summary rows
     /// (11 empty fields + label + value = 13 fields per row).
@@ -61,8 +61,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             writer.WriteField("W2");
             writer.WriteField("H2");
             writer.WriteField("Qty");
-            writer.WriteField("Area (sqm)");
-            writer.WriteField("Total Area (sqm)");
+            writer.WriteField("SQM");
+            writer.WriteField("TOTAL SQM");
             writer.WriteField("Rate (AED)");
             writer.WriteField("Total (AED)");
             writer.NextRecord();

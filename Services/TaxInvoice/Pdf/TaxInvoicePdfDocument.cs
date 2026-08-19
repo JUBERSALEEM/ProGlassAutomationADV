@@ -272,7 +272,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         string[] heads =
                         {
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
-                            "QTY", "SQM", "T.SQM", "RATE", "VALUE"
+                            "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
                         };
                         for (int i = 0; i < heads.Length; i++)
                         {

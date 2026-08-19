@@ -155,6 +155,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             {
                 "Spec #", "Spec Name", "Glass Type", "Row #",
                 "Glass Ref", "W1", "H1", "W2", "H2", "Qty",
+                "SQM", "TOTAL SQM",
                 "Job ID", "Customer", "Delivery Date", "Overdue"
             };
             for (int c = 0; c < headers.Length; c++)
@@ -190,11 +191,11 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         ws.Cell(r, 3).Value = group.SelectedGlassType ?? "";
                         ws.Cell(r, 4).Value = "—";
                         ws.Cell(r, 5).Value = "(no rows)";
-                        for (int c = 6; c <= 10; c++) ws.Cell(r, c).Value = "";
-                        ws.Cell(r, 11).Value = jobId;
-                        ws.Cell(r, 12).Value = customer;
-                        ws.Cell(r, 13).Value = deliveryDisplay;
-                        ws.Cell(r, 14).Value = overdueFlag;
+                        for (int c = 6; c <= 12; c++) ws.Cell(r, c).Value = "";
+                        ws.Cell(r, 13).Value = jobId;
+                        ws.Cell(r, 14).Value = customer;
+                        ws.Cell(r, 15).Value = deliveryDisplay;
+                        ws.Cell(r, 16).Value = overdueFlag;
                         StyleDataRow(ws, r, isOverdue);
                         r++;
                         continue;
@@ -212,10 +213,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         ws.Cell(r, 8).Value = row.W2;
                         ws.Cell(r, 9).Value = row.H2;
                         ws.Cell(r, 10).Value = row.Qty;
-                        ws.Cell(r, 11).Value = jobId;
-                        ws.Cell(r, 12).Value = customer;
-                        ws.Cell(r, 13).Value = deliveryDisplay;
-                        ws.Cell(r, 14).Value = overdueFlag;
+                        ws.Cell(r, 11).Value = row.Sqm1;
+                        ws.Cell(r, 12).Value = row.TotalSqm;
+                        ws.Cell(r, 11).Style.NumberFormat.Format = "#,##0.000";
+                        ws.Cell(r, 12).Style.NumberFormat.Format = "#,##0.000";
+                        ws.Cell(r, 13).Value = jobId;
+                        ws.Cell(r, 14).Value = customer;
+                        ws.Cell(r, 15).Value = deliveryDisplay;
+                        ws.Cell(r, 16).Value = overdueFlag;
                         StyleDataRow(ws, r, isOverdue);
                         r++;
                     }
@@ -237,10 +242,12 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             ws.Column(8).Width = 8;    // W2
             ws.Column(9).Width = 8;    // H2
             ws.Column(10).Width = 8;    // Qty
-            ws.Column(11).Width = 16;   // Job ID
-            ws.Column(12).Width = 26;   // Customer
-            ws.Column(13).Width = 15;   // Delivery
-            ws.Column(14).Width = 10;   // Overdue
+            ws.Column(11).Width = 10;   // SQM
+            ws.Column(12).Width = 12;   // TOTAL SQM
+            ws.Column(13).Width = 16;   // Job ID
+            ws.Column(14).Width = 26;   // Customer
+            ws.Column(15).Width = 15;   // Delivery
+            ws.Column(16).Width = 10;   // Overdue
 
             // Freeze header row
             ws.SheetView.FreezeRows(1);
@@ -305,14 +312,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
         private static void StyleDataRow(IXLWorksheet ws, int row, bool isOverdue)
         {
-            var range = ws.Range(row, 1, row, 14);
+            var range = ws.Range(row, 1, row, 16);
             range.Style.Font.SetFontSize(WorkbookStyle.FontSizeBody);
             range.Style.Alignment.SetVertical(XLAlignmentVerticalValues.Center);
 
             if (isOverdue)
             {
                 range.Style.Fill.SetBackgroundColor(XLColor.FromHtml("#FEF2F2"));
-                ws.Cell(row, 14).Style.Font.SetBold()
+                ws.Cell(row, 16).Style.Font.SetBold()
                     .Font.SetFontColor(XLColor.FromHtml("#DC2626"));
             }
             else if (row % 2 == 0)

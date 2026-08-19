@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 20 — PER-SPEC TARGETING PERSISTENCE
@@ -18,8 +18,10 @@
 //   All other snapshot classes preserved EXACTLY.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 {
@@ -176,6 +178,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public int Qty { get; set; }
         public decimal Rate { get; set; }
         public int PerimeterFactor { get; set; }
+
+        /// <summary>
+        /// Unit panel area (W1 × H1). Computed — not persisted.
+        /// Old snapshots without this field still bind correctly.
+        /// </summary>
+        [JsonIgnore]
+        public decimal Sqm1 => SqmCalculator.CalculatePanel(W1, H1);
+
+        /// <summary>
+        /// Total area (unit SQM × Qty). Computed — not persisted.
+        /// </summary>
+        [JsonIgnore]
+        public decimal TotalSqm => SqmCalculator.CalculateTotal(W1, H1, Qty);
     }
 
     // ── Step 6: Other Charges ───────────────────────────────────────────

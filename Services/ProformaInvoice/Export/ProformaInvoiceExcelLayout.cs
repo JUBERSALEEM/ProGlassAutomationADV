@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             {
                 "Spec #", "Spec Name", "#", "Glass Ref",
                 "W1", "H1", "W2", "H2",
-                "Qty", "Area (sqm)", "Total Area (sqm)",
+                "Qty", "SQM", "TOTAL SQM",
                 "Rate (AED)", "Total (AED)"
             };
             int totalCols = headers.Length;

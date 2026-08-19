@@ -190,7 +190,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         var headers = new[]
                         {
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
-                            "QTY", "AREA", "TOTAL AREA", "RATE", "TOTAL"
+                            "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
                         };
                         for (int i = 0; i < headers.Length; i++)
                         {
@@ -221,7 +221,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                 col.Item().Element(c =>
                     PdfChrome.SubtotalBar(c,
-                        $"Qty {group.TotalQty}  ·  Area {group.TotalArea:0.000} sqm",
+                        $"Qty {group.TotalQty}  ·  TOTAL SQM {group.TotalArea:0.000}",
                         $"AED {group.TotalValue:N2}"));
             });
         }
@@ -234,7 +234,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             decimal totalValue = _ctx.SpecGroups.Sum(g => g.TotalValue);
 
             PdfChrome.GrandTotal(container,
-                $"Glass  ·  {specCount} spec{(specCount != 1 ? "s" : "")}  ·  {totalQty} pcs  ·  {totalArea:0.000} sqm",
+                $"Glass  ·  {specCount} spec{(specCount != 1 ? "s" : "")}  ·  {totalQty} pcs  ·  TOTAL SQM {totalArea:0.000}",
                 $"AED {totalValue:N2}");
         }
 

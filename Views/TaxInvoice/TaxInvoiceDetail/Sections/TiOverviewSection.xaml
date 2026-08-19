@@ -475,7 +475,7 @@
                                                 <TextBlock Grid.Column="7" Text="SQM"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
-                                                <TextBlock Grid.Column="8" Text="T.SQM"
+                                                <TextBlock Grid.Column="8" Text="TOTAL SQM"
                                                            Style="{StaticResource GridHeaderCell}"
                                                            HorizontalAlignment="Center" TextAlignment="Center"/>
                                                 <TextBlock Grid.Column="9" Text="RATE"

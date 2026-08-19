@@ -17,7 +17,7 @@ namespace ProGlassAutomation.Services.JobOrder.Export
     /// - Letterhead (company from embedded PI snapshot, JOB ID accent)
     /// - Client + Site Delivery block (2 columns)
     /// - Production instructions block (Assigned To, Cutting, Drawing, Notes)
-    /// - Cut list table per spec group (W1/H1/W2/H2, qty — NO PRICING)
+    /// - Cut list table per spec group (W1/H1/W2/H2, qty, SQM, TOTAL SQM — NO PRICING)
     /// - Signature block (Prepared / Verified / Received)
     ///
     /// Deliberately excludes:
@@ -263,11 +263,13 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     {
                         cols.ConstantColumn(28);   // #
                         cols.RelativeColumn(2);    // Glass Ref
-                        cols.ConstantColumn(42);   // W1
-                        cols.ConstantColumn(42);   // H1
-                        cols.ConstantColumn(42);   // W2
-                        cols.ConstantColumn(42);   // H2
-                        cols.ConstantColumn(40);   // Qty
+                        cols.ConstantColumn(38);   // W1
+                        cols.ConstantColumn(38);   // H1
+                        cols.ConstantColumn(38);   // W2
+                        cols.ConstantColumn(38);   // H2
+                        cols.ConstantColumn(36);   // Qty
+                        cols.ConstantColumn(48);   // SQM
+                        cols.ConstantColumn(58);   // TOTAL SQM
                     });
 
                     // Header row
@@ -280,6 +282,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         PdfChrome.HeaderCell(h.Cell(), "W2");
                         PdfChrome.HeaderCell(h.Cell(), "H2");
                         PdfChrome.HeaderCell(h.Cell(), "QTY");
+                        PdfChrome.HeaderCell(h.Cell(), "SQM");
+                        PdfChrome.HeaderCell(h.Cell(), "TOTAL SQM");
                     });
 
                     if (group.ItemRows != null)
@@ -294,6 +298,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                             PdfChrome.DataCell(t.Cell(), r.W2 > 0 ? r.W2.ToString() : "—", alt: alt, center: true);
                             PdfChrome.DataCell(t.Cell(), r.H2 > 0 ? r.H2.ToString() : "—", alt: alt, center: true);
                             PdfChrome.DataCell(t.Cell(), r.Qty.ToString(), alt: alt, center: true, bold: true);
+                            PdfChrome.DataCell(t.Cell(), r.Sqm1.ToString("0.000"), alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.TotalSqm.ToString("0.000"), alt: alt, center: true, bold: true);
                             alt = !alt;
                         }
                     }
@@ -303,8 +309,9 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                 if (group.ItemRows != null && group.ItemRows.Count > 0)
                 {
                     int groupPieces = group.ItemRows.Sum(r => r.Qty);
+                    decimal groupSqm = group.ItemRows.Sum(r => r.TotalSqm);
                     col.Item().PaddingTop(2).AlignRight()
-                        .Text($"Group total: {groupPieces} piece(s)")
+                        .Text($"Group total: {groupPieces} piece(s)  ·  {groupSqm:0.000} TOTAL SQM")
                         .FontSize(DocumentStyle.FontSizeCaption)
                         .FontColor(DocumentStyle.ColorMuted);
                 }
@@ -313,15 +320,18 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
         private void RenderProductionTotals(IContainer container)
         {
-            int totalPieces = _invoice.SpecGroups?
+            var allRows = _invoice.SpecGroups?
                 .SelectMany(g => g.ItemRows ?? Enumerable.Empty<GlassItemRowSnapshot>())
-                .Sum(r => r.Qty) ?? 0;
+                .ToList() ?? new System.Collections.Generic.List<GlassItemRowSnapshot>();
 
+            int totalPieces = allRows.Sum(r => r.Qty);
+            decimal totalSqm = allRows.Sum(r => r.TotalSqm);
             int totalSpecs = _invoice.SpecGroups?.Count ?? 0;
 
             PdfChrome.KpiStrip(container,
                 ("Total specs", totalSpecs.ToString(), null),
-                ("Total pieces", totalPieces.ToString(), DocumentStyle.ColorAccent));
+                ("Total pieces", totalPieces.ToString(), DocumentStyle.ColorAccent),
+                ("TOTAL SQM", totalSqm.ToString("0.000"), null));
         }
 
         private void RenderSignatureBlock(IContainer container)

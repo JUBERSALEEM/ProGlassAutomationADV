@@ -67,8 +67,8 @@
 
     Preserved:
       ✅ x:Name="PrintablePaper" — code-behind still binds PrintTarget
-      ✅ All 10 spec table columns (# / GLASS REF / W1 / H1 / W2 / H2 /
-         QTY / AREA / RATE / TOTAL)
+      ✅ All 11 spec table columns (# / GLASS REF / W1 / H1 / W2 / H2 /
+         QTY / SQM / TOTAL SQM / RATE / VALUE)
       ✅ Company header + reference badge layout
       ✅ Client + Project side-by-side blocks (with 6 fields each)
       ✅ Other charges detail lists (Predefined + Wastage + Custom)
@@ -392,8 +392,8 @@
 
             <!-- ══════════════════════════════════════════════════════
                  SPECIFICATION TABLES
-                 TOTALS-01: Sub-total footer now uses same 10-column grid
-                            as data rows. QTY / AREA / VALUE align under
+                 TOTALS-01: Sub-total footer now uses same 11-column grid
+                            as data rows. QTY / TOTAL SQM / VALUE align under
                             their respective columns.
             ══════════════════════════════════════════════════════ -->
             <ItemsControl ItemsSource="{Binding DataGrid.SpecGroups}">
@@ -416,15 +416,16 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="28"/>
-                                        <ColumnDefinition Width="1.6*"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="35"/>
-                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="32"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="0.70*"/>
                                         <ColumnDefinition Width="0.85*"/>
-                                        <ColumnDefinition Width="0.75*"/>
-                                        <ColumnDefinition Width="0.95*"/>
+                                        <ColumnDefinition Width="0.70*"/>
+                                        <ColumnDefinition Width="0.90*"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="#" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="GLASS REF / DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
@@ -433,9 +434,10 @@
                                     <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="7" Text="AREA (sqm)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="8" Text="RATE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="9" Text="TOTAL (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="8" Text="TOTAL SQM" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="9" Text="RATE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="10" Text="VALUE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </Border>
 
@@ -448,15 +450,16 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="28"/>
-                                                    <ColumnDefinition Width="1.6*"/>
-                                                    <ColumnDefinition Width="35"/>
-                                                    <ColumnDefinition Width="35"/>
-                                                    <ColumnDefinition Width="35"/>
-                                                    <ColumnDefinition Width="35"/>
-                                                    <ColumnDefinition Width="40"/>
+                                                    <ColumnDefinition Width="1.4*"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="32"/>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="0.70*"/>
                                                     <ColumnDefinition Width="0.85*"/>
-                                                    <ColumnDefinition Width="0.75*"/>
-                                                    <ColumnDefinition Width="0.95*"/>
+                                                    <ColumnDefinition Width="0.70*"/>
+                                                    <ColumnDefinition Width="0.90*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding GlassRef}" Style="{StaticResource TableCellStyle}" TextTrimming="CharacterEllipsis"/>
@@ -465,9 +468,10 @@
                                                 <TextBlock Grid.Column="4" Text="{Binding W2}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="5" Text="{Binding H2}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="6" Text="{Binding Qty}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="7" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="8" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="9" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -570,9 +574,9 @@
                         <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalQty}"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="White"/>
-                        <TextBlock Text="  •  AREA: "
+                        <TextBlock Text="  •  TOTAL SQM: "
                                    FontSize="10" Foreground="#CCFFFFFF"/>
-                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalSqm, StringFormat={}{0:0.000} sqm}"
+                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalSqm, StringFormat={}{0:0.000}}"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="White"/>
                     </StackPanel>

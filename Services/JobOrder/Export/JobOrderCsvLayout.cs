@@ -80,6 +80,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             writer.WriteField("W2");
             writer.WriteField("H2");
             writer.WriteField("Qty");
+            writer.WriteField("SQM");
+            writer.WriteField("TOTAL SQM");
             writer.NextRecord();
 
             // Read all project fields — one per invoice, replicated per row
@@ -130,6 +132,8 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     writer.WriteField(row.W2);
                     writer.WriteField(row.H2);
                     writer.WriteField(row.Qty);
+                    writer.WriteField(row.Sqm1.ToString("0.000"));
+                    writer.WriteField(row.TotalSqm.ToString("0.000"));
                     writer.NextRecord();
                 }
             }

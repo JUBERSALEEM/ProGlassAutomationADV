@@ -30,16 +30,14 @@
                 <ColumnDefinition Width="36"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="90"/>
-                <ColumnDefinition Width="110"/>
-                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="140"/>
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
             <TextBlock Grid.Column="1" Text="SPEC GROUP" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
             <TextBlock Grid.Column="2" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="3" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="4" Text="LM" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="5" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="3" Text="TOTAL SQM" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="4" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
         </Grid>
 
         <ItemsControl ItemsSource="{Binding SummaryRows}">
@@ -53,8 +51,7 @@
                                 <ColumnDefinition Width="36"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="110"/>
-                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="120"/>
                                 <ColumnDefinition Width="140"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
@@ -78,11 +75,6 @@
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
-                                       Text="{Binding TotalLm, StringFormat={}{0:0.00}}"
-                                       FontSize="12"
-                                       HorizontalAlignment="Right"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Grid.Column="5"
                                        Text="{Binding TotalValue, StringFormat=AED {0:N2}}"
                                        FontSize="12"
                                        FontWeight="Bold"

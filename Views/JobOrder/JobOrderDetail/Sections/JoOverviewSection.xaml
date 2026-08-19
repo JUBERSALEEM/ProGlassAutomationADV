@@ -113,7 +113,7 @@
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1"
-                               Text="Production ticket — qty and sizes only"
+                               Text="Production ticket — sizes, qty, SQM and TOTAL SQM"
                                FontSize="10"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                VerticalAlignment="Center"/>
@@ -200,6 +200,8 @@
                                                                 <ColumnDefinition Width="64"/>
                                                                 <ColumnDefinition Width="64"/>
                                                                 <ColumnDefinition Width="56"/>
+                                                                <ColumnDefinition Width="72"/>
+                                                                <ColumnDefinition Width="88"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0"
                                                                        Text="{Binding SerialNumber}"
@@ -223,6 +225,12 @@
                                                                        Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                             <TextBlock Grid.Column="6"
                                                                        Text="{Binding Qty}"
+                                                                       Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="7"
+                                                                       Text="{Binding Sqm1, StringFormat={}{0:0.000}}"
+                                                                       Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                            <TextBlock Grid.Column="8"
+                                                                       Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
                                                                        Style="{StaticResource LineItemsReadonlyStyle}"/>
                                                         </Grid>
                                                     </Border>
