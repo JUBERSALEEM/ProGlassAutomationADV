@@ -1,4 +1,4 @@
-﻿using ClosedXML.Excel;
+using ClosedXML.Excel;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Services.Export.Excel;
@@ -106,7 +106,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             row++;
 
             AddSection(ws, ref row, "PROJECT DETAILS");
-            AddField(ws, ref row, "Project Name", _snapshot.Project?.ProjectIdentifierName ?? _entity.ProjectName);
+            AddField(ws, ref row, "Project Name",
+                _snapshot.Project?.ProjectReference
+                ?? _snapshot.Project?.ProjectContractNo
+                ?? _snapshot.Project?.ProjectIdentifierName
+                ?? _entity.ProjectName);
             AddField(ws, ref row, "Contract No", _snapshot.Project?.ProjectContractNo ?? "");
             AddField(ws, ref row, "Site Delivery", _snapshot.Project?.SiteDeliveryLocation ?? "");
             AddField(ws, ref row, "LPO Number", _snapshot.Project?.LpoNumber ?? "");

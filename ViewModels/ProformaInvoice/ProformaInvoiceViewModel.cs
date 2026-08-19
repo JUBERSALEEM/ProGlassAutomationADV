@@ -489,6 +489,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // ── Reset Step 3 (Project) — S-04 ────────────────────────
             Step3VM.ProjectIdentifierName = "";
             Step3VM.ProjectContractNo = "";
+            Step3VM.ProjectReference = "";
             Step3VM.SiteDeliveryLocation = "";
             Step3VM.LpoNumber = "";
 

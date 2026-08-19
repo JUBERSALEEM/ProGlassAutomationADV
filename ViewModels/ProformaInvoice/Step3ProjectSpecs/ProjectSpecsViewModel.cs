@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — PROJECT REFERENCE FIELD ADDED
@@ -328,7 +328,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
                 ProjectReference = card.ProjectReference;   // CHAT 15: NEW
                 SiteDeliveryLocation = card.SiteDeliveryLocation;
                 LpoNumber = card.LpoNumber;
-                LoadedProfileName = card.ProjectIdentifierName;
+                LoadedProfileName = card.DisplayProjectName;
             }
             finally
             {

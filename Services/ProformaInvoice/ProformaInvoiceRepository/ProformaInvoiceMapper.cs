@@ -73,6 +73,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             PropertyNameCaseInsensitive = true
         };
 
+        private static string FirstNonEmpty(params string?[] values)
+        {
+            foreach (var v in values)
+            {
+                if (!string.IsNullOrWhiteSpace(v))
+                    return v.Trim();
+            }
+            return "";
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  SAVE PATH: VMs → Snapshot → Entity
         // ══════════════════════════════════════════════════════════════
@@ -105,7 +115,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 ProformaId = company.ProformaId ?? "",
                 CompanyName = company.CompanyName ?? "",
                 CustomerName = client.CustomerName ?? "",
-                ProjectName = project.ProjectIdentifierName ?? "",
+                // List / search / PDF "PROJECT" is the real project text
+                // (reference), not the unused identifier designation.
+                ProjectName = FirstNonEmpty(
+                    project.ProjectReference,
+                    project.ProjectContractNo,
+                    project.ProjectIdentifierName),
                 Status = effectiveStatus,
                 IssueDate = company.IssueDate,
                 ValidUntil = company.ValidUntil,
@@ -154,9 +169,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     attentionExecutiveName: client.AttentionExecutiveName ?? "",
                     clientContactPhone: client.ClientContactPhone ?? "",
 
-                    projectIdentifierName: project.ProjectIdentifierName ?? "",
+                    projectIdentifierName: FirstNonEmpty(
+                        project.ProjectReference,
+                        project.ProjectIdentifierName,
+                        project.ProjectContractNo),
                     projectContractNo: project.ProjectContractNo ?? "",
-                    projectReference: project.ProjectReference ?? "",   // CHAT 15: NEW
+                    projectReference: project.ProjectReference ?? "",
                     siteDeliveryLocation: project.SiteDeliveryLocation ?? "",
                     lpoNumber: project.LpoNumber ?? "");
             }

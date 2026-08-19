@@ -892,9 +892,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             var projStack = new StackPanel();
             projStack.Children.Add(MakeText(
                 "PROJECT ESTIMATE METRIC:", 10, FontWeights.Bold, DarkBrush, marginBottom: 4));
-            AddLabelValueRow(projStack, "Project Designation: ", Project.ProjectIdentifierName);
-            AddLabelValueRow(projStack, "Project Name / No: ", Project.ProjectContractNo);      // CHAT 15: relabeled
-            AddLabelValueRow(projStack, "Project Reference: ", Project.ProjectReference);       // CHAT 15: NEW ROW
+            AddLabelValueRow(projStack, "Project: ", Project.ProjectReference);
+            AddLabelValueRow(projStack, "Contract No: ", Project.ProjectContractNo);
             AddLabelValueRow(projStack, "Site Delivery: ", Project.SiteDeliveryLocation);
             AddLabelValueRow(projStack, "LPO / PO Reference: ", Project.LpoNumber);
             AddLabelValueRow(projStack, "Assigned Salesman: ", Client.SalesRepresentative);
