@@ -82,7 +82,7 @@
 		<PackageReference Include="Whisper.net" Version="1.7.4" />
 		<PackageReference Include="Velopack" Version="1.2.0" />
 		<PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
 
 	</ItemGroup>
 
