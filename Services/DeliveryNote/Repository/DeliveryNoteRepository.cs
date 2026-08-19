@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
@@ -246,6 +247,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             entity.UpdatedAt = DateTime.Now;
 
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
         }
 
         /// <summary>
@@ -294,7 +296,40 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             }
 
             if (anyChanged)
+            {
                 await ctx.SaveChangesAsync();
+                DocumentLifecycle.Raise();
+            }
+        }
+
+        /// <summary>
+        /// Clears the invoiced flags on every DN still pointing at this
+        /// tax invoice. Used when the TI is deleted so list badges and
+        /// the DN dependency check match remaining documents.
+        /// </summary>
+        public async Task ClearInvoicedByTaxInvoiceAsync(string taxInvoiceId)
+        {
+            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            var entities = await ctx.DeliveryNotes
+                .Where(x => x.HasTaxInvoice &&
+                            x.TaxInvoiceId == taxInvoiceId)
+                .ToListAsync();
+
+            if (entities.Count == 0) return;
+
+            var now = DateTime.Now;
+            foreach (var entity in entities)
+            {
+                entity.HasTaxInvoice = false;
+                entity.TaxInvoiceId = "";
+                entity.UpdatedAt = now;
+            }
+
+            await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
         }
 
         // ── List retrieval ───────────────────────────────────────────────
@@ -724,6 +759,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             entity.UpdatedAt = DateTime.Now;
             ctx.DeliveryNotes.Add(entity);
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
             return entity;
         }
 
@@ -746,6 +782,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             ctx.DeliveryNotes.Update(entity);
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
         }
 
         public async Task DeleteAsync(int id)
@@ -763,8 +800,21 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (entity == null) return;
 
+            string? proformaId = entity.ProformaId;
+            bool isMaster = entity.IsMasterDn;
+
             ctx.DeliveryNotes.Remove(entity);
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
+
+            // Master DNs are internal trackers — they do not participate
+            // in the PI display status. A real DN delete may cancel the
+            // source PI when nothing downstream remains.
+            if (!isMaster)
+            {
+                await ProGlassAutomation.Services.ProformaInvoice
+                    .ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
+            }
         }
 
         // ── Existence checks ─────────────────────────────────────────────

@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.ProformaInvoice;
 
 namespace ProGlassAutomation.Services.JobOrder.Repository
 {
@@ -66,6 +68,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Add(jobOrder);
             await db.SaveChangesAsync();
+            DocumentLifecycle.Raise();
             return jobOrder;
         }
 
@@ -80,6 +83,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Update(jobOrder);
             await db.SaveChangesAsync();
+            DocumentLifecycle.Raise();
         }
 
         public async Task DeleteAsync(int id)
@@ -91,10 +95,41 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             using var db = new JobOrdersDbContext();
             var job = await db.JobOrders.FindAsync(id);
-            if (job != null)
+            if (job == null) return;
+
+            string? sourcePi = job.SourceProformaId;
+            string? jobOrderId = job.JobOrderId;
+
+            db.JobOrders.Remove(job);
+            await db.SaveChangesAsync();
+            DocumentLifecycle.Raise();
+
+            await DeleteMasterDnQuietlyAsync(jobOrderId);
+            await ProformaLifecycleSync.AfterDownstreamChangeAsync(sourcePi);
+        }
+
+        /// <summary>
+        /// Master DNs are internal and excluded from GetByJobOrderIdAsync,
+        /// so they never block JO delete. Remove the leftover tracker so
+        /// the delivery-note database does not keep an orphan MDN.
+        /// Failures are swallowed — the JO is already gone.
+        /// </summary>
+        private static async Task DeleteMasterDnQuietlyAsync(string? jobOrderId)
+        {
+            if (string.IsNullOrWhiteSpace(jobOrderId) || App.DeliveryNotes == null)
+                return;
+
+            try
             {
-                db.JobOrders.Remove(job);
-                await db.SaveChangesAsync();
+                var master = await App.DeliveryNotes
+                    .GetMasterDnForJobOrderAsync(jobOrderId);
+                if (master != null)
+                    await App.DeliveryNotes.DeleteAsync(master.Id);
+            }
+            catch
+            {
+                // Best-effort cleanup. A leftover Master DN is hidden
+                // from every public list and does not keep the PI open.
             }
         }
 

@@ -7,6 +7,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
@@ -24,6 +25,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
     {
         // ── reentrancy guard ──────────────────────────────────────────────
         private int _loadingFlag = 0;
+        private int _reloadQueued = 0;
 
         // ── callback wired by shell VM ────────────────────────────────────
         public Action<int>? OnJobOrderOpenRequested { get; set; }
@@ -259,6 +261,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
                 async () => { try { await LoadJobOrdersAsync(); } catch { } };
 
+            // A DN / TI delete in another module must refresh this list
+            // immediately so derived delivery status matches remaining docs.
+            DocumentLifecycle.Subscribe(LoadJobOrdersAsync);
+
             // v2 §24: version history dialog (shared with Proforma).
             ShowVersionsCommand = new RelayCommand(
                 async param => await ShowVersionsAsync(
@@ -279,7 +285,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public async Task LoadJobOrdersAsync()
         {
             if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+            {
+                Interlocked.Exchange(ref _reloadQueued, 1);
                 return;
+            }
 
             try
             {
@@ -322,6 +331,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             {
                 IsLoading = false;
                 Interlocked.Exchange(ref _loadingFlag, 0);
+                if (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1)
+                    _ = LoadJobOrdersAsync();
             }
         }
 
@@ -437,8 +448,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 ProGlassAutomation.Services.Audit.AppPermissions.JobOrderDelete, "delete a job order"))
                 return;
 
-            // Phase 14: orphan protection — refuse to delete a Job Order
-            // that has dependent Delivery Notes.
+            // Refuse to delete a Job Order that still has real Delivery
+            // Notes or Tax Invoices. The message lists their IDs.
             var guard = await ProGlassAutomation.Services.Database
                 .DependencyGuard.CheckAsync(
                     ProGlassAutomation.Services.Database.DependencyGuard
@@ -468,10 +479,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order deleted",
                     row.JobOrderId, "JO", row.JobOrderId);
-
-                // A deleted Job Order means its source quote is no longer
-                // approved — cascade the source Proforma Invoice to Rejected.
-                await MarkSourceProformaRejectedAsync(row.SourceProformaId);
 
                 await LoadJobOrdersAsync();
             }
@@ -653,11 +660,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     AuditSections.JobOrder, "Job order status changed",
                     $"{entity.JobOrderId} → {newStatus}", "JO", entity.JobOrderId);
 
-                // Marking a Job Order rejected revokes its source quote's
-                // approval — cascade the source Proforma Invoice to Rejected.
-                if (string.Equals(newStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
-                    await MarkSourceProformaRejectedAsync(row.SourceProformaId);
-
                 await LoadJobOrdersAsync();
             }
             catch (Exception ex)
@@ -706,51 +708,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     "Update Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
-            }
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  CASCADE — delete/reject a Job Order revokes the source quote
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// When a Job Order is deleted or marked Rejected, its source Proforma
-        /// Invoice can no longer be considered approved. If that invoice is
-        /// currently "Approved", this marks it "Rejected" — a valid status in
-        /// the Proforma Invoice list. Failures are swallowed so the delete /
-        /// reject action itself is never blocked by the cascade.
-        /// </summary>
-        private async Task MarkSourceProformaRejectedAsync(string? sourceProformaId)
-        {
-            if (string.IsNullOrWhiteSpace(sourceProformaId) || App.Invoices == null) return;
-
-            try
-            {
-                var pi = await App.Invoices.GetByProformaIdAsync(sourceProformaId);
-                if (pi == null) return;
-
-                if (string.Equals(pi.Status, "Approved", StringComparison.OrdinalIgnoreCase))
-                {
-                    pi.Status = "Rejected";
-                    pi.UpdatedAt = DateTime.Now;
-                    await App.Invoices.UpdateAsync(pi);
-
-                    AuditService.Log(
-                        AuditSections.Proforma, "Invoice auto-rejected",
-                        $"{sourceProformaId} ← job order deleted/rejected",
-                        "PI", sourceProformaId);
-                }
-            }
-            catch (Exception ex)
-            {
-                ProGlassAutomation.Services.Logging.AppLogService.Error(
-                    "Source Proforma auto-reject cascade failed.", ex,
-                    new ProGlassAutomation.Services.Logging.LogContext
-                    {
-                        Module = "Job Order",
-                        Class = nameof(SavedJobOrdersListViewModel),
-                        Operation = "MarkSourceProformaRejected"
-                    });
             }
         }
 
@@ -852,6 +809,57 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
                 "Export Failed",
                 MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  HELPERS
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Builds a { JobOrderId → (ordered, delivered) } map from the Delivery
+        /// Notes repository. Never throws — if DN data is unavailable the rows
+        /// simply show "Not delivered".
+        /// </summary>
+        private async Task<Dictionary<string, (int Ordered, int Delivered)>>
+            LoadDeliveryQtyMapAsync()
+        {
+            var map = new Dictionary<string, (int, int)>(
+                StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                if (App.DeliveryNotes == null) return map;
+
+                var summaries = await App.DeliveryNotes.GetPendingQtyJobsAsync();
+                if (summaries == null) return map;
+
+                foreach (var s in summaries)
+                {
+                    if (string.IsNullOrWhiteSpace(s.JobOrderId)) continue;
+                    map[s.JobOrderId] = (s.TotalOrdered, s.TotalDelivered);
+                }
+            }
+            catch
+            {
+                // DN unavailable — rows show "Not delivered".
+            }
+            return map;
+        }
+
+        private static bool Eq(string? a, string b) =>
+            string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+
+        private static int PriorityRank(string? priority) =>
+            priority?.ToLowerInvariant() switch
+            {
+                "high" => 3,
+                "medium" => 2,
+                "low" => 1,
+                _ => 0
+            };
+    }
+}
+.OK,
                 MessageBoxImage.Error);
         }
 

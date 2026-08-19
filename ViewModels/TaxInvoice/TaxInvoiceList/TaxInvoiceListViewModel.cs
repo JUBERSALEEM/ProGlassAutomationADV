@@ -1,6 +1,7 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
+using ProGlassAutomation.Services.Database;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,6 +32,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
     public class TaxInvoiceListViewModel : ViewModelBase
     {
         private int _loadingFlag = 0;
+        private int _reloadQueued = 0;
 
         // ── Callbacks to shell VM ─────────────────────────────────────────
 
@@ -422,6 +424,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                         System.Windows.MessageBoxImage.Error);
                 }
             });
+
+            DocumentLifecycle.Subscribe(LoadAsync);
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -431,7 +435,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public async Task LoadAsync()
         {
             if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+            {
+                Interlocked.Exchange(ref _reloadQueued, 1);
                 return;
+            }
 
             try
             {

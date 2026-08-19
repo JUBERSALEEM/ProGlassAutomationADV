@@ -47,6 +47,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             // A listener that throws must not roll back a completed save.
             try { SavedInvoicesChanged?.Invoke(); } catch { }
+            DocumentLifecycle.Raise();
         }
 
         // BUG-11: named groups, non-greedy prefix, anchored at end

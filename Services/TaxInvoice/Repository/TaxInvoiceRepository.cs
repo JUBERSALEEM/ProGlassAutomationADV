@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.ProformaInvoice;
 
 namespace ProGlassAutomation.Services.TaxInvoice.Repository
 {
@@ -282,6 +284,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             entity.UpdatedAt = DateTime.Now;
             ctx.TaxInvoices.Add(entity);
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
             return entity;
         }
 
@@ -306,6 +309,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             ctx.TaxInvoices.Update(entity);
             await ctx.SaveChangesAsync();
+            DocumentLifecycle.Raise();
         }
 
         public async Task DeleteAsync(int id)
@@ -323,8 +327,37 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             if (entity == null) return;
 
+            string invoiceNumber = entity.InvoiceNumber;
+            string? proformaId = entity.ProformaId;
+
             ctx.TaxInvoices.Remove(entity);
             await ctx.SaveChangesAsync();
+
+            await ClearLinkedDeliveryNotesAsync(invoiceNumber);
+            DocumentLifecycle.Raise();
+            await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
+        }
+
+        /// <summary>
+        /// DNs keep a copy of the TI number for list badges. When the
+        /// invoice is gone those flags must be cleared or the DN still
+        /// looks invoiced and the PI list stays on Fully invoiced.
+        /// </summary>
+        private static async Task ClearLinkedDeliveryNotesAsync(string? invoiceNumber)
+        {
+            if (string.IsNullOrWhiteSpace(invoiceNumber) || App.DeliveryNotes == null)
+                return;
+
+            try
+            {
+                await App.DeliveryNotes.ClearInvoicedByTaxInvoiceAsync(invoiceNumber);
+            }
+            catch
+            {
+                // TI is already gone. A leftover DN badge is repaired
+                // the next time this invoice number is written or the
+                // user re-saves the delivery note.
+            }
         }
 
         // ── Existence checks ──────────────────────────────────────────────

@@ -1,6 +1,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker;
@@ -33,6 +34,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     public class DeliveryNoteListViewModel : ViewModelBase
     {
         private int _loadingFlag = 0;
+        private int _reloadQueued = 0;
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
@@ -543,6 +545,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     && g.AnyDelivered
                     && !string.IsNullOrWhiteSpace(g.ProformaId));
 
+            DocumentLifecycle.Subscribe(LoadAsync);
+
             _ = LoadAsync();
         }
 
@@ -704,7 +708,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public async Task LoadAsync()
         {
             if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+            {
+                Interlocked.Exchange(ref _reloadQueued, 1);
                 return;
+            }
 
             try
             {
@@ -790,6 +797,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 IsLoading = false;
                 Interlocked.Exchange(ref _loadingFlag, 0);
+                if (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1)
+                    _ = LoadAsync();
             }
         }
 

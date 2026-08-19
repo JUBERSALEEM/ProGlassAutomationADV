@@ -2,6 +2,7 @@ using Microsoft.Win32;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using ProGlassAutomation.Services.DeliveryNote.Export;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
@@ -1658,6 +1659,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         {
             if (_entity == null || App.DeliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
+
+            var guard = await DependencyGuard.CheckAsync(
+                DependencyGuard.Kind.DeliveryNote,
+                _entity.DeliveryNoteId);
+            if (guard.HasDependents)
+            {
+                MessageBox.Show(guard.Message, "Cannot Delete",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var result = MessageBox.Show(
                 $"Delete delivery note '{DeliveryNoteId}'?\n\n" +

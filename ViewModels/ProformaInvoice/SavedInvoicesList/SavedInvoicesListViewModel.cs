@@ -8,12 +8,14 @@ using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -33,6 +35,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
     /// </summary>
     public class SavedInvoicesListViewModel : ViewModelBase
     {
+        private int _loadingFlag;
+        private int _reloadQueued;
+
         public string Title { get; } = "SAVED PROFORMA INVOICES";
         public string Subtitle { get; } = "Browse, load, duplicate, or delete previously saved invoices.";
 
@@ -180,21 +185,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
                 async () => { try { await LoadInvoicesAsync(); } catch { } };
 
-            // Instant refresh when proforma data changes ANYWHERE — e.g. a Job
-            // Order delete/reject cascade updates a source invoice's status in
-            // another module. The repository raises SavedInvoicesChanged on
-            // every insert/update/delete, so the list never needs a manual
-            // Refresh to reflect external changes.
-            ProformaInvoiceRepository.SavedInvoicesChanged += () =>
-            {
-                var dispatcher = System.Windows.Application.Current?.Dispatcher;
-                if (dispatcher == null) return;
-                if (dispatcher.CheckAccess())
-                    _ = LoadInvoicesAsync();
-                else
-                    dispatcher.InvokeAsync(
-                        async () => { try { await LoadInvoicesAsync(); } catch { } });
-            };
+            // Instant refresh when this PI changes OR when a related JO / DN /
+            // TI is created or deleted. Display status is derived from those
+            // documents, so a delete in another module must reload this list
+            // without waiting for a manual Refresh.
+            DocumentLifecycle.Subscribe(LoadInvoicesAsync);
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
 
@@ -362,6 +357,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// no longer trigger this — filtering is now in-memory only.
         /// </summary>
         public async Task LoadInvoicesAsync()
+        {
+            if (Interlocked.CompareExchange(ref _loadingFlag, 1, 0) != 0)
+            {
+                Interlocked.Exchange(ref _reloadQueued, 1);
+                return;
+            }
+
+            try
+            {
+                do
+                {
+                    Interlocked.Exchange(ref _reloadQueued, 0);
+                    await LoadInvoicesCoreAsync();
+                }
+                while (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1);
+            }
+            finally
+            {
+                Interlocked.Exchange(ref _loadingFlag, 0);
+                if (Interlocked.CompareExchange(ref _reloadQueued, 0, 1) == 1)
+                    _ = LoadInvoicesAsync();
+            }
+        }
+
+        private async Task LoadInvoicesCoreAsync()
         {
             if (App.Invoices == null) return;
             IsLoading = true;

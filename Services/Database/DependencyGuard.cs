@@ -10,14 +10,17 @@
 //
 // Relationships covered:
 //   Proforma Invoice ──> Job Order(s)  (by SourceProformaId)
+//                    ──> Delivery Note(s) (by ProformaId, real DNs only)
 //                    ──> Tax Invoice(s) (by ProformaId)
-//   Job Order      ──> Delivery Note(s) (by JobOrderId)
-//   Delivery Note  ──> Tax Invoice(s)  (via its ProformaId; DN may be invoiced)
+//   Job Order      ──> Delivery Note(s) (by JobOrderId, real DNs only)
+//                  ──> Tax Invoice(s)  (by JobOrderId or source ProformaId)
+//   Delivery Note  ──> Tax Invoice(s)  (HasTaxInvoice / DeliveryNoteReference)
 //
 // All queries are read-only. Never throws — returns a result that either
 // allows the delete (no dependents) or explains exactly what is blocked.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.TaxInvoice.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,7 +78,7 @@ namespace ProGlassAutomation.Services.Database
                     case Kind.DeliveryNote:
                         return await CheckDeliveryNoteAsync(id);
                     case Kind.TaxInvoice:
-                        return DependencyCheckResult.Ok(); // TI is a leaf for now
+                        return DependencyCheckResult.Ok(); // TI is a leaf
                     default:
                         return DependencyCheckResult.Ok();
                 }
@@ -90,54 +93,124 @@ namespace ProGlassAutomation.Services.Database
 
         private static async Task<DependencyCheckResult> CheckProformaAsync(string piId)
         {
+            var parts = new List<string>();
+
             if (App.Jobs != null)
             {
                 var jobs = await App.Jobs.GetBySourceProformaIdAsync(piId);
                 if (jobs != null && jobs.Count > 0)
-                    return DependencyCheckResult.Blocked(
-                        $"This invoice has {jobs.Count} job order(s). " +
-                        "Delete or reject them first to preserve the workflow history.");
+                    parts.Add("Job Order: " + FormatIds(jobs.Select(j => j.JobOrderId)));
+            }
+
+            if (App.DeliveryNotes != null)
+            {
+                var notes = await App.DeliveryNotes.GetAllAsync();
+                var related = notes
+                    .Where(d => string.Equals(d.ProformaId, piId,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(d => d.DeliveryNoteId)
+                    .ToList();
+                if (related.Count > 0)
+                    parts.Add("Delivery Note: " + FormatIds(related));
             }
 
             if (App.TaxInvoices != null)
             {
                 var tis = await App.TaxInvoices.GetByProformaIdAsync(piId);
                 if (tis != null && tis.Count > 0)
-                    return DependencyCheckResult.Blocked(
-                        $"This invoice has {tis.Count} tax invoice(s). " +
-                        "Cancelling them is required before deletion.");
+                    parts.Add("Tax Invoice: " + FormatIds(tis.Select(t => t.InvoiceNumber)));
             }
 
-            return DependencyCheckResult.Ok();
+            return BlockedIfAny(parts);
         }
 
         private static async Task<DependencyCheckResult> CheckJobOrderAsync(string jobId)
         {
+            var parts = new List<string>();
+            string? sourcePi = null;
+
+            if (App.Jobs != null)
+            {
+                var job = await App.Jobs.GetByJobOrderIdAsync(jobId);
+                sourcePi = job?.SourceProformaId;
+            }
+
             if (App.DeliveryNotes != null)
             {
                 var dns = await App.DeliveryNotes.GetByJobOrderIdAsync(jobId);
                 if (dns != null && dns.Count > 0)
-                    return DependencyCheckResult.Blocked(
-                        $"This job order has {dns.Count} delivery note(s). " +
-                        "Delete or cancel them first.");
+                    parts.Add("Delivery Note: " + FormatIds(dns.Select(d => d.DeliveryNoteId)));
             }
 
-            return DependencyCheckResult.Ok();
+            if (App.TaxInvoices != null)
+            {
+                var tis = await App.TaxInvoices.GetAllAsync();
+                var related = tis
+                    .Where(t =>
+                        string.Equals(t.JobOrderId, jobId,
+                            StringComparison.OrdinalIgnoreCase) ||
+                        (!string.IsNullOrWhiteSpace(sourcePi) &&
+                         string.Equals(t.ProformaId, sourcePi,
+                             StringComparison.OrdinalIgnoreCase)))
+                    .Select(t => t.InvoiceNumber)
+                    .ToList();
+                if (related.Count > 0)
+                    parts.Add("Tax Invoice: " + FormatIds(related));
+            }
+
+            return BlockedIfAny(parts);
         }
 
         private static async Task<DependencyCheckResult> CheckDeliveryNoteAsync(string dnId)
         {
-            // A DN is tied to a tax invoice if it carries an invoice number.
+            var tiIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             if (App.DeliveryNotes != null)
             {
                 var dn = await App.DeliveryNotes.GetByDeliveryNoteIdAsync(dnId);
-                if (dn != null && dn.HasTaxInvoice && !string.IsNullOrWhiteSpace(dn.TaxInvoiceId))
-                    return DependencyCheckResult.Blocked(
-                        $"This delivery note is invoiced as '{dn.TaxInvoiceId}'. " +
-                        "Cancel the tax invoice before deleting the delivery note.");
+                if (dn != null &&
+                    dn.HasTaxInvoice &&
+                    !string.IsNullOrWhiteSpace(dn.TaxInvoiceId))
+                    tiIds.Add(dn.TaxInvoiceId);
             }
 
-            return DependencyCheckResult.Ok();
+            if (App.TaxInvoices != null)
+            {
+                var tis = await App.TaxInvoices.GetAllAsync();
+                foreach (var t in tis ?? new())
+                {
+                    var refs = TaxInvoiceDnReconciler.ParseDnRefs(t.DeliveryNoteReference);
+                    if (refs.Any(r => string.Equals(r, dnId, StringComparison.OrdinalIgnoreCase)))
+                        tiIds.Add(t.InvoiceNumber);
+                }
+            }
+
+            if (tiIds.Count == 0)
+                return DependencyCheckResult.Ok();
+
+            return BlockedIfAny(new List<string>
+            {
+                "Tax Invoice: " + FormatIds(tiIds)
+            });
+        }
+
+        private static DependencyCheckResult BlockedIfAny(List<string> parts)
+        {
+            if (parts.Count == 0)
+                return DependencyCheckResult.Ok();
+
+            return DependencyCheckResult.Blocked(
+                "Delete the related documents first:\n\n" +
+                string.Join("\n", parts));
+        }
+
+        private static string FormatIds(IEnumerable<string?> ids)
+        {
+            return string.Join(", ",
+                ids.Where(s => !string.IsNullOrWhiteSpace(s))
+                   .Select(s => s!.Trim())
+                   .Distinct(StringComparer.OrdinalIgnoreCase)
+                   .OrderBy(s => s, StringComparer.OrdinalIgnoreCase));
         }
     }
 }

@@ -110,6 +110,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             IEnumerable<string> deliveryNoteIds,
             string taxInvoiceId);
 
+        /// <summary>
+        /// Clears HasTaxInvoice / TaxInvoiceId on every DN marked with this
+        /// tax invoice. Called when the Tax Invoice is deleted so the DN
+        /// list no longer shows an invoiced badge for a missing invoice.
+        /// Idempotent. Safe with a blank id — no-ops.
+        /// </summary>
+        Task ClearInvoicedByTaxInvoiceAsync(string taxInvoiceId);
+
         // ── List retrieval ───────────────────────────────────────────────
 
         /// <summary>CHAT 19: excludes Master DNs (IsMasterDn=true).</summary>
