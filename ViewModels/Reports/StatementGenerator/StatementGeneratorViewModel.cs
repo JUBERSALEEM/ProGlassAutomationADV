@@ -1139,9 +1139,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         $"Outstanding: AED {snapshot.Financial.TotalOutstanding:N2}";
                 }
             }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             catch (Exception ex)
             {
+                AppLogService.Warning($"Preview failed: {ex.Message}");
                 StatusMessage = $"Preview failed: {ex.Message}";
                 PreviewSnapshot = null;
                 Application.Current?.Dispatcher.Invoke(() => PreviewVM.UpdateFromSnapshot(null));

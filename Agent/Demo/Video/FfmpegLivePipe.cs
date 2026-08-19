@@ -75,9 +75,9 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 });
                 return pipe;
             }
-            catch (Exception ex)
+            catch (Exception ex2)
             {
-                AppLogService.Debug("[FfmpegLivePipe] start failed: " + ex.Message);
+                AppLogService.Debug("[FfmpegLivePipe] start failed: " + ex2.Message);
                 return null;
             }
         }
@@ -126,7 +126,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             catch (Exception ex)
             {
                 Error = ex.Message;
-                try { if (!p.HasExited) p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { if (!p.HasExited) p.Kill(); } catch (Exception ex2) { AppLogService.Warning($"Suppressed exception: {ex2.Message}"); }
                 return false;
             }
         }

@@ -292,7 +292,7 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
-            var filtered = all.Where(r => MatchCommonPi(r, filter)).ToList();
+            List<dynamic> filtered = all.Where(r => MatchCommonPi(r, filter)).Cast<dynamic>().ToList();
             // Salesman filter — need to resolve via snapshot or MasterData if filter has salesman
             // For summary we approximate: if salesman filter present, we must deserialize matching PIs
             if (filter.HasSalesman)
@@ -520,7 +520,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .ToListAsync(ct);
 
             // Apply filters in memory (small projection)
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.ProformaId) || Eq(r.SourceProformaId, filter.ProformaId!)) &&
                 (string.IsNullOrWhiteSpace(filter.JobOrderId) || Eq(r.JobOrderId, filter.JobOrderId!)) &&
                 (string.IsNullOrWhiteSpace(filter.Customer) || ContainsCI(r.CustomerName, filter.Customer)) &&
@@ -528,7 +528,7 @@ namespace ProGlassAutomation.Services.Reporting
                 (!filter.DateFrom.HasValue || !r.DeliveryDate.HasValue || r.DeliveryDate.Value.Date >= filter.DateFrom.Value.Date) &&
                 (!filter.DateTo.HasValue || !r.DeliveryDate.HasValue || r.DeliveryDate.Value.Date <= filter.DateTo.Value.Date) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.JobOrderId, filter.SearchText) || ContainsCI(r.SourceProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             // Need PI count for awaiting JO
             int totalPi = 0;
@@ -602,9 +602,9 @@ namespace ProGlassAutomation.Services.Reporting
                 j.GrandTotalVatInclusive, j.FullSnapshotJson, j.CreatedAt, j.UpdatedAt
             }).OrderByDescending(j => j.CreatedAt).ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.JobOrderId, filter.SearchText) || ContainsCI(r.SourceProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             // Optional: Project filter via snapshot, Salesman etc.
             if (filter.HasProject || filter.HasSalesman || !string.IsNullOrWhiteSpace(filter.Company))
@@ -700,7 +700,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .Select(d => new { d.DeliveryNoteId, d.JobOrderId, d.ProformaId, d.CustomerName, d.ProjectName, d.Status, d.DeliveryDate, d.TotalOrderedQty, d.TotalDeliveredQty, d.TotalBalanceQty, d.IsMasterDn })
                 .ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.ProformaId) || Eq(r.ProformaId, filter.ProformaId!)) &&
                 (string.IsNullOrWhiteSpace(filter.JobOrderId) || Eq(r.JobOrderId, filter.JobOrderId!)) &&
                 (string.IsNullOrWhiteSpace(filter.DeliveryNoteId) || Eq(r.DeliveryNoteId, filter.DeliveryNoteId!)) &&
@@ -710,7 +710,7 @@ namespace ProGlassAutomation.Services.Reporting
                 (!filter.DateFrom.HasValue || r.DeliveryDate.Date >= filter.DateFrom.Value.Date) &&
                 (!filter.DateTo.HasValue || r.DeliveryDate.Date <= filter.DateTo.Value.Date) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.DeliveryNoteId, filter.SearchText) || ContainsCI(r.JobOrderId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             var summary = new DeliveryReportSummary
             {
@@ -754,10 +754,10 @@ namespace ProGlassAutomation.Services.Reporting
                 d.Id, d.DeliveryNoteId, d.JobOrderId, d.ProformaId, d.CustomerName, d.ProjectName, d.Status, d.DeliveryType, d.IsMasterDn, d.HasTaxInvoice, d.DeliveryDate, d.TotalOrderedQty, d.TotalDeliveredQty, d.TotalBalanceQty, d.DriverName, d.CreatedAt
             }).OrderByDescending(d => d.DeliveryDate).ThenByDescending(d => d.CreatedAt).ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (filter.HasProject ? ContainsCI(r.ProjectName, filter.Project) : true) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.DeliveryNoteId, filter.SearchText) || ContainsCI(r.JobOrderId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             var total = filtered.Count;
             var page = filtered.Skip(filter.Skip).Take(filter.Take).ToList();
@@ -797,7 +797,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .Select(t => new { t.InvoiceNumber, t.ProformaId, t.Status, t.InvoiceType, t.CustomerName, t.CompanyName, t.ProjectName, t.IssueDate, t.DueDate, t.GrandTotal, t.VatAmount })
                 .ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.ProformaId) || Eq(r.ProformaId, filter.ProformaId!)) &&
                 (string.IsNullOrWhiteSpace(filter.TaxInvoiceNumber) || Eq(r.InvoiceNumber, filter.TaxInvoiceNumber!)) &&
                 (string.IsNullOrWhiteSpace(filter.Customer) || ContainsCI(r.CustomerName, filter.Customer)) &&
@@ -807,7 +807,7 @@ namespace ProGlassAutomation.Services.Reporting
                 (!filter.DateFrom.HasValue || r.IssueDate.Date >= filter.DateFrom.Value.Date) &&
                 (!filter.DateTo.HasValue || r.IssueDate.Date <= filter.DateTo.Value.Date) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.InvoiceNumber, filter.SearchText) || ContainsCI(r.ProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             var summary = new TaxInvoiceReportSummary
             {
@@ -864,10 +864,10 @@ namespace ProGlassAutomation.Services.Reporting
                 t.Id, t.InvoiceNumber, t.ProformaId, t.JobOrderId, t.DeliveryNoteReference, t.CustomerName, t.ProjectName, t.CompanyName, t.Status, t.InvoiceType, t.IssueDate, t.DueDate, t.GrandTotal, t.VatAmount, t.TotalQty, t.TotalSqm, t.CreatedAt
             }).OrderByDescending(t => t.IssueDate).ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (filter.HasProject ? ContainsCI(r.ProjectName, filter.Project) : true) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.InvoiceNumber, filter.SearchText) || ContainsCI(r.ProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             var total = filtered.Count;
             var page = filtered.Skip(filter.Skip).Take(filter.Take).ToList();
@@ -1532,11 +1532,11 @@ namespace ProGlassAutomation.Services.Reporting
                 s.Id, s.StatementNumber, s.FilterCustomer, s.FilterCompany, s.FilterProject, s.LineItems, s.TotalInvoiced, s.TotalOutstanding, s.OverdueAmount, s.CreatedAt, s.FilterJson
             }).OrderByDescending(s => s.CreatedAt).ToListAsync(ct);
 
-            var filtered = all.Where(r =>
+            List<dynamic> filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.StatementNumber, filter.SearchText) || ContainsCI(r.FilterCustomer, filter.SearchText) || ContainsCI(r.FilterCompany, filter.SearchText)) &&
                 (string.IsNullOrWhiteSpace(filter.Company) || ContainsCI(r.FilterCompany, filter.Company)) &&
                 (filter.HasProject ? ContainsCI(r.FilterProject, filter.Project) : true)
-            ).ToList();
+            ).Cast<dynamic>().ToList();
 
             var total = filtered.Count;
             var page = filtered.Skip(filter.Skip).Take(filter.Take).ToList();

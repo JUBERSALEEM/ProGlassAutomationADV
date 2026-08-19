@@ -1479,7 +1479,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyVisualTheme();
 
             // v2 §34: show the persisted update history on open.
-            LoadUpdateHistory();
+            _ = LoadUpdateHistoryAsync();
 
             // ── Module wallpaper rows (§9) ────────────────────────────
             foreach (var (key, label) in
@@ -1553,7 +1553,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         UpdateStatus = "You are up to date (v" +
                             Services.Updates.AppInfo.Version + ").";
                     }
-                    LoadUpdateHistory();
+                    await LoadUpdateHistoryAsync();
                     return;
                 }
 
@@ -1590,7 +1590,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
 
                 IsCheckingUpdate = false;
-                LoadUpdateHistory();
+                await LoadUpdateHistoryAsync();
             });
 
             DownloadUpdateCommand = new RelayCommand(async _ =>
@@ -1667,7 +1667,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 // Success status ("Update ready.") arrives via the
                 // StateChanged handler.
-                LoadUpdateHistory();
+                await LoadUpdateHistoryAsync();
             });
 
             InstallUpdateCommand = new RelayCommand(_ =>

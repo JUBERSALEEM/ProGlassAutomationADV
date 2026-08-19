@@ -106,7 +106,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         }
                     }
 
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (proformainvoices.db + joborders.db)", new[] { filter.ToString() }));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 2. Delivery / pending ────────────────────────────────
@@ -128,7 +128,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                             foreach (var r in pending) sb.AppendLine($"  {r.DeliveryNoteId} ({r.JobOrderId}) — {r.CustomerName} · {r.TotalBalanceQty} pcs remaining");
                         }
                     }
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (deliverynotes.db master DNs)", Array.Empty<string>()));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 3. Specification search ──────────────────────────────
@@ -143,7 +143,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
                     var rows = await _reporting.GetGlassSpecRowsAsync(filter);
                     if (rows.Items.Count == 0)
-                        return ToolResult.Ok($"No glass rows matched '{query}' with current filter. Try specifying PI or glass reference.", AnswerProvenance.Known("ReportingDataService (proformainvoices.db snapshots)", Array.Empty<string>()));
+                        return ToolResult.Ok($"No glass rows matched '{query}' with current filter. Try specifying PI or glass reference.");
 
                     sb.AppendLine($"Glass rows matching '{query}': {rows.TotalCount} total, showing {rows.Items.Count}");
                     foreach (var r in rows.Items.Take(8))
@@ -155,14 +155,20 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         var top = aggs.First();
                         sb.AppendLine($"• Top exact spec: {top.SpecName} — {top.TotalQty} pcs across {top.DistinctCustomers} customers");
                     }
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (row-level PI snapshots)", Array.Empty<string>()));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 4. Tax Invoice / pending invoice ─────────────────────
                 if (q.Contains("tax") || q.Contains("invoice") && !q.Contains("proforma"))
                 {
                     var filter = new ReportingFilter();
-                    if (q.Contains("pending")) { var pending = await _reporting.GetPendingInvoicesAsync(filter); sb.AppendLine($"Pending invoices (confirmed PI without TI): {pending.Count}"); foreach(var p in pending.Take(6)) sb.AppendLine($"• {p.ProformaId} — {p.CustomerName} · AED {p.GrandTotal:N2}"); return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (proformainvoices.db + taxinvoices.db)", Array.Empty<string>())); }
+                    if (q.Contains("pending"))
+                    {
+                        var pending = await _reporting.GetPendingInvoicesAsync(filter);
+                        sb.AppendLine($"Pending invoices (confirmed PI without TI): {pending.Count}");
+                        foreach (var p in pending.Take(6)) sb.AppendLine($"• {p.ProformaId} — {p.CustomerName} · AED {p.GrandTotal:N2}");
+                        return ToolResult.Ok(sb.ToString().TrimEnd());
+                    }
                     var summary = await _reporting.GetTaxInvoiceSummaryAsync(filter);
                     sb.AppendLine($"Tax Invoice summary:");
                     sb.AppendLine($"• Total {summary.TotalInvoices} (AED {summary.TotalAmount:N2}) · Issued {summary.Issued} · Paid {summary.Paid} · Overdue {summary.Overdue} · Pending invoice {summary.PendingInvoice}");
@@ -171,7 +177,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         var rows = await _reporting.GetTaxInvoiceRowsAsync(new ReportingFilter { Status = "Overdue", PageSize = 6 });
                         foreach (var r in rows.Items) sb.AppendLine($"  {r.InvoiceNumber} — {r.CustomerName} · AED {r.GrandTotal:N2} due {r.DueDate:dd MMM yyyy}");
                     }
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (taxinvoices.db)", Array.Empty<string>()));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 5. Profitability ─────────────────────────────────────
@@ -186,7 +192,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     if (summary.InvoicesWithoutCost > 0) sb.AppendLine("  (Missing cost means Step 9 Profit & Loss was not saved for those PIs — open the PI and save Step 9 to populate.)");
                     var rows = await _reporting.GetProfitabilityRowsAsync(new ReportingFilter { Project = filter.Project, PageSize = 6 });
                     foreach (var r in rows.Items.Take(5)) sb.AppendLine($"  {r.Name} — Revenue AED {r.Revenue:N2} · Profit AED {r.Profit:N2} ({r.Margin:0.0}%){(r.HasCostData ? "" : " [no cost data]")}");
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Calculated("ReportingDataService (PI snapshots ProfitLoss)", "Revenue ex-VAT − glass − production", Array.Empty<string>()));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 6. Statement ─────────────────────────────────────────
@@ -196,10 +202,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     var filter = new ReportingFilter { Customer = string.IsNullOrWhiteSpace(customer) ? null : customer };
                     var rows = await _reporting.GetStatementRowsAsync(filter);
                     if (rows.Items.Count == 0)
-                        return ToolResult.Ok($"No statements found{(filter.Customer != null ? $" for {filter.Customer}" : "")}. Generate one via Reports → Statement → New Statement.", AnswerProvenance.Known("ReportingDataService (statements.db)", Array.Empty<string>()));
+                        return ToolResult.Ok($"No statements found{(filter.Customer != null ? $" for {filter.Customer}" : "")}. Generate one via Reports → Statement → New Statement.");
                     sb.AppendLine($"Statements{(filter.Customer != null ? $" for {filter.Customer}" : "")}: {rows.TotalCount} total");
                     foreach (var r in rows.Items.Take(6)) sb.AppendLine($"• {r.StatementNumber} — {r.CustomerName} · {r.InvoiceCount} invoice(s) · AED {r.TotalInvoiced:N2} invoiced · {r.CreatedAt:dd MMM yyyy}");
-                    return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (statements.db)", Array.Empty<string>()));
+                    return ToolResult.Ok(sb.ToString().TrimEnd());
                 }
 
                 // ── 7. Generic sales reporting fallback ────────────────────
@@ -213,7 +219,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                 sb.AppendLine($"• DN: {dnSummary.TotalDn} · {dnSummary.CompletionPct:0.#}% delivered");
                 sb.AppendLine($"• TI: {tiSummary.TotalInvoices} · AED {tiSummary.TotalAmount:N2}");
                 sb.AppendLine("Ask specifically: e.g. 'pending deliveries for Apex', 'rows in PI-1045', 'profit for Tower A', 'companies ordered DGU 6+12+6'.");
-                return ToolResult.Ok(sb.ToString().TrimEnd(), AnswerProvenance.Known("ReportingDataService (all modules)", Array.Empty<string>()));
+                return ToolResult.Ok(sb.ToString().TrimEnd());
             }
             catch (Exception ex)
             {
