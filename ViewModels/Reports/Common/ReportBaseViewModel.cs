@@ -156,7 +156,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             _ = LoadAsync();
         }
 
-        protected ReportingFilter BuildFilter()
+        protected virtual ReportingFilter BuildFilter()
         {
             return new ReportingFilter
             {

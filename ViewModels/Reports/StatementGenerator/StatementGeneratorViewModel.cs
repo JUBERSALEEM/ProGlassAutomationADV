@@ -417,7 +417,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         //  SECTION 4 — PROCESSING LOG + METRICS + WARNINGS
         // ═════════════════════════════════════════════════════════════════
 
-        public ObservableCollection<LogEntry> ProcessingLog { get; } = new();
+        public ObservableCollection<ProGlassAutomation.Models.Statement.Workflow.LogEntry> ProcessingLog { get; } = new();
         public ObservableCollection<WorkflowWarningItem> WorkflowWarnings { get; } = new();
 
         private int _orderedQtyMetric;
@@ -1549,7 +1549,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             dispatcher.Invoke(() =>
             {
-                ProcessingLog.Add(new LogEntry
+                ProcessingLog.Add(new ProGlassAutomation.Models.Statement.Workflow.LogEntry
                 {
                     Severity = severity,
                     Text = text

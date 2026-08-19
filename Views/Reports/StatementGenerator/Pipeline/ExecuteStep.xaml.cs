@@ -34,7 +34,7 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline
 {
     public partial class ExecuteStep : UserControl
     {
-        private ObservableCollection<LogEntry>? _subscribedLog;
+        private ObservableCollection<ProGlassAutomation.Models.Statement.Workflow.LogEntry>? _subscribedLog;
 
         public ExecuteStep()
         {
