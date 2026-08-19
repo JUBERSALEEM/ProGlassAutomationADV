@@ -402,6 +402,9 @@ namespace ProGlassAutomation.Views.Splash
         /// </summary>
         public event Action? TermsResolved;
 
+        /// <summary>True only after a verified sign-in on this splash.</summary>
+        public bool SignedIn { get; private set; }
+
         private static string TermsMarkerPath => System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "terms-accepted.txt");
