@@ -376,29 +376,25 @@
         </Setter>
     </Style>
 
-    <!-- View-all / skip link. ContentPresenter cannot live inside a TextBlock. -->
+    <!-- Text-link button. Underline lives on the content TextBlock —
+         TextDecorations is not an attached property on ContentPresenter. -->
     <Style x:Key="PiViewAllLinkStyle" TargetType="Button">
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Padding"         Value="0"/>
+        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontWeight"      Value="SemiBold"/>
+        <Setter Property="Foreground"      Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border Background="Transparent"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter x:Name="LinkHost"
-                                          HorizontalAlignment="Left"
-                                          VerticalAlignment="Center"
-                                          TextBlock.FontSize="12"
-                                          TextBlock.FontWeight="SemiBold"
-                                          TextBlock.Foreground="{DynamicResource AccentBrush}"
-                                          TextBlock.TextDecorations="Underline"/>
-                    </Border>
+                    <ContentPresenter HorizontalAlignment="Left"
+                                      VerticalAlignment="Center"
+                                      RecognizesAccessKey="True"/>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="LinkHost"
-                                    Property="TextBlock.Foreground"
+                            <Setter Property="Foreground"
                                     Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>

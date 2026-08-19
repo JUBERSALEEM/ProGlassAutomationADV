@@ -40,9 +40,10 @@
                         Style="{StaticResource PiGhostChipButton}"
                         Margin="0,0,8,0"
                         Content="+ CLAUSE"/>
-                <Button Command="{Binding ResetToDefaultsCommand}"
-                        Style="{StaticResource PiViewAllLinkStyle}"
-                        Content="Reset defaults"/>
+                    <Button Command="{Binding ResetToDefaultsCommand}"
+                            Style="{StaticResource PiViewAllLinkStyle}">
+                        <TextBlock Text="Reset defaults" TextDecorations="Underline"/>
+                    </Button>
             </StackPanel>
         </Grid>
 

@@ -107,8 +107,9 @@
                         <Button Margin="12,0,0,0"
                                 Command="{Binding ClearClientFilterCommand}"
                                 Style="{StaticResource PiViewAllLinkStyle}"
-                                Content="Clear filter"
-                                ToolTip="Remove client filter — show all projects"/>
+                                ToolTip="Remove client filter — show all projects">
+                            <TextBlock Text="Clear filter" TextDecorations="Underline"/>
+                        </Button>
                     </StackPanel>
 
                     <TextBlock Margin="0,12,0,0"

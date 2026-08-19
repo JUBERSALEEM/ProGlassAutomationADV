@@ -46,6 +46,23 @@ INVALID_PROPS = (
     "letter-spacing",
 )
 
+# TextBlock-only locals — not attached properties. Setting them on
+# ContentPresenter / Border is MC3015 / XDG0044.
+TEXTBLOCK_LOCAL = (
+    "TextDecorations",
+    "TextWrapping",
+    "TextTrimming",
+    "TextAlignment",
+)
+TB_ATTACHED = re.compile(
+    r"<((?!TextBlock\b)[\w.:]+)(\s[^>]*)?TextBlock\.("
+    + "|".join(TEXTBLOCK_LOCAL)
+    + r")\s*="
+)
+TB_SETTER = re.compile(
+    r'Property="TextBlock\.(' + "|".join(TEXTBLOCK_LOCAL) + r')"'
+)
+
 XMLNS_DECL = re.compile(r"xmlns:([A-Za-z_][\w]*)\s*=")
 
 
@@ -123,6 +140,27 @@ def check_invalid_props(path: Path, text: str, errors: list[str]) -> None:
                     f"{path.relative_to(ROOT)}:{i}: "
                     f"invalid WPF property '{prop}' (TextBlock has no letter-spacing)"
                 )
+
+
+def check_textblock_locals(path: Path, text: str, errors: list[str]) -> None:
+    """TextDecorations / TextWrapping are not attached properties."""
+    for i, line in enumerate(text.splitlines(), 1):
+        stripped = line.lstrip()
+        if stripped.startswith("<!--"):
+            continue
+        if TB_ATTACHED.search(line):
+            errors.append(
+                f"{path.relative_to(ROOT)}:{i}: "
+                f"TextBlock.TextDecorations/Wrapping/Trimming is not attached "
+                f"— only valid on TextBlock (MC3015 / XDG0044)"
+            )
+        if TB_SETTER.search(line) and "TargetType=\"TextBlock\"" not in line:
+            # Setter Property="TextBlock.TextDecorations" on a ContentPresenter
+            errors.append(
+                f"{path.relative_to(ROOT)}:{i}: "
+                f"Setter Property='TextBlock.*' local — not an attached property "
+                f"(MC3015 / XDG0044)"
+            )
 
 
 def check_undeclared_prefixes(path: Path, text: str, errors: list[str]) -> None:
