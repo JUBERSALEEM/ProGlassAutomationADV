@@ -1,6 +1,8 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.CustomCharges;
@@ -30,6 +32,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     public class OtherChargesViewModel : ViewModelBase
     {
         private readonly DataGridViewModel _dataGridVM;
+        private LamParametersViewModel? _lamVm;
+        private DguLamParametersViewModel? _dguLamVm;
         private readonly DispatcherTimer _polishDebouncer;
         private const int POLISH_DEBOUNCE_MS = 150;
 
@@ -89,6 +93,76 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 HookSpecGroup(g);
 
             RecalculatePolishRowsImmediate();
+        }
+
+        public void BindLaminationEditors(
+            LamParametersViewModel lamVm,
+            DguLamParametersViewModel dguLamVm)
+        {
+            if (_lamVm != null)
+                _lamVm.PropertyChanged -= OnLaminationEditorChanged;
+            if (_dguLamVm != null)
+                _dguLamVm.PropertyChanged -= OnLaminationEditorChanged;
+
+            _lamVm = lamVm;
+            _dguLamVm = dguLamVm;
+
+            if (_lamVm != null)
+                _lamVm.PropertyChanged += OnLaminationEditorChanged;
+            if (_dguLamVm != null)
+                _dguLamVm.PropertyChanged += OnLaminationEditorChanged;
+
+            SyncLaminationColorsFromStep4();
+        }
+
+        private void OnLaminationEditorChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is
+                nameof(LamParametersViewModel.OuterGlassColor)
+                or nameof(LamParametersViewModel.InnerGlassColor)
+                or nameof(LamParametersViewModel.GeneratedSpecName)
+                or nameof(DguLamParametersViewModel.LamOuterColor)
+                or nameof(DguLamParametersViewModel.LamInnerColor)
+                or nameof(DguLamParametersViewModel.GeneratedSpecName)
+                or nameof(DguLamParametersViewModel.OuterGlassColor)
+                or null
+                or "")
+            {
+                SyncLaminationColorsFromStep4();
+            }
+        }
+
+        private void SyncLaminationColorsFromStep4()
+        {
+            int lamCount = _dataGridVM.SpecGroups.Count(g =>
+                string.Equals(g.SelectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase));
+            int dguLamCount = _dataGridVM.SpecGroups.Count(g =>
+                string.Equals(g.SelectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase));
+
+            foreach (var group in _dataGridVM.SpecGroups)
+            {
+                if (string.Equals(group.SelectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase)
+                    && _lamVm != null)
+                {
+                    bool takeLive = lamCount == 1
+                        || LaminateGlassMatcher.SpecNameMatchesGenerated(
+                            group.SelectedSpecName, _lamVm.GeneratedSpecName);
+                    if (takeLive)
+                        group.ApplyLaminateColors(_lamVm.OuterGlassColor, _lamVm.InnerGlassColor);
+                }
+                else if (string.Equals(group.SelectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase)
+                    && _dguLamVm != null)
+                {
+                    bool takeLive = dguLamCount == 1
+                        || LaminateGlassMatcher.SpecNameMatchesGenerated(
+                            group.SelectedSpecName, _dguLamVm.GeneratedSpecName);
+                    if (takeLive)
+                        group.ApplyLaminateColors(_dguLamVm.LamOuterColor, _dguLamVm.LamInnerColor);
+                }
+            }
+
+            MetricHub.Refresh();
+            RequestPolishRecalculation();
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -360,7 +434,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     GroupNumber = g.GroupNumber,
                     GroupName = g.GroupName ?? "",
                     SelectedGlassType = g.SelectedGlassType ?? "",
-                    SelectedSpecName = g.SelectedSpecName ?? ""
+                    SelectedSpecName = g.SelectedSpecName ?? "",
+                    OuterGlassColor = g.OuterGlassColor ?? "",
+                    InnerGlassColor = g.InnerGlassColor ?? ""
                 };
 
                 foreach (var r in g.ItemRows)
@@ -420,7 +496,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName is nameof(SpecGroup.SelectedGlassType)
-                or nameof(SpecGroup.SelectedSpecName))
+                or nameof(SpecGroup.SelectedSpecName)
+                or nameof(SpecGroup.OuterGlassColor)
+                or nameof(SpecGroup.InnerGlassColor))
             {
                 RequestPolishRecalculation();
                 WastagesSection?.SyncAllWastageSources();
@@ -483,6 +561,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         /// </summary>
         public void RefreshWorkspace()
         {
+            SyncLaminationColorsFromStep4();
             MetricHub.Refresh();
             SyncTargetSelectionsFromHub();
             RecalculatePolishRowsImmediate();

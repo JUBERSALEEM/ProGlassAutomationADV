@@ -143,7 +143,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 if (g.ItemRows == null) continue;
 
                 bool matched = LaminateGlassMatcher.IsMatchedSameGlass(
-                    g.SelectedSpecName, g.SelectedGlassType);
+                    g.SelectedSpecName, g.SelectedGlassType,
+                    g.OuterGlassColor, g.InnerGlassColor);
                 if (matchedSameGlassOnly && !matched)
                     continue;
 

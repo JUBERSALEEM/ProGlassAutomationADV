@@ -131,170 +131,105 @@
         <Border Padding="0">
             <StackPanel>
 
-                <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="10,8" Margin="0,0,0,12">
-                    <StackPanel>
-                        <TextBlock Text="IMPORTED FROM DATA GRID"
-                                   Style="{StaticResource PiSectionLabelStyle}"
-                                   Margin="0,0,0,6"/>
+                <TextBlock Text="IMPORTED FROM DATA GRID"
+                           Style="{StaticResource PiSectionLabelStyle}"
+                           Margin="0,0,0,4"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="LM1" Style="{StaticResource PiKpiCaptionStyle}" Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="LM2" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.TotalLm2, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="LM COMBINED" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.CombinedLm, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="PIECES" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.TotalPieces}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="DGU PCS" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.DoubleGlassPieces}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="SQM1" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm1, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="SQM2" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm2, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}">
-                                <StackPanel>
-                                    <TextBlock Text="SQM COMBINED" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.CombinedSqm, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                            <Border Grid.Column="8" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
-                                <StackPanel>
-                                    <TextBlock Text="DGU CAVITY" Style="{StaticResource PiKpiCaptionStyle}"/>
-                                    <TextBlock Text="{Binding MetricHub.DguCavityArea, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-
-                        <ItemsControl ItemsSource="{Binding MetricHub.PrimaryGlassRefs}" Margin="0,8,0,0">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <WrapPanel/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="{DynamicResource CardBorderThickness}"
-                                            Background="{DynamicResource TintIndigoBrush}"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Padding="8,3"
-                                            Margin="0,0,4,4"
-                                            ToolTip="{Binding}">
-                                        <TextBlock Text="{Binding}"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <ItemsControl ItemsSource="{Binding MetricHub.PerSpecMetrics}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="0,1,0,0"
-                                            Padding="0,6,0,4">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="2.4*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.7*"/>
-                                                <ColumnDefinition Width="0.6*"/>
-                                                <ColumnDefinition Width="1.2*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding SpecDisplayName}"
-                                                           FontSize="12"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           TextWrapping="Wrap"/>
-                                                <TextBlock Text="{Binding GlassType}"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="1"
-                                                       Text="{Binding Lm1, StringFormat=LM1 {0:0.##}}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2"
-                                                       Text="{Binding Lm2, StringFormat=LM2 {0:0.##}}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="3"
-                                                       Text="{Binding Sqm1, StringFormat=SQM1 {0:0.##}}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="4"
-                                                       Text="{Binding Sqm2, StringFormat=SQM2 {0:0.##}}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="5"
-                                                       Text="{Binding Qty, StringFormat={}{0} pcs}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="6"
-                                                       Text="{Binding PhysicalPanes, StringFormat={}{0} panes}"
-                                                       FontSize="11"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="7"
-                                                       Text="{Binding MatchHint}"
-                                                       FontSize="10"
-                                                       FontWeight="Bold"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       TextWrapping="Wrap"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
+                <Border Style="{StaticResource PiTableHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2.4*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.7*"/>
+                            <ColumnDefinition Width="0.6*"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="SPEC" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Text="LM1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="LM2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="SQM1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="SQM2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="PCS" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="PANES" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="7" Text="POLISH" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                    </Grid>
                 </Border>
+
+                <ItemsControl ItemsSource="{Binding MetricHub.PerSpecMetrics}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="10,6">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2.4*"/>
+                                        <ColumnDefinition Width="0.7*"/>
+                                        <ColumnDefinition Width="0.7*"/>
+                                        <ColumnDefinition Width="0.7*"/>
+                                        <ColumnDefinition Width="0.7*"/>
+                                        <ColumnDefinition Width="0.7*"/>
+                                        <ColumnDefinition Width="0.6*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding SpecDisplayName}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextWrapping="Wrap"/>
+                                        <TextBlock Text="{Binding GlassType}"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Lm1, StringFormat={}{0:0.##}}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Lm2, StringFormat={}{0:0.##}}"
+                                               FontSize="12"
+                                               FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding Sqm1, StringFormat={}{0:0.##}}"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4"
+                                               Text="{Binding Sqm2, StringFormat={}{0:0.##}}"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5"
+                                               Text="{Binding Qty}"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6"
+                                               Text="{Binding PhysicalPanes}"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    <TextBlock Grid.Column="7"
+                                               Text="{Binding MatchHint}"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               TextWrapping="Wrap"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
                 <TextBlock Text="PREDEFINED CHARGES" Style="{StaticResource PiBandTitleStyle}" Margin="0,4,0,6"/>
 

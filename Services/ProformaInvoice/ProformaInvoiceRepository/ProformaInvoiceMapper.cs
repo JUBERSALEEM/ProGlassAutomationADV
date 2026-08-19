@@ -269,8 +269,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     GroupName = group.GroupName ?? "",
                     SelectedGlassType = group.SelectedGlassType ?? "",
                     SelectedSpecName = group.SelectedSpecName ?? "",
-                    OuterGlassColor = "",
-                    InnerGlassColor = "",
+                    OuterGlassColor = group.OuterGlassColor ?? "",
+                    InnerGlassColor = group.InnerGlassColor ?? "",
                     BaseRate = group.BaseRate,
                     SurchargePercent = group.SurchargePercent,
 
@@ -538,6 +538,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     GroupName = gSnap.GroupName ?? "",
                     SelectedGlassType = gSnap.SelectedGlassType ?? "",
                     SelectedSpecName = gSnap.SelectedSpecName ?? "",
+                    OuterGlassColor = gSnap.OuterGlassColor ?? "",
+                    InnerGlassColor = gSnap.InnerGlassColor ?? "",
                     BaseRate = gSnap.BaseRate,
                     SurchargePercent = gSnap.SurchargePercent,
 

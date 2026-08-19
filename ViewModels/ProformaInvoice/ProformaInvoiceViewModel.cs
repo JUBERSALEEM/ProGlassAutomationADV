@@ -226,6 +226,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
             Step5VM = new Step5DataGrid.DataGridViewModel();
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
+            Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
 
             // S-10: Step7VM receives Step2VM (Client) and Step3VM (Project).
             // PrintPreviewViewModel must use correct property names —

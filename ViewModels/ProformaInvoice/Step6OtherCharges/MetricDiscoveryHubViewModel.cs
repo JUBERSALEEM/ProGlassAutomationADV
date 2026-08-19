@@ -170,6 +170,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(SpecGroup.FooterTotalLm2)
                 or nameof(SpecGroup.SelectedGlassType)
                 or nameof(SpecGroup.SelectedSpecName)
+                or nameof(SpecGroup.OuterGlassColor)
+                or nameof(SpecGroup.InnerGlassColor)
                 or nameof(SpecGroup.GroupName))
             {
                 Refresh();
@@ -226,8 +228,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     existing.SpecDisplayName = BuildSpecDisplayName(g);
                     existing.GlassType = g.SelectedGlassType ?? "";
                     existing.IsDoubleGlass = isDoubleGlass;
+                    existing.OuterGlassColor = g.OuterGlassColor ?? "";
+                    existing.InnerGlassColor = g.InnerGlassColor ?? "";
                     existing.IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
-                        g.SelectedSpecName, g.SelectedGlassType);
+                        g.SelectedSpecName, g.SelectedGlassType,
+                        g.OuterGlassColor, g.InnerGlassColor);
                     existing.Lm1 = System.Math.Round(g.FooterTotalLm1, 2);
                     existing.Lm2 = System.Math.Round(g.FooterTotalLm2, 2);
                     existing.Sqm1 = System.Math.Round(g.FooterTotalSqm, 2);
@@ -244,8 +249,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         SpecDisplayName = BuildSpecDisplayName(g),
                         GlassType = g.SelectedGlassType ?? "",
                         IsDoubleGlass = isDoubleGlass,
+                        OuterGlassColor = g.OuterGlassColor ?? "",
+                        InnerGlassColor = g.InnerGlassColor ?? "",
                         IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
-                            g.SelectedSpecName, g.SelectedGlassType),
+                            g.SelectedSpecName, g.SelectedGlassType,
+                            g.OuterGlassColor, g.InnerGlassColor),
                         Lm1 = System.Math.Round(g.FooterTotalLm1, 2),
                         Lm2 = System.Math.Round(g.FooterTotalLm2, 2),
                         Sqm1 = System.Math.Round(g.FooterTotalSqm, 2),

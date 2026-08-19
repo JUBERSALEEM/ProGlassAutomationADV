@@ -55,9 +55,40 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        public string MatchHint => IsMatchedSameGlass
-            ? "Same glass · 2× polish"
-            : "";
+        private string _outerGlassColor = "";
+        public string OuterGlassColor
+        {
+            get => _outerGlassColor;
+            set { if (_outerGlassColor == value) return; _outerGlassColor = value ?? ""; OnPropertyChanged(); }
+        }
+
+        private string _innerGlassColor = "";
+        public string InnerGlassColor
+        {
+            get => _innerGlassColor;
+            set { if (_innerGlassColor == value) return; _innerGlassColor = value ?? ""; OnPropertyChanged(); }
+        }
+
+        public string MatchHint
+        {
+            get
+            {
+                if (IsMatchedSameGlass)
+                {
+                    if (!string.IsNullOrWhiteSpace(OuterGlassColor)
+                        && !string.IsNullOrWhiteSpace(InnerGlassColor))
+                        return $"{OuterGlassColor} + {InnerGlassColor} · 2× polish";
+                    return "Same glass · 2× polish";
+                }
+
+                if (!string.IsNullOrWhiteSpace(OuterGlassColor)
+                    && !string.IsNullOrWhiteSpace(InnerGlassColor)
+                    && !string.Equals(OuterGlassColor, InnerGlassColor, System.StringComparison.OrdinalIgnoreCase))
+                    return $"{OuterGlassColor} + {InnerGlassColor} · regular polish";
+
+                return "";
+            }
+        }
 
         private decimal _lm1;
         public decimal Lm1

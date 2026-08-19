@@ -10,6 +10,7 @@
 using ProGlassAutomation.Behaviors;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary;
 using System;
@@ -116,6 +117,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public string SpecDisplayName => !string.IsNullOrWhiteSpace(SelectedSpecName)
             ? SelectedSpecName
             : (GroupName ?? $"Spec Group {GroupNumber}");
+
+        private string _outerGlassColor = "";
+        /// <summary>Step 4 outer / laminated-outer color for this spec.</summary>
+        public string OuterGlassColor
+        {
+            get => _outerGlassColor;
+            set
+            {
+                var next = value ?? "";
+                if (_outerGlassColor == next) return;
+                _outerGlassColor = next;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _innerGlassColor = "";
+        /// <summary>Step 4 inner / laminated-inner color for this spec.</summary>
+        public string InnerGlassColor
+        {
+            get => _innerGlassColor;
+            set
+            {
+                var next = value ?? "";
+                if (_innerGlassColor == next) return;
+                _innerGlassColor = next;
+                OnPropertyChanged();
+            }
+        }
 
         // ══════════════════════════════════════════════════════════════
         //  PHASE G — SHEET PROVENANCE (Step 4 → Step 5 → Step 9)
@@ -241,6 +270,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _selectedSpecName = newValue;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
+                RefreshGlassColorsFromSpecName();
 
                 // PHASE G: adopt the stock sheet chosen for this spec in
                 // Step 4. A miss (spec from an earlier session) leaves the
@@ -321,6 +351,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         _selectedSpecItem = exact;
                         OnPropertyChanged(nameof(SelectedSpecItem));
 
+                        RefreshGlassColorsFromSpecName();
                         TryAutoFillRate();
                         HandleSpecCommit(exact.SpecName);
                     }
@@ -364,6 +395,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     OnPropertyChanged(nameof(SpecDisplayName));
 
                     IsSpecDropdownOpen = false;
+                    RefreshGlassColorsFromSpecName();
                     TryAutoFillRate();
                     HandleSpecCommit(value.SpecName);
                 }
@@ -585,6 +617,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// of SpecSheetRegistry. Only overwrites when a selection exists,
         /// so a restored invoice keeps its persisted sheet. Never throws.
         /// </summary>
+        public void ApplyLaminateColors(string? outerColor, string? innerColor)
+        {
+            OuterGlassColor = outerColor ?? "";
+            InnerGlassColor = innerColor ?? "";
+        }
+
+        private void RefreshGlassColorsFromSpecName()
+        {
+            LaminateGlassMatcher.ExtractColorsFromSpecName(
+                _selectedSpecName, _selectedGlassType,
+                out string outer, out string inner);
+            if (!string.IsNullOrWhiteSpace(outer)) OuterGlassColor = outer;
+            if (!string.IsNullOrWhiteSpace(inner)) InnerGlassColor = inner;
+        }
+
         private void AdoptSheetSelection(string specName)
         {
             try
@@ -1227,6 +1274,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     _selectedGlassType = detected;
                     OnPropertyChanged(nameof(SelectedGlassType));
                     UpdatePerimeterFactors();
+                    RefreshGlassColorsFromSpecName();
 
                     _ = ShowToastAsync(
                         $"✓  Auto-switched glass type: {previous} → {detected}");
