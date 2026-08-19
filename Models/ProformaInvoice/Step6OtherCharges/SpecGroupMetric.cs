@@ -33,7 +33,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         public bool IsDoubleGlass
         {
             get => _isDoubleGlass;
-            set { if (_isDoubleGlass == value) return; _isDoubleGlass = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isDoubleGlass == value) return;
+                _isDoubleGlass = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PhysicalPanes));
+            }
         }
 
         private bool _isMatchedSameGlass;
