@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -146,7 +147,7 @@ namespace ProGlassAutomation.Services.AI.AIService
                         Truncate(body));
 
                 // FIX: Log body to Debug so format changes are diagnosable
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[CohereAI] Response body: {Truncate(body)}");
 
                 var text = ParseCohereResponse(body);
@@ -154,7 +155,7 @@ namespace ProGlassAutomation.Services.AI.AIService
                 if (string.IsNullOrEmpty(text))
                 {
                     // FIX: Include truncated body in error for debugging
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[CohereAI] Failed to parse response. " +
                         $"Full body: {body}");
 
@@ -232,7 +233,7 @@ namespace ProGlassAutomation.Services.AI.AIService
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[CohereAI] JSON parse failed: {ex.Message}");
             }
 

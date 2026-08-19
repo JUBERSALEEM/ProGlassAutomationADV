@@ -153,7 +153,7 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
         {
             // Release pooled SQLite connections so the live .db files are
             // not locked (or mid-write) while we copy them.
-            try { SqliteConnection.ClearAllPools(); } catch { }
+            try { SqliteConnection.ClearAllPools(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             int copied = 0;
             var source = new DirectoryInfo(AppDataFolder);
@@ -255,7 +255,7 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 // Release pooled SQLite connections so the live .db files
                 // can actually be overwritten (otherwise the copy is
                 // skipped and the restore silently does nothing).
-                try { SqliteConnection.ClearAllPools(); } catch { }
+                try { SqliteConnection.ClearAllPools(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
                 int restored = 0;
                 foreach (var file in files)

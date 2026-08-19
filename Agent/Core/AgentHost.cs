@@ -16,6 +16,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Knowledge;
 using ProGlassAutomation.Agent.Memory;
 using ProGlassAutomation.Agent.Permissions;
@@ -118,7 +119,7 @@ namespace ProGlassAutomation.Agent.Core
                 catch (Exception ex)
                 {
                     // The ERP must survive an agent that cannot start.
-                    Debug.WriteLine($"[AgentHost] build failed: {ex.Message}");
+                    AppLogService.Debug($"[AgentHost] build failed: {ex.Message}");
                     Instance = null;
                     return null;
                 }
@@ -139,7 +140,7 @@ namespace ProGlassAutomation.Agent.Core
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentHost] seed failed: {ex.Message}");
+                AppLogService.Debug($"[AgentHost] seed failed: {ex.Message}");
             }
         }
 

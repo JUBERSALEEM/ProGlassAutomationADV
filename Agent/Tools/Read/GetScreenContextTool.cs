@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Context;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.Theme;
@@ -109,7 +110,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetScreenContextTool] {ex.Message}");
+                AppLogService.Debug($"[GetScreenContextTool] {ex.Message}");
 
                 return Task.FromResult(ToolResult.Fail(
                     "I could not read the current screen context."));
@@ -148,7 +149,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetScreenContextTool] theme: {ex.Message}");
+                AppLogService.Debug($"[GetScreenContextTool] theme: {ex.Message}");
                 return "";
             }
         }

@@ -50,6 +50,7 @@ using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using ProGlassAutomation.Behaviors;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using Velopack;
 using System.Threading;
@@ -107,6 +108,14 @@ namespace ProGlassAutomation
         /// reporting tool (GetReportingTool). Never fabricates.
         /// </summary>
         public static IReportingDataService Reporting { get; private set; }
+
+        /// <summary>
+        /// DI composition root — built once at startup. New code must
+        /// resolve services via constructor injection; legacy App.* statics
+        /// remain for migration. Tests can build their own provider with
+        /// fakes via ServiceRegistration.BuildProGlassProvider().
+        /// </summary>
+        public static System.IServiceProvider ServiceProvider { get; private set; } = null!;
 
         // ── Dashboard service layer ──────────────────────────────────────
         //
@@ -405,20 +414,39 @@ namespace ProGlassAutomation
             //      file and has no dependencies on the others, so they
             //      initialize IN PARALLEL — startup no longer pays nine
             //      sequential EnsureCreated round-trips.
-            Specs = new SpecificationsRepository();
-            Invoices = new ProformaInvoiceRepository();
-            Jobs = new JobOrderRepository();
-            DeliveryNotes = new DeliveryNoteRepository();
-            MasterData = new MasterDataRepository();
-            TaxInvoices = new TaxInvoiceRepository();
-            Statements = new StatementRepository();
-
-            // Central reporting / data-intelligence layer (Master Prompt §14)
-            Reporting = new ReportingDataService();
-
-            // Dashboard service layer — stateless, safe as singletons.
-            DashboardMetrics = new DashboardMetricsService();
-            DashboardFilter  = new DashboardFilterService();
+            // ── DI composition root (audit fix: no DI → 311 static calls) ──
+            // Build once, expose for constructor injection in new code.
+            // Legacy App.* statics remain for migration; new ViewModels
+            // (reporting hub etc.) resolve IReportingDataService via DI.
+            try
+            {
+                ServiceProvider = Services.DependencyInjection.ServiceRegistration.BuildProGlassProvider();
+                Specs = ServiceProvider.GetRequiredService<ISpecificationsRepository>();
+                Invoices = ServiceProvider.GetRequiredService<IProformaInvoiceRepository>();
+                Jobs = ServiceProvider.GetRequiredService<IJobOrderRepository>();
+                DeliveryNotes = ServiceProvider.GetRequiredService<IDeliveryNoteRepository>();
+                MasterData = ServiceProvider.GetRequiredService<IMasterDataRepository>();
+                TaxInvoices = ServiceProvider.GetRequiredService<ITaxInvoiceRepository>();
+                Statements = ServiceProvider.GetRequiredService<IStatementRepository>();
+                Reporting = ServiceProvider.GetRequiredService<IReportingDataService>();
+                DashboardMetrics = ServiceProvider.GetRequiredService<IDashboardMetricsService>();
+                DashboardFilter = ServiceProvider.GetRequiredService<IDashboardFilterService>();
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"DI container build failed: {ex.Message}");
+                // Fallback to manual construction (never break startup)
+                Specs = new SpecificationsRepository();
+                Invoices = new ProformaInvoiceRepository();
+                Jobs = new JobOrderRepository();
+                DeliveryNotes = new DeliveryNoteRepository();
+                MasterData = new MasterDataRepository();
+                TaxInvoices = new TaxInvoiceRepository();
+                Statements = new StatementRepository();
+                Reporting = new ReportingDataService();
+                DashboardMetrics = new DashboardMetricsService();
+                DashboardFilter = new DashboardFilterService();
+            }
 
             await Task.WhenAll(
                 Specs.InitializeAsync(),
@@ -525,7 +553,7 @@ namespace ProGlassAutomation
             // 10) AI via factory (multi-provider)
             Ai = AiProviderFactory.CreateActive(Config.Ai);
 
-            System.Diagnostics.Debug.WriteLine(
+            AppLogService.Debug(
                 $"[App] AI: {Ai?.ProviderName} | " +
                 $"Enabled: {Config.Ai.Enabled} | " +
                 $"Configured: {Ai?.IsConfigured}");
@@ -557,7 +585,7 @@ namespace ProGlassAutomation
                     try { return new TextToSpeechService(); }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[App] TTS init failed: {ex.Message}");
                         return null;
                     }
@@ -699,13 +727,13 @@ namespace ProGlassAutomation
 
                 if (whisper != null)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[App] STT: Whisper " +
                         $"({WhisperModelManager.SelectedModelInfo.DisplayName})");
                     return whisper;
                 }
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     "[App] STT: Whisper init failed or timed out. " +
                     "Falling back to System.Speech.");
             }
@@ -718,7 +746,7 @@ namespace ProGlassAutomation
 
             if (systemSpeech != null)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     "[App] STT: System.Speech fallback active. " +
                     "Voice available but accuracy limited to ~70%. " +
                     "Download Whisper model in Settings for 95%+ accuracy.");
@@ -726,7 +754,7 @@ namespace ProGlassAutomation
             }
 
             // ── All attempts failed ───────────────────────────────────
-            System.Diagnostics.Debug.WriteLine(
+            AppLogService.Debug(
                 "[App] STT: All engines failed. Voice input disabled. " +
                 "Check audio drivers and Windows Speech Platform.");
             return null;
@@ -761,7 +789,7 @@ namespace ProGlassAutomation
                     }
                     catch (Exception ex)
                     {
-                        System.Diagnostics.Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[App] {engineName} constructor threw: " +
                             $"{ex.GetType().Name}: {ex.Message}");
                         return (ISpeechToTextService)null;
@@ -782,7 +810,7 @@ namespace ProGlassAutomation
                 // Timeout won the race — constructor is still hanging
                 // We cannot forcibly abort it (Thread.Abort deprecated)
                 // but we can abandon it. GC will clean up eventually.
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[App] {engineName} constructor TIMED OUT after " +
                     $"{timeoutMs}ms — abandoning and falling through.");
 
@@ -790,7 +818,7 @@ namespace ProGlassAutomation
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[App] {engineName} init exception: " +
                     $"{ex.GetType().Name}: {ex.Message}");
                 return null;

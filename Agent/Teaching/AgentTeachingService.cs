@@ -16,6 +16,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Storage;
 using System;
@@ -72,7 +73,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] Propose failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] Propose failed: {ex.Message}");
                 return 0;
             }
         }
@@ -97,7 +98,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] Approve failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] Approve failed: {ex.Message}");
                 return false;
             }
         }
@@ -121,7 +122,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] Revoke failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] Revoke failed: {ex.Message}");
                 return false;
             }
         }
@@ -141,7 +142,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] ActiveRules failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] ActiveRules failed: {ex.Message}");
                 return Array.Empty<TeachingRuleView>();
             }
         }
@@ -160,7 +161,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] AllRules failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] AllRules failed: {ex.Message}");
                 return Array.Empty<TeachingRuleView>();
             }
         }
@@ -180,7 +181,7 @@ namespace ProGlassAutomation.Agent.Teaching
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentTeaching] Clear failed: {ex.Message}");
+                AppLogService.Debug($"[AgentTeaching] Clear failed: {ex.Message}");
             }
         }
 

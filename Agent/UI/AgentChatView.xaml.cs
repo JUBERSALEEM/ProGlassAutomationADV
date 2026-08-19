@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.UI;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -57,7 +58,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatView] hook failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatView] hook failed: {ex.Message}");
             }
         }
 
@@ -71,7 +72,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatView] autoscroll failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatView] autoscroll failed: {ex.Message}");
             }
         }
 
@@ -95,7 +96,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatView] send key failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatView] send key failed: {ex.Message}");
             }
         }
     }

@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Configuration;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Providers.Cohere;
 using ProGlassAutomation.Agent.Providers.Gemini;
@@ -70,7 +71,7 @@ namespace ProGlassAutomation.Agent.Providers
             catch (Exception ex)
             {
                 // Selection must never break the agent — fall back inward.
-                Debug.WriteLine($"[AgentProviderSelector] falling back to local: {ex.Message}");
+                AppLogService.Debug($"[AgentProviderSelector] falling back to local: {ex.Message}");
                 return local;
             }
         }

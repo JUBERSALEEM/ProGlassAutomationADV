@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -83,7 +84,7 @@ namespace ProGlassAutomation.Agent.Configuration
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[AgentConfig] Load failed, using safe defaults: {ex.Message}");
                         _cached = new AgentSettings();
                     }
@@ -110,7 +111,7 @@ namespace ProGlassAutomation.Agent.Configuration
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentConfig] Save failed: {ex.Message}");
+                    AppLogService.Debug($"[AgentConfig] Save failed: {ex.Message}");
                 }
             }
         }

@@ -36,6 +36,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
@@ -289,7 +290,7 @@ namespace ProGlassAutomation.Services.Reporting
                 foreach (var id in joIds.Where(s => !string.IsNullOrWhiteSpace(s)))
                     joSources.Add(id!);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var filtered = all.Where(r => MatchCommonPi(r, filter)).ToList();
             // Salesman filter — need to resolve via snapshot or MasterData if filter has salesman
@@ -350,7 +351,7 @@ namespace ProGlassAutomation.Services.Reporting
                     summary.TotalSqm = Math.Round(totalSqm, 3);
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return summary;
         }
@@ -446,21 +447,21 @@ namespace ProGlassAutomation.Services.Reporting
                 var joIds = await joDb.JobOrders.AsNoTracking().Select(j => j.SourceProformaId).ToListAsync(ct);
                 foreach (var id in joIds.Where(s => !string.IsNullOrWhiteSpace(s))) joSources.Add(id!);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try
             {
                 using var dnDb = new DeliveryNotesDbContext();
                 var dnIds = await dnDb.DeliveryNotes.AsNoTracking().Where(d => !d.IsMasterDn).Select(d => d.ProformaId).ToListAsync(ct);
                 foreach (var id in dnIds.Where(s => !string.IsNullOrWhiteSpace(s))) dnPi.Add(id!);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try
             {
                 using var tiDb = new TaxInvoiceDbContext();
                 var tiIds = await tiDb.TaxInvoices.AsNoTracking().Select(t => t.ProformaId).ToListAsync(ct);
                 foreach (var id in tiIds.Where(s => !string.IsNullOrWhiteSpace(s))) tiPi.Add(id!);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var total = filtered.Count;
             var pageItems = filtered.Skip(filter.Skip).Take(filter.Take).ToList();
@@ -537,7 +538,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var piCount = await piDb.ProformaInvoices.CountAsync(ct);
                 totalPi = piCount;
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var summary = new JoReportSummary
             {
@@ -639,7 +640,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (!string.IsNullOrWhiteSpace(m.JobOrderId))
                         masterMap[m.JobOrderId!] = (m.TotalOrderedQty, m.TotalDeliveredQty);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var rows = new List<JoReportRow>();
             foreach (var r in page)
@@ -833,7 +834,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var allTiPis = new HashSet<string>(all.Select(r => r.ProformaId), StringComparer.OrdinalIgnoreCase);
                 summary.PendingInvoice = confirmedPis.Count(pi => !allTiPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return summary;
         }
@@ -931,7 +932,7 @@ namespace ProGlassAutomation.Services.Reporting
                     });
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             return result;
         }
 
@@ -978,7 +979,7 @@ namespace ProGlassAutomation.Services.Reporting
                         g.JobOrderCount = pis.Count(pi => joSet.Contains(pi));
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -1004,7 +1005,7 @@ namespace ProGlassAutomation.Services.Reporting
                     g.OverdueInvoices = overdue;
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // Paginate
             var total = groups.Count;
@@ -1033,7 +1034,7 @@ namespace ProGlassAutomation.Services.Reporting
                             salesman = snap?.Client?.SalesRepresentative ?? "";
                         }
                     }
-                    catch { }
+                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     return new CustomerReportRow
                     {
                         CustomerName = g.Key,
@@ -1062,7 +1063,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (piByCustomer.TryGetValue(g.CustomerName, out var pis))
                         g.JoCount = pis.Count(pi => joPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -1072,7 +1073,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (piByCustomer.TryGetValue(g.CustomerName, out var pis))
                         g.DnCount = pis.Count(pi => dnPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -1090,7 +1091,7 @@ namespace ProGlassAutomation.Services.Reporting
                     g.Outstanding = Math.Max(0, g.PiValue - invoiced);
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var total = groups.Count;
             var page = groups.OrderByDescending(g => g.PiValue).Skip(filter.Skip).Take(filter.Take).ToList();
@@ -1148,7 +1149,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (piBySalesman.TryGetValue(g.SalesmanName, out var pis))
                         g.JobOrderCount = pis.Count(pi => joPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -1158,7 +1159,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (piBySalesman.TryGetValue(g.SalesmanName, out var pis))
                         g.TaxInvoiceCount = pis.Count(pi => tiPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var total = groups.Count;
             var page = groups.OrderByDescending(g => g.Revenue).Skip(filter.Skip).Take(filter.Take).ToList();
@@ -1227,7 +1228,7 @@ namespace ProGlassAutomation.Services.Reporting
                     if (piByProject.TryGetValue(r.ProjectName, out var pis))
                         r.JoCount = pis.Count(pi => joPis.Contains(pi));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -1244,7 +1245,7 @@ namespace ProGlassAutomation.Services.Reporting
                         r.InvoicedValue = sum;
                     }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             var total = list.Count;
             var page = list.OrderByDescending(r => r.PiValue).Skip(filter.Skip).Take(filter.Take).ToList();
@@ -1396,9 +1397,9 @@ namespace ProGlassAutomation.Services.Reporting
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // Filter by remaining quantity if status filter indicates delivery state?
             // Already handled. Apply pagination after sorting by IssueDate desc
@@ -1418,7 +1419,7 @@ namespace ProGlassAutomation.Services.Reporting
                 foreach (var r in page)
                     if (joMap.TryGetValue(r.ProformaId, out var jo)) r.JobOrderId = jo;
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return new PagedResult<GlassSpecReportRow> { Items = page, TotalCount = total, Page = filter.Page, PageSize = filter.PageSize };
         }
@@ -1754,7 +1755,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var list = await db.Salesmen.AsNoTracking().Select(s => s.Name).ToListAsync(ct);
                 if (list.Count > 0) return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             try
             {
                 using var db = new ProformaInvoicesDbContext();

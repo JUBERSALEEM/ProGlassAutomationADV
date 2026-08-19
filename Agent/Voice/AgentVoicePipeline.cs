@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Voice.SpeechToText.Whisper;
 using ProGlassAutomation.Agent.Voice.TextToSpeech;
 using System;
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.Agent.Voice
             try { _speaker.Stop(); }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentVoice] stop failed: {ex.Message}");
+                AppLogService.Debug($"[AgentVoice] stop failed: {ex.Message}");
             }
         }
 
@@ -137,7 +138,7 @@ namespace ProGlassAutomation.Agent.Voice
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentVoice] pipeline failed: {ex.Message}");
+                AppLogService.Debug($"[AgentVoice] pipeline failed: {ex.Message}");
 
                 var failure = AgentResponse.Fail(
                     "Something went wrong with voice input, so I stopped.");

@@ -32,6 +32,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.SheetStore;
@@ -192,7 +193,7 @@ namespace ProGlassAutomation.Agent.Tools.Write
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[UpdateSheetStockTool] {ex.Message}");
+                AppLogService.Debug($"[UpdateSheetStockTool] {ex.Message}");
 
                 return ToolResult.Fail(
                     "The stock update failed. I could not confirm whether it was " +
@@ -263,7 +264,7 @@ namespace ProGlassAutomation.Agent.Tools.Write
             {
                 // A failed audit write must not undo a completed change, but
                 // it must be visible.
-                Debug.WriteLine($"[UpdateSheetStockTool] audit failed: {ex.Message}");
+                AppLogService.Debug($"[UpdateSheetStockTool] audit failed: {ex.Message}");
             }
         }
     }

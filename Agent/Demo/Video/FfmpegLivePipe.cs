@@ -1,4 +1,5 @@
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -70,13 +71,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 };
                 _ = Task.Run(() =>
                 {
-                    try { p.StandardError.ReadToEnd(); } catch { }
+                    try { p.StandardError.ReadToEnd(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 });
                 return pipe;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[FfmpegLivePipe] start failed: " + ex.Message);
+                AppLogService.Debug("[FfmpegLivePipe] start failed: " + ex.Message);
                 return null;
             }
         }
@@ -111,8 +112,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 _closed = true;
                 IsOpen = false;
                 p = _process;
-                try { _stdin?.Flush(); } catch { }
-                try { _stdin?.Close(); } catch { }
+                try { _stdin?.Flush(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { _stdin?.Close(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _stdin = null;
             }
 
@@ -125,7 +126,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             catch (Exception ex)
             {
                 Error = ex.Message;
-                try { if (!p.HasExited) p.Kill(); } catch { }
+                try { if (!p.HasExited) p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 return false;
             }
         }
@@ -136,7 +137,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             {
                 _closed = true;
                 IsOpen = false;
-                try { _stdin?.Dispose(); } catch { }
+                try { _stdin?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _stdin = null;
             }
             try
@@ -144,8 +145,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 if (_process != null && !_process.HasExited)
                     _process.Kill();
             }
-            catch { }
-            try { _process?.Dispose(); } catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _process?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _process = null;
         }
     }

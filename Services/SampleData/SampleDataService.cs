@@ -21,6 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.MasterData;
@@ -137,7 +138,7 @@ namespace ProGlassAutomation.Services.SampleData
                 "Sample data loaded",
                 "6 sheets, 3 PIs, 2 JOs, 2 DNs, 3 TIs seeded for first-run exploration");
 
-            try { DataSeeded?.Invoke(); } catch { }
+            try { DataSeeded?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return "Sample data loaded ✔\n\n" +
                    "• Sheet Store: 6 glass sheets\n" +
@@ -231,7 +232,7 @@ namespace ProGlassAutomation.Services.SampleData
 
             // Re-uses the seed event on purpose: every subscribed list
             // reloads and shows the now-empty database immediately.
-            try { DataSeeded?.Invoke(); } catch { }
+            try { DataSeeded?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return "All data cleared ✔\n\n" +
                    $"• Sheet Store: {sh} sheet(s) removed\n" +

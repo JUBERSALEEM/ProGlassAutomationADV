@@ -21,6 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Runtime.InteropServices;
 using System.Windows;
 
@@ -178,14 +179,14 @@ namespace ProGlassAutomation.Services.Performance
                 PublishResources();
                 ProfileApplied?.Invoke(null, EventArgs.Empty);
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Performance] Tier: {TargetFps} fps " +
                     $"(speed ratio {MotionSpeedRatio:0.00}, " +
                     $"rich effects {RichEffectsEnabled})");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Performance] Apply failed: {ex.Message}");
             }
         }

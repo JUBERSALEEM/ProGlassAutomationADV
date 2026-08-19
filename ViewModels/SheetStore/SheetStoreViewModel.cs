@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Audit;
@@ -288,7 +289,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 // Never leave the list showing stale data after a failure —
                 // surface it but keep whatever we already loaded.
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SheetStore] Load failed: {ex.Message}");
             }
             finally

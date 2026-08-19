@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using System;
 using System.Diagnostics;
@@ -42,7 +43,7 @@ namespace ProGlassAutomation.Agent.Tools.Demo
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[create_demo_package] {ex.Message}");
+                AppLogService.Debug($"[create_demo_package] {ex.Message}");
                 return ToolResult.Fail("The demo step failed, so I stopped.");
             }
         }

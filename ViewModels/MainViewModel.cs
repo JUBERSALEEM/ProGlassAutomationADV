@@ -36,6 +36,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.ViewModels.About;
 using ProGlassAutomation.ViewModels.CompanyCenter;
 using ProGlassAutomation.ViewModels.UserCenter;
@@ -745,7 +746,7 @@ namespace ProGlassAutomation.ViewModels
             catch (Exception ex)
             {
                 // The shell must start even if the agent assembly misbehaves.
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[MainViewModel] agent wiring failed: {ex.Message}");
             }
         }
@@ -787,7 +788,7 @@ namespace ProGlassAutomation.ViewModels
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[MainViewModel] agent confirm failed: {ex.Message}");
                 return System.Threading.Tasks.Task.FromResult(false);
             }

@@ -37,6 +37,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -184,7 +185,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[ProfitLossIntegrityCheck] {ex.Message}");
+                AppLogService.Debug($"[ProfitLossIntegrityCheck] {ex.Message}");
 
                 // Fail quiet: an inspector that cannot decide must not
                 // accuse. A false "your books are wrong" has its own cost.

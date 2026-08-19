@@ -25,6 +25,7 @@
 //   Projection change adds index — existing property values unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Pdf;
 using System;
 using System.Collections.ObjectModel;
@@ -111,7 +112,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             // Guard: App.Statements may be null if called before startup
             if (App.Statements == null)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     "[StDashboard] App.Statements not yet initialized.");
                 return;
             }

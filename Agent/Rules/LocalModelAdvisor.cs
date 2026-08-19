@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Diagnostics;
 
 namespace ProGlassAutomation.Agent.Rules
@@ -47,7 +48,7 @@ namespace ProGlassAutomation.Agent.Rules
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[HardwareProbe] read failed: {ex.Message}");
+                AppLogService.Debug($"[HardwareProbe] read failed: {ex.Message}");
             }
 
             return new HardwareSnapshot

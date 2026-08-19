@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Video;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -92,7 +93,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         public void Start(string framesFolder, ScreenRecordSettings settings)
         {
-            try { _cts?.Cancel(); } catch { }
+            try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _settings = (settings ?? new ScreenRecordSettings()).Clone().Clamp();
             Directory.CreateDirectory(framesFolder);
             lock (_framesGate) _frames.Clear();
@@ -112,7 +113,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             string parent = Directory.GetParent(framesFolder)?.FullName ?? framesFolder;
             _liveVideoPath = Path.Combine(parent, "live.h264.mp4");
             var (outW, outH) = _settings.OutputSize;
-            try { _pipe?.Dispose(); } catch { }
+            try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _pipe = FfmpegLivePipe.TryStart(
                 _liveVideoPath, _settings.Fps, outW, outH, _settings.EncodeCrf);
             if (_settings.CaptureLiveAudio)
@@ -130,7 +131,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (_loop != null)
             {
                 try { await _loop.ConfigureAwait(false); }
-                catch (OperationCanceledException) { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
             _loop = null;
 
@@ -410,9 +411,9 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         public void Dispose()
         {
-            try { Stop(); } catch { }
-            try { _cts?.Dispose(); } catch { }
-            try { _pipe?.Dispose(); } catch { }
+            try { Stop(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _audio.Dispose();
             _mic.Dispose();
         }

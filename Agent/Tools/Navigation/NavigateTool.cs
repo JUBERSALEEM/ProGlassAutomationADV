@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -87,7 +88,7 @@ namespace ProGlassAutomation.Agent.Tools.Navigation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[NavigateTool] failed: {ex.Message}");
+                AppLogService.Debug($"[NavigateTool] failed: {ex.Message}");
                 return Task.FromResult(ToolResult.Fail(
                     $"I could not open {label}."));
             }

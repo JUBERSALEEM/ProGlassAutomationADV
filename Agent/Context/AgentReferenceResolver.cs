@@ -43,6 +43,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -157,7 +158,7 @@ namespace ProGlassAutomation.Agent.Context
             catch (Exception ex)
             {
                 // A resolver that throws must resolve nothing, not crash a turn.
-                Debug.WriteLine($"[AgentReferenceResolver] {ex.Message}");
+                AppLogService.Debug($"[AgentReferenceResolver] {ex.Message}");
                 return ResolvedReference.None();
             }
         }

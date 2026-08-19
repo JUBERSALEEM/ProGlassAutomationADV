@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Security.Network;
 using ProGlassAutomation.Services.AI.AIService;
 using System;
@@ -91,7 +92,7 @@ namespace ProGlassAutomation.Agent.Providers
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[CloudProvider] failed: {ex.Message}");
+                AppLogService.Debug($"[CloudProvider] failed: {ex.Message}");
                 return "I could not reach the cloud provider, so I could not answer.";
             }
         }

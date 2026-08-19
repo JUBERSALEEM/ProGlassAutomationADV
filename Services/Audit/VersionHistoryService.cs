@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Data.Sqlite;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -139,7 +140,7 @@ namespace ProGlassAutomation.Services.Audit
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[VersionHistory] Add failed: {ex.Message}");
                 return 0;
             }
@@ -191,7 +192,7 @@ namespace ProGlassAutomation.Services.Audit
                     });
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return list;
         }

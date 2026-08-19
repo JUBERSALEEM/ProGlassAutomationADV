@@ -23,6 +23,7 @@
 //     is skipped, the rest still return.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -195,7 +196,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GlobalSearch] navigate failed: {ex.Message}");
+                AppLogService.Debug($"[GlobalSearch] navigate failed: {ex.Message}");
             }
 
             // Reset so re-picking the same row navigates again.
@@ -258,7 +259,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GlobalSearch] search failed: {ex.Message}");
+                AppLogService.Debug($"[GlobalSearch] search failed: {ex.Message}");
                 StatusMessage = "Search failed — some modules may be unavailable.";
             }
             finally
@@ -473,6 +474,6 @@ namespace ProGlassAutomation.ViewModels.Shared
         }
 
         private static void Skip(string module, Exception ex) =>
-            Debug.WriteLine($"[GlobalSearch] {module} skipped: {ex.Message}");
+            AppLogService.Debug($"[GlobalSearch] {module} skipped: {ex.Message}");
     }
 }

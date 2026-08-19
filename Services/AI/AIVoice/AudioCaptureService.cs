@@ -22,6 +22,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using NAudio.Wave;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
 using System.Threading;
@@ -97,7 +98,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[AudioCapture] StartRecording failed: {ex.Message}");
                 CleanupRecording();
             }
@@ -133,7 +134,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[AudioCapture] StopAndGetAudio failed: {ex.Message}");
                 CleanupRecording();
                 return null;
@@ -167,7 +168,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 }
                 AudioLevelChanged?.Invoke(this, maxLevel);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         private void OnRecordingStopped(object sender, StoppedEventArgs e)
@@ -179,8 +180,8 @@ namespace ProGlassAutomation.Services.AI.AIVoice
         {
             _isRecording = false;
 
-            try { _waveIn?.Dispose(); } catch { }
-            try { _writer?.Dispose(); } catch { }
+            try { _waveIn?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            try { _writer?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             // Don't dispose _buffer — it's returned as byte array
 
             _waveIn = null;

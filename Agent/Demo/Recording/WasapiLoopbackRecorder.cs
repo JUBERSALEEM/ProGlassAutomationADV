@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Demo.Tts;
 using System;
 using System.Diagnostics;
@@ -45,7 +46,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             catch (Exception ex)
             {
                 Error = ex.Message;
-                Debug.WriteLine("[DemoAudio] loopback start failed: " + ex.Message);
+                AppLogService.Debug("[DemoAudio] loopback start failed: " + ex.Message);
                 StopCore();
                 return false;
             }
@@ -76,7 +77,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 try { _writer?.Write(e.Buffer, 0, e.BytesRecorded); }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine("[DemoAudio] write failed: " + ex.Message);
+                    AppLogService.Debug("[DemoAudio] write failed: " + ex.Message);
                 }
             }
         }
@@ -87,7 +88,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (e.Exception != null)
             {
                 Error = e.Exception.Message;
-                Debug.WriteLine("[DemoAudio] loopback stopped: " + e.Exception.Message);
+                AppLogService.Debug("[DemoAudio] loopback stopped: " + e.Exception.Message);
             }
             _stopped?.TrySetResult(true);
         }
@@ -109,8 +110,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             lock (_gate)
             {
-                try { _writer?.Flush(); } catch { }
-                try { _writer?.Dispose(); } catch { }
+                try { _writer?.Flush(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                try { _writer?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _writer = null;
             }
         }

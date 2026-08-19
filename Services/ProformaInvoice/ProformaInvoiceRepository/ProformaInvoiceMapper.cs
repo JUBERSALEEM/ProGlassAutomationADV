@@ -27,6 +27,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
@@ -176,7 +177,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[ProformaInvoiceMapper] Master data auto-save failed: {ex.Message}");
             }
         }
@@ -406,7 +407,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[ProformaInvoiceMapper] Snapshot deserialize failed " +
                     $"for PI '{entity.ProformaId}': {ex.Message}");
                 return new ProformaInvoiceSnapshot();

@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using System;
 using System.Collections.Generic;
@@ -184,7 +185,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 Page = 1;
                 await LoadAsync();
             }
-            catch (TaskCanceledException) { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         public abstract Task LoadAsync();
@@ -193,7 +194,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
 
         protected void CancelPrevious()
         {
-            try { _cts?.Cancel(); _cts?.Dispose(); } catch { }
+            try { _cts?.Cancel(); _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _cts = new CancellationTokenSource();
         }
 
@@ -219,7 +220,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 ProjectOptions = await _service.GetProjectOptionsAsync();
                 SalesmanOptions = await _service.GetSalesmanOptionsAsync();
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }

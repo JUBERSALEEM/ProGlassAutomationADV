@@ -171,7 +171,7 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             try
             {
                 // Release pooled EF connections so the file is not locked.
-                try { SqliteConnection.ClearAllPools(); } catch { }
+                try { SqliteConnection.ClearAllPools(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
                 var dir = Path.GetDirectoryName(dbPath);
                 if (string.IsNullOrEmpty(dir)) return null;

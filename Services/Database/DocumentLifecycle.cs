@@ -1,6 +1,7 @@
 // Cross-module signal: PI / JO / DN / TI lists recompute derived status
 // when any related document is created or deleted.
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -37,7 +38,7 @@ namespace ProGlassAutomation.Services.Database
         private static async Task Safe(Func<Task> reload)
         {
             try { await reload(); }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }

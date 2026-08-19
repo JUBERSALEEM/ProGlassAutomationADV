@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Nlu;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
@@ -83,7 +84,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[get_stock_history] " + ex.Message);
+                AppLogService.Debug("[get_stock_history] " + ex.Message);
                 return ToolResult.Fail("I could not read sheet history.");
             }
         }

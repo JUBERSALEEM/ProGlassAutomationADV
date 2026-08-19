@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Automation;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using System;
@@ -206,7 +207,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 .ConfigureAwait(false);
             await WpfUiDriver.OnUiAsync(() =>
             {
-                try { pi.TriggerNewInvoice(); } catch { }
+                try { pi.TriggerNewInvoice(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 if (pi.NewInvoiceCommand.CanExecute(null))
                     pi.NewInvoiceCommand.Execute(null);
                 return true;

@@ -38,6 +38,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
@@ -79,14 +80,14 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
             try
             {
-                Debug.WriteLine($"[Reconciliation] Building for {proformaId}");
+                AppLogService.Debug($"[Reconciliation] Building for {proformaId}");
 
                 // ── 1. Load PI snapshot for authoritative line items ─────
                 var piLines = await LoadPiLineItemsAsync(proformaId);
 
                 if (piLines == null || piLines.Count == 0)
                 {
-                    Debug.WriteLine($"[Reconciliation] No PI data for {proformaId}");
+                    AppLogService.Debug($"[Reconciliation] No PI data for {proformaId}");
                     return new OrderReconciliationSummary
                     {
                         ProformaId = proformaId,
@@ -104,7 +105,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
                 bool hasDeliveryTracking = jobOrderIds.Count > 0;
 
-                Debug.WriteLine($"[Reconciliation] {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] {proformaId}: " +
                                 $"{jobOrderIds.Count} JO(s), " +
                                 $"{piLines.Count} line items");
 
@@ -129,13 +130,13 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                     }
                 }
 
-                Debug.WriteLine($"[Reconciliation] {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] {proformaId}: " +
                                 $"delivered map has {deliveredMap.Count} entries");
 
                 // ── 4. Load cumulative invoiced qty from all TIs ────────
                 var invoicedMap = await LoadInvoicedMapAsync(proformaId);
 
-                Debug.WriteLine($"[Reconciliation] {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] {proformaId}: " +
                                 $"invoiced map has {invoicedMap.Count} entries");
 
                 // ── 5. Build per-line reconciliation rows ───────────────
@@ -180,14 +181,14 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                     Rows = rows
                 };
 
-                Debug.WriteLine($"[Reconciliation] {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] {proformaId}: " +
                                 $"{summary.SummaryDisplay}");
 
                 return summary;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Reconciliation] ERROR for {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] ERROR for {proformaId}: " +
                                 $"{ex.Message}");
                 return EmptySummary(proformaId);
             }
@@ -217,7 +218,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
             if (uniqueIds.Count == 0) return result;
 
-            Debug.WriteLine($"[Reconciliation] Batch: {uniqueIds.Count} unique PIs");
+            AppLogService.Debug($"[Reconciliation] Batch: {uniqueIds.Count} unique PIs");
 
             foreach (var piId in uniqueIds)
             {
@@ -229,7 +230,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
             int overInvoiced = result.Values.Sum(s => s.OverInvoicedCount);
             int underInvoiced = result.Values.Sum(s => s.UnderInvoicedCount);
 
-            Debug.WriteLine($"[Reconciliation] Batch complete: " +
+            AppLogService.Debug($"[Reconciliation] Batch complete: " +
                             $"{totalRows} items, " +
                             $"{overInvoiced} over-invoiced, " +
                             $"{underInvoiced} under-invoiced");
@@ -255,14 +256,14 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
                 if (pi == null)
                 {
-                    Debug.WriteLine($"[Reconciliation] PI not found: {proformaId}");
+                    AppLogService.Debug($"[Reconciliation] PI not found: {proformaId}");
                     return null;
                 }
 
                 if (string.IsNullOrWhiteSpace(pi.FullSnapshotJson) ||
                     pi.FullSnapshotJson == "{}")
                 {
-                    Debug.WriteLine($"[Reconciliation] PI has empty snapshot: {proformaId}");
+                    AppLogService.Debug($"[Reconciliation] PI has empty snapshot: {proformaId}");
                     return null;
                 }
 
@@ -271,7 +272,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
                 if (snapshot?.SpecGroups == null || snapshot.SpecGroups.Count == 0)
                 {
-                    Debug.WriteLine($"[Reconciliation] PI has no spec groups: {proformaId}");
+                    AppLogService.Debug($"[Reconciliation] PI has no spec groups: {proformaId}");
                     return null;
                 }
 
@@ -301,7 +302,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Reconciliation] PI load error {proformaId}: " +
+                AppLogService.Debug($"[Reconciliation] PI load error {proformaId}: " +
                                 $"{ex.Message}");
                 return null;
             }
@@ -364,7 +365,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"[Reconciliation] TI load error " +
+                        AppLogService.Debug($"[Reconciliation] TI load error " +
                                         $"{tiListItem.InvoiceNumber}: {ex.Message}");
                         // Skip this TI, continue with others
                     }
@@ -372,7 +373,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Reconciliation] Invoiced map error " +
+                AppLogService.Debug($"[Reconciliation] Invoiced map error " +
                                 $"{proformaId}: {ex.Message}");
             }
 

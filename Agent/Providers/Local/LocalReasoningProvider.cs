@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace ProGlassAutomation.Agent.Providers.Local
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[LocalReasoning] failed: {ex.Message}");
+                AppLogService.Debug($"[LocalReasoning] failed: {ex.Message}");
                 return "I could not search my knowledge base just now.";
             }
         }

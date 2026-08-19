@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[AiMemory] Remember failed: {ex.Message}");
             }
         }

@@ -33,6 +33,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Context;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
@@ -216,7 +217,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetSalesAnalyticsTool] {ex.Message}");
+                AppLogService.Debug($"[GetSalesAnalyticsTool] {ex.Message}");
                 return ReadToolHelpers.Unavailable("sales analytics");
             }
         }

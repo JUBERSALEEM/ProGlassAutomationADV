@@ -1,4 +1,5 @@
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -61,7 +62,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     };
                     using var p = Process.Start(psi);
                     if (p == null) continue;
-                    if (!p.WaitForExit(1500)) { try { p.Kill(); } catch { } continue; }
+                    if (!p.WaitForExit(1500)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
                 }
                 catch { /* try next */ }
@@ -87,7 +88,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     };
                     using var p = Process.Start(psi);
                     if (p == null) continue;
-                    if (!p.WaitForExit(4000)) { try { p.Kill(); } catch { } continue; }
+                    if (!p.WaitForExit(4000)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
                 }
                 catch { /* try next */ }
@@ -196,12 +197,12 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 if (p.ExitCode == 0 && File.Exists(outputWav) && new FileInfo(outputWav).Length > 44)
                     return outputWav;
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[ffmpeg mix] exit {p.ExitCode}: {Tail(mixErr.Result)}");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ffmpeg mix] " + ex.Message);
+                AppLogService.Debug("[ffmpeg mix] " + ex.Message);
             }
             return loopbackWav ?? micWav;
         }
@@ -310,7 +311,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 if (p.ExitCode == 0 && IsValidMp4(mp4Path))
                     return mp4Path;
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[ffmpeg] exit {p.ExitCode}: {Tail(stderrTask.Result)}");
                 return null;
             }
@@ -320,7 +321,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[ffmpeg] " + ex.Message);
+                AppLogService.Debug("[ffmpeg] " + ex.Message);
                 return null;
             }
         }
@@ -377,7 +378,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 var errTask = p.StandardError.ReadToEndAsync();
                 string text = p.StandardOutput.ReadToEnd();
 
-                if (!p.WaitForExit(5000)) { try { p.Kill(); } catch { } return null; }
+                if (!p.WaitForExit(5000)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } return null; }
                 try { errTask.Wait(500); } catch { /* drained or gone */ }
                 text = (text ?? "").Trim();
                 if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double sec)

@@ -1,4 +1,5 @@
 using NAudio.Wave;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
 using System.Speech.Synthesis;
@@ -52,7 +53,7 @@ namespace ProGlassAutomation.Agent.Demo.Tts
                 synth.Volume = 90;
                 synth.SetOutputToWaveFile(wavPath);
                 try { synth.Speak(spoken); }
-                finally { try { synth.SetOutputToNull(); } catch { } }
+                finally { try { synth.SetOutputToNull(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } }
 
                 return WavDuration(wavPath);
             }

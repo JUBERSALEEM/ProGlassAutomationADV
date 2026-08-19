@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -114,7 +115,7 @@ namespace ProGlassAutomation.ViewModels.Reports.GlassSpecReport
             {
                 Trace = await _service.GetRowTraceAsync(rowId);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         protected override async Task ExportAsync(ExportFormat format)

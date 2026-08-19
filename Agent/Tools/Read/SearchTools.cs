@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[search_proforma] {ex.Message}");
+                AppLogService.Debug($"[search_proforma] {ex.Message}");
                 return ReadToolHelpers.Unavailable("proforma invoices");
             }
         }
@@ -151,7 +152,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[search_joborder] {ex.Message}");
+                AppLogService.Debug($"[search_joborder] {ex.Message}");
                 return ReadToolHelpers.Unavailable("job orders");
             }
         }
@@ -203,7 +204,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[search_delivery] {ex.Message}");
+                AppLogService.Debug($"[search_delivery] {ex.Message}");
                 return ReadToolHelpers.Unavailable("delivery notes");
             }
         }
@@ -254,7 +255,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[search_taxinvoice] {ex.Message}");
+                AppLogService.Debug($"[search_taxinvoice] {ex.Message}");
                 return ReadToolHelpers.Unavailable("tax invoices");
             }
         }
@@ -307,7 +308,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[search_customer] {ex.Message}");
+                AppLogService.Debug($"[search_customer] {ex.Message}");
                 return ReadToolHelpers.Unavailable("customer records");
             }
         }

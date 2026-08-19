@@ -74,19 +74,19 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             // ── Step 1: Load all invoices ─────────────────────────────────
             var allItems = await App.TaxInvoices.GetAllAsync();
 
-            Debug.WriteLine($"[Aggregator] Loaded {allItems?.Count ?? 0} " +
+            AppLogService.Debug($"[Aggregator] Loaded {allItems?.Count ?? 0} " +
                             "invoices from DB");
 
             if (allItems == null || allItems.Count == 0)
             {
-                Debug.WriteLine("[Aggregator] DB is empty");
+                AppLogService.Debug("[Aggregator] DB is empty");
                 return null;
             }
 
             // ── Step 2: Indexed-column filters ────────────────────────────
             var filtered = ApplyFilters(allItems, filter);
 
-            Debug.WriteLine($"[Aggregator] After indexed filters: " +
+            AppLogService.Debug($"[Aggregator] After indexed filters: " +
                             $"{filtered.Count} invoices");
 
             // ── Step 2b: Project filter (JSON search) ─────────────────────
@@ -95,7 +95,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 filtered = await ApplyProjectFilterAsync(
                     filtered, filter.ProjectName);
 
-                Debug.WriteLine($"[Aggregator] After project filter: " +
+                AppLogService.Debug($"[Aggregator] After project filter: " +
                                 $"{filtered.Count} invoices");
             }
 
@@ -105,13 +105,13 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 filtered = await ApplySalesmanFilterAsync(
                     filtered, filter.SalesmanName);
 
-                Debug.WriteLine($"[Aggregator] After salesman filter: " +
+                AppLogService.Debug($"[Aggregator] After salesman filter: " +
                                 $"{filtered.Count} invoices");
             }
 
             if (filtered.Count == 0)
             {
-                Debug.WriteLine("[Aggregator] No invoices matched filters");
+                AppLogService.Debug("[Aggregator] No invoices matched filters");
                 return null;
             }
 
@@ -134,7 +134,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             // even if multiple TIs belong to the same PI family.
             var reconciliationMap = await BuildReconciliationMapAsync(filtered);
 
-            Debug.WriteLine($"[Aggregator] Reconciliation built for " +
+            AppLogService.Debug($"[Aggregator] Reconciliation built for " +
                             $"{reconciliationMap.Count} PI families");
 
             // ── Step 6-10: Build rows + financial + aging + assemble ──────
@@ -195,12 +195,12 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
             if (proformaIds.Count == 0)
             {
-                Debug.WriteLine("[Aggregator] No PIs to reconcile");
+                AppLogService.Debug("[Aggregator] No PIs to reconcile");
                 return new Dictionary<string, OrderReconciliationSummary>(
                     StringComparer.OrdinalIgnoreCase);
             }
 
-            Debug.WriteLine($"[Aggregator] Reconciling {proformaIds.Count} " +
+            AppLogService.Debug($"[Aggregator] Reconciling {proformaIds.Count} " +
                             "unique PI families…");
 
             try
@@ -254,7 +254,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 }
             }
 
-            Debug.WriteLine($"[Aggregator] Attached reconciliation to " +
+            AppLogService.Debug($"[Aggregator] Attached reconciliation to " +
                             $"{attachedCount}/{rows.Count} rows " +
                             $"({discrepancyCount} with discrepancies)");
         }
@@ -366,7 +366,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[Aggregator] Project JSON search " +
+                    AppLogService.Debug($"[Aggregator] Project JSON search " +
                                     $"error on {item.InvoiceNumber}: {ex.Message}");
                     // On error, INCLUDE the item (don't silently exclude)
                     result.Add(item);
@@ -418,7 +418,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"[Aggregator] Salesman search " +
+                        AppLogService.Debug($"[Aggregator] Salesman search " +
                                         $"error on {item.InvoiceNumber}: " +
                                         $"{ex.Message}");
                         return (item, false);
@@ -463,7 +463,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? preparedBy = TryReadString(root, "PreparedBy", "Name");
                 if (SafeContains(preparedBy, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                    AppLogService.Debug($"[Aggregator] Salesman match " +
                                     $"{invoiceNumber} → PreparedBy.Name");
                     return true;
                 }
@@ -471,7 +471,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? contact = TryReadString(root, "Customer", "ContactPerson");
                 if (SafeContains(contact, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                    AppLogService.Debug($"[Aggregator] Salesman match " +
                                     $"{invoiceNumber} → Customer.ContactPerson");
                     return true;
                 }
@@ -479,7 +479,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? notes = TryReadString(root, "Bank", "PaymentNotes");
                 if (SafeContains(notes, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                    AppLogService.Debug($"[Aggregator] Salesman match " +
                                     $"{invoiceNumber} → Bank.PaymentNotes");
                     return true;
                 }
@@ -488,7 +488,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Aggregator] TaxInvoice JSON parse " +
+                AppLogService.Debug($"[Aggregator] TaxInvoice JSON parse " +
                                 $"error {invoiceNumber}: {ex.Message}");
                 return false;
             }
@@ -522,7 +522,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? salesRep = TryReadString(root, "Client", "SalesRepresentative");
                 if (SafeContains(salesRep, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                    AppLogService.Debug($"[Aggregator] Salesman match via PI " +
                                     $"{proformaId} → Client.SalesRepresentative");
                     return true;
                 }
@@ -530,7 +530,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? preparedBy = TryReadString(root, "PreparedBy", "Name");
                 if (SafeContains(preparedBy, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                    AppLogService.Debug($"[Aggregator] Salesman match via PI " +
                                     $"{proformaId} → PreparedBy.Name");
                     return true;
                 }
@@ -538,7 +538,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 string? docPrep = TryReadString(root, "Client", "DocumentPreparedBy");
                 if (SafeContains(docPrep, needle))
                 {
-                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                    AppLogService.Debug($"[Aggregator] Salesman match via PI " +
                                     $"{proformaId} → Client.DocumentPreparedBy");
                     return true;
                 }

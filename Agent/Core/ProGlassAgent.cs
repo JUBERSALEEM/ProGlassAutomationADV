@@ -22,6 +22,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Intent;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Tools.Registry;
 using System;
@@ -107,7 +108,7 @@ namespace ProGlassAutomation.Agent.Core
                     {
                         // Teaching being unavailable must not block the agent;
                         // it just means no user rules apply this turn.
-                        Debug.WriteLine($"[Agent] teaching rules unavailable: {ex.Message}");
+                        AppLogService.Debug($"[Agent] teaching rules unavailable: {ex.Message}");
                     }
                 }
 
@@ -147,7 +148,7 @@ namespace ProGlassAutomation.Agent.Core
             catch (Exception ex)
             {
                 // Nothing escapes. Fail closed, tell the truth, audit it.
-                Debug.WriteLine($"[Agent] unhandled: {ex.Message}");
+                AppLogService.Debug($"[Agent] unhandled: {ex.Message}");
                 _context.Audit?.AgentError(user, ex.Message);
                 SetState(AgentState.Error);
 
@@ -378,7 +379,7 @@ namespace ProGlassAutomation.Agent.Core
             catch (Exception ex)
             {
                 // A throwing tool is a bug; report it, never pretend success.
-                Debug.WriteLine($"[Agent] tool '{name}' threw: {ex.Message}");
+                AppLogService.Debug($"[Agent] tool '{name}' threw: {ex.Message}");
                 _context.Audit?.Tool(user, name, false, $"threw: {ex.Message}");
 
                 return AgentResponse.Fail(

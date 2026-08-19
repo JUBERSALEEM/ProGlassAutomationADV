@@ -27,6 +27,8 @@
 // says so in StatusMessage.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
@@ -214,7 +216,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         public JobProfitabilityViewModel()
         {
-            RefreshCommand = new RelayCommand(_ => FireRefresh());
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh"));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
 
@@ -247,7 +249,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             // First load is fire-and-forget so construction stays cheap and
             // the shell can build every module VM without blocking.
-            FireRefresh();
+            AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh");
         }
 
         private void OnSavedInvoicesChanged()
@@ -255,12 +257,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             var dispatcher = System.Windows.Application.Current?.Dispatcher;
 
             if (dispatcher == null || dispatcher.CheckAccess())
-                FireRefresh();
+                AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh");
             else
-                dispatcher.BeginInvoke(new Action(FireRefresh));
+                dispatcher.BeginInvoke(new Action(() => AsyncUtility.SafeFireAndForget(() => FireRefreshAsync(), "JobProfitability FireRefresh")));
         }
 
-        private async void FireRefresh()
+        private async Task FireRefreshAsync()
         {
             await LoadAsync().ConfigureAwait(true);
         }
@@ -427,7 +429,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[JobProfitabilityViewModel] Load failed: {ex.Message}");
+                AppLogService.Debug($"[JobProfitabilityViewModel] Load failed: {ex.Message}");
                 StatusMessage = "Could not load job profitability — check the invoice database.";
             }
             finally

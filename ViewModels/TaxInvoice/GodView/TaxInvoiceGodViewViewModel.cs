@@ -9,10 +9,13 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -55,7 +58,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
 
         public TaxInvoiceGodViewViewModel()
         {
-            RefreshCommand = new RelayCommand(_ => LoadAsync());
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>
             {
@@ -65,7 +68,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
         }
 
         /// <summary>Loads every tax invoice and recomputes KPIs.</summary>
-        public async void LoadAsync()
+        public async Task LoadAsync()
         {
             if (App.TaxInvoices == null) return;
 
@@ -91,7 +94,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TI GodView] Load failed: {ex.Message}");
                 UiDispatch.Run(() => IsLoading = false);
             }

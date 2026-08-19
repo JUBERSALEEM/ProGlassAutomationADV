@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Context;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Services.Reporting;
 using System;
@@ -215,7 +216,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetReportingTool] {ex.Message}");
+                AppLogService.Debug($"[GetReportingTool] {ex.Message}");
                 return ToolResult.Fail("I could not read reporting data, so I am not going to guess. Check that the databases are reachable.");
             }
         }

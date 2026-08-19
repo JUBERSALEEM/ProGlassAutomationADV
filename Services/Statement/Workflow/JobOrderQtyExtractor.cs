@@ -7,6 +7,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Diagnostics;
+using ProGlassAutomation.Services.Logging;
 using System.Text.Json;
 
 namespace ProGlassAutomation.Services.Statement.Workflow
@@ -43,7 +44,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     total = SumQtyFromSpecGroups(embedded);
                     if (total > 0)
                     {
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[Workflow] Qty from EmbeddedInvoice: {total}");
                         return total;
                     }
@@ -55,7 +56,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     total = SumQtyFromSpecGroups(pi);
                     if (total > 0)
                     {
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[Workflow] Qty from ProformaInvoice: {total}");
                         return total;
                     }
@@ -63,12 +64,12 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
                 // Path 3: root.SpecGroups
                 total = SumQtyFromSpecGroups(root);
-                Debug.WriteLine($"[Workflow] Qty from root: {total}");
+                AppLogService.Debug($"[Workflow] Qty from root: {total}");
                 return total;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Workflow] Qty extract: {ex.Message}");
+                AppLogService.Debug($"[Workflow] Qty extract: {ex.Message}");
                 return 0;
             }
         }

@@ -18,6 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.Speech.Recognition;
 using System.Threading;
@@ -129,7 +130,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SpeechToText] Init failed: {ex.Message}");
                 IsAvailable = false;
             }
@@ -208,7 +209,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SpeechToText] StartListening failed: {ex.Message}");
             }
         }
@@ -224,7 +225,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SpeechToText] StopListening failed: {ex.Message}");
             }
         }

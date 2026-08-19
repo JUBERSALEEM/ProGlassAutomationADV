@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using System;
 using System.Diagnostics;
@@ -62,7 +63,7 @@ namespace ProGlassAutomation.Agent.Core
             catch (Exception ex)
             {
                 // Auditing must never break the agent.
-                Debug.WriteLine($"[AgentAudit] write failed: {ex.Message}");
+                AppLogService.Debug($"[AgentAudit] write failed: {ex.Message}");
             }
         }
 

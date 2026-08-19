@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
@@ -128,7 +129,7 @@ namespace ProGlassAutomation.Agent.Storage
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[AgentDbContext] EnsureCreated failed: {ex.Message}");
                 return false;
             }

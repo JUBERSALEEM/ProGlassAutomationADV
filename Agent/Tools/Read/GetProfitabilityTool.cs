@@ -21,6 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
@@ -170,7 +171,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetProfitabilityTool] {ex.Message}");
+                AppLogService.Debug($"[GetProfitabilityTool] {ex.Message}");
                 return ReadToolHelpers.Unavailable("profitability figures");
             }
         }

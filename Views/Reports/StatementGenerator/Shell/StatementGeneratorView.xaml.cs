@@ -40,6 +40,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
+using ProGlassAutomation.Services.Logging;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
@@ -138,12 +139,12 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Shell
             {
                 try
                 {
-                    Debug.WriteLine("[Shell] Step 3 entered — auto-running pipeline");
+                    AppLogService.Debug("[Shell] Step 3 entered — auto-running pipeline");
                     await _subscribedVm.RunPipelineAsync();
                 }
                 catch (System.Exception ex)
                 {
-                    Debug.WriteLine($"[Shell] Pipeline auto-run failed: {ex.Message}");
+                    AppLogService.Debug($"[Shell] Pipeline auto-run failed: {ex.Message}");
                 }
             }
         }

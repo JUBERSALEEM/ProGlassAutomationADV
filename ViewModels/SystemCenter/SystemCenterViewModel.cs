@@ -12,10 +12,12 @@
 // All persistence goes through Services/Audit/AuditService.cs.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -202,7 +204,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         public ICommand RefreshUsersCommand { get; }
 
         /// <summary>Loads the user table from audit.db.</summary>
-        public async void LoadUsersAsync()
+        public async Task LoadUsersAsync()
         {
             var users = await AuditService.GetUsersAsync();
 
@@ -362,7 +364,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         public ICommand RefreshActivityCommand { get; }
 
         /// <summary>Loads the audit trail (filtered by selected section).</summary>
-        public async void LoadActivityAsync()
+        public async Task LoadActivityAsync()
         {
             string? section = SelectedSectionFilter == "All sections"
                 ? null

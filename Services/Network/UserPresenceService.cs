@@ -366,12 +366,12 @@ namespace ProGlassAutomation.Services.Network
                 // exit signal — and releases the bound UDP port. Closing
                 // without disposing left the socket handle to the finalizer,
                 // so a restart could still hit "address already in use".
-                try { _listener?.Dispose(); } catch { }
+                try { _listener?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _listener = null;
 
                 lock (_senderLock)
                 {
-                    try { _sender?.Dispose(); } catch { }
+                    try { _sender?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     _sender = null;
                 }
             }

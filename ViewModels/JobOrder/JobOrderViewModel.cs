@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.JobOrder.GodView;
 using ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail;
@@ -230,7 +231,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[JobOrderVM] ReturnToList failed: {ex.Message}");
             }
         }
@@ -282,7 +283,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[JobOrderVM] RestoreVersion failed: {ex.Message}");
             }
         }

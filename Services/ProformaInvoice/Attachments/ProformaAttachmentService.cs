@@ -21,6 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.Attachments;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using System;
@@ -241,7 +242,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[ProformaAttachments] Corrupt manifest for " +
                     $"{proformaId}: {ex.Message}");
                 return new List<ProformaAttachmentRecord>();

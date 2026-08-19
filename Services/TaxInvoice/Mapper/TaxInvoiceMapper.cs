@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Utilities;
 using System;
@@ -176,7 +177,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
             }
             catch (JsonException ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TaxInvoiceMapper] Snapshot deserialize failed " +
                     $"for invoice '{entity.InvoiceNumber}': {ex.Message}");
                 return null;

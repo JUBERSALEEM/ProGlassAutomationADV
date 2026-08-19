@@ -150,7 +150,7 @@ namespace ProGlassAutomation.Services.Updates
         {
             State = state;
             StateDetail = detail ?? "";
-            try { StateChanged?.Invoke(); } catch { }
+            try { StateChanged?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         private static bool IsOffline =>

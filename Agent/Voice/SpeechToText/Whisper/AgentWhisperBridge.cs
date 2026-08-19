@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace ProGlassAutomation.Agent.Voice.SpeechToText.Whisper
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentWhisper] readiness check failed: {ex.Message}");
+                    AppLogService.Debug($"[AgentWhisper] readiness check failed: {ex.Message}");
                     return false;
                 }
             }
@@ -90,7 +91,7 @@ namespace ProGlassAutomation.Agent.Voice.SpeechToText.Whisper
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentWhisper] capture failed: {ex.Message}");
+                AppLogService.Debug($"[AgentWhisper] capture failed: {ex.Message}");
                 return null;
             }
         }

@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Linq;
 using System.Speech.Synthesis;
 
@@ -66,14 +67,14 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
                 IsAvailable = true;
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] Ready. " +
                     $"Voice: {_synth.Voice?.Name ?? "unknown"} | " +
                     $"Culture: {_synth.Voice?.Culture?.Name ?? "unknown"}");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] Init failed: {ex.Message}");
                 IsAvailable = false;
             }
@@ -94,7 +95,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
                 if (voices.Count == 0)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         "[TextToSpeech] No voices found — using system default.");
                     return;
                 }
@@ -108,7 +109,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 if (enUs != null)
                 {
                     _synth.SelectVoice(enUs.VoiceInfo.Name);
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[TextToSpeech] Selected en-US voice: " +
                         $"{enUs.VoiceInfo.Name}");
                     return;
@@ -122,7 +123,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 if (anyEnglish != null)
                 {
                     _synth.SelectVoice(anyEnglish.VoiceInfo.Name);
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[TextToSpeech] Selected English voice: " +
                         $"{anyEnglish.VoiceInfo.Name} " +
                         $"({anyEnglish.VoiceInfo.Culture.Name})");
@@ -132,7 +133,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 // 3. Any available voice — log warning
                 var anyVoice = voices.First();
                 _synth.SelectVoice(anyVoice.VoiceInfo.Name);
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] ⚠ No English voice found. " +
                     $"Using: {anyVoice.VoiceInfo.Name} " +
                     $"({anyVoice.VoiceInfo.Culture.Name}). " +
@@ -140,7 +141,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] Voice selection failed: {ex.Message}. " +
                     $"Using system default.");
             }
@@ -156,7 +157,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] SpeakAsync failed: {ex.Message}");
             }
         }
@@ -171,7 +172,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TextToSpeech] Stop failed: {ex.Message}");
             }
         }

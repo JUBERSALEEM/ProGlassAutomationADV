@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Recording;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Views.Shared;
 using System;
 using System.Windows;
@@ -63,7 +64,7 @@ namespace ProGlassAutomation.Agent.Demo
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
         }
 
@@ -87,7 +88,7 @@ namespace ProGlassAutomation.Agent.Demo
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
         }
 
@@ -96,7 +97,7 @@ namespace ProGlassAutomation.Agent.Demo
             _recorder = null;
             RunOnUi(() =>
             {
-                try { _overlay?.Hide(); } catch { }
+                try { _overlay?.Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
         }
 
@@ -125,7 +126,7 @@ namespace ProGlassAutomation.Agent.Demo
                 var main = Application.Current?.MainWindow;
                 if (main != null) _overlay.Owner = main;
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             return _overlay;
         }
 

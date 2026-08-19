@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -117,7 +118,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 DetailRows = new ObservableCollection<GlassSpecReportRow>(rows);
                 Reconciliation = await _service.GetQuantityReconciliationAsync(proformaId);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         protected override async Task ExportAsync(ExportFormat format)

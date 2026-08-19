@@ -26,6 +26,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
@@ -292,7 +293,7 @@ namespace ProGlassAutomation.Agent.UI
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"[AgentChatViewModel] speak: {ex.Message}");
+                        AppLogService.Debug($"[AgentChatViewModel] speak: {ex.Message}");
                     }
                     finally
                     {
@@ -307,7 +308,7 @@ namespace ProGlassAutomation.Agent.UI
             catch (Exception ex)
             {
                 // Fail closed and stay truthful — never surface a stack trace.
-                Debug.WriteLine($"[AgentChatViewModel] send failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatViewModel] send failed: {ex.Message}");
                 AddFailure(
                     "Something went wrong handling that. Nothing was changed.");
             }
@@ -383,7 +384,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatViewModel] voice failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatViewModel] voice failed: {ex.Message}");
                 AddFailure("Voice input failed. Nothing was changed.");
             }
             finally
@@ -413,7 +414,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatViewModel] stop failed: {ex.Message}");
+                AppLogService.Debug($"[AgentChatViewModel] stop failed: {ex.Message}");
             }
         }
 
@@ -493,7 +494,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentChatViewModel] unhandled: {ex.Message}");
+                AppLogService.Debug($"[AgentChatViewModel] unhandled: {ex.Message}");
             }
         }
     }

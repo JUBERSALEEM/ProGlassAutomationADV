@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using System;
@@ -47,7 +48,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         private static void RaiseChanged()
         {
             // A listener that throws must not roll back a completed save.
-            try { SavedInvoicesChanged?.Invoke(); } catch { }
+            try { SavedInvoicesChanged?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             DocumentLifecycle.Raise();
         }
 

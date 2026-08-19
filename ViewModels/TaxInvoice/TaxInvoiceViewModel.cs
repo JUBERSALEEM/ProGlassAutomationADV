@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using ProGlassAutomation.ViewModels.TaxInvoice.GodView;
@@ -137,7 +138,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         {
             ListVM = new TaxInvoiceListViewModel();
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await ListVM.LoadAsync(); } catch { } };
+                async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
             DetailVM = new TaxInvoiceDetailViewModel();
 
             // Wire list → detail navigation
@@ -554,7 +555,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ex.Message}");
             }
         }

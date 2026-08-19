@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using ProGlassAutomation.Services.Logging;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -26,7 +27,7 @@ namespace ProGlassAutomation.Converters
                     brush.Freeze(); // performance — makes it immutable and thread-safe
                     return brush;
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
             return Brushes.Gray;
         }

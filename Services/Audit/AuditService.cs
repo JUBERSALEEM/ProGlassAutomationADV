@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.Audit;
 using System;
 using System.Collections.Generic;
@@ -126,13 +127,13 @@ namespace ProGlassAutomation.Services.Audit
                 // the audit trail claim admin was online before anyone signed in.
                 _currentUser = null;
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Audit] Initialized. Session {SessionId}, " +
                     "awaiting sign-in.");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Audit] Initialize failed: {ex.Message}");
             }
         }
@@ -317,7 +318,7 @@ namespace ProGlassAutomation.Services.Audit
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Audit] GetRecent failed: {ex.Message}");
                 return new List<ActivityLogEntry>();
             }

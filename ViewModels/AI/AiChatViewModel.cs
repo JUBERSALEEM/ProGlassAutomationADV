@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.AI.AIContext;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
@@ -267,7 +268,7 @@ namespace ProGlassAutomation.ViewModels.AI
                                 });
                             };
 
-                            System.Diagnostics.Debug.WriteLine(
+                            AppLogService.Debug(
                                 "[AiChatVM] Swapped Whisper → System.Speech.");
 
                             StatusMessage =
@@ -280,7 +281,7 @@ namespace ProGlassAutomation.ViewModels.AI
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[AiChatVM] Fallback swap failed: {ex.Message}");
                             StatusMessage =
                                 "⚠ Voice unavailable — check audio drivers";
@@ -340,7 +341,7 @@ namespace ProGlassAutomation.ViewModels.AI
 
                 // v3: closing the panel aborts any in-flight generation
                 // so nothing keeps running (and billing) invisibly.
-                try { _cts?.Cancel(); } catch { }
+                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
 
             ClearChatCommand = new RelayCommand(_ =>
@@ -440,7 +441,7 @@ namespace ProGlassAutomation.ViewModels.AI
 
             StopGenerationCommand = new RelayCommand(_ =>
             {
-                try { _cts?.Cancel(); } catch { }
+                try { _cts?.Cancel(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 StatusMessage = "⏹ Stopping generation…";
             });
 
@@ -515,7 +516,7 @@ namespace ProGlassAutomation.ViewModels.AI
 
             // v3: one cancellation source per request — the Stop button
             // can abort an in-flight generation at any time.
-            try { _cts?.Dispose(); } catch { }
+            try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _cts = new CancellationTokenSource();
             var token = _cts.Token;
 
@@ -535,7 +536,7 @@ namespace ProGlassAutomation.ViewModels.AI
                         dataContext =
                             await AiContextBuilder.BuildContextAsync();
                     }
-                    catch { }
+                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 }
                 else
                 {
@@ -548,7 +549,7 @@ namespace ProGlassAutomation.ViewModels.AI
                         learningContext = await AiContextBuilder
                             .BuildLearningContextAsync();
                     }
-                    catch { }
+                    catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 }
 
                 var fullSystemPrompt = systemPrompt;
@@ -577,7 +578,7 @@ namespace ProGlassAutomation.ViewModels.AI
                             if (!string.IsNullOrEmpty(entityContext))
                                 fullSystemPrompt += "\n" + entityContext;
                         }
-                        catch { }
+                        catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     }
                 }
 
@@ -645,7 +646,7 @@ namespace ProGlassAutomation.ViewModels.AI
                 ActiveStream = null;
                 IsBusy = false;
                 StatusMessage = string.Empty;
-                try { _cts?.Dispose(); } catch { }
+                try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _cts = null;
             }
         }
@@ -735,7 +736,7 @@ namespace ProGlassAutomation.ViewModels.AI
                 .ContinueWith(t =>
                 {
                     if (t.Exception != null)
-                        System.Diagnostics.Debug.WriteLine(
+                        AppLogService.Debug(
                             "[AiChatVM] Memory save failed: " +
                             t.Exception.GetBaseException().Message);
                 }, TaskScheduler.Default);

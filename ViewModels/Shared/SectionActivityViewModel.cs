@@ -13,8 +13,10 @@
 // • Capped at 200 rows in memory; older rows stay in audit.db.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Models.Audit;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Audit;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -47,7 +49,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             _section = section;
 
-            RefreshCommand = new RelayCommand(_ => LoadAsync());
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             ShowChangesCommand = new RelayCommand(param =>
             {
@@ -65,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         }
 
         /// <summary>Reloads the latest entries for this section.</summary>
-        public async void LoadAsync()
+        public async Task LoadAsync()
         {
             var entries = await AuditService.GetRecentAsync(
                 MaxRows, string.IsNullOrEmpty(_section) ? null : _section);

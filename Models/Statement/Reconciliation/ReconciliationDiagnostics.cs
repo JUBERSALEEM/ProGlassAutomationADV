@@ -44,6 +44,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement.Reconciliation;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -469,31 +470,31 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
 
         private static void PrintHeader(string title)
         {
-            Debug.WriteLine("");
-            Debug.WriteLine("╔══════════════════════════════════════════════════════════════════════╗");
-            Debug.WriteLine($"║  {title.PadRight(66)}  ║");
-            Debug.WriteLine($"║  Started: {DateTime.Now:yyyy-MM-dd HH:mm:ss}".PadRight(70) + "  ║");
-            Debug.WriteLine("╚══════════════════════════════════════════════════════════════════════╝");
+            AppLogService.Debug("");
+            AppLogService.Debug("╔══════════════════════════════════════════════════════════════════════╗");
+            AppLogService.Debug($"║  {title.PadRight(66)}  ║");
+            AppLogService.Debug($"║  Started: {DateTime.Now:yyyy-MM-dd HH:mm:ss}".PadRight(70) + "  ║");
+            AppLogService.Debug("╚══════════════════════════════════════════════════════════════════════╝");
         }
 
         private static void PrintFooter()
         {
-            Debug.WriteLine("");
-            Debug.WriteLine("═══════════════════════════════════════════════════════════════════════");
-            Debug.WriteLine($"Diagnostics complete at {DateTime.Now:HH:mm:ss}");
-            Debug.WriteLine("═══════════════════════════════════════════════════════════════════════");
-            Debug.WriteLine("");
+            AppLogService.Debug("");
+            AppLogService.Debug("═══════════════════════════════════════════════════════════════════════");
+            AppLogService.Debug($"Diagnostics complete at {DateTime.Now:HH:mm:ss}");
+            AppLogService.Debug("═══════════════════════════════════════════════════════════════════════");
+            AppLogService.Debug("");
         }
 
         private static void PrintSection(string title)
         {
-            Debug.WriteLine("");
-            Debug.WriteLine($"── {title} ".PadRight(72, '─'));
+            AppLogService.Debug("");
+            AppLogService.Debug($"── {title} ".PadRight(72, '─'));
         }
 
         private static void PrintLine(string text)
         {
-            Debug.WriteLine(text);
+            AppLogService.Debug(text);
         }
 
         private static void PrintFamilyLine(OrderReconciliationSummary s)
@@ -501,7 +502,7 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
             string statusIcon = s.OverallIcon;
             string flag = s.HasOverInvoicing ? " 🔴" : "";
 
-            Debug.WriteLine($"  {statusIcon} {s.ProformaId,-20} " +
+            AppLogService.Debug($"  {statusIcon} {s.ProformaId,-20} " +
                             $"O:{s.TotalOrderedQty,3}  " +
                             $"D:{s.TotalDeliveredQty,3}  " +
                             $"I:{s.TotalInvoicedQty,3}  " +

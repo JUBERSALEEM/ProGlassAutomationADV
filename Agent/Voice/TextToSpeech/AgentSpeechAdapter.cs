@@ -10,6 +10,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.AI.AIVoice;
 using System;
 using System.Diagnostics;
@@ -80,7 +81,7 @@ namespace ProGlassAutomation.Agent.Voice.TextToSpeech
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSpeech] speak failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSpeech] speak failed: {ex.Message}");
             }
         }
 
@@ -90,7 +91,7 @@ namespace ProGlassAutomation.Agent.Voice.TextToSpeech
             try { _tts?.Stop(); }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSpeech] stop failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSpeech] stop failed: {ex.Message}");
             }
         }
     }

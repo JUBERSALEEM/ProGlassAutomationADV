@@ -18,6 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using System;
 using System.Diagnostics;
@@ -199,7 +200,7 @@ namespace ProGlassAutomation.Agent.Permissions
             catch (Exception ex)
             {
                 // A broken prompt must not become an implicit yes.
-                Debug.WriteLine($"[AgentPermissions] prompt failed: {ex.Message}");
+                AppLogService.Debug($"[AgentPermissions] prompt failed: {ex.Message}");
 
                 return PermissionDecision.Deny(
                     "I could not confirm that action with you, so I stopped.");

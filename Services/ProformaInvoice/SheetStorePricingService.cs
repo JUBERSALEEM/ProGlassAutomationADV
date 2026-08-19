@@ -31,6 +31,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -93,7 +94,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             catch (Exception ex)
             {
                 // Sheet Store unavailable → the wizard simply gets no hints.
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SheetStorePricingService] Sheet Store read failed: {ex.Message}");
                 return new List<GlassSheet>();
             }

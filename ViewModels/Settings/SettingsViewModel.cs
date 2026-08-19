@@ -15,11 +15,13 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -224,12 +226,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                         {
                             App.SpeechToText?.Dispose();
                             App.SpeechToText = new WhisperSpeechService();
-                            System.Diagnostics.Debug.WriteLine(
+                            AppLogService.Debug(
                                 "[Settings] Switched STT → Whisper after download.");
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Settings] Whisper swap failed: {ex.Message}");
                         }
                     }
@@ -1177,7 +1179,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Max history rows shown (keeps the card compact).</summary>
         private const int MaxDisplayedHistory = 6;
 
-        public async void LoadUpdateHistory()
+        public async Task LoadUpdateHistoryAsync()
         {
             var entries = await Services.Updates.UpdateHistoryService
                 .ReadAllAsync();
@@ -1810,7 +1812,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                             UseShellExecute = true
                         });
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
 
             RefreshBackupSets();

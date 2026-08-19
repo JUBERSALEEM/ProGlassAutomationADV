@@ -143,7 +143,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             ListVM = new DeliveryNoteListViewModel();
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await ListVM.LoadAsync(); } catch { } };
+                async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
             DetailVM = new DeliveryNoteDetailViewModel();
 
             // ── List → open real DN detail ────────────────────────────────
@@ -429,7 +429,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[DeliveryNoteViewModel] ListVM.LoadAsync failed: {ex.Message}");
             }
         }

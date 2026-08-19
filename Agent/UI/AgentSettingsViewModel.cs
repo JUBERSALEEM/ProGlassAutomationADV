@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Win32;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Configuration;
 using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Agent.Interfaces;
@@ -329,7 +330,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSettings] refresh rules failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSettings] refresh rules failed: {ex.Message}");
             }
         }
 
@@ -415,7 +416,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSettings] export failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSettings] export failed: {ex.Message}");
                 Status = "Export failed.";
             }
         }
@@ -446,7 +447,7 @@ namespace ProGlassAutomation.Agent.UI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSettings] import failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSettings] import failed: {ex.Message}");
                 Status = "Import failed.";
             }
         }

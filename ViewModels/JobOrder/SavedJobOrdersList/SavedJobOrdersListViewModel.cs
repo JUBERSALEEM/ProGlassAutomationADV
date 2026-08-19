@@ -1,5 +1,6 @@
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
@@ -259,7 +260,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             // Instant refresh when sample data is seeded.
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await LoadJobOrdersAsync(); } catch { } };
+                async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
 
             // A DN / TI delete in another module must refresh this list
             // immediately so derived delivery status matches remaining docs.

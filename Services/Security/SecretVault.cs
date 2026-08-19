@@ -104,7 +104,7 @@ namespace ProGlassAutomation.Services.Security
                 if (map.Remove(key))
                     Save(map);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         /// <summary>Deletes all secrets (Settings → "Remove saved keys").</summary>
@@ -118,7 +118,7 @@ namespace ProGlassAutomation.Services.Security
                         File.Delete(VaultPath);
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         // ── Persistence (encrypted values only — no plain text) ────────

@@ -7,6 +7,11 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>favicon.ico</ApplicationIcon>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<AnalysisLevel>latest</AnalysisLevel>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 
 		<!-- ── ONE authoritative version source (OTA spec §5) ────────
 		     About / Settings / update checker / installer / releases all
@@ -77,6 +82,8 @@
 		<PackageReference Include="Whisper.net" Version="1.7.4" />
 		<PackageReference Include="Velopack" Version="1.2.0" />
 		<PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
 
 	</ItemGroup>
 

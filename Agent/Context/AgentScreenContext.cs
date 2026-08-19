@@ -43,6 +43,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIContext;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Agent.Context
                 try { return AiScreenContext.CurrentModule ?? ""; }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentScreenContext] {ex.Message}");
+                    AppLogService.Debug($"[AgentScreenContext] {ex.Message}");
                     return "";
                 }
             }
@@ -125,7 +126,7 @@ namespace ProGlassAutomation.Agent.Context
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentScreenContext] {ex.Message}");
+                    AppLogService.Debug($"[AgentScreenContext] {ex.Message}");
                     return "";
                 }
             }
@@ -158,7 +159,7 @@ namespace ProGlassAutomation.Agent.Context
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentScreenContext] observe: {ex.Message}");
+                AppLogService.Debug($"[AgentScreenContext] observe: {ex.Message}");
             }
         }
 

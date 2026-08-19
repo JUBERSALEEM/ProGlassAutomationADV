@@ -1,4 +1,5 @@
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using System;
@@ -79,7 +80,7 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
                 var jo = await _service.GetJoRowsAsync(new ReportingFilter { Customer = customer, PageSize = 20 });
                 JoLifecycle = new ObservableCollection<JoReportRow>(jo.Items);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         protected override async Task ExportAsync(ExportFormat format)

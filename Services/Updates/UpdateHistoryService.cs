@@ -10,6 +10,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -68,7 +69,7 @@ namespace ProGlassAutomation.Services.Updates
                 File.WriteAllText(
                     LastCheckPath, DateTime.UtcNow.ToString("o"));
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         /// <summary>When the last check ran, or null when unknown.</summary>

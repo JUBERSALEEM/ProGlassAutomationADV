@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Utilities;
 using System;
@@ -301,7 +302,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private static decimal LogUnknownAndReturnZero(string sourceKey)
         {
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[ProformaChargeMetricsCalculator] Unknown source key " +
                 $"'{sourceKey}' — returning 0. Valid keys: LM1, LM2, " +
                 "LM_COMBINED, SQM1, SQM2, SQM_COMBINED, DGU_CAVITY, " +

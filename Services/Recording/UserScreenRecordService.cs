@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Tools.Demo;
@@ -253,21 +254,21 @@ namespace ProGlassAutomation.Services.Recording
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("[UserScreenRecord] " + ex);
+                AppLogService.Debug("[UserScreenRecord] " + ex);
                 Fail("Recording stopped: " + ex.Message);
             }
             finally
             {
-                try { recorder.Dispose(); } catch { }
+                try { recorder.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 lock (_gate)
                 {
                     _recorder = null;
                     _jobFolder = null;
                     IsRecording = false;
                     IsEncoding = false;
-                    try { _critical?.Dispose(); } catch { }
+                    try { _critical?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     _critical = null;
-                    try { _cts?.Dispose(); } catch { }
+                    try { _cts?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     _cts = null;
                 }
                 RaiseChanged();
@@ -321,7 +322,7 @@ namespace ProGlassAutomation.Services.Recording
             {
                 var disp = Application.Current?.Dispatcher;
                 if (disp != null && !disp.CheckAccess())
-                    disp.InvokeAsync(() => { try { Changed?.Invoke(); } catch { } });
+                    disp.InvokeAsync(() => { try { Changed?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } });
                 else
                     Changed?.Invoke();
             }

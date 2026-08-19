@@ -11,6 +11,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using System;
 using System.Diagnostics;
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[get_activity] {ex.Message}");
+                AppLogService.Debug($"[get_activity] {ex.Message}");
                 return ToolResult.Fail(
                     "I could not read the activity log, so I cannot tell you what " +
                     "happened recently.");

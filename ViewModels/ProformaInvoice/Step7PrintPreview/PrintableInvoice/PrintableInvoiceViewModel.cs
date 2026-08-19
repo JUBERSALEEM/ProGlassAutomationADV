@@ -295,7 +295,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             if (ex.InnerException != null)
                 msg += $"\n\nInner: {ex.InnerException.Message}";
 
-            Debug.WriteLine($"[Print] {title}: {ex}");
+            AppLogService.Debug($"[Print] {title}: {ex}");
             MessageBox.Show(msg, title, MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -440,7 +440,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     isUpdate ? "Invoice updated" : "Invoice created",
                     entity.FullSnapshotJson);
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[PI] Version {version} stored for {entity.ProformaId}");
             }
             catch (Exception ex)
@@ -688,7 +688,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             int totalPages = Math.Max(1,
                 (int)Math.Ceiling(totalHeight / usableHeight));
 
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[PRINT] totalHeight={totalHeight}, " +
                 $"usableHeight={usableHeight}, totalPages={totalPages}");
 
@@ -1255,7 +1255,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[T&C] GetActivePrintableClauses failed: {ex}");
+                AppLogService.Debug($"[T&C] GetActivePrintableClauses failed: {ex}");
                 stack.Children.Add(MakeText(
                     $"[Error loading clauses: {ex.Message}]",
                     9, FontWeights.Normal, RedBrush, fontStyle: FontStyles.Italic));
@@ -1310,7 +1310,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[T&C] Failed to render clause {clause?.Order}: {ex}");
                 }
             }

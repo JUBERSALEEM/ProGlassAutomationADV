@@ -1,4 +1,5 @@
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
 using System;
@@ -32,7 +33,7 @@ namespace ProGlassAutomation.ViewModels.Reports.ProjectReport
                 var pi = await _service.GetPiRowsAsync(new ReportingFilter { Project = project, PageSize = 20 });
                 PiRows = new ObservableCollection<PiReportRow>(pi.Items);
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         public override async Task LoadAsync()

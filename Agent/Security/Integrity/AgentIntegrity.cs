@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
@@ -80,7 +81,7 @@ namespace ProGlassAutomation.Agent.Security.Integrity
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentIntegrity] hash failed: {ex.Message}");
+                AppLogService.Debug($"[AgentIntegrity] hash failed: {ex.Message}");
                 return IntegrityResult.Fail(
                     "The file could not be read for verification, so I treated " +
                     "it as unverified.");
@@ -156,7 +157,7 @@ namespace ProGlassAutomation.Agent.Security.Integrity
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentIntegrity] json check: {ex.Message}");
+                AppLogService.Debug($"[AgentIntegrity] json check: {ex.Message}");
                 return false;   // fail closed
             }
         }

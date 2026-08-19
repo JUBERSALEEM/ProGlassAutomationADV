@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Core;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.UI;
 using System;
 using System.Diagnostics;
@@ -58,7 +59,7 @@ namespace ProGlassAutomation.Views.Settings.Sections
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[SettingsAgentSection] load failed: {ex.Message}");
+                    AppLogService.Debug($"[SettingsAgentSection] load failed: {ex.Message}");
                 }
             };
         }

@@ -9,10 +9,13 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -55,7 +58,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
         public JobOrderGodViewViewModel()
         {
-            RefreshCommand = new RelayCommand(_ => LoadAsync());
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() => LoadAsync(), "GodView LoadAsync"));
 
             OpenCommand = new RelayCommand(param =>
             {
@@ -65,7 +68,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
         }
 
         /// <summary>Loads every job order and recomputes KPIs.</summary>
-        public async void LoadAsync()
+        public async Task LoadAsync()
         {
             if (App.Jobs == null) return;
 
@@ -91,7 +94,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[JO GodView] Load failed: {ex.Message}");
                 UiDispatch.Run(() => IsLoading = false);
             }

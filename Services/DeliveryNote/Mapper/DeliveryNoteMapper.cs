@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Utilities;
 using System;
@@ -251,7 +252,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             catch (JsonException ex)
             {
                 // Log for diagnostics — malformed snapshot causes empty detail view
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[DeliveryNoteMapper] Snapshot deserialize failed " +
                     $"for DN '{entity.DeliveryNoteId}': {ex.Message}");
                 return null;

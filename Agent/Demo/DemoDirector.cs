@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Data;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Agent.Demo.Tts;
 using ProGlassAutomation.Agent.Demo.Video;
@@ -376,7 +377,7 @@ namespace ProGlassAutomation.Agent.Demo
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[DemoDirector] {ex}");
+                AppLogService.Debug($"[DemoDirector] {ex}");
                 Fail(LastArgument ?? "", "Demo stopped: " + ex.Message, log, LastOutputFolder);
                 return Status;
             }

@@ -36,6 +36,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Context;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
@@ -248,7 +249,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetDocumentChainTool] {ex.Message}");
+                AppLogService.Debug($"[GetDocumentChainTool] {ex.Message}");
 
                 return ToolResult.Fail(
                     "I could not read the document chain, so I am not going to " +

@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Threading.Tasks;
 using Velopack;
 using Velopack.Sources;
@@ -54,7 +55,7 @@ namespace ProGlassAutomation.Services.Updates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Velopack] check failed: {ex.Message}");
                 return null;
             }
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.Services.Updates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Velopack] download failed: {ex.Message}");
                 return false;
             }
@@ -90,7 +91,7 @@ namespace ProGlassAutomation.Services.Updates
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Velopack] apply failed: {ex.Message}");
             }
         }

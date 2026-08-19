@@ -38,6 +38,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Context;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Statement.Repository;
@@ -159,7 +160,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[GetStatementTool] {ex.Message}");
+                AppLogService.Debug($"[GetStatementTool] {ex.Message}");
                 return ReadToolHelpers.Unavailable("statements");
             }
         }

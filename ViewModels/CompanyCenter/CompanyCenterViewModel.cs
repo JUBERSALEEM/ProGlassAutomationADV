@@ -14,6 +14,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
@@ -221,7 +222,7 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         }
                         catch (Exception diffEx)
                         {
-                            System.Diagnostics.Debug.WriteLine(
+                            AppLogService.Debug(
                                 "[CompanyCenter] diff skipped: " + diffEx.Message);
                         }
                     }

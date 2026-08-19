@@ -1,4 +1,5 @@
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -131,14 +132,14 @@ namespace ProGlassAutomation.Agent.Demo
 
                 if (proc.ExitCode == 0 && File.Exists(mp4)) return mp4;
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Demo ffmpeg] exit {proc.ExitCode}: " +
                     (err.Length > 300 ? err[^300..] : err));
                 return null;
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Demo ffmpeg] {ex.Message}");
+                AppLogService.Debug($"[Demo ffmpeg] {ex.Message}");
                 return null;
             }
         }

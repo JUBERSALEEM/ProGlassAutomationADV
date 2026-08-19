@@ -491,7 +491,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                         string fileName = att.FileName ?? "";
                         string attType = att.AttachmentType ?? "Image";
 
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[Workflow] DN {dn.DeliveryNoteId} " +
                             $"att: file='{fileName}' " +
                             $"storedPath='{storedPath}'");
@@ -512,14 +512,14 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                                     dnAtt.AttachmentBytes.Add(bytes);
                                     dnAtt.AttachmentFileNames.Add(fileName);
                                     loadedCount++;
-                                    Debug.WriteLine(
+                                    AppLogService.Debug(
                                         $"[Workflow]   ✓ Loaded: " +
                                         $"{bytes.Length:N0} bytes");
                                 }
                                 else
                                 {
                                     failedCount++;
-                                    Debug.WriteLine(
+                                    AppLogService.Debug(
                                         $"[Workflow]   ✗ Empty file: " +
                                         $"'{resolvedPath}'");
                                     step.AddDetail(
@@ -529,7 +529,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                             catch (Exception ex)
                             {
                                 failedCount++;
-                                Debug.WriteLine(
+                                AppLogService.Debug(
                                     $"[Workflow]   ✗ Read error " +
                                     $"'{resolvedPath}': {ex.Message}");
                                 step.AddDetail(
@@ -549,7 +549,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                             step.AddWarning(
                                 $"DN {dn.DeliveryNoteId}: " +
                                 $"'{fileName}' not found on disk");
-                            Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Workflow]   ✗ File not found " +
                                 $"anywhere: '{fileName}'");
                         }
@@ -698,7 +698,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow] PI line map load error: {ex.Message}");
                 return null;
             }
@@ -757,7 +757,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[Workflow] TI load error " +
                             $"{tiListItem.InvoiceNumber}: {ex.Message}");
                     }
@@ -765,7 +765,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow] Invoiced map load error: {ex.Message}");
             }
 
@@ -905,7 +905,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow] DN reconciliation error " +
                     $"{deliveryNoteId}: {ex.Message}");
                 step.AddDetail(
@@ -948,11 +948,11 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             if (!string.IsNullOrWhiteSpace(storedPath) &&
                 File.Exists(storedPath))
             {
-                Debug.WriteLine($"[Workflow]   ✓ Strategy 1 (stored path)");
+                AppLogService.Debug($"[Workflow]   ✓ Strategy 1 (stored path)");
                 return storedPath;
             }
 
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Workflow]   ✗ Strategy 1 failed: " +
                 $"'{storedPath}' — " +
                 (string.IsNullOrWhiteSpace(storedPath)
@@ -961,7 +961,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             if (string.IsNullOrWhiteSpace(fileName))
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow]   ✗ Cannot try Strategy 2/3: " +
                     $"fileName is empty");
                 return null;
@@ -981,13 +981,13 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             if (File.Exists(rebuilt))
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow]   ✓ Strategy 2 (rebuilt): '{rebuilt}'");
                 step.AddDetail($"    🔧 Rebuilt path: {fileName}");
                 return rebuilt;
             }
 
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Workflow]   ✗ Strategy 2 failed: '{rebuilt}'");
 
             // ── Strategy 3: search both subfolders ───────────────────────
@@ -1003,7 +1003,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
                 if (File.Exists(tryPath))
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Workflow]   ✓ Strategy 3 ({subfolder}): " +
                         $"'{tryPath}'");
                     step.AddDetail(
@@ -1011,7 +1011,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     return tryPath;
                 }
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Workflow]   ✗ Strategy 3 ({subfolder}): " +
                     $"not found");
             }

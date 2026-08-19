@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
@@ -183,7 +184,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             // Instant refresh when sample data is seeded.
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await LoadInvoicesAsync(); } catch { } };
+                async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
 
             // Instant refresh when this PI changes OR when a related JO / DN /
             // TI is created or deleted. Display status is derived from those
@@ -458,7 +459,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -480,7 +481,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             try
             {
@@ -495,7 +496,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             return state;
         }

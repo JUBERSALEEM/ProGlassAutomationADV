@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -128,7 +129,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
             // Backward-compat fallback (deprecated) — string only
             if (p is string line)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     "[TermsAndConditionsVM] RemovePaymentSubLineCommand " +
                     "was called with a plain string. Update XAML to pass " +
                     "Tuple<TermClause,string> for correct removal.");

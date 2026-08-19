@@ -20,6 +20,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Configuration;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Diagnostics;
 
@@ -44,7 +45,7 @@ namespace ProGlassAutomation.Agent.Security.Consent
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentConsent] {ex.Message}");
+                    AppLogService.Debug($"[AgentConsent] {ex.Message}");
                     return false;   // fail closed
                 }
             }
@@ -58,7 +59,7 @@ namespace ProGlassAutomation.Agent.Security.Consent
                 try { return AgentConfigurationService.Current.LocalOnly; }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[AgentConsent] {ex.Message}");
+                    AppLogService.Debug($"[AgentConsent] {ex.Message}");
                     return true;    // fail closed
                 }
             }

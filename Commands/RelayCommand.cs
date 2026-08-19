@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Threading.Tasks;
 using System.Windows.Input;
 
@@ -96,7 +97,7 @@ namespace ProGlassAutomation.Commands
                 //  is removed by the compiler and the catch block becomes
                 //  literally empty:
                 //
-                //      catch (Exception) { }
+                //      catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 //
                 //  Every command failure in the shipped product — a failed
                 //  save, a failed PDF export, a failed status change — was
@@ -127,7 +128,7 @@ namespace ProGlassAutomation.Commands
                     // Logging must never mask the original failure.
                 }
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[RelayCommand] Execute failed: {ex.GetType().Name}: {ex.Message}");
 #if DEBUG
                 throw; // Re-throw in debug so developer sees the crash

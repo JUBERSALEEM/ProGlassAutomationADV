@@ -94,16 +94,16 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 throw new InvalidOperationException(
                     "Cannot export — WorkflowResult has no Snapshot.");
 
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
-            Debug.WriteLine("[Exporter] ExportFromWorkflowAsync CALLED");
-            Debug.WriteLine($"[Exporter] Outcome:      {workflowResult.Outcome}");
-            Debug.WriteLine($"[Exporter] Invoices:     {workflowResult.TaxInvoicePdfs.Count}");
-            Debug.WriteLine($"[Exporter] Signed PI:    " +
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug("[Exporter] ExportFromWorkflowAsync CALLED");
+            AppLogService.Debug($"[Exporter] Outcome:      {workflowResult.Outcome}");
+            AppLogService.Debug($"[Exporter] Invoices:     {workflowResult.TaxInvoicePdfs.Count}");
+            AppLogService.Debug($"[Exporter] Signed PI:    " +
                 $"{(workflowResult.SignedProformaInvoiceBytes != null ? "YES" : "NO")}");
-            Debug.WriteLine($"[Exporter] DNs:          {workflowResult.SignedDeliveryNotes.Count}");
+            AppLogService.Debug($"[Exporter] DNs:          {workflowResult.SignedDeliveryNotes.Count}");
             int tiAttTotal = workflowResult.TaxInvoicePdfs.Sum(p => p.AttachmentFileCount);
-            Debug.WriteLine($"[Exporter] TI att total: {tiAttTotal}");
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug($"[Exporter] TI att total: {tiAttTotal}");
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
 
             var snapshot = workflowResult.Snapshot;
             var pdfChunks = new List<byte[]>();
@@ -113,7 +113,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             byte[] statementBytes = await Task.Run(
                 () => GenerateStatementBytes(snapshot));
             pdfChunks.Add(statementBytes);
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Exporter] Statement: {statementBytes.Length:N0} bytes");
 
             // ── Step 2: Signed Proforma Invoice attachment ────────────────
@@ -127,7 +127,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 if (piPdf != null)
                 {
                     pdfChunks.Add(piPdf);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter] Signed PI: {piPdf.Length:N0} bytes");
                 }
             }
@@ -155,7 +155,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     if (attPdf != null)
                     {
                         pdfChunks.Add(attPdf);
-                        Debug.WriteLine(
+                        AppLogService.Debug(
                             $"[Exporter] DN {dn.DeliveryNoteId} att[{i + 1}]: " +
                             $"{attPdf.Length:N0} bytes ({attName})");
                     }
@@ -175,7 +175,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 if (invPdf.IsValid)
                 {
                     pdfChunks.Add(invPdf.Bytes!);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter] Invoice {invPdf.InvoiceNumber}: " +
                         $"{invPdf.Bytes!.Length:N0} bytes");
                 }
@@ -185,7 +185,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         invPdf.InvoiceNumber,
                         invPdf.Error ?? "Regeneration failed");
                     pdfChunks.Add(placeholder);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter] Invoice {invPdf.InvoiceNumber}: " +
                         $"PLACEHOLDER (reason: {invPdf.Error})");
                 }
@@ -203,7 +203,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         tiIdx++;
                         if (fileBytes == null || fileBytes.Length == 0)
                         {
-                            Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Exporter]   TI att[{tiIdx}] {fileName}: " +
                                 "SKIPPED (empty bytes)");
                             continue;
@@ -213,13 +213,13 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         if (attPdf != null)
                         {
                             pdfChunks.Add(attPdf);
-                            Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Exporter]   TI att[{tiIdx}] {fileName}: " +
                                 $"{attPdf.Length:N0} bytes");
                         }
                         else
                         {
-                            Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Exporter]   TI att[{tiIdx}] {fileName}: " +
                                 "SKIPPED (not PDF or image)");
                         }
@@ -227,7 +227,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 }
                 else
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter] Invoice {invPdf.InvoiceNumber}: " +
                         "no TI attachments");
                 }
@@ -249,9 +249,9 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             string outputPath = ResolveUniquePath(baseFileName);
             await Task.Run(() => MergePdfs(pdfChunks, outputPath));
 
-            Debug.WriteLine($"[Exporter] ✓ Final PDF: {outputPath}");
-            Debug.WriteLine($"[Exporter] Total chunks merged: {pdfChunks.Count}");
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug($"[Exporter] ✓ Final PDF: {outputPath}");
+            AppLogService.Debug($"[Exporter] Total chunks merged: {pdfChunks.Count}");
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
 
             progress?.Report("PDF ready.");
             return outputPath;
@@ -291,10 +291,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             StatementSnapshot snapshot,
             IProgress<string>? progress = null)
         {
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
-            Debug.WriteLine("[Exporter] ExportCombinedAsync CALLED (LEGACY)");
-            Debug.WriteLine($"[Exporter] Invoices: {snapshot.InvoiceRows.Count}");
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug("[Exporter] ExportCombinedAsync CALLED (LEGACY)");
+            AppLogService.Debug($"[Exporter] Invoices: {snapshot.InvoiceRows.Count}");
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
 
             progress?.Report("Generating statement summary...");
             byte[] statementBytes = await Task.Run(
@@ -334,7 +334,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 if (invPdf != null)
                 {
                     pdfChunks.Add(invPdf);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✓ Invoice PDF: {invPdf.Length:N0} bytes");
                 }
                 else
@@ -342,7 +342,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     byte[] placeholder = GenerateInvoicePlaceholderPdf(
                         row.InvoiceNumber, invError ?? "Unknown error");
                     pdfChunks.Add(placeholder);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✗ Placeholder: {row.InvoiceNumber}: " +
                         $"{invError}");
                 }
@@ -369,13 +369,13 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                             if (attPdf != null)
                             {
                                 pdfChunks.Add(attPdf);
-                                Debug.WriteLine(
+                                AppLogService.Debug(
                                     $"[Exporter]   ✓ Attachment: {att.FileName}");
                             }
                         }
                         catch (Exception ex)
                         {
-                            Debug.WriteLine(
+                            AppLogService.Debug(
                                 $"[Exporter]   ✗ Attachment error " +
                                 $"{att.FileName}: {ex.Message}");
                         }
@@ -383,7 +383,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✗ Attachment load error " +
                         $"{row.InvoiceNumber}: {ex.Message}");
                 }
@@ -400,8 +400,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             string outputPath = ResolveUniquePath(baseFileName);
             await Task.Run(() => MergePdfs(pdfChunks, outputPath));
 
-            Debug.WriteLine($"[Exporter] ✓ Saved: {outputPath}");
-            Debug.WriteLine("[Exporter] ═══════════════════════════════");
+            AppLogService.Debug($"[Exporter] ✓ Saved: {outputPath}");
+            AppLogService.Debug("[Exporter] ═══════════════════════════════");
 
             progress?.Report("PDF ready.");
             return outputPath;
@@ -448,7 +448,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         {
             if (bytes == null || bytes.Length == 0)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter] ConvertToRawPdfBytes: " +
                     $"'{fileName}' — SKIP (null/empty bytes)");
                 return null;
@@ -459,14 +459,14 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 bytes.Take(Math.Min(8, bytes.Length))
                      .Select(b => b.ToString("X2")));
 
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Exporter] ConvertToRawPdfBytes: '{fileName}' — " +
                 $"{bytes.Length:N0} bytes — header: [{headerHex}]");
 
             // ── Strategy 1: %PDF- at position 0 ───────────────────────────
             if (IsValidPdf(bytes))
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter]   ✓ Strategy 1: Valid PDF (header match)");
                 return bytes;
             }
@@ -477,7 +477,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             int pdfOffset = FindPdfSignature(bytes);
             if (pdfOffset > 0)
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter]   ⚠ Strategy 2: %PDF- found at " +
                     $"offset {pdfOffset} — stripping prefix");
 
@@ -486,13 +486,13 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
                 if (TryValidatePdfWithReader(trimmed))
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✓ Strategy 2: Trimmed PDF opens OK " +
                         $"({trimmed.Length:N0} bytes)");
                     return trimmed;
                 }
 
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter]   ✗ Strategy 2: Trimmed bytes " +
                     $"still not readable");
             }
@@ -500,7 +500,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             // ── Strategy 3: PdfSharp reader on original bytes ─────────────
             if (TryValidatePdfWithReader(bytes))
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter]   ✓ Strategy 3: PdfSharp reader accepted");
                 return bytes;
             }
@@ -508,19 +508,19 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             // ── Strategy 4: Image detection ───────────────────────────────
             if (IsImageBytes(bytes))
             {
-                Debug.WriteLine(
+                AppLogService.Debug(
                     $"[Exporter]   → Strategy 4: Image detected — wrap");
                 try
                 {
                     byte[] wrapped = WrapImageInPdf(bytes, fileName);
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✓ Strategy 4: Image wrapped " +
                         $"({wrapped.Length:N0} bytes)");
                     return wrapped;
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[Exporter]   ✗ Strategy 4: Image wrap failed " +
                         $"— {ex.Message}");
                     return null;
@@ -528,7 +528,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             }
 
             // ── All strategies failed ─────────────────────────────────────
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Exporter]   ✗ ALL STRATEGIES FAILED — SKIPPED: " +
                 $"'{fileName}'");
             return null;
@@ -669,12 +669,12 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[Exporter] Merge skip: {ex.Message}");
+                    AppLogService.Debug($"[Exporter] Merge skip: {ex.Message}");
                     skippedCount++;
                 }
             }
 
-            Debug.WriteLine(
+            AppLogService.Debug(
                 $"[Exporter] Merge complete: {mergedCount} chunks merged, " +
                 $"{skippedCount} skipped, {output.PageCount} total pages");
 
@@ -772,10 +772,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     foreach (var file in Directory.GetFiles(
                         OutputFolder, pattern))
                     {
-                        try { File.Delete(file); } catch { }
+                        try { File.Delete(file); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                     }
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
         }
     }

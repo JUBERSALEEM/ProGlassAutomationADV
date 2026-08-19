@@ -1,5 +1,6 @@
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using System;
 using System.Collections.ObjectModel;
@@ -262,7 +263,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[PricingEstimator] Sheet Store load failed: {ex.Message}");
             }
         }
@@ -419,7 +420,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[PricingEstimator] sheet selection not recorded: {ex.Message}");
             }
         }

@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Security.Redaction;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Diagnostics;
 
@@ -117,7 +118,7 @@ namespace ProGlassAutomation.Agent.Security.DataBoundary
             catch (Exception ex)
             {
                 // A boundary that throws must still refuse.
-                Debug.WriteLine($"[AgentDataBoundary] {ex.Message}");
+                AppLogService.Debug($"[AgentDataBoundary] {ex.Message}");
                 return BoundaryVerdict.Block(
                     "The data boundary could not complete its check, so I did " +
                     "not send anything.");
@@ -156,7 +157,7 @@ namespace ProGlassAutomation.Agent.Security.DataBoundary
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentDataBoundary] classify: {ex.Message}");
+                AppLogService.Debug($"[AgentDataBoundary] classify: {ex.Message}");
                 return DataClass.Unclassified;   // fail closed
             }
         }

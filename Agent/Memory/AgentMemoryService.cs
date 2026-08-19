@@ -15,6 +15,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Storage;
 using System;
@@ -85,7 +86,7 @@ namespace ProGlassAutomation.Agent.Memory
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentMemory] AddApproved failed: {ex.Message}");
+                AppLogService.Debug($"[AgentMemory] AddApproved failed: {ex.Message}");
             }
         }
 
@@ -106,7 +107,7 @@ namespace ProGlassAutomation.Agent.Memory
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentMemory] Recall (persisted) failed: {ex.Message}");
+                AppLogService.Debug($"[AgentMemory] Recall (persisted) failed: {ex.Message}");
             }
 
             lock (_lock)
@@ -149,7 +150,7 @@ namespace ProGlassAutomation.Agent.Memory
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentMemory] ClearPersisted failed: {ex.Message}");
+                AppLogService.Debug($"[AgentMemory] ClearPersisted failed: {ex.Message}");
             }
         }
 

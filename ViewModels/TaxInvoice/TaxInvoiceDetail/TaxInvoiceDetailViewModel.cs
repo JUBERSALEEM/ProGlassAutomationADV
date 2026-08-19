@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
@@ -993,7 +994,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TaxInvoiceDetailVM] Load family failed: {ex.Message}");
             }
         }
@@ -1548,7 +1549,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 await App.DeliveryNotes.MarkMultipleAsInvoicedAsync(
                     dnIds, taxInvoiceId);
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[TaxInvoiceDetailVM] Marked {dnIds.Count} DN(s) as " +
                     $"invoiced with TI '{taxInvoiceId}': " +
                     string.Join(", ", dnIds));

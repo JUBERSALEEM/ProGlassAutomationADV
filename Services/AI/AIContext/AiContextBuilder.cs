@@ -72,6 +72,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -246,7 +247,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // ── DELIVERY NOTES ────────────────────────────────────────────
             try
@@ -318,7 +319,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                                 sb.AppendLine($" — top: {string.Join(", ", top3)}");
                             }
                         }
-                        catch { }
+                        catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
                         hasData = true;
                     }
@@ -328,7 +329,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // ── TAX INVOICES ─────────────────────────────────────────────
             // FIX BUG #6: Tax invoices were completely missing from RAG
@@ -387,7 +388,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // ── ACCOUNT STATEMENTS ────────────────────────────────────────
             // FIX BUG #7: Use statement aggregates (pre-computed by generator)
@@ -424,7 +425,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                     }
                 }
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
             // ── v2 LEARNING CONTEXT ─────────────────────────────────────
             // Assistant memory + the user's recent activity let the AI
@@ -530,7 +531,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[AiContextBuilder] Entity context failed " +
                     $"({entityType}/{entityId}): {ex.Message}");
             }
@@ -676,7 +677,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
                         }
                     }
                 }
-                catch { }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             }
 
             sb.AppendLine("─────────────────────────────────────────────────────");

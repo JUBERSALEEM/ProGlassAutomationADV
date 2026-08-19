@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.SheetStore;
 using System;
@@ -141,7 +142,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[get_inventory] {ex.Message}");
+                AppLogService.Debug($"[get_inventory] {ex.Message}");
                 return ToolResult.Fail(
                     "I could not read the Sheet Store, so I cannot give you stock " +
                     "figures.");

@@ -20,6 +20,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement.Workflow;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using System;
 using System.Collections.ObjectModel;
@@ -106,7 +107,7 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[ExecuteStep] ScrollToEnd failed: {ex.Message}");
+                    AppLogService.Debug($"[ExecuteStep] ScrollToEnd failed: {ex.Message}");
                 }
             }), DispatcherPriority.Background);
         }

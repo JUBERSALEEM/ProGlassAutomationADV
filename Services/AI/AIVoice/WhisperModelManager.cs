@@ -428,7 +428,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[WhisperModelManager] Delete failed: {ex.Message}");
                 return false;
             }
@@ -436,7 +436,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
         private static void CleanupTemp(string tempPath)
         {
-            try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch { }
+            try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }

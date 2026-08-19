@@ -29,6 +29,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
 using System.Linq;
@@ -221,7 +222,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
             if (_processor != null)
             {
-                try { _processor.Dispose(); } catch { }
+                try { _processor.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
                 _processor = null;
                 _modelLoaded = false;
             }
@@ -272,7 +273,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                     _ => $"Model load failed: {ex.Message}"
                 };
 
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[WhisperSTT] Load failed: {ex.GetType().Name}: {ex.Message}");
                 StatusChanged?.Invoke(this, $"⚠ {LoadFailureReason}");
 
@@ -370,7 +371,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[WhisperSTT] Processing failed: {ex.Message}");
                 StatusChanged?.Invoke(this, $"Error: {ex.Message}");
             }
@@ -462,14 +463,14 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
                 if (IsHallucination(result))
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[WhisperSTT] Hallucination filtered: \"{result}\"");
                     return null;
                 }
 
                 if (result.Length < 3)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[WhisperSTT] Too short, filtered: \"{result}\"");
                     return null;
                 }
@@ -478,7 +479,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[WhisperSTT] ProcessAudioAsync failed: {ex.Message}");
                 return null;
             }
@@ -518,7 +519,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             _audioCapture?.CancelRecording();
             _audioCapture?.Dispose();
 
-            try { _processor?.Dispose(); } catch { }
+            try { _processor?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             _processor = null;
             _modelLoaded = false;
         }

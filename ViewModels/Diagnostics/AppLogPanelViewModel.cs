@@ -7,6 +7,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
@@ -144,7 +145,7 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
                         UseShellExecute = true
                     });
             }
-            catch { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
     }
 }

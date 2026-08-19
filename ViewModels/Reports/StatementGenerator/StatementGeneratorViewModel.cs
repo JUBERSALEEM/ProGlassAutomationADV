@@ -38,6 +38,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using PdfSharp.Pdf;
+using ProGlassAutomation.Services.Logging;
 using PdfSharp.Pdf.IO;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Statement;
@@ -653,7 +654,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             // [CHAT 22 v3] Don't re-run if we already have a successful result
             if (IsLastWorkflowComplete && HasLastPdf)
             {
-                Debug.WriteLine("[VM] Skipping pipeline re-run — already complete");
+                AppLogService.Debug("[VM] Skipping pipeline re-run — already complete");
                 return;
             }
 
@@ -1138,7 +1139,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         $"Outstanding: AED {snapshot.Financial.TotalOutstanding:N2}";
                 }
             }
-            catch (OperationCanceledException) { }
+            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             catch (Exception ex)
             {
                 StatusMessage = $"Preview failed: {ex.Message}";
@@ -1365,7 +1366,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         $"› ✗ DB save failed: {dbEx.Message}");
                     LiveAddLogEntry(LogSeverity.Warning,
                         $"› ⚠ PDF is available on disk but not registered in statement list");
-                    Debug.WriteLine($"[StatementGenerator] DB save error: {dbEx}");
+                    AppLogService.Debug($"[StatementGenerator] DB save error: {dbEx}");
                 }
 
                 LiveAddLogEntry(LogSeverity.Section, "═══ COMPLETE ═══");
@@ -1396,7 +1397,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 LastWorkflowStatusText = "Pipeline Failed";
                 LiveAddLogEntry(LogSeverity.Error, $"› ✗ FATAL ERROR: {ex.Message}");
                 LiveAddLogEntry(LogSeverity.Error, $"› {ex.GetType().Name}");
-                Debug.WriteLine($"[StatementGenerator] Generate error: {ex}");
+                AppLogService.Debug($"[StatementGenerator] Generate error: {ex}");
             }
             finally
             {
@@ -1437,7 +1438,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"[StatementGenerator] Warning dialog error: {ex}");
+                    AppLogService.Debug($"[StatementGenerator] Warning dialog error: {ex}");
                     return UserWarningDecision.Abort;
                 }
             });
@@ -1542,7 +1543,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher == null)
             {
-                Debug.WriteLine($"[LOG-DEBUG] NO DISPATCHER — dropping: {text}");
+                AppLogService.Debug($"[LOG-DEBUG] NO DISPATCHER — dropping: {text}");
                 return;
             }
 

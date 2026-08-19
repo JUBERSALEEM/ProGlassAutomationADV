@@ -8,6 +8,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Behaviors;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
@@ -655,7 +656,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[SpecGroup] sheet selection not adopted: {ex.Message}");
             }
         }
@@ -1255,7 +1256,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[SpecGroup.LoadSpecs] {ex.Message}");
+                AppLogService.Debug($"[SpecGroup.LoadSpecs] {ex.Message}");
             }
         }
 
@@ -1293,7 +1294,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[SpecGroup.LoadAllTypesFallback] {ex.Message}");
+                AppLogService.Debug($"[SpecGroup.LoadAllTypesFallback] {ex.Message}");
             }
         }
 

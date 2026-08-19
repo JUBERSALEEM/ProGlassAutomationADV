@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,7 +47,7 @@ namespace ProGlassAutomation.Agent.Security.SecretProtection
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSecretStore] Store failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSecretStore] Store failed: {ex.Message}");
                 return false;
             }
         }
@@ -64,7 +65,7 @@ namespace ProGlassAutomation.Agent.Security.SecretProtection
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSecretStore] Retrieve failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSecretStore] Retrieve failed: {ex.Message}");
                 return false;
             }
         }
@@ -85,7 +86,7 @@ namespace ProGlassAutomation.Agent.Security.SecretProtection
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentSecretStore] Remove failed: {ex.Message}");
+                AppLogService.Debug($"[AgentSecretStore] Remove failed: {ex.Message}");
                 return false;
             }
         }

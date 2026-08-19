@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Storage;
 using System;
@@ -74,7 +75,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Add failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Add failed: {ex.Message}");
             }
         }
 
@@ -118,7 +119,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Retrieve failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Retrieve failed: {ex.Message}");
                 return Array.Empty<string>();
             }
         }
@@ -148,7 +149,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Export failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Export failed: {ex.Message}");
                 return "[]";
             }
         }
@@ -170,7 +171,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (JsonException ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Import parse failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Import parse failed: {ex.Message}");
                 return 0;
             }
 
@@ -209,7 +210,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Import failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Import failed: {ex.Message}");
                 return 0;
             }
         }
@@ -228,7 +229,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Clear failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Clear failed: {ex.Message}");
             }
         }
 
@@ -267,7 +268,7 @@ namespace ProGlassAutomation.Agent.Knowledge
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[AgentKnowledge] Seed failed: {ex.Message}");
+                AppLogService.Debug($"[AgentKnowledge] Seed failed: {ex.Message}");
             }
         }
 

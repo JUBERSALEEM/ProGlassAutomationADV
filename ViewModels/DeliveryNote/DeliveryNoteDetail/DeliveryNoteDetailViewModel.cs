@@ -1,4 +1,5 @@
 using Microsoft.Win32;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Audit;
@@ -1195,7 +1196,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[DN] SyncMasterBalances skipped: {ex.Message}");
             }
         }
@@ -1312,7 +1313,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
                 catch (Exception masterEx)
                 {
-                    System.Diagnostics.Debug.WriteLine(
+                    AppLogService.Debug(
                         $"[DN] Master update after save skipped: {masterEx.Message}");
                 }
 
@@ -1465,7 +1466,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[DN] RestoreVersion failed: {ex.Message}");
                 return false;
             }
@@ -2160,7 +2161,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                AppLogService.Debug(
                     $"[DN] MarkReceived skipped: {ex.Message}");
             }
         }

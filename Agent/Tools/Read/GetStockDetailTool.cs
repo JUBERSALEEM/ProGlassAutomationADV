@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Nlu;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.SheetStore;
@@ -126,7 +127,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[get_stock_detail] {ex.Message}");
+                AppLogService.Debug($"[get_stock_detail] {ex.Message}");
                 return ToolResult.Fail(
                     "I could not read the Sheet Store, so I cannot give stock figures.");
             }

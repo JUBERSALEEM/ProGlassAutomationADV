@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo.Recording;
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Windows;
 using System.Windows.Media;
@@ -131,13 +132,13 @@ namespace ProGlassAutomation.Views.Shared
 
         private void Pause_Click(object sender, RoutedEventArgs e)
         {
-            try { _onPause?.Invoke(); } catch { }
+            try { _onPause?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             Tick();
         }
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
-            try { _onStop?.Invoke(); } catch { }
+            try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         private static string Fmt(TimeSpan ts)
