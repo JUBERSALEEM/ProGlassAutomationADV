@@ -292,7 +292,7 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
 
-            List<dynamic> filtered = all.Where(r => MatchCommonPi(r, filter)).Cast<dynamic>().ToList();
+            List<ProformaAnalyticsRowExpanded> filtered = all.Where(r => MatchCommonPi(r, filter)).ToList();
             // Salesman filter — need to resolve via snapshot or MasterData if filter has salesman
             // For summary we approximate: if salesman filter present, we must deserialize matching PIs
             if (filter.HasSalesman)
@@ -602,26 +602,24 @@ namespace ProGlassAutomation.Services.Reporting
                 j.GrandTotalVatInclusive, j.FullSnapshotJson, j.CreatedAt, j.UpdatedAt
             }).OrderByDescending(j => j.CreatedAt).ToListAsync(ct);
 
-            List<dynamic> filtered = all.Where(r =>
+            var filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.JobOrderId, filter.SearchText) || ContainsCI(r.SourceProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).Cast<dynamic>().ToList();
+            ).ToList();
 
             // Optional: Project filter via snapshot, Salesman etc.
             if (filter.HasProject || filter.HasSalesman || !string.IsNullOrWhiteSpace(filter.Company))
             {
-                var keep = new List<dynamic>();
-                foreach (var r in filtered)
+                filtered = filtered.Where(r =>
                 {
                     var snap = TryDeserializeJoSnapshot(r.FullSnapshotJson);
                     var proj = snap?.EmbeddedInvoice?.Project?.ProjectIdentifierName ?? snap?.EmbeddedInvoice?.Project?.ProjectReference ?? "";
                     var sm = snap?.EmbeddedInvoice?.Client?.SalesRepresentative ?? "";
                     var comp = snap?.EmbeddedInvoice?.Company?.CompanyName ?? "";
-                    if (filter.HasProject && !ContainsCI(proj, filter.Project)) continue;
-                    if (filter.HasSalesman && !ContainsCI(sm, filter.Salesman)) continue;
-                    if (!string.IsNullOrWhiteSpace(filter.Company) && !ContainsCI(comp, filter.Company)) continue;
-                    keep.Add(r);
-                }
-                filtered = keep;
+                    if (filter.HasProject && !ContainsCI(proj, filter.Project)) return false;
+                    if (filter.HasSalesman && !ContainsCI(sm, filter.Salesman)) return false;
+                    if (!string.IsNullOrWhiteSpace(filter.Company) && !ContainsCI(comp, filter.Company)) return false;
+                    return true;
+                }).ToList();
             }
 
             var total = filtered.Count;
@@ -797,7 +795,7 @@ namespace ProGlassAutomation.Services.Reporting
                 .Select(t => new { t.InvoiceNumber, t.ProformaId, t.Status, t.InvoiceType, t.CustomerName, t.CompanyName, t.ProjectName, t.IssueDate, t.DueDate, t.GrandTotal, t.VatAmount })
                 .ToListAsync(ct);
 
-            List<dynamic> filtered = all.Where(r =>
+            var filtered = all.Where(r =>
                 (string.IsNullOrWhiteSpace(filter.ProformaId) || Eq(r.ProformaId, filter.ProformaId!)) &&
                 (string.IsNullOrWhiteSpace(filter.TaxInvoiceNumber) || Eq(r.InvoiceNumber, filter.TaxInvoiceNumber!)) &&
                 (string.IsNullOrWhiteSpace(filter.Customer) || ContainsCI(r.CustomerName, filter.Customer)) &&
@@ -807,7 +805,7 @@ namespace ProGlassAutomation.Services.Reporting
                 (!filter.DateFrom.HasValue || r.IssueDate.Date >= filter.DateFrom.Value.Date) &&
                 (!filter.DateTo.HasValue || r.IssueDate.Date <= filter.DateTo.Value.Date) &&
                 (string.IsNullOrWhiteSpace(filter.SearchText) || ContainsCI(r.InvoiceNumber, filter.SearchText) || ContainsCI(r.ProformaId, filter.SearchText) || ContainsCI(r.CustomerName, filter.SearchText))
-            ).Cast<dynamic>().ToList();
+            ).ToList();
 
             var summary = new TaxInvoiceReportSummary
             {
