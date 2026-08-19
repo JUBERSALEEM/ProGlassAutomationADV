@@ -19,6 +19,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;

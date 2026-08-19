@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -248,7 +249,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try
             {
                 var origin = window.PointToScreen(new Point(0, 0));
-                var dpiInfo = VisualTreeHelper.GetDpi(window);
                 double pxW = dipW * dpiInfo.DpiScaleX;
                 double pxH = dipH * dpiInfo.DpiScaleY;
                 if (pxW > 0 && pxH > 0)
