@@ -229,9 +229,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
                 Project = new ProjectSnapshot
                 {
-                    ProjectIdentifierName = project.ProjectIdentifierName ?? "",
+                    // Keep identifier populated from the real project name so
+                    // older JO/DN readers that still look at IdentifierName
+                    // do not persist an empty project.
+                    ProjectIdentifierName = FirstNonEmpty(
+                        project.ProjectReference,
+                        project.ProjectIdentifierName,
+                        project.ProjectContractNo),
                     ProjectContractNo = project.ProjectContractNo ?? "",
-                    ProjectReference = project.ProjectReference ?? "",  // CHAT 15: NEW
+                    ProjectReference = project.ProjectReference ?? "",
                     SiteDeliveryLocation = project.SiteDeliveryLocation ?? "",
                     LpoNumber = project.LpoNumber ?? ""
                 },

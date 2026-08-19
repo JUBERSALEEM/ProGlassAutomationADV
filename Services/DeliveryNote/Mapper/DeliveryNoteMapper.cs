@@ -291,7 +291,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     JobOrderId = joSnapshot.JobOrderId,
                     ProformaId = joSnapshot.SourceProformaId,
                     CustomerName = pi?.Client?.CustomerName ?? "",
-                    ProjectName = pi?.Project?.ProjectIdentifierName ?? "",
+                    ProjectName = !string.IsNullOrWhiteSpace(pi?.Project?.ProjectReference)
+                        ? pi.Project.ProjectReference
+                        : !string.IsNullOrWhiteSpace(pi?.Project?.ProjectContractNo)
+                            ? pi.Project.ProjectContractNo
+                            : (pi?.Project?.ProjectIdentifierName ?? ""),
                     CompanyName = pi?.Company?.CompanyName ?? "",
                     CompanyTrn = pi?.Company?.CompanyTrn ?? "",
                     CompanyLocation = pi?.Company?.CompanyLocation ?? "",

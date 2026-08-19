@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
+using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
@@ -94,6 +94,16 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
         /// If the source ID doesn't start with "PI-", falls back to
         /// "JOB-{sourceId}".
         /// </summary>
+        private static string ResolveProjectName(ProjectSnapshot? project)
+        {
+            if (project == null) return string.Empty;
+            if (!string.IsNullOrWhiteSpace(project.ProjectReference))
+                return project.ProjectReference.Trim();
+            if (!string.IsNullOrWhiteSpace(project.ProjectContractNo))
+                return project.ProjectContractNo.Trim();
+            return project.ProjectIdentifierName?.Trim() ?? string.Empty;
+        }
+
         public static string DeriveJobOrderId(string? proformaId)
         {
             if (string.IsNullOrWhiteSpace(proformaId))
@@ -128,7 +138,7 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
 
             // Extract searchable fields from embedded invoice for indexing
             string customerName = snapshot.EmbeddedInvoice?.Client?.CustomerName ?? string.Empty;
-            string projectName = snapshot.EmbeddedInvoice?.Project?.ProjectIdentifierName ?? string.Empty;
+            string projectName = ResolveProjectName(snapshot.EmbeddedInvoice?.Project);
 
             return new SavedJobOrder
             {
@@ -159,7 +169,7 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
             if (snapshot == null) throw new ArgumentNullException(nameof(snapshot));
 
             string customerName = snapshot.EmbeddedInvoice?.Client?.CustomerName ?? string.Empty;
-            string projectName = snapshot.EmbeddedInvoice?.Project?.ProjectIdentifierName ?? string.Empty;
+            string projectName = ResolveProjectName(snapshot.EmbeddedInvoice?.Project);
 
             entity.JobOrderId = snapshot.JobOrderId;
             entity.SourceProformaId = snapshot.SourceProformaId;

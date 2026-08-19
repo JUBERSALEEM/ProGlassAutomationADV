@@ -21,7 +21,7 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <TextBlock Text="PROJECT" Style="{StaticResource PiSectionLabelStyle}"/>
-                <TextBlock Text="PROJECT" Style="{StaticResource PiFieldLabelStyle}"
+                <TextBlock Text="NAME" Style="{StaticResource PiFieldLabelStyle}"
                            ToolTip="Full project name as it appears on the invoice"/>
                 <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
                          ToolTip="e.g. HOUSE FOR IMAD HABIB" Margin="0,0,0,12"
