@@ -5,9 +5,11 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.Agent.Demo
@@ -21,7 +23,7 @@ namespace ProGlassAutomation.Agent.Demo
             _director = CreateDemoPackageTool.SharedDirector;
             _director.Changed += () =>
             {
-                var disp = System.Windows.Application.Current?.Dispatcher;
+                var disp = Application.Current?.Dispatcher;
                 if (disp == null)
                 {
                     RaiseStatus();
@@ -29,6 +31,9 @@ namespace ProGlassAutomation.Agent.Demo
                 }
                 disp.InvokeAsync(RaiseStatus);
             };
+
+            SelectedWorkflow = DemoWorkflowCatalog.Find("ProformaInvoice")
+                ?? DemoWorkflowCatalog.All[0];
 
             GenerateSelectedCommand = new RelayCommand(
                 async _ => await StartAsync(SelectedModule).ConfigureAwait(true),
@@ -50,6 +55,50 @@ namespace ProGlassAutomation.Agent.Demo
             });
 
             OpenOutputCommand = new RelayCommand(_ => OpenOutput());
+
+            OpenFfmpegDownloadCommand = new RelayCommand(_ =>
+                OpenUrl(FfmpegDownloadUrl));
+
+            OpenFfmpegPageCommand = new RelayCommand(_ =>
+                OpenUrl(FfmpegOfficialUrl));
+
+            CopyFfmpegLinkCommand = new RelayCommand(_ =>
+            {
+                try
+                {
+                    Clipboard.SetText(FfmpegDownloadUrl);
+                    SetLocalStatus("Copied the Windows ffmpeg zip link.");
+                }
+                catch (Exception ex)
+                {
+                    SetLocalStatus("Could not copy the link: " + ex.Message);
+                }
+            });
+
+            RecheckFfmpegCommand = new RelayCommand(_ =>
+            {
+                RaiseFlags();
+                SetLocalStatus(IsFfmpegMissing
+                    ? "ffmpeg is still missing. Download the zip, extract ffmpeg.exe and ffprobe.exe into the tools folder, then Recheck."
+                    : "ffmpeg found. Generate can encode a real MP4.");
+            });
+
+            OpenToolsFolderCommand = new RelayCommand(_ =>
+            {
+                try
+                {
+                    Directory.CreateDirectory(FfmpegMp4Composer.ToolsFolder);
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = FfmpegMp4Composer.ToolsFolder,
+                        UseShellExecute = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    SetLocalStatus("Could not open the tools folder: " + ex.Message);
+                }
+            });
 
             EnterDemoCommand = new RelayCommand(async _ =>
             {
@@ -73,19 +122,31 @@ namespace ProGlassAutomation.Agent.Demo
             });
         }
 
-        public string[] ModuleOptions { get; } =
-        {
-            "ProformaInvoice", "SheetStore", "JobOrder",
-            "DeliveryNote", "TaxInvoice", "SalesReport",
-            "UserCenter", "CompanyCenter", "Dashboard", "JobProfitability"
-        };
+        public IReadOnlyList<DemoWorkflow> Modules => DemoWorkflowCatalog.All;
 
-        private string _selectedModule = "ProformaInvoice";
-        public string SelectedModule
+        private DemoWorkflow _selectedWorkflow = null!;
+        public DemoWorkflow SelectedWorkflow
         {
-            get => _selectedModule;
-            set { if (_selectedModule == value) return; _selectedModule = value; OnPropertyChanged(); }
+            get => _selectedWorkflow;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedWorkflow, value)) return;
+                _selectedWorkflow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedModule));
+                OnPropertyChanged(nameof(SelectedPurpose));
+            }
         }
+
+        public string SelectedModule => SelectedWorkflow?.Id ?? "ProformaInvoice";
+
+        public string SelectedPurpose =>
+            SelectedWorkflow == null
+                ? ""
+                : SelectedWorkflow.Title + " — " + SelectedWorkflow.Purpose;
+
+        public string WorkflowHint =>
+            "Generate Selected records that module. Generate All queues every catalog module, one MP4 each. A job fails if ffmpeg, TTS or frames are missing.";
 
         public string StatusText { get; private set; } =
             "A demo is successful only when a valid MP4 is written. " +
@@ -96,13 +157,28 @@ namespace ProGlassAutomation.Agent.Demo
 
         public bool IsBusy => _director.IsRunning;
 
+        public bool IsFfmpegMissing => FfmpegMp4Composer.Find() == null;
+
+        public bool IsFfmpegReady => !IsFfmpegMissing;
+
+        public string FfmpegDownloadUrl => FfmpegMp4Composer.WindowsEssentialsZipUrl;
+
+        public string FfmpegOfficialUrl => FfmpegMp4Composer.OfficialDownloadPageUrl;
+
+        public string FfmpegToolsPath => FfmpegMp4Composer.ToolsFolder;
+
+        public string FfmpegInstallHint =>
+            "Download the Windows essentials zip, unzip it, and copy ffmpeg.exe and ffprobe.exe into:\n" +
+            FfmpegToolsPath +
+            "\nOr put ffmpeg on PATH. Recheck after you drop the files.";
+
         public string FfmpegStatus
         {
             get
             {
                 string hint = _director.FfmpegHint;
                 if (!string.IsNullOrEmpty(hint)) return hint;
-                return FfmpegMp4Composer.Find() == null
+                return IsFfmpegMissing
                     ? "ffmpeg not found — generate will fail. AVI is not an MP4."
                     : "ffmpeg found — MP4 encode will be attempted.";
             }
@@ -129,6 +205,8 @@ namespace ProGlassAutomation.Agent.Demo
         public string VerifiedText =>
             "Verified events last run: " + _director.VerifiedEventCount;
 
+        public bool HasHistory => _director.History.Count > 0;
+
         public ObservableCollection<DemoJobRecord> History => _director.History;
 
         public ICommand GenerateSelectedCommand { get; }
@@ -136,6 +214,11 @@ namespace ProGlassAutomation.Agent.Demo
         public ICommand RetryCommand { get; }
         public ICommand CancelCommand { get; }
         public ICommand OpenOutputCommand { get; }
+        public ICommand OpenFfmpegDownloadCommand { get; }
+        public ICommand OpenFfmpegPageCommand { get; }
+        public ICommand CopyFfmpegLinkCommand { get; }
+        public ICommand RecheckFfmpegCommand { get; }
+        public ICommand OpenToolsFolderCommand { get; }
         public ICommand EnterDemoCommand { get; }
         public ICommand ExitDemoCommand { get; }
         public ICommand ResetDemoCommand { get; }
@@ -145,6 +228,14 @@ namespace ProGlassAutomation.Agent.Demo
             if (_director.IsRunning)
             {
                 SetLocalStatus("A demo is already running. Cancel it first.");
+                return;
+            }
+
+            if (IsFfmpegMissing)
+            {
+                SetLocalStatus(
+                    "ffmpeg is not installed. Download it from the link on this page first — without it there is no MP4.");
+                RaiseFlags();
                 return;
             }
 
@@ -182,6 +273,22 @@ namespace ProGlassAutomation.Agent.Demo
             }
         }
 
+        private void OpenUrl(string url)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = url,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                SetLocalStatus("Could not open the download page: " + ex.Message);
+            }
+        }
+
         private void SetLocalStatus(string text)
         {
             StatusText = text ?? "";
@@ -201,9 +308,12 @@ namespace ProGlassAutomation.Agent.Demo
             OnPropertyChanged(nameof(StateText));
             OnPropertyChanged(nameof(IsBusy));
             OnPropertyChanged(nameof(FfmpegStatus));
+            OnPropertyChanged(nameof(IsFfmpegMissing));
+            OnPropertyChanged(nameof(IsFfmpegReady));
             OnPropertyChanged(nameof(IsolationText));
             OnPropertyChanged(nameof(LastMp4Text));
             OnPropertyChanged(nameof(VerifiedText));
+            OnPropertyChanged(nameof(HasHistory));
             CommandManager.InvalidateRequerySuggested();
         }
     }

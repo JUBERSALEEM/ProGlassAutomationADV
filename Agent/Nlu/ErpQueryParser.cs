@@ -91,11 +91,16 @@ namespace ProGlassAutomation.Agent.Nlu
             if (ContainsAny(text, "proforma", "quotation")) module = "ProformaInvoice";
             else if (ContainsAny(text, "job order", "joborder", "production order")) module = "JobOrder";
             else if (ContainsAny(text, "delivery")) module = "DeliveryNote";
-            else if (ContainsAny(text, "tax invoice", "invoice")) module = "TaxInvoice";
-            else if (ContainsAny(text, "stock", "inventory", "sheet")) module = "SheetStore";
-            else if (ContainsAny(text, "statement", "report")) module = "SalesReport";
+            else if (ContainsAny(text, "tax invoice")) module = "TaxInvoice";
+            else if (ContainsAny(text, "user center", "users")) module = "UserCenter";
+            else if (ContainsAny(text, "company center", "letterhead")) module = "CompanyCenter";
+            else if (ContainsAny(text, "profit", "profitability", "margin")) module = "JobProfitability";
+            else if (ContainsAny(text, "statement")) module = "SalesReport";
             else if (ContainsAny(text, "dashboard", "overview")) module = "Dashboard";
-            else if (ContainsAny(text, "all module", "every module", "complete erp"))
+            else if (ContainsAny(text, "stock", "inventory", "sheet")) module = "SheetStore";
+            else if (ContainsAny(text, "invoice")) module = "TaxInvoice";
+            else if (ContainsAny(text, "company")) module = "CompanyCenter";
+            else if (ContainsAny(text, "all module", "every module", "complete erp", "generate all"))
                 module = "All";
             return true;
         }

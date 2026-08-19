@@ -31,28 +31,92 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="32,0,32,32">
+
+                <Border Style="{StaticResource SectionCardStyle}"
+                        CornerRadius="12"
+                        Visibility="{Binding IsFfmpegMissing,
+                            Converter={StaticResource BoolToVisibilityConverter},
+                            FallbackValue=Collapsed}">
+                    <StackPanel>
+                        <TextBlock Text="FFMPEG REQUIRED" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="ffmpeg is not installed"
+                                   Style="{StaticResource RowTitleStyle}"
+                                   Margin="0,4,0,6"/>
+                        <TextBlock Text="Without ffmpeg the recorder cannot write a valid MP4. AVI is not accepted as done. Download the Windows essentials zip (ffmpeg + ffprobe), extract the two .exe files into the tools folder, then Recheck."
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding FfmpegDownloadUrl}"
+                                   FontSize="12"
+                                   FontFamily="Consolas"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,12,0,0"/>
+                        <TextBlock Text="{Binding FfmpegInstallHint}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
+                                   Margin="0,10,0,0"/>
+                        <WrapPanel Margin="0,16,0,0">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
+                                    Command="{Binding OpenFfmpegDownloadCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OFFICIAL FFMPEG PAGE"
+                                    Command="{Binding OpenFfmpegPageCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="COPY LINK"
+                                    Command="{Binding CopyFfmpegLinkCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OPEN TOOLS FOLDER"
+                                    Command="{Binding OpenToolsFolderCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="RECHECK"
+                                    Command="{Binding RecheckFfmpegCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
+                                    Margin="0,0,10,8"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
                 <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
                         <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Module"
                                    Style="{StaticResource RowTitleStyle}"
                                    Margin="0,12,0,6"/>
-                        <ComboBox ItemsSource="{Binding ModuleOptions}"
-                                  SelectedItem="{Binding SelectedModule}"
-                                  MinWidth="220"
+                        <ComboBox ItemsSource="{Binding Modules}"
+                                  SelectedItem="{Binding SelectedWorkflow}"
+                                  DisplayMemberPath="Title"
+                                  MinWidth="260"
                                   Padding="10,7"
                                   FontSize="13"/>
-                        <TextBlock Text="Only Proforma Invoice has a recorded wizard. Other modules fail honestly instead of writing a storyboard."
-                                   Style="{StaticResource HintTextStyle}"
+                        <TextBlock Text="{Binding SelectedPurpose}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding WorkflowHint}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
                         <WrapPanel Margin="0,16,0,0">
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Content="GENERATE SELECTED"
                                     Command="{Binding GenerateSelectedCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
                                     Margin="0,0,10,8"/>
                             <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="GENERATE ALL (PI ONLY)"
+                                    Content="GENERATE ALL MODULES"
                                     Command="{Binding GenerateAllCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.GenerateAll"
                                     Margin="0,0,10,8"/>
                             <Button Style="{StaticResource RowOutlinedButton}"
                                     Content="RETRY LAST"
@@ -74,7 +138,8 @@
                     <StackPanel>
                         <TextBlock Text="ISOLATION" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="{Binding IsolationText}"
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
                         <WrapPanel Margin="0,14,0,0">
@@ -92,7 +157,9 @@
                                     Margin="0,0,10,8"/>
                         </WrapPanel>
                         <TextBlock Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
+                                   TextWrapping="Wrap"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -105,18 +172,22 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding StatusText}"
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding VerifiedText}"
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
                                    Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding LastMp4Text}"
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding FfmpegStatus}"
-                                   Style="{StaticResource HintTextStyle}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="11"
                                    TextWrapping="Wrap"
                                    Margin="0,10,0,0"/>
                     </StackPanel>
@@ -125,6 +196,14 @@
                 <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
                         <TextBlock Text="HISTORY" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="No jobs yet. Generate Selected or Generate All to start a recording."
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"
+                                   Visibility="{Binding HasHistory,
+                                       Converter={StaticResource InverseBoolToVisibilityConverter},
+                                       FallbackValue=Visible}"/>
                         <ItemsControl ItemsSource="{Binding History}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -136,7 +215,8 @@
                                             <Run Text="{Binding State, Mode=OneWay}"/>
                                         </TextBlock>
                                         <TextBlock Text="{Binding Status}"
-                                                   Style="{StaticResource HintTextStyle}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   FontSize="11"
                                                    TextWrapping="Wrap"/>
                                     </StackPanel>
                                 </DataTemplate>

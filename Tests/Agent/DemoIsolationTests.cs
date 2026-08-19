@@ -1,5 +1,6 @@
 using ProGlassAutomation.Agent.Demo;
 using ProGlassAutomation.Agent.Demo.Data;
+using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Demo.Workflows;
 using ProGlassAutomation.Services.Database;
 using System;
@@ -129,6 +130,15 @@ namespace ProGlassAutomation.Tests.Agent
             var d = new DemoDirector();
             Assert.Equal(DemoJobState.Idle, d.State);
             Assert.False(d.IsRunning);
+        }
+
+        [Fact]
+        public void Ffmpeg_download_urls_are_https_and_named()
+        {
+            Assert.StartsWith("https://", FfmpegMp4Composer.WindowsEssentialsZipUrl);
+            Assert.EndsWith(".zip", FfmpegMp4Composer.WindowsEssentialsZipUrl);
+            Assert.Contains("ffmpeg", FfmpegMp4Composer.WindowsEssentialsZipUrl);
+            Assert.StartsWith("https://ffmpeg.org/", FfmpegMp4Composer.OfficialDownloadPageUrl);
         }
     }
 }

@@ -9,6 +9,20 @@ namespace ProGlassAutomation.Agent.Demo.Video
 {
     public static class FfmpegMp4Composer
     {
+        /// <summary>Official FFmpeg download index.</summary>
+        public const string OfficialDownloadPageUrl = "https://ffmpeg.org/download.html";
+
+        /// <summary>
+        /// Direct Windows essentials zip (ffmpeg + ffprobe) from the
+        /// builds FFmpeg.org itself lists for Windows.
+        /// </summary>
+        public const string WindowsEssentialsZipUrl =
+            "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip";
+
+        public static string ToolsFolder => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "tools");
+
         public static string? Find()
         {
             foreach (var name in new[] { "ffmpeg", "ffmpeg.exe" })
@@ -32,9 +46,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 catch { /* try next */ }
             }
 
-            string local = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "ProGlassAutomation", "tools", "ffmpeg.exe");
+            string local = Path.Combine(ToolsFolder, "ffmpeg.exe");
             return File.Exists(local) ? local : null;
         }
 
@@ -61,9 +73,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 catch { /* try next */ }
             }
 
-            string local = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "ProGlassAutomation", "tools", "ffprobe.exe");
+            string local = Path.Combine(ToolsFolder, "ffprobe.exe");
             return File.Exists(local) ? local : null;
         }
 

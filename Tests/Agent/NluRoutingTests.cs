@@ -78,6 +78,19 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("ProformaInvoice", intent);
         }
 
+        [Theory]
+        [InlineData("create a demo for sheet store", "SheetStore")]
+        [InlineData("record a job order demo", "JobOrder")]
+        [InlineData("make a demo for users", "UserCenter")]
+        [InlineData("create a company center demo", "CompanyCenter")]
+        [InlineData("generate all module demo", "All")]
+        public void Demo_phrases_name_the_live_module(string phrase, string module)
+        {
+            string intent = Detect(phrase);
+            Assert.Contains("create_demo_package", intent);
+            Assert.Contains(module, intent);
+        }
+
         [Fact]
         public void Soft_correct_does_not_invent_unknown_words()
         {

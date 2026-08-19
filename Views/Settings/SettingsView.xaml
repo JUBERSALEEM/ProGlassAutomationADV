@@ -19,6 +19,7 @@
        SettingsVoiceSection      — Whisper speech-to-text models
        SettingsUpdatesSection    — OTA check / download / install
        SettingsDataSection       — backup & restore, sample data
+       SettingsDemoSection       — live module recordings + ffmpeg
        SettingsAboutSection      — product knowledge cards
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.SettingsView"
