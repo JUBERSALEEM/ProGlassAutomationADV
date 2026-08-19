@@ -277,8 +277,16 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
             });
 
+            ResetUiScaleCommand = new RelayCommand(_ =>
+                UiScale = Services.Viewport.ViewportService.DefaultUiScale);
+
             ThemeManager.ThemeChanged += (_, __) =>
                 OnPropertyChanged(nameof(IsDarkTheme));
+            ThemeManager.UiScaleChanged += (_, __) =>
+            {
+                OnPropertyChanged(nameof(UiScale));
+                OnPropertyChanged(nameof(UiScalePercent));
+            };
 
             // Dynamic Theme Engine — accent presets (Settings UI)
             ApplyAccentCommand = new RelayCommand(param =>
@@ -417,6 +425,28 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
             }
         }
+
+        /// <summary>Global UI zoom 80–125%. Ctrl+Wheel also drives this.</summary>
+        public double UiScale
+        {
+            get => App.Config?.Appearance?.UiScale ?? 1.0;
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                double v = Services.Viewport.ViewportService.ClampUiScale(value);
+                if (Math.Abs(App.Config.Appearance.UiScale - v) < 0.001) return;
+
+                App.Config.Appearance.UiScale = v;
+                ThemeManager.ApplyUiScale(v);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UiScalePercent));
+            }
+        }
+
+        public int UiScalePercent => (int)Math.Round(UiScale * 100);
+
+        public ICommand ResetUiScaleCommand { get; private set; } = null!;
 
         public double CardCornerRadius
         {

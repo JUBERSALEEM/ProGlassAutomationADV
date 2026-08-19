@@ -48,6 +48,7 @@ using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
+using ProGlassAutomation.Behaviors;
 using System;
 using Velopack;
 using System.Threading;
@@ -212,6 +213,10 @@ namespace ProGlassAutomation
             // OTA bootstrap FIRST (Velopack): handles pending updates and
             // restart plumbing before any UI is created. No-op in dev mode.
             Velopack.VelopackApp.Build().Run();
+
+            // Work-area caps + Ctrl+Wheel zoom. Does not Viewbox-lock
+            // the shell — layouts reflow in native pixels.
+            ViewportFitBehavior.Install();
 
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();
@@ -487,8 +492,17 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
                 Config.Appearance?.CardCornerRadius ?? 12);
 
-            ProGlassAutomation.Services.ThemeManager.ApplyDisplayDensity(
-                Config.Appearance?.DisplayDensity ?? "Compact");
+            string density = Config.Appearance?.DisplayDensity ?? "Compact";
+            try
+            {
+                density = Services.Viewport.ViewportService.RecommendDensity(
+                    density, SystemParameters.WorkArea.Height);
+            }
+            catch { /* design-time / no desktop */ }
+
+            ProGlassAutomation.Services.ThemeManager.ApplyDisplayDensity(density);
+            ProGlassAutomation.Services.ThemeManager.ApplyUiScale(
+                Config.Appearance?.UiScale ?? 1.0);
 
             ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(
                 Config.Appearance?.PdfLayoutId);

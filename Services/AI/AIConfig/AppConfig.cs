@@ -52,6 +52,11 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public string DisplayDensity { get; set; } = "Compact";
 
+        /// <summary>
+        /// User UI zoom 0.80–1.25. 1.0 is native layout. Ctrl+Wheel.
+        /// </summary>
+        public double UiScale { get; set; } = 1.0;
+
         /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";
 

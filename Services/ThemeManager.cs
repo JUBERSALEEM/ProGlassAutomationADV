@@ -64,6 +64,9 @@ namespace ProGlassAutomation.Services
         /// <summary>Raised after the accent family is (re)derived.</summary>
         public static event EventHandler AccentChanged;
 
+        /// <summary>Raised after the user UI scale (Ctrl+Wheel) changes.</summary>
+        public static event EventHandler? UiScaleChanged;
+
         // ══════════════════════════════════════════════════════════════
         //  THEME SWITCHING (original API — behaviour preserved)
         // ══════════════════════════════════════════════════════════════
@@ -529,31 +532,31 @@ namespace ProGlassAutomation.Services
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            double inputH, buttonH, rowH, title, kpi;
+            double inputH, buttonH, rowH, title, kpi, body, buttonMin;
             Thickness cardPad, stripPad, pageMargin;
 
             switch (key)
             {
                 case "Comfortable":
-                    inputH = 40; buttonH = 42; rowH = 36;
-                    title = 24; kpi = 22;
-                    cardPad = new Thickness(18, 14, 18, 14);
-                    stripPad = new Thickness(20, 14, 20, 14);
-                    pageMargin = new Thickness(20, 14, 20, 14);
+                    inputH = 38; buttonH = 40; rowH = 34;
+                    title = 22; kpi = 20; body = 13; buttonMin = 110;
+                    cardPad = new Thickness(16, 12, 16, 12);
+                    stripPad = new Thickness(18, 12, 18, 12);
+                    pageMargin = new Thickness(18, 12, 18, 12);
                     break;
                 case "Normal":
-                    inputH = 36; buttonH = 38; rowH = 32;
-                    title = 22; kpi = 20;
-                    cardPad = new Thickness(14, 10, 14, 10);
-                    stripPad = new Thickness(16, 10, 16, 10);
-                    pageMargin = new Thickness(16, 10, 16, 10);
+                    inputH = 34; buttonH = 36; rowH = 30;
+                    title = 20; kpi = 18; body = 13; buttonMin = 96;
+                    cardPad = new Thickness(12, 9, 12, 9);
+                    stripPad = new Thickness(14, 9, 14, 9);
+                    pageMargin = new Thickness(14, 10, 14, 10);
                     break;
-                default: // Compact
-                    inputH = 30; buttonH = 32; rowH = 28;
-                    title = 18; kpi = 16;
-                    cardPad = new Thickness(10, 8, 10, 8);
-                    stripPad = new Thickness(12, 8, 12, 8);
-                    pageMargin = new Thickness(12, 8, 12, 8);
+                default: // Compact — default, slightly tighter than before
+                    inputH = 28; buttonH = 30; rowH = 26;
+                    title = 17; kpi = 15; body = 12; buttonMin = 84;
+                    cardPad = new Thickness(8, 6, 8, 6);
+                    stripPad = new Thickness(10, 6, 10, 6);
+                    pageMargin = new Thickness(10, 6, 10, 6);
                     break;
             }
 
@@ -562,6 +565,8 @@ namespace ProGlassAutomation.Services
             resources["DensityRowHeight"] = rowH;
             resources["DensityTitleFontSize"] = title;
             resources["DensityKpiValueFontSize"] = kpi;
+            resources["DensityBodyFontSize"] = body;
+            resources["DensityButtonMinWidth"] = buttonMin;
             resources["DensityCardPadding"] = cardPad;
             resources["DensityStripPadding"] = stripPad;
             resources["DensityPageMargin"] = pageMargin;
@@ -569,6 +574,24 @@ namespace ProGlassAutomation.Services
 
         public static void ReapplyDisplayDensity()
             => ApplyDisplayDensity(_displayDensity);
+
+        private static double _uiScale = 1.0;
+
+        /// <summary>User zoom 0.80–1.25. 1.0 = native layout (reflow).</summary>
+        public static double UiScale => _uiScale;
+
+        public static void ApplyUiScale(double scale)
+        {
+            scale = Viewport.ViewportService.ClampUiScale(scale);
+            if (Math.Abs(_uiScale - scale) < 0.001) return;
+            _uiScale = scale;
+
+            var resources = Application.Current?.Resources;
+            if (resources != null)
+                resources["UiScale"] = scale;
+
+            UiScaleChanged?.Invoke(null, EventArgs.Empty);
+        }
 
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)

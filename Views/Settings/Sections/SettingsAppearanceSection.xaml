@@ -194,7 +194,53 @@
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
-                                   Text="Compact fits more of the glass grid on a laptop. Normal is the desktop default. Comfortable is larger touch targets. One switch — inputs, buttons, titles and card padding all follow it."/>
+                                   Text="Compact fits more of the glass grid on a laptop. Normal is the desktop default. Comfortable is larger touch targets. One switch — inputs, buttons, titles and card padding all follow it. Short laptops stay Compact even if a desktop session saved Comfortable."/>
+
+                        <Border Height="1" Margin="0,18,0,16"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xE8A3;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="UI Scale"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                            </StackPanel>
+                            <StackPanel DockPanel.Dock="Right"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center">
+                                <TextBlock VerticalAlignment="Center"
+                                           FontSize="13" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,0,12,0">
+                                    <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
+                                    <Run Text="%"/>
+                                </TextBlock>
+                                <Button Content="RESET"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Command="{Binding ResetUiScaleCommand}"
+                                        Height="30" MinWidth="72"
+                                        Padding="12,0"/>
+                            </StackPanel>
+                        </DockPanel>
+                        <Slider Margin="0,10,0,0"
+                                Style="{StaticResource ModernSliderStyle}"
+                                Minimum="0.8" Maximum="1.25"
+                                TickFrequency="0.05"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding UiScale, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Ctrl + mouse wheel zooms the whole app. Ctrl + 0 resets to 100%. Zoom out shows more of the cut list on a laptop. Layouts reflow — this is not a frozen poster scale."/>
 
                         <Border Height="1" Margin="0,18,0,16"
                                 Background="{DynamicResource DividerBrush}"/>

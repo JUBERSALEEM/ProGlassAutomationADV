@@ -26,14 +26,16 @@
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:updates="clr-namespace:ProGlassAutomation.Services.Updates"
         xmlns:login="clr-namespace:ProGlassAutomation.Views.Login"
+        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         Title="ProGlass Automation"
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
-        Background="Transparent"
+        Background="#040B1C"
         ShowInTaskbar="False"
         Topmost="True"
+        behaviors:ViewportFitBehavior.DisableZoom="True"
         FontFamily="Segoe UI"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
@@ -338,6 +340,10 @@
     </Window.Resources>
 
     <Grid Background="{StaticResource PageBg}">
+
+        <!-- Poster only. Login / terms stay full-window overlays. -->
+        <Viewbox Stretch="Uniform" StretchDirection="Both">
+        <Grid Width="1600" Height="900" ClipToBounds="False">
 
         <!-- ═══ BLURRED AURORA ORBS (glass stage) ═══ -->
         <Ellipse Width="900" Height="900"
@@ -751,6 +757,36 @@
 
         </StackPanel>
 
+        <!-- ═══ FOOTER — glass pill ═══ -->
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="22,10"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                Margin="0,0,0,30"
+                Background="{StaticResource IconTileBg}"
+                BorderBrush="#2EFFFFFF"
+                BorderThickness="1"
+                Effect="{StaticResource GlassGlow}"
+                SnapsToDevicePixels="True">
+            <StackPanel>
+                <TextBlock FontSize="11"
+                           Foreground="{StaticResource Cerulean}"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False">
+                    <Run Text="Developed by"/>
+                    <Run Text=" Juber Saleem" FontWeight="Bold"/>
+                </TextBlock>
+                <TextBlock FontSize="10"
+                           Margin="0,4,0,0"
+                           Foreground="#A0BFDBFE"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False">
+                    <Run Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        </Grid>
+        </Viewbox>
+
         <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
         <Grid x:Name="LoginHost"
               Visibility="Collapsed"
@@ -863,66 +899,38 @@
                         <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
                     </LinearGradientBrush>
                 </Border.Background>
-                <Grid MaxWidth="980">
-                    <CheckBox x:Name="AcceptTermsCheck"
-                              HorizontalAlignment="Left"
-                              VerticalAlignment="Center"
-                              Foreground="{StaticResource Frost}"
-                              FontSize="12.5"
-                              Cursor="Hand"
-                              Checked="AcceptTerms_Changed"
-                              Unchecked="AcceptTerms_Changed">
-                        <TextBlock Text="I have read and accept these terms, and I accept responsibility for the accuracy of the records I produce."
-                                   TextWrapping="Wrap"
-                                   MaxWidth="620"/>
-                    </CheckBox>
-
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center">
+                <DockPanel LastChildFill="True" MaxWidth="980">
+                    <StackPanel DockPanel.Dock="Right"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center"
+                                Margin="16,8,0,0">
                         <Button x:Name="DeclineButton"
                                 Content="DECLINE AND EXIT"
-                                Width="170" Height="42"
+                                MinWidth="150" Height="42"
                                 Margin="0,0,12,0"
                                 Style="{StaticResource TermsDeclineButtonStyle}"
                                 Click="DeclineTerms_Click"/>
                         <Button x:Name="ContinueButton"
                                 Content="ACCEPT AND CONTINUE"
-                                Width="220" Height="42"
+                                MinWidth="190" Height="42"
                                 IsEnabled="False"
                                 Style="{StaticResource TermsContinueButtonStyle}"
                                 Click="ContinueFromTerms_Click"/>
                     </StackPanel>
-                </Grid>
+                    <CheckBox x:Name="AcceptTermsCheck"
+                              VerticalAlignment="Center"
+                              Foreground="{StaticResource Frost}"
+                              FontSize="12.5"
+                              Cursor="Hand"
+                              Margin="0,8,0,0"
+                              Checked="AcceptTerms_Changed"
+                              Unchecked="AcceptTerms_Changed">
+                        <TextBlock Text="I have read and accept these terms, and I accept responsibility for the accuracy of the records I produce."
+                                   TextWrapping="Wrap"/>
+                    </CheckBox>
+                </DockPanel>
             </Border>
         </Grid>
-
-        <!-- ═══ FOOTER — glass pill ═══ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="22,10"
-                HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                Margin="0,0,0,30"
-                Background="{StaticResource IconTileBg}"
-                BorderBrush="#2EFFFFFF"
-                BorderThickness="1"
-                Effect="{StaticResource GlassGlow}"
-                SnapsToDevicePixels="True">
-            <StackPanel>
-                <TextBlock FontSize="11"
-                           Foreground="{StaticResource Cerulean}"
-                           HorizontalAlignment="Center"
-                           IsHitTestVisible="False">
-                    <Run Text="Developed by"/>
-                    <Run Text=" Juber Saleem" FontWeight="Bold"/>
-                </TextBlock>
-                <TextBlock FontSize="10"
-                           Margin="0,4,0,0"
-                           Foreground="#A0BFDBFE"
-                           HorizontalAlignment="Center"
-                           IsHitTestVisible="False">
-                    <Run Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
-                </TextBlock>
-            </StackPanel>
-        </Border>
 
     </Grid>
 </Window>

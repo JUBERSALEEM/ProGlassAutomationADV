@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:ProGlassAutomation.Views.Login"
         Title="Sign in — ProGlass Automation"
+        Width="1280" Height="800"
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"

@@ -3,6 +3,7 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
                  xmlns:beh="clr-namespace:ProGlassAutomation.Behaviors"
+                 xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                  Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
@@ -80,6 +81,16 @@
                 ══════════════════════════════════════════════════════════ -->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
+            <!-- Density defaults (overwritten at startup by ThemeManager). -->
+            <sys:Double x:Key="DensityInputHeight">28</sys:Double>
+            <sys:Double x:Key="DensityButtonHeight">30</sys:Double>
+            <sys:Double x:Key="DensityRowHeight">26</sys:Double>
+            <sys:Double x:Key="DensityTitleFontSize">17</sys:Double>
+            <sys:Double x:Key="DensityKpiValueFontSize">15</sys:Double>
+            <sys:Double x:Key="DensityBodyFontSize">12</sys:Double>
+            <sys:Double x:Key="DensityButtonMinWidth">84</sys:Double>
+            <sys:Double x:Key="UiScale">1.0</sys:Double>
+
             <!-- ══════════════════════════════════════════════════════════
                      CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
                 ══════════════════════════════════════════════════════════ -->
@@ -125,7 +136,7 @@
                 <Setter Property="Padding"                  Value="12,0"/>
 
                 <!-- Typography — 13px body, Segoe UI, theme foreground -->
-                <Setter Property="FontSize"   Value="13"/>
+                <Setter Property="FontSize"   Value="{DynamicResource DensityBodyFontSize}"/>
                 <Setter Property="FontFamily" Value="Segoe UI"/>
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
 

@@ -35,7 +35,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="MinWidth" Value="120"/>
+        <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
