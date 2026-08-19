@@ -221,5 +221,29 @@ namespace ProGlassAutomation.Views.Login
             ErrorText.Text = message;
             ErrorPanel.Visibility = Visibility.Visible;
         }
+
+        /// <summary>
+        /// Updates the status strip and locks the form while credentials
+        /// are being checked so the user can see signing is in progress.
+        /// </summary>
+        private void SetSigningState(bool busy, string status)
+        {
+            SignInStatusText.Text = status ?? string.Empty;
+            SignInBusyDot.Visibility = busy || SignedIn
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+            bool enable = !busy && !SignedIn;
+            UsernameBox.IsEnabled = enable;
+            PasswordBox.IsEnabled = enable;
+            RememberUserCheck.IsEnabled = enable;
+            ForgotPasswordButton.IsEnabled = enable;
+            ExitButton.IsEnabled = enable;
+            SignInButton.IsEnabled = enable;
+            SignInButton.Content = busy ? "SIGNING IN…" : "SIGN IN";
+
+            if (busy)
+                ErrorPanel.Visibility = Visibility.Collapsed;
+        }
     }
 }
