@@ -110,65 +110,96 @@
                            Style="{StaticResource ModulePageSubtitleStyle}"
                            TextWrapping="Wrap"/>
 
-                <WrapPanel Margin="0,10,0,8">
-                    <Button Command="{Binding ImportCutListCommand}"
+                <Grid Margin="0,10,0,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button Grid.Column="0"
+                            Command="{Binding ImportCutListCommand}"
                             Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE8B5;"
-                            Height="32" MinWidth="104" Margin="0,0,8,6"
+                            Height="32" MinWidth="88" Margin="0,0,8,0"
+                            VerticalAlignment="Center"
                             ToolTip="Import REF / W1 / H1 / W2 / H2 / QTY from Excel, CSV, PDF or photo"
                             Content="IMPORT"/>
-                    <Button Command="{Binding ExportExcelCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Height="32" MinWidth="80" Margin="0,0,8,6"
-                            Content="EXCEL"/>
-                    <Button Command="{Binding ExportCsvCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Height="32" MinWidth="80" Margin="0,0,8,6"
-                            Content="CSV"/>
-                    <Button Command="{Binding ExportPdfCommand}"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Height="32" MinWidth="80" Margin="0,0,8,6"
-                            Content="PDF"/>
-                </WrapPanel>
-                <TextBlock Text="{Binding IoStatus}"
-                           FontSize="11"
-                           Foreground="{DynamicResource AccentBrush}"
-                           TextWrapping="Wrap" Margin="0,0,0,8">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IoStatus}" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
 
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="SPECS"
+                    <Button x:Name="ExportMenuButton"
+                            Grid.Column="1"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xEDE1;"
+                            Height="32" MinWidth="96" Margin="0,0,10,0"
+                            VerticalAlignment="Center"
+                            Click="ExportMenuButton_Click"
+                            ToolTip="Export this cut list"
+                            Content="EXPORT ▾">
+                        <Button.ContextMenu>
+                            <ContextMenu Style="{StaticResource ModernContextMenuStyle}"
+                                         DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                                <MenuItem Header="Excel"
+                                          Style="{StaticResource ModernMenuItemStyle}"
+                                          Command="{Binding ExportExcelCommand}"/>
+                                <MenuItem Header="CSV"
+                                          Style="{StaticResource ModernMenuItemStyle}"
+                                          Command="{Binding ExportCsvCommand}"/>
+                                <MenuItem Header="PDF"
+                                          Style="{StaticResource ModernMenuItemStyle}"
+                                          Command="{Binding ExportPdfCommand}"/>
+                            </ContextMenu>
+                        </Button.ContextMenu>
+                    </Button>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding IoStatus}"
                                FontSize="11"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="10,4"
-                            MinWidth="36"
-                            Margin="0,0,10,0">
-                        <TextBlock Text="{Binding TotalSpecGroups}"
-                                   FontSize="13"
+                               Margin="0,0,12,0"
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IoStatus}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <StackPanel Grid.Column="3"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="SPECS"
+                                   FontSize="11"
                                    FontWeight="Bold"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   HorizontalAlignment="Center"/>
-                    </Border>
-                    <Button Command="{Binding AddSpecGroupCommand}"
-                            Style="{StaticResource PiGhostChipButton}"
-                            ToolTip="Add new spec group (Ctrl+Shift+N)"
-                            Content="+ ADD SPEC"/>
-                </StackPanel>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <Border Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="10,4"
+                                MinWidth="36"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="{Binding TotalSpecGroups}"
+                                       FontSize="13"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </Border>
+                        <Button Command="{Binding AddSpecGroupCommand}"
+                                Style="{StaticResource PiGhostChipButton}"
+                                Height="32"
+                                ToolTip="Add new spec group (Ctrl+Shift+N)"
+                                Content="+ ADD SPEC"/>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
 
             <ItemsControl ItemsSource="{Binding SpecGroups}">
