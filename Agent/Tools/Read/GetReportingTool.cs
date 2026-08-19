@@ -23,6 +23,7 @@
 // Never fabricates. Reports missing data source when cost absent.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation;
 using ProGlassAutomation.Agent.Context;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Agent.Interfaces;

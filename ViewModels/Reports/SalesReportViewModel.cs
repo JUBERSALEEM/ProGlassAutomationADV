@@ -20,6 +20,7 @@
 //   modules owned by the hub.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
