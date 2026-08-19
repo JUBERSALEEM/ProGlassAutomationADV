@@ -82,6 +82,14 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // module can never quote different numbers.
                 new GetSalesAnalyticsTool(),
 
+                // ── Central Reporting (MASTER PROMPT) ───────────────────
+                // ONE intelligence layer — the same service every report
+                // ViewModel uses. The agent queries real ERP data, never a
+                // fake AI database. Row-level traceability, exact spec
+                // matching, quantity reconciliation, and profitability are
+                // all answered from the same source the dashboards show.
+                new GetReportingTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.

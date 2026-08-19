@@ -1,0 +1,78 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.TaxInvoiceReport.TaxInvoiceReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="16,12,16,10">
+            <TextBlock Text="Tax Invoice Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
+            <TextBlock Text="Tax Invoices · Confirmed PI without TI · Pending · Invoiced · Company · Customer · Salesman · Project · Amount · Spec rows" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
+                            <StackPanel Margin="10,0,0,0"><TextBlock Text="TAX INVOICES" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="{Binding Summary.TotalAmount, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE71C;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Margin="10,0,0,0"><TextBlock Text="OUTSTANDING" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.Outstanding, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="{Binding Summary.Issued, StringFormat={}{0} issued}" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel></StackPanel>
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center"><Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}"><TextBlock Text="&#xE730;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Margin="10,0,0,0"><TextBlock Text="OVERDUE" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.Overdue}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="Needs follow-up" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel></StackPanel>
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center"><Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}"><TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Margin="10,0,0,0"><TextBlock Text="PENDING INVOICE" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.PendingInvoice}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="Confirmed without TI" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel></StackPanel>
+                    </Grid>
+                </Border>
+                <!-- Pending banner -->
+                <Border Grid.Row="1" Visibility="{Binding HasPending, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1" CornerRadius="8" Padding="12,8" Margin="12,8,12,0">
+                    <StackPanel>
+                        <TextBlock Text="⚠ Pending invoices — confirmed PI without Tax Invoice" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                        <ItemsControl ItemsSource="{Binding PendingRows}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate><DataTemplate><TextBlock FontSize="11"><Run Text="{Binding ProformaId}" FontWeight="SemiBold"/><Run Text=" — "/><Run Text="{Binding CustomerName}"/><Run Text=" · AED "/><Run Text="{Binding GrandTotal, StringFormat={}{0:N2}}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <WrapPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBox Width="150" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}"/>
+                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateTo}"/>
+                            <ComboBox Width="130" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}"/>
+                            <ComboBox Width="110" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}"><ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Overdue"/></ComboBox>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                        </WrapPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}"/></StackPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="0" Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                        <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="140"/><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="90"/></Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="INVOICE #" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="PI # / JO #" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="2" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="3" Text="ISSUE DATE" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="4" Text="GRAND TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="5" Text="QTY" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                            </Grid></Border>
+                        <ListBox Grid.Row="1" ItemsSource="{Binding Rows}" Background="Transparent" BorderThickness="0">
+                            <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="140"/><ColumnDefinition Width="110"/><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="90"/></Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding InvoiceNumber}" FontSize="11" FontWeight="Bold"/><TextBlock Grid.Column="1" FontSize="11"><Run Text="{Binding ProformaId}"/><LineBreak/><Run Text="{Binding JobOrderId}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/></TextBlock>
+                                            <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="11" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding TotalQty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                            <Border Grid.Column="6" CornerRadius="6" Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Center" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"/></Border>
+                                    </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Border>
+                <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading tax invoices…"/>
+                <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No invoices" Message="No TI matches filters." Icon="&#xE8C7;"/>
+                <Border Grid.Row="5" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0"/><Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"/></StackPanel></Grid></Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

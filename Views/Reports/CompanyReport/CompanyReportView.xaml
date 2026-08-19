@@ -1,0 +1,85 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.CompanyReport.CompanyReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="16,12,16,10">
+            <TextBlock Text="Company / Customer Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
+            <TextBlock Text="Lifecycle per company/customer: PI → Job Order → Delivery → Tax Invoice → Statement → Profitability with documents, values, quantities, specifications, pending items" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <!-- Toggle -->
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Customers" Command="{Binding ApplyFilterCommand}" Margin="0,0,8,0">
+                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}"><Style.Triggers><DataTrigger Binding="{Binding ShowCompanies}" Value="True"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger></Style.Triggers></Style></Button.Style>
+                        </Button>
+                        <Button Content="Companies" Command="{Binding ApplyFilterCommand}">
+                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}"><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="False"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/></DataTrigger></Style.Triggers></Style></Button.Style>
+                        </Button>
+                        <!-- Toggle logic handled via ShowCustomers property; use simple buttons that flip -->
+                        <Button Content="Customer View" Margin="12,0,0,0" Padding="10,0" Height="28" Click="Customer_Click" Style="{StaticResource RowOutlinedButton}"/>
+                        <Button Content="Company View" Margin="6,0,0,0" Padding="10,0" Height="28" Click="Company_Click" Style="{StaticResource RowOutlinedButton}"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <WrapPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBox Width="180" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                        </WrapPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}"/></StackPanel>
+                    </Grid>
+                </Border>
+                <!-- Customer list -->
+                <Grid Grid.Row="2">
+                    <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Grid.Style>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="2" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="5" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid></Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding CustomerRows}" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}" Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding CustomerName}" FontSize="11" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding Salesman}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="{Binding JoCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="{Binding TiCount}" FontSize="11" HorizontalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding Outstanding, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource WarningBrush}"/>
+                                </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+                <!-- Company list -->
+                <Grid Grid.Row="2">
+                    <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Grid.Style>
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid></Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding CompanyRows}" Background="Transparent" BorderThickness="0">
+                        <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding JobOrderCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="11" HorizontalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold"/><TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}"/>
+                                </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+                <loading:LoadingStateControl Grid.Row="2" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading lifecycle…"/>
+                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No customers/companies" Message="Create a PI to see lifecycle analytics." Icon="&#xE77B;"/>
+                <!-- Detail: selected customer's PI lifecycle -->
+                <Border Grid.Row="3" Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12">
+                    <StackPanel>
+                        <TextBlock FontSize="11" FontWeight="Bold"><Run Text="Lifecycle — "/><Run Text="{Binding SelectedCustomer.CustomerName}"/></TextBlock>
+                        <ItemsControl ItemsSource="{Binding PiLifecycle}" Margin="0,6,0,0">
+                            <ItemsControl.ItemTemplate><DataTemplate><TextBlock FontSize="10"><Run Text="{Binding ProformaId}" FontWeight="SemiBold"/><Run Text=" · "/><Run Text="{Binding Status}"/><Run Text=" · AED "/><Run Text="{Binding GrandTotal, StringFormat={}{0:N0}}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0"/><Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"/></StackPanel></Grid></Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

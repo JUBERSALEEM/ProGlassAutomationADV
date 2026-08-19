@@ -1,0 +1,41 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.SalesmanReport.SalesmanReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Margin="16,12,16,10">
+            <TextBlock Text="Salesman Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
+            <TextBlock Text="PI · Confirmed value · Job Orders · Deliveries · Tax Invoices · Customers · Projects · Quantities · Revenue · Profitability" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+        </StackPanel>
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+            <Grid>
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Border Grid.Row="0" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <WrapPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBox Width="180" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                        </WrapPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}"/></StackPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="90"/><ColumnDefinition Width="80"/><ColumnDefinition Width="70"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="80"/></Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="CONFIRMED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="CUSTOMERS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="5" Text="REVENUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="6" Text="PROJECTS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="7" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                    </Grid></Border>
+                <ListBox Grid.Row="2" ItemsSource="{Binding Rows}" Background="Transparent" BorderThickness="0" Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="90"/><ColumnDefinition Width="80"/><ColumnDefinition Width="70"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="80"/></Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding SalesmanName}" FontSize="11" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding ConfirmedValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding JobOrderCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="{Binding CustomerCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="5" Text="{Binding Revenue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}"/><TextBlock Grid.Column="6" Text="{Binding ProjectCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="7" Text="{Binding TaxInvoiceCount}" FontSize="11" HorizontalAlignment="Center"/>
+                            </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                </ListBox>
+                <loading:LoadingStateControl Grid.Row="2" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading salesman report…"/>
+                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No salesman data" Message="No PI with salesman assignments." Icon="&#xE716;"/>
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0"/><Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"/></StackPanel></Grid></Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

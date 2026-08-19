@@ -837,7 +837,18 @@ namespace ProGlassAutomation.ViewModels
                 case "DoublingLamination": CurrentViewModel = DoublingLaminationVM; break;
                 case "DeliveryNote": CurrentViewModel = DeliveryNoteVM; break;
                 case "TaxInvoice": CurrentViewModel = TaxInvoiceVM; break;
-                case "SalesReport": CurrentViewModel = SalesReportVM; break;
+                case "SalesReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Overview"; break;
+                // Central Reporting — module-based (Master Prompt)
+                case "PiReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Pi"; break;
+                case "JoReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Jo"; break;
+                case "DeliveryReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Delivery"; break;
+                case "TaxInvoiceReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "TaxInvoice"; break;
+                case "CompanyReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Company"; break;
+                case "SalesmanReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Salesman"; break;
+                case "ProjectReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Project"; break;
+                case "GlassReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Glass"; break;
+                case "StatementReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Statement"; break;
+                case "ProfitabilityReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Profitability"; break;
                 case "About": CurrentViewModel = AboutVM; break;
 
                 // v3.1: NEW Settings navigation

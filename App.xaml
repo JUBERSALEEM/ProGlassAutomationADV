@@ -106,6 +106,8 @@
             <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
             <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
             <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
+            <conv:NullToVisibilityConverter         x:Key="NullToVisibilityConverter"/>
+            <conv:ListToStringConverter             x:Key="ListToStringConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
                      GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5

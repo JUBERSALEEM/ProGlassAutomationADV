@@ -1,103 +1,169 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/SalesReportViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Central Reporting — Hub (replaces Chat 16 shell)
 //
 // PURPOSE:
-//   Shell ViewModel for the Sales Report / Account Statement module.
-//   Owns the top-level List ↔ Generator navigation toggle.
-//   Mirrors TaxInvoiceViewModel pattern (Chat 14).
+//   Central Reports hub: owns 10 module ViewModels and the legacy
+//   Statement List↔Generator toggle. All report ViewModels share ONE
+//   IReportingDataService instance (central data-intelligence layer).
 //
-// STATES:
-//   ShowList      = true  → StatementListView visible
-//   ShowList      = false → StatementGeneratorView visible
+// ARCHITECTURE:
+//   MainWindow → SalesReportViewModel (hub) → ActiveReportViewModel
+//   Each report is a separate module with its own purpose/layout but
+//   reuses this centralized service for relationships/joins/filtering/
+//   aggregation/row-level data/spec matching/quantity reconciliation.
 //
-// NAVIGATION:
-//   List → Generator : NewStatementCommand or EditStatementCommand
-//   Generator → List : StatementGeneratorVM fires OnStatementSaved callback
-//   Generator → List : CancelCommand on generator
+// PRESERVED FOR BACKWARD COMPATIBILITY:
+//   ListVM / GeneratorVM / ShowList / ShowGenerator are kept so existing
+//   XAML bindings and tests compile; they delegate to the Statement
+//   modules owned by the hub.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.ViewModels.Reports.CompanyReport;
+using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
+using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
+using ProGlassAutomation.ViewModels.Reports.JoReport;
+using ProGlassAutomation.ViewModels.Reports.PiReport;
+using ProGlassAutomation.ViewModels.Reports.ProfitabilityReport;
+using ProGlassAutomation.ViewModels.Reports.ProjectReport;
+using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using ProGlassAutomation.ViewModels.Reports.StatementList;
+using ProGlassAutomation.ViewModels.Reports.StatementReport;
+using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
+using System.Collections.Generic;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports
 {
     public class SalesReportViewModel : ViewModelBase
     {
-        // ── Child ViewModels ──────────────────────────────────────────────
+        private readonly IReportingDataService _reportingService;
+
+        // ── Central reporting modules ─────────────────────────────────────
+        public PiReportViewModel PiReport { get; }
+        public JoReportViewModel JoReport { get; }
+        public DeliveryReportViewModel DeliveryReport { get; }
+        public TaxInvoiceReportViewModel TaxInvoiceReport { get; }
+        public CompanyReportViewModel CompanyReport { get; }
+        public SalesmanReportViewModel SalesmanReport { get; }
+        public ProjectReportViewModel ProjectReport { get; }
+        public GlassSpecReportViewModel GlassReport { get; }
+        public StatementReportViewModel StatementReport { get; }
+        public ProfitabilityReportViewModel ProfitabilityReport { get; }
+
+        // ── Legacy Statement List↔Generator (Chat 16) ─────────────────────
         public StatementListViewModel ListVM { get; }
         public StatementGeneratorViewModel GeneratorVM { get; }
 
-        // ── State ─────────────────────────────────────────────────────────
         private bool _showList = true;
-        public bool ShowList
-        {
-            get => _showList;
-            set
-            {
-                if (_showList == value) return;
-                _showList = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(ShowGenerator));
-            }
-        }
-
+        public bool ShowList { get => _showList; set { if (_showList == value) return; _showList = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowGenerator)); } }
         public bool ShowGenerator => !_showList;
-
-        // ── Commands ──────────────────────────────────────────────────────
         public ICommand NewStatementCommand { get; }
         public ICommand BackToListCommand { get; }
 
-        // ═════════════════════════════════════════════════════════════════
+        // ── Hub navigation ────────────────────────────────────────────────
+        public class ReportNavItem
+        {
+            public string Key { get; set; } = "";
+            public string Title { get; set; } = "";
+            public string Icon { get; set; } = "";
+            public string Subtitle { get; set; } = "";
+        }
+
+        public List<ReportNavItem> NavItems { get; } = new()
+        {
+            new ReportNavItem{ Key="Overview", Title="Overview", Icon="\uE9D2", Subtitle="KPI dashboard" },
+            new ReportNavItem{ Key="Pi", Title="Proforma Invoice", Icon="\uE8A5", Subtitle="Quotes & conversion" },
+            new ReportNavItem{ Key="Jo", Title="Job Order", Icon="\uE8B7", Subtitle="Production & status" },
+            new ReportNavItem{ Key="Delivery", Title="Delivery", Icon="\uE814", Subtitle="Dispatched / pending" },
+            new ReportNavItem{ Key="TaxInvoice", Title="Tax Invoice", Icon="\uE8C7", Subtitle="Billed & overdue" },
+            new ReportNavItem{ Key="Company", Title="Company / Customer", Icon="\uE77B", Subtitle="Lifecycle per client" },
+            new ReportNavItem{ Key="Salesman", Title="Salesman", Icon="\uE716", Subtitle="Revenue per rep" },
+            new ReportNavItem{ Key="Project", Title="Project", Icon="\uE8F1", Subtitle="Project drill-down" },
+            new ReportNavItem{ Key="Glass", Title="Glass / Specification", Icon="\uE9F9", Subtitle="Row-level intelligence" },
+            new ReportNavItem{ Key="Statement", Title="Statement", Icon="\uE9F7", Subtitle="Customer statements" },
+            new ReportNavItem{ Key="Profitability", Title="Profitability / P&L", Icon="\uE913", Subtitle="Revenue, cost, margin" },
+        };
+
+        private string _activeKey = "Overview";
+        public string ActiveKey { get => _activeKey; set { if (_activeKey == value) return; _activeKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(ActiveViewModel)); OnPropertyChanged(nameof(IsOverview)); } }
+
+        public ViewModelBase? ActiveViewModel => _activeKey switch
+        {
+            "Pi" => PiReport,
+            "Jo" => JoReport,
+            "Delivery" => DeliveryReport,
+            "TaxInvoice" => TaxInvoiceReport,
+            "Company" => CompanyReport,
+            "Salesman" => SalesmanReport,
+            "Project" => ProjectReport,
+            "Glass" => GlassReport,
+            "Statement" => StatementReport,
+            "Profitability" => ProfitabilityReport,
+            _ => null
+        };
+
+        public bool IsOverview => _activeKey == "Overview";
+        public ICommand NavigateReportCommand { get; }
+
         public SalesReportViewModel()
         {
-            var repo = new StatementRepository();
+            _reportingService = App.Reporting ?? new ReportingDataService();
 
+            PiReport = new PiReportViewModel(_reportingService);
+            JoReport = new JoReportViewModel(_reportingService);
+            DeliveryReport = new DeliveryReportViewModel(_reportingService);
+            TaxInvoiceReport = new TaxInvoiceReportViewModel(_reportingService);
+            CompanyReport = new CompanyReportViewModel(_reportingService);
+            SalesmanReport = new SalesmanReportViewModel(_reportingService);
+            ProjectReport = new ProjectReportViewModel(_reportingService);
+            GlassReport = new GlassSpecReportViewModel(_reportingService);
+            StatementReport = new StatementReportViewModel(_reportingService);
+            ProfitabilityReport = new ProfitabilityReportViewModel(_reportingService);
+
+            var repo = new StatementRepository();
             ListVM = new StatementListViewModel(repo);
             GeneratorVM = new StatementGeneratorViewModel(repo);
 
-            // ── List → Generator navigation ───────────────────────────────
             ListVM.OnRequestNewStatement = () =>
             {
                 GeneratorVM.PrepareNew();
                 ShowList = false;
             };
-
             ListVM.OnRequestEditStatement = item =>
             {
                 GeneratorVM.PrepareEdit(item);
                 ShowList = false;
             };
-
-            // ── Generator → List navigation ───────────────────────────────
             GeneratorVM.OnStatementSaved = async () =>
             {
                 ShowList = true;
                 await ListVM.LoadAsync();
+                await StatementReport.LoadAsync();
             };
+            GeneratorVM.OnCancelled = () => ShowList = true;
 
-            GeneratorVM.OnCancelled = () =>
-            {
-                ShowList = true;
-            };
-
-            // ── Commands ──────────────────────────────────────────────────
             NewStatementCommand = new RelayCommand(_ =>
             {
                 GeneratorVM.PrepareNew();
                 ShowList = false;
             });
+            BackToListCommand = new RelayCommand(_ => ShowList = true);
 
-            BackToListCommand = new RelayCommand(_ =>
+            NavigateReportCommand = new RelayCommand(p =>
             {
-                ShowList = true;
+                if (p is string key && !string.IsNullOrWhiteSpace(key))
+                {
+                    ActiveKey = key;
+                    OnPropertyChanged(nameof(IsOverview));
+                }
             });
 
-            // ── Initial load ──────────────────────────────────────────────
             _ = ListVM.LoadAsync();
         }
     }

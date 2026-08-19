@@ -44,6 +44,7 @@ using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
@@ -99,6 +100,13 @@ namespace ProGlassAutomation
         public static IMasterDataRepository MasterData { get; private set; }
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
         public static IStatementRepository Statements { get; private set; }
+
+        /// <summary>
+        /// Central reporting / data-intelligence layer.
+        /// Single source of truth for all Reports modules and the AI
+        /// reporting tool (GetReportingTool). Never fabricates.
+        /// </summary>
+        public static IReportingDataService Reporting { get; private set; }
 
         // ── Dashboard service layer ──────────────────────────────────────
         //
@@ -404,6 +412,9 @@ namespace ProGlassAutomation
             MasterData = new MasterDataRepository();
             TaxInvoices = new TaxInvoiceRepository();
             Statements = new StatementRepository();
+
+            // Central reporting / data-intelligence layer (Master Prompt §14)
+            Reporting = new ReportingDataService();
 
             // Dashboard service layer — stateless, safe as singletons.
             DashboardMetrics = new DashboardMetricsService();
