@@ -624,11 +624,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             RemoveRowCommand = new RelayCommand(p =>
             {
-                if (p is GlassItemRow r)
+                if (p is not GlassItemRow r) return;
+                // Keep one empty workspace row so the grid never collapses.
+                if (ItemRows.Count <= 1)
                 {
-                    r.PropertyChanged -= OnRowChanged;
-                    ItemRows.Remove(r);
+                    r.GlassRef = "";
+                    r.W1 = 0; r.H1 = 0; r.W2 = 0; r.H2 = 0;
+                    r.Qty = 1;
+                    return;
                 }
+                r.PropertyChanged -= OnRowChanged;
+                ItemRows.Remove(r);
             });
 
             PasteExcelCommand = new RelayCommand(
@@ -698,6 +704,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public void RemoveRow(object rowContext)
         {
             if (rowContext is not GlassItemRow row) return;
+            if (ItemRows.Count <= 1)
+            {
+                row.GlassRef = "";
+                row.W1 = 0; row.H1 = 0; row.W2 = 0; row.H2 = 0;
+                row.Qty = 1;
+                return;
+            }
             row.PropertyChanged -= OnRowChanged;
             ItemRows.Remove(row);
         }
