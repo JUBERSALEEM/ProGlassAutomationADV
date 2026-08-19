@@ -261,7 +261,10 @@
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBox Grid.Column="1"
-                                             Text="{Binding QuotedRatePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                             Text="{Binding QuotedRatePerSqm,
+                                                    Converter={StaticResource DecimalTypingConverter},
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                             behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                              Style="{StaticResource PlInputStyle}"
                                              ToolTip="Type the rate you intend to quote. Mark-up is shown beside it."/>
                                     <TextBlock Grid.Column="2"

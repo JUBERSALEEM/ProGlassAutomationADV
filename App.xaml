@@ -85,6 +85,7 @@
                 ══════════════════════════════════════════════════════════ -->
             <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
             <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
+            <conv:DecimalTypingConverter            x:Key="DecimalTypingConverter"/>
             <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
             <conv:ScaleConverter                    x:Key="ScaleConverter"/>
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
