@@ -3,68 +3,33 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:glass="clr-namespace:ProGlassAutomation.Controls.GlassShowcase"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="900"
+             d:DesignHeight="620" d:DesignWidth="1100"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!--
-        ══════════════════════════════════════════════════════════════════
-        DOUBLE GLAZED UNIT (DGU)
-
-        Two panes with an air spacer between them. One section per physical
-        layer, in build order, so the screen reads like the product:
-
-            OUTER GLASS  ->  FABRICATION EXTRAS  ->  INNER GLASS  ->  COSTING
-
-        The extras section holds the two dropdowns this panel has always
-        had: the U-Insert on the spacer, and the panel extras (overlap,
-        cutouts, argon…) that attach to the unit as a whole.
-        ══════════════════════════════════════════════════════════════════
-    -->
-
-    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="{DynamicResource CardCornerRadius}"
-            Padding="10"
-            Margin="0,6,0,0"
-            BorderThickness="{DynamicResource CardBorderThickness}"
-            BorderBrush="{DynamicResource OutlineBrush}">
+    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
         <StackPanel>
+            <glass:GlassAssemblyShowcase Height="176"
+                                         Kind="Dgu"
+                                         OuterColor="{Binding OuterGlassColor}"
+                                         OuterThickness="{Binding OuterThickness}"
+                                         OuterTreatment="{Binding OuterTreatment}"
+                                         InnerColor="{Binding InnerGlassColor}"
+                                         InnerThickness="{Binding InnerThickness}"
+                                         InnerTreatment="{Binding InnerTreatment}"
+                                         SpacerWidth="{Binding SpacerWidth}"
+                                         SpacerMaterial="{Binding SpacerMaterial}"
+                                         Caption="{Binding GeneratedSpecName}"/>
 
-            <!-- ── Live spec preview ── -->
-            <Border Background="{DynamicResource TintPurpleBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="8,5"
-                    Margin="0,0,0,6">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7C1;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="10"
-                               Foreground="{DynamicResource AccentBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
-                    <TextBlock Text="{Binding GeneratedSpecName}"
-                               FontSize="11"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}"
-                               TextWrapping="Wrap"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-
-            <!-- ══════════════════════════════════════════════════════
-                 OUTER GLASS
-            ══════════════════════════════════════════════════════ -->
-            <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="OUTER GLASS"
-                      IsExpanded="True">
+            <Border Style="{StaticResource PiLayerStripStyle}" Margin="0,10,0,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
@@ -77,59 +42,51 @@
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
+                    <TextBlock Grid.Column="0" Text="1  OUTER"
+                               Style="{StaticResource PiLayerTitleStyle}"/>
+                    <StackPanel Grid.Column="1">
                         <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                   SelectedItem="{Binding OuterThickness}"
                                   Style="{StaticResource Step4ComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="3">
                         <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding ColorOptions}"
                                   Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
                                   Style="{StaticResource Step4EditableComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="5">
                         <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding TreatmentOptions}"
                                   SelectedItem="{Binding OuterTreatment}"
                                   Style="{StaticResource Step4ComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="6">
+                    <StackPanel Grid.Column="7">
                         <TextBlock Text="PRICE / SQM" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
                                  Style="{StaticResource Step4InputStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="8">
+                    <StackPanel Grid.Column="9">
                         <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource Step4InputStyle}"
                                  ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="10">
+                    <StackPanel Grid.Column="11">
                         <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource Step4InputStyle}"
                                  ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                     </StackPanel>
                 </Grid>
-            </Expander>
+            </Border>
 
-            <!-- ══════════════════════════════════════════════════════
-                 AIR SPACER + FABRICATION EXTRAS
-            ══════════════════════════════════════════════════════ -->
-            <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="AIR SPACER &amp; EXTRAS"
-                      Tag="{Binding SpacerWidth}"
-                      IsExpanded="True">
+            <Border Style="{StaticResource PiLayerStripStyle}"
+                    BorderBrush="{DynamicResource AccentBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="1.4*"/>
@@ -140,39 +97,37 @@
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="1.6*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
+                    <TextBlock Grid.Column="0" Text="2  AIR SPACER"
+                               Style="{StaticResource PiLayerTitleStyle}"
+                               MinWidth="118"/>
+                    <StackPanel Grid.Column="1">
                         <TextBlock Text="SPACER WIDTH" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SpacerWidthOptions}"
                                   SelectedItem="{Binding SpacerWidth}"
                                   Style="{StaticResource Step4ComboStyle}"
                                   ToolTip="Air-spacer width. Load-bearing for the spec name."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="3">
                         <TextBlock Text="SPACER MATERIAL" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SpacerMaterialOptions}"
                                   SelectedItem="{Binding SpacerMaterial}"
                                   Style="{StaticResource Step4ComboStyle}"
                                   ToolTip="Spacer body. Changing material auto-suggests the spacer price."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="5">
                         <TextBlock Text="SPACER / SQM" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
                                  Style="{StaticResource Step4InputStyle}"
                                  ToolTip="Auto-suggested from width and material. Editable."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="6">
+                    <StackPanel Grid.Column="7">
                         <TextBlock Text="SPACER EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
                                   SelectedItem="{Binding SpacerExtra}"
                                   Style="{StaticResource Step4ComboStyle}"
                                   ToolTip="U-Insert variants. Appears on the spacer segment of the spec name."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="8">
+                    <StackPanel Grid.Column="9">
                         <TextBlock Text="PANEL EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding PanelExtraOptions}"
                                   SelectedItem="{Binding PanelExtra}"
@@ -180,17 +135,12 @@
                                   ToolTip="Overlap, fanhole, cutout, holes, shutter bonding or argon. 'As Per DWG' means the detail follows the drawing."/>
                     </StackPanel>
                 </Grid>
-            </Expander>
+            </Border>
 
-            <!-- ══════════════════════════════════════════════════════
-                 INNER GLASS
-            ══════════════════════════════════════════════════════ -->
-            <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="INNER GLASS"
-                      Tag="{Binding InnerThickness}"
-                      IsExpanded="True">
+            <Border Style="{StaticResource PiLayerStripStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
@@ -203,77 +153,69 @@
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
+                    <TextBlock Grid.Column="0" Text="3  INNER"
+                               Style="{StaticResource PiLayerTitleStyle}"/>
+                    <StackPanel Grid.Column="1">
                         <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding ThicknessOptions}"
                                   SelectedItem="{Binding InnerThickness}"
                                   Style="{StaticResource Step4ComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="3">
                         <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding ColorOptions}"
                                   Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
                                   Style="{StaticResource Step4EditableComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="5">
                         <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding TreatmentOptions}"
                                   SelectedItem="{Binding InnerTreatment}"
                                   Style="{StaticResource Step4ComboStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="6">
+                    <StackPanel Grid.Column="7">
                         <TextBlock Text="PRICE / SQM" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                                  Style="{StaticResource Step4InputStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="8">
+                    <StackPanel Grid.Column="9">
                         <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource Step4InputStyle}"
                                  ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="10">
+                    <StackPanel Grid.Column="11">
                         <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                                  Style="{StaticResource Step4InputStyle}"
                                  ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                     </StackPanel>
                 </Grid>
-            </Expander>
+            </Border>
 
-            <!-- ══════════════════════════════════════════════════════
-                 COSTING
-            ══════════════════════════════════════════════════════ -->
-            <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="COSTING">
+            <Border Style="{StaticResource PiLayerStripStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="2*"/>
                     </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
+                    <TextBlock Grid.Column="0" Text="COSTING"
+                               Style="{StaticResource PiLayerTitleStyle}"/>
+                    <StackPanel Grid.Column="1">
                         <TextBlock Text="YIELD FACTOR" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
                                  Style="{StaticResource Step4InputStyle}"/>
                     </StackPanel>
-
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="3">
                         <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
                         <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
                                  Style="{StaticResource Step4InputStyle}"/>
                     </StackPanel>
-
-                    <TextBlock Grid.Column="4"
+                    <TextBlock Grid.Column="5"
                                FontSize="10"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Bottom"
@@ -281,14 +223,16 @@
                                TextWrapping="Wrap"
                                Text="Spacer price is added after the yield division, and already covers cutting and tempering."/>
                 </Grid>
-            </Expander>
+            </Border>
 
+            <TextBlock Text="{Binding GeneratedSpecName}"
+                       Style="{StaticResource PiSpecLineStyle}"
+                       Margin="2,8,0,0"/>
             <TextBlock Text="{Binding SheetStoreHint}"
                        FontSize="10"
                        Foreground="{DynamicResource WarningBrush}"
                        TextWrapping="Wrap"
                        Margin="2,4,0,0"/>
-
         </StackPanel>
     </Border>
 </UserControl>

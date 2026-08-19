@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -101,31 +101,14 @@
         <!-- ══════════════════════════════════════════════════════════════
              SECTION HEADER — icon badge + title + subtitle
         ══════════════════════════════════════════════════════════════ -->
-        <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-            <Border Background="{DynamicResource TintIndigoBrush}"
-                    Width="34" Height="34"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    VerticalAlignment="Center"
-                    Margin="0,0,12,0">
-                <!-- Segoe MDL2 add / plus icon -->
-                <TextBlock Text="&#xE710;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="14"
-                           Foreground="{DynamicResource AccentBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-            </Border>
-            <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="Include Missing / Other Manual Charge"
-                           FontSize="14"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Add a custom line charge that does not follow the predefined templates (e.g. specialized transport, custom packaging, design fees)."
-                           FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"
-                           TextWrapping="Wrap"/>
-            </StackPanel>
+        <StackPanel Margin="0,0,0,14">
+            <TextBlock Text="CUSTOM CHARGES"
+                       Style="{StaticResource PiSectionLabelStyle}"
+                       Margin="0"/>
+            <TextBlock Text="Manual line charges that do not follow the predefined templates."
+                       FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       TextWrapping="Wrap"/>
         </StackPanel>
 
         <!-- ══════════════════════════════════════════════════════════════

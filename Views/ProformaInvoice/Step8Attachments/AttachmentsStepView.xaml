@@ -1,13 +1,6 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/ProformaInvoice/Step8Attachments/AttachmentsStepView.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Proforma Invoice — Step 8 Attachments
-
-     Wizard step 8 UI. Mirrors the Delivery Note attachments section:
-     add image / add PDF, thumbnail list, open/rename/delete per row.
-
-     Binds to AttachmentsStepViewModel (DataContext set by the wizard's
-     ContentControl DataTemplate in ProformaInvoiceView.xaml).
+     Industrial file table. Bindings and commands unchanged.
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
@@ -17,35 +10,14 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        <!-- Soft card used across the step -->
-        <Style x:Key="S8Card" TargetType="Border">
-            <Setter Property="Background"
-                    Value="{DynamicResource ElevatedSurfaceBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius"
-                    Value="{DynamicResource CardCornerRadius}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- Primary action pill -->
-
-        <!-- Secondary action pill (rename/delete/open on rows) -->
-
-    </UserControl.Resources>
-
-    <Grid Margin="14,10,14,12">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,10">
+        <Grid Grid.Row="0" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -59,202 +31,187 @@
                                         FallbackValue='(set ID in Step 1)'}"/>
                 </TextBlock>
             </StackPanel>
-            <Border Grid.Column="1"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    Background="{DynamicResource TintIndigoBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="12,6"
-                    VerticalAlignment="Center">
-                <TextBlock FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource AccentBrush}">
-                    <Run Text="{Binding AttachmentsCount, Mode=OneWay}"/>
-                    <Run Text=" file(s)"/>
-                </TextBlock>
-            </Border>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center">
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE728;" Content="+ IMAGE"
+                        ToolTip="Attach an image file"
+                        Command="{Binding AddImageCommand}"
+                        IsEnabled="{Binding HasProformaId}"/>
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE8A5;" Content="+ PDF"
+                        Margin="8,0,0,0"
+                        ToolTip="Attach a PDF file"
+                        Command="{Binding AddPdfCommand}"
+                        IsEnabled="{Binding HasProformaId}"/>
+                <Button Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72C;" Content="REFRESH"
+                        Margin="8,0,0,0"
+                        Command="{Binding RefreshCommand}"
+                        ToolTip="Reload attachments from disk"/>
+            </StackPanel>
         </Grid>
 
-        <!-- ══ ACTIONS ════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="1"
-                    Orientation="Horizontal"
-                    Margin="2,16,0,4">
+        <Border Grid.Row="1" Style="{StaticResource PiWorkSurfaceStyle}" Padding="0">
+            <Grid>
+                <Border>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasNoAttachments}"
+                                             Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Margin="30">
+                        <TextBlock Text="&#xE8B7;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="28"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   Opacity="0.7"/>
+                        <TextBlock Text="No attachments yet"
+                                   FontSize="14" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,4"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock Text="Add site photos, drawings or signed approvals — max 10 MB each."
+                                   FontSize="12"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="360"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
 
-            <Button Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE728;" Content="ADD IMAGE"
-                    ToolTip="Attach an image file"
-                    Command="{Binding AddImageCommand}"
-                    IsEnabled="{Binding HasProformaId}"/>
+                <DockPanel>
+                    <DockPanel.Style>
+                        <Style TargetType="DockPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasAttachments}"
+                                             Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Style>
 
-            <Button Style="{StaticResource PrimaryPillButton}"
-                    Tag="&#xE8A5;" Content="ADD PDF"
-                    Margin="10,0,0,0"
-                    ToolTip="Attach a PDF file"
-                    Command="{Binding AddPdfCommand}"
-                    IsEnabled="{Binding HasProformaId}"/>
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PiTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="220"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="TYPE"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="NAME"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="SIZE"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="3" Text="ADDED"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="4" Text="ACTIONS"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
 
-            <Button Style="{StaticResource OutlinedPillButton}"
-                    Tag="&#xE72C;" Content="REFRESH"
-                    Margin="10,0,0,0"
-                    Command="{Binding RefreshCommand}"
-                    ToolTip="Reload attachments from disk"/>
-        </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Attachments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="10,8"
+                                            SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="220"/>
+                                            </Grid.ColumnDefinitions>
 
-        <!-- ══ LIST ═══════════════════════════════════════════════════ -->
-        <Grid Grid.Row="2" Margin="0,12,0,0">
-
-            <!-- Empty state -->
-            <Border>
-                <Border.Style>
-                    <Style TargetType="Border" BasedOn="{StaticResource S8Card}">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasNoAttachments}"
-                                         Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <StackPanel VerticalAlignment="Center"
-                            HorizontalAlignment="Center"
-                            Margin="30">
-                    <TextBlock Text="&#xE8B7;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="36"
-                               Foreground="{DynamicResource AccentBrush}"
-                               HorizontalAlignment="Center"
-                               Opacity="0.7"/>
-                    <TextBlock Text="No attachments yet"
-                               FontSize="15" FontWeight="SemiBold"
-                               HorizontalAlignment="Center"
-                               Margin="0,12,0,4"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Add site photos, drawings or signed approvals — max 10 MB each."
-                               FontSize="12"
-                               TextAlignment="Center"
-                               TextWrapping="Wrap"
-                               MaxWidth="360"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                </StackPanel>
-            </Border>
-
-            <!-- Attachment rows -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ScrollViewer.Style>
-                    <Style TargetType="ScrollViewer">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasAttachments}"
-                                         Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ScrollViewer.Style>
-
-                <ItemsControl ItemsSource="{Binding Attachments}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Padding="14,10"
-                                    Margin="0,0,0,10"
-                                    SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <!-- Preview / type icon -->
-                                    <Grid Grid.Column="0"
-                                          Width="56" Height="56"
-                                          VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Background="{DynamicResource TintGrayBrush}">
-                                            <TextBlock Text="{Binding TypeIcon}"
-                                                       FontSize="24"
-                                                       HorizontalAlignment="Center"
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding AttachmentType}"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
-                                        </Border>
-                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Visibility"
-                                                            Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsImage}"
-                                                                     Value="True">
-                                                            <Setter Property="Visibility"
-                                                                    Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <Border.Background>
-                                                <ImageBrush ImageSource="{Binding Preview}"
-                                                            Stretch="UniformToFill"/>
-                                            </Border.Background>
-                                        </Border>
-                                    </Grid>
 
-                                    <!-- Name + meta -->
-                                    <StackPanel Grid.Column="1"
-                                                Margin="14,0"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding FileName}"
-                                                   FontSize="13"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="11"
-                                                   Margin="0,3,0,0"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run Text="{Binding FileSizeDisplay, Mode=OneWay}"/>
-                                            <Run Text="  •  "/>
-                                            <Run Text="{Binding UploadedAtDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding FileName}"
+                                                       FontSize="13"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
 
-                                    <!-- Row actions -->
-                                    <StackPanel Grid.Column="2"
-                                                Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <Button Style="{StaticResource RowPrimaryButton}"
-                                                Tag="&#xE8B7;" Content="OPEN"
-                                                ToolTip="Open the attachment"
-                                                Command="{Binding DataContext.OpenAttachmentCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                        <Button Style="{StaticResource RowOutlinedButton}"
-                                                Tag="&#xE8E5;" Content="RENAME"
-                                                ToolTip="Rename the attachment"
-                                                Command="{Binding DataContext.RenameAttachmentCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                        <Button Style="{StaticResource RowDangerButton}"
-                                                Tag="&#xE74D;" Content="DELETE"
-                                                ToolTip="Delete the attachment"
-                                                Command="{Binding DataContext.DeleteAttachmentCommand,
-                                                            RelativeSource={RelativeSource
-                                                                AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
-        </Grid>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding FileSizeDisplay}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
 
-        <!-- ══ STATUS ═════════════════════════════════════════════════ -->
-        <TextBlock Grid.Row="3"
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding UploadedAtDisplay}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+
+                                            <StackPanel Grid.Column="4"
+                                                        Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                <Button Style="{StaticResource RowPrimaryButton}"
+                                                        Tag="&#xE8B7;" Content="OPEN"
+                                                        ToolTip="Open the attachment"
+                                                        Command="{Binding DataContext.OpenAttachmentCommand,
+                                                                    RelativeSource={RelativeSource
+                                                                        AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowOutlinedButton}"
+                                                        Tag="&#xE8E5;" Content="RENAME"
+                                                        ToolTip="Rename the attachment"
+                                                        Command="{Binding DataContext.RenameAttachmentCommand,
+                                                                    RelativeSource={RelativeSource
+                                                                        AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" Content="DELETE"
+                                                        ToolTip="Delete the attachment"
+                                                        Command="{Binding DataContext.DeleteAttachmentCommand,
+                                                                    RelativeSource={RelativeSource
+                                                                        AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Grid>
+        </Border>
+
+        <TextBlock Grid.Row="2"
                    Text="{Binding StatusMessage}"
                    FontSize="11"
                    FontWeight="SemiBold"

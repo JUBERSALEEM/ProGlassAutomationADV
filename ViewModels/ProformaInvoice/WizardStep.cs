@@ -25,6 +25,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public string Title { get; set; }
         public string Subtitle { get; set; }
 
+        /// <summary>
+        /// Short rail caption. Existing <see cref="Title"/> stays for
+        /// tooltips and any other consumer; the 32 px step rail needs
+        /// a single word so nine pills fit without wrapping.
+        /// </summary>
+        public string RailLabel => StepNumber switch
+        {
+            1 => "Company",
+            2 => "Client",
+            3 => "Project",
+            4 => "Glass",
+            5 => "Grid",
+            6 => "Charges",
+            7 => "Preview",
+            8 => "Files",
+            9 => "P&L",
+            _ => Title
+        };
+
         private bool _isActive;
         public bool IsActive
         {

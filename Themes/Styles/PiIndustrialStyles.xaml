@@ -128,6 +128,236 @@
         </Setter>
     </Style>
 
+    <!-- ══ WIZARD RAIL / FOOTER ══════════════════════════════════════ -->
+
+    <Style x:Key="PiRailBarStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource SideMenuBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding"         Value="12,0"/>
+        <Setter Property="Height"          Value="32"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiFooterBarStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding"         Value="16,0"/>
+        <Setter Property="Height"          Value="48"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiFooterGhostButton" TargetType="Button">
+        <Setter Property="Height"          Value="32"/>
+        <Setter Property="MinWidth"        Value="88"/>
+        <Setter Property="Cursor"          Value="Hand"/>
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontWeight"      Value="SemiBold"/>
+        <Setter Property="Foreground"      Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{DynamicResource ModuleBackgroundBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="14,0"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Root" Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="PiFooterPrimaryButton" TargetType="Button">
+        <Setter Property="Height"          Value="32"/>
+        <Setter Property="MinWidth"        Value="120"/>
+        <Setter Property="Cursor"          Value="Hand"/>
+        <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"      Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontWeight"      Value="SemiBold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="16,0"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══ STEP 4 — type chip / layer strip / apply bar ══════════════ -->
+
+    <Style x:Key="PiLayerStripStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="3,0,0,0"/>
+        <Setter Property="Padding"         Value="10,8"/>
+        <Setter Property="Margin"          Value="0,0,0,4"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiLayerTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"          Value="10"/>
+        <Setter Property="FontWeight"        Value="Bold"/>
+        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="MinWidth"          Value="108"/>
+    </Style>
+
+    <Style x:Key="PiSpecLineStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Consolas"/>
+        <Setter Property="FontSize"   Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style x:Key="PiStickyApplyBarStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding"         Value="12,8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiVerticalRuleStyle" TargetType="Border">
+        <Setter Property="Width"      Value="1"/>
+        <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="Margin"     Value="10,0"/>
+    </Style>
+
+    <Style x:Key="PiTableHeaderStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding"         Value="10,6"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiDatePickerStyle" TargetType="DatePicker">
+        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderThickness"          Value="1"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="Padding"                  Value="10,0"/>
+        <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PiComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderThickness"          Value="1"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="Padding"                  Value="12,0"/>
+        <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="PiEditableComboBoxStyle" TargetType="ComboBox"
+           BasedOn="{StaticResource PiComboBoxStyle}">
+        <Setter Property="IsEditable"          Value="True"/>
+        <Setter Property="IsTextSearchEnabled" Value="True"/>
+        <Setter Property="TextSearch.TextPath" Value="."/>
+    </Style>
+
+    <Style x:Key="PiSpecTabControlStyle" TargetType="TabControl">
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding"         Value="0"/>
+        <Setter Property="ItemContainerStyle">
+            <Setter.Value>
+                <Style TargetType="TabItem">
+                    <Setter Property="Padding"    Value="12,6"/>
+                    <Setter Property="FontSize"   Value="11"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="TabBd"
+                                        Background="Transparent"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderThickness="0,0,0,2"
+                                        Padding="{TemplateBinding Padding}"
+                                        Margin="0,0,8,0"
+                                        SnapsToDevicePixels="True">
+                                    <ContentPresenter ContentSource="Header"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="TabBd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TabBd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- View-all link used via BasedOn inside Button.Style only. -->
     <Style x:Key="PiViewAllLinkStyle" TargetType="Button">
         <Setter Property="Background"      Value="Transparent"/>

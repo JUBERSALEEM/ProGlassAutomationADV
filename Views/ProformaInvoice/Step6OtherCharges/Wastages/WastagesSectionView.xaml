@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages.WastagesSectionView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages.WastagesSectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -138,30 +138,13 @@
             </Grid.ColumnDefinitions>
 
             <!-- Title group -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Border Background="{DynamicResource TintIndigoBrush}"
-                        Width="34" Height="34"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                        VerticalAlignment="Center"
-                        Margin="0,0,12,0">
-                    <!-- Segoe MDL2 color / palette icon -->
-                    <TextBlock Text="&#xE790;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="{DynamicResource AccentBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="Glass Wastages"
-                               FontSize="14"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Auto-aggregated by color from the data grid"
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,2,0,0"/>
-                </StackPanel>
+            <StackPanel Grid.Column="0">
+                <TextBlock Text="WASTAGE"
+                           Style="{StaticResource PiSectionLabelStyle}"
+                           Margin="0"/>
+                <TextBlock Text="Auto-aggregated by colour from the data grid"
+                           FontSize="11"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
             <!-- Add wastage row button -->

@@ -2,7 +2,8 @@
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step1CompanySetup/CompanySetupView.xaml
 ═══════════════════════════════════════════════════════════════════════
-Industrial work surface. Bindings, commands and AutomationIds unchanged.
+One workbench: LETTERHEAD + DOCUMENT IDENTITY | saved companies.
+Bindings, commands and AutomationIds unchanged.
 Theme: DynamicResource only (light / dark / Monet).
 ═══════════════════════════════════════════════════════════════════════
 -->
@@ -22,131 +23,89 @@ Theme: DynamicResource only (light / dark / Monet).
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock"
                BasedOn="{StaticResource PiFieldLabelStyle}"/>
-
         <Style x:Key="InlineWarningStyle" TargetType="TextBlock"
                BasedOn="{StaticResource ModuleInlineWarningStyle}"/>
-
-        <Style x:Key="StepDatePickerStyle" TargetType="DatePicker">
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="10,0"/>
-            <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                </Trigger>
-                <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <Style x:Key="StepComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="12,0"/>
-            <Setter Property="Height"                   Value="{DynamicResource DensityInputHeight}"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                </Trigger>
-                <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <Style x:Key="ViewAllLinkStyle" TargetType="Button"
                BasedOn="{StaticResource PiViewAllLinkStyle}"/>
-
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="14,10,14,12">
-        <StackPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-            <!-- Compact header -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="COMPANY &amp; IDENTIFICATION"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="Letterhead, tax registration and the document identity for this quotation."
-                               Style="{StaticResource ModulePageSubtitleStyle}"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-                <Button Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        ToolTip="Skip to the glass data grid — Step 5"
-                        Command="{Binding GoToGridCommand}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="GoBorder"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Padding="14,0"
-                                    Height="{DynamicResource DensityButtonHeight}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="SKIP TO GRID"
-                                               FontSize="11"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               VerticalAlignment="Center"/>
-                                    <TextBlock Text="&#xE76C;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="8,0,0,0"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="GoBorder"
-                                            Property="Background"
-                                            Value="{DynamicResource AccentHoverBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="GoBorder"
-                                            Property="Background"
-                                            Value="{DynamicResource AccentDarkBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
+        <Grid Grid.Row="0" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="COMPANY &amp; IDENTIFICATION"
+                           Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="Letterhead, tax registration and the document identity for this quotation."
+                           Style="{StaticResource ModulePageSubtitleStyle}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+            <Button Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Cursor="Hand"
+                    ToolTip="Skip to the glass data grid — Step 5"
+                    Command="{Binding GoToGridCommand}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="GoBorder"
+                                Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="14,0"
+                                Height="{DynamicResource DensityButtonHeight}">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="SKIP TO GRID"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="&#xE76C;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="GoBorder"
+                                        Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="GoBorder"
+                                        Property="Background"
+                                        Value="{DynamicResource AccentDarkBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Grid>
 
+        <Border Grid.Row="1" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- ══ FORM ══ -->
-                <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}">
-                    <StackPanel>
+                <ScrollViewer Grid.Column="0"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,0,12,0">
 
                         <TextBlock Text="LETTERHEAD"
                                    Style="{StaticResource PiSectionLabelStyle}"/>
@@ -319,7 +278,7 @@ Theme: DynamicResource only (light / dark / Monet).
                                     <Run Text="ISSUE DATE"/>
                                 </TextBlock>
                                 <DatePicker SelectedDate="{Binding IssueDate}"
-                                            Style="{StaticResource StepDatePickerStyle}"
+                                            Style="{StaticResource PiDatePickerStyle}"
                                             ToolTip="Select the date this proforma was prepared"/>
                             </StackPanel>
 
@@ -329,7 +288,7 @@ Theme: DynamicResource only (light / dark / Monet).
                                     <Run Text="VALID UNTIL"/>
                                 </TextBlock>
                                 <DatePicker SelectedDate="{Binding ValidUntil}"
-                                            Style="{StaticResource StepDatePickerStyle}"
+                                            Style="{StaticResource PiDatePickerStyle}"
                                             ToolTip="Select the proforma expiry date"/>
                             </StackPanel>
 
@@ -340,7 +299,7 @@ Theme: DynamicResource only (light / dark / Monet).
                                 </TextBlock>
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding ProformaStatus}"
-                                          Style="{StaticResource StepComboBoxStyle}"
+                                          Style="{StaticResource PiComboBoxStyle}"
                                           ToolTip="Select the current proforma status"/>
                             </StackPanel>
                         </Grid>
@@ -371,164 +330,166 @@ Theme: DynamicResource only (light / dark / Monet).
                             </TextBlock>
                         </Border>
                     </StackPanel>
-                </Border>
+                </ScrollViewer>
 
-                <!-- ══ SLIM LETTERHEAD LIST ══ -->
-                <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}">
-                    <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="SAVED COMPANIES"
-                                           Style="{StaticResource PiSectionLabelStyle}"
-                                           Margin="0"/>
-                                <TextBlock Text="Click a row to fill the form"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </StackPanel>
-                            <Button Grid.Column="1"
-                                    Command="{Binding RefreshCardsCommand}"
-                                    ToolTip="Refresh saved companies from database"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Cursor="Hand"
-                                    VerticalAlignment="Center">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="RefreshBg"
-                                                Background="Transparent"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="6,4">
-                                            <TextBlock Text="&#xE72C;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="13"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="RefreshBg"
-                                                        Property="Background"
-                                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
-                            </Button>
-                        </Grid>
+                <Border Grid.Column="1" Style="{StaticResource PiVerticalRuleStyle}"/>
 
-                        <StackPanel DockPanel.Dock="Top"
-                                    Orientation="Horizontal"
-                                    Margin="0,0,0,8"
-                                    HorizontalAlignment="Center">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoadingCards}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-                            <Border Width="14" Height="14"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    BorderThickness="2"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    Margin="0,0,8,0"
-                                    VerticalAlignment="Center">
-                                <Border.RenderTransform>
-                                    <RotateTransform x:Name="SpinTransform" CenterX="7" CenterY="7"/>
-                                </Border.RenderTransform>
-                                <Border.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <DoubleAnimation
-                                                    Storyboard.TargetName="SpinTransform"
-                                                    Storyboard.TargetProperty="Angle"
-                                                    From="0" To="360" Duration="0:0:1"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Border.Triggers>
-                            </Border>
-                            <TextBlock Text="Loading…"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
+                <DockPanel Grid.Column="2">
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="SAVED COMPANIES"
+                                       Style="{StaticResource PiSectionLabelStyle}"
+                                       Margin="0"/>
+                            <TextBlock Text="Click a row to fill the form"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
+                        <Button Grid.Column="1"
+                                Command="{Binding RefreshCardsCommand}"
+                                ToolTip="Refresh saved companies from database"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                VerticalAlignment="Center">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="RefreshBg"
+                                            Background="Transparent"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="6,4">
+                                        <TextBlock Text="&#xE72C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="13"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="RefreshBg"
+                                                    Property="Background"
+                                                    Value="{DynamicResource TintIndigoBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
 
-                        <Border DockPanel.Dock="Top">
-                            <Border.Style>
-                                <Style TargetType="Border"
-                                       BasedOn="{StaticResource ModuleErrorBannerStyle}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Setter Property="Padding" Value="10,8"/>
-                                    <Setter Property="Margin" Value="0,0,0,8"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasCardsError}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
-                            <TextBlock Text="{Binding CardsErrorMessage}"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource DangerBrush}"
-                                       TextWrapping="Wrap"/>
+                    <StackPanel DockPanel.Dock="Top"
+                                Orientation="Horizontal"
+                                Margin="0,0,0,8"
+                                HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoadingCards}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <Border Width="14" Height="14"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                BorderThickness="2"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                            <Border.RenderTransform>
+                                <RotateTransform x:Name="SpinTransform" CenterX="7" CenterY="7"/>
+                            </Border.RenderTransform>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="SpinTransform"
+                                                Storyboard.TargetProperty="Angle"
+                                                From="0" To="360" Duration="0:0:1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
                         </Border>
-
-                        <TextBlock DockPanel.Dock="Top"
-                                   Text="No saved companies yet. Save an invoice to build the library."
+                        <TextBlock Text="Loading…"
                                    FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="0,4,0,8">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasNoSavedCompanies}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Border DockPanel.Dock="Top">
+                        <Border.Style>
+                            <Style TargetType="Border"
+                                   BasedOn="{StaticResource ModuleErrorBannerStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Setter Property="Padding" Value="10,8"/>
+                                <Setter Property="Margin" Value="0,0,0,8"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasCardsError}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding CardsErrorMessage}"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   TextWrapping="Wrap"/>
+                    </Border>
+
+                    <TextBlock DockPanel.Dock="Top"
+                               Text="No saved companies yet. Save an invoice to build the library."
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap"
+                               Margin="0,4,0,8">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasNoSavedCompanies}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <Button DockPanel.Dock="Bottom"
+                            HorizontalAlignment="Left"
+                            Margin="0,8,0,0"
+                            Command="{Binding ShowAllCompaniesCommand}"
+                            ToolTip="Show all saved company profiles">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource ViewAllLinkStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasMoreCompanies}"
+                                                 Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   TextDecorations="Underline">
+                            <Run Text="View all ("/>
+                            <Run Text="{Binding TotalCompanyCount, Mode=OneWay}"/>
+                            <Run Text=")"/>
                         </TextBlock>
+                    </Button>
 
-                        <Button DockPanel.Dock="Bottom"
-                                HorizontalAlignment="Left"
-                                Margin="0,8,0,0"
-                                Command="{Binding ShowAllCompaniesCommand}"
-                                ToolTip="Show all saved company profiles">
-                            <Button.Style>
-                                <Style TargetType="Button"
-                                       BasedOn="{StaticResource ViewAllLinkStyle}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasMoreCompanies}"
-                                                     Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <TextBlock FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       TextDecorations="Underline">
-                                <Run Text="View all ("/>
-                                <Run Text="{Binding TotalCompanyCount, Mode=OneWay}"/>
-                                <Run Text=")"/>
-                            </TextBlock>
-                        </Button>
-
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
                         <ItemsControl ItemsSource="{Binding SavedProfiles}">
                             <ItemsControl.Style>
                                 <Style TargetType="ItemsControl">
@@ -588,9 +549,9 @@ Theme: DynamicResource only (light / dark / Monet).
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
-                    </DockPanel>
-                </Border>
+                    </ScrollViewer>
+                </DockPanel>
             </Grid>
-        </StackPanel>
-    </ScrollViewer>
+        </Border>
+    </Grid>
 </UserControl>

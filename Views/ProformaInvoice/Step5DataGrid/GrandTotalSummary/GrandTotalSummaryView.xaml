@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step5DataGrid/GrandTotalSummary/GrandTotalSummaryView.xaml
 
@@ -65,7 +65,7 @@ PRESERVED EXACTLY:
         <Style x:Key="GrandCellStyle" TargetType="TextBlock">
             <Setter Property="FontSize"          Value="13"/>
             <Setter Property="FontWeight"        Value="Bold"/>
-            <Setter Property="Foreground"        Value="White"/>
+            <Setter Property="Foreground"        Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -74,19 +74,9 @@ PRESERVED EXACTLY:
     <!-- ══════════════════════════════════════════════════════════════════
          SUMMARY CARD — indigo accent border, elevated shadow
     ══════════════════════════════════════════════════════════════════ -->
-    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="{DynamicResource CardCornerRadius}"
-            Padding="22"
-            Margin="0,16,0,0"
-            BorderThickness="1"
-            BorderBrush="{DynamicResource AccentBrush}">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="16"
-                              ShadowDepth="3"
-                              Direction="270"
-                              Color="{DynamicResource AccentColor}"
-                              Opacity="0.10"/>
-        </Border.Effect>
+    <Border Background="Transparent"
+            Padding="0"
+            Margin="0,8,0,0">
 
         <StackPanel>
 
@@ -99,25 +89,12 @@ PRESERVED EXACTLY:
                 </Grid.ColumnDefinitions>
 
                 <!-- Icon badge -->
-                <Border Grid.Column="0"
-                        Background="{DynamicResource AccentBrush}"
-                        Width="36" Height="36"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                        VerticalAlignment="Center">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="10"
-                                          ShadowDepth="2"
-                                          Direction="270"
-                                          Color="{DynamicResource AccentColor}"
-                                          Opacity="0.30"/>
-                    </Border.Effect>
-                    <TextBlock Text="&#xE9D2;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="16"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
+                <TextBlock Grid.Column="0"
+                           Text="&#xE9D2;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="16"
+                           Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center"/>
 
                 <!-- Title + subtitle -->
                 <StackPanel Grid.Column="1"
@@ -150,7 +127,7 @@ PRESERVED EXACTLY:
                         <TextBlock Text="{Binding TotalSpecGroups}"
                                    FontSize="13"
                                    FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -315,13 +292,7 @@ PRESERVED EXACTLY:
                         <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                     </LinearGradientBrush>
                 </Border.Background>
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="14"
-                                      ShadowDepth="3"
-                                      Direction="270"
-                                      Color="{DynamicResource AccentColor}"
-                                      Opacity="0.35"/>
-                </Border.Effect>
+
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -338,7 +309,7 @@ PRESERVED EXACTLY:
                                Text="&#xEB95;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="16"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
 
@@ -346,7 +317,7 @@ PRESERVED EXACTLY:
                                Text="GRAND TOTAL"
                                FontSize="13"
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                VerticalAlignment="Center"
                                Margin="6,0,0,0"/>
 
@@ -373,7 +344,7 @@ PRESERVED EXACTLY:
                                    StringFormat=AED {0:N2}}"
                                FontSize="15"
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Right"
                                VerticalAlignment="Center"/>
                 </Grid>
