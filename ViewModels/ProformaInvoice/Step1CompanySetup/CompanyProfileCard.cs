@@ -27,6 +27,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public string LastUsed { get; set; } = "";
         public string LogoPath { get; set; } = "";
         public string Representative { get; set; } = "";
+        public string RepresentativeMobile { get; set; } = "";
+        public string CompanyEmail { get; set; } = "";
+        public string AccountNumber { get; set; } = "";
+        public string BankName { get; set; } = "";
         public bool IsDefault { get; set; }
 
         /// <summary>

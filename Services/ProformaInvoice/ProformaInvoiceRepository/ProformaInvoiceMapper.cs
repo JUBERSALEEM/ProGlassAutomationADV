@@ -432,6 +432,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.IssueDate = snap.Company.IssueDate;
                 company.ValidUntil = snap.Company.ValidUntil;
                 company.ProformaStatus = snap.Company.ProformaStatus ?? "Draft";
+                company.Representative = snap.Company.Representative ?? "";
+                company.RepresentativeMobile = snap.Company.RepresentativeMobile ?? "";
+                company.CompanyEmail = snap.Company.CompanyEmail ?? "";
+                company.AccountNumber = snap.Company.AccountNumber ?? "";
+                company.BankName = snap.Company.BankName ?? "";
+                company.LogoPath = snap.Company.LogoPath ?? "";
+                company.CompanyRecordId = snap.Company.CompanyRecordId;
             }
 
             // ── Step 2: Client ─────────────────────────────────────────

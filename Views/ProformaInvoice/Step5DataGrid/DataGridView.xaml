@@ -609,7 +609,7 @@ PRESERVED EXACTLY:
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="20,16"
+                    Padding="14,12"
                     Margin="0,0,0,16"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
@@ -671,8 +671,8 @@ PRESERVED EXACTLY:
                         <Border
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="14"
-                            Margin="0,0,0,12"
+                            Padding="10"
+                            Margin="0,0,0,8"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             SnapsToDevicePixels="True">
@@ -776,7 +776,7 @@ PRESERVED EXACTLY:
                                 </Grid>
 
                                 <!-- Three-price display -->
-                                <StackPanel Orientation="Horizontal"
+                               <StackPanel Orientation="Horizontal"
                                             Margin="0,0,0,14">
 
                                     <!-- IMPORTED PRICE — fixed indigo badge -->
@@ -1482,7 +1482,7 @@ PRESERVED EXACTLY:
                                                                              Value="True">
                                                                         <Setter TargetName="GB"
                                                                             Property="Background"
-                                                                            Value="#C7D2FE"/>
+                                                                            Value="{DynamicResource TintIndigoBrush}"/>
                                                                     </Trigger>
                                                                 </ControlTemplate.Triggers>
                                                             </ControlTemplate>
@@ -1599,3 +1599,4 @@ PRESERVED EXACTLY:
     </ScrollViewer>
 
 </UserControl>
+

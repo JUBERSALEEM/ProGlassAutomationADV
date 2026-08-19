@@ -2,26 +2,8 @@
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsView.xaml
 ═══════════════════════════════════════════════════════════════════════
-CHAT 15 — PROJECT REFERENCE FEATURE ADDED
-  Intentional changes (11):
-    - d:DesignHeight 800→900 (accommodates new row)
-    - Card middle section: 2 rows → 3 labeled rows
-      (Project Name/No + Reference + Client)
-    - Form Row 1 label "PROJECT / CONTRACT NO" → "PROJECT NAME / NO"
-    - Form Row 1 tooltips updated to match new semantics
-    - Form: NEW Row 2 full-width PROJECT REFERENCE field
-    - Old Row 2 (Site + LPO) shifted to Row 3
-    - Tooltip examples aligned to user's real data (IMAD HABIB, AJMAN, 2680)
-  All P-XX comment tags + banner comments preserved from your original.
-
-CHAT 17 — UI POLISH + BUG FIXES
-  UI-01: Saved Projects card → indigo top stripe added.
-  UI-02: Section header icon → solid #4338CA / white icon.
-  UI-03: Empty state → solid #4338CA circle / white &#xE8A5; icon.
-  BUG-01: ViewAllLinkStyle template — replaced Text={TemplateBinding Content}
-          with ContentPresenter. Fixes Run+Run+Run rendering inside Button.
-          Matches Step1 and Step2 ViewAllLinkStyle pattern exactly.
-  All P-XX tags, bindings, tooltips, comments preserved.
+Industrial work surface. Bindings, commands and AutomationIds unchanged.
+Theme: DynamicResource only (light / dark / Monet).
 ═══════════════════════════════════════════════════════════════════════
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
@@ -31,7 +13,7 @@ CHAT 17 — UI POLISH + BUG FIXES
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="900"
-             d:DesignWidth="900"
+             d:DesignWidth="1100"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -42,110 +24,32 @@ CHAT 17 — UI POLISH + BUG FIXES
     <UserControl.Resources>
 
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock"
-               BasedOn="{StaticResource ModuleFieldLabelStyle}"/>
+               BasedOn="{StaticResource PiFieldLabelStyle}"/>
 
         <Style x:Key="InlineWarningStyle" TargetType="TextBlock"
                BasedOn="{StaticResource ModuleInlineWarningStyle}"/>
 
-        <!-- Project card hover style -->
-        <Style x:Key="ProjectCardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="18,16"/>
-            <Setter Property="Margin"          Value="0,0,8,8"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="Background"  Value="{DynamicResource TintIndigoBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Usage badge pill -->
-        <Style x:Key="UsageBadgeStyle" TargetType="Border">
-            <Setter Property="Background"   Value="{DynamicResource TintIndigoBrush}"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Padding"      Value="6,3"/>
-        </Style>
-
-        <!--
-            VIEW ALL LINK STYLE
-            Used with BasedOn inside Button.Style — never as direct Style= attribute.
-            BUG-01 FIX: Replaced Text={TemplateBinding Content} with ContentPresenter.
-            ContentPresenter correctly renders Run+Run+Run TextBlock content
-            that is set as Button.Content in the markup below.
-            Matches Step1CompanySetup and Step2ClientProfile pattern exactly.
-        -->
-        <Style x:Key="ViewAllLinkStyle" TargetType="Button">
-            <Setter Property="Background"      Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="Padding"         Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <TextBlock x:Name="LinkText"
-                                   FontSize="12"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   TextDecorations="Underline">
-                            <ContentPresenter/>
-                        </TextBlock>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="LinkText"
-                                        Property="Foreground"
-                                        Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="ViewAllLinkStyle" TargetType="Button"
+               BasedOn="{StaticResource PiViewAllLinkStyle}"/>
 
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="16,12,16,16">
+                  Padding="14,10,14,12">
         <StackPanel>
 
-            <!-- ══════════════════════════════════════════════════════
-                 STEP HEADER
-            ══════════════════════════════════════════════════════ -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Style="{StaticResource ModuleWizardStepIconStyle}">
-                    <TextBlock Text="&#xE8A5;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="18"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="Project Specifications"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock
-                        Text="Select a saved project or enter building site details, contract and LPO numbers."
-                        Style="{StaticResource ModulePageSubtitleStyle}"
-                        TextWrapping="Wrap"/>
-                </StackPanel>
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="PROJECT SPECIFICATIONS"
+                           Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="Site, contract and LPO references for this quotation."
+                           Style="{StaticResource ModulePageSubtitleStyle}"
+                           TextWrapping="Wrap"/>
             </StackPanel>
 
-            <!-- Divider -->
-            <Border Background="{DynamicResource BorderBrush}"
-                    Height="1"
-                    Margin="0,20,0,24"/>
-
-            <!-- ══════════════════════════════════════════════════════
-                 P-06: CLIENT FILTER BANNER
-            ══════════════════════════════════════════════════════ -->
             <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="14,10"
-                    Margin="0,0,0,16"
+                    Padding="10,8"
+                    Margin="0,0,0,10"
                     Background="{DynamicResource TintIndigoBrush}"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="1">
@@ -166,23 +70,19 @@ CHAT 17 — UI POLISH + BUG FIXES
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBlock Grid.Column="0"
                                Text="&#xE71C;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="13"
+                               FontSize="12"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
-
+                               Margin="0,0,8,0"/>
                     <TextBlock Grid.Column="1"
                                Text="{Binding FilterBannerText}"
                                FontSize="12"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"/>
-
-                    <!-- P-07: Clear filter -->
                     <Button Grid.Column="2"
                             Command="{Binding ClearClientFilterCommand}"
                             ToolTip="Remove client filter — show all projects"
@@ -205,7 +105,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="ClearBg"
                                                 Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                                Value="{DynamicResource MenuHoverBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -214,543 +114,330 @@ CHAT 17 — UI POLISH + BUG FIXES
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════
-                 SAVED PROJECT CARDS SECTION
-                 UI-01: Indigo top stripe added.
-                 UI-02: Section header icon → solid #4338CA / white.
-                 UI-03: Empty state → solid #4338CA circle / white icon.
-            ══════════════════════════════════════════════════════ -->
-            <Border Margin="0,0,0,24"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    ClipToBounds="True">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="4"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <!-- UI-01: Indigo top stripe -->
-                    <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="12,12,0,0"/>
+                <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}">
+                    <StackPanel>
 
-                    <!-- Card body -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            Padding="16,14,16,16">
-                        <StackPanel>
+                        <TextBlock Text="PROJECT"
+                                   Style="{StaticResource PiSectionLabelStyle}"/>
 
-                            <!-- Section header -->
-                            <Grid Margin="0,0,0,18">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0"
-                                            Orientation="Horizontal">
-                                    <!--
-                                        UI-02: Solid #4338CA icon block.
-                                        Was #EEF2FF. Matches Step 1 & 2.
-                                    -->
-                                    <Border Background="{DynamicResource AccentBrush}"
-                                            Width="28"
-                                            Height="28"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            VerticalAlignment="Center"
-                                            Margin="0,0,10,0">
-                                        <TextBlock Text="&#xE8A5;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="13"
-                                                   Foreground="White"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="Saved Projects"
-                                                   FontSize="14"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Click a card to auto-fill project details"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <!-- P-11: Refresh button -->
-                                <Button Grid.Column="1"
-                                        Command="{Binding RefreshCardsCommand}"
-                                        ToolTip="Refresh saved projects from database"
-                                        Background="Transparent"
-                                        BorderThickness="0"
-                                        Cursor="Hand"
-                                        VerticalAlignment="Center">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="RefreshBg"
-                                                    Background="Transparent"
-                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Padding="8,6">
-                                                <TextBlock Text="&#xE72C;"
-                                                           FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="14"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="RefreshBg"
-                                                            Property="Background"
-                                                            Value="{DynamicResource TintIndigoBrush}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
-                            </Grid>
-
-                            <!-- P-04: LOADING STATE -->
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,8,0,16"
-                                        HorizontalAlignment="Center">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsLoadingCards}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-                                <Border Width="18"
-                                        Height="18"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
-                                        BorderThickness="2"
-                                        BorderBrush="{DynamicResource AccentBrush}"
-                                        Margin="0,0,10,0"
-                                        VerticalAlignment="Center">
-                                    <Border.RenderTransform>
-                                        <RotateTransform x:Name="ProjectSpinTransform"
-                                                         CenterX="9"
-                                                         CenterY="9"/>
-                                    </Border.RenderTransform>
-                                    <Border.Triggers>
-                                        <EventTrigger RoutedEvent="Loaded">
-                                            <BeginStoryboard>
-                                                <Storyboard RepeatBehavior="Forever">
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetName="ProjectSpinTransform"
-                                                        Storyboard.TargetProperty="Angle"
-                                                        From="0"
-                                                        To="360"
-                                                        Duration="0:0:1"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                    </Border.Triggers>
-                                </Border>
-                                <TextBlock Text="Loading saved projects…"
-                                           FontSize="13"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           ToolTip="Short project designation, e.g. IMAD HABIB">
+                                    <Run Text="PROJECT IDENTIFIER NAME"/>
+                                </TextBlock>
+                                <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. IMAD HABIB"
+                                         AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
+                                         AutomationProperties.Name="Project identifier name"/>
                             </StackPanel>
 
-                            <!-- P-05: ERROR STATE -->
-                            <Border>
-                                <Border.Style>
-                                    <Style TargetType="Border"
-                                           BasedOn="{StaticResource ModuleErrorBannerStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Setter Property="Padding" Value="14,10"/>
-                                        <Setter Property="Margin" Value="0,0,0,12"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasCardsError}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE783;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="14"
-                                               Foreground="{DynamicResource DangerBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"/>
-                                    <TextBlock Text="{Binding CardsErrorMessage}"
-                                               FontSize="12"
-                                               Foreground="{DynamicResource DangerBrush}"
-                                               VerticalAlignment="Center"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- P-03: EMPTY STATE -->
-                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Padding="24,20"
-                                    Margin="0,0,0,8"
-                                    Background="{DynamicResource WindowBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasNoSavedProjects}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel HorizontalAlignment="Center">
-                                    <!--
-                                        UI-03: Solid #4338CA circle with white icon.
-                                        Was Opacity=0.4 glyph. Matches Step 1 & 2.
-                                    -->
-                                    <Border Width="40"
-                                            Height="40"
-                                            CornerRadius="{DynamicResource CardCornerRadius}"
-                                            Background="{DynamicResource AccentBrush}"
-                                            HorizontalAlignment="Center"
-                                            Margin="0,0,0,8">
-                                        <TextBlock Text="&#xE8A5;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="26"
-                                                   Foreground="White"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <TextBlock Text="No saved projects yet"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock
-                                        Text="Save your first invoice to build your project library."
-                                        FontSize="12"
-                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                        HorizontalAlignment="Center"
-                                        Margin="0,6,0,0"
-                                        TextWrapping="Wrap"
-                                        TextAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- P-02: PROJECT CARDS GRID -->
-                            <ItemsControl ItemsSource="{Binding SavedProjectCards}">
-                                <ItemsControl.Style>
-                                    <Style TargetType="ItemsControl">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsLoadingCards}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                            <DataTrigger Binding="{Binding HasNoSavedProjects}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ItemsControl.Style>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Columns="3"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Style="{StaticResource ProjectCardStyle}"
-                                                ToolTip="Click to auto-fill project details">
-                                            <Border.InputBindings>
-                                                <MouseBinding
-                                                    MouseAction="LeftClick"
-                                                    Command="{Binding DataContext.LoadProjectCommand,
-                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"/>
-                                            </Border.InputBindings>
-
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="*"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <!-- Top: Project identifier name + badge -->
-                                                <Grid Grid.Row="0" Margin="0,0,0,10">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="{Binding ProjectIdentifierName}"
-                                                               FontSize="14"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                               TextWrapping="Wrap"
-                                                               VerticalAlignment="Top"/>
-                                                    <Border Grid.Column="1"
-                                                            Style="{StaticResource UsageBadgeStyle}"
-                                                            VerticalAlignment="Top"
-                                                            Margin="6,0,0,0">
-                                                        <TextBlock Text="{Binding UsageBadgeText}"
-                                                                   FontSize="9"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                                    </Border>
-                                                </Grid>
-
-                                                <!-- Middle: 3 labeled rows -->
-                                                <StackPanel Grid.Row="1">
-
-                                                    <!-- Project Name/No -->
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Margin="0,0,0,4">
-                                                        <TextBlock Text="&#xE8A5;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="10"
-                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="0,0,6,0"/>
-                                                        <TextBlock FontSize="11"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
-                                                            <Run Text="Project Name/No: "
-                                                                 FontWeight="SemiBold"
-                                                                 Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                            <Run Text="{Binding ContractPreview, Mode=OneWay}"/>
-                                                        </TextBlock>
-                                                    </StackPanel>
-
-                                                    <!-- Reference (NEW Chat 15) -->
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Margin="0,0,0,4">
-                                                        <TextBlock Text="&#xE8EC;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="10"
-                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="0,0,6,0"/>
-                                                        <TextBlock FontSize="11"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
-                                                            <Run Text="Reference: "
-                                                                 FontWeight="SemiBold"
-                                                                 Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                            <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
-                                                        </TextBlock>
-                                                    </StackPanel>
-
-                                                    <!-- Client -->
-                                                    <StackPanel Orientation="Horizontal"
-                                                                Margin="0,0,0,12">
-                                                        <TextBlock Text="&#xE77B;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="10"
-                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="0,0,6,0"/>
-                                                        <TextBlock FontSize="11"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                   VerticalAlignment="Center"
-                                                                   TextTrimming="CharacterEllipsis">
-                                                            <Run Text="Client: "
-                                                                 FontWeight="SemiBold"
-                                                                 Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                            <Run Text="{Binding CustomerPreview, Mode=OneWay}"/>
-                                                        </TextBlock>
-                                                    </StackPanel>
-                                                </StackPanel>
-
-                                                <!-- Bottom: Load indicator -->
-                                                <StackPanel Grid.Row="2"
-                                                            Orientation="Horizontal">
-                                                    <TextBlock Text="&#xE72D;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="10"
-                                                               Foreground="{DynamicResource AccentBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,5,0"/>
-                                                    <TextBlock Text="Click to load"
-                                                               FontSize="10"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource AccentBrush}"
-                                                               VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!--
-                                P-08: VIEW ALL LINK
-                                Button.Style uses BasedOn — sets Style once only.
-                                No Style= attribute on Button element.
-                                BUG-01 FIX: ContentPresenter inside TextBlock renders
-                                Run+Run+Run content correctly.
-                            -->
-                            <Button HorizontalAlignment="Left"
-                                    Margin="4,8,0,0"
-                                    Command="{Binding ShowAllProjectsCommand}"
-                                    ToolTip="Show all saved project profiles">
-                                <Button.Style>
-                                    <Style TargetType="Button"
-                                           BasedOn="{StaticResource ViewAllLinkStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasMoreProjects}"
-                                                         Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <TextBlock FontSize="12"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           TextDecorations="Underline">
-                                    <Run Text="View all ("/>
-                                    <Run Text="{Binding TotalProjectCount, Mode=OneWay}"/>
-                                    <Run Text=")"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           ToolTip="Project name combined with project number, e.g. 428 IMAD HABIB">
+                                    <Run Text="PROJECT NAME / NO"/>
                                 </TextBlock>
-                            </Button>
+                                <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. 428 IMAD HABIB"/>
+                            </StackPanel>
+                        </Grid>
 
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                       ToolTip="Full descriptive reference — site, building, or purpose">
+                                <Run Text="PROJECT REFERENCE"/>
+                            </TextBlock>
+                            <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="e.g. HOUSE FOR IMAD HABIB — full descriptive text"/>
                         </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
 
-            <!-- P-09: LOADED PROFILE SUCCESS INDICATOR -->
-            <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="14,10"
-                    Margin="0,0,0,20"
-                    HorizontalAlignment="Left">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility"      Value="Collapsed"/>
-                        <Setter Property="Background"      Value="{DynamicResource TintGreenBrush}"/>
-                        <Setter Property="BorderBrush"     Value="{DynamicResource SuccessBrush}"/>
-                        <Setter Property="BorderThickness" Value="1"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasLoadedProfile}"
-                                         Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <StackPanel Orientation="Horizontal">
-                    <Border Background="{DynamicResource SuccessBrush}"
-                            Width="20"
-                            Height="20"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            VerticalAlignment="Center"
-                            Margin="0,0,10,0">
-                        <TextBlock Text="&#xE73E;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="10"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock FontSize="12"
-                               Foreground="{DynamicResource SuccessBrush}"
-                               VerticalAlignment="Center">
-                        <Run Text="Project loaded: "/>
-                        <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-            <!-- ══════════════════════════════════════════════════════
-                 PROJECT FIELDS
-                 CHAT 15: 3-row layout to accommodate PROJECT REFERENCE field
-                   Row 1: PROJECT IDENTIFIER NAME | PROJECT NAME / NO
-                   Row 2: PROJECT REFERENCE (full width)
-                   Row 3: SITE / DELIVERY LOCATION | LPO / PURCHASE ORDER NO
-            ══════════════════════════════════════════════════════ -->
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           ToolTip="Full delivery address or site location for this order">
+                                    <Run Text="SITE / DELIVERY LOCATION"/>
+                                </TextBlock>
+                                <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. AJMAN"/>
+                            </StackPanel>
 
-            <!-- Row 1: Project Identifier Name + Project Name / No -->
-            <Grid Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           ToolTip="Client's Local Purchase Order reference number">
+                                    <Run Text="LPO / PURCHASE ORDER NO"/>
+                                </TextBlock>
+                                <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. 2680"/>
+                            </StackPanel>
+                        </Grid>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Style="{StaticResource FieldLabelStyle}"
-                               ToolTip="Short project designation, e.g. IMAD HABIB">
-                        <Run Text="PROJECT IDENTIFIER NAME"/>
-                    </TextBlock>
-                    <TextBox Text="{Binding ProjectIdentifierName,
-                                 UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. IMAD HABIB"
-                             AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
-                             AutomationProperties.Name="Project identifier name"/>
-                </StackPanel>
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="10,8"
+                                Margin="0,12,0,0"
+                                HorizontalAlignment="Left">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility"      Value="Collapsed"/>
+                                    <Setter Property="Background"      Value="{DynamicResource TintGreenBrush}"/>
+                                    <Setter Property="BorderBrush"     Value="{DynamicResource SuccessBrush}"/>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasLoadedProfile}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock FontSize="12"
+                                       Foreground="{DynamicResource SuccessBrush}">
+                                <Run Text="Loaded: "/>
+                                <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
+                </Border>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Style="{StaticResource FieldLabelStyle}"
-                               ToolTip="Project name combined with project number, e.g. 428 IMAD HABIB">
-                        <Run Text="PROJECT NAME / NO"/>
-                    </TextBlock>
-                    <TextBox Text="{Binding ProjectContractNo,
-                                 UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. 428 IMAD HABIB"/>
-                </StackPanel>
+                <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}">
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="SAVED PROJECTS"
+                                           Style="{StaticResource PiSectionLabelStyle}"
+                                           Margin="0"/>
+                                <TextBlock Text="Click a row to fill the form"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Command="{Binding RefreshCardsCommand}"
+                                    ToolTip="Refresh saved projects from database"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Cursor="Hand"
+                                    VerticalAlignment="Center">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="RefreshBg"
+                                                Background="Transparent"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="6,4">
+                                            <TextBlock Text="&#xE72C;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="13"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="RefreshBg"
+                                                        Property="Background"
+                                                        Value="{DynamicResource TintIndigoBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
+                        <StackPanel DockPanel.Dock="Top"
+                                    Orientation="Horizontal"
+                                    Margin="0,0,0,8"
+                                    HorizontalAlignment="Center">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoadingCards}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Border Width="14" Height="14"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    BorderThickness="2"
+                                    BorderBrush="{DynamicResource AccentBrush}"
+                                    Margin="0,0,8,0"
+                                    VerticalAlignment="Center">
+                                <Border.RenderTransform>
+                                    <RotateTransform x:Name="ProjectSpinTransform" CenterX="7" CenterY="7"/>
+                                </Border.RenderTransform>
+                                <Border.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard RepeatBehavior="Forever">
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="ProjectSpinTransform"
+                                                    Storyboard.TargetProperty="Angle"
+                                                    From="0" To="360" Duration="0:0:1"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </Border.Triggers>
+                            </Border>
+                            <TextBlock Text="Loading…"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Border DockPanel.Dock="Top">
+                            <Border.Style>
+                                <Style TargetType="Border"
+                                       BasedOn="{StaticResource ModuleErrorBannerStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Setter Property="Padding" Value="10,8"/>
+                                    <Setter Property="Margin" Value="0,0,0,8"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasCardsError}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="{Binding CardsErrorMessage}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource DangerBrush}"
+                                       TextWrapping="Wrap"/>
+                        </Border>
+
+                        <TextBlock DockPanel.Dock="Top"
+                                   Text="No saved projects yet. Save an invoice to build the library."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,8">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasNoSavedProjects}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <Button DockPanel.Dock="Bottom"
+                                HorizontalAlignment="Left"
+                                Margin="0,8,0,0"
+                                Command="{Binding ShowAllProjectsCommand}"
+                                ToolTip="Show all saved project profiles">
+                            <Button.Style>
+                                <Style TargetType="Button"
+                                       BasedOn="{StaticResource ViewAllLinkStyle}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasMoreProjects}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <TextBlock FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       TextDecorations="Underline">
+                                <Run Text="View all ("/>
+                                <Run Text="{Binding TotalProjectCount, Mode=OneWay}"/>
+                                <Run Text=")"/>
+                            </TextBlock>
+                        </Button>
+
+                        <ItemsControl ItemsSource="{Binding SavedProjectCards}">
+                            <ItemsControl.Style>
+                                <Style TargetType="ItemsControl">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoadingCards}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasNoSavedProjects}"
+                                                     Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ItemsControl.Style>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource PiSlimRowStyle}"
+                                            ToolTip="Click to auto-fill project details">
+                                        <Border.InputBindings>
+                                            <MouseBinding
+                                                MouseAction="LeftClick"
+                                                Command="{Binding DataContext.LoadProjectCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"/>
+                                        </Border.InputBindings>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding ProjectIdentifierName}"
+                                                           FontSize="13"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock FontSize="11"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis">
+                                                    <Run Text="{Binding ContractPreview, Mode=OneWay}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding CustomerPreview, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding ReferencePreview}"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                            <Border Grid.Column="1"
+                                                    Style="{StaticResource PiUsageBadgeStyle}"
+                                                    Margin="8,0,0,0">
+                                                <TextBlock Text="{Binding UsageBadgeText}"
+                                                           FontSize="9"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DockPanel>
+                </Border>
             </Grid>
-
-            <!-- Row 2: PROJECT REFERENCE (full width) — CHAT 15: NEW FIELD -->
-            <StackPanel Margin="0,0,0,16">
-                <TextBlock Style="{StaticResource FieldLabelStyle}"
-                           ToolTip="Full descriptive reference — site, building, or purpose">
-                    <Run Text="PROJECT REFERENCE"/>
-                </TextBlock>
-                <TextBox Text="{Binding ProjectReference,
-                             UpdateSourceTrigger=PropertyChanged}"
-                         ToolTip="e.g. HOUSE FOR IMAD HABIB — full descriptive text"/>
-            </StackPanel>
-
-            <!-- Row 3: Site / Delivery Location + LPO / Purchase Order No -->
-            <Grid Margin="0,0,0,16">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Style="{StaticResource FieldLabelStyle}"
-                               ToolTip="Full delivery address or site location for this order">
-                        <Run Text="SITE / DELIVERY LOCATION"/>
-                    </TextBlock>
-                    <TextBox Text="{Binding SiteDeliveryLocation,
-                                 UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. AJMAN"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Style="{StaticResource FieldLabelStyle}"
-                               ToolTip="Client's Local Purchase Order reference number">
-                        <Run Text="LPO / PURCHASE ORDER NO"/>
-                    </TextBlock>
-                    <TextBox Text="{Binding LpoNumber,
-                                 UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. 2680"/>
-                </StackPanel>
-            </Grid>
-
         </StackPanel>
     </ScrollViewer>
 </UserControl>

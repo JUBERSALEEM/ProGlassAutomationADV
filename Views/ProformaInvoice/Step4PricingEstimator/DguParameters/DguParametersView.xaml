@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -125,15 +125,45 @@
                  AIR SPACER + FABRICATION EXTRAS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Header="FABRICATION EXTRAS">
+                      Header="AIR SPACER &amp; EXTRAS"
+                      Tag="{Binding SpacerWidth}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="1.2*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="1.6*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
+                        <TextBlock Text="SPACER WIDTH" Style="{StaticResource Step4LabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding SpacerWidthOptions}"
+                                  SelectedItem="{Binding SpacerWidth}"
+                                  Style="{StaticResource Step4ComboStyle}"
+                                  ToolTip="Air-spacer width. Load-bearing for the spec name."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="SPACER MATERIAL" Style="{StaticResource Step4LabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding SpacerMaterialOptions}"
+                                  SelectedItem="{Binding SpacerMaterial}"
+                                  Style="{StaticResource Step4ComboStyle}"
+                                  ToolTip="Spacer body. Changing material auto-suggests the spacer price."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="SPACER / SQM" Style="{StaticResource Step4LabelStyle}"/>
+                        <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
+                                 Style="{StaticResource Step4InputStyle}"
+                                 ToolTip="Auto-suggested from width and material. Editable."/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="6">
                         <TextBlock Text="SPACER EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
                                   SelectedItem="{Binding SpacerExtra}"
@@ -141,7 +171,7 @@
                                   ToolTip="U-Insert variants. Appears on the spacer segment of the spec name."/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="8">
                         <TextBlock Text="PANEL EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding PanelExtraOptions}"
                                   SelectedItem="{Binding PanelExtra}"

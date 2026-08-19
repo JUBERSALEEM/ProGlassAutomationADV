@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step1CompanySetup/CompanySetupViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — ALL FIXES APPLIED
@@ -173,11 +173,74 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         // ═══════════════════════════════════════════════════════════════
 
         // v2 — rich company profile carried from Company Center.
-        public string Representative { get; set; } = "";
-        public string RepresentativeMobile { get; set; } = "";
-        public string CompanyEmail { get; set; } = "";
-        public string AccountNumber { get; set; } = "";
-        public string BankName { get; set; } = "";
+        // These used to be auto-properties with no INPC. Binding them on
+        // the industrial form would accept keystrokes but never refresh
+        // when a saved card (or the demo walk) loaded a profile.
+        private string _representative = "";
+        public string Representative
+        {
+            get => _representative;
+            set
+            {
+                if (_representative == value) return;
+                _representative = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _representativeMobile = "";
+        public string RepresentativeMobile
+        {
+            get => _representativeMobile;
+            set
+            {
+                if (_representativeMobile == value) return;
+                _representativeMobile = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _companyEmail = "";
+        public string CompanyEmail
+        {
+            get => _companyEmail;
+            set
+            {
+                if (_companyEmail == value) return;
+                _companyEmail = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _accountNumber = "";
+        public string AccountNumber
+        {
+            get => _accountNumber;
+            set
+            {
+                if (_accountNumber == value) return;
+                _accountNumber = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _bankName = "";
+        public string BankName
+        {
+            get => _bankName;
+            set
+            {
+                if (_bankName == value) return;
+                _bankName = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
         public string LogoPath { get; set; } = "";
         public int CompanyRecordId { get; set; }
 
@@ -346,6 +409,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         UsageCount = c.UsageCount,
                         LogoPath = c.LogoPath ?? "",
                         Representative = c.Representative ?? "",
+                        RepresentativeMobile = c.RepresentativeMobile ?? "",
+                        CompanyEmail = c.CompanyEmail ?? "",
+                        AccountNumber = c.AccountNumber ?? "",
+                        BankName = c.BankName ?? "",
                         IsDefault = c.IsDefault,
                         // E-FIX: DateTime is non-nullable — check against default
                         LastUsed = c.LastUsedAt != default(DateTime)

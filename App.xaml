@@ -32,6 +32,10 @@
                      instead of each keeping its own drifting copy. -->
                 <ResourceDictionary Source="Styles/Step4SectionStyles.xaml"/>
 
+                <!-- Proforma Invoice industrial work-surface / KPI / ACTIONS
+                     primitives. DynamicResource only — light, dark, Monet. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PiIndustrialStyles.xaml"/>
+
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 

@@ -243,7 +243,7 @@ namespace ProGlassAutomation.Services.Recording
                 DemoRecordingChrome.ShowSaved(
                     mp4,
                     probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
-                    jpegs.Count,
+                    EncodedFrames,
                     audioNote);
             }
             catch (OperationCanceledException)

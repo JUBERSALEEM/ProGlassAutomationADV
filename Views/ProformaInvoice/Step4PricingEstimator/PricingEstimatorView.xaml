@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml
 ═══════════════════════════════════════════════════════════════════════
@@ -60,35 +60,14 @@ CHAT 17 — PERFORMANCE + UI POLISH
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="20,10,24,10">
+                  Padding="14,10,14,12">
         <StackPanel>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 STEP HEADER
-            ══════════════════════════════════════════════════════════ -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="30"
-                        Height="30"
-                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                        VerticalAlignment="Center">
-                    <TextBlock Text="&#xE8EF;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-
-                <TextBlock Text="Smart Pricing Estimator"
-                           FontSize="16"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="10,0,0,0"/>
-
-                <!-- The subtitle repeated the step name and cost a full line;
-                     the guidance now lives on the controls it describes. -->
+            <StackPanel Margin="0,0,0,8">
+                <TextBlock Text="SMART PRICING ESTIMATOR"
+                           Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="Build the specification, then apply the rate to the selected groups."
+                           Style="{StaticResource ModulePageSubtitleStyle}"/>
             </StackPanel>
 
             <!-- ══════════════════════════════════════════════════════════
@@ -273,41 +252,22 @@ CHAT 17 — PERFORMANCE + UI POLISH
             <!-- ══════════════════════════════════════════════════════════
                  SELECT SPECIFICATION TARGET GROUPS
             ══════════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="10"
-                    Margin="0,6,0,0"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}">
+            <Border Style="{StaticResource PiWorkSurfaceStyle}"
+                    Padding="10,8"
+                    Margin="0,6,0,0">
                 <StackPanel>
 
-                    <Grid Margin="0,0,0,14">
+                    <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <!-- UI-01: Solid #4338CA / White -->
-                            <Border Background="{DynamicResource AccentBrush}"
-                                    Width="26"
-                                    Height="26"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    VerticalAlignment="Center"
-                                    Margin="0,0,10,0">
-                                <TextBlock Text="&#xE762;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="12"
-                                           Foreground="White"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="Select Specification Target Groups"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="0"
+                                   Text="TARGET GROUPS"
+                                   Style="{StaticResource PiSectionLabelStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0"/>
 
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"
@@ -524,13 +484,13 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                         <TextBlock Text="&#xE73E;"
                                                    FontFamily="Segoe MDL2 Assets"
                                                    FontSize="12"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,10,0"/>
                                         <TextBlock Text="APPLY RATE TO SELECTED SPECS"
                                                    FontSize="12"
                                                    FontWeight="Bold"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>

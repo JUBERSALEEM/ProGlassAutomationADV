@@ -61,10 +61,10 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="#10B981"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="#047857"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -180,135 +180,95 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                   Padding="16,12,16,16">
         <StackPanel>
 
-            <!-- STEP HEADER (PERF-01 applied) -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Style="{StaticResource ModuleWizardStepIconStyle}">
-                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
-                </StackPanel>
+            <StackPanel Margin="0,0,0,10">
+                <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
+                <TextBlock Text="{Binding Subtitle}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
             </StackPanel>
 
-            <Border Background="{DynamicResource BorderBrush}" Height="1" Margin="0,10,0,14"/>
-
-            <!-- METRIC DISCOVERY HUB (PERF-02 + UI-01 applied) -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="12" BorderThickness="1" BorderBrush="{DynamicResource AccentBrush}" Margin="0,0,0,12">
+            <!-- KPI strip — one work surface, not eight cards -->
+            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="10,8" Margin="0,0,0,12">
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="{DynamicResource ControlCornerRadius}" VerticalAlignment="Center" Margin="0,0,10,0">
-                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Automated Metric Discovery Hub" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="Auto-calculated from your data grid rows" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                    <WrapPanel>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL GLASS 1 (LM1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="LM1" Style="{StaticResource PiKpiCaptionStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL GLASS 2 (LM2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalLm2, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="LM2" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.TotalLm2, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="COMBINED GLASS (LM)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.CombinedLm, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="LM COMBINED" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.CombinedLm, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL PIECES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalPieces}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" pcs" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="PIECES" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.TotalPieces}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="DOUBLE GLASS (1+1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.DoubleGlassPieces}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" pcs" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="DGU PCS" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.DoubleGlassPieces}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                    </WrapPanel>
-                    <WrapPanel Margin="0,6,0,0">
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="5" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="AREA GLASS 1 (SQM1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm1, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="SQM1" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.TotalSqm1, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="6" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="AREA GLASS 2 (SQM2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm2, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="SQM2" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.TotalSqm2, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="7" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="COMBINED AREA (SQM)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.CombinedSqm, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="SQM COMBINED" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.CombinedSqm, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}">
+                        <Border Grid.Column="8" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
                             <StackPanel>
-                                <TextBlock Text="DGU CAVITY AREA" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.DguCavityArea, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
-                                </StackPanel>
+                                <TextBlock Text="DGU CAVITY" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding MetricHub.DguCavityArea, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource MetricCardStyle}" MinWidth="320" MaxWidth="520">
-                            <StackPanel>
-                                <TextBlock Text="PRIMARY GLASS REFS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <ItemsControl ItemsSource="{Binding MetricHub.PrimaryGlassRefs}" Margin="0,6,0,0">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <WrapPanel/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
-                                                <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </Border>
-                    </WrapPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding MetricHub.PrimaryGlassRefs}" Margin="0,8,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3" Margin="0,0,4,4" ToolTip="{Binding}">
+                                    <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </Border>
 
@@ -688,15 +648,6 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
             <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 
-            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource TintIndigoBrush}" BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock FontSize="11" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" VerticalAlignment="Center">
-                        <Run FontWeight="Bold">Step 6 Complete.</Run>
-                        <Run>All predefined charges, polish sub-types, color-aggregated wastages, and manual custom charges are implemented and integrated into the total.</Run>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
 
         </StackPanel>
     </ScrollViewer>

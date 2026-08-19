@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -88,38 +88,15 @@
             <!-- ══════════════════════════════════════════════════════════
                  HEADER + CONTROLS
             ══════════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="20"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}">
+            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
                 <StackPanel>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                        <Border Background="{DynamicResource TintIndigoBrush}"
-                                Width="26" Height="26"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                VerticalAlignment="Center"
-                                Margin="0,0,10,0">
-                            <TextBlock Text="&#xE9F9;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="{Binding Title}"
-                                   FontSize="13"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
+                    <TextBlock Text="{Binding Title}"
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="{Binding Subtitle}"
-                               FontSize="12"
+                               Style="{StaticResource ModulePageSubtitleStyle}"
                                TextWrapping="Wrap"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,0,0,16"/>
+                               Margin="0,0,0,12"/>
 
                     <!-- Wastage + recalculate -->
                     <Grid>
@@ -174,116 +151,82 @@
                 </StackPanel>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 TOTALS TILES
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,16,0,0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="12"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- KPI strip — one work surface, not five tiles -->
+            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="10,8" Margin="0,12,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.4*"/>
+                    </Grid.ColumnDefinitions>
+                    <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="GROSS VAT INCL" Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                        </StackPanel>
+                    </Border>
 
-                <!-- GROSS -->
-                <Border Grid.Column="0" Style="{StaticResource PlTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="GROSS VAT INCL" Style="{StaticResource PlTileCaptionStyle}"/>
-                        <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PlTileValueStyle}"/>
-                    </StackPanel>
-                </Border>
+                <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="NET ÷ 1.05" Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="GLASS COST" Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
+                        <StackPanel>
+                            <TextBlock Text="PRODUCTION · ASP" Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
+                            <TextBlock Text="{Binding ProfitDisplay}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding MarginDisplay}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Margin="0,2,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding MarkupDisplay}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,2,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
 
-                <!-- NET -->
-                <Border Grid.Column="2" Style="{StaticResource PlTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="NET ÷ 1.05" Style="{StaticResource PlTileCaptionStyle}"/>
-                        <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PlTileValueStyle}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- GLASS COST -->
-                <Border Grid.Column="4" Style="{StaticResource PlTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="GLASS COST" Style="{StaticResource PlTileCaptionStyle}"/>
-                        <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PlTileValueStyle}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- PRODUCTION / ASP -->
-                <Border Grid.Column="6" Style="{StaticResource PlTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="PRODUCTION · ASP" Style="{StaticResource PlTileCaptionStyle}"/>
-                        <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PlTileValueStyle}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- PROFIT / LOSS — turns red on a loss -->
-                <Border Grid.Column="8">
-                    <Border.Style>
-                        <Style TargetType="Border" BasedOn="{StaticResource PlTileStyle}">
-                            <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                            <Setter Property="BorderThickness" Value="2"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <StackPanel>
-                        <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PlTileCaptionStyle}"/>
-                        <TextBlock Text="{Binding ProfitDisplay}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock" BasedOn="{StaticResource PlTileValueStyle}">
-                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-                        <TextBlock Text="{Binding MarginDisplay}"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Margin="0,4,0,0">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
-
-                        <!--
-                            Mark-up over cost, shown next to the accounting
-                            margin because they answer different questions and
-                            are easy to confuse. Step 4's "margin profit %" box
-                            sets the MARK-UP, so this is the figure to compare
-                            a discount against: a DGU priced at Step 4's 15%
-                            quotes 150.51/SQM, and dropping the quote to 140
-                            leaves roughly 7% mark-up.
-                        -->
-                        <TextBlock Text="{Binding MarkupDisplay}"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,2,0,0"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
+                        <!-- ══════════════════════════════════════════════════════════
                  COST BREAKDOWN
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"

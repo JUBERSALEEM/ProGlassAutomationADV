@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermsAndConditionsView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermsAndConditionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -130,11 +130,7 @@
     <!-- ══════════════════════════════════════════════════════════════════
          TERMS & CONDITIONS CARD
     ══════════════════════════════════════════════════════════════════ -->
-    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="{DynamicResource CardCornerRadius}"
-            Padding="20"
-            BorderThickness="1"
-            BorderBrush="{DynamicResource BorderBrush}">
+    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
 
         <StackPanel>
 
