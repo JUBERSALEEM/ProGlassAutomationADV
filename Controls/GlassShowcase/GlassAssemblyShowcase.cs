@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             SnapsToDevicePixels = true;
             UseLayoutRounding = true;
             ClipToBounds = true;
-            MinHeight = 160;
+            MinHeight = 80;
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
         }
@@ -211,78 +211,74 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             }
         }
 
+        // Packed IGU — two lites + visible air cavity, isometric product shot.
         private void DrawDguSandwich(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
         {
-            double paneW = w * 0.70;
-            double depth = Math.Min(h * 0.22, 70);
-            double outerT = VisualThickness(OuterThickness, 10, 18);
-            double innerT = VisualThickness(InnerThickness, 10, 18);
-            double gap = Math.Clamp(ParseMm(SpacerWidth) * 1.1, 14, 28);
-            double left = (w - paneW) * 0.5;
-            double y = h * 0.38;
+            double paneW = Math.Min(w * 0.78, 520);
+            double depth = Math.Min(h * 0.36, 96);
+            double outerT = VisualThickness(OuterThickness, 12, 22);
+            double innerT = VisualThickness(InnerThickness, 12, 22);
+            double gap = Math.Clamp(ParseMm(SpacerWidth) * 1.6, 18, 36);
+            double left = (w - paneW) * 0.52;
+            double y = h * 0.34;
 
-            DrawWidePane(dc, left + 14, y + gap + outerT, paneW - 16, depth, innerT, GlassTint(InnerColor), outline);
-            DrawSpacerBar(dc, left + 8, y + outerT + 3, paneW - 10, depth * 0.55, gap - 4, outline, accent);
+            DrawWidePane(dc, left + 22, y + gap + outerT + 6, paneW - 10, depth, innerT, GlassTint(InnerColor), outline);
+            DrawSpacerBar(dc, left + 10, y + outerT + 4, paneW - 8, depth * 0.62, gap - 2, outline, accent);
             DrawWidePane(dc, left, y, paneW, depth, outerT, GlassTint(OuterColor), outline);
 
-            DrawSideLabel(dc, left - 8, y + 2, "OUTER", muted, true);
-            DrawSideLabel(dc, left - 8, y + outerT + gap * 0.25, SpacerWidth ?? "ASP", muted, true);
-            DrawSideLabel(dc, left - 8, y + gap + outerT + 2, "INNER", muted, true);
+            DrawSideLabel(dc, left - 6, y + 2, "OUTER", muted, true);
+            DrawSideLabel(dc, left - 6, y + outerT + gap * 0.3, SpacerWidth ?? "ASP", muted, true);
+            DrawSideLabel(dc, left + 10, y + gap + outerT + 8, "INNER", muted, true);
         }
 
+        // Exploded LAM — three distinct panes with a large air gap, amber interlayer.
         private void DrawLamExploded(DrawingContext dc, double w, double h, Color muted, Color outline)
         {
-            double paneW = Math.Min(w * 0.46, 420);
-            double depth = Math.Min(h * 0.20, 68);
-            double outerT = VisualThickness(OuterThickness, 10, 16);
-            double innerT = VisualThickness(InnerThickness, 10, 16);
-            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 3.2, 8, 14);
-            double explode = Math.Min(h * 0.12, 28);
-            double cx = (w - paneW) * 0.42;
-            double top = h * 0.22;
+            double paneW = Math.Min(w * 0.72, 380);
+            double depth = Math.Min(h * 0.22, 72);
+            double outerT = VisualThickness(OuterThickness, 11, 18);
+            double innerT = VisualThickness(InnerThickness, 11, 18);
+            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 4.0, 10, 18);
+            double explode = Math.Max(h * 0.20, 36);
+            double cx = (w - paneW) * 0.28;
+            double top = h * 0.12;
 
-            DrawWidePane(dc, cx + explode * 1.6, top + explode * 2 + outerT + filmT, paneW, depth, innerT, GlassTint(InnerColor), outline);
-            DrawWidePane(dc, cx + explode * 0.8, top + explode + outerT, paneW, depth, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
+            DrawWidePane(dc, cx + explode * 0.55, top + explode * 2 + 8, paneW, depth, innerT, GlassTint(InnerColor), outline);
+            DrawWidePane(dc, cx + explode * 0.28, top + explode + 4, paneW, depth, filmT,
+                InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
             DrawWidePane(dc, cx, top, paneW, depth, outerT, GlassTint(OuterColor), outline);
-
-            DrawSideLabel(dc, cx - 10, top + 4, "OUTER", muted, true);
-            DrawSideLabel(dc, cx + explode * 0.4, top + explode + outerT + 2, InterlayerLabel(), muted, true);
-            DrawSideLabel(dc, cx + explode * 1.2, top + explode * 2 + outerT + filmT + 2, "INNER", muted, true);
         }
 
-        // Cutaway: standing outer lite + air cavity + laminated pair.
+        // Standing IGU cutaway: outer lite + cavity + laminated pair, all vertical.
         private void DrawDguLamCutaway(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
         {
-            double cx = w * 0.18;
-            double baseY = h * 0.78;
-            double liteH = h * 0.58;
-            double liteW = Math.Min(w * 0.10, 36);
-            double cavity = Math.Clamp(ParseMm(SpacerWidth) * 1.4, 18, 34);
+            double baseY = h * 0.88;
+            double liteH = h * 0.72;
+            double x = w * 0.10;
+            double tOuter = Math.Clamp(w * 0.07, 14, 26);
+            double cavity = Math.Clamp(ParseMm(SpacerWidth) * 1.8, 16, 32);
+            double tLamOut = Math.Clamp(w * 0.055, 10, 18);
+            double tFilm = Math.Clamp(w * 0.035, 6, 12);
+            double tLamIn = Math.Clamp(w * 0.055, 10, 18);
 
-            // Standing outer lite (slight perspective).
-            DrawStandingLite(dc, cx, baseY, liteW, liteH, GlassTint(OuterColor), outline);
+            DrawStandingLite(dc, x, baseY, tOuter, liteH, GlassTint(OuterColor), outline);
 
-            // Cavity / spacer.
-            var cavityFill = Mix(accent, Color.FromRgb(0x9C, 0xA3, 0xAF), 0.55);
-            cavityFill.A = 90;
+            var cavityFill = Mix(accent, Color.FromRgb(0x9C, 0xA3, 0xAF), 0.50);
+            cavityFill.A = 70;
+            double cavX = x + tOuter + 3;
             dc.DrawRectangle(new SolidColorBrush(cavityFill),
                 new Pen(new SolidColorBrush(outline), 0.8),
-                new Rect(cx + liteW + 2, baseY - liteH * 0.92, cavity, liteH * 0.88));
+                new Rect(cavX, baseY - liteH * 0.94, cavity, liteH * 0.90));
 
-            // Laminated pair lying as a stack in front/right.
-            double stackX = cx + liteW + cavity + 16;
-            double paneW = Math.Min(w * 0.42, 260);
-            double depth = Math.Min(h * 0.16, 48);
-            double lamOutT = VisualThickness(LamOuterThickness, 8, 14);
-            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 2.4, 6, 11);
-            double lamInT = VisualThickness(LamInnerThickness, 8, 14);
-            double y = baseY - 18;
+            double lx = cavX + cavity + 4;
+            DrawStandingLite(dc, lx, baseY - 4, tLamOut, liteH * 0.92, GlassTint(LamOuterColor), outline);
+            DrawStandingLite(dc, lx + tLamOut + 2, baseY, tFilm, liteH * 0.88,
+                InterlayerTint(InterlayerColor, InterlayerType), outline);
+            DrawStandingLite(dc, lx + tLamOut + tFilm + 4, baseY + 4, tLamIn, liteH * 0.84,
+                GlassTint(LamInnerColor), outline);
 
-            DrawWidePane(dc, stackX + 18, y, paneW, depth, lamInT, GlassTint(LamInnerColor), outline);
-            DrawWidePane(dc, stackX + 9, y - filmT - 6, paneW, depth, filmT, InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
-            DrawWidePane(dc, stackX, y - filmT - lamOutT - 12, paneW, depth, lamOutT, GlassTint(LamOuterColor), outline);
-
-            DrawSideLabel(dc, cx, baseY - liteH - 4, "OUTER", muted, false);
+            DrawSideLabel(dc, x, baseY - liteH - 2, "OUTER", muted, false);
+            DrawSideLabel(dc, lx, baseY - liteH * 0.92 - 2, "LAM", muted, false);
         }
 
         private static void DrawStandingLite(

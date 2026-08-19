@@ -1,9 +1,6 @@
 <!--
-    Step 5 — Data grid. Approved mockup composition:
-    spec tabs + toolbar (type / spec / base / surcharge) + ONE table.
-    Columns: # REF W1 H1 W2 H2 QTY SQM LM RATE VALUE
-    No page title, no tip hero, no imported-price card stack.
-    Bindings, commands, Excel nav, find/replace and Automation contract unchanged.
+    Step 5 — spreadsheet workbench. Fills the wizard, no nested cards,
+    no collapsing DockPanel. Table row is Grid * so it takes remaining height.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.DataGridView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -29,10 +26,29 @@
     </UserControl.InputBindings>
 
     <UserControl.Resources>
+        <Style x:Key="GridCellStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsIntCellStyle}">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="MaxHeight" Value="24"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+        <Style x:Key="GridDecStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsDecimalCellStyle}">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="MaxHeight" Value="24"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
+        <Style x:Key="GridTextStyle" TargetType="TextBox" BasedOn="{StaticResource LineItemsTextCellStyle}">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="MaxHeight" Value="24"/>
+            <Setter Property="Padding" Value="4,0"/>
+        </Style>
         <Style x:Key="GridRowStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
+            <Setter Property="MinHeight" Value="26"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -42,7 +58,7 @@
                         <Border x:Name="RowBorder"
                                 BorderThickness="0,0,0,1"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                Padding="0,2"
+                                Padding="0,1"
                                 Background="Transparent">
                             <ContentPresenter/>
                         </Border>
@@ -54,8 +70,6 @@
                             <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
                                 <Setter TargetName="RowBorder" Property="Background"
                                         Value="{DynamicResource TintAmberBrush}"/>
-                                <Setter TargetName="RowBorder" Property="BorderBrush"
-                                        Value="{DynamicResource WarningBrush}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter TargetName="RowBorder" Property="Background"
@@ -72,323 +86,260 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
-        <DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-            <TextBlock DockPanel.Dock="Top"
-                       Text="No spec groups yet. Press Ctrl+Shift+N or + ADD SPEC."
-                       FontSize="12"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,8,0,8">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding TotalSpecGroups}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
+        <TextBlock Grid.Row="0"
+                   Text="No spec groups yet. Press Ctrl+Shift+N or + ADD SPEC."
+                   FontSize="12"
+                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                   Margin="0,4,0,6">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding TotalSpecGroups}" Value="0">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
 
-            <summary:GrandTotalSummaryView DockPanel.Dock="Bottom"
-                                           DataContext="{Binding SummaryViewModel}"
-                                           Margin="0,10,0,0"/>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+            <TabControl ItemsSource="{Binding SpecGroups}"
+                        Style="{StaticResource PiSpecTabControlStyle}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding GroupName}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"/>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid Focusable="True" FocusVisualStyle="{x:Null}" Margin="0,6,0,0">
+                            <Grid.InputBindings>
+                                <KeyBinding Modifiers="Control" Key="N" Command="{Binding AddRowCommand}"/>
+                            </Grid.InputBindings>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                <TabControl ItemsSource="{Binding SpecGroups}"
-                            Style="{StaticResource PiSpecTabControlStyle}">
-                    <TabControl.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding GroupName}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"/>
-                        </DataTemplate>
-                    </TabControl.ItemTemplate>
-                    <TabControl.ContentTemplate>
-                        <DataTemplate>
-                            <DockPanel Margin="0,8,0,0"
-                                       Focusable="True"
-                                       FocusVisualStyle="{x:Null}">
-                                <DockPanel.InputBindings>
-                                    <KeyBinding Modifiers="Control" Key="N" Command="{Binding AddRowCommand}"/>
-                                </DockPanel.InputBindings>
+                            <Grid Grid.Row="0" Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="140"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="GLASS TYPE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
+                                    <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                              SelectedItem="{Binding SelectedGlassType}"
+                                              Style="{StaticResource PiComboBoxStyle}"
+                                              Height="28"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="SPECIFICATION" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"/>
+                                    <controls:AutoCompleteTextBox
+                                        ItemsSource="{Binding FilteredSpecs}"
+                                        Text="{Binding SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                        SelectedItem="{Binding SelectedSpecItem, Mode=TwoWay}"
+                                        IsDropDownOpen="{Binding IsSpecDropdownOpen, Mode=TwoWay}"
+                                        DisplayMemberPath="SpecName"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
+                                    <TextBlock Text="BASE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"
+                                               ToolTip="{Binding ImportedPrice, StringFormat=Imported AED {0:N2}}"/>
+                                    <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource GridDecStyle}"
+                                             Width="72"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,8,2">
+                                    <TextBlock Text="SURCHARGE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"
+                                               ToolTip="{Binding SurchargeRate, StringFormat=With surcharge AED {0:N2}}"/>
+                                    <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
+                                             Style="{StaticResource GridDecStyle}"
+                                             Width="52"/>
+                                    <TextBlock Text="%" Style="{StaticResource PiInlineMetaStyle}" Margin="4,0,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="7"
+                                        Command="{Binding DataContext.RemoveSpecGroupCommand,
+                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Style="{StaticResource PiIconButtonStyle}"
+                                        VerticalAlignment="Bottom"
+                                        ToolTip="Remove spec group">
+                                    <TextBlock Text="&#xE74D;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="13"
+                                               Foreground="{DynamicResource DangerBrush}"/>
+                                </Button>
+                            </Grid>
 
-                                <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="8"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel>
-                                        <TextBlock Text="GLASS TYPE"
-                                                   Style="{StaticResource PiFieldLabelStyle}"
-                                                   Margin="0,0,0,3"/>
-                                        <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions,
-                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                  SelectedItem="{Binding SelectedGlassType}"
-                                                  Style="{StaticResource PiComboBoxStyle}"
-                                                  Height="32"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="SPECIFICATION"
-                                                   Style="{StaticResource PiFieldLabelStyle}"
-                                                   Margin="0,0,0,3"/>
-                                        <controls:AutoCompleteTextBox
-                                            ItemsSource="{Binding FilteredSpecs}"
-                                            Text="{Binding SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            SelectedItem="{Binding SelectedSpecItem, Mode=TwoWay}"
-                                            IsDropDownOpen="{Binding IsSpecDropdownOpen, Mode=TwoWay}"
-                                            DisplayMemberPath="SpecName"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
-                                        <TextBlock Text="BASE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"/>
-                                        <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource LineItemsDecimalCellStyle}"
-                                                 Width="72"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,8,2">
-                                        <TextBlock Text="SURCHARGE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"/>
-                                        <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                 Style="{StaticResource LineItemsDecimalCellStyle}"
-                                                 Width="56"/>
-                                        <TextBlock Text="%" Style="{StaticResource PiInlineMetaStyle}" Margin="4,0,0,0"/>
-                                    </StackPanel>
-                                    <Button Grid.Column="7"
-                                            Command="{Binding DataContext.RemoveSpecGroupCommand,
-                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}"
-                                            Style="{StaticResource PiIconButtonStyle}"
-                                            VerticalAlignment="Bottom"
-                                            ToolTip="Remove spec group">
-                                        <TextBlock Text="&#xE74D;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="13"
-                                                   Foreground="{DynamicResource DangerBrush}"/>
-                                    </Button>
-                                </Grid>
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0" Style="{StaticResource PiTableHeaderStyle}" Padding="6,5">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="1.6*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.65*"/>
+                                            <ColumnDefinition Width="0.85*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.8*"/>
+                                            <ColumnDefinition Width="1.2*"/>
+                                            <ColumnDefinition Width="26"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="1" Text="REF" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="8" Text="LM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="9" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                                        <TextBlock Grid.Column="10" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                </Border>
 
-                                <TextBlock DockPanel.Dock="Top"
-                                           Style="{StaticResource PiInlineMetaStyle}"
-                                           Margin="0,0,0,8"
-                                           TextWrapping="Wrap">
-                                    <Run Text="Imported AED "/>
-                                    <Run Text="{Binding ImportedPrice, StringFormat={}{0:N2}, Mode=OneWay}" FontWeight="SemiBold"/>
-                                    <Run Text="  ·  With surcharge AED "/>
-                                    <Run Text="{Binding SurchargeRate, StringFormat={}{0:N2}, Mode=OneWay}" FontWeight="SemiBold"/>
-                                    <Run Text="  ·  "/>
-                                    <Run Text="{Binding OuterSheetDisplay, Mode=OneWay}"/>
-                                    <Run Text=" "/>
-                                    <Run Text="{Binding InnerSheetDisplay, Mode=OneWay}"/>
-                                </TextBlock>
+                                <ListView Grid.Row="1"
+                                          ItemsSource="{Binding ItemRows}"
+                                          ItemContainerStyle="{StaticResource GridRowStyle}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          HorizontalContentAlignment="Stretch"
+                                          VerticalAlignment="Stretch"
+                                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                          ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                          behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                                    <ListView.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Add New Row (Ctrl+N)" Command="{Binding AddRowCommand}"/>
+                                            <Separator/>
+                                            <MenuItem Header="Find… (Ctrl+F)" Command="{Binding OpenFindCommand}"/>
+                                            <MenuItem Header="Find and Replace… (Ctrl+H)" Command="{Binding OpenFindReplaceCommand}"/>
+                                            <Separator/>
+                                            <MenuItem Header="Paste — click a cell first, then Ctrl+V"
+                                                      Command="{Binding PasteExcelCommand}"/>
+                                        </ContextMenu>
+                                    </ListView.ContextMenu>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="1.6*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.65*"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.8*"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                    <ColumnDefinition Width="26"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource LineItemsSerialStyle}"/>
+                                                <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridTextStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="2" Text="{Binding W1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="3" Text="{Binding H1, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="4" Text="{Binding W2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="5" Text="{Binding H2, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBox Grid.Column="6" Text="{Binding Qty, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridCellStyle}" Margin="2,0"/>
+                                                <TextBlock Grid.Column="7" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                <TextBlock Grid.Column="8" Text="{Binding Lm1, StringFormat={}{0:0.0}}" Style="{StaticResource LineItemsReadonlyStyle}"/>
+                                                <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}" Style="{StaticResource GridDecStyle}" Margin="1,0"/>
+                                                <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat=AED {0:N2}}" Style="{StaticResource LineItemsMoneyStyle}"/>
+                                                <Button Grid.Column="11"
+                                                        Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource PiIconButtonStyle}"
+                                                        ToolTip="Delete row (Ctrl+Delete)">
+                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold"
+                                                               Foreground="{DynamicResource DangerBrush}"/>
+                                                </Button>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </Grid>
 
-                                <StackPanel DockPanel.Dock="Bottom"
-                                            Orientation="Horizontal"
-                                            Margin="0,8,0,0">
-                                    <TextBox Width="72"
-                                             Height="28"
-                                             Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource LineItemsIntCellStyle}"
+                            <Grid Grid.Row="2" Margin="0,6,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource GridCellStyle}"
                                              ToolTip="Number of rows to generate (max 10,000)"/>
                                     <Button Command="{Binding GenerateRowsCommand}"
                                             Style="{StaticResource PiGhostChipButton}"
                                             Margin="6,0,8,0"
-                                            ToolTip="Generate rows">
-                                        <TextBlock Text="GENERATE"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                    </Button>
+                                            Height="24"
+                                            Content="GENERATE"/>
                                     <Button Command="{Binding AddRowCommand}"
                                             Style="{StaticResource PiGhostChipButton}"
-                                            ToolTip="Add new row (Ctrl+N)">
-                                        <TextBlock Text="+ ADD ROW"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"/>
-                                    </Button>
+                                            Height="24"
+                                            Content="+ ADD ROW"/>
                                 </StackPanel>
+                                <TextBlock Grid.Column="2"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           VerticalAlignment="Center">
+                                    <Run Text="{Binding FooterTotalQty, Mode=OneWay}"/>
+                                    <Run Text=" pcs  ·  "/>
+                                    <Run Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"/>
+                                    <Run Text=" SQM  ·  AED "/>
+                                    <Run Text="{Binding FooterTotalValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Grid>
+                        </Grid>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
 
-                                <Border DockPanel.Dock="Bottom">
-                                    <Border.Style>
-                                        <Style TargetType="Border" BasedOn="{StaticResource LineItemsFooterStyle}">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding TotalRows}" Value="0">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="SUBTOTAL"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="1"
-                                                   FontSize="12" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <Run Text="{Binding FooterTotalQty, Mode=OneWay}"/>
-                                            <Run Text=" pcs  ·  "/>
-                                            <Run Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000}, Mode=OneWay}"/>
-                                            <Run Text=" SQM  ·  AED "/>
-                                            <Run Text="{Binding FooterTotalValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </Grid>
-                                </Border>
+            <Button Grid.Column="1"
+                    Command="{Binding AddSpecGroupCommand}"
+                    Style="{StaticResource PiGhostChipButton}"
+                    VerticalAlignment="Top"
+                    Margin="8,0,0,0"
+                    ToolTip="Add new spec group (Ctrl+Shift+N)"
+                    Content="+ ADD SPEC"/>
+        </Grid>
 
-                                <DockPanel>
-                                    <Border DockPanel.Dock="Top" Style="{StaticResource PiTableHeaderStyle}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="28"/>
-                                                <ColumnDefinition Width="1.6*"/>
-                                                <ColumnDefinition Width="0.75*"/>
-                                                <ColumnDefinition Width="0.75*"/>
-                                                <ColumnDefinition Width="0.75*"/>
-                                                <ColumnDefinition Width="0.75*"/>
-                                                <ColumnDefinition Width="0.65*"/>
-                                                <ColumnDefinition Width="0.85*"/>
-                                                <ColumnDefinition Width="0.75*"/>
-                                                <ColumnDefinition Width="0.8*"/>
-                                                <ColumnDefinition Width="1.2*"/>
-                                                <ColumnDefinition Width="26"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="#" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="1" Text="REF" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                                            <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="7" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="8" Text="LM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="9" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                                            <TextBlock Grid.Column="10" Text="VALUE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                        </Grid>
-                                    </Border>
-
-                                    <ListView ItemsSource="{Binding ItemRows}"
-                                              ItemContainerStyle="{StaticResource GridRowStyle}"
-                                              Background="Transparent"
-                                              BorderThickness="0"
-                                              HorizontalContentAlignment="Stretch"
-                                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                              behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
-                                        <ListView.ContextMenu>
-                                            <ContextMenu>
-                                                <MenuItem Header="Add New Row (Ctrl+N)" Command="{Binding AddRowCommand}"/>
-                                                <Separator/>
-                                                <MenuItem Header="Find… (Ctrl+F)" Command="{Binding OpenFindCommand}"/>
-                                                <MenuItem Header="Find and Replace… (Ctrl+H)" Command="{Binding OpenFindReplaceCommand}"/>
-                                                <Separator/>
-                                                <MenuItem Header="Paste — click a cell first, then Ctrl+V"
-                                                          Command="{Binding PasteExcelCommand}"/>
-                                            </ContextMenu>
-                                        </ListView.ContextMenu>
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="28"/>
-                                                        <ColumnDefinition Width="1.6*"/>
-                                                        <ColumnDefinition Width="0.75*"/>
-                                                        <ColumnDefinition Width="0.75*"/>
-                                                        <ColumnDefinition Width="0.75*"/>
-                                                        <ColumnDefinition Width="0.75*"/>
-                                                        <ColumnDefinition Width="0.65*"/>
-                                                        <ColumnDefinition Width="0.85*"/>
-                                                        <ColumnDefinition Width="0.75*"/>
-                                                        <ColumnDefinition Width="0.8*"/>
-                                                        <ColumnDefinition Width="1.2*"/>
-                                                        <ColumnDefinition Width="26"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="{Binding SerialNumber}"
-                                                               Style="{StaticResource LineItemsSerialStyle}"/>
-                                                    <TextBox Grid.Column="1"
-                                                             Text="{Binding GlassRef, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsTextCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBox Grid.Column="2"
-                                                             Text="{Binding W1, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsIntCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBox Grid.Column="3"
-                                                             Text="{Binding H1, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsIntCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBox Grid.Column="4"
-                                                             Text="{Binding W2, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsIntCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBox Grid.Column="5"
-                                                             Text="{Binding H2, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsIntCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBox Grid.Column="6"
-                                                             Text="{Binding Qty, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsIntCellStyle}"
-                                                             Margin="2,0"/>
-                                                    <TextBlock Grid.Column="7"
-                                                               Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
-                                                               Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                    <TextBlock Grid.Column="8"
-                                                               Text="{Binding Lm1, StringFormat={}{0:0.0}}"
-                                                               Style="{StaticResource LineItemsReadonlyStyle}"/>
-                                                    <TextBox Grid.Column="9"
-                                                             Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
-                                                             Style="{StaticResource LineItemsDecimalCellStyle}"
-                                                             Margin="1,0"/>
-                                                    <TextBlock Grid.Column="10"
-                                                               Text="{Binding Value, StringFormat=AED {0:N2}}"
-                                                               Style="{StaticResource LineItemsMoneyStyle}"/>
-                                                    <Button Grid.Column="11"
-                                                            Command="{Binding DataContext.RemoveRowCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                            CommandParameter="{Binding}"
-                                                            Style="{StaticResource PiIconButtonStyle}"
-                                                            ToolTip="Delete row (Ctrl+Delete)">
-                                                        <TextBlock Text="&#xE711;"
-                                                                   FontFamily="Segoe MDL2 Assets"
-                                                                   FontSize="10"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="{DynamicResource DangerBrush}"/>
-                                                    </Button>
-                                                </Grid>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-                                </DockPanel>
-                            </DockPanel>
-                        </DataTemplate>
-                    </TabControl.ContentTemplate>
-                </TabControl>
-
-                <Button Grid.Column="1"
-                        Command="{Binding AddSpecGroupCommand}"
-                        Style="{StaticResource PiGhostChipButton}"
-                        VerticalAlignment="Top"
-                        Margin="10,0,0,0"
-                        ToolTip="Add new spec group (Ctrl+Shift+N)">
-                    <TextBlock Text="+ ADD SPEC"
-                               FontSize="11" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                </Button>
-            </Grid>
-        </DockPanel>
-    </Border>
+        <summary:GrandTotalSummaryView Grid.Row="2"
+                                       DataContext="{Binding SummaryViewModel}"
+                                       Margin="0,6,0,0"
+                                       MaxHeight="120"/>
+    </Grid>
 </UserControl>

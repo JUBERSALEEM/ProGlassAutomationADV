@@ -23,9 +23,9 @@
 
     <Grid PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.92*"/>
+            <ColumnDefinition Width="1.15*"/>
             <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="1.18*"/>
+            <ColumnDefinition Width="0.85*"/>
         </Grid.ColumnDefinitions>
 
         <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">

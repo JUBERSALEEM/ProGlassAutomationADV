@@ -101,7 +101,6 @@
                        Margin="0,4,0,0"/>
 
             <glass:GlassAssemblyShowcase Kind="Sgu"
-                                         MinHeight="220"
                                          ShowWell="False"
                                          ShowCaption="True"
                                          OuterColor="{Binding GlassColor}"

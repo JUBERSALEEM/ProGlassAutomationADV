@@ -338,6 +338,30 @@
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"         Value="0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="VerticalContentAlignment"   Value="Stretch"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TabControl">
+                    <Grid KeyboardNavigation.TabNavigation="Local">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TabPanel x:Name="HeaderPanel"
+                                  Grid.Row="0"
+                                  IsItemsHost="True"
+                                  Margin="0,0,80,4"/>
+                        <ContentPresenter x:Name="PART_SelectedContentHost"
+                                          Grid.Row="1"
+                                          ContentSource="SelectedContent"
+                                          Margin="{TemplateBinding Padding}"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Setter Property="ItemContainerStyle">
             <Setter.Value>
                 <Style TargetType="TabItem">

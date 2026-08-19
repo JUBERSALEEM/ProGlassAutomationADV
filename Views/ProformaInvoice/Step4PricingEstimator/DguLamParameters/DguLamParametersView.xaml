@@ -17,7 +17,6 @@
 
             <glass:GlassAssemblyShowcase Grid.Column="0"
                                          Kind="DguLam"
-                                         MinHeight="280"
                                          ShowWell="False"
                                          ShowCaption="False"
                                          Margin="0,0,10,0"
