@@ -35,6 +35,7 @@ namespace ProGlassAutomation.Services.Recording
 
         public bool IsRecording { get; private set; }
         public bool IsEncoding { get; private set; }
+        public bool IsPaused => _recorder?.IsPaused == true;
         public bool IsBusy => IsRecording || IsEncoding;
         public string Status { get; private set; } =
             "Idle. Records only this app window — not the desktop.";
@@ -109,6 +110,19 @@ namespace ProGlassAutomation.Services.Recording
             return null;
         }
 
+        public void TogglePause()
+        {
+            lock (_gate)
+            {
+                if (!IsRecording || _recorder == null) return;
+                _recorder.SetPaused(!_recorder.IsPaused);
+                Status = _recorder.IsPaused
+                    ? "Paused. Press RESUME on the overlay."
+                    : "Recording this window at " + _settings.Summary + ".";
+            }
+            RaiseChanged();
+        }
+
         public async Task StopAndSaveAsync()
         {
             WindowScreenRecorder? recorder;
@@ -125,13 +139,15 @@ namespace ProGlassAutomation.Services.Recording
                 ct = _cts?.Token ?? CancellationToken.None;
                 IsRecording = false;
                 IsEncoding = true;
-                Status = "Encoding MP4…";
+                Status = "Finalizing…";
             }
             RaiseChanged();
-            DemoRecordingChrome.UpdateStage("Encoding MP4…");
+            DemoRecordingChrome.UpdateStage("Finalizing…");
 
             try
             {
+                recorder.EncodeStage = "Stopping capture…";
+                recorder.EncodePercent = 20;
                 await recorder.StopAsync().ConfigureAwait(false);
                 EncodedFrames = recorder.EncodedFrames;
 
@@ -141,16 +157,9 @@ namespace ProGlassAutomation.Services.Recording
                     return;
                 }
 
-                var jpegs = recorder.Frames
-                    .Select(f => f.Path)
-                    .Where(File.Exists)
-                    .ToList();
-                if (jpegs.Count == 0)
-                {
-                    Fail("The recorder captured no frames. There is no video to encode.");
-                    return;
-                }
-
+                recorder.EncodeStage = "Mixing audio…";
+                recorder.EncodePercent = 70;
+                DemoRecordingChrome.UpdateStage("Mixing audio… 70%");
                 string? liveMix = await FfmpegMp4Composer
                     .MixAudioAsync(
                         recorder.LiveAudioPath,
@@ -162,11 +171,41 @@ namespace ProGlassAutomation.Services.Recording
                 var (outW, outH) = rec.OutputSize;
                 string mp4 = Path.Combine(
                     folder, "ScreenRecording_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".mp4");
-                string? produced = await FfmpegMp4Composer
-                    .ComposeFramesAudioAsync(
-                        Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
-                        rec.Fps, outW, outH, ct, rec.EncodeCrf)
-                    .ConfigureAwait(false);
+
+                string? produced = null;
+                string? liveVideo = recorder.LiveVideoPath;
+                if (!string.IsNullOrEmpty(liveVideo)
+                    && File.Exists(liveVideo)
+                    && new FileInfo(liveVideo).Length > 32)
+                {
+                    recorder.EncodeStage = "Muxing audio onto live encode…";
+                    recorder.EncodePercent = 88;
+                    DemoRecordingChrome.UpdateStage("Muxing audio… 88%");
+                    produced = await FfmpegMp4Composer
+                        .MuxCopyVideoAudioAsync(liveVideo, liveMix, mp4, ct)
+                        .ConfigureAwait(false);
+                }
+
+                if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
+                {
+                    var fallback = recorder.Frames
+                        .Select(f => f.Path)
+                        .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
+                        .ToList();
+                    if (fallback.Count == 0)
+                    {
+                        Fail("No live encode and no JPEG frames. Nothing to save.");
+                        return;
+                    }
+                    recorder.EncodeStage = "JPEG fallback encode…";
+                    recorder.EncodePercent = 55;
+                    DemoRecordingChrome.UpdateStage("Encoding JPEG fallback…");
+                    produced = await FfmpegMp4Composer
+                        .ComposeFramesAudioAsync(
+                            Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
+                            rec.Fps, outW, outH, ct, rec.EncodeCrf)
+                        .ConfigureAwait(false);
+                }
 
                 if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
                 {

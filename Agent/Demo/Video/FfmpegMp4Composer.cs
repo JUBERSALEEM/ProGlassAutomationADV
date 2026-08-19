@@ -195,6 +195,24 @@ namespace ProGlassAutomation.Agent.Demo.Video
             return loopbackWav ?? micWav;
         }
 
+        /// <summary>
+        /// Copy an already-encoded video and mux a WAV. Seconds, not a
+        /// second full encode — this is the instant-save path.
+        /// </summary>
+        public static async Task<string?> MuxCopyVideoAudioAsync(
+            string videoPath, string? wavPath, string mp4Path, CancellationToken ct)
+        {
+            string? ffmpeg = Find();
+            if (ffmpeg == null || !File.Exists(videoPath)) return null;
+            Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+            string args = wavPath != null && File.Exists(wavPath)
+                ? $"-y -i \"{videoPath}\" -i \"{wavPath}\" " +
+                  $"-c:v copy -c:a aac -b:a 256k -ar 48000 -shortest " +
+                  $"-movflags +faststart \"{mp4Path}\""
+                : $"-y -i \"{videoPath}\" -c:v copy -movflags +faststart \"{mp4Path}\"";
+            return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);
+        }
+
         public static async Task<string?> ComposeAsync(
             string framesGlobOrConcat, string? wavPath, string mp4Path,
             int fps, CancellationToken ct)

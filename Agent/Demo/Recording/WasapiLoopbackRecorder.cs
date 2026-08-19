@@ -21,6 +21,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         public string? Path { get; private set; }
         public bool IsRecording { get; private set; }
+        public bool IsPaused { get; set; }
         public string? Error { get; private set; }
 
         public bool Start(string wavPath)
@@ -69,7 +70,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         private void OnData(object? sender, WaveInEventArgs e)
         {
-            if (e.BytesRecorded <= 0) return;
+            if (IsPaused || e.BytesRecorded <= 0) return;
             lock (_gate)
             {
                 try { _writer?.Write(e.Buffer, 0, e.BytesRecorded); }

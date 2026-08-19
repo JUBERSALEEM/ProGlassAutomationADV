@@ -1,3 +1,4 @@
+using ProGlassAutomation.Agent.Demo.Video;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -37,9 +38,14 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         private CancellationTokenSource? _cts;
         private Task? _loop;
         private DateTime _started;
+        private DateTime _pauseStarted;
+        private TimeSpan _pausedAccumulated;
         private int _pendingEncodes;
         private int _captureBusy;
         private ScreenRecordSettings _settings = new();
+        private FfmpegLivePipe? _pipe;
+        private string? _liveVideoPath;
+        private volatile bool _paused;
 
         public IReadOnlyList<RecordedFrame> Frames
         {
@@ -58,7 +64,28 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                 .Where(s => !string.IsNullOrWhiteSpace(s)));
         public bool LiveAudioStarted { get; private set; }
         public bool MicAudioStarted { get; private set; }
+        public bool IsPaused => _paused;
+        public bool LiveEncodeActive => _pipe != null && _pipe.IsOpen;
+        public int LiveFramesPiped => _pipe?.FramesPiped ?? 0;
+        public long LiveBytesPiped => _pipe?.BytesPiped ?? 0;
+        public string? LiveVideoPath => _liveVideoPath;
+        public string? LiveEncodeError => _pipe?.Error;
+        public int EncodePercent { get; set; }
+        public string EncodeStage { get; set; } = "";
         public ScreenRecordSettings Settings => _settings;
+
+        public TimeSpan Elapsed
+        {
+            get
+            {
+                var now = DateTime.UtcNow;
+                var paused = _pausedAccumulated;
+                if (_paused && _pauseStarted != default)
+                    paused += now - _pauseStarted;
+                var raw = now - _started - paused;
+                return raw < TimeSpan.Zero ? TimeSpan.Zero : raw;
+            }
+        }
 
         public void Start(string framesFolder, int fps) =>
             Start(framesFolder, new ScreenRecordSettings { Fps = fps });
@@ -72,12 +99,22 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             DroppedFrames = 0;
             EncodedFrames = 0;
             Duration = TimeSpan.Zero;
+            EncodePercent = 0;
+            EncodeStage = "Recording";
+            _paused = false;
+            _pausedAccumulated = TimeSpan.Zero;
+            _pauseStarted = default;
             _started = DateTime.UtcNow;
             _cts = new CancellationTokenSource();
 
             LiveAudioStarted = false;
             MicAudioStarted = false;
             string parent = Directory.GetParent(framesFolder)?.FullName ?? framesFolder;
+            _liveVideoPath = Path.Combine(parent, "live.h264.mp4");
+            var (outW, outH) = _settings.OutputSize;
+            try { _pipe?.Dispose(); } catch { }
+            _pipe = FfmpegLivePipe.TryStart(
+                _liveVideoPath, _settings.Fps, outW, outH, _settings.EncodeCrf);
             if (_settings.CaptureLiveAudio)
                 LiveAudioStarted = _audio.Start(System.IO.Path.Combine(parent, "live.wav"));
             if (_settings.CaptureMicrophone)
@@ -101,11 +138,39 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             while (Volatile.Read(ref _pendingEncodes) > 0 && DateTime.UtcNow < until)
                 await Task.Delay(40).ConfigureAwait(false);
 
-            Duration = DateTime.UtcNow - _started;
+            Duration = Elapsed;
             try { await _audio.StopAsync().ConfigureAwait(false); }
             catch { /* loopback is optional */ }
             try { await _mic.StopAsync().ConfigureAwait(false); }
             catch { /* mic is optional */ }
+
+            if (_pipe != null)
+            {
+                EncodeStage = "Closing live encoder…";
+                EncodePercent = 40;
+                try { await _pipe.FinishAsync(CancellationToken.None).ConfigureAwait(false); }
+                catch { /* fallback JPEG encode still available */ }
+            }
+            EncodePercent = 55;
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (_paused == paused) return;
+            if (paused)
+            {
+                _paused = true;
+                _pauseStarted = DateTime.UtcNow;
+            }
+            else
+            {
+                if (_pauseStarted != default)
+                    _pausedAccumulated += DateTime.UtcNow - _pauseStarted;
+                _pauseStarted = default;
+                _paused = false;
+            }
+            _audio.IsPaused = paused;
+            _mic.IsPaused = paused;
         }
 
         public void Stop() => _cts?.Cancel();
@@ -125,6 +190,13 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             while (!ct.IsCancellationRequested)
             {
+                if (_paused)
+                {
+                    try { await Task.Delay(80, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+                    continue;
+                }
+
                 var now = DateTime.UtcNow;
                 if (now < next)
                 {
@@ -340,6 +412,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         {
             try { Stop(); } catch { }
             try { _cts?.Dispose(); } catch { }
+            try { _pipe?.Dispose(); } catch { }
             _audio.Dispose();
             _mic.Dispose();
         }

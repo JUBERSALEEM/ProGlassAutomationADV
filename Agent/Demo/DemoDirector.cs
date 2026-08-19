@@ -139,7 +139,8 @@ namespace ProGlassAutomation.Agent.Demo
                     Path.Combine(folder, "events.json"),
                     JsonSerializer.Serialize(events.Select(e => new
                     {
-                        e.Id, e.Title, e.Narration, e.Evidence, e.Utc
+                        e.Id, e.Title, e.Narration, e.Evidence, e.Utc,
+                        SpokenSeconds = e.SpokenDuration.TotalSeconds
                     }), new JsonSerializerOptions { WriteIndented = true }));
                 log.AppendLine($"Verified events: {events.Count}");
 
@@ -158,10 +159,14 @@ namespace ProGlassAutomation.Agent.Demo
 
                 var jpegs = recorder.Frames
                     .Select(f => f.Path)
-                    .Where(File.Exists)
+                    .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
                     .ToList();
-                log.AppendLine($"Frames captured: {jpegs.Count}");
-                if (jpegs.Count == 0)
+                bool haveLiveVideo = !string.IsNullOrEmpty(recorder.LiveVideoPath)
+                    && File.Exists(recorder.LiveVideoPath)
+                    && new FileInfo(recorder.LiveVideoPath).Length > 32;
+                log.AppendLine(
+                    $"Frames captured: {recorder.EncodedFrames} (jpeg files={jpegs.Count}, live encode={haveLiveVideo})");
+                if (recorder.EncodedFrames == 0 && !haveLiveVideo)
                 {
                     Fail(module,
                         "The recorder captured no frames. There is no video to encode.",
@@ -273,19 +278,37 @@ namespace ProGlassAutomation.Agent.Demo
                 CaptionWriter.Write(folder, beats);
 
                 var (outW, outH) = rec.OutputSize;
-                Set(DemoJobState.Rendering,
-                    $"Encoding {outW}×{outH} @ {rec.Fps} fps MP4 with ffmpeg.");
-                log.AppendLine(
-                    $"Recorder {rec.Summary}; frames={jpegs.Count} dropped={recorder.DroppedFrames}");
-
                 string mp4Name = runner.OutputFileName;
                 string mp4 = Path.Combine(folder, mp4Name);
                 string audioForMux = liveOk ? liveMix! : narrationWav!;
-                string? produced = await FfmpegMp4Composer
-                    .ComposeFramesAudioAsync(
-                        framesDir, "f%05d.jpg", audioForMux, mp4,
-                        rec.Fps, outW, outH, ct, rec.EncodeCrf)
-                    .ConfigureAwait(false);
+                string? produced = null;
+
+                if (haveLiveVideo)
+                {
+                    Set(DemoJobState.Rendering, "Muxing live encode + audio (no second full encode).");
+                    recorder.EncodeStage = "Muxing live encode…";
+                    recorder.EncodePercent = 85;
+                    produced = await FfmpegMp4Composer
+                        .MuxCopyVideoAudioAsync(recorder.LiveVideoPath!, audioForMux, mp4, ct)
+                        .ConfigureAwait(false);
+                    log.AppendLine("Used live H.264 pipe + remux.");
+                }
+
+                if (produced == null && jpegs.Count > 0)
+                {
+                    Set(DemoJobState.Rendering,
+                        $"Encoding {outW}×{outH} @ {rec.Fps} fps MP4 with ffmpeg (JPEG fallback).");
+                    recorder.EncodeStage = "JPEG fallback encode…";
+                    recorder.EncodePercent = 50;
+                    produced = await FfmpegMp4Composer
+                        .ComposeFramesAudioAsync(
+                            framesDir, "f%05d.jpg", audioForMux, mp4,
+                            rec.Fps, outW, outH, ct, rec.EncodeCrf)
+                        .ConfigureAwait(false);
+                }
+
+                log.AppendLine(
+                    $"Recorder {rec.Summary}; frames={recorder.EncodedFrames} dropped={recorder.DroppedFrames}");
 
                 Set(DemoJobState.Validating, "Checking the MP4 is a real ISO-BMFF file.");
                 if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))

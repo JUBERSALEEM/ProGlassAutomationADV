@@ -101,6 +101,17 @@
                             BorderThickness="0"
                             Visibility="{Binding IsIdle,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <Button Content="PAUSE / RESUME"
+                            Command="{Binding PauseCommand}"
+                            MinWidth="120" Height="32" Padding="14,0"
+                            Margin="0,0,8,8" Cursor="Hand"
+                            FontSize="12" FontWeight="SemiBold"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            Visibility="{Binding IsRecording,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
                     <Button Content="STOP &amp; SAVE"
                             Command="{Binding StopCommand}"
                             AutomationProperties.AutomationId="ScreenRecord.Stop"

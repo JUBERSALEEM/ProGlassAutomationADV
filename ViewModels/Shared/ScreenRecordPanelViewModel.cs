@@ -36,6 +36,9 @@ namespace ProGlassAutomation.ViewModels.Shared
             StopCommand = new RelayCommand(
                 async _ => await _svc.StopAndSaveAsync().ConfigureAwait(true),
                 _ => _svc.IsRecording);
+            PauseCommand = new RelayCommand(
+                _ => _svc.TogglePause(),
+                _ => _svc.IsRecording);
             OpenOutputCommand = new RelayCommand(_ => _svc.OpenOutput());
 
             _svc.Changed += RaiseStatus;
@@ -104,6 +107,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         }
 
         public bool IsRecording => _svc.IsRecording;
+        public bool IsPaused => _svc.IsPaused;
         public bool IsEncoding => _svc.IsEncoding;
         public bool IsBusy => _svc.IsBusy;
         public bool IsIdle => !_svc.IsBusy;
@@ -123,6 +127,7 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         public ICommand StartCommand { get; }
         public ICommand StopCommand { get; }
+        public ICommand PauseCommand { get; }
         public ICommand OpenOutputCommand { get; }
 
         private void PushSettings()
