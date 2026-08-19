@@ -595,13 +595,13 @@ namespace ProGlassAutomation
                 AuditService.CurrentUsername,
                 AuditService.CurrentUser?.DisplayName ?? "");
 
-            // 14) Main window handoff — paint main UNDER the still-topmost
-            // splash, then fade splash through it. No desktop gap.
+            // 14) Main window handoff — splash stays Topmost and covers
+            // the shell until it fades. WPF forbids ShowActivated=false
+            // on a Maximized window (InvalidOperationException).
             var mainWindow = new MainWindow();
             MainWindow = mainWindow;
             ShutdownMode = ShutdownMode.OnLastWindowClose;
 
-            mainWindow.ShowActivated = false;
             mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Show();
             await WaitForWindowReadyAsync(mainWindow);
