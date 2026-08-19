@@ -1,3 +1,8 @@
+<!--
+    Step 9 — P&amp;L. Approved mockup:
+    one workbench, KPI strip, always-visible build-order layers, rate-check row.
+    Bindings and calculations unchanged.
+-->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss.ProfitLossStepView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -13,455 +18,276 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
-        <!-- Field label — matches the other wizard steps -->
-        <Style x:Key="PlLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
-        </Style>
-
-        <!-- Numeric input -->
         <Style x:Key="PlInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="12,0"/>
-            <Setter Property="Height"                   Value="38"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-        </Style>
-
-        <!-- Totals tile shell -->
-        <Style x:Key="PlTileStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="16,14"/>
-        </Style>
-
-        <Style x:Key="PlTileCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,8"/>
-        </Style>
-
-        <Style x:Key="PlTileValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
-
-        <!-- Row list column headers -->
-        <Style x:Key="PlHeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
         <Style x:Key="PlCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
-
     </UserControl.Resources>
 
-    <!-- HorizontalScrollBarVisibility must be Disabled: at the default
-         (Auto) the content is measured at infinite width, so the wrapping
-         TextBlocks on this page never wrap and the cards run off-screen. -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   CanContentScroll="False"
                   PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="0,0,0,0">
+        <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+            <StackPanel>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 HEADER + CONTROLS
-            ══════════════════════════════════════════════════════════ -->
-            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
-                <StackPanel>
-
-                    <TextBlock Text="{Binding Title}"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="{Binding Subtitle}"
-                               Style="{StaticResource ModulePageSubtitleStyle}"
+                <Grid Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="WASTAGE %" Style="{StaticResource PiFieldLabelStyle}"/>
+                        <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource PlInputStyle}"
+                                 ToolTip="Cutting allowance added to the required area before sheets are rounded up"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="2"
+                              Content="Cost glass at SELLING price"
+                              IsChecked="{Binding CostAtSellingPrice}"
+                              Cursor="Hand"
+                              FontSize="12"
+                              Foreground="{DynamicResource PrimaryForegroundBrush}"
+                              VerticalAlignment="Bottom"
+                              Margin="0,0,0,8"
+                              ToolTip="Off = Sheet Store purchase price. On = selling price matching Step 4 base rates."/>
+                    <Button Grid.Column="4"
+                            Content="RECALCULATE"
+                            Command="{Binding RecalculateCommand}"
+                            Style="{StaticResource PiFooterPrimaryButton}"
+                            VerticalAlignment="Bottom"/>
+                    <TextBlock Grid.Column="5"
+                               Text="{Binding StatusMessage}"
+                               FontSize="11"
                                TextWrapping="Wrap"
-                               Margin="0,0,0,12"/>
+                               VerticalAlignment="Bottom"
+                               Margin="16,0,0,8"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Grid>
 
-                    <!-- Wastage + recalculate -->
+                <Border Style="{StaticResource PiMetricStripStyle}" Padding="0,4,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.3*"/>
                         </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="WASTAGE %" Style="{StaticResource PlLabelStyle}"/>
-                            <TextBox Text="{Binding WastagePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource PlInputStyle}"
-                                     ToolTip="Cutting allowance added to the required area before sheets are rounded up"/>
-                        </StackPanel>
-
-                        <!-- COST BASIS.
-                             Step 4 fills its base prices from the Sheet Store
-                             SELLING price, but the P&amp;L costs at PURCHASE.
-                             Both are valid questions, and a profit figure whose
-                             basis is unstated cannot be checked, so the choice
-                             is explicit and named in the status line. -->
-                        <StackPanel Grid.Column="2"
-                                    VerticalAlignment="Bottom"
-                                    Margin="0,0,16,8">
-                            <CheckBox Content="Cost glass at SELLING price"
-                                      IsChecked="{Binding CostAtSellingPrice}"
-                                      Cursor="Hand"
-                                      FontSize="12"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                      ToolTip="Off (default) = cost at Sheet Store purchase price, giving true profit against supplier cost. On = cost at selling price, matching the Step 4 base rates."/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
-                            <Button Content="RECALCULATE"
-                                    Tag="&#xE72C;"
-                                    Command="{Binding RecalculateCommand}"
-                                    Style="{StaticResource PrimaryPillButton}"/>
-                        </StackPanel>
-
-                        <TextBlock Grid.Column="4"
-                                   Text="{Binding StatusMessage}"
-                                   FontSize="11"
-                                   TextWrapping="Wrap"
-                                   VerticalAlignment="Bottom"
-                                   Margin="16,0,0,10"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="GROSS VAT INCL" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="NET ÷ 1.05" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="GLASS COST" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
+                            <StackPanel>
+                                <TextBlock Text="PRODUCTION · ASP" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
+                            <StackPanel>
+                                <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="{Binding ProfitDisplay}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
+                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="{Binding MarginDisplay}" FontSize="11" FontWeight="SemiBold" Margin="0,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                                <TextBlock Text="{Binding MarkupDisplay}"
+                                           FontSize="10"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Margin="0,2,0,0"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
                     </Grid>
+                </Border>
 
-                </StackPanel>
-            </Border>
+                <ItemsControl ItemsSource="{Binding SpecGroupsView}"
+                              Visibility="{Binding HasSpecGroups, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="0,10,0,4">
+                                <Grid Margin="0,0,0,4">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{Binding HeaderDisplay}"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding TotalCostDisplay}"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"/>
+                                </Grid>
+                                <TextBlock Text="{Binding SpecName}"
+                                           FontFamily="Consolas"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           TextWrapping="Wrap"
+                                           Margin="0,0,0,6"/>
 
-            <!-- KPI strip — one work surface, not five tiles -->
-            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="10,8" Margin="0,12,0,0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1.4*"/>
-                    </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
-                        <StackPanel>
-                            <TextBlock Text="GROSS VAT INCL" Style="{StaticResource PiKpiCaptionStyle}"/>
-                            <TextBlock Text="{Binding GrossDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                        </StackPanel>
-                    </Border>
-
-                <Border Grid.Column="1" Style="{StaticResource PiKpiCellStyle}">
-                        <StackPanel>
-                            <TextBlock Text="NET ÷ 1.05" Style="{StaticResource PiKpiCaptionStyle}"/>
-                            <TextBlock Text="{Binding NetDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="2" Style="{StaticResource PiKpiCellStyle}">
-                        <StackPanel>
-                            <TextBlock Text="GLASS COST" Style="{StaticResource PiKpiCaptionStyle}"/>
-                            <TextBlock Text="{Binding GlassCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
-                        <StackPanel>
-                            <TextBlock Text="PRODUCTION · ASP" Style="{StaticResource PiKpiCaptionStyle}"/>
-                            <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="4" Style="{StaticResource PiKpiCellStyle}" BorderThickness="0">
-                        <StackPanel>
-                            <TextBlock Text="{Binding ProfitLabel}" Style="{StaticResource PiKpiCaptionStyle}"/>
-                            <TextBlock Text="{Binding ProfitDisplay}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource PiKpiValueStyle}">
-                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBlock Text="{Binding MarginDisplay}"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Margin="0,2,0,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsLoss}" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <TextBlock Text="{Binding MarkupDisplay}"
-                                       FontSize="10"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,2,0,0"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
-
-                        <!-- ══════════════════════════════════════════════════════════
-                 COST BREAKDOWN
-            ══════════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="0"
-                    Margin="0,16,0,0"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}">
-                <StackPanel>
-
-                    <!-- Accent table header -->
-                    <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="16,8"
-                            Margin="0,0,0,6">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <!-- Must stay in step with the row template
-                                     below, or headers drift off their data.
-
-                                     The SPEC column was dropped: every row is
-                                     now inside its own specification section,
-                                     so repeating the specification on each
-                                     line was noise. Six columns here, six in
-                                     the row template. -->
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="*" MinWidth="180"/>
-                                <ColumnDefinition Width="190"/>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition Width="110"/>
-                                <ColumnDefinition Width="110"/>
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Column="0" Text="KIND"        Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="1" Text="DESCRIPTION" Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="2" Text="SHEET SIZE"  Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="3" Text="QTY"         Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="4" Text="PRICE"       Style="{StaticResource PlHeaderCellStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="5" Text="AMOUNT AED"  Style="{StaticResource PlHeaderCellStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-                    </Border>
-
-                    <!-- ══════════════════════════════════════════════
-                         ROWS, GROUPED BY SPECIFICATION
-
-                         Each specification is its own expandable section.
-                         A flat list of every cost line read
-                             glass · spacer · glass · glass · spacer · glass
-                         once there was more than one specification, with
-                         nothing marking where a product started or ended.
-
-                         Each section header carries that specification's
-                         cost per SQM, and inside it a rate box answers
-                         "if I quote X, what margin is that" for this
-                         product alone. The invoice total cannot answer
-                         that: it mixes every specification together.
-                    ══════════════════════════════════════════════ -->
-                    <ItemsControl ItemsSource="{Binding SpecGroupsView}"
-                                  Visibility="{Binding HasSpecGroups, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border Style="{StaticResource PiLayerStripStyle}"
-                                        Margin="0,0,0,8">
-                                    <StackPanel>
-                                        <Grid Margin="0,0,0,6">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Text="{Binding HeaderDisplay}"
-                                                       FontSize="11"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextWrapping="Wrap"/>
-                                            <TextBlock Grid.Column="1"
-                                                       Text="{Binding TotalCostDisplay}"
-                                                       FontSize="11"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="12,0,0,0"/>
-                                        </Grid>
-
-                                        <!-- Full specification text -->
-                                        <TextBlock Text="{Binding SpecName}"
-                                                   FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   TextWrapping="Wrap"
-                                                   Margin="0,0,0,6"/>
-
-                                        <!-- Cost lines, in physical build order -->
-                                        <ItemsControl ItemsSource="{Binding Rows}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
-                                                            BorderThickness="0,0,0,1"
-                                                            Padding="0,6">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="80"/>
-                                                                <ColumnDefinition Width="*" MinWidth="180"/>
-                                                                <ColumnDefinition Width="190"/>
-                                                                <ColumnDefinition Width="60"/>
-                                                                <ColumnDefinition Width="110"/>
-                                                                <ColumnDefinition Width="110"/>
-                                                            </Grid.ColumnDefinitions>
-
-                                                            <TextBlock Grid.Column="0"
-                                                                       Text="{Binding Kind}"
-                                                                       Style="{StaticResource PlCellStyle}"
-                                                                       FontWeight="SemiBold"
-                                                                       Foreground="{DynamicResource AccentBrush}"/>
-
-                                                            <TextBlock Grid.Column="1"
-                                                                       Text="{Binding Description}"
-                                                                       Style="{StaticResource PlCellStyle}"
-                                                                       TextWrapping="Wrap"
-                                                                       Margin="0,0,12,0"/>
-
-                                                            <TextBlock Grid.Column="2"
-                                                                       Text="{Binding SizeDisplay}"
-                                                                       Style="{StaticResource PlCellStyle}"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                                                            <TextBlock Grid.Column="3"
-                                                                       Text="{Binding QuantityDisplay}"
-                                                                       Style="{StaticResource PlCellStyle}"/>
-
-                                                            <TextBlock Grid.Column="4"
-                                                                       Text="{Binding PriceDisplay}"
-                                                                       Style="{StaticResource PlCellStyle}"
-                                                                       HorizontalAlignment="Right"/>
-
-                                                            <TextBlock Grid.Column="5"
-                                                                       Text="{Binding AmountDisplay}"
-                                                                       Style="{StaticResource PlCellStyle}"
-                                                                       FontWeight="Bold"
-                                                                       HorizontalAlignment="Right"/>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-
-                                        <!-- ── RATE CHECK ────────────────── -->
-                                        <Border Background="{DynamicResource TintPurpleBrush}"
-                                                BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="{DynamicResource CardBorderThickness}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="10,7"
-                                                Margin="0,8,0,0">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="110"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <TextBlock Grid.Column="0"
-                                                           Text="CHECK RATE / SQM"
-                                                           FontSize="10"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,10,0"/>
-
-                                                <TextBox Grid.Column="1"
-                                                         Text="{Binding QuotedRatePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                                         Style="{StaticResource PlInputStyle}"
-                                                         ToolTip="Type the rate you intend to quote for this specification. The mark-up it actually earns is shown beside it."/>
-
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding RateCheckDisplay}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"
-                                                           TextWrapping="Wrap"
-                                                           Margin="12,0,0,0">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="Foreground"
-                                                                    Value="{DynamicResource SuccessBrush}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsQuotedRateBelowCost}"
-                                                                             Value="True">
-                                                                    <Setter Property="Foreground"
-                                                                            Value="{DynamicResource DangerBrush}"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding HasQuotedRate}"
-                                                                             Value="False">
-                                                                    <Setter Property="Foreground"
-                                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </Grid>
-                                        </Border>
-
-                                    </StackPanel>
+                                <Border Style="{StaticResource PiTableHeaderStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*" MinWidth="180"/>
+                                            <ColumnDefinition Width="190"/>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="110"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="KIND" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="1" Text="DESCRIPTION" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="2" Text="SHEET SIZE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                                        <TextBlock Grid.Column="4" Text="PRICE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                        <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                    </Grid>
                                 </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
 
-                    <!-- Empty state -->
-                    <Border Padding="24,32"
-                            Visibility="{Binding HasSpecGroups, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE9D9;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="28"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,10"/>
-                            <TextBlock Text="No costed lines yet"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="Press RECALCULATE once Step 5 has glass items."
-                                       FontSize="11"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,4,0,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
+                                <ItemsControl ItemsSource="{Binding Rows}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderThickness="0,0,0,1"
+                                                    Padding="0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="*" MinWidth="180"/>
+                                                        <ColumnDefinition Width="190"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="110"/>
+                                                        <ColumnDefinition Width="110"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding Kind}"
+                                                               Style="{StaticResource PlCellStyle}"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding Description}"
+                                                               Style="{StaticResource PlCellStyle}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="0,0,12,0"/>
+                                                    <TextBlock Grid.Column="2" Text="{Binding SizeDisplay}"
+                                                               Style="{StaticResource PlCellStyle}"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <TextBlock Grid.Column="3" Text="{Binding QuantityDisplay}"
+                                                               Style="{StaticResource PlCellStyle}"/>
+                                                    <TextBlock Grid.Column="4" Text="{Binding PriceDisplay}"
+                                                               Style="{StaticResource PlCellStyle}"
+                                                               HorizontalAlignment="Right"/>
+                                                    <TextBlock Grid.Column="5" Text="{Binding AmountDisplay}"
+                                                               Style="{StaticResource PlCellStyle}"
+                                                               FontWeight="Bold"
+                                                               HorizontalAlignment="Right"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
 
-                </StackPanel>
-            </Border>
+                                <Grid Margin="0,8,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="CHECK RATE / SQM"
+                                               Style="{StaticResource PiFieldLabelStyle}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <TextBox Grid.Column="1"
+                                             Text="{Binding QuotedRatePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource PlInputStyle}"
+                                             ToolTip="Type the rate you intend to quote. Mark-up is shown beside it."/>
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding RateCheckDisplay}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               TextWrapping="Wrap"
+                                               Margin="12,0,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsQuotedRateBelowCost}" Value="True">
+                                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding HasQuotedRate}" Value="False">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-        </StackPanel>
+                <TextBlock Text="No costed lines yet. Press RECALCULATE once Step 5 has glass items."
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,12,0,0"
+                           Visibility="{Binding HasSpecGroups, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+            </StackPanel>
+        </Border>
     </ScrollViewer>
 </UserControl>

@@ -1,6 +1,6 @@
 # Proforma Invoice — industrial redesign
 
-**Status:** approved mockup implemented (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
+**Status:** Steps 1–9 rebuilt to the approved mockup compositions (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
 
 Mockups in this folder are **structure boards**, not final pixels. Garbled sample text in the PNGs is image-model noise. The rules below are what was built.
 
@@ -40,43 +40,43 @@ Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`
 ## Per-step structure
 
 ### 1 Company
-Two columns on **one** workbench: **form 2/3** | **saved companies 1/3**. LETTERHEAD then DOCUMENT IDENTITY. Slim rows, not cards.
+Two columns on **one** workbench: **form 2/3** | **saved companies 1/3**. LETTERHEAD then DOCUMENT IDENTITY. Slim rows, not cards. Skip-to-grid is a text link in the letterhead header.
 
 ### 2 Client
-Same two-column pattern.
+Same two-column pattern. 3-column identity grid + tall billing address.
 
 ### 3 Project
-Same pattern. Slim project list **filtered by Step 2 client**.
+Same pattern. Slim project list **filtered by Step 2 client**. Filter is an inline line, not a banner card.
 
 ### 4 Glass (SGU / DGU / LAM / DGU+LAM)
 - Type switch: **one 32 px chip row** — SGU | DGU | LAM | DGU+LAM.
-- Live `GlassAssemblyShowcase` (isometric manufacturing drawing, not a placeholder image).
+- Live `GlassAssemblyShowcase` (manufacturing drawing, not a placeholder image).
 - Product is a **layer strip, always expanded**:
 
-| Type | Layers always visible |
+| Type | Composition |
 |---|---|
-| SGU | 1 pane + sheet + costing |
-| DGU | Outer · Air spacer · Inner · costing |
-| LAM | Outer · Interlayer · Inner · shop work · costing |
-| DGU+LAM | Outer · Spacer · Lam outer · Interlayer · Lam inner · shop work · costing |
+| SGU | Wide hero pane + two metric strips |
+| DGU | Outer · Air spacer · Inner · costing (full-width rows) |
+| LAM | Exploded stack centre · layer identity left · editors right · six costing tiles |
+| DGU+LAM | Cutaway left · numbered five-layer sandwich · costing rail |
 
 - Live spec name = one monospace line.
 - Sticky apply bar: target-group chips + rate AED /sqm + APPLY RATE.
 
 ### 5 Grid
-Spec tabs on top. One table. Sticky totals.
+Spec tabs on top. Toolbar: glass type / spec / base / surcharge. One table: `# REF W1 H1 W2 H2 QTY SQM LM RATE VALUE`. Sticky subtotal. Slim grand-total strip. No imported-price card stack.
 
 ### 6 Charges
-Three **table bands** on one surface: Predefined · Wastage · Custom. One KPI strip.
+Three **table bands** on one surface: Predefined · Wastage · Custom. One KPI strip. Combined footer.
 
 ### 7 Preview
-Split: left steel controls (summary, discount, VAT, terms, save/export). Right **paper-white** print proof.
+Split: left steel controls (summary form, discount, VAT, terms checklist, save/export). Right **paper-white** print proof.
 
 ### 8 Files
 One file table: TYPE | NAME | SIZE | ADDED | ACTIONS. `+ IMAGE` `+ PDF`.
 
 ### 9 P&L
-One KPI strip (Gross | Net | Glass | ASP | Profit). Then layers in **build order**. Rate-check row. Unpriced panes stay visible.
+One workbench. KPI strip (Gross | Net | Glass | ASP | Profit). Layers in **build order**. Rate-check row. Unpriced panes stay visible.
 
 ---
 

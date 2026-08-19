@@ -1,88 +1,42 @@
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages.WastagesSectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="1200"
+             d:DesignHeight="300" d:DesignWidth="1200"
              FontFamily="Segoe UI"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             COMPACT INPUT — matches other Step 6 tables
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="RowInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="12"/>
-            <Setter Property="Padding"                    Value="10,0"/>
-            <Setter Property="Height"                     Value="32"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
-
-        <!-- Rate input — money green -->
         <Style x:Key="RateInputStyle" TargetType="TextBox" BasedOn="{StaticResource RowInputStyle}">
-            <Setter Property="Foreground"                 Value="{DynamicResource SuccessBrush}"/>
-            <Setter Property="FontWeight"                 Value="Bold"/>
-            <Setter Property="Height"                     Value="30"/>
-            <Setter Property="MinWidth"                   Value="64"/>
-            <Setter Property="Padding"                    Value="8,0"/>
+            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
         </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             MULTI-SELECT SOURCE TOGGLE BUTTON
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="SourceToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Height"                   Value="32"/>
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="12"/>
-            <Setter Property="Padding"                  Value="12,0"/>
-            <Setter Property="Cursor"                   Value="Hand"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -91,23 +45,17 @@
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
+                                Padding="{TemplateBinding Padding}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0"
-                                                  VerticalAlignment="Center"
-                                                  HorizontalAlignment="Left"/>
-                                <TextBlock Grid.Column="1"
-                                           Text="&#xE70D;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="10"
+                                <ContentPresenter Grid.Column="0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="&#xE70D;"
+                                           FontFamily="Segoe MDL2 Assets" FontSize="10"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="6,0,0,0"/>
+                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -115,245 +63,137 @@
                                 <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
-
     </UserControl.Resources>
 
-    <StackPanel Margin="0,24,0,0">
-
-        <!-- ══════════════════════════════════════════════════════════════
-             SECTION HEADER — icon badge + title + subtitle + add button
-        ══════════════════════════════════════════════════════════════ -->
-        <Grid Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Title group -->
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="WASTAGE"
-                           Style="{StaticResource PiSectionLabelStyle}"
-                           Margin="0"/>
-                <TextBlock Text="Auto-aggregated by colour from the data grid"
-                           FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
-
-            <!-- Add wastage row button -->
-            <Button Grid.Column="1"
+    <StackPanel>
+        <Grid Margin="0,16,0,6">
+            <TextBlock Text="WASTAGE CHARGES" Style="{StaticResource PiBandTitleStyle}" Margin="0"/>
+            <Button HorizontalAlignment="Right"
                     Command="{Binding AddWastageCommand}"
-                    Background="Transparent"
-                    BorderThickness="0"
-                    Cursor="Hand"
-                    VerticalAlignment="Center">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="AB"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="14,8"
-                                SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="+"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           FontSize="14"
-                                           FontWeight="Bold"
-                                           Margin="0,0,8,0"/>
-                                <TextBlock Text="ADD WASTAGE ROW"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           FontSize="11"
-                                           FontWeight="Bold"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="AB" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="AB" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Button.Template>
+                    Style="{StaticResource PiGhostChipButton}">
+                <TextBlock Text="+ ADD ROW"
+                           FontSize="11" FontWeight="Bold"
+                           Foreground="{DynamicResource AccentBrush}"/>
             </Button>
         </Grid>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             WASTAGE ROWS
-        ══════════════════════════════════════════════════════════════ -->
+        <Border Style="{StaticResource PiTableHeaderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="48"/>
+                    <ColumnDefinition Width="1.6*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="0.9*"/>
+                    <ColumnDefinition Width="0.8*"/>
+                    <ColumnDefinition Width="1.6*"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="1" Text="COLOUR" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="2" Text="SOURCE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="3" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
+
         <ItemsControl ItemsSource="{Binding WastageRows}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            Padding="0,12">
+                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="8,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="60"/>
-                                <!-- Active checkbox -->
-                                <ColumnDefinition Width="2.6*"/>
-                                <!-- Color name -->
-                                <ColumnDefinition Width="2.3*"/>
-                                <!-- Sources popup -->
-                                <ColumnDefinition Width="1*"/>
-                                <!-- Total SQM badge -->
-                                <ColumnDefinition Width="1*"/>
-                                <!-- Rate -->
-                                <ColumnDefinition Width="1.7*"/>
-                                <!-- Formula result -->
-                                <ColumnDefinition Width="44"/>
-                                <!-- Delete -->
+                                <ColumnDefinition Width="48"/>
+                                <ColumnDefinition Width="1.6*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1.6*"/>
+                                <ColumnDefinition Width="36"/>
                             </Grid.ColumnDefinitions>
-
-                            <!-- Active checkbox -->
                             <CheckBox Grid.Column="0"
                                       IsChecked="{Binding IsActive}"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       Cursor="Hand"/>
-
-                            <!-- Color name input -->
                             <TextBox Grid.Column="1"
                                      Text="{Binding ColorName, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource RowInputStyle}"
-                                     Margin="4,0,10,0"/>
-
-                            <!-- Sources multi-select popup -->
-                            <Grid Grid.Column="2" Margin="0,0,10,0">
+                                     Margin="0,0,8,0"/>
+                            <Grid Grid.Column="2" Margin="0,0,8,0">
                                 <ToggleButton x:Name="SourceToggle"
-                                              Content="Select Sources"
+                                              Content="Select sources"
                                               Style="{StaticResource SourceToggleButtonStyle}"/>
-
                                 <Popup IsOpen="{Binding IsChecked, ElementName=SourceToggle}"
                                        StaysOpen="False"
                                        PlacementTarget="{Binding ElementName=SourceToggle}"
-                                       AllowsTransparency="True"
-                                       PopupAnimation="Fade">
+                                       AllowsTransparency="True">
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="{DynamicResource CardBorderThickness}"
+                                            BorderThickness="1"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                            Padding="14"
+                                            Padding="12"
                                             MaxHeight="320"
                                             Width="380">
-                                        <Border.Effect>
-                                            <DropShadowEffect BlurRadius="18"
-                                                              ShadowDepth="4"
-                                                              Direction="270"
-                                                              Color="Black"
-                                                              Opacity="0.18"/>
-                                        </Border.Effect>
                                         <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                            <StackPanel>
-                                                <!-- Popup header -->
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                                    <TextBlock Text="&#xE762;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="11"
-                                                               Foreground="{DynamicResource AccentBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,8,0"/>
-                                                    <TextBlock Text="CHOOSE SQM SOURCES"
-                                                               FontSize="10"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource AccentBrush}"
-                                                               VerticalAlignment="Center"/>
-                                                </StackPanel>
-
-                                                <!-- Sources list -->
-                                                <ItemsControl ItemsSource="{Binding AvailableSources}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <CheckBox IsChecked="{Binding IsChecked}"
-                                                                      Margin="0,0,0,8"
-                                                                      Cursor="Hand">
-                                                                <StackPanel Orientation="Horizontal">
-                                                                    <TextBlock Text="{Binding DisplayLabel}"
-                                                                               FontSize="12"
-                                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                                    <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
-                                                                               FontSize="11"
-                                                                               FontWeight="Bold"
-                                                                               Foreground="{DynamicResource AccentBrush}"
-                                                                               Margin="10,0,0,0"/>
-                                                                </StackPanel>
-                                                            </CheckBox>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                </ItemsControl>
-                                            </StackPanel>
+                                            <ItemsControl ItemsSource="{Binding AvailableSources}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <CheckBox IsChecked="{Binding IsChecked}"
+                                                                  Margin="0,0,0,6"
+                                                                  Cursor="Hand">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="{Binding DisplayLabel}"
+                                                                           FontSize="12"
+                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
+                                                                           FontSize="11" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource AccentBrush}"
+                                                                           Margin="10,0,0,0"/>
+                                                            </StackPanel>
+                                                        </CheckBox>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
                                         </ScrollViewer>
                                     </Border>
                                 </Popup>
                             </Grid>
-
-                            <!-- Total SQM badge — Deep Royal Blue tint -->
-                            <Border Grid.Column="3"
-                                    Background="{DynamicResource TintBlueBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,5"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:0.000} sqm}"
-                                           FontSize="12"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                            </Border>
-
-                            <!-- Rate input — Deep Forest green money color -->
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBox Grid.Column="4"
                                      Text="{Binding Rate, StringFormat={}{0:0.##}}"
                                      Style="{StaticResource RateInputStyle}"
                                      Margin="4,0"/>
-
-                            <!-- Formula display -->
                             <TextBlock Grid.Column="5"
                                        Text="{Binding FormulaDisplay}"
-                                       FontSize="11"
+                                       FontSize="11" FontWeight="Bold"
                                        TextAlignment="Right"
                                        VerticalAlignment="Center"
-                                       FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"
-                                       TextWrapping="Wrap"
-                                       Margin="10,0,0,0"/>
-
-                            <!-- Delete row button -->
+                                       TextWrapping="Wrap"/>
                             <Button Grid.Column="6"
                                     Command="{Binding DataContext.RemoveWastageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Cursor="Hand"
-                                    ToolTip="Remove Wastage Row">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="DB"
-                                                Background="Transparent"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="8,6">
-                                            <TextBlock Text="&#xE711;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="12"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource DangerBrush}"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="DB" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
+                                    Style="{StaticResource PiIconButtonStyle}"
+                                    ToolTip="Remove wastage row">
+                                <TextBlock Text="&#xE711;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource DangerBrush}"/>
                             </Button>
                         </Grid>
                     </Border>
@@ -361,12 +201,12 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             EMPTY STATE — visible only when zero rows
-        ══════════════════════════════════════════════════════════════ -->
-        <StackPanel HorizontalAlignment="Center" Margin="0,24,0,0">
-            <StackPanel.Style>
-                <Style TargetType="StackPanel">
+        <TextBlock Text="No wastage rows. Add a colour-side scrap charge if needed."
+                   FontSize="11"
+                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                   Margin="0,8,0,0">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding WastageRows.Count}" Value="0">
@@ -374,30 +214,7 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </StackPanel.Style>
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                    Width="48" Height="48"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,10">
-                <TextBlock Text="&#xE790;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="20"
-                           Foreground="{DynamicResource AccentBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-            </Border>
-            <TextBlock Text="No glass wastages added yet"
-                       FontSize="12"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                       HorizontalAlignment="Center"/>
-            <TextBlock Text="Click 'Add Wastage Row' to include material scrap charges by color."
-                       FontSize="11"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       HorizontalAlignment="Center"
-                       Margin="0,4,0,0"/>
-        </StackPanel>
-
+            </TextBlock.Style>
+        </TextBlock>
     </StackPanel>
 </UserControl>

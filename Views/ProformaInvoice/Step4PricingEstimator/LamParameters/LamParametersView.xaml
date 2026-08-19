@@ -1,3 +1,7 @@
+<!--
+    LAM mockup: exploded stack centre, layer identity left, editors right, six costing tiles.
+    All original bindings kept.
+-->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters.LamParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,7 +10,6 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- LAM mockup: exploded stack in the centre, layer identity left, values right, costing tiles. -->
     <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
         <DockPanel>
             <UniformGrid DockPanel.Dock="Bottom" Columns="6" Rows="1" Margin="0,10,0,0">
@@ -58,30 +61,39 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="168"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <Border Style="{StaticResource PiLayerStripStyle}" Padding="10,14">
-                        <TextBlock Text="OUTER GLASS" Style="{StaticResource PiLayerTitleStyle}"/>
-                    </Border>
-                    <Border Style="{StaticResource PiLayerStripStyle}"
-                            Background="{DynamicResource TintAmberBrush}"
-                            BorderBrush="{DynamicResource WarningBrush}"
-                            Padding="10,14">
-                        <StackPanel>
-                            <TextBlock Text="INTERLAYER" Style="{StaticResource PiLayerTitleStyle}"/>
-                            <TextBlock Text="Safety / PVB tint"
-                                       FontSize="10"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <Border Style="{StaticResource PiLayerStripStyle}" Padding="10,14">
-                        <TextBlock Text="INNER GLASS" Style="{StaticResource PiLayerTitleStyle}"/>
-                    </Border>
-                </StackPanel>
+                <Border Grid.Row="0" Style="{StaticResource PiLayerStripStyle}"
+                        Margin="0,0,8,6" VerticalAlignment="Stretch">
+                    <TextBlock Text="OUTER GLASS"
+                               Style="{StaticResource PiLayerTitleStyle}"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="1" Style="{StaticResource PiLayerStripStyle}"
+                        Background="{DynamicResource TintAmberBrush}"
+                        BorderBrush="{DynamicResource WarningBrush}"
+                        Margin="0,0,8,6" VerticalAlignment="Stretch">
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="INTERLAYER" Style="{StaticResource PiLayerTitleStyle}"/>
+                        <TextBlock Text="Safety / PVB tint"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Row="2" Style="{StaticResource PiLayerStripStyle}"
+                        Margin="0,0,8,0" VerticalAlignment="Stretch">
+                    <TextBlock Text="INNER GLASS"
+                               Style="{StaticResource PiLayerTitleStyle}"
+                               VerticalAlignment="Center"/>
+                </Border>
 
-                <glass:GlassAssemblyShowcase Grid.Column="1"
+                <glass:GlassAssemblyShowcase Grid.Column="1" Grid.Row="0" Grid.RowSpan="3"
                                              Kind="Lam"
                                              MinHeight="260"
                                              ShowWell="False"
@@ -96,10 +108,11 @@
                                              InterlayerThickness="{Binding PvbThickness}"
                                              InterlayerType="PVB"/>
 
-                <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto"
+                <ScrollViewer Grid.Column="2" Grid.Row="0" Grid.RowSpan="3"
+                              VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel>
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -118,7 +131,7 @@
                                           Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -136,7 +149,7 @@
                                          Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -153,8 +166,7 @@
                                          Style="{StaticResource Step4InputStyle}"/>
                             </StackPanel>
                         </Grid>
-
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -173,7 +185,7 @@
                                           Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -191,8 +203,7 @@
                                           Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
                         </Grid>
-
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>
@@ -211,7 +222,7 @@
                                           Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                         </Grid>
-                        <Grid Margin="0,0,0,10">
+                        <Grid Margin="0,0,0,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="6"/>

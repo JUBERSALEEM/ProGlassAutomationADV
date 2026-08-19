@@ -1,24 +1,7 @@
 <!--
-═══════════════════════════════════════════════════════════════════════
-FILE: Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml
-═══════════════════════════════════════════════════════════════════════
-CHAT 20 — SPEC NAME WRAPPING FIX
-  POPUP-01: Popup Border no longer fixed 360px — MinWidth 480, MaxWidth 720.
-            Expands to fit longest spec name.
-  POPUP-02: Spec CheckBox content is now wrapping TextBlock.
-            Long spec names like "SPEC 1 — 6mm HD Grey FT Glass +
-            12mm ASP + 6mm Clear FT Glass" wrap to multiple lines
-            instead of truncating.
-  POPUP-03: Metric RadioButton content is now wrapping TextBlock.
-            Same treatment for consistency.
-  POPUP-04: ToolTip on hover shows full spec/metric name.
-
-CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
-  PERF-01/02, UI-01, UI-02 preserved from prior deliveries.
-  UI-03:  "CHARGE BASIS" column uses a Popup ToggleButton showing
-          two sections: SELECT SPECS (checkboxes) + SELECT METRIC (radio).
-  All bindings, Bug 4/5 fixes, MultiDataTriggers preserved.
-═══════════════════════════════════════════════════════════════════════
+    Step 6 — Charges. Approved mockup composition:
+    one workbench, KPI strip, then three table bands:
+    Predefined · Wastage · Custom. Bindings and popups unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.OtherChargesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -34,30 +17,37 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
         <Style x:Key="RateInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"                Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                Value="{DynamicResource SuccessBrush}"/>
-            <Setter Property="BorderThickness"           Value="1"/>
-            <Setter Property="BorderBrush"               Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                  Value="12"/>
-            <Setter Property="FontWeight"                Value="Bold"/>
-            <Setter Property="Padding"                   Value="8,0"/>
-            <Setter Property="Height"                    Value="30"/>
-            <Setter Property="MinWidth"                  Value="64"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="MinWidth" Value="64"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
+                        <Border x:Name="B"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -65,10 +55,8 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Setter TargetName="B" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -79,56 +67,27 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
 
         <Style x:Key="CustomInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="12"/>
-            <Setter Property="Padding"                  Value="10,0"/>
-            <Setter Property="Height"                   Value="30"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
         </Style>
 
-        <Style x:Key="MetricCardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="14,12"/>
-            <Setter Property="Margin"          Value="4"/>
-            <Setter Property="MinWidth"        Value="150"/>
-        </Style>
-
-        <!-- Chat 17: Spec-target popup toggle button -->
         <Style x:Key="SpecTargetToggleStyle" TargetType="ToggleButton">
-            <Setter Property="Height"                     Value="32"/>
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="11"/>
-            <Setter Property="Padding"                    Value="10,0"/>
-            <Setter Property="Cursor"                     Value="Hand"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -137,23 +96,17 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
+                                Padding="{TemplateBinding Padding}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <ContentPresenter Grid.Column="0"
-                                                  VerticalAlignment="Center"
-                                                  HorizontalAlignment="Left"/>
-                                <TextBlock Grid.Column="1"
-                                           Text="&#xE70D;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="9"
+                                <ContentPresenter Grid.Column="0" VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1" Text="&#xE70D;"
+                                           FontFamily="Segoe MDL2 Assets" FontSize="9"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="6,0,0,0"/>
+                                           VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -162,7 +115,6 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="B" Property="Opacity" Value="0.55"/>
@@ -172,23 +124,14 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                 </Setter.Value>
             </Setter>
         </Style>
-
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="4,4,4,8">
+                  HorizontalScrollBarVisibility="Disabled">
         <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
-        <StackPanel>
+            <StackPanel>
 
-            <StackPanel Margin="0,0,0,10">
-                <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
-                <TextBlock Text="{Binding Subtitle}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
-            </StackPanel>
-
-            <!-- KPI strip — one work surface, not eight cards -->
-            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="10,8" Margin="0,0,0,12">
-                <StackPanel>
+                <Border Style="{StaticResource PiMetricStripStyle}" Padding="0,4,0,10">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -203,7 +146,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="LM1" Style="{StaticResource PiKpiCaptionStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="LM1" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
@@ -256,398 +199,307 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                             </StackPanel>
                         </Border>
                     </Grid>
-                    <ItemsControl ItemsSource="{Binding MetricHub.PrimaryGlassRefs}" Margin="0,8,0,0">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <WrapPanel/>
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3" Margin="0,0,4,4" ToolTip="{Binding}">
-                                    <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </StackPanel>
-            </Border>
+                </Border>
 
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="PREDEFINED CHARGES" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
-                    <TextBlock Text="Tick which specs each charge applies to, and pick which metric to sum." FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0"/>
-                </StackPanel>
-                <TextBlock Grid.Column="1"
-                           Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}}"
-                           FontSize="14" FontWeight="Bold"
-                           Foreground="{DynamicResource SuccessBrush}"
-                           VerticalAlignment="Center"/>
-            </Grid>
+                <TextBlock Text="PREDEFINED CHARGES" Style="{StaticResource PiBandTitleStyle}" Margin="0,4,0,6"/>
 
-            <!-- TABLE HEADER (UI-02: CHARGE BASIS) -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10" Margin="0,0,0,4">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="60"/>
-                        <ColumnDefinition Width="2.6*"/>
-                        <ColumnDefinition Width="2.6*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1.8*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="ACTIVE"                           FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Text="CHARGE ITEM &amp; DESCRIPTION"    FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="2" Text="CHARGE BASIS (SPECS + METRIC)"    FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="3" Text="QTY / SQM"                         FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="4" Text="RATE (AED)"                        FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="5" Text="FORMULA &amp; RESULT (AED)"        FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
-                </Grid>
-            </Border>
+                <Border Style="{StaticResource PiTableHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="56"/>
+                            <ColumnDefinition Width="2.2*"/>
+                            <ColumnDefinition Width="2.4*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="0.9*"/>
+                            <ColumnDefinition Width="1.8*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="CHARGE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="BASIS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="RESULT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
 
-            <!-- CHARGE ROWS -->
-            <ItemsControl ItemsSource="{Binding ChargeRows}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource OutlineBrush}" Padding="12,12" Margin="0,0,0,2">
-                            <StackPanel>
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="60"/>
-                                        <ColumnDefinition Width="2.6*"/>
-                                        <ColumnDefinition Width="2.6*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1.8*"/>
-                                    </Grid.ColumnDefinitions>
+                <ItemsControl ItemsSource="{Binding ChargeRows}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="8,8">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="56"/>
+                                            <ColumnDefinition Width="2.2*"/>
+                                            <ColumnDefinition Width="2.4*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="1.8*"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding IsActive, Mode=TwoWay}"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Cursor="Hand"/>
 
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="4,0,10,0">
-                                        <TextBlock Text="{Binding ChargeName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                            <Setter Property="TextDecorations" Value="Strikethrough"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
-                                    </StackPanel>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding ChargeName}"
+                                                       FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Setter Property="TextDecorations" Value="Strikethrough"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
 
-                                    <!--
-                                        CHAT 17 UI-03: Spec-target selector.
-                                        Column 2 holds either:
-                                          - Spec-target ToggleButton popup (non-polish rows)
-                                          - Polish sub-type dropdown ABOVE spec-target popup (polish rows)
-                                        Delivery rows show only a message.
-                                    -->
-                                    <Grid Grid.Column="2" Margin="0,0,10,0">
-                                        <!-- Delivery row info label -->
-                                        <TextBlock Text="Fixed 1 TRIP × Rate (per-invoice)"
-                                                   FontSize="11"
-                                                   FontStyle="Italic"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-
-                                        <!-- Non-delivery: stack polish sub-type (if polish) + spec-target popup -->
-                                        <StackPanel>
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
-                                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </StackPanel.Style>
-
-                                            <!-- Polish sub-type dropdown (polish rows only, shown ABOVE spec target) -->
-                                            <ComboBox ItemsSource="{Binding AvailablePolishSubTypes}"
-                                                      SelectedItem="{Binding SelectedPolishSubType, Mode=TwoWay}"
-                                                      DisplayMemberPath="DisplayLabel"
-                                                      IsEnabled="{Binding IsActive}"
-                                                      Height="30"
-                                                      VerticalContentAlignment="Center"
-                                                      Margin="0,0,0,4">
-                                                <ComboBox.Style>
-                                                    <Style TargetType="ComboBox">
+                                        <Grid Grid.Column="2" Margin="0,0,8,0">
+                                            <TextBlock Text="1 TRIP × Rate"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
                                                         <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsPolishRow}" Value="True">
+                                                            <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
                                                                 <Setter Property="Visibility" Value="Visible"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
-                                                </ComboBox.Style>
-                                            </ComboBox>
+                                                </TextBlock.Style>
+                                            </TextBlock>
 
-                                            <!-- Spec-target popup ToggleButton -->
-                                            <ToggleButton x:Name="TargetToggle"
-                                                          Content="{Binding TargetSelection.SummaryText, FallbackValue='Select specs and metric...'}"
-                                                          Style="{StaticResource SpecTargetToggleStyle}"
-                                                          IsEnabled="{Binding IsActive}"/>
+                                            <StackPanel>
+                                                <StackPanel.Style>
+                                                    <Style TargetType="StackPanel">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </StackPanel.Style>
 
-                                            <Popup IsOpen="{Binding IsChecked, ElementName=TargetToggle}"
-                                                   StaysOpen="False"
-                                                   PlacementTarget="{Binding ElementName=TargetToggle}"
-                                                   AllowsTransparency="True"
-                                                   PopupAnimation="Fade">
-                                                <!-- CHAT 20 POPUP-01: Removed fixed Width=360.
-                                                     MinWidth=480 ensures short spec names still get
-                                                     comfortable width. MaxWidth=720 prevents excessive
-                                                     stretch on very long spec names — beyond that,
-                                                     wrapping kicks in. -->
-                                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                        BorderBrush="{DynamicResource AccentBrush}"
-                                                        BorderThickness="{DynamicResource CardBorderThickness}"
-                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                        Padding="14"
-                                                        MinWidth="480"
-                                                        MaxWidth="720"
-                                                        MaxHeight="480">
-                                                    <Border.Effect>
-                                                        <DropShadowEffect BlurRadius="18"
-                                                                          ShadowDepth="4"
-                                                                          Direction="270"
-                                                                          Color="Black"
-                                                                          Opacity="0.18"/>
-                                                    </Border.Effect>
-                                                    <!-- Horizontal must be Disabled so the wrapping
-                                                         spec-name TextBlock below is measured at the
-                                                         popup width, not infinite width — otherwise
-                                                         TextWrapping is inert and long names run
-                                                         off-screen instead of wrapping. -->
-                                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                                                  HorizontalScrollBarVisibility="Disabled">
-                                                        <StackPanel DataContext="{Binding TargetSelection}">
+                                                <ComboBox ItemsSource="{Binding AvailablePolishSubTypes}"
+                                                          SelectedItem="{Binding SelectedPolishSubType, Mode=TwoWay}"
+                                                          DisplayMemberPath="DisplayLabel"
+                                                          IsEnabled="{Binding IsActive}"
+                                                          Height="28"
+                                                          VerticalContentAlignment="Center"
+                                                          Margin="0,0,0,4">
+                                                    <ComboBox.Style>
+                                                        <Style TargetType="ComboBox">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsPolishRow}" Value="True">
+                                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ComboBox.Style>
+                                                </ComboBox>
 
-                                                            <!-- SELECT SPECS section -->
-                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                                                <TextBlock Text="&#xE762;"
-                                                                           FontFamily="Segoe MDL2 Assets"
-                                                                           FontSize="11"
-                                                                           Foreground="{DynamicResource AccentBrush}"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="0,0,8,0"/>
+                                                <ToggleButton x:Name="TargetToggle"
+                                                              Content="{Binding TargetSelection.SummaryText, FallbackValue='Select specs and metric…'}"
+                                                              Style="{StaticResource SpecTargetToggleStyle}"
+                                                              IsEnabled="{Binding IsActive}"/>
+
+                                                <Popup IsOpen="{Binding IsChecked, ElementName=TargetToggle}"
+                                                       StaysOpen="False"
+                                                       PlacementTarget="{Binding ElementName=TargetToggle}"
+                                                       AllowsTransparency="True"
+                                                       PopupAnimation="Fade">
+                                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                            BorderBrush="{DynamicResource AccentBrush}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Padding="14"
+                                                            MinWidth="480"
+                                                            MaxWidth="720"
+                                                            MaxHeight="480">
+                                                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                                      HorizontalScrollBarVisibility="Disabled">
+                                                            <StackPanel DataContext="{Binding TargetSelection}">
                                                                 <TextBlock Text="SELECT SPECS"
-                                                                           FontSize="10"
-                                                                           FontWeight="Bold"
-                                                                           Foreground="{DynamicResource AccentBrush}"
-                                                                           VerticalAlignment="Center"/>
-                                                            </StackPanel>
-
-                                                            <!-- CHAT 20 POPUP-02: CheckBox with wrapping TextBlock.
-                                                                 Long spec names wrap onto multiple lines instead of
-                                                                 truncating. ToolTip shows full name on hover.
-                                                                 VerticalContentAlignment=Top keeps checkbox glyph
-                                                                 aligned to the first line of wrapped text. -->
-                                                            <ItemsControl ItemsSource="{Binding AvailableSpecs}"
-                                                                          Margin="0,0,0,12">
-                                                                <ItemsControl.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
-                                                                                  Cursor="Hand"
-                                                                                  Margin="0,0,0,8"
-                                                                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                                  VerticalContentAlignment="Top"
-                                                                                  ToolTip="{Binding DisplayName}">
-                                                                            <TextBlock Text="{Binding DisplayName}"
-                                                                                       FontSize="12"
-                                                                                       TextWrapping="Wrap"
-                                                                                       Margin="4,0,0,0"/>
-                                                                        </CheckBox>
-                                                                    </DataTemplate>
-                                                                </ItemsControl.ItemTemplate>
-                                                            </ItemsControl>
-
-                                                            <Border Height="1"
-                                                                    Background="{DynamicResource BorderBrush}"
-                                                                    Margin="0,0,0,12"/>
-
-                                                            <!-- SELECT METRIC section -->
-                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                                                <TextBlock Text="&#xE9D2;"
-                                                                           FontFamily="Segoe MDL2 Assets"
-                                                                           FontSize="11"
-                                                                           Foreground="{DynamicResource AccentBrush}"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="0,0,8,0"/>
+                                                                           Style="{StaticResource PiSectionLabelStyle}"/>
+                                                                <ItemsControl ItemsSource="{Binding AvailableSpecs}" Margin="0,0,0,12">
+                                                                    <ItemsControl.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                                      Cursor="Hand"
+                                                                                      Margin="0,0,0,6"
+                                                                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                      VerticalContentAlignment="Top"
+                                                                                      ToolTip="{Binding DisplayName}">
+                                                                                <TextBlock Text="{Binding DisplayName}"
+                                                                                           FontSize="12"
+                                                                                           TextWrapping="Wrap"
+                                                                                           Margin="4,0,0,0"/>
+                                                                            </CheckBox>
+                                                                        </DataTemplate>
+                                                                    </ItemsControl.ItemTemplate>
+                                                                </ItemsControl>
+                                                                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,0,0,10"/>
                                                                 <TextBlock Text="SELECT METRIC"
-                                                                           FontSize="10"
-                                                                           FontWeight="Bold"
+                                                                           Style="{StaticResource PiSectionLabelStyle}"/>
+                                                                <ListBox ItemsSource="{Binding AvailableMetrics}"
+                                                                         SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
+                                                                         BorderThickness="0"
+                                                                         Background="Transparent"
+                                                                         Margin="0,0,0,10">
+                                                                    <ListBox.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <RadioButton IsChecked="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                                                         Cursor="Hand"
+                                                                                         Margin="0,3"
+                                                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                         ToolTip="{Binding DisplayName}">
+                                                                                <TextBlock Text="{Binding DisplayName}" FontSize="12" TextWrapping="Wrap" Margin="4,0,0,0"/>
+                                                                            </RadioButton>
+                                                                        </DataTemplate>
+                                                                    </ListBox.ItemTemplate>
+                                                                    <ListBox.ItemContainerStyle>
+                                                                        <Style TargetType="ListBoxItem">
+                                                                            <Setter Property="Padding" Value="0"/>
+                                                                            <Setter Property="Background" Value="Transparent"/>
+                                                                            <Setter Property="BorderThickness" Value="0"/>
+                                                                            <Setter Property="Template">
+                                                                                <Setter.Value>
+                                                                                    <ControlTemplate TargetType="ListBoxItem">
+                                                                                        <ContentPresenter/>
+                                                                                    </ControlTemplate>
+                                                                                </Setter.Value>
+                                                                            </Setter>
+                                                                        </Style>
+                                                                    </ListBox.ItemContainerStyle>
+                                                                </ListBox>
+                                                                <TextBlock FontSize="11" FontWeight="Bold"
                                                                            Foreground="{DynamicResource AccentBrush}"
-                                                                           VerticalAlignment="Center"/>
+                                                                           TextWrapping="Wrap">
+                                                                    <Run Text="RESULT: "/>
+                                                                    <Run Text="{Binding SummaryText, Mode=OneWay}"/>
+                                                                </TextBlock>
                                                             </StackPanel>
+                                                        </ScrollViewer>
+                                                    </Border>
+                                                </Popup>
+                                            </StackPanel>
+                                        </Grid>
 
-                                                            <!-- CHAT 20 POPUP-03: RadioButton with wrapping TextBlock.
-                                                                 Same treatment as spec checkboxes for consistency
-                                                                 and to handle any future long metric names. -->
-                                                            <ListBox ItemsSource="{Binding AvailableMetrics}"
-                                                                     SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
-                                                                     BorderThickness="0"
-                                                                     Background="Transparent"
-                                                                     Margin="0,0,0,12">
-                                                                <ListBox.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <RadioButton IsChecked="{Binding IsSelected,
-                                                                                        RelativeSource={RelativeSource
-                                                                                            AncestorType=ListBoxItem}}"
-                                                                                     Cursor="Hand"
-                                                                                     Margin="0,4"
-                                                                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                                     VerticalContentAlignment="Top"
-                                                                                     ToolTip="{Binding DisplayName}">
-                                                                            <TextBlock Text="{Binding DisplayName}"
-                                                                                       FontSize="12"
-                                                                                       TextWrapping="Wrap"
-                                                                                       Margin="4,0,0,0"/>
-                                                                        </RadioButton>
-                                                                    </DataTemplate>
-                                                                </ListBox.ItemTemplate>
-                                                                <ListBox.ItemContainerStyle>
-                                                                    <Style TargetType="ListBoxItem">
-                                                                        <Setter Property="Padding" Value="0"/>
-                                                                        <Setter Property="Background" Value="Transparent"/>
-                                                                        <Setter Property="BorderThickness" Value="0"/>
-                                                                        <Setter Property="Template">
-                                                                            <Setter.Value>
-                                                                                <ControlTemplate TargetType="ListBoxItem">
-                                                                                    <ContentPresenter/>
-                                                                                </ControlTemplate>
-                                                                            </Setter.Value>
-                                                                        </Setter>
-                                                                    </Style>
-                                                                </ListBox.ItemContainerStyle>
-                                                            </ListBox>
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding MetricQty, StringFormat={}{0:0.###}}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
-                                                            <Border Height="1"
-                                                                    Background="{DynamicResource BorderBrush}"
-                                                                    Margin="0,0,0,10"/>
+                                        <TextBox Grid.Column="4"
+                                                 Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                                                 Style="{StaticResource RateInputStyle}"
+                                                 beh:TextBoxBehaviors.AcceptDecimals="True"
+                                                 IsEnabled="{Binding IsActive}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"/>
 
-                                                            <!-- RESULT preview -->
-                                                            <StackPanel Orientation="Horizontal">
-                                                                <TextBlock Text="RESULT:"
-                                                                           FontSize="10"
-                                                                           FontWeight="Bold"
-                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                           VerticalAlignment="Center"
-                                                                           Margin="0,0,10,0"/>
-                                                                <TextBlock Text="{Binding SummaryText}"
-                                                                           FontSize="11"
-                                                                           FontWeight="Bold"
-                                                                           Foreground="{DynamicResource AccentBrush}"
-                                                                           VerticalAlignment="Center"
-                                                                           TextWrapping="Wrap"/>
-                                                            </StackPanel>
-                                                        </StackPanel>
-                                                    </ScrollViewer>
-                                                </Border>
-                                            </Popup>
-                                        </StackPanel>
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding FormulaDisplay}"
+                                                   FontSize="11"
+                                                   TextAlignment="Right"
+                                                   TextWrapping="Wrap"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Setter Property="FontWeight" Value="Normal"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </Grid>
 
-                                    <!-- Metric qty badge -->
-                                    <Border Grid.Column="3" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text=" "/>
-                                            <TextBlock Text="{Binding Unit}" FontSize="10" Foreground="{DynamicResource AccentBrush}" Opacity="0.75" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <!-- Rate -->
-                                    <TextBox Grid.Column="4"
-                                             Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
-                                             Style="{StaticResource RateInputStyle}"
-                                             beh:TextBoxBehaviors.AcceptDecimals="True"
-                                             IsEnabled="{Binding IsActive}"
-                                             HorizontalAlignment="Center"
-                                             VerticalAlignment="Center"/>
-
-                                    <!-- Formula display -->
-                                    <TextBlock Grid.Column="5"
-                                               Text="{Binding FormulaDisplay}"
-                                               FontSize="11"
-                                               TextAlignment="Right"
-                                               TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                               Margin="10,0,0,0">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                <Setter Property="FontWeight" Value="Bold"/>
+                                    <Grid Margin="56,8,0,0">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                        <Setter Property="FontWeight" Value="Normal"/>
-                                                    </DataTrigger>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding IsPolishRow}" Value="True"/>
+                                                            <Condition Binding="{Binding IsCustomPolish}" Value="True"/>
+                                                            <Condition Binding="{Binding IsActive}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </MultiDataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                </Grid>
-
-                                <!-- Custom Polish inline editor -->
-                                <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="{DynamicResource TintIndigoBrush}">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <MultiDataTrigger>
-                                                    <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsPolishRow}" Value="True"/>
-                                                        <Condition Binding="{Binding IsCustomPolish}" Value="True"/>
-                                                        <Condition Binding="{Binding IsActive}" Value="True"/>
-                                                    </MultiDataTrigger.Conditions>
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </MultiDataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Grid>
+                                        </Grid.Style>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="90"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="CUSTOM DESCRIPTION:" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <TextBox Grid.Column="1" Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomInputStyle}" Margin="0,0,14,0"/>
-                                        <TextBlock Grid.Column="2" Text="MANUAL QTY (lm):" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                        <TextBox Grid.Column="3" Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}" Style="{StaticResource CustomInputStyle}" beh:TextBoxBehaviors.AcceptDecimals="True" MinWidth="90"/>
+                                        <TextBlock Text="CUSTOM"
+                                                   Style="{StaticResource PiFieldLabelStyle}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}"
+                                                 Style="{StaticResource CustomInputStyle}"
+                                                 Margin="0,0,12,0"/>
+                                        <TextBlock Grid.Column="2" Text="QTY (lm)"
+                                                   Style="{StaticResource PiFieldLabelStyle}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBox Grid.Column="3"
+                                                 Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}"
+                                                 Style="{StaticResource CustomInputStyle}"
+                                                 beh:TextBoxBehaviors.AcceptDecimals="True"/>
                                     </Grid>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
 
-            <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
-            <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
+                <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
+                <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 
-        </StackPanel>
+                <Border Style="{StaticResource LineItemsFooterStyle}" Margin="0,12,0,0">
+                    <TextBlock FontSize="12" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               HorizontalAlignment="Right">
+                        <Run Text="Wastage AED "/>
+                        <Run Text="{Binding WastagesSection.TotalWastageValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                        <Run Text="  ·  Custom AED "/>
+                        <Run Text="{Binding CustomChargesSection.TotalCustomChargesValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                        <Run Text="  ·  Combined "/>
+                        <Run Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}, Mode=OneWay}"
+                             FontWeight="Bold"
+                             Foreground="{DynamicResource SuccessBrush}"/>
+                    </TextBlock>
+                </Border>
+            </StackPanel>
         </Border>
     </ScrollViewer>
 </UserControl>

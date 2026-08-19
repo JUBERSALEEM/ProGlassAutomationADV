@@ -5,214 +5,113 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:beh="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="1200"
+             d:DesignHeight="280" d:DesignWidth="1200"
              FontFamily="Segoe UI"
-             TextOptions.TextFormattingMode="Display"
-             TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             FORM INPUT — 34px height, theme-safe borders
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FormInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="12"/>
-            <Setter Property="Padding"                    Value="10,0"/>
-            <Setter Property="Height"                     Value="34"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
-
-        <!-- Numeric variant — centered text, monospace-friendly -->
         <Style x:Key="FormNumericInputStyle" TargetType="TextBox" BasedOn="{StaticResource FormInputStyle}">
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="FontWeight"                 Value="SemiBold"/>
-        </Style>
-
-        <!-- Form combobox -->
-        <Style x:Key="FormComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="12"/>
-            <Setter Property="Padding"                    Value="10,0"/>
-            <Setter Property="Height"                     Value="34"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                </Trigger>
-                <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Field label -->
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
-
     </UserControl.Resources>
 
-    <StackPanel Margin="0,24,0,0">
+    <StackPanel>
+        <TextBlock Text="CUSTOM CHARGES" Style="{StaticResource PiBandTitleStyle}"/>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             SECTION HEADER — icon badge + title + subtitle
-        ══════════════════════════════════════════════════════════════ -->
-        <StackPanel Margin="0,0,0,14">
-            <TextBlock Text="CUSTOM CHARGES"
-                       Style="{StaticResource PiSectionLabelStyle}"
-                       Margin="0"/>
-            <TextBlock Text="Manual line charges that do not follow the predefined templates."
-                       FontSize="11"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       TextWrapping="Wrap"/>
-        </StackPanel>
+        <Border Style="{StaticResource PiTableHeaderStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="36"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="ON" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="1" Text="CHARGE NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                <TextBlock Grid.Column="2" Text="QTY" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="3" Text="UNIT" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+            </Grid>
+        </Border>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ADDED MANUAL CHARGES LIST
-        ══════════════════════════════════════════════════════════════ -->
         <ItemsControl ItemsSource="{Binding AddedCharges}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            Padding="0,10"
-                            Margin="46,0,0,0">
+                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="0,0,0,1"
+                            Padding="8,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="40"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="130"/>
-                                <ColumnDefinition Width="210"/>
-                                <ColumnDefinition Width="44"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="36"/>
                             </Grid.ColumnDefinitions>
-
-                            <!-- Active checkbox -->
                             <CheckBox Grid.Column="0"
                                       IsChecked="{Binding IsActive}"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       Cursor="Hand"/>
-
-                            <!-- Charge name -->
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ChargeName}"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
+                                       FontSize="12" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
-
-                            <!-- Qty + unit — Deep Royal Blue tint pill -->
-                            <Border Grid.Column="2"
-                                    Background="{DynamicResource TintBlueBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="10,5"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Qty, StringFormat={}{0:0.###}}"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="{Binding Unit, StringFormat={} {0}}"
-                                               FontSize="10"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               Opacity="0.75"
-                                               VerticalAlignment="Bottom"
-                                               Margin="0,0,0,1"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Rate -->
-                            <TextBlock Grid.Column="3"
-                                       Text="{Binding Rate, StringFormat=AED {0:N2}}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding Qty, StringFormat={}{0:0.###}}"
+                                       FontSize="12" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-
-                            <!-- Formula result — Deep Forest -->
-                            <TextBlock Grid.Column="4"
-                                       Text="{Binding FormulaDisplay}"
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding Unit}"
                                        FontSize="12"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource SuccessBrush}"
+                                       HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       TextAlignment="Right"/>
-
-                            <!-- Remove button -->
-                            <Button Grid.Column="5"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="4"
+                                       Text="{Binding Rate, StringFormat=AED {0:N2}}"
+                                       FontSize="12"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Grid.Column="5"
+                                       Text="{Binding FormulaDisplay}"
+                                       FontSize="11" FontWeight="Bold"
+                                       TextAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                            <Button Grid.Column="6"
                                     Command="{Binding DataContext.RemoveChargeCommand,
                                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
-                                    Background="Transparent"
-                                    BorderThickness="0"
-                                    Cursor="Hand"
-                                    ToolTip="Remove Charge">
-                                <Button.Template>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="DB"
-                                                Background="Transparent"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="8,6">
-                                            <TextBlock Text="&#xE711;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="12"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource DangerBrush}"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="DB" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Button.Template>
+                                    Style="{StaticResource PiIconButtonStyle}"
+                                    ToolTip="Remove charge">
+                                <TextBlock Text="&#xE711;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource DangerBrush}"/>
                             </Button>
                         </Grid>
                     </Border>
@@ -220,147 +119,59 @@
             </ItemsControl.ItemTemplate>
         </ItemsControl>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ADD FORM
-             BUG FIX: Background was #101826 (broke dark mode). Now uses
-             indigo tint — theme-safe.
-             CHAT 7 BUG 5 PRESERVED:
-               • beh:TextBoxBehaviors.AcceptDecimals="True"
-               • UpdateSourceTrigger="LostFocus" (no PropertyChanged corruption)
-               • ConverterCulture="en-US" (culture-safe "." separator)
-               • NO StringFormat on InputQty/InputRate bindings
-        ══════════════════════════════════════════════════════════════ -->
-        <Border Background="{DynamicResource TintIndigoBrush}"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Padding="18"
-                Margin="0,18,0,0"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource TintIndigoBrush}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- ── CHARGE NAME ── -->
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="CHARGE NAME"
-                               Style="{StaticResource FieldLabelStyle}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FormInputStyle}"/>
-                </StackPanel>
-
-                <!-- ══════════════════════════════════════════════════
-                     QTY / SQM — CHAT 7 BUG 5 FIX PRESERVED
-                ══════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="QTY / SQM"
-                               Style="{StaticResource FieldLabelStyle}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                             Style="{StaticResource FormNumericInputStyle}">
-                        <TextBox.Text>
-                            <!--
-                                UpdateSourceTrigger=LostFocus: text pushed to VM
-                                   only on Tab/Enter/click-away → user can type
-                                   "1.50" freely without interference.
-                                No StringFormat: avoids round-trip corruption.
-                                ConverterCulture=en-US: forces "." decimal
-                                   separator (immune to UAE/Arabic Windows Region).
-                            -->
-                            <Binding Path="InputQty"
-                                     Mode="TwoWay"
-                                     UpdateSourceTrigger="LostFocus"
-                                     ConverterCulture="en-US"/>
-                        </TextBox.Text>
-                    </TextBox>
-                </StackPanel>
-
-                <!-- ── UNIT ── -->
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="UNIT"
-                               Style="{StaticResource FieldLabelStyle}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <ComboBox ItemsSource="{Binding UnitOptions}"
-                              SelectedItem="{Binding InputUnit}"
-                              Style="{StaticResource FormComboBoxStyle}"/>
-                </StackPanel>
-
-                <!-- ══════════════════════════════════════════════════
-                     RATE (AED) — CHAT 7 BUG 5 FIX PRESERVED
-                ══════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="6">
-                    <TextBlock Text="RATE (AED)"
-                               Style="{StaticResource FieldLabelStyle}"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
-                             Style="{StaticResource FormNumericInputStyle}">
-                        <TextBox.Text>
-                            <Binding Path="InputRate"
-                                     Mode="TwoWay"
-                                     UpdateSourceTrigger="LostFocus"
-                                     ConverterCulture="en-US"/>
-                        </TextBox.Text>
-                    </TextBox>
-                </StackPanel>
-
-                <!-- ── ADD BUTTON ── -->
-                <Button Grid.Column="8"
-                        Command="{Binding AddChargeCommand}"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Padding="0"
-                        Margin="0,20,0,0"
-                        Cursor="Hand"
-                        VerticalAlignment="Bottom">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="B"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="20,0"
-                                    Height="34"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE710;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0"/>
-                                    <TextBlock Text="ADD"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                                </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter TargetName="B" Property="Opacity" Value="0.4"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </Grid>
-        </Border>
-
+        <Grid Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="90"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="110"/>
+                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="CHARGE NAME" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource FormInputStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="QTY" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
+                         Style="{StaticResource FormNumericInputStyle}">
+                    <TextBox.Text>
+                        <Binding Path="InputQty" Mode="TwoWay"
+                                 UpdateSourceTrigger="LostFocus"
+                                 ConverterCulture="en-US"/>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="UNIT" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <ComboBox ItemsSource="{Binding UnitOptions}"
+                          SelectedItem="{Binding InputUnit}"
+                          Style="{StaticResource PiComboBoxStyle}"
+                          Height="28"/>
+            </StackPanel>
+            <StackPanel Grid.Column="6">
+                <TextBlock Text="RATE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,3"/>
+                <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
+                         Style="{StaticResource FormNumericInputStyle}">
+                    <TextBox.Text>
+                        <Binding Path="InputRate" Mode="TwoWay"
+                                 UpdateSourceTrigger="LostFocus"
+                                 ConverterCulture="en-US"/>
+                    </TextBox.Text>
+                </TextBox>
+            </StackPanel>
+            <Button Grid.Column="8"
+                    Command="{Binding AddChargeCommand}"
+                    Style="{StaticResource PiFooterPrimaryButton}"
+                    Height="28"
+                    MinWidth="72"
+                    VerticalAlignment="Bottom"
+                    Content="ADD"/>
+        </Grid>
     </StackPanel>
 </UserControl>

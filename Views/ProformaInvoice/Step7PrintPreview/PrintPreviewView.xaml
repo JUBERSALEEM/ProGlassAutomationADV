@@ -1,11 +1,7 @@
 <!--
-═══════════════════════════════════════════════════════════════════════
-FILE: Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml
-═══════════════════════════════════════════════════════════════════════
-Split workbench: left steel controls · right paper-white proof.
-Paper stays #FFFFFF in Light / Dark / Monet. Print ink unchanged.
-Bindings and commands unchanged.
-═══════════════════════════════════════════════════════════════════════
+    Step 7 — Preview. Approved mockup composition:
+    left steel controls · right paper-white A4.
+    Paper stays #FFFFFF. Print ink unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -22,113 +18,84 @@ Bindings and commands unchanged.
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <Grid PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.95*"/>
-            <ColumnDefinition Width="12"/>
-            <ColumnDefinition Width="1.15*"/>
+            <ColumnDefinition Width="0.92*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="1.18*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Background="Transparent"
-                          Focusable="True"
-                          FocusVisualStyle="{x:Null}"
-                          PanningMode="None"
-                          CanContentScroll="False"
-                          IsDeferredScrollingEnabled="False"
-                          behaviors:SmoothScrollBehavior.IsEnabled="True">
-                <StackPanel>
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="{Binding Title}"
-                                       Style="{StaticResource ModulePageTitleStyle}"/>
-                            <TextBlock Text="{Binding Subtitle}"
-                                       Style="{StaticResource ModulePageSubtitleStyle}"
-                                       TextWrapping="Wrap"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="1"
-                                    Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <Button Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
-                                    Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;"
-                                    Content="SAVE"
-                                    ToolTip="Save invoice to database"
-                                    Margin="0,0,8,0"/>
-
-                            <Button x:Name="ActionsMenuButton"
-                                    Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE712;"
-                                    Content="ACTIONS"
-                                    ToolTip="Print and export"
-                                    Click="ActionsMenuButton_Click"/>
-
-                            <Popup x:Name="ActionsMenuPopup"
-                                   PlacementTarget="{Binding ElementName=ActionsMenuButton}"
-                                   Placement="Bottom"
-                                   HorizontalAlignment="Right"
-                                   VerticalOffset="4"
-                                   AllowsTransparency="True"
-                                   StaysOpen="True"
-                                   PopupAnimation="Fade">
-                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Padding="6"
-                                        MinWidth="220"
-                                        SnapsToDevicePixels="True">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                                Tag="&#xE749;" Content="Print"
-                                                Command="{Binding PrintableInvoice.PrintCommand}"
-                                                ToolTip="Print the invoice preview (also usable as Print to PDF)"
-                                                Click="MenuActionClicked"/>
-                                        <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                                Tag="&#xEA90;" Content="Export PDF"
-                                                Command="{Binding PrintableInvoice.ExportPdfCommand}"
-                                                ToolTip="Export invoice as branded PDF file"
-                                                Click="MenuActionClicked"/>
-                                        <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                                Tag="&#xE9F9;" Content="Export Excel"
-                                                Command="{Binding PrintableInvoice.ExportExcelCommand}"
-                                                ToolTip="Export invoice data as Excel spreadsheet (.xlsx)"
-                                                Click="MenuActionClicked"/>
-                                        <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                                Tag="&#xE8A5;" Content="Export CSV"
-                                                Command="{Binding PrintableInvoice.ExportCsvCommand}"
-                                                ToolTip="Export glass panel data as CSV file (.csv)"
-                                                Click="MenuActionClicked"/>
-                                        <Border Height="1" Margin="10,4"
-                                                Background="{DynamicResource OutlineBrush}"/>
-                                        <Button Style="{StaticResource PiInvoiceMenuActionItem}"
-                                                Tag="&#xE715;" Content="Email (soon)"
-                                                Command="{Binding PrintableInvoice.SendEmailCommand}"
-                                                ToolTip="Coming in Phase 7.20"
-                                                IsEnabled="False"
-                                                Click="MenuActionClicked"/>
-                                    </StackPanel>
-                                </Border>
-                            </Popup>
-                        </StackPanel>
-                    </Grid>
-
-                    <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
-                    <terms:TermsAndConditionsView DataContext="{Binding Terms}"
-                                                  Margin="0,12,0,0"/>
+        <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+                    <Button Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
+                            Style="{StaticResource PiFooterPrimaryButton}"
+                            Content="SAVE DRAFT"
+                            ToolTip="Save invoice to database"
+                            Margin="0,0,8,0"/>
+                    <Button Command="{Binding PrintableInvoice.ExportPdfCommand}"
+                            Style="{StaticResource PiFooterGhostButton}"
+                            Content="EXPORT PDF"
+                            ToolTip="Export invoice as branded PDF"
+                            Margin="0,0,8,0"/>
+                    <Button Command="{Binding PrintableInvoice.ExportExcelCommand}"
+                            Style="{StaticResource PiFooterGhostButton}"
+                            Content="EXPORT EXCEL"
+                            ToolTip="Export invoice data as Excel"
+                            Margin="0,0,8,0"/>
+                    <Button x:Name="ActionsMenuButton"
+                            Style="{StaticResource PiFooterGhostButton}"
+                            Content="MORE"
+                            ToolTip="Print and more export options"
+                            Click="ActionsMenuButton_Click"/>
+                    <Popup x:Name="ActionsMenuPopup"
+                           PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                           Placement="Bottom"
+                           HorizontalAlignment="Right"
+                           VerticalOffset="4"
+                           AllowsTransparency="True"
+                           StaysOpen="True"
+                           PopupAnimation="Fade">
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="6"
+                                MinWidth="200">
+                            <StackPanel>
+                                <Button Style="{StaticResource PiInvoiceMenuActionItem}"
+                                        Tag="&#xE749;" Content="Print"
+                                        Command="{Binding PrintableInvoice.PrintCommand}"
+                                        ToolTip="Print the invoice preview"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource PiInvoiceMenuActionItem}"
+                                        Tag="&#xE8A5;" Content="Export CSV"
+                                        Command="{Binding PrintableInvoice.ExportCsvCommand}"
+                                        ToolTip="Export glass panel data as CSV"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource PiInvoiceMenuActionItem}"
+                                        Tag="&#xE715;" Content="Email (soon)"
+                                        Command="{Binding PrintableInvoice.SendEmailCommand}"
+                                        ToolTip="Coming in Phase 7.20"
+                                        IsEnabled="False"
+                                        Click="MenuActionClicked"/>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
-            </ScrollViewer>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True">
+                    <StackPanel>
+                        <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
+                        <terms:TermsAndConditionsView DataContext="{Binding Terms}" Margin="0,16,0,0"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
 
         <Border Grid.Column="2"
@@ -136,21 +103,13 @@ Bindings and commands unchanged.
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="{DynamicResource CardCornerRadius}"
-                Padding="12"
+                Padding="16"
                 SnapsToDevicePixels="True">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Auto"
                           Background="Transparent">
-                <StackPanel>
-                    <TextBlock Text="A4 PREVIEW · LIVE FROM ALL WIZARD STEPS"
-                               FontSize="10"
-                               FontWeight="Bold"
-                               Foreground="#64748B"
-                               HorizontalAlignment="Center"
-                               Margin="0,0,0,10"/>
-                    <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
-                                                    HorizontalAlignment="Center"/>
-                </StackPanel>
+                <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
+                                                HorizontalAlignment="Center"/>
             </ScrollViewer>
         </Border>
     </Grid>
