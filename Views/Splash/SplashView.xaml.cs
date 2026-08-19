@@ -66,10 +66,12 @@ namespace ProGlassAutomation.Views.Splash
 
         private readonly string[] _loadingMessages =
         {
-            "Initializing workspace",
-            "Loading modules",
-            "Preparing dashboard",
-            "Connecting to database",
+            "Loading Dashboard",
+            "Loading Proforma Invoice",
+            "Loading Sheet Store",
+            "Loading Job Orders",
+            "Loading Delivery Notes",
+            "Loading Tax Invoice",
             "Almost ready"
         };
 
@@ -188,10 +190,13 @@ namespace ProGlassAutomation.Views.Splash
             AnimateFeatureBadges();
 
             // ─── PHASE 6: Progress bar fill (700–2900ms) ─────────────
+            double track = ProgressTrack.ActualWidth;
+            if (track < 80)
+                track = Math.Max(240, ActualWidth * 0.35);
             var progressAnim = new DoubleAnimation
             {
                 From = 0,
-                To = 560,
+                To = track,
                 Duration = TimeSpan.FromMilliseconds(2200),
                 BeginTime = TimeSpan.FromMilliseconds(700),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
@@ -531,6 +536,7 @@ namespace ProGlassAutomation.Views.Splash
             LoadingDots.Text = "";
 
             TermsPanel.Visibility = Visibility.Collapsed;
+            PosterHost.Visibility = Visibility.Collapsed;
             LoginHost.Visibility = Visibility.Visible;
             LoginHost.BeginAnimation(OpacityProperty, new DoubleAnimation
             {

@@ -1,0 +1,205 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using ClosedXML.Excel;
+using CsvHelper;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using QuestPDF.Fluent;
+
+namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
+{
+    internal class CutListDocument : IDocumentLayout
+    {
+        private readonly string _id;
+        protected CutListDocument(string documentId) =>
+            _id = string.IsNullOrWhiteSpace(documentId) ? "PI" : documentId;
+
+        public string DocumentPrefix => "PI";
+        public string DocumentId => _id;
+        public string DocumentTitle => "CUT LIST";
+        public string CompanyName => "";
+        public string Reference => "CUT-LIST";
+        public DateTime DocumentDate => DateTime.Today;
+    }
+
+    internal sealed class CutListExcelLayout : CutListDocument, IExcelLayout
+    {
+        private readonly IReadOnlyList<SpecGroup> _groups;
+        public CutListExcelLayout(IReadOnlyList<SpecGroup> groups, string documentId)
+            : base(documentId) => _groups = groups;
+
+        public void RenderWorkbook(IXLWorkbook workbook)
+        {
+            var ws = workbook.Worksheets.Add("Cut list");
+            string[] headers =
+            {
+                "Spec #", "Spec Name", "#", "Glass Ref",
+                "W1", "H1", "W2", "H2", "Qty", "SQM", "TOTAL SQM", "Rate", "Value"
+            };
+            for (int c = 0; c < headers.Length; c++)
+                ws.Cell(1, c + 1).Value = headers[c];
+
+            ws.Row(1).Style.Font.Bold = true;
+            int r = 2;
+            foreach (var group in _groups)
+            {
+                string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                    ? group.GroupName
+                    : group.SelectedSpecName;
+                foreach (var row in group.ItemRows)
+                {
+                    ws.Cell(r, 1).Value = group.GroupNumber;
+                    ws.Cell(r, 2).Value = spec ?? "";
+                    ws.Cell(r, 3).Value = row.SerialNumber;
+                    ws.Cell(r, 4).Value = row.GlassRef ?? "";
+                    ws.Cell(r, 5).Value = row.W1;
+                    ws.Cell(r, 6).Value = row.H1;
+                    ws.Cell(r, 7).Value = row.W2;
+                    ws.Cell(r, 8).Value = row.H2;
+                    ws.Cell(r, 9).Value = row.Qty;
+                    ws.Cell(r, 10).Value = row.Sqm1;
+                    ws.Cell(r, 11).Value = row.TotalSqm;
+                    ws.Cell(r, 12).Value = row.Rate;
+                    ws.Cell(r, 13).Value = row.Value;
+                    r++;
+                }
+            }
+            ws.Columns().AdjustToContents();
+        }
+    }
+
+    internal sealed class CutListCsvLayout : CutListDocument, ICsvLayout
+    {
+        private readonly IReadOnlyList<SpecGroup> _groups;
+        public CutListCsvLayout(IReadOnlyList<SpecGroup> groups, string documentId)
+            : base(documentId) => _groups = groups;
+
+        public void WriteRows(CsvWriter writer)
+        {
+            writer.WriteField("Spec #");
+            writer.WriteField("Spec Name");
+            writer.WriteField("#");
+            writer.WriteField("Glass Ref");
+            writer.WriteField("W1");
+            writer.WriteField("H1");
+            writer.WriteField("W2");
+            writer.WriteField("H2");
+            writer.WriteField("Qty");
+            writer.WriteField("SQM");
+            writer.WriteField("TOTAL SQM");
+            writer.WriteField("Rate");
+            writer.WriteField("Value");
+            writer.NextRecord();
+
+            foreach (var group in _groups)
+            {
+                string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                    ? group.GroupName
+                    : group.SelectedSpecName;
+                foreach (var row in group.ItemRows)
+                {
+                    writer.WriteField(group.GroupNumber);
+                    writer.WriteField(spec ?? "");
+                    writer.WriteField(row.SerialNumber);
+                    writer.WriteField(row.GlassRef ?? "");
+                    writer.WriteField(row.W1);
+                    writer.WriteField(row.H1);
+                    writer.WriteField(row.W2);
+                    writer.WriteField(row.H2);
+                    writer.WriteField(row.Qty);
+                    writer.WriteField(row.Sqm1.ToString("0.000"));
+                    writer.WriteField(row.TotalSqm.ToString("0.000"));
+                    writer.WriteField(row.Rate.ToString("N2"));
+                    writer.WriteField(row.Value.ToString("N2"));
+                    writer.NextRecord();
+                }
+            }
+        }
+    }
+
+    internal sealed class CutListPdfLayout : CutListDocument, IPdfLayout
+    {
+        private readonly IReadOnlyList<SpecGroup> _groups;
+        public CutListPdfLayout(IReadOnlyList<SpecGroup> groups, string documentId)
+            : base(documentId) => _groups = groups;
+
+        public PageLayout PageLayout => PageLayout.A4Landscape;
+        public LetterheadInfo? Letterhead => new()
+        {
+            DocumentTitle = "Cut list",
+            DocumentId = DocumentId,
+            SubtitleLine = $"{_groups.Count} spec group(s)"
+        };
+
+        public void RenderContent(ColumnDescriptor content)
+        {
+            foreach (var group in _groups)
+            {
+                string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                    ? group.GroupName
+                    : group.SelectedSpecName;
+
+                content.Item().Element(c =>
+                    PdfChrome.GroupBanner(c, $"Spec {group.GroupNumber}: {spec}"));
+
+                content.Item().Table(table =>
+                {
+                    table.ColumnsDefinition(cols =>
+                    {
+                        cols.ConstantColumn(22);
+                        cols.RelativeColumn(1.6f);
+                        cols.ConstantColumn(36);
+                        cols.ConstantColumn(36);
+                        cols.ConstantColumn(36);
+                        cols.ConstantColumn(36);
+                        cols.ConstantColumn(32);
+                        cols.RelativeColumn(0.7f);
+                        cols.RelativeColumn(0.8f);
+                        cols.RelativeColumn(0.7f);
+                        cols.RelativeColumn(0.85f);
+                    });
+
+                    table.Header(h =>
+                    {
+                        string[] headers =
+                        {
+                            "#", "GLASS REF", "W1", "H1", "W2", "H2",
+                            "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
+                        };
+                        for (int i = 0; i < headers.Length; i++)
+                            PdfChrome.HeaderCell(h.Cell(), headers[i],
+                                center: i == 0 || i == 6,
+                                right: i >= 2 && i != 6);
+                    });
+
+                    bool alt = false;
+                    foreach (var row in group.ItemRows)
+                    {
+                        PdfChrome.DataCell(table.Cell(), row.SerialNumber.ToString(), alt, center: true);
+                        PdfChrome.DataCell(table.Cell(), row.GlassRef ?? "", alt);
+                        PdfChrome.DataCell(table.Cell(), row.W1.ToString(), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.H1.ToString(), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.W2.ToString(), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.H2.ToString(), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.Qty.ToString(), alt, center: true);
+                        PdfChrome.DataCell(table.Cell(), row.Sqm1.ToString("0.000"), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.TotalSqm.ToString("0.000"), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.Rate.ToString("N2"), alt, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.Value.ToString("N2"), alt, right: true, bold: true);
+                        alt = !alt;
+                    }
+                });
+
+                content.Item().Element(c =>
+                    PdfChrome.SubtotalBar(c,
+                        $"Qty {group.FooterTotalQty}  ·  TOTAL SQM {group.FooterTotalSqm:0.000}",
+                        $"AED {group.FooterTotalValue:N2}"));
+            }
+        }
+    }
+}

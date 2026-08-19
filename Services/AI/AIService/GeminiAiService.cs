@@ -98,6 +98,87 @@ namespace ProGlassAutomation.Services.AI.AIService
             string systemPrompt, string userPrompt) =>
             AskInternalAsync(systemPrompt, userPrompt);
 
+        /// <summary>
+        /// Multimodal generateContent with one inline file (PDF / image).
+        /// Used by Step 5 cut-list scan import.
+        /// </summary>
+        public async Task<AiResponse> AskWithFileAsync(
+            string systemPrompt, string userPrompt, string mimeType, byte[] fileBytes)
+        {
+            if (!IsConfigured)
+                return Error("Gemini API key not configured.");
+            if (fileBytes == null || fileBytes.Length == 0)
+                return Error("File is empty.");
+
+            try
+            {
+                var model = _settings.Model;
+                var url =
+                    "https://generativelanguage.googleapis.com/v1beta/" +
+                    $"models/{model}:generateContent";
+
+                string b64 = Convert.ToBase64String(fileBytes);
+                var payload = new
+                {
+                    systemInstruction = new
+                    {
+                        parts = new[] { new { text = systemPrompt ?? "" } }
+                    },
+                    contents = new[]
+                    {
+                        new
+                        {
+                            role = "user",
+                            parts = new object[]
+                            {
+                                new { text = userPrompt ?? "" },
+                                new
+                                {
+                                    inline_data = new
+                                    {
+                                        mime_type = mimeType,
+                                        data = b64
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    generationConfig = new
+                    {
+                        temperature = 0.1,
+                        maxOutputTokens = _settings.MaxTokens,
+                        candidateCount = 1
+                    }
+                };
+
+                using var request = new HttpRequestMessage(HttpMethod.Post, url)
+                {
+                    Content = new StringContent(
+                        JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json")
+                };
+                request.Headers.TryAddWithoutValidation("x-goog-api-key", _settings.GeminiApiKey);
+
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+                var response = await _http.SendAsync(request, cts.Token);
+                var body = await response.Content.ReadAsStringAsync();
+                if (!response.IsSuccessStatusCode)
+                    return Error($"Gemini file scan error ({(int)response.StatusCode}): {Truncate(body)}");
+
+                using var doc = JsonDocument.Parse(body);
+                var text = doc.RootElement
+                    .GetProperty("candidates")[0]
+                    .GetProperty("content")
+                    .GetProperty("parts")[0]
+                    .GetProperty("text")
+                    .GetString();
+                return new AiResponse { Success = true, Text = text, ProviderName = ProviderName };
+            }
+            catch (Exception ex)
+            {
+                return Error("Gemini file scan failed: " + ex.Message);
+            }
+        }
+
         private async Task<AiResponse> AskInternalAsync(
             string systemPrompt, string userPrompt)
         {

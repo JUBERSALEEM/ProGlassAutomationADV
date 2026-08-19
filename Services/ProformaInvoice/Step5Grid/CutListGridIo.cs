@@ -1,0 +1,168 @@
+// Live Step 5 cut-list import / export.
+// Excel + CSV are deterministic. PDF/image scan uses Gemini when configured.
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using ClosedXML.Excel;
+using Microsoft.Win32;
+using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+
+namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
+{
+    public static class CutListGridIo
+    {
+        public const string ImportFilter =
+            "Cut list (*.xlsx;*.csv;*.txt;*.pdf;*.png;*.jpg;*.jpeg;*.webp)|*.xlsx;*.csv;*.txt;*.pdf;*.png;*.jpg;*.jpeg;*.webp|" +
+            "Excel (*.xlsx)|*.xlsx|" +
+            "CSV / text (*.csv;*.txt)|*.csv;*.txt|" +
+            "PDF / image (*.pdf;*.png;*.jpg;*.jpeg;*.webp)|*.pdf;*.png;*.jpg;*.jpeg;*.webp|" +
+            "All files (*.*)|*.*";
+
+        public static string? PromptOpenPath()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Import cut list",
+                Filter = ImportFilter,
+                CheckFileExists = true,
+                Multiselect = false
+            };
+            return dialog.ShowDialog() == true ? dialog.FileName : null;
+        }
+
+        public static async Task<CutListImportResult> ImportFileAsync(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+                return new CutListImportResult { Warning = "File not found." };
+
+            string ext = Path.GetExtension(path).ToLowerInvariant();
+            return ext switch
+            {
+                ".xlsx" => ReadExcel(path),
+                ".csv" or ".txt" => CutListImportParser.ParseDelimitedText(
+                    await File.ReadAllTextAsync(path)),
+                ".pdf" or ".png" or ".jpg" or ".jpeg" or ".webp" =>
+                    await ScanDocumentAsync(path, ext),
+                _ => CutListImportParser.ParseDelimitedText(
+                    await File.ReadAllTextAsync(path))
+            };
+        }
+
+        public static CutListImportResult ReadExcel(string path)
+        {
+            using var wb = new XLWorkbook(path);
+            var ws = wb.Worksheets.First();
+            var used = ws.RangeUsed();
+            if (used == null)
+                return new CutListImportResult { Warning = "Excel sheet is empty." };
+
+            var table = new List<IReadOnlyList<string>>();
+            foreach (var row in used.RowsUsed())
+            {
+                var cells = new List<string>();
+                foreach (var cell in row.Cells(used.FirstColumn().ColumnNumber(), used.LastColumn().ColumnNumber()))
+                    cells.Add(cell.GetFormattedString()?.Trim() ?? "");
+                table.Add(cells);
+            }
+
+            return CutListImportParser.ParseTable(table);
+        }
+
+        public static async Task<ExportResult> ExportExcelAsync(
+            IReadOnlyList<SpecGroup> groups, string documentId)
+        {
+            var layout = new CutListExcelLayout(groups, documentId);
+            return await new ExcelExportEngine().ExportAsync(layout, new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true,
+                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+            });
+        }
+
+        public static async Task<ExportResult> ExportCsvAsync(
+            IReadOnlyList<SpecGroup> groups, string documentId)
+        {
+            var layout = new CutListCsvLayout(groups, documentId);
+            return await new CsvExportEngine().ExportAsync(layout, new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true,
+                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+            });
+        }
+
+        public static async Task<ExportResult> ExportPdfAsync(
+            IReadOnlyList<SpecGroup> groups, string documentId)
+        {
+            var layout = new CutListPdfLayout(groups, documentId);
+            return await new PdfExportEngine().ExportAsync(layout, new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true,
+                SuggestedFileName = $"{SafeId(documentId)}_CUT-LIST"
+            });
+        }
+
+        private static async Task<CutListImportResult> ScanDocumentAsync(string path, string ext)
+        {
+            if (App.Ai is not GeminiAiService gemini || !gemini.IsConfigured)
+            {
+                return new CutListImportResult
+                {
+                    Warning = "PDF / photo import needs Gemini in Settings → AI. " +
+                              "Excel and CSV import work without it."
+                };
+            }
+
+            byte[] bytes = await File.ReadAllBytesAsync(path);
+            string mime = ext switch
+            {
+                ".pdf" => "application/pdf",
+                ".png" => "image/png",
+                ".webp" => "image/webp",
+                _ => "image/jpeg"
+            };
+
+            const string system =
+                "You extract glass cut-list rows from factory documents. " +
+                "Return ONLY a JSON array. Each object: " +
+                "{\"ref\":\"\",\"w1\":0,\"h1\":0,\"w2\":0,\"h2\":0,\"qty\":1}. " +
+                "Sizes are millimetres. qty defaults to 1. Skip headers and totals.";
+
+            var response = await gemini.AskWithFileAsync(
+                system,
+                "Extract every glass panel row from this cut list.",
+                mime,
+                bytes);
+
+            if (!response.Success)
+            {
+                return new CutListImportResult
+                {
+                    Warning = response.ErrorMessage ?? "Scanner failed."
+                };
+            }
+
+            var parsed = CutListImportParser.ParseJsonArray(response.Text);
+            parsed.Layout = "scan";
+            return parsed;
+        }
+
+        private static string SafeId(string? id)
+        {
+            string raw = string.IsNullOrWhiteSpace(id) ? "PI" : id.Trim();
+            foreach (var c in Path.GetInvalidFileNameChars())
+                raw = raw.Replace(c, '-');
+            return raw;
+        }
+    }
+}

@@ -181,44 +181,35 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ═══ GLASS FEATURE BADGE TEMPLATE (data-driven, animated) ═══ -->
+        <!-- Compact HD module chips — wrap on laptop, stay sharp. -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <StackPanel Opacity="0" x:Name="FeatureItemPanel">
-                <Border Width="76" Height="76"
-                        CornerRadius="20"
+            <StackPanel Opacity="0" x:Name="FeatureItemPanel" Margin="4,4">
+                <Border Height="32" Padding="10,0,12,0"
+                        CornerRadius="10"
                         BorderThickness="1"
                         BorderBrush="{Binding BorderBrush}"
-                        Margin="8,0"
-                        Effect="{StaticResource GlassGlow}"
-                        SnapsToDevicePixels="True">
+                        SnapsToDevicePixels="True"
+                        UseLayoutRounding="True">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-                            <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
+                            <GradientStop Color="#33FFFFFF" Offset="0.0"/>
+                            <GradientStop Color="#12FFFFFF" Offset="1.0"/>
                         </LinearGradientBrush>
                     </Border.Background>
-                    <Grid>
-                        <!-- glass glint in the top of the tile -->
-                        <Border Height="26" VerticalAlignment="Top"
-                                CornerRadius="20,20,0,0"
-                                Background="{StaticResource GlassHighlight}"
-                                IsHitTestVisible="False"/>
+                    <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="28"
+                                   FontSize="13"
                                    Foreground="{StaticResource Ice}"
-                                   HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   IsHitTestVisible="False"/>
-                    </Grid>
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="{Binding Label}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{StaticResource Ice}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
                 </Border>
-                <TextBlock Text="{Binding Label}"
-                           FontSize="12"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource Frost}"
-                           HorizontalAlignment="Center"
-                           Margin="0,7,0,0"
-                           IsHitTestVisible="False"/>
             </StackPanel>
         </DataTemplate>
 
@@ -341,451 +332,181 @@
 
     <Grid Background="{StaticResource PageBg}">
 
-        <!-- Poster only. Login / terms stay full-window overlays. -->
-        <Viewbox Stretch="Uniform" StretchDirection="Both">
-        <Grid Width="1600" Height="900" ClipToBounds="False">
-
-        <!-- ═══ BLURRED AURORA ORBS (glass stage) ═══ -->
-        <Ellipse Width="900" Height="900"
+        <Ellipse Width="380" Height="380"
                  Fill="{StaticResource OrbRight}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-320,-320,0" IsHitTestVisible="False">
-            <Ellipse.Effect>
-                <BlurEffect Radius="120"/>
-            </Ellipse.Effect>
-        </Ellipse>
-        <Ellipse Width="760" Height="760"
+                 Margin="0,-140,-120,0" IsHitTestVisible="False"/>
+        <Ellipse Width="320" Height="320"
                  Fill="{StaticResource OrbLeft}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-280,0,0,-280" IsHitTestVisible="False">
-            <Ellipse.Effect>
-                <BlurEffect Radius="110"/>
-            </Ellipse.Effect>
-        </Ellipse>
-        <Ellipse Width="620" Height="620"
-                 Fill="{StaticResource OrbCore}"
-                 HorizontalAlignment="Center" VerticalAlignment="Center"
-                 IsHitTestVisible="False">
-            <Ellipse.Effect>
-                <BlurEffect Radius="100"/>
-            </Ellipse.Effect>
-        </Ellipse>
+                 Margin="-100,0,0,-100" IsHitTestVisible="False"/>
 
-        <!-- Thin luminous accent lines -->
-        <Rectangle Height="1" VerticalAlignment="Top" Margin="60,88,60,0"
-                   Opacity="0.16" Fill="{StaticResource Azure}"
-                   IsHitTestVisible="False"/>
-        <Rectangle Height="1" VerticalAlignment="Bottom" Margin="60,88,60,0"
-                   Opacity="0.16" Fill="{StaticResource Azure}"
-                   IsHitTestVisible="False"/>
+        <Grid x:Name="PosterHost" Margin="20,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- ═══ TOP GLASS TRUST CHIPS ═══ -->
-        <Border x:Name="TopLeftBadge" Style="{StaticResource TrustChipStyle}"
-                HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="36,32,0,0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE774;" Style="{StaticResource ChipGlyphStyle}"/>
-                <TextBlock Text="MADE FOR UAE" Style="{StaticResource ChipTextStyle}"/>
-            </StackPanel>
-        </Border>
-
-        <Border x:Name="TopCenterPill" Style="{StaticResource TrustChipStyle}"
-                HorizontalAlignment="Center" VerticalAlignment="Top"
-                Margin="0,32,0,0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE735;" Style="{StaticResource ChipGlyphStyle}"/>
-                <TextBlock Style="{StaticResource ChipTextStyle}">
-                    <Run Text="ENTERPRISE EDITION"/>
-                    <Run Text=" · v"/>
-                    <Run Text="{x:Static updates:AppInfo.Version}"/>
-                </TextBlock>
-            </StackPanel>
-        </Border>
-
-        <Border x:Name="TopRightBadge" Style="{StaticResource TrustChipStyle}"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="0,32,36,0">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE72E;" Style="{StaticResource ChipGlyphStyle}"/>
-                <TextBlock Text="OFFLINE · SECURE" Style="{StaticResource ChipTextStyle}"/>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ LEFT CAPABILITY RAIL — 2050 glass panel ═══ -->
-                <Border HorizontalAlignment="Left" VerticalAlignment="Center"
-                Margin="48,0,0,0" Width="340"
-                Style="{StaticResource GlassRailPanelStyle}"
-                IsHitTestVisible="False">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                    <Rectangle Width="3" Height="16" RadiusX="1.5" RadiusY="1.5"
-                               VerticalAlignment="Center"
-                               Fill="{StaticResource Azure}" Margin="0,0,10,0"/>
-                    <TextBlock Text="MODULES" FontSize="11" FontWeight="Bold"
-                               Foreground="{StaticResource Ice}"/>
-                </StackPanel>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
+            <Grid Grid.Row="0">
+                <Border x:Name="TopLeftBadge" Style="{StaticResource TrustChipStyle}"
+                        HorizontalAlignment="Left" Height="32" Padding="12,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="01" Style="{StaticResource RailIndexStyle}"/>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Proforma Invoicing" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Text="Quotes &amp; proposals" Style="{StaticResource RailSubStyle}"/>
-                        </StackPanel>
+                        <TextBlock Text="&#xE774;" Style="{StaticResource ChipGlyphStyle}"/>
+                        <TextBlock Text="MADE FOR UAE" Style="{StaticResource ChipTextStyle}" FontSize="11"/>
                     </StackPanel>
                 </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
+                <Border x:Name="TopCenterPill" Style="{StaticResource TrustChipStyle}"
+                        HorizontalAlignment="Center" Height="32" Padding="12,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="02" Style="{StaticResource RailIndexStyle}"/>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Job Orders &amp; Production" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Text="Plan &amp; execute" Style="{StaticResource RailSubStyle}"/>
-                        </StackPanel>
+                        <TextBlock Text="&#xE735;" Style="{StaticResource ChipGlyphStyle}"/>
+                        <TextBlock Style="{StaticResource ChipTextStyle}" FontSize="11">
+                            <Run Text="ENTERPRISE"/>
+                            <Run Text=" · v"/>
+                            <Run Text="{x:Static updates:AppInfo.Version}"/>
+                        </TextBlock>
                     </StackPanel>
                 </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
+                <Border x:Name="TopRightBadge" Style="{StaticResource TrustChipStyle}"
+                        HorizontalAlignment="Right" Height="32" Padding="12,0">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="03" Style="{StaticResource RailIndexStyle}"/>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Delivery Notes" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Text="Dispatch &amp; track" Style="{StaticResource RailSubStyle}"/>
-                        </StackPanel>
+                        <TextBlock Text="&#xE72E;" Style="{StaticResource ChipGlyphStyle}"/>
+                        <TextBlock Text="OFFLINE · SECURE" Style="{StaticResource ChipTextStyle}" FontSize="11"/>
                     </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="04" Style="{StaticResource RailIndexStyle}"/>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="VAT Tax Invoices" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Text="Compliance ready" Style="{StaticResource RailSubStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}" Margin="0">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="05" Style="{StaticResource RailIndexStyle}"/>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="Profit &amp; Loss Analysis" Style="{StaticResource RailLabelStyle}"/>
-                            <TextBlock Text="Margin insights" Style="{StaticResource RailSubStyle}"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ RIGHT CAPABILITY RAIL — 2050 glass panel (mirrored) ═══ -->
-                <Border HorizontalAlignment="Right" VerticalAlignment="Center"
-                Margin="0,0,48,0" Width="340"
-                Style="{StaticResource GlassRailPanelStyle}"
-                IsHitTestVisible="False">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                            Margin="0,0,0,14">
-                    <TextBlock Text="BUILT FOR" FontSize="11" FontWeight="Bold"
-                               Foreground="{StaticResource Ice}"/>
-                    <Rectangle Width="3" Height="16" RadiusX="1.5" RadiusY="1.5"
-                               VerticalAlignment="Center"
-                               Fill="{StaticResource Azure}" Margin="10,0,0,0"/>
-                </StackPanel>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="Works Fully Offline" Style="{StaticResource RailLabelStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Text="No internet needed" Style="{StaticResource RailSubStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </StackPanel>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="01" Style="{StaticResource RailIndexStyle}"
-                                   Margin="9,0,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="FTA 5% VAT Ready" Style="{StaticResource RailLabelStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Text="UAE compliant" Style="{StaticResource RailSubStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </StackPanel>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="02" Style="{StaticResource RailIndexStyle}"
-                                   Margin="9,0,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="Data Stays On Your PC" Style="{StaticResource RailLabelStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Text="Private &amp; local" Style="{StaticResource RailSubStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </StackPanel>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="03" Style="{StaticResource RailIndexStyle}"
-                                   Margin="9,0,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="Full Audit Trail" Style="{StaticResource RailLabelStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Text="Every change logged" Style="{StaticResource RailSubStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </StackPanel>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="04" Style="{StaticResource RailIndexStyle}"
-                                   Margin="9,0,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <Border Style="{StaticResource GlassRailItemStyle}" Margin="0">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <TextBlock Text="Automatic Backups" Style="{StaticResource RailLabelStyle}"
-                                       HorizontalAlignment="Right"/>
-                            <TextBlock Text="Always protected" Style="{StaticResource RailSubStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </StackPanel>
-                        <Border Style="{StaticResource GlassIconTileStyle}">
-                            <TextBlock Text="&#xE8F7;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="17" Foreground="{StaticResource Ice}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="05" Style="{StaticResource RailIndexStyle}"
-                                   Margin="9,0,0,0"/>
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Border>
-
-        <!-- ═══ CENTER STAGE ═══ -->
-        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-
-            <!-- Glass logo core with halo, orbit ring + shimmer -->
-            <Border x:Name="LogoBorder" Width="280" Height="280"
-                    HorizontalAlignment="Center"
-                    IsHitTestVisible="False">
-                <Border.RenderTransform>
-                    <ScaleTransform x:Name="LogoScale" ScaleX="0" ScaleY="0"/>
-                </Border.RenderTransform>
-                <Grid>
-                    <Ellipse Width="280" Height="280"
-                             Fill="{StaticResource IconHalo}"
-                             IsHitTestVisible="False"/>
-                    <!-- dashed orbit ring (glass satellite) -->
-                    <Ellipse Width="260" Height="260"
-                             Stroke="#664F8EF7" StrokeThickness="2"
-                             StrokeDashArray="6 12"
-                             IsHitTestVisible="False"/>
-                    <Ellipse Width="240" Height="240"
-                             Stroke="#334F8EF7" StrokeThickness="1"
-                             IsHitTestVisible="False"/>
-
-                    <!-- frosted glass plate carrying the app icon -->
-                    <Border Width="188" Height="188"
-                            CornerRadius="42"
-                            Effect="{StaticResource IconShadow}"
-                            Background="{StaticResource GlassPlate}"
-                            SnapsToDevicePixels="True">
-                        <Border Width="172" Height="172"
-                                CornerRadius="38"
-                                BorderBrush="#66FFFFFF"
-                                BorderThickness="1"
-                                ClipToBounds="True"
-                                SnapsToDevicePixels="True">
-                            <Border.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                            Stretch="UniformToFill"/>
-                            </Border.Background>
-                            <!-- Shimmer sweep clipped to the icon -->
-                            <Border x:Name="ShimmerOverlay"
-                                    Opacity="0"
-                                    IsHitTestVisible="False">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                        <GradientStop Color="#FFFFFF00" Offset="0.0"/>
-                                        <GradientStop Color="#FFFFFF59" Offset="0.5"/>
-                                        <GradientStop Color="#FFFFFF00" Offset="1.0"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <Border.RenderTransform>
-                                    <TranslateTransform x:Name="ShimmerTranslate" X="-200"/>
-                                </Border.RenderTransform>
-                            </Border>
-                        </Border>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- Brand name -->
-            <TextBlock x:Name="AppNameText"
-                       Text="ProGlass Automation"
-                       FontSize="58"
-                       FontWeight="Bold"
-                       HorizontalAlignment="Center"
-                       Margin="0,28,0,0"
-                       Foreground="{StaticResource NameGradient}"
-                       Opacity="0"
-                       IsHitTestVisible="False">
-                <TextBlock.Effect>
-                    <DropShadowEffect Color="#3B82F6" BlurRadius="18"
-                                      ShadowDepth="0" Opacity="0.55"/>
-                </TextBlock.Effect>
-                <TextBlock.RenderTransform>
-                    <TranslateTransform x:Name="AppNameTranslate" Y="20"/>
-                </TextBlock.RenderTransform>
-            </TextBlock>
-
-            <TextBlock x:Name="TaglineText"
-                       Text="Industrial ERP for Glass Production Workflow"
-                       FontSize="17"
-                       HorizontalAlignment="Center"
-                       Margin="0,10,0,0"
-                       Foreground="{StaticResource Cerulean}"
-                       Opacity="0"
-                       IsHitTestVisible="False"/>
-
-            <!-- Feature glass tiles -->
-            <ItemsControl x:Name="FeaturePanel"
-                          ItemTemplate="{StaticResource FeatureBadgeTemplate}"
-                          HorizontalAlignment="Center"
-                          Margin="0,36,0,0">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"/>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
-
-            <!-- Luminous progress -->
-            <Grid Width="560" Margin="0,42,0,0">
-                <Border Height="5" CornerRadius="2.5"
-                        Background="#22FFFFFF"
-                        SnapsToDevicePixels="True"/>
-                <Border x:Name="ProgressFill"
-                        Height="5" Width="0"
-                        HorizontalAlignment="Left"
-                        CornerRadius="2.5"
-                        Background="{StaticResource ProgressGradient}"
-                        SnapsToDevicePixels="True">
-                    <Border.Effect>
-                        <DropShadowEffect Color="#3B82F6" BlurRadius="10"
-                                          ShadowDepth="0" Opacity="0.9"/>
-                    </Border.Effect>
                 </Border>
             </Grid>
 
-            <!-- Glass loading pill -->
-            <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,7"
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                            MaxWidth="720" Margin="8,12">
+
+                    <Border x:Name="LogoBorder" Width="120" Height="120"
+                            HorizontalAlignment="Center"
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            IsHitTestVisible="False">
+                        <Border.RenderTransform>
+                            <ScaleTransform x:Name="LogoScale" ScaleX="0" ScaleY="0"/>
+                        </Border.RenderTransform>
+                        <Grid>
+                            <Ellipse Width="120" Height="120" Fill="{StaticResource IconHalo}"/>
+                            <Ellipse Width="112" Height="112"
+                                     Stroke="#884F8EF7" StrokeThickness="1.5"
+                                     StrokeDashArray="4 8"/>
+                            <Border Width="88" Height="88" CornerRadius="20"
+                                    Effect="{StaticResource IconShadow}"
+                                    Background="{StaticResource GlassPlate}"
+                                    SnapsToDevicePixels="True">
+                                <Border Width="80" Height="80" CornerRadius="16"
+                                        BorderBrush="#88FFFFFF" BorderThickness="1"
+                                        ClipToBounds="True">
+                                    <Border.Background>
+                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                                    Stretch="UniformToFill"
+                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    </Border.Background>
+                                    <Border x:Name="ShimmerOverlay" Opacity="0" IsHitTestVisible="False">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#FFFFFF00" Offset="0.0"/>
+                                                <GradientStop Color="#FFFFFF66" Offset="0.5"/>
+                                                <GradientStop Color="#FFFFFF00" Offset="1.0"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.RenderTransform>
+                                            <TranslateTransform x:Name="ShimmerTranslate" X="-120"/>
+                                        </Border.RenderTransform>
+                                    </Border>
+                                </Border>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <TextBlock x:Name="AppNameText"
+                               Text="ProGlass Automation"
+                               FontSize="28" FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,16,0,0"
+                               Foreground="{StaticResource NameGradient}"
+                               Opacity="0">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+
+                    <TextBlock x:Name="TaglineText"
+                               Text="Industrial ERP for glass production"
+                               FontSize="13"
+                               HorizontalAlignment="Center"
+                               Margin="0,6,0,0"
+                               Foreground="{StaticResource Cerulean}"
+                               Opacity="0"/>
+
+                    <ItemsControl x:Name="FeaturePanel"
+                                  ItemTemplate="{StaticResource FeatureBadgeTemplate}"
+                                  HorizontalAlignment="Center"
+                                  Margin="0,20,0,0">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"
+                                           HorizontalAlignment="Center"
+                                           ItemWidth="Auto"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <Grid x:Name="ProgressTrack"
+                          MaxWidth="360" Height="4"
+                          Margin="0,22,0,0" HorizontalAlignment="Stretch">
+                        <Border Height="4" CornerRadius="2" Background="#22FFFFFF"/>
+                        <Border x:Name="ProgressFill"
+                                Height="4" Width="0"
+                                HorizontalAlignment="Left"
+                                CornerRadius="2"
+                                Background="{StaticResource ProgressGradient}"/>
+                    </Grid>
+
+                    <Border CornerRadius="10" Padding="14,6"
+                            HorizontalAlignment="Center"
+                            Margin="0,12,0,0"
+                            Background="{StaticResource IconTileBg}"
+                            BorderBrush="#30FFFFFF"
+                            BorderThickness="1">
+                        <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
+                            <TextBlock x:Name="LoadingText"
+                                       Text="Starting engines"
+                                       FontSize="11"
+                                       Foreground="{StaticResource Frost}"/>
+                            <TextBlock x:Name="LoadingDots"
+                                       Text=""
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="{StaticResource Azure}"/>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Border Grid.Row="2"
+                    CornerRadius="10" Padding="16,8"
                     HorizontalAlignment="Center"
-                    Margin="0,14,0,0"
                     Background="{StaticResource IconTileBg}"
-                    BorderBrush="#30FFFFFF"
-                    BorderThickness="1"
-                    SnapsToDevicePixels="True">
-                <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
-                    <TextBlock x:Name="LoadingText"
-                               Text="Starting engines"
-                               FontSize="11"
-                               Foreground="{StaticResource Frost}"
-                               IsHitTestVisible="False"/>
-                    <TextBlock x:Name="LoadingDots"
-                               Text=""
-                               FontSize="11"
-                               FontWeight="Bold"
-                               Foreground="{StaticResource Azure}"
-                               IsHitTestVisible="False"/>
+                    BorderBrush="#2EFFFFFF"
+                    BorderThickness="1">
+                <StackPanel>
+                    <TextBlock FontSize="11" Foreground="{StaticResource Cerulean}"
+                               HorizontalAlignment="Center">
+                        <Run Text="Developed by"/>
+                        <Run Text=" Juber Saleem" FontWeight="Bold"/>
+                    </TextBlock>
+                    <TextBlock FontSize="10" Margin="0,2,0,0"
+                               Foreground="#A0BFDBFE"
+                               HorizontalAlignment="Center"
+                               Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
                 </StackPanel>
             </Border>
-
-        </StackPanel>
-
-        <!-- ═══ FOOTER — glass pill ═══ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="22,10"
-                HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                Margin="0,0,0,30"
-                Background="{StaticResource IconTileBg}"
-                BorderBrush="#2EFFFFFF"
-                BorderThickness="1"
-                Effect="{StaticResource GlassGlow}"
-                SnapsToDevicePixels="True">
-            <StackPanel>
-                <TextBlock FontSize="11"
-                           Foreground="{StaticResource Cerulean}"
-                           HorizontalAlignment="Center"
-                           IsHitTestVisible="False">
-                    <Run Text="Developed by"/>
-                    <Run Text=" Juber Saleem" FontWeight="Bold"/>
-                </TextBlock>
-                <TextBlock FontSize="10"
-                           Margin="0,4,0,0"
-                           Foreground="#A0BFDBFE"
-                           HorizontalAlignment="Center"
-                           IsHitTestVisible="False">
-                    <Run Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
-                </TextBlock>
-            </StackPanel>
-        </Border>
-
         </Grid>
-        </Viewbox>
 
         <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
         <Grid x:Name="LoginHost"

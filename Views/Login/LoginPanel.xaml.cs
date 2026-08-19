@@ -116,8 +116,7 @@ namespace ProGlassAutomation.Views.Login
                 return;
             }
 
-            SignInButton.IsEnabled = false;
-            SignInButton.Content = "SIGNING IN…";
+            SetSigningState(true, "Signing in — verifying username and password…");
 
             try
             {
@@ -175,6 +174,7 @@ namespace ProGlassAutomation.Views.Login
 
                 AuditService.LogSessionBoundary(login: true);
                 SignedIn = true;
+                SetSigningState(false, "Signed in — opening workspace…");
                 PasswordBox.Clear();
                 Completed?.Invoke(true);
             }
@@ -193,8 +193,8 @@ namespace ProGlassAutomation.Views.Login
             }
             finally
             {
-                SignInButton.IsEnabled = true;
-                SignInButton.Content = "SIGN IN";
+                if (!SignedIn)
+                    SetSigningState(false, "Ready to sign in");
             }
         }
 

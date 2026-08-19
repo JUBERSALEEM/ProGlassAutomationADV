@@ -709,6 +709,59 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _ = PasteFromTextAsync(clipboardText, startRowContext, startColumnIndex);
         }
 
+        public int ApplyImportedRows(
+            System.Collections.Generic.IReadOnlyList<ProGlassAutomation.Services.ProformaInvoice.Step5Grid.CutListImportRow> rows)
+        {
+            if (rows == null || rows.Count == 0) return 0;
+            int factor = _selectedGlassType == "LAM" ? 4 : 2;
+            int added = 0;
+            _isBulkAdding = true;
+            try
+            {
+                bool firstEmpty = ItemRows.Count == 1
+                    && string.IsNullOrWhiteSpace(ItemRows[0].GlassRef)
+                    && ItemRows[0].W1 == 0 && ItemRows[0].H1 == 0;
+
+                for (int i = 0; i < rows.Count; i++)
+                {
+                    var src = rows[i];
+                    GlassItemRow dest;
+                    if (i == 0 && firstEmpty)
+                    {
+                        dest = ItemRows[0];
+                    }
+                    else
+                    {
+                        dest = new GlassItemRow
+                        {
+                            Qty = 1,
+                            Rate = SurchargeRate,
+                            PerimeterFactor = factor
+                        };
+                        ItemRows.Add(dest);
+                        dest.PropertyChanged += OnRowChanged;
+                    }
+
+                    dest.GlassRef = src.GlassRef ?? "";
+                    dest.W1 = src.W1;
+                    dest.H1 = src.H1;
+                    dest.W2 = src.W2;
+                    dest.H2 = src.H2;
+                    dest.Qty = src.Qty > 0 ? src.Qty : 1;
+                    added++;
+                }
+            }
+            finally
+            {
+                _isBulkAdding = false;
+                TotalRows = ItemRows.Count;
+                RenumberRows();
+                RecalculateFooter();
+            }
+            ItemRows.RaiseReset();
+            return added;
+        }
+
         public void AddRows(int count)
         {
             if (count <= 0) return;

@@ -59,7 +59,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
     // CLASS: GlassItemRow
     // ════════════════════════════════════════════════════════════════════════
 
-    public class DataGridViewModel : ViewModelBase
+    public partial class DataGridViewModel : ViewModelBase
     {
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
         public string Subtitle { get; } =
@@ -135,6 +135,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             SummaryViewModel = new GrandTotalSummaryViewModel(SpecGroups);
 
+            WireImportExportCommands();
             AddNewSpecGroup();
         }
 
