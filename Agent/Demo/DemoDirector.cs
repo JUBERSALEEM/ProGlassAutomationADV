@@ -126,14 +126,15 @@ namespace ProGlassAutomation.Agent.Demo
                     }), new JsonSerializerOptions { WriteIndented = true }));
                 log.AppendLine($"Verified events: {events.Count}");
 
-                bool walkedWizard = events.Any(e =>
-                    e.Id is "new_invoice" or "company" or "sgu_calc" or "dgu_calc"
-                        or "line" or "preview" or "step8" or "step9" or "saved");
-                if (events.Count == 0 || !walkedWizard)
+                var deep = new HashSet<string>(
+                    runner.DeepEvidenceIds ?? Array.Empty<string>(),
+                    StringComparer.Ordinal);
+                bool walkedWizard = events.Any(e => deep.Contains(e.Id));
+                if (events.Count == 0 || deep.Count == 0 || !walkedWizard)
                 {
                     Fail(module,
-                        "The wizard did not run. Only a screen change is not a demo. " +
-                        "New Invoice / Continue never verified, so I will not pretend a walkthrough happened.",
+                        "The workflow did not run. Only a screen change is not a demo. " +
+                        "No deep evidence event was verified, so I will not pretend a walkthrough happened.",
                         log, folder);
                     return Status;
                 }

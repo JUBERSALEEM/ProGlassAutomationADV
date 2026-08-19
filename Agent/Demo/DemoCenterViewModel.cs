@@ -77,6 +77,7 @@ namespace ProGlassAutomation.Agent.Demo
 
             RecheckFfmpegCommand = new RelayCommand(_ =>
             {
+                FfmpegMp4Composer.InvalidateCache();
                 RaiseFlags();
                 SetLocalStatus(IsFfmpegMissing
                     ? "ffmpeg is still missing. Download the zip, extract ffmpeg.exe and ffprobe.exe into the tools folder, then Recheck."
@@ -225,30 +226,81 @@ namespace ProGlassAutomation.Agent.Demo
 
         private async System.Threading.Tasks.Task StartAsync(string argument)
         {
+            string label = string.IsNullOrWhiteSpace(argument)
+                ? "Proforma Invoice"
+                : argument;
+
             if (_director.IsRunning)
             {
-                SetLocalStatus("A demo is already running. Cancel it first.");
+                Alert("Demo already running",
+                    "A demo is already recording. Press Cancel first, then Generate again.",
+                    MessageBoxImage.Information);
                 return;
             }
+
+            FfmpegMp4Composer.InvalidateCache();
+            RaiseFlags();
 
             if (IsFfmpegMissing)
             {
-                SetLocalStatus(
-                    "ffmpeg is not installed. Download it from the link on this page first — without it there is no MP4.");
-                RaiseFlags();
+                Alert("ffmpeg is missing",
+                    "Generate cannot run — ffmpeg is not installed, so no MP4 can be written.\n\n" +
+                    "1. Click DOWNLOAD FFMPEG (WINDOWS ZIP) on this page.\n" +
+                    "2. Unzip it and copy ffmpeg.exe and ffprobe.exe into:\n" +
+                    FfmpegToolsPath + "\n" +
+                    "3. Click RECHECK, then Generate Selected again.\n\n" +
+                    "Direct link:\n" + FfmpegDownloadUrl,
+                    MessageBoxImage.Warning);
                 return;
             }
 
-            SetLocalStatus("Starting " + (string.IsNullOrWhiteSpace(argument) ? "Proforma Invoice" : argument) + "…");
+            SetLocalStatus("Starting " + label + "…");
+            RaiseFlags();
             try
             {
                 await DemoJobQueue.Shared.EnqueueAsync(argument).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
-                SetLocalStatus("Generate failed: " + ex.Message);
+                Alert("Generate failed", ex.Message, MessageBoxImage.Error);
+                return;
             }
+
             RaiseStatus();
+
+            if (_director.State == DemoJobState.Failed)
+            {
+                Alert("Demo failed",
+                    string.IsNullOrWhiteSpace(_director.Status)
+                        ? "The walk did not produce a valid MP4."
+                        : _director.Status,
+                    MessageBoxImage.Warning);
+            }
+            else if (_director.State == DemoJobState.Completed)
+            {
+                Alert("Demo finished",
+                    _director.Status +
+                    (string.IsNullOrEmpty(_director.LastMp4Path)
+                        ? ""
+                        : "\n\n" + _director.LastMp4Path),
+                    MessageBoxImage.Information);
+            }
+            else if (_director.State == DemoJobState.Cancelled)
+            {
+                Alert("Demo cancelled", "Recording was cancelled. No MP4 was written.",
+                    MessageBoxImage.Information);
+            }
+        }
+
+        private void Alert(string title, string message, MessageBoxImage icon)
+        {
+            SetLocalStatus(message.Replace("\n", " ").Trim());
+            RaiseFlags();
+            try
+            {
+                MessageBox.Show(message, title, MessageBoxButton.OK, icon);
+            }
+            catch { /* status line still updated */ }
         }
 
         private void OpenOutput()

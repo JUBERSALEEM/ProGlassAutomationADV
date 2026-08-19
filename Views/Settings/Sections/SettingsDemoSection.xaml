@@ -38,50 +38,64 @@
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <TextBlock Text="FFMPEG REQUIRED" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="ffmpeg is not installed"
+                        <TextBlock Text="FFMPEG" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="{Binding FfmpegStatus}"
                                    Style="{StaticResource RowTitleStyle}"
-                                   Margin="0,4,0,6"/>
-                        <TextBlock Text="Without ffmpeg the recorder cannot write a valid MP4. AVI is not accepted as done. Download the Windows essentials zip (ffmpeg + ffprobe), extract the two .exe files into the tools folder, then Recheck."
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
+                                   Margin="0,4,0,6"
                                    TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding FfmpegDownloadUrl}"
-                                   FontSize="12"
-                                   FontFamily="Consolas"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   TextWrapping="Wrap"
-                                   Margin="0,12,0,0"/>
-                        <TextBlock Text="{Binding FfmpegInstallHint}"
+
+                        <StackPanel Visibility="{Binding IsFfmpegMissing,
+                                        Converter={StaticResource BoolToVisibilityConverter},
+                                        FallbackValue=Visible}">
+                            <TextBlock Text="Generate will not start until ffmpeg is installed. AVI is not accepted as an MP4. Download the Windows essentials zip, copy ffmpeg.exe and ffprobe.exe into the tools folder, then Recheck."
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="12"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding FfmpegDownloadUrl}"
+                                       FontSize="12"
+                                       FontFamily="Consolas"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,12,0,0"/>
+                            <TextBlock Text="{Binding FfmpegInstallHint}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="11"
+                                       TextWrapping="Wrap"
+                                       Margin="0,10,0,0"/>
+                            <WrapPanel Margin="0,16,0,0">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
+                                        Command="{Binding OpenFfmpegDownloadCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="OFFICIAL FFMPEG PAGE"
+                                        Command="{Binding OpenFfmpegPageCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="COPY LINK"
+                                        Command="{Binding CopyFfmpegLinkCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="OPEN TOOLS FOLDER"
+                                        Command="{Binding OpenToolsFolderCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="RECHECK"
+                                        Command="{Binding RecheckFfmpegCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
+                                        Margin="0,0,10,8"/>
+                            </WrapPanel>
+                        </StackPanel>
+
+                        <TextBlock Text="ffmpeg is ready. Generate Selected will record the module and write a verified MP4."
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
+                                   FontSize="12"
                                    TextWrapping="Wrap"
-                                   Margin="0,10,0,0"/>
-                        <WrapPanel Margin="0,16,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
-                                    Command="{Binding OpenFfmpegDownloadCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="OFFICIAL FFMPEG PAGE"
-                                    Command="{Binding OpenFfmpegPageCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="COPY LINK"
-                                    Command="{Binding CopyFfmpegLinkCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="OPEN TOOLS FOLDER"
-                                    Command="{Binding OpenToolsFolderCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="RECHECK"
-                                    Command="{Binding RecheckFfmpegCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
-                                    Margin="0,0,10,8"/>
-                        </WrapPanel>
+                                   Visibility="{Binding IsFfmpegReady,
+                                       Converter={StaticResource BoolToVisibilityConverter},
+                                       FallbackValue=Collapsed}"/>
                     </StackPanel>
                 </Border>
 
@@ -92,8 +106,9 @@
                                    Style="{StaticResource RowTitleStyle}"
                                    Margin="0,12,0,6"/>
                         <ComboBox ItemsSource="{Binding Modules}"
-                                  SelectedItem="{Binding SelectedWorkflow}"
+                                  SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
                                   DisplayMemberPath="Title"
+                                  IsSynchronizedWithCurrentItem="False"
                                   MinWidth="260"
                                   Padding="10,7"
                                   FontSize="13"/>

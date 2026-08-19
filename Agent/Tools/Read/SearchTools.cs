@@ -70,8 +70,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string term = (argument ?? "").Trim();
-            if (term.Length == 0)
-                return ToolResult.Fail("Tell me what to search for.");
 
             try
             {
@@ -80,10 +78,12 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
                 var all = await App.Invoices.GetAllAsync().ConfigureAwait(false);
 
-                var matches = all.Where(p =>
-                    ReadToolHelpers.Hit(p.ProformaId, term) ||
-                    ReadToolHelpers.Hit(p.CustomerName, term) ||
-                    ReadToolHelpers.Hit(p.ProjectName, term)).ToList();
+                var matches = term.Length == 0
+                    ? all.OrderByDescending(p => p.UpdatedAt).ToList()
+                    : all.Where(p =>
+                        ReadToolHelpers.Hit(p.ProformaId, term) ||
+                        ReadToolHelpers.Hit(p.CustomerName, term) ||
+                        ReadToolHelpers.Hit(p.ProjectName, term)).ToList();
 
                 var lines = matches.Take(ReadToolHelpers.MaxRows)
                     .Select(p =>
@@ -92,7 +92,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     .ToList();
 
                 return ToolResult.Ok(ReadToolHelpers.Format(
-                    $"Proforma invoices matching '{term}':", lines, matches.Count));
+                    term.Length == 0
+                        ? "Recent proforma invoices:"
+                        : $"Proforma invoices matching '{term}':",
+                    lines, matches.Count));
             }
             catch (Exception ex)
             {
@@ -119,8 +122,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string term = (argument ?? "").Trim();
-            if (term.Length == 0)
-                return ToolResult.Fail("Tell me what to search for.");
 
             try
             {
@@ -129,10 +130,12 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
                 var all = await App.Jobs.GetAllAsync().ConfigureAwait(false);
 
-                var matches = all.Where(j =>
-                    ReadToolHelpers.Hit(j.JobOrderId, term) ||
-                    ReadToolHelpers.Hit(j.CustomerName, term) ||
-                    ReadToolHelpers.Hit(j.ProjectName, term)).ToList();
+                var matches = term.Length == 0
+                    ? all.OrderByDescending(j => j.UpdatedAt).ToList()
+                    : all.Where(j =>
+                        ReadToolHelpers.Hit(j.JobOrderId, term) ||
+                        ReadToolHelpers.Hit(j.CustomerName, term) ||
+                        ReadToolHelpers.Hit(j.ProjectName, term)).ToList();
 
                 var lines = matches.Take(ReadToolHelpers.MaxRows)
                     .Select(j =>
@@ -141,7 +144,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     .ToList();
 
                 return ToolResult.Ok(ReadToolHelpers.Format(
-                    $"Job orders matching '{term}':", lines, matches.Count));
+                    term.Length == 0
+                        ? "Recent job orders:"
+                        : $"Job orders matching '{term}':",
+                    lines, matches.Count));
             }
             catch (Exception ex)
             {
@@ -168,8 +174,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string term = (argument ?? "").Trim();
-            if (term.Length == 0)
-                return ToolResult.Fail("Tell me what to search for.");
 
             try
             {
@@ -178,10 +182,12 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
                 var all = await App.DeliveryNotes.GetAllAsync().ConfigureAwait(false);
 
-                var matches = all.Where(d =>
-                    ReadToolHelpers.Hit(d.DeliveryNoteId, term) ||
-                    ReadToolHelpers.Hit(d.CustomerName, term) ||
-                    ReadToolHelpers.Hit(d.JobOrderId, term)).ToList();
+                var matches = term.Length == 0
+                    ? all.OrderByDescending(d => d.UpdatedAt).ToList()
+                    : all.Where(d =>
+                        ReadToolHelpers.Hit(d.DeliveryNoteId, term) ||
+                        ReadToolHelpers.Hit(d.CustomerName, term) ||
+                        ReadToolHelpers.Hit(d.JobOrderId, term)).ToList();
 
                 var lines = matches.Take(ReadToolHelpers.MaxRows)
                     .Select(d =>
@@ -190,7 +196,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     .ToList();
 
                 return ToolResult.Ok(ReadToolHelpers.Format(
-                    $"Delivery notes matching '{term}':", lines, matches.Count));
+                    term.Length == 0
+                        ? "Recent delivery notes:"
+                        : $"Delivery notes matching '{term}':",
+                    lines, matches.Count));
             }
             catch (Exception ex)
             {
@@ -217,8 +226,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string term = (argument ?? "").Trim();
-            if (term.Length == 0)
-                return ToolResult.Fail("Tell me what to search for.");
 
             try
             {
@@ -227,10 +234,12 @@ namespace ProGlassAutomation.Agent.Tools.Read
 
                 var all = await App.TaxInvoices.GetAllAsync().ConfigureAwait(false);
 
-                var matches = all.Where(t =>
-                    ReadToolHelpers.Hit(t.InvoiceNumber, term) ||
-                    ReadToolHelpers.Hit(t.CustomerName, term) ||
-                    ReadToolHelpers.Hit(t.ProformaId, term)).ToList();
+                var matches = term.Length == 0
+                    ? all.OrderByDescending(t => t.UpdatedAt).ToList()
+                    : all.Where(t =>
+                        ReadToolHelpers.Hit(t.InvoiceNumber, term) ||
+                        ReadToolHelpers.Hit(t.CustomerName, term) ||
+                        ReadToolHelpers.Hit(t.ProformaId, term)).ToList();
 
                 var lines = matches.Take(ReadToolHelpers.MaxRows)
                     .Select(t =>
@@ -238,7 +247,10 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     .ToList();
 
                 return ToolResult.Ok(ReadToolHelpers.Format(
-                    $"Tax invoices matching '{term}':", lines, matches.Count));
+                    term.Length == 0
+                        ? "Recent tax invoices:"
+                        : $"Tax invoices matching '{term}':",
+                    lines, matches.Count));
             }
             catch (Exception ex)
             {
@@ -265,8 +277,6 @@ namespace ProGlassAutomation.Agent.Tools.Read
         public async Task<ToolResult> ExecuteAsync(string argument)
         {
             string term = (argument ?? "").Trim();
-            if (term.Length == 0)
-                return ToolResult.Fail("Tell me which customer to look for.");
 
             try
             {
@@ -276,10 +286,12 @@ namespace ProGlassAutomation.Agent.Tools.Read
                 var all = await App.MasterData.GetAllClientsAsync()
                     .ConfigureAwait(false);
 
-                var matches = all.Where(c =>
-                    ReadToolHelpers.Hit(c.CustomerName, term) ||
-                    ReadToolHelpers.Hit(c.CustomerTrn, term) ||
-                    ReadToolHelpers.Hit(c.SalesRepresentative, term)).ToList();
+                var matches = term.Length == 0
+                    ? all.OrderByDescending(c => c.LastUsedAt).ToList()
+                    : all.Where(c =>
+                        ReadToolHelpers.Hit(c.CustomerName, term) ||
+                        ReadToolHelpers.Hit(c.CustomerTrn, term) ||
+                        ReadToolHelpers.Hit(c.SalesRepresentative, term)).ToList();
 
                 var lines = matches.Take(ReadToolHelpers.MaxRows)
                     .Select(c =>

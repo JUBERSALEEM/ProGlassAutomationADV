@@ -171,12 +171,17 @@ namespace ProGlassAutomation.Agent.Core
             sb.AppendLine();
             sb.AppendLine("Open screens: say \"open sheet store\", \"go to job orders\".");
             sb.AppendLine();
+            sb.AppendLine("Record a demo: \"create a proforma invoice demo\".");
+            sb.AppendLine();
             sb.AppendLine("Teach me a phrase:");
             sb.AppendLine("  \"whenever I say stock check, show me the inventory\"");
             sb.AppendLine("  then \"approve rule 1\" — taught phrases do nothing " +
                           "until you approve them.");
             sb.AppendLine();
-            sb.AppendLine("I cannot create, edit or delete any record.");
+            sb.AppendLine("I can change sheet stock only after you confirm " +
+                          "(for example \"add 10 to sheet 42\").");
+            sb.AppendLine("I cannot create, approve, dispatch or delete invoices, " +
+                          "jobs or deliveries.");
 
             return AgentResponse.Ok(
                 sb.ToString().TrimEnd(),

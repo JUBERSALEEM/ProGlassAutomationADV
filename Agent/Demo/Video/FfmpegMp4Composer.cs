@@ -23,8 +23,29 @@ namespace ProGlassAutomation.Agent.Demo.Video
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "tools");
 
+        private static string? _cached;
+        private static bool _looked;
+
+        /// <summary>Forget the last lookup so Recheck hits disk/PATH again.</summary>
+        public static void InvalidateCache()
+        {
+            _looked = false;
+            _cached = null;
+        }
+
         public static string? Find()
         {
+            if (_looked) return _cached;
+            _cached = FindCore();
+            _looked = true;
+            return _cached;
+        }
+
+        private static string? FindCore()
+        {
+            string local = Path.Combine(ToolsFolder, "ffmpeg.exe");
+            if (File.Exists(local)) return local;
+
             foreach (var name in new[] { "ffmpeg", "ffmpeg.exe" })
             {
                 try
@@ -40,14 +61,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     };
                     using var p = Process.Start(psi);
                     if (p == null) continue;
-                    if (!p.WaitForExit(4000)) { try { p.Kill(); } catch { } continue; }
+                    if (!p.WaitForExit(1500)) { try { p.Kill(); } catch { } continue; }
                     if (p.ExitCode == 0) return name;
                 }
                 catch { /* try next */ }
             }
 
-            string local = Path.Combine(ToolsFolder, "ffmpeg.exe");
-            return File.Exists(local) ? local : null;
+            return null;
         }
 
         public static string? FindProbe()
