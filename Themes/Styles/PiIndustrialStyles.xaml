@@ -225,11 +225,12 @@
     <!-- ══ STEP 4 — type chip / layer strip / apply bar ══════════════ -->
 
     <Style x:Key="PiLayerStripStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness" Value="3,0,0,0"/>
-        <Setter Property="Padding"         Value="12,8"/>
-        <Setter Property="Margin"          Value="0,0,0,6"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding"         Value="14,12"/>
+        <Setter Property="Margin"          Value="0,0,0,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

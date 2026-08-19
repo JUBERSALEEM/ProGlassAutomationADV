@@ -1,3 +1,7 @@
+<!--
+    DGU+LAM — 3D well left, five layer cards right (scroll, no star-row squeeze).
+    Spec name lives only in the Step 4 result bar. Bindings unchanged.
+-->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters.DguLamParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,24 +10,18 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- DGU+LAM: 3D hybrid cutaway left · five numbered layers · costing rail. -->
     <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.9*"/>
-                <ColumnDefinition Width="1.45*"/>
-                <ColumnDefinition Width="0.7*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.9*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="1.25*"/>
+        </Grid.ColumnDefinitions>
 
-            <glass:GlassAssemblyShowcase Grid.Column="0" Grid.Row="0"
-                                         Kind="DguLam"
-                                         MinHeight="240"
+        <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="10" ClipToBounds="True">
+            <glass:GlassAssemblyShowcase Kind="DguLam"
+                                         MinHeight="280"
                                          ShowWell="True"
                                          ShowCaption="False"
-                                         Margin="0,0,12,0"
                                          OuterColor="{Binding OuterGlassColor}"
                                          OuterThickness="{Binding OuterThickness}"
                                          OuterTreatment="{Binding OuterTreatment}"
@@ -35,311 +33,266 @@
                                          InterlayerType="{Binding InterlayerType}"
                                          LamInnerColor="{Binding LamInnerColor}"
                                          LamInnerThickness="{Binding LamInnerThickness}"/>
+        </Border>
 
-            <ScrollViewer Grid.Column="1" Grid.Row="0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Margin="0,0,10,0">
-                <StackPanel>
-                    <Border Style="{StaticResource PiLayerStripStyle}">
+        <ScrollViewer Grid.Column="2"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False">
+            <StackPanel>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="1  Outer pane" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="92"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource PiNumberBadgeStyle}" Margin="0">
-                                <TextBlock Text="1" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="OUTER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0"/>
-                                <TextBlock Text="Thickness" Style="{StaticResource Step4LabelStyle}" Margin="0"/>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
-                            <ComboBox Grid.Column="2" ItemsSource="{Binding ThicknessOptions}"
-                                      SelectedItem="{Binding OuterThickness}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="4" ItemsSource="{Binding ColorOptions}"
-                                      Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                      Style="{StaticResource Step4EditableComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="6"
-                                     Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="8" ItemsSource="{Binding TreatmentOptions}"
-                                      SelectedItem="{Binding OuterTreatment}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TREATMENT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
                         </Grid>
-                    </Border>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="PRICE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                    <Border Style="{StaticResource PiLayerStripStyle}"
-                            BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="4,0,0,0">
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
+                        BorderBrush="{DynamicResource AccentBrush}">
+                    <StackPanel>
+                        <TextBlock Text="2  Air spacer" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="92"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource PiNumberBadgeStyle}" Margin="0">
-                                <TextBlock Text="2" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="AIR SPACER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0"/>
-                                <TextBlock Text="Width" Style="{StaticResource Step4LabelStyle}" Margin="0"/>
+                            <StackPanel>
+                                <TextBlock Text="WIDTH" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding SpacerOptions}"
+                                          Text="{Binding SpacerThickness, UpdateSourceTrigger=PropertyChanged}"
+                                          Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
-                            <ComboBox Grid.Column="2" ItemsSource="{Binding SpacerOptions}"
-                                      Text="{Binding SpacerThickness, UpdateSourceTrigger=PropertyChanged}"
-                                      Style="{StaticResource Step4EditableComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="4"
-                                     Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     ToolTip="Spacer / sqm — 0 means not in rate"
-                                     VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="6" ItemsSource="{Binding SpacerExtraOptions}"
-                                      SelectedItem="{Binding SpacerExtra}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"
-                                      ToolTip="Spacer extra"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="SPACER / SQM" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
+                                         Style="{StaticResource Step4InputStyle}"
+                                         ToolTip="Spacer / sqm — 0 means not in rate"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding SpacerExtraOptions}" SelectedItem="{Binding SpacerExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
                         </Grid>
-                    </Border>
+                    </StackPanel>
+                </Border>
 
-                    <Border Style="{StaticResource PiLayerStripStyle}">
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="3  Lam outer" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="92"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource PiNumberBadgeStyle}" Margin="0">
-                                <TextBlock Text="3" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="LAM OUTER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0"/>
-                                <TextBlock Text="Thickness" Style="{StaticResource Step4LabelStyle}" Margin="0"/>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding LamOuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
-                            <ComboBox Grid.Column="2" ItemsSource="{Binding ThicknessOptions}"
-                                      SelectedItem="{Binding LamOuterThickness}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="4" ItemsSource="{Binding ColorOptions}"
-                                      Text="{Binding LamOuterColor, UpdateSourceTrigger=PropertyChanged}"
-                                      Style="{StaticResource Step4EditableComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="6"
-                                     Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="8" ItemsSource="{Binding TreatmentOptions}"
-                                      SelectedItem="{Binding LamOuterTreatment}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding LamOuterColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TREATMENT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding LamOuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
                         </Grid>
-                    </Border>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="PRICE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                    <Border Style="{StaticResource PiLayerStripStyle}"
-                            BorderBrush="{DynamicResource WarningBrush}">
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
+                        BorderBrush="{DynamicResource WarningBrush}">
+                    <StackPanel>
+                        <TextBlock Text="4  Interlayer" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="92"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource PiNumberBadgeStyle}"
-                                    Background="{DynamicResource WarningBrush}"
-                                    Margin="0">
-                                <TextBlock Text="4" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="INTERLAYER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0"/>
-                                <TextBlock Text="Film" Style="{StaticResource Step4LabelStyle}" Margin="0"/>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding InterlayerThicknessOptions}" SelectedItem="{Binding InterlayerThickness}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
-                            <ComboBox Grid.Column="2" ItemsSource="{Binding InterlayerThicknessOptions}"
-                                      SelectedItem="{Binding InterlayerThickness}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="4" ItemsSource="{Binding ColorOptions}"
-                                      Text="{Binding InterlayerColor, UpdateSourceTrigger=PropertyChanged}"
-                                      Style="{StaticResource Step4EditableComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="6"
-                                     Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     ToolTip="Sold / sqm"
-                                     VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="8"
-                                     Text="{Binding InterlayerBuyPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     ToolTip="Bought / sqm"
-                                     VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="10" ItemsSource="{Binding InterlayerTypeOptions}"
-                                      SelectedItem="{Binding InterlayerType}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InterlayerColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TYPE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding InterlayerTypeOptions}" SelectedItem="{Binding InterlayerType}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
                         </Grid>
-                    </Border>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="SOLD / SQM" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource Step4InputStyle}" ToolTip="Sold / sqm"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="BOUGHT / SQM" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding InterlayerBuyPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource Step4InputStyle}" ToolTip="Bought / sqm"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="{Binding InterlayerMarginDisplay}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
+                    </StackPanel>
+                </Border>
 
-                    <Border Style="{StaticResource PiLayerStripStyle}">
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
+                    <StackPanel>
+                        <TextBlock Text="5  Lam inner" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="28"/>
-                                <ColumnDefinition Width="92"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="4"/>
-                                <ColumnDefinition Width="64"/>
-                                <ColumnDefinition Width="4"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource PiNumberBadgeStyle}" Margin="0">
-                                <TextBlock Text="5" FontSize="10" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="LAM INNER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0"/>
-                                <TextBlock Text="Thickness" Style="{StaticResource Step4LabelStyle}" Margin="0"/>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding LamInnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
-                            <ComboBox Grid.Column="2" ItemsSource="{Binding ThicknessOptions}"
-                                      SelectedItem="{Binding LamInnerThickness}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="4" ItemsSource="{Binding ColorOptions}"
-                                      Text="{Binding LamInnerColor, UpdateSourceTrigger=PropertyChanged}"
-                                      Style="{StaticResource Step4EditableComboStyle}"
-                                      VerticalAlignment="Center"/>
-                            <TextBox Grid.Column="6"
-                                     Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"
-                                     VerticalAlignment="Center"/>
-                            <ComboBox Grid.Column="8" ItemsSource="{Binding TreatmentOptions}"
-                                      SelectedItem="{Binding LamInnerTreatment}"
-                                      Style="{StaticResource Step4ComboStyle}"
-                                      VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding LamInnerColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TREATMENT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding LamInnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
                         </Grid>
-                    </Border>
-                </StackPanel>
-            </ScrollViewer>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="PRICE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-            <ScrollViewer Grid.Column="2" Grid.Row="0"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel>
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="8"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="YIELD" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
-                                     Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="CUTTING" Style="{StaticResource Step4LabelStyle}"/>
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="4"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="4"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Outer cut"/>
-                        <TextBox Grid.Column="2" Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Lam outer cut"/>
-                        <TextBox Grid.Column="4" Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Lam inner cut"/>
-                    </Grid>
-                    <TextBlock Text="TEMPERING" Style="{StaticResource Step4LabelStyle}"/>
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="4"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="4"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Outer temper"/>
-                        <TextBox Grid.Column="2" Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Lam outer temper"/>
-                        <TextBox Grid.Column="4" Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}" ToolTip="Lam inner temper"/>
-                    </Grid>
-                    <TextBlock FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
-                        <Run Text="Cut "/>
-                        <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
-                        <Run Text="  ·  Temper "/>
-                        <Run Text="{Binding TotalTemperingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
-                    </TextBlock>
-
-                    <TextBlock Text="PANEL EXTRA" Style="{StaticResource Step4LabelStyle}" Margin="0,10,0,0"/>
-                    <ComboBox ItemsSource="{Binding PanelExtraOptions}"
-                              SelectedItem="{Binding PanelExtra}"
-                              Style="{StaticResource Step4ComboStyle}" Margin="0,0,0,6"/>
-                    <TextBlock Text="EDGE POLISH" Style="{StaticResource Step4LabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding EdgePolishOptions}"
-                              SelectedItem="{Binding EdgePolish}"
-                              Style="{StaticResource Step4ComboStyle}"/>
-                    <TextBlock Text="{Binding InterlayerMarginDisplay}"
-                               FontSize="10"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap"
-                               Margin="0,8,0,0"/>
-                </StackPanel>
-            </ScrollViewer>
-
-            <TextBox Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
-                     Text="{Binding GeneratedSpecName, Mode=OneWay}"
-                     IsReadOnly="True"
-                     FontFamily="Consolas"
-                     FontSize="12"
-                     FontWeight="SemiBold"
-                     Margin="0,10,0,0"/>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12">
+                    <StackPanel>
+                        <TextBlock Text="Costing" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="YIELD" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="MARGIN %" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="PANEL EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="CUTTING" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Outer cut"/>
+                            <TextBox Grid.Column="2" Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Lam outer cut"/>
+                            <TextBox Grid.Column="4" Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Lam inner cut"/>
+                        </Grid>
+                        <TextBlock Text="TEMPERING" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Outer temper"/>
+                            <TextBox Grid.Column="2" Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Lam outer temper"/>
+                            <TextBox Grid.Column="4" Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}" ToolTip="Lam inner temper"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="EDGE POLISH" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding EdgePolishOptions}" SelectedItem="{Binding EdgePolish}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" VerticalAlignment="Bottom" Margin="0,0,0,8"
+                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                                <Run Text="Cut "/>
+                                <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                                <Run Text="  ·  Temper "/>
+                                <Run Text="{Binding TotalTemperingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                            </TextBlock>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

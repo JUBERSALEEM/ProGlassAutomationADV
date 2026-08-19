@@ -7,156 +7,173 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.9*"/>
+            <ColumnDefinition Width="0.95*"/>
             <ColumnDefinition Width="20"/>
             <ColumnDefinition Width="1.2*"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <glass:GlassAssemblyShowcase Kind="Dgu"
-                                     MinHeight="260"
-                                     ShowWell="True"
-                                     ShowCaption="False"
-                                     OuterColor="{Binding OuterGlassColor}"
-                                     OuterThickness="{Binding OuterThickness}"
-                                     OuterTreatment="{Binding OuterTreatment}"
-                                     InnerColor="{Binding InnerGlassColor}"
-                                     InnerThickness="{Binding InnerThickness}"
-                                     InnerTreatment="{Binding InnerTreatment}"
-                                     SpacerWidth="{Binding SpacerWidth}"
-                                     SpacerMaterial="{Binding SpacerMaterial}"
-                                     Caption="{Binding GeneratedSpecName}"/>
-
-        <Border Grid.Column="1" Width="1" Background="{DynamicResource DividerBrush}" HorizontalAlignment="Center"/>
+        <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="10" ClipToBounds="True">
+            <glass:GlassAssemblyShowcase Kind="Dgu"
+                                         MinHeight="320"
+                                         ShowWell="True"
+                                         ShowCaption="False"
+                                         OuterColor="{Binding OuterGlassColor}"
+                                         OuterThickness="{Binding OuterThickness}"
+                                         OuterTreatment="{Binding OuterTreatment}"
+                                         InnerColor="{Binding InnerGlassColor}"
+                                         InnerThickness="{Binding InnerThickness}"
+                                         InnerTreatment="{Binding InnerTreatment}"
+                                         SpacerWidth="{Binding SpacerWidth}"
+                                         SpacerMaterial="{Binding SpacerMaterial}"/>
+        </Border>
 
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
-                <TextBlock Text="1  OUTER" Style="{StaticResource PiSectionLabelStyle}"/>
-                <Grid Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                        <TextBlock Text="1  Outer pane" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TREATMENT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="PRICE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="SHEET W" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="SHEET H" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="6">
-                        <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="8">
-                        <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="10">
-                        <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                </Grid>
+                </Border>
 
-                <TextBlock Text="2  AIR SPACER" Style="{StaticResource PiSectionLabelStyle}"/>
-                <Grid Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="1.3*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14" Margin="0,0,0,10"
+                        BorderBrush="{DynamicResource AccentBrush}">
                     <StackPanel>
-                        <TextBlock Text="WIDTH" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding SpacerWidthOptions}" SelectedItem="{Binding SpacerWidth}" Style="{StaticResource Step4ComboStyle}"/>
+                        <TextBlock Text="2  Air spacer" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="1.2*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="WIDTH" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding SpacerWidthOptions}" SelectedItem="{Binding SpacerWidth}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="MATERIAL" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding SpacerMaterialOptions}" SelectedItem="{Binding SpacerMaterial}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="SPACER / SQM" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding SpacerExtraOptions}" SelectedItem="{Binding SpacerExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="PANEL EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="MATERIAL" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding SpacerMaterialOptions}" SelectedItem="{Binding SpacerMaterial}" Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="SPACER / SQM" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="6">
-                        <TextBlock Text="EXTRA" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding SpacerExtraOptions}" SelectedItem="{Binding SpacerExtra}" Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="8">
-                        <TextBlock Text="PANEL EXTRA" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra}" Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                </Grid>
+                </Border>
 
-                <TextBlock Text="3  INNER" Style="{StaticResource PiSectionLabelStyle}"/>
-                <Grid Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding InnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                        <TextBlock Text="3  Inner pane" FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="THK" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding InnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="COLOUR" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="TREATMENT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding InnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="PRICE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="SHEET W" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="SHEET H" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                            </StackPanel>
+                        </Grid>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding InnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="6">
-                        <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="8">
-                        <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="10">
-                        <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                </Grid>
+                </Border>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="YIELD" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                </Grid>
+                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="10"/><ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="YIELD" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                            <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="MARGIN %" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                            <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
             </StackPanel>
         </ScrollViewer>
-
-        <StackPanel Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" Margin="0,10,0,0">
-            <TextBox Text="{Binding GeneratedSpecName, Mode=OneWay}" IsReadOnly="True"
-                     FontFamily="Consolas" FontSize="12" FontWeight="SemiBold"/>
-            <TextBlock Text="{Binding SheetStoreHint}" FontSize="10" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-        </StackPanel>
     </Grid>
 </UserControl>

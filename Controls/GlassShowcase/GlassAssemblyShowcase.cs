@@ -170,7 +170,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             {
                 var wellBrush = new SolidColorBrush(well);
                 wellBrush.Freeze();
-                dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 10, 10);
+                dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 12, 12);
             }
 
             // Ground plane so the 3D sandwich reads as a product, not a flat glyph.
