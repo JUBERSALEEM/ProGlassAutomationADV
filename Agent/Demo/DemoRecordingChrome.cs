@@ -10,8 +10,8 @@ namespace ProGlassAutomation.Agent.Demo
 {
     /// <summary>
     /// Live recording HUD on the main window: REC / duration / frames /
-    /// audio / STOP. Visible only while a demo is recording so the user
-    /// can see that frames are actually being captured.
+    /// audio / STOP. Used by both Demo Center walks and the independent
+    /// user screen recorder.
     /// </summary>
     public static class DemoRecordingChrome
     {
@@ -21,16 +21,19 @@ namespace ProGlassAutomation.Agent.Demo
         private static WindowScreenRecorder? _recorder;
         private static DateTime _started;
         private static string _module = "";
+        private static string _kind = "Demo";
         private static Action? _onStop;
 
         public static void ShowRecording(
             string module,
             WindowScreenRecorder recorder,
-            Action? onStop)
+            Action? onStop,
+            string kind = "Demo")
         {
             _recorder = recorder;
             _onStop = onStop;
             _module = module ?? "Demo";
+            _kind = string.IsNullOrWhiteSpace(kind) ? "Demo" : kind.Trim();
             _started = DateTime.UtcNow;
             RunOnUi(() =>
             {
@@ -80,7 +83,7 @@ namespace ProGlassAutomation.Agent.Demo
                         "Frames: " + frames + "\n" +
                         "Audio: " + (string.IsNullOrWhiteSpace(audioNote) ? "none" : audioNote) + "\n\n" +
                         path,
-                        "Demo recording saved",
+                        SavedTitle,
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 }
@@ -107,9 +110,11 @@ namespace ProGlassAutomation.Agent.Demo
                 {
                     MessageBox.Show(
                         string.IsNullOrWhiteSpace(reason)
-                            ? "The demo did not produce a valid recording."
+                            ? (IsUserKind
+                                ? "The screen recording did not produce a valid MP4."
+                                : "The demo did not produce a valid recording.")
                             : reason,
-                        "Demo recording failed",
+                        FailedTitle,
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                 }
@@ -161,6 +166,15 @@ namespace ProGlassAutomation.Agent.Demo
                 audio,
                 showStop: true);
         }
+
+        private static bool IsUserKind =>
+            string.Equals(_kind, "Screen", StringComparison.OrdinalIgnoreCase);
+
+        private static string SavedTitle =>
+            IsUserKind ? "Screen recording saved" : "Demo recording saved";
+
+        private static string FailedTitle =>
+            IsUserKind ? "Screen recording failed" : "Demo recording failed";
 
         private static string AudioLine(WindowScreenRecorder? rec)
         {
@@ -217,6 +231,8 @@ namespace ProGlassAutomation.Agent.Demo
         private static T? FindNamed<T>(DependencyObject root, string name) where T : FrameworkElement
         {
             if (root is T match && match.Name == name) return match;
+            if (root is not Visual and not System.Windows.Media.Media3D.Visual3D)
+                return null;
             int n = VisualTreeHelper.GetChildrenCount(root);
             for (int i = 0; i < n; i++)
             {

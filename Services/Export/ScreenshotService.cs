@@ -369,6 +369,10 @@ namespace ProGlassAutomation.Services.Export
                     bestExtent = sv.ExtentHeight;
                 }
                 // Keep walking into it — there may be a deeper scrolling list.
+                // Skip ColumnDefinition / RowDefinition (not Visuals).
+                if (node is not System.Windows.Media.Visual
+                    and not System.Windows.Media.Media3D.Visual3D)
+                    return;
                 int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(node);
                 for (int i = 0; i < count; i++)
                     Walk(System.Windows.Media.VisualTreeHelper.GetChild(node, i));

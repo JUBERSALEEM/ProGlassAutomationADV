@@ -341,6 +341,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try { Stop(); } catch { }
             try { _cts?.Dispose(); } catch { }
             _audio.Dispose();
+            _mic.Dispose();
         }
     }
 }

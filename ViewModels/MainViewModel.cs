@@ -163,6 +163,17 @@ namespace ProGlassAutomation.ViewModels
             set { if (_isScreenshotOpen == value) return; _isScreenshotOpen = value; OnPropertyChanged(); }
         }
 
+        private bool _isScreenRecordOpen;
+        /// <summary>True while the independent screen-record popup is open.</summary>
+        public bool IsScreenRecordOpen
+        {
+            get => _isScreenRecordOpen;
+            set { if (_isScreenRecordOpen == value) return; _isScreenRecordOpen = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Top-bar screen recorder (independent of Demo Center walks).</summary>
+        public ScreenRecordPanelViewModel ScreenRecordVM => ScreenRecordPanelViewModel.Shared;
+
         /// <summary>Toggles the quick-settings popup.</summary>
         public ICommand ToggleSettingsCommand { get; private set; }
         /// <summary>Toggles the notifications/activity popup.</summary>

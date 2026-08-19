@@ -88,6 +88,14 @@ namespace ProGlassAutomation.Agent.Demo
                     return Status;
                 }
 
+                if (Services.Recording.UserScreenRecordService.Shared.IsBusy)
+                {
+                    Fail(module,
+                        "A manual screen recording is running. Stop it from the REC button first — two recorders cannot share this window.",
+                        log, folder: null);
+                    return Status;
+                }
+
                 Set(DemoJobState.Preparing, "Entering isolated Demo Mode.");
                 var entered = await DemoModeService.EnterAndSeedAsync(ct).ConfigureAwait(false);
                 log.AppendLine(entered.Message);

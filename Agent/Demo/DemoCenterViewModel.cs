@@ -4,6 +4,7 @@ using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Tools.Demo;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Recording;
 using ProGlassAutomation.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -124,6 +125,25 @@ namespace ProGlassAutomation.Agent.Demo
                 SetLocalStatus(DemoModeService.ResetDemoFolder());
                 RaiseFlags();
             });
+
+            StartSessionRecordCommand = new RelayCommand(
+                _ => StartSessionRecord(),
+                _ => !IsBusy && !UserScreenRecordService.Shared.IsBusy);
+
+            StopSessionRecordCommand = new RelayCommand(
+                async _ => await UserScreenRecordService.Shared.StopAndSaveAsync()
+                    .ConfigureAwait(true),
+                _ => UserScreenRecordService.Shared.IsRecording);
+
+            OpenRecordingsCommand = new RelayCommand(
+                _ => UserScreenRecordService.Shared.OpenOutput());
+
+            UserScreenRecordService.Shared.Changed += () =>
+            {
+                var disp = Application.Current?.Dispatcher;
+                if (disp == null) { RaiseFlags(); return; }
+                disp.InvokeAsync(RaiseFlags);
+            };
         }
 
         public IReadOnlyList<DemoWorkflow> Modules => DemoWorkflowCatalog.All;
@@ -295,6 +315,48 @@ namespace ProGlassAutomation.Agent.Demo
         public ICommand EnterDemoCommand { get; }
         public ICommand ExitDemoCommand { get; }
         public ICommand ResetDemoCommand { get; }
+        public ICommand StartSessionRecordCommand { get; }
+        public ICommand StopSessionRecordCommand { get; }
+        public ICommand OpenRecordingsCommand { get; }
+
+        public bool IsSessionRecording => UserScreenRecordService.Shared.IsRecording;
+        public bool IsSessionIdle => !UserScreenRecordService.Shared.IsBusy;
+
+        public string SessionRecordStatus =>
+            UserScreenRecordService.Shared.Status;
+
+        public string SessionRecordHint =>
+            "Independent of Generate. Records whatever you do in this window. " +
+            "Does not enter Demo Mode and does not walk a wizard. " +
+            "Same engine as the REC button in the top bar.";
+
+        private void StartSessionRecord()
+        {
+            if (IsBusy)
+            {
+                Alert("Demo already running",
+                    "A demo walk is recording. Cancel it first.",
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var settings = new ScreenRecordSettings
+            {
+                Quality = SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd,
+                Fps = SelectedFps?.Fps ?? 30,
+                CaptureLiveAudio = CaptureLiveAudio,
+                CaptureMicrophone = CaptureMicrophone
+            }.Clamp();
+
+            string? why = UserScreenRecordService.Shared.TryStart(settings);
+            if (why != null)
+            {
+                Alert("Screen recording", why, MessageBoxImage.Warning);
+                return;
+            }
+            SetLocalStatus(UserScreenRecordService.Shared.Status);
+            RaiseFlags();
+        }
 
         private async System.Threading.Tasks.Task StartAsync(string argument)
         {
@@ -306,6 +368,14 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 Alert("Demo already running",
                     "A demo is already recording. Press Cancel first, then Generate again.",
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            if (UserScreenRecordService.Shared.IsBusy)
+            {
+                Alert("Screen recording is running",
+                    "Stop the manual screen recording first. Generate and REC cannot share this window.",
                     MessageBoxImage.Information);
                 return;
             }
@@ -423,6 +493,9 @@ namespace ProGlassAutomation.Agent.Demo
             OnPropertyChanged(nameof(LastMp4Text));
             OnPropertyChanged(nameof(VerifiedText));
             OnPropertyChanged(nameof(HasHistory));
+            OnPropertyChanged(nameof(IsSessionRecording));
+            OnPropertyChanged(nameof(IsSessionIdle));
+            OnPropertyChanged(nameof(SessionRecordStatus));
             CommandManager.InvalidateRequerySuggested();
         }
     }

@@ -1,0 +1,292 @@
+using ProGlassAutomation.Agent.Demo;
+using ProGlassAutomation.Agent.Demo.Recording;
+using ProGlassAutomation.Agent.Demo.Video;
+using ProGlassAutomation.Agent.Tools.Demo;
+using ProGlassAutomation.Services.Database;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows;
+
+namespace ProGlassAutomation.Services.Recording
+{
+    /// <summary>
+    /// Independent in-app screen recorder. Captures only the running
+    /// main window (not the desktop). Demo Center uses the same capture
+    /// engine for automated walks; this service is the user-facing
+    /// start/stop path and never enters Demo Mode or touches ERP files.
+    /// </summary>
+    public sealed class UserScreenRecordService
+    {
+        public static UserScreenRecordService Shared { get; } = new();
+
+        public static string OutputRoot => Path.Combine(
+            AppDataRoot.ProductionFolder, "Recordings");
+
+        private readonly object _gate = new();
+        private WindowScreenRecorder? _recorder;
+        private string? _jobFolder;
+        private IDisposable? _critical;
+        private CancellationTokenSource? _cts;
+        private ScreenRecordSettings _settings = new();
+
+        public bool IsRecording { get; private set; }
+        public bool IsEncoding { get; private set; }
+        public bool IsBusy => IsRecording || IsEncoding;
+        public string Status { get; private set; } =
+            "Idle. Records only this app window — not the desktop.";
+        public string? LastMp4Path { get; private set; }
+        public string? LastFolder { get; private set; }
+        public int EncodedFrames { get; private set; }
+        public DateTime StartedUtc { get; private set; }
+
+        public ScreenRecordSettings Settings
+        {
+            get => _settings;
+            set => _settings = (value ?? new ScreenRecordSettings()).Clone().Clamp();
+        }
+
+        public event Action? Changed;
+
+        public bool DemoIsRunning => CreateDemoPackageTool.SharedDirector.IsRunning;
+
+        public string? TryStart(ScreenRecordSettings? settings = null)
+        {
+            lock (_gate)
+            {
+                if (IsBusy)
+                    return "A screen recording is already running. Press STOP first.";
+                if (DemoIsRunning)
+                    return "A demo walk is recording this window. Cancel the demo first.";
+            }
+
+            FfmpegMp4Composer.InvalidateCache();
+            if (FfmpegMp4Composer.Find() == null)
+            {
+                return "ffmpeg is not installed, so no MP4 can be written. " +
+                       "Open Settings → Demo Center and download ffmpeg, then Recheck.";
+            }
+
+            var rec = (settings ?? _settings ?? new ScreenRecordSettings()).Clone().Clamp();
+            _settings = rec;
+
+            string folder = NewJobFolder();
+            string frames = Path.Combine(folder, "frames");
+            Directory.CreateDirectory(frames);
+
+            var recorder = new WindowScreenRecorder();
+            try
+            {
+                recorder.Start(frames, rec);
+            }
+            catch (Exception ex)
+            {
+                recorder.Dispose();
+                return "Recorder could not start: " + ex.Message;
+            }
+
+            lock (_gate)
+            {
+                _recorder = recorder;
+                _jobFolder = folder;
+                LastFolder = folder;
+                LastMp4Path = null;
+                EncodedFrames = 0;
+                StartedUtc = DateTime.UtcNow;
+                IsRecording = true;
+                IsEncoding = false;
+                Status = "Recording this window at " + rec.Summary + ".";
+                _cts = new CancellationTokenSource();
+                _critical = ProGlassAutomation.Services.Safety.CriticalOperationTracker.Begin("Screen recording");
+            }
+
+            DemoRecordingChrome.ShowRecording(
+                "Screen", recorder, () => _ = StopAndSaveAsync(), "Screen");
+            RaiseChanged();
+            return null;
+        }
+
+        public async Task StopAndSaveAsync()
+        {
+            WindowScreenRecorder? recorder;
+            string? folder;
+            ScreenRecordSettings rec;
+            CancellationToken ct;
+            lock (_gate)
+            {
+                if (!IsRecording || _recorder == null)
+                    return;
+                recorder = _recorder;
+                folder = _jobFolder;
+                rec = _settings.Clone().Clamp();
+                ct = _cts?.Token ?? CancellationToken.None;
+                IsRecording = false;
+                IsEncoding = true;
+                Status = "Encoding MP4…";
+            }
+            RaiseChanged();
+            DemoRecordingChrome.UpdateStage("Encoding MP4…");
+
+            try
+            {
+                await recorder.StopAsync().ConfigureAwait(false);
+                EncodedFrames = recorder.EncodedFrames;
+
+                if (string.IsNullOrEmpty(folder))
+                {
+                    Fail("Recording folder is missing.");
+                    return;
+                }
+
+                var jpegs = recorder.Frames
+                    .Select(f => f.Path)
+                    .Where(File.Exists)
+                    .ToList();
+                if (jpegs.Count == 0)
+                {
+                    Fail("The recorder captured no frames. There is no video to encode.");
+                    return;
+                }
+
+                string? liveMix = await FfmpegMp4Composer
+                    .MixAudioAsync(
+                        recorder.LiveAudioPath,
+                        recorder.MicAudioPath,
+                        Path.Combine(folder, "mixed.wav"),
+                        ct)
+                    .ConfigureAwait(false);
+
+                var (outW, outH) = rec.OutputSize;
+                string mp4 = Path.Combine(
+                    folder, "ScreenRecording_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".mp4");
+                string? produced = await FfmpegMp4Composer
+                    .ComposeFramesAudioAsync(
+                        Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
+                        rec.Fps, outW, outH, ct, rec.EncodeCrf)
+                    .ConfigureAwait(false);
+
+                if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
+                {
+                    Fail(FfmpegMp4Composer.Find() == null
+                        ? "ffmpeg was not found. No MP4 was produced. AVI is not an MP4."
+                        : "ffmpeg ran but did not leave a valid MP4.");
+                    return;
+                }
+
+                var info = new FileInfo(mp4);
+                double? probed = FfmpegMp4Composer.TryReadDurationSeconds(mp4);
+                if (info.Length <= 0 || (probed.HasValue && probed.Value <= 0))
+                {
+                    Fail("MP4 failed size/duration checks.");
+                    return;
+                }
+
+                LastMp4Path = mp4;
+                LastFolder = folder;
+                string audioNote = (recorder.LiveAudioStarted ? "internal" : "") +
+                    (recorder.LiveAudioStarted && recorder.MicAudioStarted ? "+" : "") +
+                    (recorder.MicAudioStarted ? "mic" : "");
+                if (string.IsNullOrEmpty(audioNote)) audioNote = "no live audio";
+                string durationNote = probed.HasValue
+                    ? $"ffprobe {probed.Value:0.00}s"
+                    : $"recorder {recorder.Duration.TotalSeconds:0.00}s";
+                Status = $"Saved {Path.GetFileName(mp4)} ({info.Length} bytes). {durationNote}.";
+                try
+                {
+                    File.WriteAllText(Path.Combine(folder, "RESULT.txt"),
+                        "COMPLETED\n" + mp4 + "\n" + durationNote + "\n");
+                }
+                catch { /* sidecar is optional */ }
+
+                DemoRecordingChrome.ShowSaved(
+                    mp4,
+                    probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
+                    jpegs.Count,
+                    audioNote);
+            }
+            catch (OperationCanceledException)
+            {
+                Status = "Recording cancelled.";
+                DemoRecordingChrome.ShowFailed("Recording cancelled.");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("[UserScreenRecord] " + ex);
+                Fail("Recording stopped: " + ex.Message);
+            }
+            finally
+            {
+                try { recorder.Dispose(); } catch { }
+                lock (_gate)
+                {
+                    _recorder = null;
+                    _jobFolder = null;
+                    IsRecording = false;
+                    IsEncoding = false;
+                    try { _critical?.Dispose(); } catch { }
+                    _critical = null;
+                    try { _cts?.Dispose(); } catch { }
+                    _cts = null;
+                }
+                RaiseChanged();
+            }
+        }
+
+        public void OpenOutput()
+        {
+            string? file = LastMp4Path;
+            string folder = LastFolder ?? OutputRoot;
+            string target = file != null && File.Exists(file) ? file : folder;
+            try
+            {
+                Directory.CreateDirectory(
+                    Directory.Exists(target) ? target : (Path.GetDirectoryName(target) ?? folder));
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = File.Exists(target) || Directory.Exists(target) ? target : folder,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                Status = "Could not open recordings: " + ex.Message;
+                RaiseChanged();
+            }
+        }
+
+        public static string NewJobFolder()
+        {
+            string dir = Path.Combine(OutputRoot, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private void Fail(string message)
+        {
+            Status = message;
+            try
+            {
+                if (!string.IsNullOrEmpty(_jobFolder))
+                    File.WriteAllText(Path.Combine(_jobFolder, "RESULT.txt"), "FAILED\n" + message + "\n");
+            }
+            catch { /* sidecar is optional */ }
+            DemoRecordingChrome.ShowFailed(message);
+        }
+
+        private void RaiseChanged()
+        {
+            try
+            {
+                var disp = Application.Current?.Dispatcher;
+                if (disp != null && !disp.CheckAccess())
+                    disp.InvokeAsync(() => { try { Changed?.Invoke(); } catch { } });
+                else
+                    Changed?.Invoke();
+            }
+            catch { /* UI must not break the recorder */ }
+        }
+    }
+}

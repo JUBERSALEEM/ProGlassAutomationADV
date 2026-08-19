@@ -101,6 +101,40 @@
 
                 <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
+                        <TextBlock Text="RECORD THIS SESSION" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="{Binding SessionRecordHint}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding SessionRecordStatus}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   Margin="0,4,0,0"/>
+                        <WrapPanel Margin="0,14,0,0">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="START RECORDING"
+                                    Command="{Binding StartSessionRecordCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
+                                    Visibility="{Binding IsSessionIdle,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="STOP AND SAVE"
+                                    Command="{Binding StopSessionRecordCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
+                                    Visibility="{Binding IsSessionRecording,
+                                        Converter={StaticResource BoolToVisibilityConverter}}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OPEN RECORDINGS"
+                                    Command="{Binding OpenRecordingsCommand}"
+                                    Margin="0,0,10,8"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
+                    <StackPanel>
                         <TextBlock Text="RECORDING" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Captures only this running app window. Not the desktop, not other programs."
                                    Style="{StaticResource HintTextStyle}"

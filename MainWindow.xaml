@@ -888,6 +888,27 @@
                             ToolTip="Capture screenshot"
                             Margin="0,0,10,0"/>
 
+                    <!-- SCREEN RECORD — independent of Demo Center walks -->
+                    <Button x:Name="RecordButton"
+                            Click="DropdownButton_Click"
+                            MouseEnter="TopBarButton_MouseEnter"
+                            MouseLeave="TopBarButton_MouseLeave"
+                            ToolTip="Screen recording — this app window"
+                            AutomationProperties.AutomationId="Shell.ScreenRecord"
+                            Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
+                                <Setter Property="Content" Value="&#xE714;"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
                     <!-- USER CARD — opens a NON-BLOCKING user-switch popup.
                          Single click opens; double-click (or clicking another
                          module) closes. The popup floats over the shell and
@@ -1413,6 +1434,21 @@
                Closed="ScreenshotPopup_Closed">
             <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
                                          MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+        </Popup>
+
+        <!-- Screen record popup (independent of Demo Center) -->
+        <Popup x:Name="ScreenRecordPopup"
+               PlacementTarget="{Binding ElementName=RecordButton}"
+               Placement="Bottom"
+               VerticalOffset="0"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsScreenRecordOpen, Mode=TwoWay}"
+               Opened="ScreenRecordPopup_Opened"
+               Closed="ScreenRecordPopup_Closed">
+            <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
+                                           MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 </Grid>
 </Window>

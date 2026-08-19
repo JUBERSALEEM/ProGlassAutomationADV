@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Threading;
 
 namespace ProGlassAutomation.Agent.Demo.Automation
@@ -98,24 +100,39 @@ namespace ProGlassAutomation.Agent.Demo.Automation
             }, ct);
 
         public static DependencyObject? FindById(DependencyObject? root, string id)
+            => FindByIdCore(root, id, new HashSet<DependencyObject>());
+
+        /// <summary>
+        /// Walks visual children, then logical children. Grid logical
+        /// children include ColumnDefinition / RowDefinition, which are
+        /// NOT Visuals — VisualTreeHelper.GetChildrenCount throws
+        /// "is not a Visual or Visual3D" on them. That exception was
+        /// aborting every demo walk the moment a wizard Grid was reached.
+        /// </summary>
+        private static DependencyObject? FindByIdCore(
+            DependencyObject? root, string id, HashSet<DependencyObject> seen)
         {
             if (root == null || string.IsNullOrWhiteSpace(id)) return null;
+            if (!seen.Add(root)) return null;
             if (string.Equals(AutomationProperties.GetAutomationId(root), id,
                     StringComparison.Ordinal))
                 return root;
 
-            int n = VisualTreeHelper.GetChildrenCount(root);
-            for (int i = 0; i < n; i++)
+            if (root is Visual or Visual3D)
             {
-                var hit = FindById(VisualTreeHelper.GetChild(root, i), id);
-                if (hit != null) return hit;
+                int n = VisualTreeHelper.GetChildrenCount(root);
+                for (int i = 0; i < n; i++)
+                {
+                    var hit = FindByIdCore(VisualTreeHelper.GetChild(root, i), id, seen);
+                    if (hit != null) return hit;
+                }
             }
 
             foreach (var child in LogicalTreeHelper.GetChildren(root))
             {
                 if (child is DependencyObject d)
                 {
-                    var hit = FindById(d, id);
+                    var hit = FindByIdCore(d, id, seen);
                     if (hit != null) return hit;
                 }
             }
