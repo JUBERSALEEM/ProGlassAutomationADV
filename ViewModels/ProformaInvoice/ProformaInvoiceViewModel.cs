@@ -442,6 +442,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (stepNumber == 4)
                 Step4VM.RefreshSheetStoreData();
 
+            // Step 5 must already show a spec tab and an empty row.
+            // New-invoice / restore used to leave SelectedIndex = -1 so
+            // the grid looked hidden until + ADD SPEC was clicked.
+            if (stepNumber == 5)
+                Step5VM.EnsureDefaultWorkspace();
+
             // Step 8 shows disk state — refresh every time it is
             // entered so external changes are never shown stale.
             if (stepNumber == 8)
@@ -493,16 +499,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step3VM.SiteDeliveryLocation = "";
             Step3VM.LpoNumber = "";
 
-            // ── Reset Step 5 — clean spec-group rebuild (BUG-78) ─────
-            Step5VM.SpecGroups.Clear();
-            Step5VM.SpecGroups.Add(new Step5DataGrid.SpecGroup
-            {
-                GroupNumber = 1,
-                GroupName = "Spec Group 1",
-                BaseRate = 150m,
-                SurchargePercent = 0m,
-                SelectedGlassType = "SGU"
-            });
+            // ── Reset Step 5 — one spec tab + empty row, selected ────
+            Step5VM.ResetForNewInvoice();
 
             // ── S-05: Load cards from masterdata.db ───────────────────
             // Run all 3 card loads concurrently — faster than sequential.

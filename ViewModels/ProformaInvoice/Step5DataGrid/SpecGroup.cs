@@ -54,7 +54,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public string GroupName
         {
             get => _groupName;
-            set { _groupName = value; OnPropertyChanged(); }
+            set
+            {
+                if (_groupName == value) return;
+                _groupName = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SpecDisplayName));
+            }
         }
 
         // ── PRICING ───────────────────────────────────────────────────────

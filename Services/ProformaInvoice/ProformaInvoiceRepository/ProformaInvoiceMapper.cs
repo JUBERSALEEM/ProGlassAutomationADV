@@ -522,7 +522,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         private static void RestoreDataGrid(
             ProformaInvoiceSnapshot snap, DataGridViewModel dataGrid)
         {
-            if (snap.SpecGroups == null) return;
+            if (snap.SpecGroups == null || snap.SpecGroups.Count == 0)
+            {
+                dataGrid.ResetForNewInvoice();
+                return;
+            }
 
             dataGrid.SpecGroups.Clear();
 
@@ -563,6 +567,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
                 dataGrid.SpecGroups.Add(group);
             }
+
+            dataGrid.EnsureDefaultWorkspace();
         }
 
         private static void RestoreOtherCharges(

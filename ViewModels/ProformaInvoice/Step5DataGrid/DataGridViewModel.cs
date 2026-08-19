@@ -72,6 +72,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public int TotalSpecGroups => SpecGroups?.Count ?? 0;
 
+        private SpecGroup? _selectedSpecGroup;
+        /// <summary>
+        /// Bound to the Step 5 tab strip. After Clear()/restore the
+        /// TabControl otherwise keeps SelectedIndex = -1, so the grid
+        /// looks hidden until the user clicks + ADD SPEC.
+        /// </summary>
+        public SpecGroup? SelectedSpecGroup
+        {
+            get => _selectedSpecGroup;
+            set
+            {
+                if (ReferenceEquals(_selectedSpecGroup, value)) return;
+                _selectedSpecGroup = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand AddSpecGroupCommand { get; }
         public ICommand RemoveSpecGroupCommand { get; }
         public ICommand OpenGlobalFindCommand { get; }
@@ -82,8 +99,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public DataGridViewModel()
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
-            SpecGroups.CollectionChanged += (s, e) =>
+            SpecGroups.CollectionChanged += (_, __) =>
+            {
                 OnPropertyChanged(nameof(TotalSpecGroups));
+                EnsureSelection();
+            };
 
             AddSpecGroupCommand = new RelayCommand(
                 _ => AddNewSpecGroup());
@@ -119,6 +139,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         /// <summary>
+        /// Fresh invoice: one spec tab, one empty row, selected so the
+        /// grid is visible the moment the user reaches Step 5.
+        /// </summary>
+        public void ResetForNewInvoice()
+        {
+            SpecGroups.Clear();
+            AddNewSpecGroup();
+        }
+
+        /// <summary>
+        /// Guarantees a visible workspace: at least one spec group, at
+        /// least one empty row in any group that has none, sequential
+        /// "Spec 1…" names, and a selected tab.
+        /// </summary>
+        public void EnsureDefaultWorkspace()
+        {
+            if (SpecGroups.Count == 0)
+            {
+                AddNewSpecGroup();
+                return;
+            }
+
+            foreach (var group in SpecGroups)
+            {
+                if (group.ItemRows.Count == 0)
+                    group.AddRowCommand.Execute(null);
+            }
+
+            RenumberGroups();
+            EnsureSelection();
+        }
+
+        /// <summary>
         /// Creates a new spec group with zero defaults.
         /// ImportedPrice and BaseRate stay at 0 until user picks a spec —
         /// the spec's PricePerSqm sets both (ImportedPrice preserved thereafter
@@ -126,24 +179,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// </summary>
         private void AddNewSpecGroup()
         {
+            int number = SpecGroups.Count + 1;
             var group = new SpecGroup
             {
-                GroupNumber = SpecGroups.Count + 1,
-                GroupName = $"Spec Group {SpecGroups.Count + 1}",
-                // Zero defaults — spec selection populates ImportedPrice + BaseRate.
+                GroupNumber = number,
+                GroupName = $"Spec {number}",
                 ImportedPrice = 0m,
                 BaseRate = 0m,
                 SurchargePercent = 0m,
                 SelectedGlassType = "SGU"
             };
 
+            group.AddRowCommand.Execute(null);
             SpecGroups.Add(group);
+            SelectedSpecGroup = group;
+        }
 
-            // Deferred row addition — ensures ListView is bound before
-            // the CollectionChanged event fires for the new row.
-            Application.Current?.Dispatcher.InvokeAsync(
-                () => group.AddRowCommand.Execute(null),
-                DispatcherPriority.Loaded);
+        private void EnsureSelection()
+        {
+            if (SelectedSpecGroup != null && SpecGroups.Contains(SelectedSpecGroup))
+                return;
+            SelectedSpecGroup = SpecGroups.Count > 0 ? SpecGroups[0] : null;
         }
 
         private void RenumberGroups()
@@ -151,9 +207,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             for (int i = 0; i < SpecGroups.Count; i++)
             {
                 SpecGroups[i].GroupNumber = i + 1;
-                if (SpecGroups[i].GroupName?.StartsWith("Spec Group ") == true)
-                    SpecGroups[i].GroupName = $"Spec Group {i + 1}";
+                string name = SpecGroups[i].GroupName ?? "";
+                if (string.IsNullOrWhiteSpace(name) ||
+                    name.StartsWith("Spec Group ", StringComparison.Ordinal) ||
+                    IsGenericSpecName(name))
+                    SpecGroups[i].GroupName = $"Spec {i + 1}";
             }
+        }
+
+        private static bool IsGenericSpecName(string name)
+        {
+            if (!name.StartsWith("Spec ", StringComparison.Ordinal))
+                return false;
+            return int.TryParse(name.Substring(5), out _);
         }
     }
 }
