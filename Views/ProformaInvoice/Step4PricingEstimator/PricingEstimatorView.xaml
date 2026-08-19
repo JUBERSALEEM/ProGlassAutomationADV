@@ -146,8 +146,8 @@
             </Grid>
         </Border>
 
-        <!-- Type chips — mockup pills, not a card -->
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,10">
+        <!-- Type chips — industrial station switch -->
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
             <ItemsControl ItemsSource="{Binding GlassTypes}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>

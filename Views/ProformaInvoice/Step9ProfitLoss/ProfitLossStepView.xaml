@@ -43,7 +43,7 @@
                   CanContentScroll="False"
                   PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+        <Border Style="{StaticResource PiZonePlateStyle}" Padding="14,12">
             <StackPanel>
 
                 <Grid Margin="0,0,0,12">

@@ -1,7 +1,6 @@
 <!--
-    Step 1 — Company. Approved board:
-    two cards — form 2/3 | saved companies 1/3.
-    LETTERHEAD zone, then DOCUMENT IDENTITY with Skip to grid.
+    Step 1 — Company. Industrial station:
+    letterhead + identity plate | vault of saved companies.
     Bindings, commands and AutomationIds unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup.CompanySetupView"
@@ -27,26 +26,18 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="14"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel>
-
-                    <Border Style="{StaticResource PiLetterheadZoneStyle}">
-                        <TextBlock Text="LETTERHEAD"
+        <Border Grid.Column="0" Style="{StaticResource PiZonePlateStyle}">
+            <DockPanel>
+                <Border DockPanel.Dock="Top" Style="{StaticResource PiZoneHeaderStyle}">
+                    <Grid>
+                        <TextBlock Text="ZONE  ·  LETTERHEAD"
                                    Style="{StaticResource PiSectionLabelStyle}"
                                    Margin="0"
                                    VerticalAlignment="Center"/>
-                    </Border>
-
-                    <Grid Margin="0,0,0,10">
-                        <TextBlock Text="DOCUMENT IDENTITY"
-                                   Style="{StaticResource PiSectionLabelStyle}"
-                                   Margin="0"/>
                         <Button HorizontalAlignment="Right"
                                 VerticalAlignment="Center"
                                 Command="{Binding GoToGridCommand}"
@@ -55,222 +46,236 @@
                             <TextBlock Text="Skip to grid" TextDecorations="Underline"/>
                         </Button>
                     </Grid>
+                </Border>
 
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.4*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Your company's official registered trade name">
-                                <Run Text="COMPANY REGISTERED NAME"/>
-                                <Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
-                            </TextBlock>
-                            <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="Enter your company's full legal registered name"
-                                     AutomationProperties.AutomationId="ProformaInvoice.CompanyName"
-                                     AutomationProperties.Name="Company registered name"/>
-                            <TextBlock Text="{Binding CompanyNameValidationMessage}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasCompanyNameError}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="FEDERAL TRN"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="15-digit UAE Federal Tax Authority registration number"/>
-                            <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="Enter your 15-digit UAE TRN (digits only)"
-                                     MaxLength="15"/>
-                            <TextBlock Text="{Binding TrnValidationMessage}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsTrnValid}" Value="False">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="HEADQUARTERS"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Headquarters city and country, e.g. Dubai, UAE"/>
-                            <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. Dubai, UAE"/>
-                        </StackPanel>
-                    </Grid>
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="16,14">
+                    <StackPanel>
+                        <Border Style="{StaticResource PiLetterheadZoneStyle}">
+                            <TextBlock Text="COMPANY PLATE"
+                                       Style="{StaticResource PiSectionLabelStyle}"
+                                       Margin="0"
+                                       VerticalAlignment="Center"/>
+                        </Border>
 
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="REPRESENTATIVE"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Authorized representative shown on the letterhead"/>
-                            <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. Khalid Al Nuaimi"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="MOBILE"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Representative mobile number"/>
-                            <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. +971 50 882 1140"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="EMAIL" Style="{StaticResource PiFieldLabelStyle}"/>
-                            <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. quotes@proglass.ae"/>
-                        </StackPanel>
-                    </Grid>
+                        <TextBlock Text="DOCUMENT IDENTITY"
+                                   Style="{StaticResource PiSectionLabelStyle}"/>
 
-                    <Grid Margin="0,0,0,16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="BANK" Style="{StaticResource PiFieldLabelStyle}"/>
-                            <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. Emirates NBD"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="ACCOUNT / IBAN" Style="{StaticResource PiFieldLabelStyle}"/>
-                            <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
-                                     FontFamily="Consolas"
-                                     ToolTip="Bank account or IBAN"/>
-                        </StackPanel>
-                    </Grid>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.4*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Your company's official registered trade name">
+                                    <Run Text="COMPANY REGISTERED NAME"/>
+                                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
+                                </TextBlock>
+                                <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Enter your company's full legal registered name"
+                                         AutomationProperties.AutomationId="ProformaInvoice.CompanyName"
+                                         AutomationProperties.Name="Company registered name"/>
+                                <TextBlock Text="{Binding CompanyNameValidationMessage}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasCompanyNameError}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="FEDERAL TRN"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="15-digit UAE Federal Tax Authority registration number"/>
+                                <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Enter your 15-digit UAE TRN (digits only)"
+                                         MaxLength="15"/>
+                                <TextBlock Text="{Binding TrnValidationMessage}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTrnValid}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="HEADQUARTERS"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Headquarters city and country, e.g. Dubai, UAE"/>
+                                <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. Dubai, UAE"/>
+                            </StackPanel>
+                        </Grid>
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Auto-generated unique reference. You can edit if needed">
-                                <Run Text="PROFORMA ID"/>
-                                <Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
-                            </TextBlock>
-                            <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}"
-                                     FontFamily="Consolas"
-                                     ToolTip="Unique proforma invoice reference number"/>
-                            <TextBlock Text="{Binding ProformaIdValidationMessage}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasProformaIdError}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="ISSUE DATE"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Date this quotation was prepared"/>
-                            <DatePicker SelectedDate="{Binding IssueDate}"
-                                        Style="{StaticResource PiDatePickerStyle}"
-                                        ToolTip="Select the date this proforma was prepared"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="VALID UNTIL"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Last date this quotation is valid for acceptance"/>
-                            <DatePicker SelectedDate="{Binding ValidUntil}"
-                                        Style="{StaticResource PiDatePickerStyle}"
-                                        ToolTip="Select the proforma expiry date"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="6">
-                            <TextBlock Text="STATUS"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Current status — changes what appears on printed PDF"/>
-                            <ComboBox ItemsSource="{Binding StatusOptions}"
-                                      SelectedItem="{Binding ProformaStatus}"
-                                      Style="{StaticResource PiComboBoxStyle}"
-                                      ToolTip="Select the current proforma status"/>
-                        </StackPanel>
-                    </Grid>
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="REPRESENTATIVE"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Authorized representative shown on the letterhead"/>
+                                <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. Khalid Al Nuaimi"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="MOBILE"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Representative mobile number"/>
+                                <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. +971 50 882 1140"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="EMAIL" Style="{StaticResource PiFieldLabelStyle}"/>
+                                <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. quotes@proglass.ae"/>
+                            </StackPanel>
+                        </Grid>
 
-                    <TextBlock Margin="0,12,0,0"
-                               FontSize="12"
-                               Foreground="{DynamicResource SuccessBrush}">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                        <Run Text="Loaded: "/>
-                        <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
-                    </TextBlock>
-                </StackPanel>
-            </ScrollViewer>
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="BANK" Style="{StaticResource PiFieldLabelStyle}"/>
+                                <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="e.g. Emirates NBD"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="ACCOUNT / IBAN" Style="{StaticResource PiFieldLabelStyle}"/>
+                                <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
+                                         FontFamily="Consolas"
+                                         ToolTip="Bank account or IBAN"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Auto-generated unique reference. You can edit if needed">
+                                    <Run Text="PROFORMA ID"/>
+                                    <Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
+                                </TextBlock>
+                                <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}"
+                                         FontFamily="Consolas"
+                                         ToolTip="Unique proforma invoice reference number"/>
+                                <TextBlock Text="{Binding ProformaIdValidationMessage}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasProformaIdError}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="ISSUE DATE"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Date this quotation was prepared"/>
+                                <DatePicker SelectedDate="{Binding IssueDate}"
+                                            Style="{StaticResource PiDatePickerStyle}"
+                                            ToolTip="Select the date this proforma was prepared"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <TextBlock Text="VALID UNTIL"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Last date this quotation is valid for acceptance"/>
+                                <DatePicker SelectedDate="{Binding ValidUntil}"
+                                            Style="{StaticResource PiDatePickerStyle}"
+                                            ToolTip="Select the proforma expiry date"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="6">
+                                <TextBlock Text="STATUS"
+                                           Style="{StaticResource PiFieldLabelStyle}"
+                                           ToolTip="Current status — changes what appears on printed PDF"/>
+                                <ComboBox ItemsSource="{Binding StatusOptions}"
+                                          SelectedItem="{Binding ProformaStatus}"
+                                          Style="{StaticResource PiComboBoxStyle}"
+                                          ToolTip="Select the current proforma status"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Margin="0,12,0,0"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SuccessBrush}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                            <Run Text="Loaded: "/>
+                            <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                        </TextBlock>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
         </Border>
 
-        <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+        <Border Grid.Column="2" Style="{StaticResource PiZonePlateStyle}">
             <DockPanel>
-                <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Text="SAVED COMPANIES"
-                               Style="{StaticResource PiSectionLabelStyle}"
-                               Margin="0"
-                               VerticalAlignment="Center"/>
-                    <Button Grid.Column="1"
-                            Command="{Binding RefreshCardsCommand}"
-                            Style="{StaticResource PiIconButtonStyle}"
-                            ToolTip="Refresh saved companies from database"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="&#xE72C;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    </Button>
-                </Grid>
+                <Border DockPanel.Dock="Top" Style="{StaticResource PiVaultHeaderStyle}">
+                    <Grid>
+                        <TextBlock Text="VAULT  ·  COMPANIES"
+                                   Style="{StaticResource PiSectionLabelStyle}"
+                                   Margin="0"
+                                   VerticalAlignment="Center"/>
+                        <Button HorizontalAlignment="Right"
+                                Command="{Binding RefreshCardsCommand}"
+                                Style="{StaticResource PiIconButtonStyle}"
+                                ToolTip="Refresh saved companies from database"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="&#xE72C;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        </Button>
+                    </Grid>
+                </Border>
 
                 <TextBlock DockPanel.Dock="Top"
                            Text="Loading…"
                            FontSize="12"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,0,0,8">
+                           Margin="14,10,14,0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -288,7 +293,7 @@
                            FontSize="12"
                            Foreground="{DynamicResource DangerBrush}"
                            TextWrapping="Wrap"
-                           Margin="0,0,0,8">
+                           Margin="14,10,14,0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -306,7 +311,7 @@
                            FontSize="12"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap"
-                           Margin="0,4,0,8">
+                           Margin="14,10,14,0">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -321,7 +326,7 @@
 
                 <Button DockPanel.Dock="Bottom"
                         HorizontalAlignment="Left"
-                        Margin="0,8,0,0"
+                        Margin="14,8"
                         Command="{Binding ShowAllCompaniesCommand}"
                         ToolTip="Show all saved company profiles">
                     <Button.Style>
@@ -343,8 +348,23 @@
                     </TextBlock>
                 </Button>
 
+                <Border Style="{StaticResource PiTableHeaderStyle}" DockPanel.Dock="Top" Margin="0">
+                    <Grid Margin="8,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="88"/>
+                            <ColumnDefinition Width="64"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="1" Text="TRN" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                        <TextBlock Grid.Column="2" Text="CITY" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                    </Grid>
+                </Border>
+
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="6,0">
                     <ItemsControl ItemsSource="{Binding SavedProfiles}">
                         <ItemsControl.Style>
                             <Style TargetType="ItemsControl">

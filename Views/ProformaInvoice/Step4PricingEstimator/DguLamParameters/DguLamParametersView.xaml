@@ -6,8 +6,8 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- DGU+LAM board: cutaway left · five numbered layers · costing rail. -->
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
+    <!-- DGU+LAM: 3D hybrid cutaway left · five numbered layers · costing rail. -->
+    <Border Style="{StaticResource PiZonePlateStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="0.9*"/>
@@ -20,23 +20,32 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Column="0" Grid.Row="0"
-                    Style="{StaticResource PiShowcaseWellStyle}"
+                    Style="{StaticResource PiProductViewportStyle}"
                     Margin="0,0,10,0">
-                <glass:GlassAssemblyShowcase Kind="DguLam"
-                                             MinHeight="240"
-                                             ShowWell="False"
-                                             ShowCaption="False"
-                                             OuterColor="{Binding OuterGlassColor}"
-                                             OuterThickness="{Binding OuterThickness}"
-                                             OuterTreatment="{Binding OuterTreatment}"
-                                             SpacerWidth="{Binding SpacerThickness}"
-                                             LamOuterColor="{Binding LamOuterColor}"
-                                             LamOuterThickness="{Binding LamOuterThickness}"
-                                             InterlayerColor="{Binding InterlayerColor}"
-                                             InterlayerThickness="{Binding InterlayerThickness}"
-                                             InterlayerType="{Binding InterlayerType}"
-                                             LamInnerColor="{Binding LamInnerColor}"
-                                             LamInnerThickness="{Binding LamInnerThickness}"/>
+                <Grid>
+                    <Image Source="pack://application:,,,/Resources/Glass3D/dgulam-3d.png"
+                           Stretch="UniformToFill"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Border VerticalAlignment="Bottom"
+                            Background="#CC0B1220"
+                            Padding="10,6">
+                        <glass:GlassAssemblyShowcase Kind="DguLam"
+                                                     Height="96"
+                                                     ShowWell="False"
+                                                     ShowCaption="False"
+                                                     OuterColor="{Binding OuterGlassColor}"
+                                                     OuterThickness="{Binding OuterThickness}"
+                                                     OuterTreatment="{Binding OuterTreatment}"
+                                                     SpacerWidth="{Binding SpacerThickness}"
+                                                     LamOuterColor="{Binding LamOuterColor}"
+                                                     LamOuterThickness="{Binding LamOuterThickness}"
+                                                     InterlayerColor="{Binding InterlayerColor}"
+                                                     InterlayerThickness="{Binding InterlayerThickness}"
+                                                     InterlayerType="{Binding InterlayerType}"
+                                                     LamInnerColor="{Binding LamInnerColor}"
+                                                     LamInnerThickness="{Binding LamInnerThickness}"/>
+                    </Border>
+                </Grid>
             </Border>
 
             <ScrollViewer Grid.Column="1" Grid.Row="0"

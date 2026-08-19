@@ -26,24 +26,24 @@
                     xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         LIGHT THEME — GLASS BLUE ACCENT
+         LIGHT THEME — INDUSTRIAL STEEL / NAVY
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Surfaces ─────────────────────────────────────────────────── -->
     <SolidColorBrush x:Key="WindowBackgroundBrush"
-                     Color="#F9FAFB"
+                     Color="#F1F5F9"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleBackgroundBrush"
                      Color="#FFFFFF"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush"
-                     Color="#FFFFFF"
+                     Color="#F8FAFC"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="SideMenuBackgroundBrush"
                      Color="#FFFFFF"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="MenuHoverBrush"
-                     Color="#F3F4F6"
+                     Color="#E2E8F0"
                      po:Freeze="True"/>
     <!-- Sidebar sub-menu / nested card surface. Brighter than the menu
          hover tint so the expandable groups read as clean white cards. -->
@@ -51,13 +51,13 @@
                      Color="#FFFFFF"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush"
-                     Color="#1D4ED8"
+                     Color="#0369A1"
                      po:Freeze="True"/>
 
     <!-- ── Text ─────────────────────────────────────────────────────── -->
-    <Color x:Key="PrimaryForegroundColor">#0F172A</Color>
-    <Color x:Key="SecondaryForegroundColor">#6B7280</Color>
-    <Color x:Key="MutedForegroundColor">#9CA3AF</Color>
+    <Color x:Key="PrimaryForegroundColor">#020617</Color>
+    <Color x:Key="SecondaryForegroundColor">#475569</Color>
+    <Color x:Key="MutedForegroundColor">#64748B</Color>
     <Color x:Key="SuccessColor">#10B981</Color>
     <Color x:Key="WarningColor">#F59E0B</Color>
     <Color x:Key="DangerColor">#EF4444</Color>
@@ -69,13 +69,13 @@
     <Color x:Key="TintGrayColor">#F9FAFB</Color>
     <Color x:Key="BorderColor">#E5E7EB</Color>
     <SolidColorBrush x:Key="PrimaryForegroundBrush"
-                     Color="#0F172A"
+                     Color="#020617"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="SecondaryForegroundBrush"
-                     Color="#6B7280"
+                     Color="#475569"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="MutedForegroundBrush"
-                     Color="#9CA3AF"
+                     Color="#64748B"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="OnAccentForegroundBrush"
                      Color="#FFFFFF"
@@ -84,41 +84,41 @@
                      Color="#FFFFFF"
                      po:Freeze="True"/>
 
-    <!-- ── Brand accents — glass blue family ───────────────────────── -->
+    <!-- ── Brand accents — industrial steel cyan ───────────────────── -->
     <SolidColorBrush x:Key="AccentBrush"
-                     Color="#1D4ED8"
+                     Color="#0369A1"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentHoverBrush"
-                     Color="#2563EB"
+                     Color="#0284C7"
                      po:Freeze="True"/>
     <!-- Color-typed counterparts of the accent brushes. These exist so
          Color-only properties (gradient stops, DropShadowEffect.Color)
          can follow the accent instead of hardcoding it. ThemeManager
          re-derives and re-publishes AccentColor on every accent/light-dark
          change so it tracks custom and Monet accents too. -->
-    <Color x:Key="AccentColor">#1D4ED8</Color>
-    <Color x:Key="AccentHoverColor">#2563EB</Color>
-    <Color x:Key="AccentDarkColor">#1E3A8A</Color>
-    <Color x:Key="AccentLightColor">#3B82F6</Color>
+    <Color x:Key="AccentColor">#0369A1</Color>
+    <Color x:Key="AccentHoverColor">#0284C7</Color>
+    <Color x:Key="AccentDarkColor">#0C4A6E</Color>
+    <Color x:Key="AccentLightColor">#38BDF8</Color>
     <SolidColorBrush x:Key="AccentDarkBrush"
-                     Color="#1E3A8A"
+                     Color="#0C4A6E"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentLightBrush"
-                     Color="#3B82F6"
+                     Color="#38BDF8"
                      po:Freeze="True"/>
 
     <!-- ── Semantic (unchanged — green success is universal) ──────── -->
     <SolidColorBrush x:Key="SuccessBrush"
-                     Color="#10B981"
+                     Color="#059669"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="WarningBrush"
-                     Color="#F59E0B"
+                     Color="#D97706"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="DangerBrush"
-                     Color="#EF4444"
+                     Color="#DC2626"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="InfoBrush"
-                     Color="#3B82F6"
+                     Color="#0369A1"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="NeutralBrush"
                      Color="#6B7280"
@@ -149,7 +149,7 @@
 
     <!-- ── Borders + dividers ──────────────────────────────────────── -->
     <SolidColorBrush x:Key="BorderBrush"
-                     Color="#E5E7EB"
+                     Color="#CBD5E1"
                      po:Freeze="True"/>
 
     <!-- OUTLINE — the definition edge for rounded pills and cards.
@@ -160,7 +160,7 @@
          needs to stay visually separate from a tinted (Monet) surface.
          Overridden at runtime by ThemeManager.ApplyOutline. -->
     <SolidColorBrush x:Key="OutlineBrush"
-                     Color="#94A3B8"
+                     Color="#64748B"
                      po:Freeze="True"/>
 
     <!-- The "defined" variant the Appearance toggle switches to: a near-black

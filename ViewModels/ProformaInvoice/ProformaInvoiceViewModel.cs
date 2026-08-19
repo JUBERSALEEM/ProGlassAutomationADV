@@ -60,7 +60,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 catch { return ""; }
             }
         }
-        public string Subtitle { get; } = "Create professional glass invoices in 8 simple steps";
+        public string Subtitle { get; } = "Nine-station industrial quotation deck";
 
         /// <summary>
         /// Total wizard steps. Single source of truth — progress text,
@@ -153,6 +153,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentStepNumber));
+                OnPropertyChanged(nameof(CurrentStationCode));
+                OnPropertyChanged(nameof(CurrentStationTitle));
+                OnPropertyChanged(nameof(CurrentStationSubtitle));
                 OnPropertyChanged(nameof(StepProgressText));
                 OnPropertyChanged(nameof(ProgressPercent));
                 OnPropertyChanged(nameof(CanGoBack));

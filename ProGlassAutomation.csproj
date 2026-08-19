@@ -87,6 +87,10 @@
 	<ItemGroup>
 		<Resource Include="favicon.ico" />
 		<Resource Include="Resources/proglass_icon_256.png" />
+		<Resource Include="Resources/Glass3D/sgu-3d.png" />
+		<Resource Include="Resources/Glass3D/dgu-3d.png" />
+		<Resource Include="Resources/Glass3D/lam-3d.png" />
+		<Resource Include="Resources/Glass3D/dgulam-3d.png" />
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════════

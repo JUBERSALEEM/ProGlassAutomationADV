@@ -1,28 +1,33 @@
-# Proforma Invoice — industrial redesign
+# Proforma Invoice — industrial station deck
 
-**Status:** Approved PNG boards recut into live XAML (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
+**Status:** Full XAML recut. Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
 
-The PNG mockups in this folder are the visual source of truth for **placement**, field height (34 px), grid row height (40 px), chips (34 px), apply button (40 px), and 3D glass composition. Garbled sample text in the PNGs is image-model noise (`LEFT 40%`, `40px`, `48px`, factory drawing). Theme colors stay `DynamicResource` so Light / Dark / Monet still work.
+Pattern: **MES station rail + work deck**. Theme tokens stay `DynamicResource` so Light / Dark / Monet still work. Step 4 uses photoreal 3D product plates plus the live `GlassAssemblyShowcase`.
 
-Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`). Canvas / surface / outline / text / accent / success / danger all come from `DynamicResource`.
-
-Honest ceiling: layout can match the boards (~75–80%). Pixel-perfect PNG / photo-real 3D is not possible in WPF.
+Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`) and the Step 4 product viewport well (`#0B1220` mill floor under the 3D plates). Canvas / surface / outline / text / accent / success / danger all come from `DynamicResource`.
 
 ---
 
-## Shared chrome (every step)
+## Shared chrome (every station)
 
 ```
-[ LIST ]  1 Company  2 Client  3 Project  4 Glass  5 Grid  6 Charges  7 Preview  8 Files  9 P&L
-────────────────────────────────────────────────────────────────────────────────────────────
-                              ONE workbench (the step)
-────────────────────────────────────────────────────────────────────────────────────────────
-[ Back ]                         STEP  n  OF  9                         [ Continue ]
+┌──────────┬──────────────────────────────────────────────┐
+│ LIST     │  04          Glass type & specs              │
+│ 01 COM   │              Estimators, materials           │
+│ 02 CLI   ├──────────────────────────────────────────────┤
+│ 03 PRJ   │                                              │
+│ 04 GLS ● │           WORK DECK                          │
+│ 05 GRD   │                                              │
+│ 06 CHG   ├──────────────────────────────────────────────┤
+│ 07 PRV   │ [ BACK ]     STATION 04 / 09    [ CONTINUE ] │
+│ 08 FIL   │                                              │
+│ 09 P&L   │                                              │
+└──────────┴──────────────────────────────────────────────┘
 ```
 
-- Rail height **40 px**. Outlined 32 px pills. Active = `AccentBrush` fill + `OnAccentForegroundBrush`. Completed = success tick. Inactive = outline only.
-- Steps 1–2 = **two** work-surface cards. Steps 3–9 = one workbench (Step 7 splits steel | paper).
-- Footer = 48 px bar. Text-only Back / Continue.
+- Left rail **176 px**. Active station = `AccentBrush` plate. Completed = success tick. Inactive = outline only.
+- Work header shows station code + title + subtitle.
+- Footer = 52 px command bar. Text-only BACK / CONTINUE.
 - Input height **34 px**. Labels 11 px SemiBold `SecondaryForegroundBrush`.
 - Corner `CardCornerRadius`. Border `OutlineBrush`.
 
@@ -30,51 +35,54 @@ Honest ceiling: layout can match the boards (~75–80%). Pixel-perfect PNG / pho
 
 | Role | Light | Dark | Monet |
 |---|---|---|---|
-| Canvas | `WindowBackgroundBrush` | dark steel | wallpaper shows through |
+| Canvas | `WindowBackgroundBrush` (#F1F5F9 steel) | mill black | wallpaper shows through |
 | Surface | `ModuleBackgroundBrush` | raised steel | translucent surface |
 | Line | `OutlineBrush` / `DividerBrush` | muted | same tokens |
-| Accent | `AccentBrush` (user preset) | same key, brighter | Monet-derived accent |
+| Accent | `AccentBrush` (industrial cyan #0369A1) | #38BDF8 | Monet-derived accent |
 | Paper (Step 7 only) | `#FFFFFF` | `#FFFFFF` | `#FFFFFF` — never themed |
+| 3D well (Step 4) | `#0B1220` | `#0B1220` | mill floor under the plate |
 
 ---
 
-## Per-step structure
+## Per-station structure
 
 ### 1 Company
-Two cards: **form 2/3** | **saved companies 1/3**. LETTERHEAD zone, then DOCUMENT IDENTITY with Skip to grid. Saved list is a slim table (name · TRN · city · badge).
+Two plates: **identity 2/3** | **vault 1/3**. LETTERHEAD zone, then DOCUMENT IDENTITY with Skip to grid. Saved list is a slim table (name · TRN · city · badge).
 
 ### 2 Client
-Two cards. 3-column identity grid + tall billing address (120 px). Saved clients table (name · TRN · city · badge).
+Two plates. 3-column identity grid + tall billing address (120 px). Saved clients table (name · TRN · city · badge).
 
 ### 3 Project
-One workbench. **Stacked full-width fields** (identifier, contract, reference, LPO, site). Slim project list filtered by Step 2. Ignore PNG vertical-stepper leak.
+One plate. **Stacked full-width fields** (identifier, contract, reference, LPO, site). Slim project vault filtered by Step 2.
 
 ### 4 Glass (SGU / DGU / LAM / DGU+LAM)
 - Type switch: one 34 px chip row — SGU | DGU | LAM | DGU+LAM.
-- Live `GlassAssemblyShowcase` inside a framed well.
+- **3D product viewport** (photoreal factory plate) + live `GlassAssemblyShowcase` overlay that follows colour / thickness.
 - Sticky apply bar: spec groups + rate AED /sqm + APPLY RATE.
 
 | Type | Composition |
 |---|---|
-| SGU | Wide hero pane + two metric strips |
-| DGU | 40% 3D IGU · 60% Outer / Air spacer / Inner / costing |
-| LAM | Identity bands · exploded stack · labeled editors · six costing tiles |
-| DGU+LAM | Cutaway · numbered five-layer sandwich · yield/margin/cut/temper rail |
+| SGU | 3D single-lite plate · live build · two metric rails |
+| DGU | 3D IGU cutaway · Outer / Air spacer / Inner / costing |
+| LAM | 3D exploded stack · numbered editors · six costing tiles |
+| DGU+LAM | 3D hybrid cutaway · numbered five-layer sandwich · yield/margin/cut/temper rail |
+
+Assets: `Resources/Glass3D/{sgu,dgu,lam,dgulam}-3d.png`.
 
 ### 5 Grid
-Spec tabs. Toolbar: glass type / spec / base / surcharge. Table: `# REF W1 H1 W2 H2 QTY SQM LM RATE VALUE`. Footer pcs · SQM · AED. GENERATE / + ADD ROW stay as quiet chips (not on the PNG).
+Spec tabs. Toolbar: glass type / spec / base / surcharge. Table: `# REF W1 H1 W2 H2 QTY SQM LM RATE VALUE`. Footer pcs · SQM · AED.
 
 ### 6 Charges
-Three table bands on one surface: Predefined · Wastage · Custom. KPI strip. Combined footer. Ignore PNG factory drawing.
+Three table bands on one plate: Predefined · Wastage · Custom. KPI strip. Combined footer.
 
 ### 7 Preview
 Split 1.15 / 0.85: left steel (summary, discount, VAT, terms checklist, **SAVE / EXPORT at bottom**). Right paper-white print proof.
 
 ### 8 Files
-Centered card. TYPE | NAME | SIZE | ADDED | ACTIONS. `+ IMAGE` `+ PDF`. Ignore PNG `40px` / `48px` labels.
+Full-bleed vault plate. TYPE | NAME | SIZE | ADDED | ACTIONS. `+ IMAGE` `+ PDF`.
 
 ### 9 P&L
-One workbench. KPI strip (Gross | Net | Glass | ASP | Profit). Spec card with layers in **build order**. Rate-check row.
+One plate. KPI strip (Gross | Net | Glass | ASP | Profit). Spec card with layers in **build order**. Rate-check row.
 
 ---
 

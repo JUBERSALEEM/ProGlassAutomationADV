@@ -20,7 +20,7 @@
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding"         Value="20,16"/>
+        <Setter Property="Padding"         Value="16,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -515,6 +515,70 @@
         <Setter Property="FontSize"   Value="11"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ══ INDUSTRIAL STATION DECK ══════════════════════════════════ -->
+
+    <Style x:Key="PiStationRailStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+        <Setter Property="Padding"         Value="10,12"/>
+        <Setter Property="Width"           Value="176"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiStationHeaderBarStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding"         Value="16,10"/>
+        <Setter Property="MinHeight"       Value="56"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiWorkDeckStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
+        <Setter Property="Padding"         Value="16,12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiZonePlateStyle" TargetType="Border" BasedOn="{StaticResource PiWorkSurfaceStyle}">
+        <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style x:Key="PiZoneHeaderStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="Padding"         Value="14,8"/>
+        <Setter Property="MinHeight"       Value="34"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiVaultHeaderStyle" TargetType="Border" BasedOn="{StaticResource PiZoneHeaderStyle}"/>
+
+    <Style x:Key="PiProductViewportStyle" TargetType="Border">
+        <Setter Property="Background"      Value="#0B1220"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="ClipToBounds"    Value="True"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiCommandFooterStyle" TargetType="Border" BasedOn="{StaticResource PiFooterBarStyle}">
+        <Setter Property="Height"  Value="52"/>
+        <Setter Property="Padding" Value="16,0"/>
+    </Style>
+
+    <Style x:Key="PiProgressTrackStyle" TargetType="ProgressBar">
+        <Setter Property="Height"     Value="4"/>
+        <Setter Property="Minimum"    Value="0"/>
+        <Setter Property="Maximum"    Value="1"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style x:Key="PiIconButtonStyle" TargetType="Button">

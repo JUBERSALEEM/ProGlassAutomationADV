@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Services
         private static AppTheme _currentTheme = AppTheme.Light;
 
         /// <summary>
-        /// User-chosen accent. Null = follow the theme's built-in blue.
+        /// User-chosen accent. Null = follow the theme's built-in industrial cyan.
         /// Persisted by callers if desired (SettingsViewModel).
         /// </summary>
         private static Color? _customAccent;
@@ -57,7 +57,7 @@ namespace ProGlassAutomation.Services
 
         /// <summary>The accent colour currently in effect.</summary>
         public static Color AccentColor { get; private set; } =
-            Color.FromRgb(0x1D, 0x4E, 0xD8);
+            Color.FromRgb(0x03, 0x69, 0xA1);
 
         public static event EventHandler ThemeChanged;
 
@@ -126,7 +126,7 @@ namespace ProGlassAutomation.Services
 
         /// <summary>
         /// Derives and publishes the full accent family from one colour.
-        /// Pass null to follow the theme's default blue.
+        /// Pass null to follow the theme's default industrial cyan.
         /// </summary>
         public static void ApplyAccent(Color? accent, bool raiseEvent = true)
         {
@@ -344,8 +344,8 @@ namespace ProGlassAutomation.Services
             }
 
             return _currentTheme == AppTheme.Dark
-                ? Color.FromRgb(0x3B, 0x82, 0xF6)
-                : Color.FromRgb(0x1D, 0x4E, 0xD8);
+                ? Color.FromRgb(0x38, 0xBD, 0xF8)
+                : Color.FromRgb(0x03, 0x69, 0xA1);
         }
 
         private static Color LookupColor(

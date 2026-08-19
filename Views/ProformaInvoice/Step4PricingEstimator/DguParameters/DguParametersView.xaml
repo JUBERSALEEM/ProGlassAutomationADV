@@ -6,12 +6,12 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- DGU board: framed IGU left 40% + four numbered layer cards right 60%. -->
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
+    <!-- DGU: 3D IGU cutaway left · numbered layer plates right. -->
+    <Border Style="{StaticResource PiZonePlateStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.4*"/>
-                <ColumnDefinition Width="0.6*"/>
+                <ColumnDefinition Width="0.42*"/>
+                <ColumnDefinition Width="0.58*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
@@ -19,21 +19,30 @@
             </Grid.RowDefinitions>
 
             <Border Grid.Column="0" Grid.Row="0"
-                    Style="{StaticResource PiShowcaseWellStyle}"
+                    Style="{StaticResource PiProductViewportStyle}"
                     Margin="0,0,12,0">
-                <glass:GlassAssemblyShowcase Kind="Dgu"
-                                             MinHeight="240"
-                                             ShowWell="False"
-                                             ShowCaption="False"
-                                             OuterColor="{Binding OuterGlassColor}"
-                                             OuterThickness="{Binding OuterThickness}"
-                                             OuterTreatment="{Binding OuterTreatment}"
-                                             InnerColor="{Binding InnerGlassColor}"
-                                             InnerThickness="{Binding InnerThickness}"
-                                             InnerTreatment="{Binding InnerTreatment}"
-                                             SpacerWidth="{Binding SpacerWidth}"
-                                             SpacerMaterial="{Binding SpacerMaterial}"
-                                             Caption="{Binding GeneratedSpecName}"/>
+                <Grid>
+                    <Image Source="pack://application:,,,/Resources/Glass3D/dgu-3d.png"
+                           Stretch="UniformToFill"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Border VerticalAlignment="Bottom"
+                            Background="#CC0B1220"
+                            Padding="10,6">
+                        <glass:GlassAssemblyShowcase Kind="Dgu"
+                                                     Height="96"
+                                                     ShowWell="False"
+                                                     ShowCaption="False"
+                                                     OuterColor="{Binding OuterGlassColor}"
+                                                     OuterThickness="{Binding OuterThickness}"
+                                                     OuterTreatment="{Binding OuterTreatment}"
+                                                     InnerColor="{Binding InnerGlassColor}"
+                                                     InnerThickness="{Binding InnerThickness}"
+                                                     InnerTreatment="{Binding InnerTreatment}"
+                                                     SpacerWidth="{Binding SpacerWidth}"
+                                                     SpacerMaterial="{Binding SpacerMaterial}"
+                                                     Caption="{Binding GeneratedSpecName}"/>
+                    </Border>
+                </Grid>
             </Border>
 
             <ScrollViewer Grid.Column="1" Grid.Row="0"

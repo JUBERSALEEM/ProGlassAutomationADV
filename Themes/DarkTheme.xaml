@@ -18,31 +18,31 @@
                     xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         DARK THEME — GLASS BLUE ACCENT
+         DARK THEME — INDUSTRIAL MILL FLOOR
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Surfaces ─────────────────────────────────────────────────── -->
     <SolidColorBrush x:Key="WindowBackgroundBrush"
-                     Color="#0B1220"
+                     Color="#020617"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleBackgroundBrush"
-                     Color="#1E293B"
+                     Color="#0F172A"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush"
-                     Color="#273449"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="SideMenuBackgroundBrush"
                      Color="#1E293B"
                      po:Freeze="True"/>
+    <SolidColorBrush x:Key="SideMenuBackgroundBrush"
+                     Color="#0F172A"
+                     po:Freeze="True"/>
     <SolidColorBrush x:Key="MenuHoverBrush"
-                     Color="#334155"
+                     Color="#1E293B"
                      po:Freeze="True"/>
     <!-- Sidebar sub-menu / nested card surface — elevated above the menu. -->
     <SolidColorBrush x:Key="SidebarCardBrush"
                      Color="#273449"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush"
-                     Color="#3B82F6"
+                     Color="#38BDF8"
                      po:Freeze="True"/>
 
     <!-- ── Text ─────────────────────────────────────────────────────── -->
@@ -75,23 +75,23 @@
                      Color="#FFFFFF"
                      po:Freeze="True"/>
 
-    <!-- ── Brand accents — glass blue (dark-lifted) ────────────────── -->
+    <!-- ── Brand accents — industrial steel cyan (dark-lifted) ─────── -->
     <SolidColorBrush x:Key="AccentBrush"
-                     Color="#3B82F6"
+                     Color="#38BDF8"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentHoverBrush"
-                     Color="#60A5FA"
+                     Color="#7DD3FC"
                      po:Freeze="True"/>
     <!-- Color-typed counterparts of the accent brushes (see LightTheme). -->
-    <Color x:Key="AccentColor">#3B82F6</Color>
-    <Color x:Key="AccentHoverColor">#60A5FA</Color>
-    <Color x:Key="AccentDarkColor">#1E3A8A</Color>
-    <Color x:Key="AccentLightColor">#60A5FA</Color>
+    <Color x:Key="AccentColor">#38BDF8</Color>
+    <Color x:Key="AccentHoverColor">#7DD3FC</Color>
+    <Color x:Key="AccentDarkColor">#0369A1</Color>
+    <Color x:Key="AccentLightColor">#7DD3FC</Color>
     <SolidColorBrush x:Key="AccentDarkBrush"
-                     Color="#1E3A8A"
+                     Color="#0369A1"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentLightBrush"
-                     Color="#60A5FA"
+                     Color="#7DD3FC"
                      po:Freeze="True"/>
 
     <!-- ── Semantic ────────────────────────────────────────────────── -->
@@ -105,7 +105,7 @@
                      Color="#F87171"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="InfoBrush"
-                     Color="#60A5FA"
+                     Color="#38BDF8"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="NeutralBrush"
                      Color="#94A3B8"

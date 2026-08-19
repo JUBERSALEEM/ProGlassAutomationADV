@@ -128,7 +128,7 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled">
-        <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+        <Border Style="{StaticResource PiZonePlateStyle}" Padding="14,12">
             <StackPanel>
 
                 <Border Style="{StaticResource PiMetricStripStyle}" Padding="0,4,0,10">

@@ -1,5 +1,5 @@
 <!--
-    LAM board: identity bands left · exploded stack centre · labeled editors right · six costing tiles.
+    LAM: 3D exploded product shot · live build · labeled editors · costing tiles.
     All original bindings kept.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters.LamParametersView"
@@ -10,7 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
+    <Border Style="{StaticResource PiZonePlateStyle}">
         <DockPanel>
             <UniformGrid DockPanel.Dock="Bottom" Columns="6" Rows="1" Margin="0,10,0,0">
                 <Border Style="{StaticResource PiCostTileStyle}" Margin="0,0,6,0">
@@ -59,163 +59,159 @@
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="176"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="320"/>
+                    <ColumnDefinition Width="0.95*"/>
+                    <ColumnDefinition Width="1.15*"/>
                 </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Style="{StaticResource PiLayerStripStyle}"
-                        Background="{DynamicResource TintBlueBrush}"
-                        Margin="0,0,8,6" VerticalAlignment="Stretch">
-                    <TextBlock Text="OUTER GLASS"
-                               Style="{StaticResource PiLayerTitleStyle}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-                <Border Grid.Row="1" Style="{StaticResource PiLayerStripStyle}"
-                        Background="{DynamicResource TintAmberBrush}"
-                        BorderBrush="{DynamicResource WarningBrush}"
-                        Margin="0,0,8,6" VerticalAlignment="Stretch">
-                    <TextBlock Text="INTERLAYER"
-                               Style="{StaticResource PiLayerTitleStyle}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-                <Border Grid.Row="2" Style="{StaticResource PiLayerStripStyle}"
-                        Background="{DynamicResource TintBlueBrush}"
-                        Margin="0,0,8,0" VerticalAlignment="Stretch">
-                    <TextBlock Text="INNER GLASS"
-                               Style="{StaticResource PiLayerTitleStyle}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-
-                <Border Grid.Column="1" Grid.Row="0" Grid.RowSpan="3"
-                        Style="{StaticResource PiShowcaseWellStyle}"
-                        Margin="0,0,10,0">
-                    <glass:GlassAssemblyShowcase Kind="Lam"
-                                                 MinHeight="220"
-                                                 ShowWell="False"
-                                                 ShowCaption="False"
-                                                 OuterColor="{Binding OuterGlassColor}"
-                                                 OuterThickness="{Binding OuterThickness}"
-                                                 OuterTreatment="{Binding OuterTreatment}"
-                                                 InnerColor="{Binding InnerGlassColor}"
-                                                 InnerThickness="{Binding InnerThickness}"
-                                                 InnerTreatment="{Binding InnerTreatment}"
-                                                 InterlayerColor="{Binding PvbColor}"
-                                                 InterlayerThickness="{Binding PvbThickness}"
-                                                 InterlayerType="PVB"/>
-                </Border>
-
-                <StackPanel Grid.Column="2" Grid.Row="0" VerticalAlignment="Center">
+                <Border Grid.Column="0"
+                        Style="{StaticResource PiProductViewportStyle}"
+                        Margin="0,0,12,0">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="OUTER THK" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
+                        <Image Source="pack://application:,,,/Resources/Glass3D/lam-3d.png"
+                               Stretch="UniformToFill"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
+                        <Border VerticalAlignment="Bottom"
+                                Background="#CC0B1220"
+                                Padding="10,6">
+                            <glass:GlassAssemblyShowcase Kind="Lam"
+                                                         Height="92"
+                                                         ShowWell="False"
+                                                         ShowCaption="False"
+                                                         OuterColor="{Binding OuterGlassColor}"
+                                                         OuterThickness="{Binding OuterThickness}"
+                                                         OuterTreatment="{Binding OuterTreatment}"
+                                                         InnerColor="{Binding InnerGlassColor}"
+                                                         InnerThickness="{Binding InnerThickness}"
+                                                         InnerTreatment="{Binding InnerTreatment}"
+                                                         InterlayerColor="{Binding PvbColor}"
+                                                         InterlayerThickness="{Binding PvbThickness}"
+                                                         InterlayerType="PVB"/>
+                        </Border>
                     </Grid>
-                    <Grid Margin="0,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
+                </Border>
 
-                <StackPanel Grid.Column="2" Grid.Row="1" VerticalAlignment="Center">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="PVB THK" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding PvbThicknessOptions}" SelectedItem="{Binding PvbThickness}" Style="{StaticResource Step4ComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding PvbColorOptions}" Text="{Binding PvbColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="RATE" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding PvbMaterialRate, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                    <Grid Margin="0,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="POLISH" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding LaminationPolishOptions}" SelectedItem="{Binding LaminationPolish}" Style="{StaticResource Step4ComboStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                </StackPanel>
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                <StackPanel Grid.Column="2" Grid.Row="2" VerticalAlignment="Center">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource PiLayerStripStyle}" Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="INNER THK" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding InnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                            <TextBlock Text="1  OUTER GLASS" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" Margin="0,0,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="OUTER THK" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                    <Grid Margin="0,4,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                    </Border>
+
+                    <Border Grid.Row="1" Style="{StaticResource PiLayerStripStyle}"
+                            BorderBrush="{DynamicResource WarningBrush}"
+                            Margin="0,0,0,6">
                         <StackPanel>
-                            <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding InnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                            <TextBlock Text="2  INTERLAYER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" Margin="0,0,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="PVB THK" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding PvbThicknessOptions}" SelectedItem="{Binding PvbThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding PvbColorOptions}" Text="{Binding PvbColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="RATE" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding PvbMaterialRate, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="POLISH" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding LaminationPolishOptions}" SelectedItem="{Binding LaminationPolish}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                    </Border>
+
+                    <Border Grid.Row="2" Style="{StaticResource PiLayerStripStyle}">
+                        <StackPanel>
+                            <TextBlock Text="3  INNER GLASS" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" Margin="0,0,0,6"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="INNER THK" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding InnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <Grid Margin="0,4,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/><ColumnDefinition Width="6"/><ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding InnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
+                                    <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <TextBlock Text="{Binding SheetStoreHint}" FontSize="10" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
-                            <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4InputStyle}"/>
-                        </StackPanel>
-                    </Grid>
-                    <TextBlock Text="{Binding SheetStoreHint}" FontSize="10" Foreground="{DynamicResource WarningBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
-                </StackPanel>
+                    </Border>
+                </Grid>
             </Grid>
         </DockPanel>
     </Border>

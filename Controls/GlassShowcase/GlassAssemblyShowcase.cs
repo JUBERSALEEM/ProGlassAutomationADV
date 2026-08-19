@@ -173,6 +173,19 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 10, 10);
             }
 
+            // Ground plane so the 3D sandwich reads as a product, not a flat glyph.
+            var shadow = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                GradientOrigin = new Point(0.5, 0.5),
+                RadiusX = 0.55,
+                RadiusY = 0.28
+            };
+            shadow.GradientStops.Add(new GradientStop(Color.FromArgb(70, 0, 0, 0), 0));
+            shadow.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
+            shadow.Freeze();
+            dc.DrawEllipse(shadow, null, new Point(w * 0.52, h * 0.90), w * 0.34, 11);
+
             switch (Kind)
             {
                 case GlassAssemblyKind.Sgu:

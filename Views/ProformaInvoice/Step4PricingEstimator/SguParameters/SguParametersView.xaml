@@ -6,110 +6,140 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- SGU board: framed hero pane, then two metric strips. Editors stay bound. -->
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="16,12">
-        <DockPanel>
-            <Border DockPanel.Dock="Bottom" Style="{StaticResource PiMetricStripStyle}" Margin="0,8,0,0">
+    <!-- SGU: 3D factory product viewport + live build + two industrial metric rails. -->
+    <Border Style="{StaticResource PiZonePlateStyle}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.05*"/>
+                <ColumnDefinition Width="14"/>
+                <ColumnDefinition Width="0.95*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource PiProductViewportStyle}">
                 <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="1.4*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="CUTTING" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                        <TextBlock Text="TEMPERING" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                        <TextBlock Text="YIELD" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="3" Margin="0,0,10,0">
-                        <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4">
-                        <TextBlock Text="EDGE POLISH" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding PolishOptions}"
-                                  SelectedItem="{Binding SelectedPolishOption}"
-                                  Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
+                    <Image Source="pack://application:,,,/Resources/Glass3D/sgu-3d.png"
+                           Stretch="UniformToFill"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <Border VerticalAlignment="Bottom"
+                            Background="#CC0B1220"
+                            Padding="12,8">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top"
+                                       Text="LIVE BUILD"
+                                       FontSize="9" FontWeight="Bold"
+                                       Foreground="#7DD3FC"
+                                       Margin="0,0,0,4"/>
+                            <glass:GlassAssemblyShowcase Kind="Sgu"
+                                                         Height="88"
+                                                         ShowWell="False"
+                                                         ShowCaption="True"
+                                                         OuterColor="{Binding GlassColor}"
+                                                         OuterThickness="{Binding SelectedThickness}"
+                                                         OuterTreatment="{Binding SelectedTreatment}"
+                                                         Caption="{Binding GeneratedSpecName}"/>
+                        </DockPanel>
+                    </Border>
                 </Grid>
             </Border>
 
-            <Border DockPanel.Dock="Bottom" Style="{StaticResource PiMetricStripStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0" Margin="0,0,10,0">
-                        <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ThicknessOptions}"
-                                  SelectedItem="{Binding SelectedThickness}"
-                                  Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Margin="0,0,10,0">
-                        <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding ColorOptions}"
-                                  Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
-                                  Style="{StaticResource Step4EditableComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" Margin="0,0,10,0">
-                        <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding TreatmentOptions}"
-                                  SelectedItem="{Binding SelectedTreatment}"
-                                  Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="3" Margin="0,0,10,0">
-                        <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="4" Margin="0,0,10,0">
-                        <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="5">
-                        <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource Step4InputStyle}"/>
-                    </StackPanel>
-                </Grid>
-            </Border>
+            <DockPanel Grid.Column="2">
+                <Border DockPanel.Dock="Top" Style="{StaticResource PiZoneHeaderStyle}" Margin="0,0,0,10">
+                    <TextBlock Text="SGU  ·  SINGLE LITE"
+                               Style="{StaticResource PiSectionLabelStyle}"
+                               Margin="0"/>
+                </Border>
 
-            <TextBlock DockPanel.Dock="Bottom"
-                       Text="{Binding SheetStoreHint}"
-                       FontSize="10"
-                       Foreground="{DynamicResource WarningBrush}"
-                       TextWrapping="Wrap"
-                       Margin="0,4,0,0"/>
+                <Border DockPanel.Dock="Bottom" Style="{StaticResource PiMetricStripStyle}" Margin="0,8,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="1.4*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="CUTTING" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="TEMPERING" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="YIELD" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="0,0,10,0">
+                            <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="EDGE POLISH" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding PolishOptions}"
+                                      SelectedItem="{Binding SelectedPolishOption}"
+                                      Style="{StaticResource Step4ComboStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-            <Border Style="{StaticResource PiShowcaseWellStyle}" Margin="0,0,0,8">
-                <glass:GlassAssemblyShowcase Kind="Sgu"
-                                             MinHeight="220"
-                                             ShowWell="False"
-                                             ShowCaption="True"
-                                             OuterColor="{Binding GlassColor}"
-                                             OuterThickness="{Binding SelectedThickness}"
-                                             OuterTreatment="{Binding SelectedTreatment}"
-                                             Caption="{Binding GeneratedSpecName}"/>
-            </Border>
-        </DockPanel>
+                <Border Style="{StaticResource PiMetricStripStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                            <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                                      SelectedItem="{Binding SelectedThickness}"
+                                      Style="{StaticResource Step4ComboStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Margin="0,0,10,0">
+                            <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding ColorOptions}"
+                                      Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
+                                      Style="{StaticResource Step4EditableComboStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="0,0,10,0">
+                            <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                                      SelectedItem="{Binding SelectedTreatment}"
+                                      Style="{StaticResource Step4ComboStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="3" Margin="0,0,10,0">
+                            <TextBlock Text="PRICE" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="4" Margin="0,0,10,0">
+                            <TextBlock Text="SHEET W" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="5">
+                            <TextBlock Text="SHEET H" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <TextBlock DockPanel.Dock="Bottom"
+                           Text="{Binding SheetStoreHint}"
+                           FontSize="10"
+                           Foreground="{DynamicResource WarningBrush}"
+                           TextWrapping="Wrap"
+                           Margin="0,8,0,0"/>
+            </DockPanel>
+        </Grid>
     </Border>
 </UserControl>

@@ -2,8 +2,8 @@
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/ProformaInvoiceView.xaml
 ═══════════════════════════════════════════════════════════════════════
-Industrial wizard chrome (approved boards).
-  Rail 40 px pills · workbench · footer 48 px.
+Industrial MES station deck.
+  Left rail 176 px · work deck · command footer 52 px.
   Bindings, commands and AutomationIds unchanged.
   Theme: DynamicResource only (light / dark / Monet).
 ═══════════════════════════════════════════════════════════════════════
@@ -63,7 +63,7 @@ Industrial wizard chrome (approved boards).
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="Proforma Invoices"
+                        <TextBlock Text="PROFORMA DECK"
                                    Style="{StaticResource ModulePageTitleStyle}"/>
                         <TextBlock Text="Saved quotations ready to convert into job orders"
                                    Style="{StaticResource ModulePageSubtitleStyle}"/>
@@ -92,7 +92,7 @@ Industrial wizard chrome (approved boards).
         </Border>
 
         <!-- ══════════════════════════════════════════════════════════
-             WIZARD VIEW
+             WIZARD — left station rail + work deck
         ══════════════════════════════════════════════════════════ -->
         <Grid>
             <Grid.Style>
@@ -106,58 +106,39 @@ Industrial wizard chrome (approved boards).
                 </Style>
             </Grid.Style>
 
-            <Grid.RowDefinitions>
-                <RowDefinition Height="40"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="48"/>
-            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="176"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-            <!-- RAIL — 40 px, LIST + 9 outlined pills -->
-            <Border Grid.Row="0" Style="{StaticResource PiRailBarStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0"
+            <!-- STATION RAIL -->
+            <Border Grid.Column="0" Style="{StaticResource PiStationRailStyle}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Top"
                             Command="{Binding BackToListCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Padding="0"
-                            Margin="0,0,10,0"
-                            Cursor="Hand"
-                            FocusVisualStyle="{x:Null}"
-                            ToolTip="Back to the invoice list">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border x:Name="BackBorder"
-                                        Background="Transparent"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Height="32"
-                                        Padding="12,0">
-                                    <TextBlock Text="LIST"
-                                               FontSize="11"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               HorizontalAlignment="Center"/>
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="BackBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Button.Template>
-                    </Button>
+                            Style="{StaticResource PiFooterGhostButton}"
+                            Height="34"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,0,12"
+                            Content="LIST"
+                            ToolTip="Back to the invoice list"
+                            AutomationProperties.Name="Back to list"/>
 
-                    <ItemsControl Grid.Column="1" ItemsSource="{Binding WizardSteps}">
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0">
+                        <TextBlock Text="{Binding StepProgressText}"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,0,0,6"/>
+                        <ProgressBar Style="{StaticResource PiProgressTrackStyle}"
+                                     Value="{Binding ProgressPercent}"/>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding WizardSteps}"
+                                  VerticalAlignment="Stretch">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <UniformGrid Rows="1"/>
+                                <UniformGrid Columns="1"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
@@ -168,8 +149,9 @@ Industrial wizard chrome (approved boards).
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Padding="0"
-                                        Margin="3,0"
+                                        Margin="0,2"
                                         HorizontalContentAlignment="Stretch"
+                                        VerticalContentAlignment="Stretch"
                                         Cursor="Hand"
                                         FocusVisualStyle="{x:Null}"
                                         ToolTip="{Binding Subtitle}">
@@ -177,30 +159,37 @@ Industrial wizard chrome (approved boards).
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="StepBorder"
                                                     Background="Transparent"
-                                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="1"
+                                                    BorderBrush="Transparent"
+                                                    BorderThickness="0"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                    Height="32"
-                                                    Padding="8,0"
+                                                    Padding="0"
                                                     SnapsToDevicePixels="True">
-                                                <StackPanel Orientation="Horizontal"
-                                                            VerticalAlignment="Center"
-                                                            HorizontalAlignment="Center">
-                                                    <TextBlock x:Name="NumberText"
-                                                               Text="{Binding StepNumber}"
-                                                               FontSize="11"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,6,0"/>
-                                                    <TextBlock x:Name="TitleText"
-                                                               Text="{Binding RailLabel}"
-                                                               FontSize="11"
-                                                               FontWeight="SemiBold"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                </StackPanel>
+                                                <Grid>
+                                                    <Border x:Name="ActiveBar"
+                                                            Width="3"
+                                                            HorizontalAlignment="Left"
+                                                            Background="Transparent"
+                                                            CornerRadius="1"/>
+                                                    <StackPanel Orientation="Horizontal"
+                                                                VerticalAlignment="Center"
+                                                                Margin="12,0,8,0">
+                                                        <TextBlock x:Name="NumberText"
+                                                                   Text="{Binding StationCode}"
+                                                                   FontFamily="Consolas"
+                                                                   FontSize="12"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   Width="22"/>
+                                                        <TextBlock x:Name="TitleText"
+                                                                   Text="{Binding RailLabel}"
+                                                                   FontSize="12"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   VerticalAlignment="Center"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </Grid>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding IsCompleted}" Value="True">
@@ -215,8 +204,8 @@ Industrial wizard chrome (approved boards).
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter TargetName="StepBorder" Property="Background"
                                                             Value="{DynamicResource AccentBrush}"/>
-                                                    <Setter TargetName="StepBorder" Property="BorderBrush"
-                                                            Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="ActiveBar" Property="Background"
+                                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                     <Setter TargetName="TitleText" Property="Foreground"
                                                             Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                     <Setter TargetName="NumberText" Property="Foreground"
@@ -229,8 +218,8 @@ Industrial wizard chrome (approved boards).
                                                                    Value="True"/>
                                                         <Condition Binding="{Binding IsActive}" Value="False"/>
                                                     </MultiDataTrigger.Conditions>
-                                                    <Setter TargetName="StepBorder" Property="BorderBrush"
-                                                            Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="StepBorder" Property="Background"
+                                                            Value="{DynamicResource MenuHoverBrush}"/>
                                                     <Setter TargetName="TitleText" Property="Foreground"
                                                             Value="{DynamicResource PrimaryForegroundBrush}"/>
                                                     <Setter TargetName="NumberText" Property="Foreground"
@@ -243,206 +232,241 @@ Industrial wizard chrome (approved boards).
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-                </Grid>
+                </DockPanel>
             </Border>
 
-            <!-- WORKBENCH — no extra wrapping card -->
-            <Grid Grid.Row="1" Margin="24,12,24,12">
-                <ContentControl Content="{Binding Step1VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step1:CompanySetupView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+            <!-- WORK DECK -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="52"/>
+                </Grid.RowDefinitions>
 
-                <ContentControl Content="{Binding Step2VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step2:ClientProfileView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                <Border Grid.Row="0" Style="{StaticResource PiStationHeaderBarStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="{Binding CurrentStationCode}"
+                                   FontFamily="Consolas"
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,14,0"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding CurrentStationTitle}"
+                                       FontSize="16"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="{Binding CurrentStationSubtitle}"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
 
-                <ContentControl Content="{Binding Step3VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step3:ProjectSpecsView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                <Border Grid.Row="1" Style="{StaticResource PiWorkDeckStyle}">
+                    <Grid>
+                        <ContentControl Content="{Binding Step1VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step1:CompanySetupView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step4VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step4:PricingEstimatorView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step2VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step2:ClientProfileView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step5VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step5:DataGridView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step3VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step3:ProjectSpecsView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step6VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step6:OtherChargesView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step4VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step4:PricingEstimatorView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step7VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="7">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step7:PrintPreviewView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step5VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step5:DataGridView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step8VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="8">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step8:AttachmentsStepView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step6VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step6:OtherChargesView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                <ContentControl Content="{Binding Step9VM}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding CurrentStepNumber}" Value="9">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                    <ContentControl.ContentTemplate>
-                        <DataTemplate>
-                            <step9:ProfitLossStepView/>
-                        </DataTemplate>
-                    </ContentControl.ContentTemplate>
-                </ContentControl>
+                        <ContentControl Content="{Binding Step7VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="7">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step7:PrintPreviewView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <ContentControl Content="{Binding Step8VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="8">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step8:AttachmentsStepView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <ContentControl Content="{Binding Step9VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="9">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step9:ProfitLossStepView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource PiCommandFooterStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Button Grid.Column="0"
+                                Command="{Binding PreviousStepCommand}"
+                                Style="{StaticResource PiFooterGhostButton}"
+                                Content="BACK"
+                                AutomationProperties.AutomationId="ProformaInvoice.BackButton"
+                                AutomationProperties.Name="Back"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding StepProgressText}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+
+                        <Button Grid.Column="2"
+                                Command="{Binding NextStepCommand}"
+                                Style="{StaticResource PiFooterPrimaryButton}"
+                                Content="CONTINUE"
+                                AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
+                                AutomationProperties.Name="Continue"/>
+                    </Grid>
+                </Border>
             </Grid>
-
-            <!-- FOOTER — 48 px bar, not a second card -->
-            <Border Grid.Row="2" Style="{StaticResource PiFooterBarStyle}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Button Grid.Column="0"
-                            Command="{Binding PreviousStepCommand}"
-                            Style="{StaticResource PiFooterGhostButton}"
-                            Content="Back"
-                            AutomationProperties.AutomationId="ProformaInvoice.BackButton"
-                            AutomationProperties.Name="Back"/>
-
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding StepProgressText}"
-                               FontSize="11"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-
-                    <Button Grid.Column="2"
-                            Command="{Binding NextStepCommand}"
-                            Style="{StaticResource PiFooterPrimaryButton}"
-                            Content="Continue"
-                            AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
-                            AutomationProperties.Name="Continue"/>
-                </Grid>
-            </Border>
         </Grid>
     </Grid>
 </UserControl>

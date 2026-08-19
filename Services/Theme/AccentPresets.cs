@@ -56,7 +56,7 @@ namespace ProGlassAutomation.Services.Theme
         /// shows a real preview dot.</summary>
         public static Color SwatchFor(string presetKey)
         {
-            return ColorFor(presetKey) ?? Color.FromRgb(0x1D, 0x4E, 0xD8);
+            return ColorFor(presetKey) ?? Color.FromRgb(0x03, 0x69, 0xA1);
         }
     }
 }

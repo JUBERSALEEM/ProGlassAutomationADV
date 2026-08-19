@@ -44,6 +44,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             _ => Title
         };
 
+        /// <summary>Zero-padded station code for the industrial rail (01–09).</summary>
+        public string StationCode => StepNumber.ToString("00");
+
         private bool _isActive;
         public bool IsActive
         {
