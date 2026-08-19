@@ -547,29 +547,22 @@ namespace ProGlassAutomation
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 12) Splash screen
+            // Pin shutdown BEFORE the first window. Default OnLastWindowClose
+            // would kill the process if splash closed during the delay or
+            // during sign-in. Restored once MainWindow exists.
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            // 12) Splash screen — this one window owns terms AND login.
             var splash = new SplashView();
             splash.Show();
 
             // 13) Loading delay for splash animations
             await Task.Delay(2800);
 
-            // 13b) TERMS GATE + AUTH-1 — both happen ON the splash, before
-            // the main window exists.
-            //
-            // Order is deliberate and was wrong before: the splash IS the
-            // first screen, so it must stay on screen while the user accepts
-            // the terms. Only then does sign-in appear.
-            //
-            // ShutdownMode MUST be pinned to OnExplicitShutdown across this
-            // handover. The default is OnLastWindowClose, and there are
-            // moments below with ZERO windows open (splash closed, login not
-            // yet shown) which would otherwise terminate the process before
-            // anyone could sign in. Restored once MainWindow exists.
-            ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
-            // Terms are shown on the splash itself. A previous acceptance of
-            // THIS version is remembered, so it is asked once, not every run.
+            // 13b) TERMS GATE + AUTH-1 — both happen ON the splash.
+            // A second maximized LoginWindow was the recurring break:
+            // splash is Topmost, login is not, Activate() fights z-order
+            // and Windows flashes the desktop between them.
             if (!SplashView.HasAcceptedCurrentTerms())
             {
                 var termsWait = new TaskCompletionSource<bool>();
@@ -585,34 +578,14 @@ namespace ProGlassAutomation
                 }
             }
 
-            // Sign-in. Previously the app went straight to MainWindow as
-            // whichever active user had the lowest Id, which on a fresh
-            // install is an Administrator, so the A-1 service-layer guards
-            // were authorizing an identity nobody had ever established.
-            //
-            // Show login UNDER the splash, then fade the splash out. Closing
-            // the splash first left a frame of desktop and made the two
-            // screens feel unsynced. Splash is Topmost, so login used to
-            // appear behind it if we showed both without releasing Topmost.
-            var login = new Views.Login.LoginWindow();
-            login.Show();
-            login.Activate();
-
-            if (splash.IsVisible)
+            if (!splash.IsVisible)
             {
-                var faded = new TaskCompletionSource<bool>();
-                splash.FadeOutAndClose(() => faded.TrySetResult(true));
-                await faded.Task;
+                Shutdown(0);
+                return;
             }
 
-            if (login.IsVisible)
-            {
-                var signedIn = new TaskCompletionSource<bool>();
-                login.Closed += (_, __) => signedIn.TrySetResult(true);
-                await signedIn.Task;
-            }
-
-            if (!login.SignedIn)
+            bool signedIn = await splash.RunLoginAsync();
+            if (!signedIn)
             {
                 Shutdown(0);
                 return;
@@ -622,24 +595,58 @@ namespace ProGlassAutomation
                 AuditService.CurrentUsername,
                 AuditService.CurrentUser?.DisplayName ?? "");
 
-            // 14) Main window handoff
+            // 14) Main window handoff — paint main UNDER the still-topmost
+            // splash, then fade splash through it. No desktop gap.
             var mainWindow = new MainWindow();
             MainWindow = mainWindow;
-
-            // AUTH-1: main window exists, so restore the normal shutdown
-            // behaviour — closing it quits the app, exactly as before.
             ShutdownMode = ShutdownMode.OnLastWindowClose;
 
+            mainWindow.ShowActivated = false;
+            mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Show();
+            await WaitForWindowReadyAsync(mainWindow);
+
+            if (splash.IsVisible)
+            {
+                var faded = new TaskCompletionSource<bool>();
+                splash.FadeOutAndClose(() => faded.TrySetResult(true));
+                await faded.Task;
+            }
+
             mainWindow.Activate();
             mainWindow.Focus();
-            mainWindow.Topmost = true;
-            mainWindow.Topmost = false;
 
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks
             // startup, never affects normal operation (spec §17).
             _ = Services.Updates.UpdateService.StartupCheckAsync();
+        }
+
+        /// <summary>
+        /// Waits until <paramref name="window"/> has loaded and painted
+        /// at least one frame, so a covering splash can fade onto real
+        /// pixels instead of an empty HWND.
+        /// </summary>
+        private static async Task WaitForWindowReadyAsync(Window window)
+        {
+            if (!window.IsLoaded)
+            {
+                var loaded = new TaskCompletionSource<bool>();
+                void OnLoaded(object sender, RoutedEventArgs e)
+                {
+                    window.Loaded -= OnLoaded;
+                    loaded.TrySetResult(true);
+                }
+                window.Loaded += OnLoaded;
+                if (!window.IsLoaded)
+                    await loaded.Task;
+            }
+
+            var frame = new TaskCompletionSource<bool>();
+            window.Dispatcher.BeginInvoke(
+                new Action(() => frame.TrySetResult(true)),
+                System.Windows.Threading.DispatcherPriority.Render);
+            await frame.Task;
         }
 
         // ══════════════════════════════════════════════════════════════

@@ -25,10 +25,13 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:updates="clr-namespace:ProGlassAutomation.Services.Updates"
+        xmlns:login="clr-namespace:ProGlassAutomation.Views.Login"
         Title="ProGlass Automation"
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
+        AllowsTransparency="True"
+        Background="Transparent"
         ShowInTaskbar="False"
         Topmost="True"
         FontFamily="Segoe UI"
@@ -747,6 +750,14 @@
             </Border>
 
         </StackPanel>
+
+        <!-- ═══ LOGIN GATE — same window as splash (no second window) ═══ -->
+        <Grid x:Name="LoginHost"
+              Visibility="Collapsed"
+              Opacity="0"
+              Panel.ZIndex="11">
+            <login:LoginPanel x:Name="LoginGate"/>
+        </Grid>
 
         <!-- ═══ TERMS GATE — FULL PAGE (glass scrim) ═══ -->
         <Grid x:Name="TermsPanel"

@@ -42,6 +42,7 @@
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -503,6 +504,45 @@ namespace ProGlassAutomation.Views.Splash
             Close();
         }
 
+        /// <summary>
+        /// Replaces the loading strip with the sign-in form on THIS window.
+        /// Never opens a second maximized window — that is what kept
+        /// desyncing splash and login (Topmost fight + desktop flash).
+        /// </summary>
+        public Task<bool> RunLoginAsync()
+        {
+            var done = new TaskCompletionSource<bool>();
+
+            void Finish(bool signedIn)
+            {
+                SignedIn = signedIn;
+                done.TrySetResult(signedIn);
+            }
+
+            LoginGate.Completed += Finish;
+            Closed += (_, __) => Finish(LoginGate.SignedIn);
+
+            _loadingMessageTimer?.Stop();
+            _loadingDotsTimer?.Stop();
+            LoadingText.Text = "Sign in to continue";
+            LoadingDots.Text = "";
+
+            TermsPanel.Visibility = Visibility.Collapsed;
+            LoginHost.Visibility = Visibility.Visible;
+            LoginHost.BeginAnimation(OpacityProperty, new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(280),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+
+            Dispatcher.BeginInvoke(new Action(() => LoginGate.FocusInitialField()),
+                DispatcherPriority.Input);
+
+            return done.Task;
+        }
+
         public void FadeOutAndClose(Action onCompleted)
         {
             // Stop all timers
@@ -516,8 +556,9 @@ namespace ProGlassAutomation.Views.Splash
             ShimmerTranslate.BeginAnimation(TranslateTransform.XProperty, null);
             ShimmerOverlay.BeginAnimation(OpacityProperty, null);
 
-            // Release topmost BEFORE fade so login / main can rise above us
-            Topmost = false;
+            // Stay Topmost for the fade. AllowsTransparency lets the
+            // window underneath show through — releasing Topmost first
+            // is what flashed the desktop between splash and login.
             IsHitTestVisible = false;
 
             var fadeOut = new DoubleAnimation
