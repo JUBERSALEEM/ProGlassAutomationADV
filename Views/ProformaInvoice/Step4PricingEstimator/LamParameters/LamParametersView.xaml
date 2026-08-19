@@ -10,8 +10,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Style="{StaticResource PiZonePlateStyle}">
-        <DockPanel>
+    <DockPanel>
             <UniformGrid DockPanel.Dock="Bottom" Columns="6" Rows="1" Margin="0,10,0,0">
                 <Border Style="{StaticResource PiCostTileStyle}" Margin="0,0,6,0">
                     <StackPanel>
@@ -63,32 +62,21 @@
                     <ColumnDefinition Width="1.15*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
-                        Style="{StaticResource PiProductViewportStyle}"
-                        Margin="0,0,12,0">
-                    <Grid>
-                        <Image Source="pack://application:,,,/Resources/Glass3D/lam-3d.png"
-                               Stretch="UniformToFill"
-                               RenderOptions.BitmapScalingMode="HighQuality"/>
-                        <Border VerticalAlignment="Bottom"
-                                Background="#CC0B1220"
-                                Padding="10,6">
-                            <glass:GlassAssemblyShowcase Kind="Lam"
-                                                         Height="92"
-                                                         ShowWell="False"
-                                                         ShowCaption="False"
-                                                         OuterColor="{Binding OuterGlassColor}"
-                                                         OuterThickness="{Binding OuterThickness}"
-                                                         OuterTreatment="{Binding OuterTreatment}"
-                                                         InnerColor="{Binding InnerGlassColor}"
-                                                         InnerThickness="{Binding InnerThickness}"
-                                                         InnerTreatment="{Binding InnerTreatment}"
-                                                         InterlayerColor="{Binding PvbColor}"
-                                                         InterlayerThickness="{Binding PvbThickness}"
-                                                         InterlayerType="PVB"/>
-                        </Border>
-                    </Grid>
-                </Border>
+                <glass:GlassAssemblyShowcase Grid.Column="0"
+                                             Kind="Lam"
+                                             MinHeight="240"
+                                             ShowWell="True"
+                                             ShowCaption="False"
+                                             Margin="0,0,16,0"
+                                             OuterColor="{Binding OuterGlassColor}"
+                                             OuterThickness="{Binding OuterThickness}"
+                                             OuterTreatment="{Binding OuterTreatment}"
+                                             InnerColor="{Binding InnerGlassColor}"
+                                             InnerThickness="{Binding InnerThickness}"
+                                             InnerTreatment="{Binding InnerTreatment}"
+                                             InterlayerColor="{Binding PvbColor}"
+                                             InterlayerThickness="{Binding PvbThickness}"
+                                             InterlayerType="PVB"/>
 
                 <Grid Grid.Column="1">
                     <Grid.RowDefinitions>
@@ -214,5 +202,4 @@
                 </Grid>
             </Grid>
         </DockPanel>
-    </Border>
 </UserControl>

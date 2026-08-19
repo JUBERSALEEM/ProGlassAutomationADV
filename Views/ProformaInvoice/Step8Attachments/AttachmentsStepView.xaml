@@ -9,15 +9,13 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Style="{StaticResource PiZonePlateStyle}">
-        <DockPanel>
-            <Border DockPanel.Dock="Top" Style="{StaticResource PiZoneHeaderStyle}">
-                <Grid>
+    <DockPanel>
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding ProformaId, StringFormat=VAULT  ·  FILES  ·  {0}, FallbackValue=VAULT  ·  FILES}"
+                    <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
                                Style="{StaticResource PiSectionLabelStyle}"
                                Margin="0"
                                VerticalAlignment="Center"/>
@@ -44,7 +42,6 @@
                         </Button>
                     </StackPanel>
                 </Grid>
-            </Border>
 
             <TextBlock DockPanel.Dock="Bottom"
                        Text="{Binding StatusMessage}"
@@ -164,5 +161,4 @@
                 </ScrollViewer>
             </DockPanel>
         </DockPanel>
-    </Border>
 </UserControl>

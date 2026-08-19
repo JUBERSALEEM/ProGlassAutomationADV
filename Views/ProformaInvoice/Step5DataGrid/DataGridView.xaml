@@ -86,7 +86,6 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource PiZonePlateStyle}" Padding="12,10">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -342,5 +341,4 @@
                                        DataContext="{Binding SummaryViewModel}"
                                        Margin="0,8,0,0"/>
     </Grid>
-    </Border>
 </UserControl>

@@ -1,14 +1,7 @@
-<!--
-    Step 3 — Project.
-    Project Identifier removed. Canonical PROJECT field is ProjectReference.
--->
+<!-- Step 3 — flat form. PROJECT = ProjectReference. No identifier. No cards. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1100"
              FontFamily="Segoe UI"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
@@ -19,208 +12,182 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1.35*"/>
+            <ColumnDefinition Width="24"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-        <Border Grid.Row="0" Style="{StaticResource PiWorkSurfaceStyle}" Padding="16,14" Margin="0,0,0,12">
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
+                <TextBlock Text="PROJECT" Style="{StaticResource PiSectionLabelStyle}"/>
                 <TextBlock Text="PROJECT" Style="{StaticResource PiFieldLabelStyle}"
                            ToolTip="Full project name as it appears on the invoice"/>
                 <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
-                         FontSize="16" FontWeight="SemiBold" Height="40"
-                         ToolTip="e.g. HOUSE FOR IMAD HABIB"
+                         ToolTip="e.g. HOUSE FOR IMAD HABIB" Margin="0,0,0,12"
                          AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
                          AutomationProperties.Name="Project"/>
-            </StackPanel>
-        </Border>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.35*"/>
-                <ColumnDefinition Width="14"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <TextBlock Text="CONTRACT NO" Style="{StaticResource PiFieldLabelStyle}"/>
+                <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="e.g. 428 IMAD HABIB" Margin="0,0,0,12"/>
 
-            <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="16,14">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel>
-                        <TextBlock Text="CONTRACT  ·  LPO  ·  SITE" Style="{StaticResource PiSectionLabelStyle}"/>
+                <TextBlock Text="LPO / PO NUMBER" Style="{StaticResource PiFieldLabelStyle}"/>
+                <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="e.g. 2680" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="CONTRACT NO" Style="{StaticResource PiFieldLabelStyle}"
-                                   ToolTip="Project number combined with name, e.g. 428 IMAD HABIB"/>
-                        <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="e.g. 428 IMAD HABIB" Margin="0,0,0,10"/>
+                <TextBlock Text="SITE / DELIVERY LOCATION" Style="{StaticResource PiFieldLabelStyle}"/>
+                <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="e.g. AJMAN" Margin="0,0,0,12"/>
 
-                        <TextBlock Text="LPO / PO NUMBER" Style="{StaticResource PiFieldLabelStyle}"
-                                   ToolTip="Client's Local Purchase Order reference number"/>
-                        <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="e.g. 2680" Margin="0,0,0,10"/>
-
-                        <TextBlock Text="SITE / DELIVERY LOCATION" Style="{StaticResource PiFieldLabelStyle}"
-                                   ToolTip="Full delivery address or site location for this order"/>
-                        <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="e.g. AJMAN" Margin="0,0,0,12"/>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsClientFilterActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </StackPanel.Style>
-                            <TextBlock Text="{Binding FilterBannerText}" FontSize="11"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
-                            <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
-                                    Style="{StaticResource PiViewAllLinkStyle}" ToolTip="Remove client filter — show all projects">
-                                <TextBlock Text="Clear filter" TextDecorations="Underline"/>
-                            </Button>
-                        </StackPanel>
-
-                        <TextBlock Margin="0,12,0,0" FontSize="12" Foreground="{DynamicResource SuccessBrush}">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
-                                            <Setter Property="Visibility" Value="Visible"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                            <Run Text="Loaded: "/><Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
-                        </TextBlock>
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
-
-            <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}" Padding="0">
-                <DockPanel>
-                    <Border DockPanel.Dock="Top" Style="{StaticResource PiZoneHeaderStyle}">
-                        <Grid>
-                            <StackPanel>
-                                <TextBlock Text="SAVED PROJECTS" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
-                                <TextBlock Text="Filtered by selected client" Style="{StaticResource PiInlineMetaStyle}"/>
-                            </StackPanel>
-                            <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
-                                    Style="{StaticResource PiIconButtonStyle}" ToolTip="Refresh saved projects from database">
-                                <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Button>
-                        </Grid>
-                    </Border>
-                    <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="12"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="14,10,14,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="12"
-                               Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="14,10,14,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasCardsError}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock DockPanel.Dock="Top"
-                               Text="No saved projects yet. Save an invoice to build the library."
-                               FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap" Margin="14,10,14,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasNoSavedProjects}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="14,8"
-                            Command="{Binding ShowAllProjectsCommand}" ToolTip="Show all saved project profiles">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource PiViewAllLinkStyle}">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMoreProjects}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-                        <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
-                            <Run Text="View all ("/><Run Text="{Binding TotalProjectCount, Mode=OneWay}"/><Run Text=")"/>
-                        </TextBlock>
-                    </Button>
-                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8,0">
-                        <ItemsControl ItemsSource="{Binding SavedProjectCards}">
-                            <ItemsControl.Style>
-                                <Style TargetType="ItemsControl">
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsClientFilterActive}" Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding HasNoSavedProjects}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ItemsControl.Style>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource PiListRowStyle}" ToolTip="Click to auto-fill project details">
-                                        <Border.InputBindings>
-                                            <MouseBinding MouseAction="LeftClick"
-                                                          Command="{Binding DataContext.LoadProjectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                          CommandParameter="{Binding}"/>
-                                        </Border.InputBindings>
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding DisplayProjectName}"
-                                                           FontSize="12" FontWeight="SemiBold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
-                                                    <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
-                                                    <Run Text="  ·  "/>
-                                                    <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                            <Border Grid.Column="1" Style="{StaticResource PiUsageBadgeStyle}" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding UsageBadgeText}" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
-                                            </Border>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </DockPanel>
-            </Border>
-        </Grid>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="{Binding FilterBannerText}" FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                    <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
+                            Style="{StaticResource PiViewAllLinkStyle}">
+                        <TextBlock Text="Clear filter" TextDecorations="Underline"/>
+                    </Button>
+                </StackPanel>
+
+                <TextBlock Margin="0,12,0,0" FontSize="12" Foreground="{DynamicResource SuccessBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                    <Run Text="Loaded: "/><Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                </TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Column="1" Width="1" Background="{DynamicResource DividerBrush}" HorizontalAlignment="Center"/>
+
+        <DockPanel Grid.Column="2">
+            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                <StackPanel>
+                    <TextBlock Text="SAVED" Style="{StaticResource PiSectionLabelStyle}" Margin="0"/>
+                    <TextBlock Text="Filtered by selected client" Style="{StaticResource PiInlineMetaStyle}"/>
+                </StackPanel>
+                <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
+                        Style="{StaticResource PiIconButtonStyle}" ToolTip="Refresh saved projects from database">
+                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Button>
+            </Grid>
+            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="12"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="12"
+                       Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasCardsError}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <TextBlock DockPanel.Dock="Top" Text="No saved projects yet."
+                       FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasNoSavedProjects}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+            <Button DockPanel.Dock="Bottom" HorizontalAlignment="Left" Margin="0,8,0,0"
+                    Command="{Binding ShowAllProjectsCommand}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource PiViewAllLinkStyle}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasMoreProjects}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
+                    <Run Text="View all ("/><Run Text="{Binding TotalProjectCount, Mode=OneWay}"/><Run Text=")"/>
+                </TextBlock>
+            </Button>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding SavedProjectCards}">
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding HasNoSavedProjects}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource PiListRowStyle}" ToolTip="Click to auto-fill project details">
+                                <Border.InputBindings>
+                                    <MouseBinding MouseAction="LeftClick"
+                                                  Command="{Binding DataContext.LoadProjectCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                </Border.InputBindings>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding DisplayProjectName}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
+                                            <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="10"
+                                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
     </Grid>
 </UserControl>

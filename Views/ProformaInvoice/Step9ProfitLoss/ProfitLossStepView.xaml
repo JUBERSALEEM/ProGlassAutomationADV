@@ -43,7 +43,7 @@
                   CanContentScroll="False"
                   PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <Border Style="{StaticResource PiZonePlateStyle}" Padding="14,12">
+        <Border Padding="0">
             <StackPanel>
 
                 <Grid Margin="0,0,0,12">
@@ -158,9 +158,10 @@
                               Visibility="{Binding HasSpecGroups, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource PiWorkSurfaceStyle}"
-                                    Padding="12,10"
-                                    Margin="0,10,0,4">
+                            <Border BorderBrush="{DynamicResource DividerBrush}"
+                                    BorderThickness="0,1,0,0"
+                                    Padding="0,12,0,4"
+                                    Margin="0,8,0,0">
                             <StackPanel>
                                 <Grid Margin="0,0,0,6">
                                     <Grid.ColumnDefinitions>
