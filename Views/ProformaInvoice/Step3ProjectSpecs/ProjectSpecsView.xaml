@@ -50,7 +50,7 @@ CHAT 17 — UI POLISH + BUG FIXES
         <!-- Project card hover style -->
         <Style x:Key="ProjectCardStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
-            <Setter Property="CornerRadius"    Value="14"/>
+            <Setter Property="CornerRadius"    Value="12"/>
             <Setter Property="Padding"         Value="18,16"/>
             <Setter Property="Margin"          Value="0,0,8,8"/>
             <Setter Property="BorderThickness" Value="1.5"/>
@@ -110,7 +110,7 @@ CHAT 17 — UI POLISH + BUG FIXES
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="24,20,32,20">
+                  Padding="16,12,16,16">
         <StackPanel>
 
             <!-- ══════════════════════════════════════════════════════
@@ -118,16 +118,9 @@ CHAT 17 — UI POLISH + BUG FIXES
             ══════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <Border Style="{StaticResource ModuleWizardStepIconStyle}">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12"
-                                          ShadowDepth="2"
-                                          Direction="270"
-                                          Color="{DynamicResource AccentColor}"
-                                          Opacity="0.30"/>
-                    </Border.Effect>
                     <TextBlock Text="&#xE8A5;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="20"
+                               FontSize="18"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
@@ -246,7 +239,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                     <!-- Card body -->
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
-                            Padding="24,20,24,24">
+                            Padding="16,14,16,16">
                         <StackPanel>
 
                             <!-- Section header -->
@@ -420,12 +413,12 @@ CHAT 17 — UI POLISH + BUG FIXES
                                         UI-03: Solid #4338CA circle with white icon.
                                         Was Opacity=0.4 glyph. Matches Step 1 & 2.
                                     -->
-                                    <Border Width="56"
-                                            Height="56"
+                                    <Border Width="40"
+                                            Height="40"
                                             CornerRadius="{DynamicResource CardCornerRadius}"
                                             Background="{DynamicResource AccentBrush}"
                                             HorizontalAlignment="Center"
-                                            Margin="0,0,0,12">
+                                            Margin="0,0,0,8">
                                         <TextBlock Text="&#xE8A5;"
                                                    FontFamily="Segoe MDL2 Assets"
                                                    FontSize="26"

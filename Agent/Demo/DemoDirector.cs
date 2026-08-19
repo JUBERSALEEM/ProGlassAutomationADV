@@ -169,70 +169,9 @@ namespace ProGlassAutomation.Agent.Demo
                     return Status;
                 }
 
-                Set(DemoJobState.Narrating, "Speaking only the verified events to WAV.");
-                var audioDir = Path.Combine(folder, "audio");
-                Directory.CreateDirectory(audioDir);
-                var wavs = new List<string>();
-                var beats = new List<(string Text, TimeSpan Duration)>();
-                var narration = new StringBuilder();
-
-                for (int i = 0; i < events.Count; i++)
-                {
-                    ct.ThrowIfCancellationRequested();
-                    var ev = events[i];
-                    narration.AppendLine($"[{i + 1}] {ev.Title}");
-                    narration.AppendLine(ev.Narration);
-                    narration.AppendLine("evidence: " + ev.Evidence);
-                    narration.AppendLine();
-
-                    string wav = Path.Combine(audioDir, $"n{i + 1:00}.wav");
-                    TimeSpan dur;
-                    try
-                    {
-                        dur = await WaveFileSpeech
-                            .SpeakToWavAsync(ev.Narration, wav, ct)
-                            .ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        Fail(module,
-                            "Windows SAPI could not write a WAV (" + ex.Message +
-                            "). I will not invent speech or mute the video and call it done.",
-                            log, folder);
-                        return Status;
-                    }
-
-                    if (!File.Exists(wav) || dur <= TimeSpan.Zero)
-                    {
-                        Fail(module,
-                            "A narration WAV is missing or has zero duration. Captions will not be faked.",
-                            log, folder);
-                        return Status;
-                    }
-
-                    wavs.Add(wav);
-                    beats.Add((ev.Narration, dur));
-                    log.AppendLine($"WAV {i + 1}: {dur.TotalSeconds:0.00}s");
-                }
-
-                File.WriteAllText(Path.Combine(folder, "narration.txt"), narration.ToString());
-
-                string narrationWav = Path.Combine(folder, "narration.wav");
-                TimeSpan totalAudio;
-                try
-                {
-                    totalAudio = WaveConcat.Concat(wavs, narrationWav);
-                }
-                catch (Exception ex)
-                {
-                    Fail(module, "Could not concatenate narration WAVs: " + ex.Message, log, folder);
-                    return Status;
-                }
-                if (totalAudio <= TimeSpan.Zero)
-                {
-                    Fail(module, "Concatenated narration has zero duration.", log, folder);
-                    return Status;
-                }
+                File.WriteAllText(Path.Combine(folder, "narration.txt"),
+                    string.Join(Environment.NewLine, events.Select((ev, i) =>
+                        $"[{i + 1}] {ev.Title}{Environment.NewLine}{ev.Narration}{Environment.NewLine}evidence: {ev.Evidence}{Environment.NewLine}")));
 
                 string? liveWav = recorder.LiveAudioPath;
                 string? micWav = recorder.MicAudioPath;
@@ -247,18 +186,91 @@ namespace ProGlassAutomation.Agent.Demo
                     catch { liveDur = TimeSpan.Zero; }
                 }
                 bool liveOk = liveDur > TimeSpan.FromMilliseconds(250);
+
+                var beats = new List<(string Text, TimeSpan Duration)>();
+                TimeSpan totalAudio = TimeSpan.Zero;
+                string? narrationWav = null;
+
+                if (liveOk)
+                {
+                    beats = BeatsFromEvents(events, recorder.StartedUtc, recorder.Duration);
+                    totalAudio = liveDur;
+                    log.AppendLine(
+                        $"live mix {liveDur.TotalSeconds:0.00}s" +
+                        (recorder.LiveAudioStarted ? " internal" : "") +
+                        (recorder.MicAudioStarted ? " mic" : "") +
+                        " — skipping post-walk TTS because speech was already captured in sync.");
+                }
+                else
+                {
+                    Set(DemoJobState.Narrating,
+                        "Live mix was silent. Speaking verified events to WAV.");
+                    var audioDir = Path.Combine(folder, "audio");
+                    Directory.CreateDirectory(audioDir);
+                    var wavs = new List<string>();
+
+                    for (int i = 0; i < events.Count; i++)
+                    {
+                        ct.ThrowIfCancellationRequested();
+                        var ev = events[i];
+                        string wav = Path.Combine(audioDir, $"n{i + 1:00}.wav");
+                        TimeSpan dur;
+                        try
+                        {
+                            dur = await WaveFileSpeech
+                                .SpeakToWavAsync(ev.Narration, wav, ct)
+                                .ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            Fail(module,
+                                "Windows SAPI could not write a WAV (" + ex.Message +
+                                "). I will not invent speech or mute the video and call it done.",
+                                log, folder);
+                            return Status;
+                        }
+
+                        if (!File.Exists(wav) || dur <= TimeSpan.Zero)
+                        {
+                            Fail(module,
+                                "A narration WAV is missing or has zero duration after a real SAPI write (" +
+                                ev.Title + "). Captions will not be faked.",
+                                log, folder);
+                            return Status;
+                        }
+
+                        wavs.Add(wav);
+                        beats.Add((ev.Narration, dur));
+                        log.AppendLine($"WAV {i + 1}: {dur.TotalSeconds:0.00}s");
+                    }
+
+                    narrationWav = Path.Combine(folder, "narration.wav");
+                    try
+                    {
+                        totalAudio = WaveConcat.Concat(wavs, narrationWav);
+                    }
+                    catch (Exception ex)
+                    {
+                        Fail(module, "Could not concatenate narration WAVs: " + ex.Message, log, folder);
+                        return Status;
+                    }
+                    if (totalAudio <= TimeSpan.Zero)
+                    {
+                        Fail(module, "Concatenated narration has zero duration.", log, folder);
+                        return Status;
+                    }
+                    log.AppendLine("TTS WAV (live mix unused: " +
+                        (recorder.AudioError ?? "silent or off") + ")");
+                }
+
                 string audioNote = liveOk
                     ? $"live mix {liveDur.TotalSeconds:0.00}s" +
                       (recorder.LiveAudioStarted ? " internal" : "") +
                       (recorder.MicAudioStarted ? " mic" : "")
                     : "TTS WAV (live mix unused: " +
                       (recorder.AudioError ?? "silent or off") + ")";
-                log.AppendLine(audioNote);
 
-                if (liveOk)
-                    CaptionWriter.Write(folder, BeatsFromEvents(events, recorder.StartedUtc, recorder.Duration));
-                else
-                    CaptionWriter.Write(folder, beats);
+                CaptionWriter.Write(folder, beats);
 
                 var (outW, outH) = rec.OutputSize;
                 Set(DemoJobState.Rendering,
@@ -268,7 +280,7 @@ namespace ProGlassAutomation.Agent.Demo
 
                 string mp4Name = runner.OutputFileName;
                 string mp4 = Path.Combine(folder, mp4Name);
-                string audioForMux = liveOk ? liveMix! : narrationWav;
+                string audioForMux = liveOk ? liveMix! : narrationWav!;
                 string? produced = await FfmpegMp4Composer
                     .ComposeFramesAudioAsync(
                         framesDir, "f%05d.jpg", audioForMux, mp4,
@@ -424,9 +436,15 @@ namespace ProGlassAutomation.Agent.Demo
             for (int i = 0; i < events.Count; i++)
             {
                 var from = events[i].Utc < startedUtc ? startedUtc : events[i].Utc;
-                var to = i + 1 < events.Count ? events[i + 1].Utc : end;
-                if (to <= from) to = from + TimeSpan.FromMilliseconds(400);
-                beats.Add((events[i].Narration, to - from));
+                TimeSpan span;
+                if (events[i].SpokenDuration > TimeSpan.FromMilliseconds(200))
+                    span = events[i].SpokenDuration;
+                else
+                {
+                    var to = i + 1 < events.Count ? events[i + 1].Utc : end;
+                    span = to > from ? to - from : TimeSpan.FromMilliseconds(400);
+                }
+                beats.Add((events[i].Narration, span));
             }
             return beats;
         }

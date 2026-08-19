@@ -13,5 +13,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public string Narration { get; init; } = "";
         public string Evidence { get; init; } = "";
         public DateTime Utc { get; init; } = DateTime.UtcNow;
+        /// <summary>How long live speech actually took on this beat.</summary>
+        public TimeSpan SpokenDuration { get; init; }
     }
 }

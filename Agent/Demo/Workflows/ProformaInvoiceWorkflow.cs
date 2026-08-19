@@ -49,8 +49,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
 
             await PresentAsync(events, "opened_list",
-                "Step 0 — Invoice list",
-                "The live Proforma Invoice list. A quotation starts here and becomes a job order after approval.",
+                "Step 0, invoice list",
+                "This is the live proforma invoice list. A quotation starts here.",
                 "Navigate ProformaInvoice", BeatMs, ct).ConfigureAwait(false);
 
             var pi = await ResolvePiAsync(ct).ConfigureAwait(false);
@@ -66,15 +66,15 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct).ConfigureAwait(false);
             await PresentAsync(events, "new_invoice",
                 "New invoice",
-                "New Invoice opened the nine-step wizard. Same command as the button on the list.",
+                "New Invoice opened the nine step wizard. Same command as the list button.",
                 "TriggerNewInvoice", BeatMs, ct).ConfigureAwait(false);
 
             // ── 1 Company ────────────────────────────────────────────
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "company",
-                    "Step 1 — Company",
-                    $"{Company}, Sharjah. TRN {CompanyTrn}. Valid fourteen days. This letterhead prints on the quotation.",
+                    "Step 1, company",
+                    $"{Company}, Sharjah. Tax number {CompanyTrn}. Valid fourteen days. This letterhead prints on the quotation.",
                     $"Company={pi.Step1VM.CompanyName} Id={pi.Step1VM.ProformaId}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -84,8 +84,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillCustomerAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "customer",
-                    "Step 2 — Client",
-                    $"{Customer}, attention Eng. Mariam Al Suwaidi. Salesman A. Rahman. Billing in Al Zahia, Sharjah.",
+                    "Step 2, client",
+                    $"{Customer}. Attention engineer Mariam Al Suwaidi. Salesman A. Rahman. Billing in Al Zahia, Sharjah.",
                     $"Customer={pi.Step2VM.CustomerName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -95,8 +95,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillProjectAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "project",
-                    "Step 3 — Project",
-                    $"{Project}. Contract AZT-POD-26, LPO 4418, delivery Al Zahia, Sharjah. This name follows the job and the delivery note.",
+                    "Step 3, project",
+                    "Al Zahia Tower, podium glazing. Contract A Z T P O D 26, L P O 4418. This name follows the job and the delivery note.",
                     $"Project={pi.Step3VM.ProjectIdentifierName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -104,16 +104,16 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             // ── 4 Calculators ────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step4",
-                "Step 4 — Spec generator",
-                "I will run the SGU calculator, then the DGU calculator, so both spec generators are on camera.",
+                "Step 4, spec generator",
+                "Step 4. I will run the S G U calculator, then the D G U calculator.",
                 "Step 4", BeatMs, ct).ConfigureAwait(false);
 
             var sgu = await RunSguCalculatorAsync(pi, ct).ConfigureAwait(false);
             if (sgu.Ok)
             {
                 await PresentAsync(events, "sgu_calc",
-                    "SGU calculator",
-                    $"SGU {sgu.SpecName}. Rate {sgu.Rate:0.00} dirhams per square metre from sell price, yield 0.85, cutting, tempering and 15 percent margin.",
+                    "S G U calculator",
+                    $"S G U calculator. Rate {sgu.Rate:0.00} dirhams per square metre, yield 0.85, cutting, tempering, 15 percent margin.",
                     $"SGU {sgu.SpecName} @ {sgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -122,8 +122,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (dgu.Ok)
             {
                 await PresentAsync(events, "dgu_calc",
-                    "DGU calculator",
-                    $"DGU {dgu.SpecName}. Outer and inner 6 millimetre Clear FT, 12 millimetre spacer, argon. Rate {dgu.Rate:0.00}.",
+                    "D G U calculator",
+                    $"D G U calculator. Outer and inner 6 millimetre clear F T, 12 millimetre spacer, argon. Rate {dgu.Rate:0.00}.",
                     $"DGU {dgu.SpecName} @ {dgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -134,8 +134,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
             int lines = await FillGridAsync(pi, sgu, dgu, ct).ConfigureAwait(false);
             await PresentAsync(events, "line",
-                "Step 5 — Data grid",
-                $"{lines} glass lines: SGU partitions and a DGU vision panel. Width, height, quantity, rate and value stay on the proforma.",
+                "Step 5, data grid",
+                $"Step 5, the data grid. {lines} glass lines. Width, height, quantity, rate and value stay on the proforma.",
                 $"rows={lines} SGU={sgu.SpecName} DGU={dgu.SpecName}",
                 HoldMs, ct).ConfigureAwait(false);
 
@@ -143,17 +143,17 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
             var charges = await SelectChargesAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step6",
-                "Step 6 — Other charges",
+                "Step 6, other charges",
                 charges.Ok
-                    ? $"Enabled {charges.Names}. Other-charges total {charges.Total:0.00} dirhams."
-                    : "Other charges are on screen.",
+                    ? $"Step 6. Enabled {charges.Names}. Other charges total {charges.Total:0.00} dirhams."
+                    : "Step 6. Other charges are on screen.",
                 charges.Names, HoldMs, ct).ConfigureAwait(false);
 
             // ── 7 Preview + save ─────────────────────────────────────
             if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "preview",
-                "Step 7 — Print preview",
-                "Print preview is the live quotation. Rate and value stay on the document. This snapshot feeds the job order later.",
+                "Step 7, print preview",
+                "Step 7, print preview. This is the live quotation. Rate and value stay on the document.",
                 "Step 7", HoldMs, ct).ConfigureAwait(false);
 
             bool saved = await SaveDraftAsync(pi, ct).ConfigureAwait(false);
@@ -161,7 +161,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await PresentAsync(events, "saved",
                     "Draft saved",
-                    $"Draft {pi.Step1VM.ProformaId} saved with SilentDraftSave — the same persist as leaving the wizard.",
+                    $"Draft {pi.Step1VM.ProformaId} saved. Same persist as leaving the wizard.",
                     $"ProformaId={pi.Step1VM.ProformaId}",
                     BeatMs, ct).ConfigureAwait(false);
             }
@@ -179,10 +179,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 9, ct).ConfigureAwait(false)) return events;
             var pnl = await RecalculateProfitAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step9",
-                "Step 9 — Profit and loss",
+                "Step 9, profit and loss",
                 pnl.Ok
-                    ? $"P and L recalculated. Gross {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, profit {pnl.Profit:0.00}, margin {pnl.Margin:0.0} percent."
-                    : "Profit and loss is on screen. Recalculate ran against Sheet Store and Step 4 rates.",
+                    ? $"Step 9, profit and loss. Gross {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, profit {pnl.Profit:0.00}, margin {pnl.Margin:0.0} percent."
+                    : "Step 9, profit and loss. Recalculate ran against sheet store and step 4 rates.",
                 pnl.Ok
                     ? $"gross={pnl.Gross:0.00} profit={pnl.Profit:0.00} margin={pnl.Margin:0.0}"
                     : "Step 9",
@@ -193,28 +193,11 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             return events;
         }
 
-        private static async Task PresentAsync(
+        private static Task PresentAsync(
             List<VerifiedEvent> events,
             string id, string title, string narration, string evidence,
-            int dwellMs, CancellationToken ct)
-        {
-            DemoStage.Now(title + " — " + narration);
-            SpeakLive(narration);
-            events.Add(new VerifiedEvent
-            {
-                Id = id,
-                Title = title,
-                Narration = narration,
-                Evidence = evidence
-            });
-            await WpfUiDriver.DwellAsync(dwellMs, ct).ConfigureAwait(false);
-        }
-
-        private static void SpeakLive(string text)
-        {
-            try { App.TextToSpeech?.SpeakAsync(text); }
-            catch { /* live voice optional */ }
-        }
+            int dwellMs, CancellationToken ct) =>
+            DemoWalk.PresentAsync(events, id, title, narration, evidence, dwellMs, ct);
 
         private static async Task StartNewInvoiceAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)

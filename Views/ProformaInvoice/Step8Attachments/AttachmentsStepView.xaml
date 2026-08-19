@@ -37,7 +37,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="16,12,16,16">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -46,7 +46,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Border Grid.Row="0" Style="{StaticResource S8Card}" Padding="20,16">
+        <Border Grid.Row="0" Style="{StaticResource S8Card}" Padding="14,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -56,13 +56,13 @@
 
                 <!-- Icon badge -->
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="0"
-                        Width="46" Height="46"
+                        Width="32" Height="32"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource TintIndigoBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE723;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="20"
+                               FontSize="15"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>

@@ -513,7 +513,7 @@ PRESERVED EXACTLY:
     <!-- ══ ROOT SCROLL ════════════════════════════════════════════════════ -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="24,20,24,20"
+                  Padding="16,12,16,16"
                   CanContentScroll="False"
                   IsDeferredScrollingEnabled="False"
                   PanningMode="None"
@@ -546,7 +546,7 @@ PRESERVED EXACTLY:
 
             <Border Background="{DynamicResource BorderBrush}"
                     Height="1"
-                    Margin="0,16,0,20"/>
+                    Margin="0,8,0,12"/>
 
             <!-- ══════════════════════════════════════════════════════════
                  TOP BAR
@@ -609,7 +609,7 @@ PRESERVED EXACTLY:
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="40,32"
+                    Padding="20,16"
                     Margin="0,0,0,16"
                     HorizontalAlignment="Stretch"
                     SnapsToDevicePixels="True">
@@ -625,10 +625,10 @@ PRESERVED EXACTLY:
                 </Border.Style>
                 <StackPanel HorizontalAlignment="Center">
                     <Border Background="{DynamicResource AccentBrush}"
-                            Width="72" Height="72"
+                            Width="48" Height="48"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             HorizontalAlignment="Center"
-                            Margin="0,0,0,16">
+                            Margin="0,0,0,10">
                         <TextBlock Text="&#xF0E2;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="32"
@@ -671,8 +671,8 @@ PRESERVED EXACTLY:
                         <Border
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="20"
-                            Margin="0,0,0,16"
+                            Padding="14"
+                            Margin="0,0,0,12"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             SnapsToDevicePixels="True">

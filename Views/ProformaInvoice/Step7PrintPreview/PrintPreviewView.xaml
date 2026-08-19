@@ -181,7 +181,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
     -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Auto"
-                  Padding="24"
+                  Padding="16,12,16,16"
                   Background="Transparent"
                   Focusable="True"
                   FocusVisualStyle="{x:Null}"
@@ -217,7 +217,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
             <!-- Divider -->
             <Border Background="{DynamicResource BorderBrush}"
                     Height="1"
-                    Margin="0,16,0,20"/>
+                    Margin="0,8,0,12"/>
 
             <!-- ══════════════════════════════════════════════════════════
                  INVOICE ACTIONS TOOLBAR
@@ -225,8 +225,8 @@ CHAT 17 — PERFORMANCE + UI POLISH
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="20"
-                    Margin="0,0,0,16"
+                    Padding="14,12"
+                    Margin="0,0,0,12"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource BorderBrush}">
                 <Grid>
