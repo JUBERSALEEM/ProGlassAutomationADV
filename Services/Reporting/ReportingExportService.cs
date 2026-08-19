@@ -195,53 +195,51 @@ namespace ProGlassAutomation.Services.Reporting
             public string CompanyName => "ProGlass";
             public string Reference => DateTime.Now.ToString("yyyy-MM-dd");
             public DateTime DocumentDate => DateTime.Now;
-            public PageLayout PageLayout => new PageLayout { Orientation = _headers.Length > 7 ? QuestPDF.Infrastructure.PageOrientation.Landscape : QuestPDF.Infrastructure.PageOrientation.Portrait };
+            public LetterheadInfo? Letterhead => null;
+            public PageLayout PageLayout => new PageLayout { Orientation = _headers.Length > 7 ? PageOrientation.Landscape : PageOrientation.Portrait };
 
-            public void RenderContent(IContainer container)
+            public void RenderContent(ColumnDescriptor column)
             {
-                container.Column(col =>
+                column.Item().Text(_title).FontSize(16).Bold().FontColor("#1D4ED8");
+                column.Item().Text($"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)").FontSize(8).FontColor("#6B7280");
+                column.Item().PaddingTop(8).LineHorizontal(1).LineColor("#E5E7EB");
+
+                column.Item().PaddingTop(10).Table(table =>
                 {
-                    col.Item().Text(_title).FontSize(16).Bold().FontColor("#1D4ED8");
-                    col.Item().Text($"Generated {DateTime.Now:dd MMM yyyy HH:mm}  •  {_rows.Count} row(s)").FontSize(8).FontColor("#6B7280");
-                    col.Item().PaddingTop(8).LineHorizontal(1).LineColor("#E5E7EB");
-
-                    col.Item().PaddingTop(10).Table(table =>
+                    table.ColumnsDefinition(c =>
                     {
-                        table.ColumnsDefinition(c =>
-                        {
-                            foreach (var _ in _headers) c.RelativeColumn();
-                        });
-
-                        table.Header(h =>
-                        {
-                            foreach (var hd in _headers)
-                                h.Cell().Background("#1D4ED8").Padding(4).Text(hd).FontSize(7).Bold().FontColor(Colors.White).AlignCenter();
-                        });
-
-                        bool alt = false;
-                        // Paginate: first 40 rows, then continue
-                        int take = Math.Min(_rows.Count, 200);
-                        for (int i = 0; i < take; i++)
-                        {
-                            var fields = _mapper(_rows[i]);
-                            foreach (var f in fields)
-                            {
-                                var txt = f ?? "";
-                                if (txt.Length > 42) txt = txt.Substring(0, 39) + "…";
-                                table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(3).Text(txt).FontSize(6).FontColor("#1F2937");
-                            }
-                            alt = !alt;
-                        }
-                        if (_rows.Count > take)
-                        {
-                            foreach (var _ in _headers)
-                                table.Cell().Padding(4).Text("…").FontSize(6).FontColor("#6B7280").Italic();
-                        }
+                        foreach (var _ in _headers) c.RelativeColumn();
                     });
 
-                    if (_rows.Count > 200)
-                        col.Item().PaddingTop(6).Text($"Showing first 200 of {_rows.Count} rows — export CSV/Excel for the complete dataset.").FontSize(7).FontColor("#6B7280").Italic();
+                    table.Header(h =>
+                    {
+                        foreach (var hd in _headers)
+                            h.Cell().Background("#1D4ED8").Padding(4).Text(hd).FontSize(7).Bold().FontColor(Colors.White).AlignCenter();
+                    });
+
+                    bool alt = false;
+                    // Paginate: first 40 rows, then continue
+                    int take = Math.Min(_rows.Count, 200);
+                    for (int i = 0; i < take; i++)
+                    {
+                        var fields = _mapper(_rows[i]);
+                        foreach (var f in fields)
+                        {
+                            var txt = f ?? "";
+                            if (txt.Length > 42) txt = txt.Substring(0, 39) + "…";
+                            table.Cell().Background(alt ? "#F8FAFC" : Colors.White).BorderBottom(0.5f).BorderColor("#E5E7EB").Padding(3).Text(txt).FontSize(6).FontColor("#1F2937");
+                        }
+                        alt = !alt;
+                    }
+                    if (_rows.Count > take)
+                    {
+                        foreach (var _ in _headers)
+                            table.Cell().Padding(4).Text("…").FontSize(6).FontColor("#6B7280").Italic();
+                    }
                 });
+
+                if (_rows.Count > 200)
+                    column.Item().PaddingTop(6).Text($"Showing first 200 of {_rows.Count} rows — export CSV/Excel for the complete dataset.").FontSize(7).FontColor("#6B7280").Italic();
             }
         }
 
