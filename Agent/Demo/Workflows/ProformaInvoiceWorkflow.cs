@@ -31,6 +31,12 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public string ModuleId => "ProformaInvoice";
         public string OutputFileName => "ProformaInvoice_Demo.mp4";
 
+        public IReadOnlyList<string> DeepEvidenceIds { get; } =
+        [
+            "new_invoice", "company", "sgu_calc", "dgu_calc",
+            "line", "preview", "step8", "step9", "saved"
+        ];
+
         public async Task<IReadOnlyList<VerifiedEvent>> RunAsync(CancellationToken ct)
         {
             var events = new List<VerifiedEvent>();

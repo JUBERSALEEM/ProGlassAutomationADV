@@ -52,7 +52,7 @@ namespace ProGlassAutomation.Agent.Demo
             W("SalesReport", "Statements", "Account statement of invoiced and outstanding.",
                 "SalesReport",
                 "Open Sales Report / statements.",
-                "The statement lists invoices, balances and aging from saved tax invoices."),
+                "The generator filters live tax invoices, previews matches and selects them."),
             W("JobProfitability", "Job Profitability", "Margin from Step 9 snapshots.",
                 "JobProfitability",
                 "Open Job Profitability.",
@@ -61,6 +61,10 @@ namespace ProGlassAutomation.Agent.Demo
                 "CompanyCenter",
                 "Open Company Center.",
                 "Company name, TRN, bank and account print on invoices."),
+            W("UserCenter", "User Center", "People who sign documents and audit entries.",
+                "UserCenter",
+                "Open User Center.",
+                "Select a card and create an operator through the same persist as the form."),
         };
 
         public static DemoWorkflow? Find(string? id) =>

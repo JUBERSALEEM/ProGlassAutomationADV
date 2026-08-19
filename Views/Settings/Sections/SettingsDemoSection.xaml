@@ -22,7 +22,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Full PI walk steps 1–9: company, client, project, SGU/DGU calculators, multi-line grid, other charges, preview, attachments, profit and loss. Then a verified MP4."
+            <TextBlock Text="Each module records a live walk — Sheet Store, Proforma 1–9, Job Order, Delivery Note, Tax Invoice, Statements, Users, Company, Dashboard, Profitability — then a verified MP4. Activity is the real audit tab on JO / DN / TI."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>

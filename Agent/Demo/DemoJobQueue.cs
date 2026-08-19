@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,11 +26,24 @@ namespace ProGlassAutomation.Agent.Demo
         {
             lock (_gate)
             {
-                _pending.Enqueue(argument ?? "");
+                foreach (string item in Expand(argument))
+                    _pending.Enqueue(item);
                 if (_pumping) return Task.CompletedTask;
                 _pumping = true;
             }
             return PumpAsync();
+        }
+
+        /// <summary>
+        /// Generate All becomes one recorded job per catalog module.
+        /// An empty argument stays a single default (Proforma Invoice).
+        /// </summary>
+        public static IReadOnlyList<string> Expand(string? argument)
+        {
+            string raw = (argument ?? "").Trim();
+            if (string.Equals(raw, "All", StringComparison.OrdinalIgnoreCase))
+                return DemoWorkflowCatalog.All.Select(w => w.Id).ToList();
+            return new[] { raw };
         }
 
         private async Task PumpAsync()

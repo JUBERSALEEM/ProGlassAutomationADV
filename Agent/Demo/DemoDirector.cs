@@ -101,7 +101,7 @@ namespace ProGlassAutomation.Agent.Demo
                 LastOutputFolder = folder;
                 log.AppendLine("Output: " + folder);
 
-                Set(DemoJobState.Recording, "Recording the live Proforma Invoice wizard.");
+                Set(DemoJobState.Recording, "Recording the live " + module + " workflow.");
                 var framesDir = Path.Combine(folder, "frames");
                 Directory.CreateDirectory(framesDir);
                 using var recorder = new WindowScreenRecorder();
@@ -307,14 +307,18 @@ namespace ProGlassAutomation.Agent.Demo
             string? argument, out string module, out string reason)
         {
             string raw = (argument ?? "").Trim();
-            if (raw.Length == 0
-                || string.Equals(raw, "All", StringComparison.OrdinalIgnoreCase))
+            if (raw.Length == 0)
             {
                 module = "ProformaInvoice";
-                reason = raw.Length == 0
-                    ? "No module named — using Proforma Invoice, the first complete recorded workflow."
-                    : "All modules requested. Only Proforma Invoice has a recorded wizard; other modules were not invented.";
+                reason = "No module named — using Proforma Invoice, the first complete recorded workflow.";
                 return new ProformaInvoiceWorkflow();
+            }
+
+            if (string.Equals(raw, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                module = "All";
+                reason = "All is expanded by the job queue into one recorded workflow per catalog module.";
+                return null;
             }
 
             var wf = DemoWorkflowCatalog.Find(raw);
@@ -325,14 +329,34 @@ namespace ProGlassAutomation.Agent.Demo
                 return null;
             }
 
-            if (string.Equals(wf.Id, "ProformaInvoice", StringComparison.OrdinalIgnoreCase))
+            IDemoWorkflowRunner? runner = CreateRunner(wf.Id);
+            if (runner == null)
             {
-                reason = "Proforma Invoice recorded workflow selected.";
-                return new ProformaInvoiceWorkflow();
+                reason = $"{wf.Title} has no recorded wizard. I will not emit a fake video for this module.";
+                return null;
             }
 
-            reason = $"{wf.Title} has no recorded wizard yet. Proforma Invoice is the first complete target — I will not emit a fake video for this module.";
-            return null;
+            reason = wf.Title + " recorded workflow selected.";
+            return runner;
+        }
+
+        public static IDemoWorkflowRunner? CreateRunner(string? id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return null;
+            return id.Trim() switch
+            {
+                "ProformaInvoice" => new ProformaInvoiceWorkflow(),
+                "SheetStore" => new SheetStoreWorkflow(),
+                "JobOrder" => new JobOrderWorkflow(),
+                "DeliveryNote" => new DeliveryNoteWorkflow(),
+                "TaxInvoice" => new TaxInvoiceWorkflow(),
+                "SalesReport" => new StatementWorkflow(),
+                "UserCenter" => new UserCenterWorkflow(),
+                "CompanyCenter" => new CompanyCenterWorkflow(),
+                "Dashboard" => new DashboardWorkflow(),
+                "JobProfitability" => new JobProfitabilityWorkflow(),
+                _ => null
+            };
         }
 
         public static string NewJobFolder(string module)

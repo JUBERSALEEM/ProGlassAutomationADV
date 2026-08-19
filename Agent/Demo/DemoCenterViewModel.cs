@@ -75,9 +75,9 @@ namespace ProGlassAutomation.Agent.Demo
 
         public string[] ModuleOptions { get; } =
         {
-            "ProformaInvoice", "Dashboard", "SheetStore", "JobOrder",
-            "DeliveryNote", "TaxInvoice", "SalesReport", "JobProfitability",
-            "CompanyCenter"
+            "ProformaInvoice", "SheetStore", "JobOrder",
+            "DeliveryNote", "TaxInvoice", "SalesReport",
+            "UserCenter", "CompanyCenter", "Dashboard", "JobProfitability"
         };
 
         private string _selectedModule = "ProformaInvoice";

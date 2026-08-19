@@ -28,9 +28,12 @@ using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.DeliveryNote.Mapper;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.SheetStore;
 using System;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -90,28 +93,31 @@ namespace ProGlassAutomation.Services.SampleData
             await sheets.AddAsync(Sheet("Mirror", 4, "Silver", 1830, 1220, "Al Gurg Glass", 90, 145, 15, 1));
 
             // ── 2. Proforma Invoices (with full snapshots) ───────────
-            await App.Invoices.InsertAsync(Pi($"PI-{year}-001", "Approved", today.AddDays(-20),
-                "Skyline Interiors LLC", "Marina Tower — Fit-Out", 12_450m));
-            await App.Invoices.InsertAsync(Pi($"PI-{year}-002", "Sent", today.AddDays(-6),
-                "Desert Rose Contracting", "Palm Villa 17", 6_820m));
-            await App.Invoices.InsertAsync(Pi($"PI-{year}-003", "Draft", today.AddDays(-1),
-                "Al Noor Glass Trading", "Showroom Partition Works", 3_140m));
+            var pi1 = Pi($"PI-{year}-001", "Approved", today.AddDays(-20),
+                "Skyline Interiors LLC", "Marina Tower — Fit-Out", 12_450m);
+            var pi2 = Pi($"PI-{year}-002", "Sent", today.AddDays(-6),
+                "Desert Rose Contracting", "Palm Villa 17", 6_820m);
+            var pi3 = Pi($"PI-{year}-003", "Draft", today.AddDays(-1),
+                "Al Noor Glass Trading", "Showroom Partition Works", 3_140m);
+            await App.Invoices.InsertAsync(pi1);
+            await App.Invoices.InsertAsync(pi2);
+            await App.Invoices.InsertAsync(pi3);
 
-            // ── 3. Job Orders ─────────────────────────────────────────
-            await App.Jobs.InsertAsync(Job($"JOB-{year}-001", $"PI-{year}-001",
-                "Skyline Interiors LLC", "Marina Tower — Fit-Out",
-                "Released", 12_450m, today.AddDays(6)));
-            await App.Jobs.InsertAsync(Job($"JOB-{year}-002", $"PI-{year}-002",
-                "Desert Rose Contracting", "Palm Villa 17",
-                "InProduction", 6_820m, today.AddDays(12)));
+            // ── 3. Job Orders (real snapshots from the PIs) ───────────
+            var jo1 = BuildJob(pi1, $"JOB-{year}-001", "Released", "High", today.AddDays(6));
+            var jo2 = BuildJob(pi2, $"JOB-{year}-002", "InProduction", "High", today.AddDays(12));
+            await App.Jobs.InsertAsync(jo1.Entity);
+            await App.Jobs.InsertAsync(jo2.Entity);
 
-            // ── 4. Delivery Notes ─────────────────────────────────────
-            await App.DeliveryNotes.InsertAsync(Dn($"DN-{year}-001-01",
-                $"JOB-{year}-001", $"PI-{year}-001",
-                "Skyline Interiors LLC", "Delivered", 60, 60, 0, today.AddDays(-4)));
-            await App.DeliveryNotes.InsertAsync(Dn($"DN-{year}-002-01",
-                $"JOB-{year}-002", $"PI-{year}-002",
-                "Desert Rose Contracting", "Draft", 40, 0, 40, today));
+            // ── 4. Delivery Notes (items + Prev/This/Balance) ─────────
+            await App.DeliveryNotes.InsertAsync(BuildDn(
+                jo1.Entity, jo1.Snapshot, $"DN-{year}-001-01", 1,
+                "Delivered", deliverAll: true, today.AddDays(-4),
+                "Salim Khan", "SHJ-48211", "Site storekeeper"));
+            await App.DeliveryNotes.InsertAsync(BuildDn(
+                jo2.Entity, jo2.Snapshot, $"DN-{year}-002-01", 1,
+                "Dispatching", deliverAll: false, today,
+                "", "", ""));
 
             // ── 5. Tax Invoices ───────────────────────────────────────
             await App.TaxInvoices.InsertAsync(Ti($"INV-{year}-001",
@@ -424,41 +430,50 @@ namespace ProGlassAutomation.Services.SampleData
             };
         }
 
-        private static SavedJobOrder Job(string id, string sourcePi,
-            string customer, string project, string status,
-            decimal total, DateTime? delivery) => new SavedJobOrder
+        private static (SavedJobOrder Entity, Models.JobOrder.SavedJobOrder.JobOrderSnapshot Snapshot)
+            BuildJob(SavedProformaInvoice pi, string jobId, string status,
+                string priority, DateTime? delivery)
         {
-            JobOrderId = id,
-            SourceProformaId = sourcePi,
-            CustomerName = customer,
-            ProjectName = project,
-            Status = status,
-            Priority = "High",
-            DeliveryDate = delivery,
-            GrandTotalVatInclusive = total,
-            FullSnapshotJson = "{}",
-            CreatedAt = DateTime.Now,
-            UpdatedAt = DateTime.Now
-        };
+            var snap = JobOrderMapper.BuildFromProformaInvoice(pi);
+            snap.JobOrderId = jobId;
+            snap.Production ??= new Models.JobOrder.ProductionDetails.ProductionDetails();
+            snap.Production.Status = status;
+            snap.Production.Priority = priority;
+            snap.Production.DeliveryDate = delivery;
+            var entity = JobOrderMapper.BuildEntityFromSnapshot(
+                snap, pi.GrandTotalVatInclusive);
+            entity.Status = status;
+            entity.Priority = priority;
+            entity.DeliveryDate = delivery;
+            return (entity, snap);
+        }
 
-        private static SavedDeliveryNote Dn(string id, string job, string pi,
-            string customer, string status, int ordered, int delivered,
-            int balance, DateTime date) => new SavedDeliveryNote
+        private static SavedDeliveryNote BuildDn(
+            SavedJobOrder job,
+            Models.JobOrder.SavedJobOrder.JobOrderSnapshot snap,
+            string dnId, int seq, string status, bool deliverAll,
+            DateTime date, string driver, string vehicle, string receiver)
         {
-            DeliveryNoteId = id,
-            JobOrderId = job,
-            ProformaId = pi,
-            CustomerName = customer,
-            ProjectName = "Demo project",
-            Status = status,
-            DeliveryType = "Original",
-            DeliveryDate = date,
-            DriverName = status == "Draft" ? "" : "Salim Khan",
-            VehicleNumber = status == "Draft" ? "" : "SHJ-48211",
-            TotalOrderedQty = ordered,
-            TotalDeliveredQty = delivered,
-            TotalBalanceQty = balance
-        };
+            var dn = DeliveryNoteMapper.FromJobOrder(job, snap, dnId, seq);
+            dn.Status = status;
+            dn.DeliveryDate = date;
+            dn.DriverName = driver;
+            dn.VehicleNumber = vehicle;
+            dn.ReceiverName = receiver;
+            foreach (var item in dn.Items)
+            {
+                if (deliverAll)
+                {
+                    item.DeliveredQty = item.OrderedQty;
+                    item.BalanceQty = 0;
+                }
+            }
+            dn.TotalDeliveredQty = dn.Items.Sum(i => i.DeliveredQty);
+            dn.TotalBalanceQty = dn.Items.Sum(i => i.BalanceQty);
+            dn.TotalPreviouslyDeliveredQty = dn.Items.Sum(i => i.PreviouslyDeliveredQty);
+            DeliveryNoteMapper.RefreshSnapshot(dn);
+            return dn;
+        }
 
         private static SavedTaxInvoice Ti(string num, string pi, string dn,
             string customer, string status, decimal total,

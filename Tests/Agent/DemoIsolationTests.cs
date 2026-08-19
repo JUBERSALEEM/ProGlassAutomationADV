@@ -89,23 +89,38 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Empty_or_all_resolves_to_proforma_only()
+        public void Empty_resolves_to_proforma_and_all_is_queue_expanded()
         {
             var a = DemoDirector.ResolveRunner("", out string m1, out _);
             var b = DemoDirector.ResolveRunner("All", out string m2, out string r2);
             Assert.IsType<ProformaInvoiceWorkflow>(a);
-            Assert.IsType<ProformaInvoiceWorkflow>(b);
+            Assert.Null(b);
             Assert.Equal("ProformaInvoice", m1);
-            Assert.Equal("ProformaInvoice", m2);
-            Assert.Contains("only Proforma Invoice", r2, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("All", m2);
+            Assert.Contains("expanded by the job queue", r2, StringComparison.OrdinalIgnoreCase);
+
+            var expanded = DemoJobQueue.Expand("All");
+            Assert.Equal(DemoWorkflowCatalog.All.Count, expanded.Count);
+            Assert.Contains("SheetStore", expanded);
+            Assert.Contains("JobOrder", expanded);
+            Assert.Contains("DeliveryNote", expanded);
+            Assert.Contains("TaxInvoice", expanded);
+            Assert.Contains("UserCenter", expanded);
         }
 
         [Fact]
-        public void JobOrder_has_no_recorded_wizard_yet()
+        public void Every_catalog_module_has_a_recorded_runner()
         {
-            var runner = DemoDirector.ResolveRunner("JobOrder", out _, out string reason);
-            Assert.Null(runner);
-            Assert.Contains("no recorded wizard", reason, StringComparison.OrdinalIgnoreCase);
+            foreach (var wf in DemoWorkflowCatalog.All)
+            {
+                var runner = DemoDirector.ResolveRunner(wf.Id, out string module, out string reason);
+                Assert.True(runner != null, wf.Id + " has no runner: " + reason);
+                Assert.Equal(wf.Id, module);
+                Assert.Equal(wf.Id, runner!.ModuleId);
+                Assert.False(string.IsNullOrWhiteSpace(runner.OutputFileName));
+                Assert.EndsWith(".mp4", runner.OutputFileName, StringComparison.OrdinalIgnoreCase);
+                Assert.NotEmpty(runner.DeepEvidenceIds);
+            }
         }
 
         [Fact]
