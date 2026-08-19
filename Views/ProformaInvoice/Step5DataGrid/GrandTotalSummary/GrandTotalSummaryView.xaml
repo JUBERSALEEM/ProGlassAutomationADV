@@ -15,7 +15,7 @@
              SnapsToDevicePixels="True">
 
     <StackPanel>
-        <Grid Margin="0,0,0,4">
+        <Grid Margin="0,0,0,2">
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Setter Property="Visibility" Value="Visible"/>

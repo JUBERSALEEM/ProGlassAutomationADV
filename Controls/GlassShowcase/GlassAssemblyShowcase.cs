@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             SnapsToDevicePixels = true;
             UseLayoutRounding = true;
             ClipToBounds = true;
-            MinHeight = 80;
+            MinHeight = 160;
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
         }

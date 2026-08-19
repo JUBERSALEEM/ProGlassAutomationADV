@@ -1,7 +1,7 @@
 <!--
-    Step 3 — Project. Approved mockup composition:
-    one workbench, 3-column project form | saved projects (filtered by Step 2).
-    Filter is an inline line, not a banner card.
+    Step 3 — Project. Approved board:
+    one workbench, stacked full-width fields | saved projects (filtered by Step 2).
+    Ignore the PNG vertical stepper leak — rail stays horizontal.
     Bindings, commands and AutomationIds unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
@@ -27,7 +27,7 @@
     <Border Style="{StaticResource PiWorkSurfaceStyle}">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1.35*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -40,60 +40,42 @@
                     <TextBlock Text="PROJECT"
                                Style="{StaticResource PiSectionLabelStyle}"/>
 
-                    <Grid Margin="0,0,0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="1.2*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="PROJECT IDENTIFIER"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Short project designation, e.g. IMAD HABIB"/>
-                            <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. IMAD HABIB"
-                                     AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
-                                     AutomationProperties.Name="Project identifier name"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="CONTRACT NO"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Project name combined with project number, e.g. 428 IMAD HABIB"/>
-                            <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. 428 IMAD HABIB"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="PROJECT REFERENCE"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Full descriptive reference — site, building, or purpose"/>
-                            <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. HOUSE FOR IMAD HABIB — full descriptive text"/>
-                        </StackPanel>
-                    </Grid>
+                    <TextBlock Text="PROJECT IDENTIFIER"
+                               Style="{StaticResource PiFieldLabelStyle}"
+                               ToolTip="Short project designation, e.g. IMAD HABIB"/>
+                    <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. IMAD HABIB"
+                             Margin="0,0,0,10"
+                             AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
+                             AutomationProperties.Name="Project identifier name"/>
 
-                    <Grid Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <StackPanel>
-                            <TextBlock Text="LPO / PO NUMBER"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Client's Local Purchase Order reference number"/>
-                            <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. 2680"/>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="SITE / DELIVERY LOCATION"
-                                       Style="{StaticResource PiFieldLabelStyle}"
-                                       ToolTip="Full delivery address or site location for this order"/>
-                            <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="e.g. AJMAN"/>
-                        </StackPanel>
-                    </Grid>
+                    <TextBlock Text="CONTRACT NO"
+                               Style="{StaticResource PiFieldLabelStyle}"
+                               ToolTip="Project name combined with project number, e.g. 428 IMAD HABIB"/>
+                    <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. 428 IMAD HABIB"
+                             Margin="0,0,0,10"/>
+
+                    <TextBlock Text="PROJECT REFERENCE"
+                               Style="{StaticResource PiFieldLabelStyle}"
+                               ToolTip="Full descriptive reference — site, building, or purpose"/>
+                    <TextBox Text="{Binding ProjectReference, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. HOUSE FOR IMAD HABIB — full descriptive text"
+                             Margin="0,0,0,10"/>
+
+                    <TextBlock Text="LPO / PO NUMBER"
+                               Style="{StaticResource PiFieldLabelStyle}"
+                               ToolTip="Client's Local Purchase Order reference number"/>
+                    <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. 2680"
+                             Margin="0,0,0,10"/>
+
+                    <TextBlock Text="SITE / DELIVERY LOCATION"
+                               Style="{StaticResource PiFieldLabelStyle}"
+                               ToolTip="Full delivery address or site location for this order"/>
+                    <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. AJMAN"
+                             Margin="0,0,0,12"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                         <StackPanel.Style>
@@ -259,7 +241,7 @@
                         </ItemsControl.Style>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource PiSlimRowStyle}"
+                                <Border Style="{StaticResource PiListRowStyle}"
                                         ToolTip="Click to auto-fill project details">
                                     <Border.InputBindings>
                                         <MouseBinding MouseAction="LeftClick"
@@ -269,27 +251,27 @@
                                     </Border.InputBindings>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="56"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding ProjectIdentifierName}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock FontSize="11"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis">
-                                                <Run Text="{Binding ContractPreview, Mode=OneWay}"/>
-                                                <Run Text="  ·  "/>
-                                                <Run Text="{Binding CustomerPreview, Mode=OneWay}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="{Binding ReferencePreview}"
-                                                       FontSize="10"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                        <Border Grid.Column="1"
+                                        <TextBlock Text="{Binding ContractPreview}"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0">
+                                            <Run Text="{Binding ProjectIdentifierName, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding SiteDeliveryLocation, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <Border Grid.Column="2"
                                                 Style="{StaticResource PiUsageBadgeStyle}"
                                                 Margin="8,0,0,0">
                                             <TextBlock Text="{Binding UsageBadgeText}"

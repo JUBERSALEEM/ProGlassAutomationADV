@@ -133,10 +133,10 @@
     <!-- ══ WIZARD RAIL / FOOTER ══════════════════════════════════════ -->
 
     <Style x:Key="PiRailBarStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource SideMenuBackgroundBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding"         Value="12,0"/>
+        <Setter Property="Padding"         Value="16,0"/>
         <Setter Property="Height"          Value="40"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -230,6 +230,44 @@
         <Setter Property="BorderThickness" Value="3,0,0,0"/>
         <Setter Property="Padding"         Value="12,8"/>
         <Setter Property="Margin"          Value="0,0,0,6"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Framed 3D product well — theme surface, never hardcoded paper. -->
+    <Style x:Key="PiShowcaseWellStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource ControlCornerRadius}"/>
+        <Setter Property="Padding"         Value="8"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiNumberBadgeStyle" TargetType="Border">
+        <Setter Property="Width"             Value="22"/>
+        <Setter Property="Height"            Value="22"/>
+        <Setter Property="CornerRadius"      Value="11"/>
+        <Setter Property="Background"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Margin"            Value="0,0,8,0"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="PiListRowStyle" TargetType="Border" BasedOn="{StaticResource PiSlimRowStyle}">
+        <Setter Property="BorderBrush"     Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="CornerRadius"    Value="0"/>
+        <Setter Property="Padding"         Value="8,7"/>
+        <Setter Property="Margin"          Value="0"/>
+    </Style>
+
+    <Style x:Key="PiLetterheadZoneStyle" TargetType="Border">
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="MinHeight"       Value="56"/>
+        <Setter Property="Padding"         Value="0,4,0,12"/>
+        <Setter Property="Margin"          Value="0,0,0,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

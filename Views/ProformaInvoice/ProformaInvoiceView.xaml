@@ -2,8 +2,8 @@
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/ProformaInvoiceView.xaml
 ═══════════════════════════════════════════════════════════════════════
-Industrial wizard chrome (approved spec).
-  Rail 32 px · one workbench · footer 48 px.
+Industrial wizard chrome (approved boards).
+  Rail 40 px pills · workbench · footer 48 px.
   Bindings, commands and AutomationIds unchanged.
   Theme: DynamicResource only (light / dark / Monet).
 ═══════════════════════════════════════════════════════════════════════
@@ -112,7 +112,7 @@ Industrial wizard chrome (approved spec).
                 <RowDefinition Height="48"/>
             </Grid.RowDefinitions>
 
-            <!-- RAIL — 32 px, LIST + 9 steps -->
+            <!-- RAIL — 40 px, LIST + 9 outlined pills -->
             <Border Grid.Row="0" Style="{StaticResource PiRailBarStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -125,7 +125,7 @@ Industrial wizard chrome (approved spec).
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
-                            Margin="0,0,8,0"
+                            Margin="0,0,10,0"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
                             ToolTip="Back to the invoice list">
@@ -136,21 +136,14 @@ Industrial wizard chrome (approved spec).
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Height="24"
-                                        Padding="8,0">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE72B;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="10"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,6,0"/>
-                                        <TextBlock Text="LIST"
-                                                   FontSize="10"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
-                                    </StackPanel>
+                                        Height="32"
+                                        Padding="12,0">
+                                    <TextBlock Text="LIST"
+                                               FontSize="11"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               HorizontalAlignment="Center"/>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
@@ -175,7 +168,7 @@ Industrial wizard chrome (approved spec).
                                         Background="Transparent"
                                         BorderThickness="0"
                                         Padding="0"
-                                        Margin="2,0"
+                                        Margin="3,0"
                                         HorizontalContentAlignment="Stretch"
                                         Cursor="Hand"
                                         FocusVisualStyle="{x:Null}"
@@ -184,33 +177,25 @@ Industrial wizard chrome (approved spec).
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="StepBorder"
                                                     Background="Transparent"
-                                                    BorderBrush="Transparent"
-                                                    BorderThickness="0"
-                                                    Height="40"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Height="32"
                                                     Padding="8,0"
                                                     SnapsToDevicePixels="True">
                                                 <StackPanel Orientation="Horizontal"
                                                             VerticalAlignment="Center"
                                                             HorizontalAlignment="Center">
-                                                    <Border x:Name="NumberCircle"
-                                                            Width="20" Height="20"
-                                                            CornerRadius="2"
-                                                            Background="Transparent"
-                                                            BorderBrush="{DynamicResource OutlineBrush}"
-                                                            BorderThickness="1"
-                                                            VerticalAlignment="Center"
-                                                            Margin="0,0,6,0">
-                                                        <TextBlock x:Name="NumberText"
-                                                                   Text="{Binding StepNumber}"
-                                                                   FontSize="9"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center"/>
-                                                    </Border>
+                                                    <TextBlock x:Name="NumberText"
+                                                               Text="{Binding StepNumber}"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
                                                     <TextBlock x:Name="TitleText"
                                                                Text="{Binding RailLabel}"
-                                                               FontSize="10"
+                                                               FontSize="11"
                                                                FontWeight="SemiBold"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                VerticalAlignment="Center"
@@ -219,24 +204,20 @@ Industrial wizard chrome (approved spec).
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <DataTrigger Binding="{Binding IsCompleted}" Value="True">
-                                                    <Setter TargetName="NumberCircle" Property="Background"
-                                                            Value="{DynamicResource SuccessBrush}"/>
-                                                    <Setter TargetName="NumberCircle" Property="BorderBrush"
-                                                            Value="{DynamicResource SuccessBrush}"/>
                                                     <Setter TargetName="NumberText" Property="Text" Value="&#xE73E;"/>
                                                     <Setter TargetName="NumberText" Property="FontFamily"
                                                             Value="Segoe MDL2 Assets"/>
                                                     <Setter TargetName="NumberText" Property="Foreground"
-                                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                            Value="{DynamicResource SuccessBrush}"/>
+                                                    <Setter TargetName="TitleText" Property="Foreground"
+                                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
                                                     <Setter TargetName="StepBorder" Property="Background"
                                                             Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="StepBorder" Property="BorderBrush"
+                                                            Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="TitleText" Property="Foreground"
-                                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                    <Setter TargetName="NumberCircle" Property="Background"
-                                                            Value="Transparent"/>
-                                                    <Setter TargetName="NumberCircle" Property="BorderBrush"
                                                             Value="{DynamicResource OnAccentForegroundBrush}"/>
                                                     <Setter TargetName="NumberText" Property="Foreground"
                                                             Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -248,7 +229,11 @@ Industrial wizard chrome (approved spec).
                                                                    Value="True"/>
                                                         <Condition Binding="{Binding IsActive}" Value="False"/>
                                                     </MultiDataTrigger.Conditions>
+                                                    <Setter TargetName="StepBorder" Property="BorderBrush"
+                                                            Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="TitleText" Property="Foreground"
+                                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <Setter TargetName="NumberText" Property="Foreground"
                                                             Value="{DynamicResource PrimaryForegroundBrush}"/>
                                                 </MultiDataTrigger>
                                             </ControlTemplate.Triggers>
@@ -438,22 +423,9 @@ Industrial wizard chrome (approved spec).
                     <Button Grid.Column="0"
                             Command="{Binding PreviousStepCommand}"
                             Style="{StaticResource PiFooterGhostButton}"
+                            Content="Back"
                             AutomationProperties.AutomationId="ProformaInvoice.BackButton"
-                            AutomationProperties.Name="Back">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE76B;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,8,0"/>
-                            <TextBlock Text="Back"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                            AutomationProperties.Name="Back"/>
 
                     <TextBlock Grid.Column="1"
                                Text="{Binding StepProgressText}"
@@ -466,22 +438,9 @@ Industrial wizard chrome (approved spec).
                     <Button Grid.Column="2"
                             Command="{Binding NextStepCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
+                            Content="Continue"
                             AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
-                            AutomationProperties.Name="Continue">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="Continue"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-                            <TextBlock Text="&#xE76C;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-                    </Button>
+                            AutomationProperties.Name="Continue"/>
                 </Grid>
             </Border>
         </Grid>

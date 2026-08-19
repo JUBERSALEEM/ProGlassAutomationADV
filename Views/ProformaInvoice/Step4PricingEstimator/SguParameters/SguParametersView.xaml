@@ -6,7 +6,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- SGU mockup: hero pane, then two metric strips. Editors stay bound. -->
+    <!-- SGU board: framed hero pane, then two metric strips. Editors stay bound. -->
     <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="16,12">
         <DockPanel>
             <Border DockPanel.Dock="Bottom" Style="{StaticResource PiMetricStripStyle}" Margin="0,8,0,0">
@@ -100,13 +100,16 @@
                        TextWrapping="Wrap"
                        Margin="0,4,0,0"/>
 
-            <glass:GlassAssemblyShowcase Kind="Sgu"
-                                         ShowWell="False"
-                                         ShowCaption="True"
-                                         OuterColor="{Binding GlassColor}"
-                                         OuterThickness="{Binding SelectedThickness}"
-                                         OuterTreatment="{Binding SelectedTreatment}"
-                                         Caption="{Binding GeneratedSpecName}"/>
+            <Border Style="{StaticResource PiShowcaseWellStyle}" Margin="0,0,0,8">
+                <glass:GlassAssemblyShowcase Kind="Sgu"
+                                             MinHeight="220"
+                                             ShowWell="False"
+                                             ShowCaption="True"
+                                             OuterColor="{Binding GlassColor}"
+                                             OuterThickness="{Binding SelectedThickness}"
+                                             OuterTreatment="{Binding SelectedTreatment}"
+                                             Caption="{Binding GeneratedSpecName}"/>
+            </Border>
         </DockPanel>
     </Border>
 </UserControl>

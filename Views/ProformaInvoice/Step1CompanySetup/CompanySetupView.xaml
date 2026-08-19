@@ -1,7 +1,7 @@
 <!--
-    Step 1 — Company. Approved mockup composition:
-    one workbench, form 2/3 | saved companies 1/3.
-    LETTERHEAD then DOCUMENT IDENTITY. No page-title hero.
+    Step 1 — Company. Approved board:
+    two cards — form 2/3 | saved companies 1/3.
+    LETTERHEAD zone, then DOCUMENT IDENTITY with Skip to grid.
     Bindings, commands and AutomationIds unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup.CompanySetupView"
@@ -24,21 +24,27 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0"
-                          VerticalScrollBarVisibility="Auto"
+        <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="0,0,14,0">
+                <StackPanel>
 
-                    <Grid Margin="0,0,0,8">
+                    <Border Style="{StaticResource PiLetterheadZoneStyle}">
                         <TextBlock Text="LETTERHEAD"
+                                   Style="{StaticResource PiSectionLabelStyle}"
+                                   Margin="0"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock Text="DOCUMENT IDENTITY"
                                    Style="{StaticResource PiSectionLabelStyle}"
                                    Margin="0"/>
                         <Button HorizontalAlignment="Right"
@@ -49,10 +55,6 @@
                             <TextBlock Text="Skip to grid" TextDecorations="Underline"/>
                         </Button>
                     </Grid>
-                    <Border Height="28" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,12"/>
-
-                    <TextBlock Text="DOCUMENT IDENTITY"
-                               Style="{StaticResource PiSectionLabelStyle}"/>
 
                     <Grid Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -239,22 +241,19 @@
                     </TextBlock>
                 </StackPanel>
             </ScrollViewer>
+        </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource PiVerticalRuleStyle}"/>
-
-            <DockPanel Grid.Column="2">
+        <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+            <DockPanel>
                 <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="SAVED COMPANIES"
-                                   Style="{StaticResource PiSectionLabelStyle}"
-                                   Margin="0"/>
-                        <TextBlock Text="Click a row to fill the form"
-                                   Style="{StaticResource PiInlineMetaStyle}"/>
-                    </StackPanel>
+                    <TextBlock Text="SAVED COMPANIES"
+                               Style="{StaticResource PiSectionLabelStyle}"
+                               Margin="0"
+                               VerticalAlignment="Center"/>
                     <Button Grid.Column="1"
                             Command="{Binding RefreshCardsCommand}"
                             Style="{StaticResource PiIconButtonStyle}"
@@ -362,7 +361,7 @@
                         </ItemsControl.Style>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource PiSlimRowStyle}"
+                                <Border Style="{StaticResource PiListRowStyle}"
                                         ToolTip="Click to auto-fill company details">
                                     <Border.InputBindings>
                                         <MouseBinding MouseAction="LeftClick"
@@ -373,22 +372,30 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="88"/>
+                                            <ColumnDefinition Width="64"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding CompanyName}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock FontSize="11"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis">
-                                                <Run Text="{Binding TrnMasked, Mode=OneWay}"/>
-                                                <Run Text="  ·  "/>
-                                                <Run Text="{Binding Location, Mode=OneWay}"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                        <Border Grid.Column="1"
+                                        <TextBlock Text="{Binding CompanyName}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding TrnMasked}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding Location}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                        <Border Grid.Column="3"
                                                 Style="{StaticResource PiUsageBadgeStyle}"
                                                 Margin="8,0,0,0">
                                             <TextBlock Text="{Binding UsageBadgeText}"
@@ -402,6 +409,6 @@
                     </ItemsControl>
                 </ScrollViewer>
             </DockPanel>
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
 </UserControl>

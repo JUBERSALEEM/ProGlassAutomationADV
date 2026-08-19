@@ -142,10 +142,11 @@
                                     <ColumnDefinition Width="140"/>
                                     <ColumnDefinition Width="8"/>
                                     <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="16"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="12"/>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="8"/>
-                                    <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
@@ -165,22 +166,21 @@
                                         IsDropDownOpen="{Binding IsSpecDropdownOpen, Mode=TwoWay}"
                                         DisplayMemberPath="SpecName"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,0,2">
-                                    <TextBlock Text="BASE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"
+                                <StackPanel Grid.Column="4" VerticalAlignment="Bottom" Margin="0,0,0,2">
+                                    <TextBlock Text="BASE" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                ToolTip="{Binding ImportedPrice, StringFormat=Imported AED {0:N2}}"/>
                                     <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                              Style="{StaticResource GridDecStyle}"
-                                             Width="72"/>
+                                             Width="80"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,8,2">
-                                    <TextBlock Text="SURCHARGE" Style="{StaticResource PiInlineMetaStyle}" Margin="0,0,6,0"
+                                <StackPanel Grid.Column="6" VerticalAlignment="Bottom" Margin="0,0,0,2">
+                                    <TextBlock Text="SURCHARGE %" Style="{StaticResource PiFieldLabelStyle}" Margin="0,0,0,2"
                                                ToolTip="{Binding SurchargeRate, StringFormat=With surcharge AED {0:N2}}"/>
                                     <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
                                              Style="{StaticResource GridDecStyle}"
-                                             Width="52"/>
-                                    <TextBlock Text="%" Style="{StaticResource PiInlineMetaStyle}" Margin="4,0,0,0"/>
+                                             Width="64"/>
                                 </StackPanel>
-                                <Button Grid.Column="7"
+                                <Button Grid.Column="8"
                                         Command="{Binding DataContext.RemoveSpecGroupCommand,
                                             RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"

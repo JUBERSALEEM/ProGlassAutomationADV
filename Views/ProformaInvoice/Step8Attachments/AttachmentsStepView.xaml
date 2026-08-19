@@ -1,6 +1,7 @@
 <!--
-    Step 8 — Files. Approved mockup: one file table
+    Step 8 — Files. Approved board: centered file card
     TYPE | NAME | SIZE | ADDED | ACTIONS. + IMAGE + PDF.
+    Ignore PNG "40px" / "48px" chrome leaks.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -9,158 +10,166 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="0">
-        <DockPanel>
-            <Grid DockPanel.Dock="Top" Margin="12,10,12,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
-                           Style="{StaticResource PiSectionLabelStyle}"
-                           Margin="0"
-                           VerticalAlignment="Center"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Button Style="{StaticResource PiGhostChipButton}"
-                            Content="+ IMAGE"
-                            ToolTip="Attach an image file"
-                            Command="{Binding AddImageCommand}"
-                            IsEnabled="{Binding HasProformaId}"/>
-                    <Button Style="{StaticResource PiGhostChipButton}"
-                            Content="+ PDF"
-                            Margin="8,0,0,0"
-                            ToolTip="Attach a PDF file"
-                            Command="{Binding AddPdfCommand}"
-                            IsEnabled="{Binding HasProformaId}"/>
-                    <Button Style="{StaticResource PiIconButtonStyle}"
-                            Margin="8,0,0,0"
-                            Command="{Binding RefreshCommand}"
-                            ToolTip="Reload attachments from disk">
-                        <TextBlock Text="&#xE72C;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    </Button>
-                </StackPanel>
-            </Grid>
-
-            <TextBlock DockPanel.Dock="Bottom"
-                       Text="{Binding StatusMessage}"
-                       FontSize="11" FontWeight="SemiBold"
-                       Margin="12,6,12,10"
-                       Foreground="{DynamicResource AccentBrush}"
-                       TextWrapping="Wrap"/>
-
-            <TextBlock DockPanel.Dock="Top"
-                       Text="No attachments. Add site photos, drawings or signed approvals — max 10 MB each."
-                       FontSize="12"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="12,8,12,8"
-                       TextWrapping="Wrap">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasNoAttachments}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-
+    <Grid>
+        <Border Style="{StaticResource PiWorkSurfaceStyle}"
+                Padding="0"
+                MaxWidth="980"
+                MinHeight="280"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Top"
+                Margin="0,12,0,0">
             <DockPanel>
-                <DockPanel.Style>
-                    <Style TargetType="DockPanel">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasAttachments}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </DockPanel.Style>
+                <Grid DockPanel.Dock="Top" Margin="16,14,16,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding ProformaId, StringFormat=FILES  ·  {0}, FallbackValue=FILES}"
+                               Style="{StaticResource PiSectionLabelStyle}"
+                               Margin="0"
+                               VerticalAlignment="Center"/>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Style="{StaticResource PiGhostChipButton}"
+                                Content="+ IMAGE"
+                                ToolTip="Attach an image file"
+                                Command="{Binding AddImageCommand}"
+                                IsEnabled="{Binding HasProformaId}"/>
+                        <Button Style="{StaticResource PiGhostChipButton}"
+                                Content="+ PDF"
+                                Margin="8,0,0,0"
+                                ToolTip="Attach a PDF file"
+                                Command="{Binding AddPdfCommand}"
+                                IsEnabled="{Binding HasProformaId}"/>
+                        <Button Style="{StaticResource PiIconButtonStyle}"
+                                Margin="8,0,0,0"
+                                Command="{Binding RefreshCommand}"
+                                ToolTip="Reload attachments from disk">
+                            <TextBlock Text="&#xE72C;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
-                <Border DockPanel.Dock="Top" Style="{StaticResource PiTableHeaderStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="70"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="90"/>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="220"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="TYPE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="1" Text="NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="2" Text="SIZE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="3" Text="ADDED" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
-                        <TextBlock Grid.Column="4" Text="ACTIONS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
-                    </Grid>
-                </Border>
+                <TextBlock DockPanel.Dock="Bottom"
+                           Text="{Binding StatusMessage}"
+                           FontSize="11" FontWeight="SemiBold"
+                           Margin="16,6,16,12"
+                           Foreground="{DynamicResource AccentBrush}"
+                           TextWrapping="Wrap"/>
 
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding Attachments}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="0,0,0,1"
-                                        Padding="10,8">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="140"/>
-                                            <ColumnDefinition Width="220"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0"
-                                                   Text="{Binding AttachmentType}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding FileName}"
-                                                   FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding FileSizeDisplay}"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3"
-                                                   Text="{Binding UploadedAtDisplay}"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <StackPanel Grid.Column="4"
-                                                    Orientation="Horizontal"
-                                                    HorizontalAlignment="Right"
-                                                    VerticalAlignment="Center">
-                                            <Button Style="{StaticResource RowPrimaryButton}"
-                                                    Tag="&#xE8B7;" Content="OPEN"
-                                                    Command="{Binding DataContext.OpenAttachmentCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"/>
-                                            <Button Style="{StaticResource RowOutlinedButton}"
-                                                    Tag="&#xE8E5;" Content="RENAME"
-                                                    Command="{Binding DataContext.RenameAttachmentCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"/>
-                                            <Button Style="{StaticResource RowDangerButton}"
-                                                    Tag="&#xE74D;" Content="DELETE"
-                                                    Command="{Binding DataContext.DeleteAttachmentCommand,
-                                                                RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                                    CommandParameter="{Binding}"/>
-                                        </StackPanel>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                </ScrollViewer>
+                <TextBlock DockPanel.Dock="Top"
+                           Text="No attachments. Add site photos, drawings or signed approvals — max 10 MB each."
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="16,8,16,8"
+                           TextWrapping="Wrap">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasNoAttachments}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <DockPanel>
+                    <DockPanel.Style>
+                        <Style TargetType="DockPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasAttachments}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DockPanel.Style>
+
+                    <Border DockPanel.Dock="Top" Style="{StaticResource PiTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="220"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="TYPE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="1" Text="NAME" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="2" Text="SIZE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="3" Text="ADDED" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
+                            <TextBlock Grid.Column="4" Text="ACTIONS" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Attachments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="10,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="140"/>
+                                                <ColumnDefinition Width="220"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding AttachmentType}"
+                                                       FontSize="11" FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding FileName}"
+                                                       FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding FileSizeDisplay}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding UploadedAtDisplay}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <StackPanel Grid.Column="4"
+                                                        Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        VerticalAlignment="Center">
+                                                <Button Style="{StaticResource RowPrimaryButton}"
+                                                        Tag="&#xE8B7;" Content="OPEN"
+                                                        Command="{Binding DataContext.OpenAttachmentCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowOutlinedButton}"
+                                                        Tag="&#xE8E5;" Content="RENAME"
+                                                        Command="{Binding DataContext.RenameAttachmentCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" Content="DELETE"
+                                                        Command="{Binding DataContext.DeleteAttachmentCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
             </DockPanel>
-        </DockPanel>
-    </Border>
+        </Border>
+    </Grid>
 </UserControl>

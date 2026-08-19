@@ -1,10 +1,12 @@
 # Proforma Invoice — industrial redesign
 
-**Status:** Steps 1–9 rebuilt to the approved mockup compositions (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
+**Status:** Approved PNG boards recut into live XAML (presentation layer). Bindings, commands, AutomationIds, snapshot JSON and repositories were not rewritten.
 
-The PNG mockups in this folder are the visual source of truth for placement, field height (34 px), grid row height (40 px), chips (34 px), apply button (40 px), and 3D glass drawings. Garbled sample text in the PNGs is image-model noise. Theme colors stay `DynamicResource` so Light / Dark / Monet still work.
+The PNG mockups in this folder are the visual source of truth for **placement**, field height (34 px), grid row height (40 px), chips (34 px), apply button (40 px), and 3D glass composition. Garbled sample text in the PNGs is image-model noise (`LEFT 40%`, `40px`, `48px`, factory drawing). Theme colors stay `DynamicResource` so Light / Dark / Monet still work.
 
-Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`). Canvas / surface / outline / text / accent / success / danger all come from `DynamicResource`. Light, Dark and Monet re-skin the same layout.
+Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`). Canvas / surface / outline / text / accent / success / danger all come from `DynamicResource`.
+
+Honest ceiling: layout can match the boards (~75–80%). Pixel-perfect PNG / photo-real 3D is not possible in WPF.
 
 ---
 
@@ -15,15 +17,14 @@ Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`
 ────────────────────────────────────────────────────────────────────────────────────────────
                               ONE workbench (the step)
 ────────────────────────────────────────────────────────────────────────────────────────────
-[ Back ]                         STEP  n  OF  9                         [ Continue → ]
+[ Back ]                         STEP  n  OF  9                         [ Continue ]
 ```
 
-- Rail height **32 px**. Number box 16×16. Label 10 px SemiBold. Active = `AccentBrush` fill + `OnAccentForegroundBrush`. Completed = `SuccessBrush` tick. Inactive = outline only.
-- Content = **one** `PiWorkSurfaceStyle` surface. No nested stripe cards.
-- Footer = 48 px bar, not a second hero card.
-- Input height `DensityInputHeight`. Labels 10 px uppercase `SecondaryForegroundBrush`.
+- Rail height **40 px**. Outlined 32 px pills. Active = `AccentBrush` fill + `OnAccentForegroundBrush`. Completed = success tick. Inactive = outline only.
+- Steps 1–2 = **two** work-surface cards. Steps 3–9 = one workbench (Step 7 splits steel | paper).
+- Footer = 48 px bar. Text-only Back / Continue.
+- Input height **34 px**. Labels 11 px SemiBold `SecondaryForegroundBrush`.
 - Corner `CardCornerRadius`. Border `OutlineBrush`.
-- Accent is a **keyline or one primary button**, never a purple page.
 
 ### Theme mapping
 
@@ -40,43 +41,40 @@ Theme rule: **zero hardcoded brand hex in views** except Step 7 paper (`#FFFFFF`
 ## Per-step structure
 
 ### 1 Company
-Two columns on **one** workbench: **form 2/3** | **saved companies 1/3**. LETTERHEAD then DOCUMENT IDENTITY. Slim rows, not cards. Skip-to-grid is a text link in the letterhead header.
+Two cards: **form 2/3** | **saved companies 1/3**. LETTERHEAD zone, then DOCUMENT IDENTITY with Skip to grid. Saved list is a slim table (name · TRN · city · badge).
 
 ### 2 Client
-Same two-column pattern. 3-column identity grid + tall billing address.
+Two cards. 3-column identity grid + tall billing address (120 px). Saved clients table (name · TRN · city · badge).
 
 ### 3 Project
-Same pattern. Slim project list **filtered by Step 2 client**. Filter is an inline line, not a banner card.
+One workbench. **Stacked full-width fields** (identifier, contract, reference, LPO, site). Slim project list filtered by Step 2. Ignore PNG vertical-stepper leak.
 
 ### 4 Glass (SGU / DGU / LAM / DGU+LAM)
-- Type switch: **one 32 px chip row** — SGU | DGU | LAM | DGU+LAM.
-- Live `GlassAssemblyShowcase` (manufacturing drawing, not a placeholder image).
-- Product is a **layer strip, always expanded**:
+- Type switch: one 34 px chip row — SGU | DGU | LAM | DGU+LAM.
+- Live `GlassAssemblyShowcase` inside a framed well.
+- Sticky apply bar: spec groups + rate AED /sqm + APPLY RATE.
 
 | Type | Composition |
 |---|---|
 | SGU | Wide hero pane + two metric strips |
-| DGU | Outer · Air spacer · Inner · costing (full-width rows) |
-| LAM | Exploded stack centre · layer identity left · editors right · six costing tiles |
-| DGU+LAM | Cutaway left · numbered five-layer sandwich · costing rail |
-
-- Live spec name = one monospace line.
-- Sticky apply bar: target-group chips + rate AED /sqm + APPLY RATE.
+| DGU | 40% 3D IGU · 60% Outer / Air spacer / Inner / costing |
+| LAM | Identity bands · exploded stack · labeled editors · six costing tiles |
+| DGU+LAM | Cutaway · numbered five-layer sandwich · yield/margin/cut/temper rail |
 
 ### 5 Grid
-Spec tabs on top. Toolbar: glass type / spec / base / surcharge. One table: `# REF W1 H1 W2 H2 QTY SQM LM RATE VALUE`. Sticky subtotal. Slim grand-total strip. No imported-price card stack.
+Spec tabs. Toolbar: glass type / spec / base / surcharge. Table: `# REF W1 H1 W2 H2 QTY SQM LM RATE VALUE`. Footer pcs · SQM · AED. GENERATE / + ADD ROW stay as quiet chips (not on the PNG).
 
 ### 6 Charges
-Three **table bands** on one surface: Predefined · Wastage · Custom. One KPI strip. Combined footer.
+Three table bands on one surface: Predefined · Wastage · Custom. KPI strip. Combined footer. Ignore PNG factory drawing.
 
 ### 7 Preview
-Split: left steel controls (summary form, discount, VAT, terms checklist, save/export). Right **paper-white** print proof.
+Split 1.15 / 0.85: left steel (summary, discount, VAT, terms checklist, **SAVE / EXPORT at bottom**). Right paper-white print proof.
 
 ### 8 Files
-One file table: TYPE | NAME | SIZE | ADDED | ACTIONS. `+ IMAGE` `+ PDF`.
+Centered card. TYPE | NAME | SIZE | ADDED | ACTIONS. `+ IMAGE` `+ PDF`. Ignore PNG `40px` / `48px` labels.
 
 ### 9 P&L
-One workbench. KPI strip (Gross | Net | Glass | ASP | Profit). Layers in **build order**. Rate-check row. Unpriced panes stay visible.
+One workbench. KPI strip (Gross | Net | Glass | ASP | Profit). Spec card with layers in **build order**. Rate-check row.
 
 ---
 

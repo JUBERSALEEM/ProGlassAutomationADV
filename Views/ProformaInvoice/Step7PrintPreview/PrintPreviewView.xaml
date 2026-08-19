@@ -1,6 +1,7 @@
 <!--
-    Step 7 — Preview. Approved mockup composition:
-    left steel controls · right paper-white A4.
+    Step 7 — Preview. Approved board:
+    left steel controls (summary, terms checklist, save/export at BOTTOM)
+    · right paper-white A4.
     Paper stays #FFFFFF. Print ink unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
@@ -30,7 +31,7 @@
 
         <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
             <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,0,0,12">
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
                     <Button Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
                             Content="SAVE DRAFT"
@@ -53,9 +54,9 @@
                             Click="ActionsMenuButton_Click"/>
                     <Popup x:Name="ActionsMenuPopup"
                            PlacementTarget="{Binding ElementName=ActionsMenuButton}"
-                           Placement="Bottom"
-                           HorizontalAlignment="Right"
-                           VerticalOffset="4"
+                           Placement="Top"
+                           HorizontalAlignment="Left"
+                           VerticalOffset="-4"
                            AllowsTransparency="True"
                            StaysOpen="True"
                            PopupAnimation="Fade">

@@ -1,6 +1,6 @@
 <!--
-    Step 2 — Client. Approved mockup composition:
-    one workbench, 3-column identity grid + billing address | saved clients.
+    Step 2 — Client. Approved board:
+    two cards — 3-column identity + tall billing | saved clients table.
     Bindings, commands and AutomationIds unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile.ClientProfileView"
@@ -23,18 +23,17 @@
         </Style>
     </UserControl.Resources>
 
-    <Border Style="{StaticResource PiWorkSurfaceStyle}">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="16"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Column="0"
-                          VerticalScrollBarVisibility="Auto"
+        <Border Grid.Column="0" Style="{StaticResource PiWorkSurfaceStyle}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="0,0,14,0">
+                <StackPanel>
 
                     <TextBlock Text="CLIENT"
                                Style="{StaticResource PiSectionLabelStyle}"/>
@@ -174,7 +173,7 @@
                              ToolTip="Enter the client's full billing address"
                              AcceptsReturn="True"
                              TextWrapping="Wrap"
-                             Height="72"
+                             Height="120"
                              VerticalContentAlignment="Top"/>
 
                     <TextBlock Margin="0,12,0,0"
@@ -195,22 +194,19 @@
                     </TextBlock>
                 </StackPanel>
             </ScrollViewer>
+        </Border>
 
-            <Border Grid.Column="1" Style="{StaticResource PiVerticalRuleStyle}"/>
-
-            <DockPanel Grid.Column="2">
+        <Border Grid.Column="2" Style="{StaticResource PiWorkSurfaceStyle}" Padding="14,12">
+            <DockPanel>
                 <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
-                        <TextBlock Text="SAVED CLIENTS"
-                                   Style="{StaticResource PiSectionLabelStyle}"
-                                   Margin="0"/>
-                        <TextBlock Text="Click a row to fill the form"
-                                   Style="{StaticResource PiInlineMetaStyle}"/>
-                    </StackPanel>
+                    <TextBlock Text="SAVED CLIENTS"
+                               Style="{StaticResource PiSectionLabelStyle}"
+                               Margin="0"
+                               VerticalAlignment="Center"/>
                     <Button Grid.Column="1"
                             Command="{Binding RefreshCardsCommand}"
                             Style="{StaticResource PiIconButtonStyle}"
@@ -318,7 +314,7 @@
                         </ItemsControl.Style>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource PiSlimRowStyle}"
+                                <Border Style="{StaticResource PiListRowStyle}"
                                         ToolTip="Click to auto-fill all client details">
                                     <Border.InputBindings>
                                         <MouseBinding MouseAction="LeftClick"
@@ -329,22 +325,30 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="88"/>
+                                            <ColumnDefinition Width="72"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding CustomerName}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock FontSize="11"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis">
-                                                <Run Text="{Binding TrnMasked, Mode=OneWay}"/>
-                                                <Run Text="  ·  "/>
-                                                <Run Text="{Binding BillingAddressPreview, Mode=OneWay}"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                        <Border Grid.Column="1"
+                                        <TextBlock Text="{Binding CustomerName}"
+                                                   FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding TrnMasked}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding BillingAddressPreview}"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                        <Border Grid.Column="3"
                                                 Style="{StaticResource PiUsageBadgeStyle}"
                                                 Margin="8,0,0,0">
                                             <TextBlock Text="{Binding UsageBadgeText}"
@@ -358,6 +362,6 @@
                     </ItemsControl>
                 </ScrollViewer>
             </DockPanel>
-        </Grid>
-    </Border>
+        </Border>
+    </Grid>
 </UserControl>

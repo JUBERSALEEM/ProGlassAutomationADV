@@ -6,32 +6,35 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <!-- DGU: 3D IGU left + four full-width layer rows right. -->
+    <!-- DGU board: framed IGU left 40% + four numbered layer cards right 60%. -->
     <Border Style="{StaticResource PiWorkSurfaceStyle}" Padding="12,10">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.85*"/>
-                <ColumnDefinition Width="1.45*"/>
+                <ColumnDefinition Width="0.4*"/>
+                <ColumnDefinition Width="0.6*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <glass:GlassAssemblyShowcase Grid.Column="0" Grid.Row="0"
-                                         Kind="Dgu"
-                                         Margin="0,0,12,0"
-                                         ShowWell="False"
-                                         ShowCaption="True"
-                                         OuterColor="{Binding OuterGlassColor}"
-                                         OuterThickness="{Binding OuterThickness}"
-                                         OuterTreatment="{Binding OuterTreatment}"
-                                         InnerColor="{Binding InnerGlassColor}"
-                                         InnerThickness="{Binding InnerThickness}"
-                                         InnerTreatment="{Binding InnerTreatment}"
-                                         SpacerWidth="{Binding SpacerWidth}"
-                                         SpacerMaterial="{Binding SpacerMaterial}"
-                                         Caption="{Binding GeneratedSpecName}"/>
+            <Border Grid.Column="0" Grid.Row="0"
+                    Style="{StaticResource PiShowcaseWellStyle}"
+                    Margin="0,0,12,0">
+                <glass:GlassAssemblyShowcase Kind="Dgu"
+                                             MinHeight="240"
+                                             ShowWell="False"
+                                             ShowCaption="False"
+                                             OuterColor="{Binding OuterGlassColor}"
+                                             OuterThickness="{Binding OuterThickness}"
+                                             OuterTreatment="{Binding OuterTreatment}"
+                                             InnerColor="{Binding InnerGlassColor}"
+                                             InnerThickness="{Binding InnerThickness}"
+                                             InnerTreatment="{Binding InnerTreatment}"
+                                             SpacerWidth="{Binding SpacerWidth}"
+                                             SpacerMaterial="{Binding SpacerMaterial}"
+                                             Caption="{Binding GeneratedSpecName}"/>
+            </Border>
 
             <ScrollViewer Grid.Column="1" Grid.Row="0"
                           VerticalScrollBarVisibility="Auto"
@@ -53,7 +56,7 @@
                                 <ColumnDefinition Width="6"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="1  OUTER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="1  OUTER GLASS" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding OuterThickness}" Style="{StaticResource Step4ComboStyle}"/>
@@ -63,7 +66,7 @@
                                 <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="5">
-                                <TextBlock Text="TREAT" Style="{StaticResource Step4LabelStyle}"/>
+                                <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding OuterTreatment}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="7">
@@ -137,7 +140,7 @@
                                 <ColumnDefinition Width="6"/>
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Text="3  INNER" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" VerticalAlignment="Center"/>
+                            <TextBlock Text="3  INNER GLASS" Style="{StaticResource PiLayerTitleStyle}" MinWidth="0" VerticalAlignment="Center"/>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="THK" Style="{StaticResource Step4LabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding ThicknessOptions}" SelectedItem="{Binding InnerThickness}" Style="{StaticResource Step4ComboStyle}"/>
@@ -147,7 +150,7 @@
                                 <ComboBox ItemsSource="{Binding ColorOptions}" Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource Step4EditableComboStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="5">
-                                <TextBlock Text="TREAT" Style="{StaticResource Step4LabelStyle}"/>
+                                <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding TreatmentOptions}" SelectedItem="{Binding InnerTreatment}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="7">
