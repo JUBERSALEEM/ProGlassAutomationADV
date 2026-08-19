@@ -431,14 +431,14 @@ namespace ProGlassAutomation
                 "Tax-invoice → delivery-note reconciliation sweep failed");
 
             // 9c-2) Same-network user presence (Users page).
+            // Start the service now, but do NOT broadcast an identity until
+            // LoginWindow verifies a password. Starting as the seeded admin
+            // made colleagues see "admin online" during the splash.
             try
             {
                 Presence = new UserPresenceService();
-                Presence.Start(
-                    AuditService.CurrentUsername,
-                    AuditService.CurrentUser?.DisplayName ?? "");
+                Presence.Start("", "");
 
-                // Keep broadcasting the identity of the active user.
                 AuditService.CurrentUserChanged += (_, __) =>
                     Presence.UpdateIdentity(
                         AuditService.CurrentUsername,
@@ -496,9 +496,6 @@ namespace ProGlassAutomation
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");
-
-            // v2: session boundary — login recorded in the audit trail.
-            AuditService.LogSessionBoundary(login: true);
 
             // 10) AI via factory (multi-provider)
             Ai = AiProviderFactory.CreateActive(Config.Ai);
@@ -575,25 +572,17 @@ namespace ProGlassAutomation
             // THIS version is remembered, so it is asked once, not every run.
             if (!SplashView.HasAcceptedCurrentTerms())
             {
-                splash.ShowTermsGate();
-
-                // The splash is already visible; block here until it closes,
-                // which happens on Continue or Decline.
-                var termsWait = new System.Threading.Tasks.TaskCompletionSource<bool>();
+                var termsWait = new TaskCompletionSource<bool>();
+                splash.TermsResolved += () => termsWait.TrySetResult(true);
                 splash.Closed += (_, __) => termsWait.TrySetResult(true);
+                splash.ShowTermsGate();
                 await termsWait.Task;
 
                 if (!splash.TermsAccepted)
                 {
-                    // Declining is a legitimate choice, not a failure.
                     Shutdown(0);
                     return;
                 }
-            }
-            else
-            {
-                // Already accepted previously — close the splash normally.
-                splash.Close();
             }
 
             // Sign-in. Previously the app went straight to MainWindow as
@@ -601,17 +590,37 @@ namespace ProGlassAutomation
             // install is an Administrator, so the A-1 service-layer guards
             // were authorizing an identity nobody had ever established.
             //
-            // This is a LOCAL identity gate for audit accuracy and role
-            // enforcement — not protection against someone who already has
-            // the machine and the unencrypted SQLite files.
+            // Show login UNDER the splash, then fade the splash out. Closing
+            // the splash first left a frame of desktop and made the two
+            // screens feel unsynced. Splash is Topmost, so login used to
+            // appear behind it if we showed both without releasing Topmost.
             var login = new Views.Login.LoginWindow();
-            login.ShowDialog();
+            login.Show();
+            login.Activate();
+
+            if (splash.IsVisible)
+            {
+                var faded = new TaskCompletionSource<bool>();
+                splash.FadeOutAndClose(() => faded.TrySetResult(true));
+                await faded.Task;
+            }
+
+            if (login.IsVisible)
+            {
+                var signedIn = new TaskCompletionSource<bool>();
+                login.Closed += (_, __) => signedIn.TrySetResult(true);
+                await signedIn.Task;
+            }
 
             if (!login.SignedIn)
             {
                 Shutdown(0);
                 return;
             }
+
+            Presence?.UpdateIdentity(
+                AuditService.CurrentUsername,
+                AuditService.CurrentUser?.DisplayName ?? "");
 
             // 14) Main window handoff
             var mainWindow = new MainWindow();
@@ -621,10 +630,6 @@ namespace ProGlassAutomation
             // behaviour — closing it quits the app, exactly as before.
             ShutdownMode = ShutdownMode.OnLastWindowClose;
 
-            // AUTH-1: the splash was already closed at 13b so the sign-in
-            // dialog would not appear behind it, so there is no fade-out to
-            // run here any more. Showing the main window directly is what
-            // the fade callback used to do.
             mainWindow.Show();
             mainWindow.Activate();
             mainWindow.Focus();

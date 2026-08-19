@@ -113,6 +113,9 @@ namespace ProGlassAutomation.Services.Network
 
         private void SendHeartbeat()
         {
+            if (string.IsNullOrWhiteSpace(_username))
+                return;
+
             try
             {
                 var payload = JsonSerializer.Serialize(new

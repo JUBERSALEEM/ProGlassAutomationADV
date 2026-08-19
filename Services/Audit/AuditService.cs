@@ -51,7 +51,7 @@ namespace ProGlassAutomation.Services.Audit
 
         private static AppUser? _currentUser;
 
-        /// <summary>Active user for this session (never null after init).</summary>
+        /// <summary>Active user for this session. Null until sign-in succeeds.</summary>
         public static AppUser? CurrentUser => _currentUser;
 
         /// <summary>Username attached to new audit entries.</summary>
@@ -120,20 +120,15 @@ namespace ProGlassAutomation.Services.Audit
                     await db.SaveChangesAsync();
                 }
 
-                _currentUser = await db.Users
-                    .Where(u => u.IsActive)
-                    .OrderBy(u => u.Id)
-                    .FirstOrDefaultAsync();
-
-                if (_currentUser != null)
-                {
-                    _currentUser.LastActiveAtUtc = DateTime.UtcNow;
-                    await db.SaveChangesAsync();
-                }
+                // AUTH-1: do not treat the first seeded user as signed in.
+                // Splash / startup run as "system" until LoginWindow verifies
+                // a password. Auto-picking the lowest Id made Presence and
+                // the audit trail claim admin was online before anyone signed in.
+                _currentUser = null;
 
                 System.Diagnostics.Debug.WriteLine(
                     $"[Audit] Initialized. Session {SessionId}, " +
-                    $"active user: {CurrentUsername}");
+                    "awaiting sign-in.");
             }
             catch (Exception ex)
             {

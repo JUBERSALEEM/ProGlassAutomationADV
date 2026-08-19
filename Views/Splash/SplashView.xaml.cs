@@ -395,6 +395,12 @@ namespace ProGlassAutomation.Views.Splash
         /// </summary>
         public bool TermsAccepted { get; private set; }
 
+        /// <summary>
+        /// Fired when the user accepts or declines the terms gate.
+        /// Accept does not close the splash — App fades it into login.
+        /// </summary>
+        public event Action? TermsResolved;
+
         private static string TermsMarkerPath => System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "terms-accepted.txt");
@@ -486,12 +492,14 @@ namespace ProGlassAutomation.Views.Splash
 
             RecordAcceptance();
             TermsAccepted = true;
-            Close();
+            TermsPanel.Visibility = Visibility.Collapsed;
+            TermsResolved?.Invoke();
         }
 
         private void DeclineTerms_Click(object sender, RoutedEventArgs e)
         {
             TermsAccepted = false;
+            TermsResolved?.Invoke();
             Close();
         }
 
@@ -508,8 +516,9 @@ namespace ProGlassAutomation.Views.Splash
             ShimmerTranslate.BeginAnimation(TranslateTransform.XProperty, null);
             ShimmerOverlay.BeginAnimation(OpacityProperty, null);
 
-            // Release topmost BEFORE fade so main window can rise above us
+            // Release topmost BEFORE fade so login / main can rise above us
             Topmost = false;
+            IsHitTestVisible = false;
 
             var fadeOut = new DoubleAnimation
             {
