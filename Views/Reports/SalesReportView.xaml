@@ -486,7 +486,7 @@
                         </Style.Triggers>
                     </Style>
                 </ScrollViewer.Style>
-                <StackPanel MaxWidth="1100">
+                <StackPanel HorizontalAlignment="Stretch">
 
                     <!-- Overview Header Banner -->
                     <Border CornerRadius="16" Background="{DynamicResource AccentBrush}" Padding="20,18" Margin="0,0,0,14">

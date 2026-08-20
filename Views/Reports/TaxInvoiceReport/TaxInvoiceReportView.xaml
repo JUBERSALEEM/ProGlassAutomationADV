@@ -131,21 +131,52 @@
                         </Grid.ColumnDefinitions>
 
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search invoice..." ToolTip="Search by Invoice #, PI #, or Customer"/>
-                            <DatePicker Width="135" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From invoice date"/>
-                            <DatePicker Width="135" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To invoice date"/>
-                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
-                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by payment status">
-                                <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Overdue"/>
-                            </ComboBox>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply selected filters"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Reset filters"/>
+                            <!-- Search -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="SEARCH" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Width="160" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Invoice # / PI #..." ToolTip="Search by Invoice #, PI #, or Customer"/>
+                            </StackPanel>
+
+                            <!-- Date From -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="135" SelectedDate="{Binding DateFrom}" ToolTip="Filter by start issue date"/>
+                            </StackPanel>
+
+                            <!-- Date To -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <DatePicker Width="135" SelectedDate="{Binding DateTo}" ToolTip="Filter by end issue date"/>
+                            </StackPanel>
+
+                            <!-- Customer -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                            </StackPanel>
+
+                            <!-- Status -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="120" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by payment status">
+                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Overdue"/>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <!-- Action Buttons -->
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
+                                <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="32" Padding="16,0" Margin="0,0,6,0" ToolTip="Apply selected filters"/>
+                                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Padding="16,0" ToolTip="Reset filters"/>
+                            </StackPanel>
                         </WrapPanel>
 
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,6">
-                            <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to CSV"/>
-                            <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
-                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Export to PDF report"/>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
+                            <TextBlock Text="EXPORT" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Margin="0,0,6,0" ToolTip="Export to CSV"/>
+                                <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
+                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" Height="32" ToolTip="Export to PDF report"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
