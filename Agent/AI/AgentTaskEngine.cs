@@ -59,7 +59,7 @@ namespace ProGlassAutomation.Agent.AI
             // Conceptual decomposition — real decomposition would query agent planner.
             if (!string.IsNullOrWhiteSpace(taskDescription))
             {
-                var parts = taskDescription.Split(new[] { '.', ',', ';', " and " }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = taskDescription.Split(new string[] { ".", ",", ";", " and " }, StringSplitOptions.RemoveEmptyEntries);
                 steps.AddRange(parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()));
                 if (steps.Count == 0)
                     steps.Add(taskDescription.Trim());
@@ -161,8 +161,7 @@ namespace ProGlassAutomation.Agent.AI
             await Task.Delay(50, ct).ConfigureAwait(false);
             // Real verification: checks application state through AgentScreenContext,
             // queries existing repositories, or verifies database results.
-            var context = ProGlassAutomation.Agent.Context.AgentScreenContext;
-            return !string.IsNullOrWhiteSpace(context.CurrentModule) || !string.IsNullOrWhiteSpace(step);
+            return !string.IsNullOrWhiteSpace(ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentModule) || !string.IsNullOrWhiteSpace(step);
         }
 
         /// <summary>Conceptual final verification using structured application context.</summary>

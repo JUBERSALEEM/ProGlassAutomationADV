@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace ProGlassAutomation.Agent.AI
 {
-    /// <summary>Structured application state for agent context (not scraping).</summary>
     public sealed class AppContextState
     {
         public string CurrentModule { get; init; } = "";
@@ -16,30 +15,25 @@ namespace ProGlassAutomation.Agent.AI
         public string UserAction { get; init; } = "";
     }
 
-    /// <summary>Retrieves structured application context safely.</summary>
     public sealed class AIContextEngine
     {
-        /// <summary>Retrieves minimal required context for a request, enhanced with repository awareness.</summary>
         public AppContextState GetContext(string requestCategory)
         {
             try
             {
-                var screen = ProGlassAutomation.Agent.Context.AgentScreenContext;
+                var userAction = InferUserAction(requestCategory);
+                var currentModule = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentModule ?? "";
+                var currentView = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentView ?? "";
                 var state = new AppContextState
                 {
-                    CurrentModule = screen.CurrentModule ?? "",
-                    CurrentView = screen.CurrentView ?? "",
-                    SelectedRecordId = screen.CurrentDetail ?? "",
-                    WorkflowStage = screen.CurrentStage ?? "",
-                    FocusedControl = screen.CurrentControl ?? "",
-                    IsDialogOpen = (screen.CurrentModule ?? "").Contains("Dialog") || (screen.CurrentView ?? "").Contains("Dialog"),
-                    UserAction = InferUserAction(requestCategory)
+                    CurrentModule = currentModule,
+                    CurrentView = currentView,
+                    SelectedRecordId = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentDetail ?? "",
+                    WorkflowStage = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentStage ?? "",
+                    FocusedControl = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentControl ?? "",
+                    IsDialogOpen = currentModule.Contains("Dialog") || currentView.Contains("Dialog"),
+                    UserAction = !string.IsNullOrWhiteSpace(currentModule) ? userAction : "general"
                 };
-                // Enhanced: reference actual repositories for deeper context.
-                if (!string.IsNullOrWhiteSpace(state.CurrentModule))
-                {
-                    state.UserAction = InferUserAction(requestCategory);
-                }
                 return state;
             }
             catch
