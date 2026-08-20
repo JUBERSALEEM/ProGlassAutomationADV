@@ -376,6 +376,14 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal Outstanding { get; set; }
     }
 
+    public class StatementReportSummary
+    {
+        public int TotalCount { get; set; }
+        public decimal TotalInvoiced { get; set; }
+        public decimal TotalOutstanding { get; set; }
+        public decimal TotalOverdue { get; set; }
+    }
+
     // ── Profitability ─────────────────────────────────────────────────
 
     public class ProfitabilityRow

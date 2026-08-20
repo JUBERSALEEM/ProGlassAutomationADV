@@ -51,7 +51,7 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="STATEMENTS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalCount}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="Total statements generated" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -65,7 +65,7 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="INVOICED AMOUNT" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalInvoiced, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalInvoiced, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
                                 <TextBlock Text="Billed on statements" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
@@ -79,8 +79,8 @@
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="OUTSTANDING BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalOutstanding, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding TotalOverdue, Mode=OneWay, StringFormat={}Overdue: AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalOutstanding, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalOverdue, Mode=OneWay, StringFormat={}Overdue: AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>

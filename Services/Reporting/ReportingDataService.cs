@@ -71,6 +71,7 @@ namespace ProGlassAutomation.Services.Reporting
         Task<RowTrace?> GetRowTraceAsync(string rowId, CancellationToken ct = default);
 
         // ── Statement Report ─────────────────────────────────────────
+        Task<StatementReportSummary> GetStatementSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
         Task<PagedResult<StatementReportRow>> GetStatementRowsAsync(ReportingFilter filter, CancellationToken ct = default);
 
         // ── Profitability ────────────────────────────────────────────
@@ -1216,6 +1217,39 @@ namespace ProGlassAutomation.Services.Reporting
         //  STATEMENT REPORT (DB-Side Filtered & Paginated)
         // ════════════════════════════════════════════════════════════════
 
+        public async Task<StatementReportSummary> GetStatementSummaryAsync(ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new StatementDbContext();
+            var query = db.Statements.AsNoTracking().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(filter.Customer))
+                query = query.Where(s => EF.Functions.Like(s.FilterCustomer, $"%{filter.Customer}%") || EF.Functions.Like(s.StatementNumber, $"%{filter.Customer}%"));
+            if (filter.DateFrom.HasValue)
+                query = query.Where(s => s.CreatedAt >= filter.DateFrom.Value);
+            if (filter.DateTo.HasValue)
+                query = query.Where(s => s.CreatedAt <= filter.DateTo.Value);
+
+            if (filter.HasSearch)
+            {
+                var term = filter.SearchText.Trim();
+                query = query.Where(s =>
+                    EF.Functions.Like(s.StatementNumber, $"%{term}%") ||
+                    EF.Functions.Like(s.FilterCustomer, $"%{term}%") ||
+                    EF.Functions.Like(s.FilterCompany, $"%{term}%"));
+            }
+
+            var summary = new StatementReportSummary();
+            summary.TotalCount = await query.CountAsync(ct);
+            if (summary.TotalCount == 0) return summary;
+
+            summary.TotalInvoiced = await query.SumAsync(s => (decimal?)s.TotalInvoiced, ct) ?? 0m;
+            summary.TotalOutstanding = await query.SumAsync(s => (decimal?)s.TotalOutstanding, ct) ?? 0m;
+            summary.TotalOverdue = await query.SumAsync(s => (decimal?)s.OverdueAmount, ct) ?? 0m;
+
+            return summary;
+        }
+
         public async Task<PagedResult<StatementReportRow>> GetStatementRowsAsync(ReportingFilter filter, CancellationToken ct = default)
         {
             filter ??= new ReportingFilter();
@@ -1453,7 +1487,11 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 using var db = new MasterDataDbContext();
                 var list = await db.Salesmen.AsNoTracking().Select(s => s.Name).ToListAsync(ct);
-                if (list.Count > 0) return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
+                var clientReps = await db.Clients.AsNoTracking().Select(c => c.SalesRepresentative).Distinct().ToListAsync(ct);
+                var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
+                foreach (var s in clientReps.Where(x => !string.IsNullOrWhiteSpace(x))) set.Add(s.Trim());
+                return set.OrderBy(s => s).ToList();
             }
             catch (Exception ex) { AppLogService.Warning($"Salesman options masterdata warning: {ex.Message}"); }
             return new List<string>();

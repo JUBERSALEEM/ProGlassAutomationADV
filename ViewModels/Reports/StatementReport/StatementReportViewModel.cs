@@ -20,12 +20,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
         private ObservableCollection<StatementReportRow> _rows = new();
         public ObservableCollection<StatementReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
 
-        private decimal _totalInvoiced;
-        public decimal TotalInvoiced { get => _totalInvoiced; set { _totalInvoiced = value; OnPropertyChanged(); } }
-        private decimal _totalOutstanding;
-        public decimal TotalOutstanding { get => _totalOutstanding; set { _totalOutstanding = value; OnPropertyChanged(); } }
-        private decimal _totalOverdue;
-        public decimal TotalOverdue { get => _totalOverdue; set { _totalOverdue = value; OnPropertyChanged(); } }
+        private StatementReportSummary _summary = new();
+        public StatementReportSummary Summary { get => _summary; set { _summary = value; OnPropertyChanged(); } }
 
         public override async Task LoadAsync()
         {
@@ -35,15 +31,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
             try
             {
                 var filter = BuildFilter();
+                var s = await _service.GetStatementSummaryAsync(filter, token);
                 var paged = await _service.GetStatementRowsAsync(filter, token);
                 if (token.IsCancellationRequested) return;
+                Summary = s;
                 Rows = new ObservableCollection<StatementReportRow>(paged.Items);
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
-                // Sum for KPI strip (over current page or total? Use page for now)
-                decimal inv = 0, outst = 0, over = 0;
-                foreach (var r in paged.Items) { inv += r.TotalInvoiced; outst += r.TotalOutstanding; over += r.OverdueAmount; }
-                TotalInvoiced = inv; TotalOutstanding = outst; TotalOverdue = over;
                 IsLoaded = true;
             }
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
