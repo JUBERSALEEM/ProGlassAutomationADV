@@ -805,16 +805,19 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             ctx.DeliveryNotes.Remove(entity);
             await ctx.SaveChangesAsync();
-            DocumentLifecycle.Raise();
 
             // Master DNs are internal trackers — they do not participate
             // in the PI display status. A real DN delete may cancel the
-            // source PI when nothing downstream remains.
+            // source PI when nothing downstream remains. Run the sync
+            // BEFORE raising the change signal so PI list refreshes see
+            // the final (cancelled) status the first time.
             if (!isMaster)
             {
                 await ProGlassAutomation.Services.ProformaInvoice
                     .ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
             }
+
+            DocumentLifecycle.Raise();
         }
 
         // ── Existence checks ─────────────────────────────────────────────

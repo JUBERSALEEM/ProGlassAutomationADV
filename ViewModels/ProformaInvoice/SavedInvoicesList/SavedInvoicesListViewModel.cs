@@ -776,14 +776,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     return;
                 }
 
+                // Capture the pre-change status BEFORE mutating the entity.
+                bool wasCancelled = IsCancelledStatus(entity.Status);
+
                 entity.Status = newStatus;
                 await App.Invoices.UpdateAsync(entity);
 
                 // Cancelling / rejecting a PI clears its Step 8 attachments
-                // so a later re-approval starts clean (same rule as the
-                // ProformaLifecycleSync cancellation path).
-                if (string.Equals(newStatus, "Rejected", StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(newStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+                // so a later re-approval starts clean — but ONLY when this
+                // change actually moves the PI INTO the cancelled state. A
+                // redundant re-cancel (e.g. after a job-order delete where
+                // the user chose KEEP ATTACHMENTS) must not destroy files.
+                if (IsCancelledStatus(newStatus) && !wasCancelled)
                 {
                     await ClearCancelledAttachmentsAsync(entity.ProformaId ?? "");
                 }
@@ -799,6 +803,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     MessageBoxImage.Error);
             }
         }
+
+        private static bool IsCancelledStatus(string? status) =>
+            string.Equals(status, "Rejected", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(status, "Cancelled", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// Best-effort cleanup of a cancelled PI's Step 8 attachments

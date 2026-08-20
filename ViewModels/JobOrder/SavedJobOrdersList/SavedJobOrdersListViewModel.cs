@@ -11,6 +11,7 @@ using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -473,9 +474,63 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             if (result != MessageBoxResult.Yes) return;
 
+            // ── Related-attachments gate ─────────────────────────────────
+            // If the source proforma invoice still has Step 8 attachments,
+            // ask the user explicitly: delete them together with the job
+            // order, or keep them. Both choices proceed with the delete.
+            bool deleteAttachments = false;
+            string? proformaId =
+                string.IsNullOrWhiteSpace(row.SourceProformaId)
+                    ? null
+                    : row.SourceProformaId;
+
+            if (proformaId != null)
+            {
+                try
+                {
+                    var attachments = await new ProformaAttachmentService()
+                        .LoadManifestAsync(proformaId);
+
+                    if (attachments.Count > 0)
+                    {
+                        var warn =
+                            new ProGlassAutomation.Views.JobOrder
+                                .SavedJobOrdersList.JobOrderAttachmentWarningDialog(
+                                    row.JobOrderId, proformaId, attachments.Count)
+                            {
+                                Owner = Application.Current?.MainWindow
+                            };
+
+                        // Both buttons resolve true; a window-close (X) keeps
+                        // the default (keep attachments — never destroy
+                        // documents by accident).
+                        if (warn.ShowDialog() == true)
+                            deleteAttachments = warn.DeleteAttachments;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // A failed attachment read must never block the job
+                    // order delete — log and continue with KEEP.
+                    AppLogService.Warning(
+                        $"Could not inspect attachments for {proformaId}: {ex.Message}",
+                        new LogContext
+                        {
+                            Module = "JobOrder",
+                            Class = nameof(SavedJobOrdersListViewModel),
+                            Operation = "DeleteJobOrder"
+                        });
+                }
+            }
+
             try
             {
                 await App.Jobs.DeleteAsync(row.Id);
+
+                // Honor the user's choice only AFTER the job order is gone,
+                // so a failed delete never destroys attachments.
+                if (deleteAttachments && proformaId != null)
+                    await ClearProformaAttachmentsAsync(proformaId);
 
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order deleted",
@@ -490,6 +545,37 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     "Delete Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Best-effort removal of a proforma invoice's Step 8 attachments
+        /// (files + manifest) after the user chose DELETE ATTACHMENTS in the
+        /// delete-job-order gate. Failures are logged, never thrown.
+        /// </summary>
+        private async Task ClearProformaAttachmentsAsync(string proformaId)
+        {
+            try
+            {
+                int cleared = await new ProformaAttachmentService()
+                    .ClearAllAsync(proformaId);
+
+                AuditService.Log(
+                    AuditSections.Proforma, "Attachments deleted with job order",
+                    $"{proformaId} — {cleared} Step 8 attachment(s) removed " +
+                    "when its job order was deleted",
+                    "PI", proformaId);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Could not clear attachments for {proformaId}: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(SavedJobOrdersListViewModel),
+                        Operation = "DeleteJobOrder"
+                    });
             }
         }
 

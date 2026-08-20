@@ -102,10 +102,14 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
             db.JobOrders.Remove(job);
             await db.SaveChangesAsync();
-            DocumentLifecycle.Raise();
 
             await DeleteMasterDnQuietlyAsync(jobOrderId);
+
+            // Run the lifecycle sync BEFORE raising the change signal so a
+            // PI list refresh sees the final (cancelled) status the first
+            // time — no stale "PI confirmed / PI created" frame.
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(sourcePi);
+            DocumentLifecycle.Raise();
         }
 
         /// <summary>

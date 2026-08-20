@@ -334,8 +334,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             await ctx.SaveChangesAsync();
 
             await ClearLinkedDeliveryNotesAsync(invoiceNumber);
-            DocumentLifecycle.Raise();
+
+            // Run the sync BEFORE raising the change signal so PI list
+            // refreshes see the final (cancelled) status the first time.
             await ProformaLifecycleSync.AfterDownstreamChangeAsync(proformaId);
+            DocumentLifecycle.Raise();
         }
 
         /// <summary>

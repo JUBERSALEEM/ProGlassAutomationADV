@@ -13,7 +13,6 @@
 // cancel the PI instead of leaving it showing "PI created".
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
-using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -72,51 +71,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     $"{proformaId} — related job order, delivery note and tax invoice removed",
                     "PI", proformaId);
 
-                // A cancelled PI must not carry Step 8 attachments into a
-                // future re-approval — clear them, mirroring the downstream
-                // cleanup a Job Order delete performs (master DNs).
-                await ClearCancelledAttachmentsAsync(proformaId);
+                // NOTE: attachments are intentionally NOT cleared here.
+                // Whether the cancelled PI keeps its Step 8 attachments is
+                // an explicit user decision in the job-order delete flow
+                // (Delete / Keep gate). This sync only fixes status.
             }
             catch (Exception ex)
             {
                 AppLogService.Error(
                     "Proforma lifecycle sync failed.", ex,
-                    new LogContext
-                    {
-                        Module = "Proforma",
-                        Class = nameof(ProformaLifecycleSync),
-                        Operation = "AfterDownstreamChange"
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Best-effort cleanup of a cancelled PI's Step 8 attachments
-        /// (files + manifest). Never fails the caller — leftovers (locked
-        /// files) are logged and audited, not thrown.
-        /// </summary>
-        private static async Task ClearCancelledAttachmentsAsync(
-            string proformaId)
-        {
-            try
-            {
-                int cleared = await new ProformaAttachmentService()
-                    .ClearAllAsync(proformaId);
-
-                if (cleared > 0)
-                {
-                    AuditService.Log(
-                        AuditSections.Proforma, "Attachments cleared",
-                        $"{proformaId} — {cleared} Step 8 attachment(s) " +
-                        "removed after cancellation",
-                        "PI", proformaId);
-                }
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    $"Could not clear attachments for cancelled PI " +
-                    $"{proformaId}: {ex.Message}",
                     new LogContext
                     {
                         Module = "Proforma",
