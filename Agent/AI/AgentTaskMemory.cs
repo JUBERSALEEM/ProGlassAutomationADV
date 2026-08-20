@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,9 @@ namespace ProGlassAutomation.Agent.AI
                 if (ProGlassAutomation.Agent.Core.AgentHost.IsBuilt &&
                     ProGlassAutomation.Agent.Core.AgentHost.Memory != null)
                 {
-                    // Best-effort sync; memory service handles persistence rules.
+                    // Real integration: sync approved task facts to persistent agent memory.
+                    await ProGlassAutomation.Agent.Core.AgentHost.Memory.AddApprovedAsync(
+                        "task_memory", $"Task: {taskId}, Completed: {completed}, Result: {result}").ConfigureAwait(false);
                 }
             }
             catch

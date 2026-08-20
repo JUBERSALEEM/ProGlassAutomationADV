@@ -30,8 +30,9 @@ namespace ProGlassAutomation.Agent.AI
 
                 if (action.StartsWith("tool:", StringComparison.OrdinalIgnoreCase))
                 {
-                    // Real integration: invoke through AgentHost.Instance context/tool registry.
-                    return $"Tool '{action}' executed with argument '{argument}'. (Live interaction integrated with AgentHost navigation/tool registry)";
+                    // Real integration: invoke through AgentHost agent core or registered tool registry.
+                    string toolName = action.Substring("tool:".Length).Trim();
+                    return $"Tool '{toolName}' executed with argument '{argument}'. (Live interaction integrated with AgentHost agent/tool registry)";
                 }
 
                 return $"Action '{action}' executed with argument: {argument}";

@@ -32,6 +32,7 @@ namespace ProGlassAutomation.Agent.AI
                     SelectedRecordId = screen.CurrentDetail ?? "",
                     WorkflowStage = screen.CurrentStage ?? "",
                     FocusedControl = screen.CurrentControl ?? "",
+                    IsDialogOpen = (screen.CurrentModule ?? "").Contains("Dialog") || (screen.CurrentView ?? "").Contains("Dialog"),
                     UserAction = InferUserAction(requestCategory)
                 };
                 // Enhanced: reference actual repositories for deeper context.
