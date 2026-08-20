@@ -225,7 +225,7 @@ namespace ProGlassAutomation
             StopCloseTimer();
             _dropdownCloseTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(400)   // give time to reach the popup
+                Interval = TimeSpan.FromMilliseconds(1200)   // longer so ComboBox quality/fps selection completes before close
             };
             _dropdownCloseTimer.Tick += (_, _) =>
             {
