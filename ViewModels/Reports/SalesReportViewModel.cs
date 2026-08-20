@@ -36,6 +36,7 @@ using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using ProGlassAutomation.ViewModels.Reports.StatementList;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
 using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
@@ -112,6 +113,14 @@ namespace ProGlassAutomation.ViewModels.Reports
         public bool IsOverview => _activeKey == "Overview";
         public ICommand NavigateReportCommand { get; }
 
+        // ── Open-original-document callbacks ──────────────────────────────
+        // Wired by MainViewModel so a report sidebar can jump to the REAL
+        // PI / JO / TI (the module owns the editor; Reports never duplicates
+        // it). Each report VM raises these with the row's DB id.
+        public Action<int>? OnOpenProforma { get; set; }
+        public Action<int>? OnOpenJobOrder { get; set; }
+        public Action<int>? OnOpenTaxInvoice { get; set; }
+
         public SalesReportViewModel()
         {
             _reportingService = App.Reporting ?? new ReportingDataService();
@@ -126,6 +135,12 @@ namespace ProGlassAutomation.ViewModels.Reports
             GlassReport = new GlassSpecReportViewModel(_reportingService);
             StatementReport = new StatementReportViewModel(_reportingService);
             ProfitabilityReport = new ProfitabilityReportViewModel(_reportingService);
+
+            // Route "open original document" requests from report sidebars to
+            // the shell callbacks (MainViewModel wires OnOpenProforma/...).
+            PiReport.OpenDocumentRequested = id => OnOpenProforma?.Invoke(id);
+            JoReport.OpenDocumentRequested = id => OnOpenJobOrder?.Invoke(id);
+            TaxInvoiceReport.OpenDocumentRequested = id => OnOpenTaxInvoice?.Invoke(id);
 
             var repo = new StatementRepository();
             ListVM = new StatementListViewModel(repo);

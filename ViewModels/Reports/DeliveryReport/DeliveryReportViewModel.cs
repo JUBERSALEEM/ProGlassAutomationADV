@@ -75,10 +75,12 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 _selectedRow = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
                 _ = LoadRowDeliveriesAsync();
             }
         }
         public bool HasSelectedRow => _selectedRow != null;
+        public string SidebarSubtitle => SelectedRow?.GlassDetails ?? "";
 
         // ── Row-level status filter options ────────────────────────────
         public List<string> StatusFilterOptions { get; } = new()

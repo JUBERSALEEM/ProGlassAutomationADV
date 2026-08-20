@@ -1,3 +1,4 @@
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
 {
@@ -31,6 +33,39 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
 
         private ObservableCollection<TaxInvoiceReportRow> _rows = new();
         public ObservableCollection<TaxInvoiceReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
+
+        private TaxInvoiceReportRow? _selectedRow;
+        public TaxInvoiceReportRow? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (_selectedRow == value) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
+            }
+        }
+        public bool HasSelectedRow => SelectedRow != null;
+        public string SidebarSubtitle => SelectedRow?.InvoiceNumber ?? "";
+
+        /// <summary>Raised with the selected TI's DB id when the user clicks
+        /// "Open Tax Invoice". Wired by the hub to MainViewModel.</summary>
+        public Action<int>? OpenDocumentRequested { get; set; }
+        public ICommand CloseDetailCommand { get; private set; } = null!;
+        public ICommand OpenDocumentCommand { get; private set; } = null!;
+
+        protected override void InitCommands()
+        {
+            base.InitCommands();
+            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
+            OpenDocumentCommand = new RelayCommand(_ =>
+            {
+                if (SelectedRow != null)
+                    OpenDocumentRequested?.Invoke(SelectedRow.Id);
+            }, _ => SelectedRow != null);
+        }
 
         private ObservableCollection<TaxInvoiceReportRow> _pendingRows = new();
         public ObservableCollection<TaxInvoiceReportRow> PendingRows { get => _pendingRows; set { _pendingRows = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasPending)); } }

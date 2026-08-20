@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:sidebar="clr-namespace:ProGlassAutomation.Controls.ReportSidebar"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -172,150 +173,17 @@
                 <!-- ══════════════════════════════════════════════════════════
                      3. TABLE + RIGHT-SIDE DETAIL PANEL
                 ══════════════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="2">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                <sidebar:ReportSidebarHost Grid.Row="2"
+                                           IsOpen="{Binding HasSelectedRow}"
+                                           CloseCommand="{Binding CloseDetailCommand}"
+                                           Title="ROW DETAIL"
+                                           Subtitle="{Binding SidebarSubtitle}"
+                                           Icon="&#xE8B7;"
+                                           SidebarContent="{Binding}">
+                    <sidebar:ReportSidebarHost.SidebarContentTemplate>
+                        <DataTemplate>
+                            <StackPanel>
 
-                    <!-- ── LEFT: ROW-LEVEL TABLE ────────────────────────── -->
-                    <Grid Grid.Column="0">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Table header -->
-                        <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="44"/>
-                                    <ColumnDefinition Width="0.9*"/>
-                                    <ColumnDefinition Width="1.6*"/>
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="54"/>
-                                    <ColumnDefinition Width="58"/>
-                                    <ColumnDefinition Width="60"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="GLASS REF" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="8" Text="H2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="10" Text="DELIV." Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="11" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Border>
-
-                        <!-- States -->
-                        <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading row-level delivery trace…"/>
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No delivery rows found" Message="No PI specification rows match the current filters. Rows appear once their quote has a Job Order." Icon="&#xE814;"/>
-
-                        <!-- Error State -->
-                        <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                                CornerRadius="10" Margin="16" Padding="20">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                                <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                                <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- Row-level rows (virtualized) -->
-                        <ListBox Grid.Row="1" ItemsSource="{Binding Rows}"
-                                 SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                                 Style="{StaticResource ModuleReportListBoxStyle}"
-                                 Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view delivery history for this row">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="44"/>
-                                                <ColumnDefinition Width="0.9*"/>
-                                                <ColumnDefinition Width="1.6*"/>
-                                                <ColumnDefinition Width="1.1*"/>
-                                                <ColumnDefinition Width="0.8*"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="54"/>
-                                                <ColumnDefinition Width="58"/>
-                                                <ColumnDefinition Width="60"/>
-                                            </Grid.ColumnDefinitions>
-
-                                            <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
-                                            <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding CustomerName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
-                                            </StackPanel>
-                                            <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="8" Text="{Binding H2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="9" Text="{Binding TotalQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="10" Text="{Binding DeliveredQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
-                                            <TextBlock Grid.Column="11" Text="{Binding BalanceQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-
-                    <!-- ── RIGHT: ROW DETAIL PANEL ───────────────────────── -->
-                    <Border Grid.Column="1"
-                            Width="340"
-                            Margin="8,0,0,0"
-                            Background="{DynamicResource ElevatedSurfaceBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="14"
-                            Visibility="{Binding HasSelectedRow, Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <!-- Panel header -->
-                            <Grid Grid.Row="0" Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Text="ROW DETAIL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="{Binding SelectedRow.GlassDetails}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,3,0,0" TextWrapping="Wrap"/>
-                                </StackPanel>
-                                <Button Grid.Column="1"
-                                        Style="{StaticResource RowDangerButton}"
-                                        Tag="&#xE711;" MinWidth="32" Width="32" Height="28"
-                                        Command="{Binding CloseDetailCommand}"
-                                        ToolTip="Close detail panel"
-                                        VerticalAlignment="Top"/>
-                            </Grid>
-
-                            <!-- Panel body -->
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False" FocusVisualStyle="{x:Null}">
-                                <StackPanel>
 
                                     <!-- Key facts -->
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10">
@@ -443,11 +311,113 @@
                                         </StackPanel>
                                     </Border>
 
-                                </StackPanel>
-                            </ScrollViewer>
-                        </Grid>
-                    </Border>
-                </Grid>
+                                
+                            </StackPanel>
+                        </DataTemplate>
+                    </sidebar:ReportSidebarHost.SidebarContentTemplate>
+
+<Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Table header -->
+                        <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="1.6*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="58"/>
+                                    <ColumnDefinition Width="60"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="GLASS REF" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="8" Text="H2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="10" Text="DELIV." Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="11" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- States -->
+                        <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading row-level delivery trace…"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No delivery rows found" Message="No PI specification rows match the current filters. Rows appear once their quote has a Job Order." Icon="&#xE814;"/>
+
+                        <!-- Error State -->
+                        <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                                CornerRadius="10" Margin="16" Padding="20">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                                <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Row-level rows (virtualized) -->
+                        <ListBox Grid.Row="1" ItemsSource="{Binding Rows}"
+                                 SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                                 Style="{StaticResource ModuleReportListBoxStyle}"
+                                 Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view delivery history for this row">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="1.6*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="54"/>
+                                                <ColumnDefinition Width="58"/>
+                                                <ColumnDefinition Width="60"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
+                                            <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,8,0">
+                                                <TextBlock Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding CustomerName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="8" Text="{Binding H2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="9" Text="{Binding TotalQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="10" Text="{Binding DeliveredQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
+                                            <TextBlock Grid.Column="11" Text="{Binding BalanceQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    
+                </sidebar:ReportSidebarHost>
 
                 <!-- ══════════════════════════════════════════════════════════
                      4. PAGINATION FOOTER

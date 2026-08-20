@@ -1,13 +1,25 @@
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
+using ProGlassAutomation.ViewModels.Reports.PiReport;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementReport
 {
+    /// <summary>
+    /// Statement FINANCIAL report (Phase 8). One row per real statement
+    /// line item (a Tax Invoice inside a saved statement) rendered as a
+    /// ledger document:
+    ///   Date | Document # | Type | Description | Debit | Credit | Balance
+    /// Statistics: Opening Balance · Total Debit · Total Credit ·
+    /// Closing Balance (Opening + Debit − Credit). All figures come from
+    /// stored StatementLineItem data — nothing is fabricated.
+    /// </summary>
     public class StatementReportViewModel : ReportBaseViewModel
     {
         public StatementReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
@@ -17,11 +29,47 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
             _ = LoadAsync();
         }
 
-        private ObservableCollection<StatementReportRow> _rows = new();
-        public ObservableCollection<StatementReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
+        private StatementLineSummary _summary = new();
+        public StatementLineSummary Summary
+        {
+            get => _summary;
+            set { _summary = value; OnPropertyChanged(); OnPropertyChanged(nameof(SummaryCards)); }
+        }
 
-        private StatementReportSummary _summary = new();
-        public StatementReportSummary Summary { get => _summary; set { _summary = value; OnPropertyChanged(); } }
+        public ObservableCollection<KpiItem> SummaryCards => new()
+        {
+            new KpiItem("OPENING", $"AED {Summary.OpeningBalance:N0}", "Outstanding before period", "NeutralBrush"),
+            new KpiItem("TOTAL DEBIT", $"AED {Summary.TotalDebit:N0}", "Billed in period", "DangerBrush"),
+            new KpiItem("TOTAL CREDIT", $"AED {Summary.TotalCredit:N0}", "Paid in period", "SuccessBrush"),
+            new KpiItem("CLOSING", $"AED {Summary.ClosingBalance:N0}", "Opening + Debit − Credit", "AccentBrush"),
+        };
+
+        private ObservableCollection<StatementLineRow> _rows = new();
+        public ObservableCollection<StatementLineRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
+
+        private StatementLineRow? _selectedRow;
+        public StatementLineRow? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (_selectedRow == value) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
+            }
+        }
+        public bool HasSelectedRow => SelectedRow != null;
+        public string SidebarSubtitle => SelectedRow?.InvoiceNumber ?? "";
+
+        public ICommand CloseDetailCommand { get; private set; } = null!;
+
+        protected override void InitCommands()
+        {
+            base.InitCommands();
+            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
+        }
 
         public override async Task LoadAsync()
         {
@@ -31,11 +79,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
             try
             {
                 var filter = BuildFilter();
-                var s = await _service.GetStatementSummaryAsync(filter, token);
-                var paged = await _service.GetStatementRowsAsync(filter, token);
+                var s = await _service.GetStatementLineSummaryAsync(filter, token);
+                var paged = await _service.GetStatementLineRowsAsync(filter, token);
                 if (token.IsCancellationRequested) return;
                 Summary = s;
-                Rows = new ObservableCollection<StatementReportRow>(paged.Items);
+                Rows = new ObservableCollection<StatementLineRow>(paged.Items);
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
                 IsLoaded = true;
@@ -51,11 +99,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
             IsExporting = true;
             try
             {
-                var req = new ExportRequest { PromptForLocation = true, OpenAfterSave = true, SuggestedFileName = $"Statement_Report_{System.DateTime.Now:yyyyMMdd}" };
+                var req = new ExportRequest { PromptForLocation = true, OpenAfterSave = true, SuggestedFileName = $"Statement_Ledger_{System.DateTime.Now:yyyyMMdd}" };
                 ExportResult res;
-                if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Statement Report", ReportingExportService.StatementHeaders, ReportingExportService.StatementMap, req);
-                else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Statement Report", ReportingExportService.StatementHeaders, ReportingExportService.StatementMapExcel, req);
-                else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Statement Report", ReportingExportService.StatementHeaders, ReportingExportService.StatementMap, req);
+                if (format == ExportFormat.Csv) res = await ReportingExportService.ExportCsvAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMap, req);
+                else if (format == ExportFormat.Excel) res = await ReportingExportService.ExportExcelAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMapExcel, req);
+                else res = await ReportingExportService.ExportPdfAsync(Rows.ToList(), "Statement Ledger", ReportingExportService.StatementLineHeaders, ReportingExportService.StatementLineMap, req);
                 if (!res.Success && !res.Cancelled) System.Windows.MessageBox.Show(res.ErrorMessage ?? "Export failed.", "Export", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
             }
             finally { IsExporting = false; }

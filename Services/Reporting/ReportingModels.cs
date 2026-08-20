@@ -31,6 +31,7 @@ namespace ProGlassAutomation.Services.Reporting
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
         public string Salesman { get; set; } = "";
+        public string PreparedBy { get; set; } = "";
         public DateTime IssueDate { get; set; }
         public DateTime ValidUntil { get; set; }
         public decimal GrandTotal { get; set; }
@@ -50,9 +51,11 @@ namespace ProGlassAutomation.Services.Reporting
         public int Id { get; set; }
         public string JobOrderId { get; set; } = "";
         public string SourceProformaId { get; set; } = "";
+        public string CompanyName { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
         public string Salesman { get; set; } = "";
+        public string PreparedBy { get; set; } = "";
         public string Status { get; set; } = "";
         public string Priority { get; set; } = "";
         public DateTime? DeliveryDate { get; set; }
@@ -136,6 +139,8 @@ namespace ProGlassAutomation.Services.Reporting
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
         public string CompanyName { get; set; } = "";
+        public string Salesman { get; set; } = "";
+        public string PreparedBy { get; set; } = "";
         public string Status { get; set; } = "";
         public string InvoiceType { get; set; } = "";
         public DateTime IssueDate { get; set; }
@@ -423,6 +428,42 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal TotalInvoiced { get; set; }
         public decimal TotalOutstanding { get; set; }
         public decimal TotalOverdue { get; set; }
+    }
+
+    /// <summary>
+    /// One financial document line in the Statement report — a single
+    /// statement line item (one Tax Invoice inside one saved statement)
+    /// rendered as a ledger row with Debit / Credit / Balance.
+    /// </summary>
+    public class StatementLineRow
+    {
+        public int Id { get; set; }
+        public string StatementNumber { get; set; } = "";
+        public string CustomerName { get; set; } = "";
+        public string CompanyName { get; set; } = "";
+        public DateTime IssueDate { get; set; }
+        public string InvoiceNumber { get; set; } = "";
+        public string ProformaId { get; set; } = "";
+        public string DocumentType { get; set; } = "Tax Invoice";
+        public string Description { get; set; } = "";
+        public string Status { get; set; } = "";
+        public decimal Debit { get; set; }        // amount billed
+        public decimal Credit { get; set; }       // amount paid
+        public decimal Balance { get; set; }      // Debit − Credit (outstanding)
+    }
+
+    /// <summary>
+    /// Financial statistics for the Statement report:
+    /// Opening Balance (outstanding before the period) + Total Debit −
+    /// Total Credit = Closing Balance. All values from real stored data.
+    /// </summary>
+    public class StatementLineSummary
+    {
+        public int TotalCount { get; set; }
+        public decimal OpeningBalance { get; set; }
+        public decimal TotalDebit { get; set; }
+        public decimal TotalCredit { get; set; }
+        public decimal ClosingBalance { get; set; }
     }
 
     // ── Profitability ─────────────────────────────────────────────────

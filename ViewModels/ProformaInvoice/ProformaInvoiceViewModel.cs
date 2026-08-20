@@ -706,5 +706,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         /// </summary>
         public void TriggerNewInvoice() =>
             SafeFireAsync(StartNewInvoiceAsync);
+
+        /// <summary>
+        /// Opens a saved Proforma Invoice in the wizard — public entry point
+        /// used by the Reports module sidebar ("Open Proforma Invoice").
+        /// The original PI stays the single source for specifications, rows,
+        /// SR numbers, glass references and all quote data; Reports never
+        /// duplicates the editor.
+        /// </summary>
+        public async Task OpenSavedInvoiceAsync(int invoiceId)
+        {
+            try
+            {
+                await LoadInvoiceIntoWizardAsync(invoiceId);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Could not open proforma invoice {invoiceId}: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceViewModel),
+                        Operation = "OpenFromReports"
+                    });
+            }
+        }
     }
 }

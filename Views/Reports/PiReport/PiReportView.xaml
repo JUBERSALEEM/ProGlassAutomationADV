@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:sidebar="clr-namespace:ProGlassAutomation.Controls.ReportSidebar"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -27,14 +28,12 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/> <!-- KPI Strip -->
                     <RowDefinition Height="Auto"/> <!-- Filter Bar -->
-                    <RowDefinition Height="Auto"/> <!-- Table Header -->
-                    <RowDefinition Height="*"/>    <!-- Data Rows / States -->
-                    <RowDefinition Height="Auto"/> <!-- Detail Drawer -->
+                    <RowDefinition Height="*"/>    <!-- Table + Sidebar -->
                     <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
                 </Grid.RowDefinitions>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     1. KPI STRIP
+                     1. KPI STRIP — dynamically follows the active filters
                 ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
@@ -46,7 +45,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Card 1: Total PI -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total quotation volume and combined AED value">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total quotation volume and combined AED value (respects active filters)">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -115,31 +114,31 @@
                             <!-- Search -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="SEARCH" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="170" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="PI # / Customer..." ToolTip="Search by Proforma #, customer, company, or project"/>
+                                <TextBox Width="160" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="PI # / Customer..." ToolTip="Search by Proforma #, customer, company, or project"/>
                             </StackPanel>
 
                             <!-- Date From -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="135" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="Filter by start date"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateFrom}" ToolTip="Filter by start date"/>
                             </StackPanel>
 
                             <!-- Date To -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <DatePicker Width="135" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter by end date"/>
+                                <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter by end date"/>
                             </StackPanel>
 
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CompanyOptions}" ToolTip="Filter by company"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CompanyOptions}" ToolTip="Filter by company"/>
                             </StackPanel>
 
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
                             </StackPanel>
 
                             <!-- Status -->
@@ -169,235 +168,248 @@
                 </Border>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     3. TABLE HEADER
+                     3. TABLE + SHARED SHEET STORE-STYLE SIDEBAR
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="130"/>
-                            <ColumnDefinition Width="95"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="115"/>
-                            <ColumnDefinition Width="105"/>
-                            <ColumnDefinition Width="80"/>
-                            <ColumnDefinition Width="75"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="3" Text="PROJECT / COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="4" Text="GRAND TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="QTY / SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="TRACE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="7" Text="DRILL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                    </Grid>
-                </Border>
-
-                <!-- ══════════════════════════════════════════════════════════
-                     4. DATA ROWS / STATES
-                ══════════════════════════════════════════════════════════════ -->
-                <loading:LoadingStateControl Grid.Row="3"
-                    Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Message="Loading Proforma Invoice intelligence…"/>
-
-                <emptyState:EmptyStateControl Grid.Row="3"
-                    Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"
-                    Title="No Proforma Invoices found"
-                    Message="Try adjusting your filters or date range. The report queries live records in proformainvoices.db."
-                    Icon="&#xE8A5;"/>
-
-                <!-- Error State -->
-                <Border Grid.Row="3" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                        CornerRadius="10" Margin="16" Padding="20">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                        <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                        <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                        <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
-                    </StackPanel>
-                </Border>
-
-                <ListBox Grid.Row="3" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                         Style="{StaticResource ModuleReportListBoxStyle}"
-                         Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <ListBox.ItemTemplate>
+                <sidebar:ReportSidebarHost Grid.Row="2"
+                                           IsOpen="{Binding HasSelectedRow}"
+                                           CloseCommand="{Binding CloseDetailCommand}"
+                                           Title="PI DETAILS"
+                                           Subtitle="{Binding SidebarSubtitle}"
+                                           Icon="&#xE8A5;"
+                                           SidebarContent="{Binding}">
+                    <sidebar:ReportSidebarHost.SidebarContentTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="130"/>
-                                        <ColumnDefinition Width="95"/>
-                                        <ColumnDefinition Width="150"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="115"/>
-                                        <ColumnDefinition Width="105"/>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="75"/>
-                                    </Grid.ColumnDefinitions>
+                            <StackPanel>
 
-                                    <!-- Col 0: PI # & Date -->
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding ProformaId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
-                                    </StackPanel>
+                                <!-- Open original PI -->
+                                <Button Content="Open Proforma Invoice"
+                                        Command="{Binding DataContext.OpenDocumentCommand,
+                                                  RelativeSource={RelativeSource AncestorType=sidebar:ReportSidebarHost}}"
+                                        Style="{StaticResource PrimaryPillButton}"
+                                        Height="36" Margin="0,0,0,14"
+                                        ToolTip="Open the original Proforma Invoice in the wizard"/>
 
-                                    <!-- Col 1: Status Pill -->
-                                    <Border Grid.Column="1" VerticalAlignment="Center" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/></DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
-                                                        <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
+                                <!-- Key facts -->
+                                <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="108"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="PI NUMBER" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.ProformaId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="PI DATE" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="STATUS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRow.Status}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="PREPARED BY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.PreparedBy}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="SALESMAN" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.Salesman}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="CUSTOMER" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.CustomerName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Row="6" Grid.Column="0" Text="COMPANY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedRow.CompanyName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Row="7" Grid.Column="0" Text="PROJECT" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedRow.ProjectName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                        <TextBlock Grid.Row="8" Grid.Column="0" Text="PI AMOUNT" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                        <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding SelectedRow.GrandTotal, StringFormat={}AED {0:N2}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Audit timestamps -->
+                                <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="AUDIT" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
+                                        <TextBlock FontSize="10.5" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                            <Run Text="Created "/><Run Text="{Binding SelectedRow.CreatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
                                         </TextBlock>
-                                    </Border>
-
-                                    <!-- Col 2: Customer -->
-                                    <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-
-                                    <!-- Col 3: Project & Company -->
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0">
-                                        <TextBlock Text="{Binding ProjectName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding CompanyName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                        <TextBlock FontSize="10.5" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0">
+                                            <Run Text="Last updated "/><Run Text="{Binding SelectedRow.UpdatedAt, Mode=OneWay, StringFormat={}{0:dd MMM yyyy HH:mm}}"/>
+                                        </TextBlock>
                                     </StackPanel>
+                                </Border>
 
-                                    <!-- Col 4: Grand Total -->
-                                    <TextBlock Grid.Column="4" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-
-                                    <!-- Col 5: Qty & SQM -->
-                                    <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right">
-                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    </TextBlock>
-
-                                    <!-- Col 6: Trace Indicators -->
-                                    <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <Border Width="8" Height="8" CornerRadius="4" Margin="2" ToolTip="Job Order Created">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                                                    <Style.Triggers><DataTrigger Binding="{Binding HasJobOrder}" Value="True"><Setter Property="Background" Value="{DynamicResource SuccessBrush}"/></DataTrigger></Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        <Border Width="8" Height="8" CornerRadius="4" Margin="2" ToolTip="Delivery Note Issued">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                                                    <Style.Triggers><DataTrigger Binding="{Binding HasDelivery}" Value="True"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/></DataTrigger></Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
-                                        <Border Width="8" Height="8" CornerRadius="4" Margin="2" ToolTip="Tax Invoice Billed">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
-                                                    <Style.Triggers><DataTrigger Binding="{Binding HasTaxInvoice}" Value="True"><Setter Property="Background" Value="{DynamicResource WarningBrush}"/></DataTrigger></Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                        </Border>
+                                <!-- Specification rows -->
+                                <TextBlock Text="SPECIFICATION ROWS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,12,0,6"/>
+                                <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="10,8">
+                                    <StackPanel>
+                                        <ItemsControl ItemsSource="{Binding DetailRows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="2,5">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="*"/>
+                                                                <ColumnDefinition Width="Auto"/>
+                                                            </Grid.ColumnDefinitions>
+                                                            <StackPanel Grid.Column="0">
+                                                                <TextBlock Text="{Binding SpecName}" FontSize="10.5" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                    <Run Text="{Binding GlassRef, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding Qty, Mode=OneWay}"/><Run Text=" pcs"/>
+                                                                </TextBlock>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1" Text="{Binding Amount, StringFormat={}AED {0:N0}}" FontSize="10.5" FontWeight="SemiBold" VerticalAlignment="Center" Foreground="{DynamicResource AccentBrush}"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                        <TextBlock Text="No specification rows loaded."
+                                                   FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Visibility="{Binding DetailRows.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
+                                                   Margin="2,6"/>
                                     </StackPanel>
-
-                                    <!-- Col 7: Drill Action -->
-                                    <Button Grid.Column="7" Content="Rows" Command="{Binding DataContext.DrillDownCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect itemized specification rows for this invoice"/>
-                                </Grid>
-                            </Border>
+                                </Border>
+                            </StackPanel>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                    </sidebar:ReportSidebarHost.SidebarContentTemplate>
 
-                <!-- ══════════════════════════════════════════════════════════
-                     5. DETAIL DRAWER (Itemized Spec Rows & Reconciliation)
-                ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="4" Visibility="{Binding HasDetail, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,1" Padding="16,12">
-                    <StackPanel>
-                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                            <Run Text="Specification Rows — "/><Run Text="{Binding SelectedRow.ProformaId, Mode=OneWay}"/><Run Text=" ("/><Run Text="{Binding DetailRows.Count, Mode=OneWay}"/><Run Text=" items)"/>
-                        </TextBlock>
+                    <!-- ── MAIN TABLE ─────────────────────────────────── -->
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                        <!-- Mini Spec Table Header -->
-                        <Border Background="{DynamicResource ElevatedSurfaceBrush}" CornerRadius="6" Padding="10,6" Margin="0,8,0,4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1">
+                        <!-- Table header -->
+                        <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="1.1*"/>
                                     <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="0.7*"/>
+                                    <ColumnDefinition Width="60"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="GLASS REF" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                <TextBlock Grid.Column="1" Text="SPECIFICATION DESCRIPTION" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                <TextBlock Grid.Column="2" Text="DIMENSIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="3" Text="QUANTITY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="4" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="5" Text="AMOUNT" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="PI # / DATE" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="PREPARED BY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="COMPANY / PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="6" Text="PI AMOUNT" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="7" Text="QTY / SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="8" Text="ROWS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
                             </Grid>
                         </Border>
 
-                        <ItemsControl ItemsSource="{Binding DetailRows}" Margin="0,0,0,8">
-                            <ItemsControl.ItemTemplate>
+                        <!-- States -->
+                        <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Proforma Invoice intelligence…"/>
+                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Proforma Invoices found" Message="Try adjusting your filters or date range. The report queries live records in proformainvoices.db." Icon="&#xE8A5;"/>
+
+                        <!-- Error State -->
+                        <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                                CornerRadius="10" Margin="16" Padding="20">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                                <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                                <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                            </StackPanel>
+                        </Border>
+
+                        <ListBox Grid.Row="1" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
+                                 Style="{StaticResource ModuleReportListBoxStyle}"
+                                 Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ListBox.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="10,6">
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view full PI details">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="1.1*"/>
                                                 <ColumnDefinition Width="90"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="80"/>
-                                                <ColumnDefinition Width="90"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="0.7*"/>
+                                                <ColumnDefinition Width="60"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding SpecName}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="2" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                <Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/>
+
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="1" Text="{Binding PreparedBy}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Salesman}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="5" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="6" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
+                                            <TextBlock Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right" Margin="0,0,6,0">
+                                                <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
                                             </TextBlock>
-                                            <TextBlock Grid.Column="3" Text="{Binding Qty, StringFormat={}{0} pcs}" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="4" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" FontSize="10" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="5" Text="{Binding Amount, StringFormat={}AED {0:N0}}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+
+                                            <Button Grid.Column="8" Content="Rows" Command="{Binding DataContext.DrillDownCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="9" Padding="6,2" HorizontalAlignment="Center" ToolTip="Inspect itemized specification rows"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <!-- Reconciliation Summary -->
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="2,4,0,0">
-                            <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center">
-                                <Run Text="Reconciliation: "/><Run Text="{Binding Reconciliation.OrderedQty, Mode=OneWay}"/><Run Text=" ordered · "/><Run Text="{Binding Reconciliation.DeliveredQty, Mode=OneWay}"/><Run Text=" delivered · "/><Run Text="{Binding Reconciliation.RemainingQty, Mode=OneWay}"/><Run Text=" remaining"/>
-                            </TextBlock>
-                            <Border CornerRadius="6" Background="{DynamicResource TintBlueBrush}" Padding="8,3" Margin="12,0,0,0">
-                                <TextBlock Text="{Binding Reconciliation.DeliveryState}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                            </Border>
-                            <Border CornerRadius="6" Background="{DynamicResource TintAmberBrush}" Padding="8,3" Margin="6,0,0,0">
-                                <TextBlock Text="{Binding Reconciliation.InvoiceState}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
-                            </Border>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </sidebar:ReportSidebarHost>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     6. PAGINATION FOOTER
+                     4. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="5" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                <Border Grid.Row="3" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -405,9 +417,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28" Margin="0,0,8,0" ToolTip="Go to previous page"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28" ToolTip="Go to next page"/>
-                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Padding="10,0" Height="28" Margin="8,0,0,0" ToolTip="Refresh report data"/>
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>
+                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Refresh report data"/>
                         </StackPanel>
                     </Grid>
                 </Border>

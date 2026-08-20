@@ -15,6 +15,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,9 +57,19 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 if (_selectedRow == value) return;
                 _selectedRow = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
                 if (value != null) _ = LoadDetailAsync(value.ProformaId);
             }
         }
+        public bool HasSelectedRow => SelectedRow != null;
+        public string SidebarSubtitle => SelectedRow?.ProformaId ?? "";
+
+        /// <summary>Raised with the selected PI's DB id when the user clicks
+        /// "Open Proforma Invoice". Wired by the hub to MainViewModel.</summary>
+        public Action<int>? OpenDocumentRequested { get; set; }
+        public ICommand CloseDetailCommand { get; private set; } = null!;
+        public ICommand OpenDocumentCommand { get; private set; } = null!;
 
         // ── Detail ────────────────────────────────────────────────────────
         private ObservableCollection<GlassSpecReportRow> _detailRows = new();
@@ -82,6 +93,12 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             {
                 if (p is string piId) await LoadDetailAsync(piId);
             });
+            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
+            OpenDocumentCommand = new RelayCommand(_ =>
+            {
+                if (SelectedRow != null)
+                    OpenDocumentRequested?.Invoke(SelectedRow.Id);
+            }, _ => SelectedRow != null);
         }
 
         public override async Task LoadAsync()

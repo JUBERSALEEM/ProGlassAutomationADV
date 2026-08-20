@@ -187,6 +187,15 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         // ═════════════════════════════════════════════════════════════════
 
         private async void LoadJobOrderIntoDetail(int jobOrderId)
+            => _ = OpenJobOrderAsync(jobOrderId);
+
+        /// <summary>
+        /// Opens a Job Order in its detail workspace — public entry point
+        /// used by the Reports module sidebar ("Open Job Order") and the
+        /// internal list/detail callbacks. The original JO remains the
+        /// single source for production, items and delivery context.
+        /// </summary>
+        public async Task OpenJobOrderAsync(int jobOrderId)
         {
             // BUG-FIX: previously unguarded — an exception here escaped
             // into async-void territory and could crash the app.

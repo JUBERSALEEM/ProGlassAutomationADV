@@ -29,6 +29,7 @@ using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Statement.Database;
 using ProGlassAutomation.Services.TaxInvoice.Database;
 using ProGlassAutomation.Utilities;
@@ -87,6 +88,12 @@ namespace ProGlassAutomation.Services.Reporting
         // ── Statement Report ─────────────────────────────────────────
         Task<StatementReportSummary> GetStatementSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
         Task<PagedResult<StatementReportRow>> GetStatementRowsAsync(ReportingFilter filter, CancellationToken ct = default);
+
+        // ── Statement FINANCIAL ledger (Phase 8) ─────────────────────
+        // One row per statement line item rendered as a ledger document:
+        // Date | Document # | Type | Description | Debit | Credit | Balance.
+        Task<StatementLineSummary> GetStatementLineSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
+        Task<PagedResult<StatementLineRow>> GetStatementLineRowsAsync(ReportingFilter filter, CancellationToken ct = default);
 
         // ── Profitability ────────────────────────────────────────────
         Task<ProfitabilitySummary> GetProfitabilitySummaryAsync(ReportingFilter filter, CancellationToken ct = default);
@@ -322,6 +329,7 @@ namespace ProGlassAutomation.Services.Reporting
                 var snap = TryDeserializePiSnapshot(r.FullSnapshotJson);
                 var rows = ExtractGlassRowsFromPiSnapshot(snap ?? new ProformaInvoiceSnapshot(), r.ProformaId, r.CompanyName, r.CustomerName, snap?.Client?.SalesRepresentative ?? "", r.IssueDate, r.Status);
                 var salesman = snap?.Client?.SalesRepresentative ?? "";
+                var preparedBy = snap?.PreparedBy?.PreparedByName ?? "";
 
                 resultRows.Add(new PiReportRow
                 {
@@ -332,6 +340,7 @@ namespace ProGlassAutomation.Services.Reporting
                     CustomerName = r.CustomerName,
                     ProjectName = r.ProjectName,
                     Salesman = salesman,
+                    PreparedBy = preparedBy,
                     IssueDate = r.IssueDate,
                     ValidUntil = r.ValidUntil,
                     GrandTotal = r.GrandTotalVatInclusive,
@@ -496,6 +505,8 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 var snap = TryDeserializeJoSnapshot(r.FullSnapshotJson);
                 var salesman = snap?.EmbeddedInvoice?.Client?.SalesRepresentative ?? "";
+                var preparedBy = snap?.EmbeddedInvoice?.PreparedBy?.PreparedByName ?? "";
+                var company = snap?.EmbeddedInvoice?.Company?.CompanyName ?? "";
                 var project = snap?.EmbeddedInvoice?.Project?.ProjectIdentifierName ?? snap?.EmbeddedInvoice?.Project?.ProjectReference ?? "";
                 int totalQty = 0; decimal totalSqm = 0;
                 if (snap?.EmbeddedInvoice?.SpecGroups != null)
@@ -517,9 +528,11 @@ namespace ProGlassAutomation.Services.Reporting
                     Id = r.Id,
                     JobOrderId = r.JobOrderId,
                     SourceProformaId = r.SourceProformaId,
+                    CompanyName = company,
                     CustomerName = r.CustomerName,
                     ProjectName = project,
                     Salesman = salesman,
+                    PreparedBy = preparedBy,
                     Status = r.Status,
                     Priority = r.Priority,
                     DeliveryDate = r.DeliveryDate,
@@ -978,7 +991,59 @@ namespace ProGlassAutomation.Services.Reporting
                 })
                 .ToListAsync(ct);
 
+            // Enrich the visible page (≤100 rows) with Salesman + Prepared By
+            // from the linked PI snapshot JSON — never the full dataset.
+            await EnrichTiPageAsync(page, ct);
+
             return new PagedResult<TaxInvoiceReportRow> { Items = page, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
+        }
+
+        /// <summary>
+        /// Page-only enrichment of TI rows with Salesman and Prepared By from
+        /// the source PI snapshot. Reads at most one PI snapshot per distinct
+        /// ProformaId on the visible page.
+        /// </summary>
+        private static async Task EnrichTiPageAsync(
+            List<TaxInvoiceReportRow> rows, CancellationToken ct)
+        {
+            var piIds = rows
+                .Select(r => r.ProformaId)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .Distinct()
+                .ToList();
+            if (piIds.Count == 0) return;
+
+            try
+            {
+                using var piDb = new ProformaInvoicesDbContext();
+                var snapshots = await piDb.ProformaInvoices.AsNoTracking()
+                    .Where(p => piIds.Contains(p.ProformaId))
+                    .Select(p => new { p.ProformaId, p.FullSnapshotJson })
+                    .ToListAsync(ct);
+
+                foreach (var s in snapshots)
+                {
+                    var snap = TryDeserializePiSnapshot(s.FullSnapshotJson);
+                    if (snap == null) continue;
+
+                    string salesman = snap.Client?.SalesRepresentative ?? "";
+                    string preparedBy = snap.PreparedBy?.PreparedByName ?? "";
+
+                    foreach (var r in rows)
+                    {
+                        if (!string.Equals(r.ProformaId, s.ProformaId, StringComparison.OrdinalIgnoreCase))
+                            continue;
+                        if (string.IsNullOrWhiteSpace(r.Salesman))
+                            r.Salesman = salesman;
+                        if (string.IsNullOrWhiteSpace(r.PreparedBy))
+                            r.PreparedBy = preparedBy;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"TI report enrichment failed: {ex.Message}");
+            }
         }
 
         public async Task<List<TaxInvoiceReportRow>> GetPendingInvoicesAsync(ReportingFilter filter, CancellationToken ct = default)
@@ -1447,6 +1512,160 @@ namespace ProGlassAutomation.Services.Reporting
                 .ToListAsync(ct);
 
             return new PagedResult<StatementReportRow> { Items = page, TotalCount = totalCount, Page = filter.Page, PageSize = filter.PageSize };
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        //  STATEMENT FINANCIAL LEDGER (Phase 8)
+        //  One row per statement line item: a real Tax Invoice inside a
+        //  saved statement, rendered as Date | Doc # | Type | Description |
+        //  Debit | Credit | Balance. All figures from stored data.
+        // ════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Builds the SQL-side statement-line query: StatementLineItems
+        /// joined to their parent Statement for company/customer context.
+        /// Filters: company, customer, date range (by invoice issue date),
+        /// free-text search across doc numbers / PI / description.
+        /// </summary>
+        private static IQueryable<StatementLineProjection> BuildStatementLineQuery(
+            StatementDbContext db, ReportingFilter filter)
+        {
+            IQueryable<StatementLineItem> items = db.LineItems
+                .AsNoTracking()
+                .Where(i => i.Statement != null);
+
+            if (!string.IsNullOrWhiteSpace(filter.Company))
+                items = items.Where(i => EF.Functions.Like(i.Statement!.FilterCompany, $"%{filter.Company}%"));
+            if (!string.IsNullOrWhiteSpace(filter.Customer))
+                items = items.Where(i => EF.Functions.Like(i.Statement!.FilterCustomer, $"%{filter.Customer}%"));
+            if (filter.DateFrom.HasValue)
+                items = items.Where(i => i.IssueDate >= filter.DateFrom.Value);
+            if (filter.DateTo.HasValue)
+                items = items.Where(i => i.IssueDate <= filter.DateTo.Value);
+
+            if (filter.HasSearch)
+            {
+                var term = filter.SearchText.Trim();
+                items = items.Where(i =>
+                    EF.Functions.Like(i.InvoiceNumber, $"%{term}%") ||
+                    EF.Functions.Like(i.ProformaId, $"%{term}%") ||
+                    EF.Functions.Like(i.DeliveryNoteRef, $"%{term}%") ||
+                    EF.Functions.Like(i.Statement!.StatementNumber, $"%{term}%"));
+            }
+
+            return items.Select(i => new StatementLineProjection
+            {
+                Id = i.Id,
+                StatementNumber = i.Statement!.StatementNumber,
+                CustomerName = i.Statement!.FilterCustomer,
+                CompanyName = i.Statement!.FilterCompany,
+                IssueDate = i.IssueDate,
+                InvoiceNumber = i.InvoiceNumber,
+                ProformaId = i.ProformaId,
+                DocumentType = i.InvoiceType,
+                Description = i.DeliveryNoteRef,
+                Status = i.Status,
+                Debit = i.GrandTotal,
+                Credit = i.PaidAmount
+            });
+        }
+
+        /// <summary>SQL projection shape for statement financial rows.</summary>
+        private sealed class StatementLineProjection
+        {
+            public int Id { get; set; }
+            public string StatementNumber { get; set; } = "";
+            public string CustomerName { get; set; } = "";
+            public string CompanyName { get; set; } = "";
+            public DateTime IssueDate { get; set; }
+            public string InvoiceNumber { get; set; } = "";
+            public string ProformaId { get; set; } = "";
+            public string DocumentType { get; set; } = "";
+            public string Description { get; set; } = "";
+            public string Status { get; set; } = "";
+            public decimal Debit { get; set; }
+            public decimal Credit { get; set; }
+        }
+
+        public async Task<StatementLineSummary> GetStatementLineSummaryAsync(
+            ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            var summary = new StatementLineSummary();
+
+            using var db = new StatementDbContext();
+            var query = BuildStatementLineQuery(db, filter);
+
+            summary.TotalCount = await query.CountAsync(ct);
+            if (summary.TotalCount == 0) return summary;
+
+            summary.TotalDebit = await query.SumAsync(x => x.Debit, ct);
+            summary.TotalCredit = await query.SumAsync(x => x.Credit, ct);
+            summary.ClosingBalance = summary.TotalDebit - summary.TotalCredit;
+
+            // Opening balance = outstanding (Debit − Credit) of documents
+            // dated BEFORE the period start, same company/customer filters.
+            // With no date-from the tracked window starts at the first
+            // document, so opening is 0 (honest — we never fabricate it).
+            if (filter.DateFrom.HasValue)
+            {
+                var openingFilter = new ReportingFilter
+                {
+                    Company = filter.Company,
+                    Customer = filter.Customer,
+                    DateFrom = null,
+                    DateTo = filter.DateFrom.Value.AddDays(-1)
+                };
+                var openingQuery = BuildStatementLineQuery(db, openingFilter);
+                summary.OpeningBalance = Math.Max(0,
+                    await openingQuery.SumAsync(x => x.Debit - x.Credit, ct));
+            }
+
+            return summary;
+        }
+
+        public async Task<PagedResult<StatementLineRow>> GetStatementLineRowsAsync(
+            ReportingFilter filter, CancellationToken ct = default)
+        {
+            filter ??= new ReportingFilter();
+            using var db = new StatementDbContext();
+
+            var query = BuildStatementLineQuery(db, filter);
+            var totalCount = await query.CountAsync(ct);
+            if (totalCount == 0)
+                return new PagedResult<StatementLineRow> { Items = new List<StatementLineRow>(), TotalCount = 0, Page = filter.Page, PageSize = filter.PageSize };
+
+            var page = await query
+                .OrderBy(x => x.IssueDate)
+                .ThenBy(x => x.InvoiceNumber)
+                .Skip(filter.Skip)
+                .Take(filter.Take)
+                .ToListAsync(ct);
+
+            var rows = page.Select(x => new StatementLineRow
+            {
+                Id = x.Id,
+                StatementNumber = x.StatementNumber,
+                CustomerName = x.CustomerName,
+                CompanyName = x.CompanyName,
+                IssueDate = x.IssueDate,
+                InvoiceNumber = x.InvoiceNumber,
+                ProformaId = x.ProformaId,
+                DocumentType = string.IsNullOrWhiteSpace(x.DocumentType) ? "Tax Invoice" : x.DocumentType,
+                Description = x.Description,
+                Status = x.Status,
+                Debit = x.Debit,
+                Credit = x.Credit,
+                Balance = x.Debit - x.Credit
+            }).ToList();
+
+            return new PagedResult<StatementLineRow>
+            {
+                Items = rows,
+                TotalCount = totalCount,
+                Page = filter.Page,
+                PageSize = filter.PageSize
+            };
         }
 
         // ════════════════════════════════════════════════════════════════

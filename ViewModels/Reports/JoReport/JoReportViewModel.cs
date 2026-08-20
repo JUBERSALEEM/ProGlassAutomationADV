@@ -1,3 +1,4 @@
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports.JoReport
 {
@@ -42,6 +44,39 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
 
         private ObservableCollection<JoReportRow> _rows = new();
         public ObservableCollection<JoReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
+
+        private JoReportRow? _selectedRow;
+        public JoReportRow? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (_selectedRow == value) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
+            }
+        }
+        public bool HasSelectedRow => SelectedRow != null;
+        public string SidebarSubtitle => SelectedRow?.JobOrderId ?? "";
+
+        /// <summary>Raised with the selected JO's DB id when the user clicks
+        /// "Open Job Order". Wired by the hub to MainViewModel.</summary>
+        public Action<int>? OpenDocumentRequested { get; set; }
+        public ICommand CloseDetailCommand { get; private set; } = null!;
+        public ICommand OpenDocumentCommand { get; private set; } = null!;
+
+        protected override void InitCommands()
+        {
+            base.InitCommands();
+            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
+            OpenDocumentCommand = new RelayCommand(_ =>
+            {
+                if (SelectedRow != null)
+                    OpenDocumentRequested?.Invoke(SelectedRow.Id);
+            }, _ => SelectedRow != null);
+        }
 
         public override async Task LoadAsync()
         {

@@ -652,6 +652,26 @@ namespace ProGlassAutomation.ViewModels
                     await TaxInvoiceVM.CreateAndSaveDraftFromDeliveryNoteAsync(
                         deliveryNoteId);
 
+            // ── Reports → open original documents ─────────────────────────
+            // Report sidebars raise these; the shell navigates to the owning
+            // module and opens the REAL document (editors are never
+            // duplicated inside Reports).
+            SalesReportVM.OnOpenProforma = invoiceId =>
+            {
+                Navigate("ProformaInvoice");
+                _ = ProformaInvoiceVM.OpenSavedInvoiceAsync(invoiceId);
+            };
+            SalesReportVM.OnOpenJobOrder = jobOrderId =>
+            {
+                Navigate("JobOrder");
+                _ = JobOrderVM.OpenJobOrderAsync(jobOrderId);
+            };
+            SalesReportVM.OnOpenTaxInvoice = invoiceId =>
+            {
+                Navigate("TaxInvoice");
+                _ = TaxInvoiceVM.OpenInvoiceAsync(invoiceId);
+            };
+
             // ── commands ──────────────────────────────────────────────────
             ToggleMenuCommand = new RelayCommand(_ =>
             {
