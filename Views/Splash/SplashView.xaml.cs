@@ -1,51 +1,40 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Splash/SplashView.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Splash Screen (Chat 23 v3.1)
-// VERSION: Chat 23 v3.1 — Data-driven features + top badges + perf hardening
+// MODULE: Splash Screen — professional enterprise loading gate
 //
-// CHANGES vs v3.0:
-//   ✓ Feature strip: 7 hand-written badges → data-driven via ItemsControl
-//     Static readonly FeatureItem[] populates FeaturePanel.ItemsSource.
-//     One DataTemplate cached, 7 items reuse it.
-//   ✓ Staggered feature badge animation now targets the ItemsControl's
-//     visual children via GetItemsPanelChildren() helper.
-//   ✓ Added animation for top-left/center/right trust badges (fade in
-//     early, before logo scales — creates "frame" effect).
-//   ✓ Added animated loading dots (⋯) next to loading message.
-//   ✓ Shimmer capped to 3 iterations (was Forever) — auto-stops.
-//   ✓ Loading message interval kept at 1500ms.
-//   ✓ All v3.0 improvements preserved (nullable timer, extracted
-//     handlers, unloaded cleanup).
+// CHANGES vs "Aurora 2050" v3.x:
+//   ✓ Removed the 9 animated module feature chips and their stagger
+//     logic (AnimateFeatureBadges / FeatureItem / BuildFeatures) —
+//     marketing clutter has no place on an enterprise loading gate.
+//   ✓ Removed the rotating fake loading messages (timer + list) — the
+//     splash now shows one honest status line with animated dots.
+//   ✓ Removed the elastic BackEase logo bounce and the shimmer sweep
+//     (StartShimmerAnimation) — replaced with a gentle settle-in.
+//   ✓ Removed top trust-badge animations (TopLeftBadge / TopCenterPill
+//     / TopRightBadge are gone from the XAML too).
+//   ✓ Choreography tightened to ~2.3s so it finishes inside App.xaml.cs
+//     startup delay (2800ms) with margin.
 //
-// PRESERVED (zero regression):
-//   • FadeOutAndClose(Action) public API — App.xaml.cs depends on it
-//   • All existing x:Name (LogoScale, AppNameText, AppNameTranslate,
-//     TaglineText, FeaturePanel, ProgressFill, LoadingText,
-//     ShimmerOverlay, ShimmerTranslate)
-//   • New x:Name (TopLeftBadge, TopCenterPill, TopRightBadge, LoadingDots)
-//   • Overall animation choreography timing
-//   • CubicEase / BackEase easing
+// PRESERVED (zero regression — App.xaml.cs depends on these):
+//   • FadeOutAndClose(Action), RunLoginAsync(), ShowTermsGate()
+//   • TermsAccepted / TermsResolved / SignedIn / HasAcceptedCurrentTerms
+//   • TermsVersion, RecordAcceptance, AcceptTerms_Changed,
+//     ContinueFromTerms_Click, DeclineTerms_Click
+//   • SplashView_Loaded / SplashView_Unloaded timers + cleanup
+//   • Animated loading dots (kept — subtle, not gimmicky)
 //
 // PERFORMANCE:
-//   • Feature list is static readonly array — allocated once at type init
-//   • DataTemplate = 1 tree cached in WPF template pool
-//   • GetItemsPanelChildren dispatched once after Loaded, no per-frame cost
-//   • Shimmer terminates after 3 loops (~4.2s) instead of running forever
-//   • Loading dots animation uses same DispatcherTimer pattern (no new timer)
-//
-// REGRESSION RISK: LOW
-//   Public API preserved. All previous x:Name preserved. Data-driven
-//   feature strip renders identically to hand-written v3.0 version.
+//   • One DispatcherTimer (dots) instead of three (messages + dots).
+//   • No per-badge animations; no shimmer storyboard; no static arrays.
+//   • All brushes frozen; animations one-shot (never repeat).
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
 using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -53,143 +42,76 @@ namespace ProGlassAutomation.Views.Splash
 {
     /// <summary>
     /// Splash window shown at application startup.
-    /// Animates in over ~2.7 seconds while App.xaml.cs performs
+    /// Animates in over ~2.3 seconds while App.xaml.cs performs
     /// background initialization. When the main window is ready,
     /// App.xaml.cs calls <see cref="FadeOutAndClose(Action)"/> to
     /// dismiss the splash and reveal the main window.
     /// </summary>
     public partial class SplashView : Window
     {
-        // ── Rotating loading text ─────────────────────────────────────
-        private DispatcherTimer? _loadingMessageTimer;
-        private int _loadingMessageIndex;
-
-        private readonly string[] _loadingMessages =
-        {
-            "Loading Dashboard",
-            "Loading Proforma Invoice",
-            "Loading Sheet Store",
-            "Loading Job Orders",
-            "Loading Delivery Notes",
-            "Loading Tax Invoice",
-            "Almost ready"
-        };
-
         // ── Animated loading dots (⋯) ────────────────────────────────
         private DispatcherTimer? _loadingDotsTimer;
         private int _loadingDotsCount;
 
-        // ══════════════════════════════════════════════════════════════════
-        //  FEATURE MODULE DATA — displayed in feature strip
-        //  Border brush per badge = distinct blue shade (Sky→Sapphire spectrum)
-        //  Preserves the "spectrum" visual identified in About page palette.
-        // ══════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Immutable feature descriptor rendered by FeatureBadgeTemplate.
-        /// Icon = emoji, Label = short module name, BorderBrush = distinct
-        /// blue-shade for visual variety across the row.
-        /// </summary>
-        private sealed record FeatureItem(string Icon, string Label, Brush BorderBrush);
-
-        // Static — allocated once at type init, referenced by all instances.
-        private static readonly IReadOnlyList<FeatureItem> _features = BuildFeatures();
-
-        private static IReadOnlyList<FeatureItem> BuildFeatures()
-        {
-            // Use frozen SolidColorBrush created inline — same hex values as XAML
-            // palette. Cached at type init, no per-frame cost.
-            static SolidColorBrush Frozen(byte r, byte g, byte b)
-            {
-                var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
-                brush.Freeze();
-                return brush;
-            }
-
-            var frost = Frozen(0xBF, 0xDB, 0xFE); // #BFDBFE
-            var cerulean = Frozen(0x93, 0xC5, 0xFD); // #93C5FD
-            var azure = Frozen(0x60, 0xA5, 0xFA); // #60A5FA
-            var sapphire = Frozen(0x3B, 0x82, 0xF6); // #3B82F6
-            var royal = Frozen(0x1D, 0x4E, 0xD8); // #1D4ED8
-            var navy = Frozen(0x1E, 0x3A, 0x8A); // #1E3A8A
-
-            return new[]
-            {
-                new FeatureItem("\uE9F9", "Dashboard",    frost),
-                new FeatureItem("\uE8A5", "Proforma",     cerulean),
-                new FeatureItem("\uEA37", "Sheet Store",  azure),
-                new FeatureItem("\uE9D9", "Job Orders",   sapphire),
-                new FeatureItem("\uE7B8", "Delivery",     royal),
-                new FeatureItem("\uE8C7", "Tax Invoice",  navy),
-                new FeatureItem("\uE8F7", "Statements",   sapphire),
-                new FeatureItem("\uE8C8", "Reports",      azure),
-                new FeatureItem("\uE8F2", "AI Assistant", royal),
-            };
-        }
-
         public SplashView()
         {
             InitializeComponent();
-
-            // Populate feature strip once
-            FeaturePanel.ItemsSource = _features;
 
             Loaded += SplashView_Loaded;
             Unloaded += SplashView_Unloaded;
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOADED — start animation sequence
+        //  LOADED — start animation sequence (calm, ~2.3s)
         // ══════════════════════════════════════════════════════════════════
 
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
-            // ─── PHASE 1: Top trust badges fade in (0–300ms) ─────────
-            // Creates a "frame" around the incoming logo.
-            FadeIn(TopLeftBadge, fromMs: 0, durationMs: 400);
-            FadeIn(TopCenterPill, fromMs: 100, durationMs: 400);
-            FadeIn(TopRightBadge, fromMs: 200, durationMs: 400);
+            // ─── PHASE 1: Logo settles in (fade + gentle scale) ──────
+            var logoScale = new DoubleAnimation
+            {
+                From = 0.92,
+                To = 1,
+                BeginTime = TimeSpan.FromMilliseconds(100),
+                Duration = TimeSpan.FromMilliseconds(450),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            };
+            LogoScale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty, logoScale);
+            LogoScale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty, logoScale.Clone());
 
-            // ─── PHASE 2: Logo scale-in with elastic feel (100–750ms) ─
-            var logoScaleX = new DoubleAnimation
+            var logoFade = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
                 BeginTime = TimeSpan.FromMilliseconds(100),
-                Duration = TimeSpan.FromMilliseconds(650),
-                EasingFunction = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.5 }
+                Duration = TimeSpan.FromMilliseconds(450),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
-            var logoScaleY = logoScaleX.Clone();
-            LogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, logoScaleX);
-            LogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, logoScaleY);
+            LogoBorder.BeginAnimation(OpacityProperty, logoFade);
 
-            // ─── PHASE 3: App name fade + slide up (500–900ms) ───────
+            // ─── PHASE 2: App name fade + slide up (450–850ms) ───────
             var nameFade = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
                 Duration = TimeSpan.FromMilliseconds(400),
-                BeginTime = TimeSpan.FromMilliseconds(500)
+                BeginTime = TimeSpan.FromMilliseconds(450)
             };
             var nameSlide = new DoubleAnimation
             {
-                From = 15,
+                From = 12,
                 To = 0,
                 Duration = TimeSpan.FromMilliseconds(400),
-                BeginTime = TimeSpan.FromMilliseconds(500),
+                BeginTime = TimeSpan.FromMilliseconds(450),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             AppNameText.BeginAnimation(OpacityProperty, nameFade);
-            AppNameTranslate.BeginAnimation(TranslateTransform.YProperty, nameSlide);
+            AppNameTranslate.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty, nameSlide);
 
-            // ─── PHASE 4: Tagline fade (800–1200ms) ──────────────────
-            FadeIn(TaglineText, fromMs: 800, durationMs: 400);
+            // ─── PHASE 3: Tagline fade (750–1150ms) ──────────────────
+            FadeIn(TaglineText, fromMs: 750, durationMs: 400);
 
-            // ─── PHASE 5: Feature panel + staggered badge fade (1050–1610ms) ─
-            FadeIn(FeaturePanel, fromMs: 1050, durationMs: 300);
-            AnimateFeatureBadges();
-
-            // ─── PHASE 6: Progress bar fill (700–2900ms) ─────────────
+            // ─── PHASE 4: Progress bar fill (700–2600ms) ─────────────
             double track = ProgressTrack.ActualWidth;
             if (track < 80)
                 track = Math.Max(240, ActualWidth * 0.35);
@@ -197,22 +119,16 @@ namespace ProGlassAutomation.Views.Splash
             {
                 From = 0,
                 To = track,
-                Duration = TimeSpan.FromMilliseconds(2200),
+                Duration = TimeSpan.FromMilliseconds(1900),
                 BeginTime = TimeSpan.FromMilliseconds(700),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
             };
             ProgressFill.BeginAnimation(WidthProperty, progressAnim);
 
-            // ─── PHASE 7: Loading text + dots fade in (1050–1450ms) ──
-            FadeIn(LoadingText, fromMs: 1050, durationMs: 400);
-            FadeIn(LoadingDots, fromMs: 1050, durationMs: 400);
-
-            // ─── PHASE 8: Start rotating loading messages + dots ─────
-            StartLoadingMessageRotation();
+            // ─── PHASE 5: Status line fades in + dots start ──────────
+            FadeIn(LoadingText, fromMs: 950, durationMs: 350);
+            FadeIn(LoadingDots, fromMs: 950, durationMs: 350);
             StartLoadingDotsAnimation();
-
-            // ─── PHASE 9: Logo shimmer sweep (starts 1100ms) ─────────
-            StartShimmerAnimation();
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -221,9 +137,6 @@ namespace ProGlassAutomation.Views.Splash
 
         private void SplashView_Unloaded(object sender, RoutedEventArgs e)
         {
-            _loadingMessageTimer?.Stop();
-            _loadingMessageTimer = null;
-
             _loadingDotsTimer?.Stop();
             _loadingDotsTimer = null;
         }
@@ -249,78 +162,8 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
-        /// Animate each feature badge in the ItemsControl with 80ms stagger.
-        /// Dispatched after Loaded so the visual tree is fully realized.
-        /// </summary>
-        private void AnimateFeatureBadges()
-        {
-            // Wait one dispatcher cycle so ItemsControl containers exist.
-            Dispatcher.BeginInvoke(new Action(() =>
-            {
-                for (int i = 0; i < _features.Count; i++)
-                {
-                    var container = FeaturePanel.ItemContainerGenerator.ContainerFromIndex(i)
-                                    as FrameworkElement;
-                    if (container == null) continue;
-
-                    // The visual child inside container is the StackPanel from
-                    // FeatureBadgeTemplate. Animate its Opacity.
-                    if (VisualTreeHelper.GetChildrenCount(container) > 0)
-                    {
-                        var visual = VisualTreeHelper.GetChild(container, 0) as FrameworkElement;
-                        if (visual != null)
-                        {
-                            int beginMs = 1150 + (i * 80);
-                            FadeIn(visual, beginMs, 400);
-                        }
-                    }
-                }
-            }), DispatcherPriority.Loaded);
-        }
-
-        /// <summary>
-        /// Rotates loading text through the message list every 1500ms.
-        /// Fade-out 150ms → change text → fade-in 150ms.
-        /// </summary>
-        private void StartLoadingMessageRotation()
-        {
-            _loadingMessageTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(1500)
-            };
-            _loadingMessageTimer.Tick += LoadingMessageTimer_Tick;
-            _loadingMessageTimer.Start();
-        }
-
-        private void LoadingMessageTimer_Tick(object? sender, EventArgs e)
-        {
-            _loadingMessageIndex = (_loadingMessageIndex + 1) % _loadingMessages.Length;
-
-            var fadeOut = new DoubleAnimation
-            {
-                From = 1,
-                To = 0,
-                Duration = TimeSpan.FromMilliseconds(150)
-            };
-            fadeOut.Completed += FadeOut_Completed;
-            LoadingText.BeginAnimation(OpacityProperty, fadeOut);
-        }
-
-        private void FadeOut_Completed(object? sender, EventArgs e)
-        {
-            LoadingText.Text = _loadingMessages[_loadingMessageIndex];
-
-            var fadeIn = new DoubleAnimation
-            {
-                From = 0,
-                To = 1,
-                Duration = TimeSpan.FromMilliseconds(150)
-            };
-            LoadingText.BeginAnimation(OpacityProperty, fadeIn);
-        }
-
-        /// <summary>
-        /// Animates the "⋯" dots after loading text: cycles ""→"."→".."→"..." every 350ms.
+        /// Animates the "⋯" dots after the status text: cycles
+        /// ""→"."→".."→"..." every 350ms.
         /// </summary>
         private void StartLoadingDotsAnimation()
         {
@@ -344,45 +187,6 @@ namespace ProGlassAutomation.Views.Splash
             };
         }
 
-        /// <summary>
-        /// Diagonal shimmer sweep across logo — 3 iterations then auto-stops.
-        /// Prevents runaway animation from consuming CPU during long splashes.
-        /// </summary>
-        private void StartShimmerAnimation()
-        {
-            var shimmerFade = new DoubleAnimation
-            {
-                From = 0,
-                To = 0.9,
-                Duration = TimeSpan.FromMilliseconds(200),
-                BeginTime = TimeSpan.FromMilliseconds(1100)
-            };
-            ShimmerOverlay.BeginAnimation(OpacityProperty, shimmerFade);
-
-            var shimmerMove = new DoubleAnimation
-            {
-                From = -200,
-                To = 200,
-                Duration = TimeSpan.FromMilliseconds(1400),
-                BeginTime = TimeSpan.FromMilliseconds(1300),
-                RepeatBehavior = new RepeatBehavior(3),
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
-            };
-            ShimmerTranslate.BeginAnimation(TranslateTransform.XProperty, shimmerMove);
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  Phase 8.2d — Splash-to-Main handoff (release Topmost before fade)
-        //  Public API — DO NOT rename. App.xaml.cs calls this.
-        // ══════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Fades the splash out over 400ms then closes.
-        /// Releases <see cref="Window.Topmost"/> BEFORE fade so the
-        /// main window can rise above the splash mid-fade.
-        /// Calls <paramref name="onCompleted"/> just before closing so
-        /// the caller (App.xaml.cs) can show + activate the main window.
-        /// </summary>
         // ══════════════════════════════════════════════════════════════════
         //  TERMS GATE (UAE)
         // ══════════════════════════════════════════════════════════════════
@@ -410,7 +214,7 @@ namespace ProGlassAutomation.Views.Splash
         /// <summary>True only after a verified sign-in on this splash.</summary>
         public bool SignedIn { get; private set; }
 
-        private static string TermsMarkerPath => System.IO.Path.Combine(
+        private static string TermsMarkerPath => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "terms-accepted.txt");
 
@@ -423,8 +227,8 @@ namespace ProGlassAutomation.Views.Splash
         {
             try
             {
-                if (!System.IO.File.Exists(TermsMarkerPath)) return false;
-                foreach (var line in System.IO.File.ReadAllLines(TermsMarkerPath))
+                if (!File.Exists(TermsMarkerPath)) return false;
+                foreach (var line in File.ReadAllLines(TermsMarkerPath))
                     if (line.StartsWith("version=", StringComparison.Ordinal) &&
                         line["version=".Length..].Trim() == TermsVersion)
                         return true;
@@ -440,13 +244,13 @@ namespace ProGlassAutomation.Views.Splash
         {
             try
             {
-                var dir = System.IO.Path.GetDirectoryName(TermsMarkerPath);
+                var dir = Path.GetDirectoryName(TermsMarkerPath);
                 if (!string.IsNullOrEmpty(dir))
-                    System.IO.Directory.CreateDirectory(dir);
+                    Directory.CreateDirectory(dir);
 
                 // Plain text on purpose: this is a record the owner can read,
                 // and an auditor can be shown, without needing the app.
-                System.IO.File.WriteAllText(
+                File.WriteAllText(
                     TermsMarkerPath,
                     $"version={TermsVersion}" + Environment.NewLine +
                     $"acceptedUtc={DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}Z" + Environment.NewLine +
@@ -474,8 +278,7 @@ namespace ProGlassAutomation.Views.Splash
         /// </summary>
         public void ShowTermsGate()
         {
-            _loadingMessageTimer?.Stop();
-            _loadingDotsTimer?.Stop();
+            StopLoadingIndicators();
 
             LoadingText.Text = "Please review the terms to continue";
             LoadingDots.Text = "";
@@ -530,8 +333,7 @@ namespace ProGlassAutomation.Views.Splash
             LoginGate.Completed += Finish;
             Closed += (_, __) => Finish(LoginGate.SignedIn);
 
-            _loadingMessageTimer?.Stop();
-            _loadingDotsTimer?.Stop();
+            StopLoadingIndicators();
             LoadingText.Text = "Sign in to continue";
             LoadingDots.Text = "";
 
@@ -554,16 +356,7 @@ namespace ProGlassAutomation.Views.Splash
 
         public void FadeOutAndClose(Action onCompleted)
         {
-            // Stop all timers
-            _loadingMessageTimer?.Stop();
-            _loadingMessageTimer = null;
-
-            _loadingDotsTimer?.Stop();
-            _loadingDotsTimer = null;
-
-            // Stop shimmer animation
-            ShimmerTranslate.BeginAnimation(TranslateTransform.XProperty, null);
-            ShimmerOverlay.BeginAnimation(OpacityProperty, null);
+            StopLoadingIndicators();
 
             // Stay Topmost for the fade. AllowsTransparency lets the
             // window underneath show through — releasing Topmost first
@@ -585,6 +378,16 @@ namespace ProGlassAutomation.Views.Splash
             };
 
             BeginAnimation(OpacityProperty, fadeOut);
+        }
+
+        /// <summary>
+        /// Stops the dots timer and resets the dots text. Shared by
+        /// ShowTermsGate / RunLoginAsync / FadeOutAndClose.
+        /// </summary>
+        private void StopLoadingIndicators()
+        {
+            _loadingDotsTimer?.Stop();
+            _loadingDotsTimer = null;
         }
     }
 }
