@@ -90,11 +90,14 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
-        /// <summary>Enter in either field = the same single sign-in path.</summary>
+        /// <summary>Enter (main or num-pad) in either field = the same single sign-in path.</summary>
         private void Field_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter && !_signingIn)
+            if ((e.Key == Key.Enter || e.Key == Key.Return) && !_signingIn)
+            {
+                e.Handled = true;
                 _ = TrySignInAsync();
+            }
         }
 
         private void SignIn_Click(object sender, RoutedEventArgs e)
@@ -142,6 +145,10 @@ namespace ProGlassAutomation.Views.Login
                 int remaining = await AuditService.LockoutRemainingSecondsAsync(username);
                 if (remaining > 0)
                 {
+                    // Return to the idle state FIRST so the error is never
+                    // shown while the button still reads "SIGNING IN…" and
+                    // the form is still locked.
+                    SetSigningState(false, "");
                     ShowError($"Too many attempts. Try again in {remaining}s.");
                     return;
                 }
@@ -253,13 +260,15 @@ namespace ProGlassAutomation.Views.Login
         /// Updates the button + status strip and locks the form while
         /// credentials are being checked. The status strip is shown ONLY
         /// while signing in / after success — idle shows nothing.
+        /// Hidden (not Collapsed) keeps the strip's space reserved so the
+        /// button / footer / version line never shift when signing starts.
         /// </summary>
         private void SetSigningState(bool busy, string status)
         {
             bool showStatus = busy || SignedIn;
             StatusStrip.Visibility = showStatus
                 ? Visibility.Visible
-                : Visibility.Collapsed;
+                : Visibility.Hidden;
             SignInStatusText.Text = status ?? string.Empty;
             SignInBusyDot.Visibility = showStatus
                 ? Visibility.Visible
