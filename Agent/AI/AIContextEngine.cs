@@ -49,14 +49,13 @@ namespace ProGlassAutomation.Agent.AI
 
         private static string InferUserAction(string category)
         {
-            return category?.ToLowerInvariant() switch
-            {
-                var c when c.Contains("open") => "navigation",
-                var c when c.Contains("search") or c.Contains("find") => "read",
-                var c when c.Contains("create") or c.Contains("add") => "write",
-                var c when c.Contains("delete") or c.Contains("remove") => "destructive",
-                _ => "general"
-            };
+            if (category == null) return "general";
+            var c = category.ToLowerInvariant();
+            if (c.Contains("open")) return "navigation";
+            if (c.Contains("search") || c.Contains("find")) return "read";
+            if (c.Contains("create") || c.Contains("add")) return "write";
+            if (c.Contains("delete") || c.Contains("remove")) return "destructive";
+            return "general";
         }
     }
 }

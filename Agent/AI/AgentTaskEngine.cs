@@ -58,7 +58,7 @@ namespace ProGlassAutomation.Agent.AI
             // Conceptual decomposition — real decomposition would query agent planner.
             if (!string.IsNullOrWhiteSpace(taskDescription))
             {
-                var parts = taskDescription.Split(new[] { '.', ',', ';', ' and ' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = taskDescription.Split(new[] { '.', ',', ';', " and " }, StringSplitOptions.RemoveEmptyEntries);
                 steps.AddRange(parts.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()));
                 if (steps.Count == 0)
                     steps.Add(taskDescription.Trim());

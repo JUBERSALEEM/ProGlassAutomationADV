@@ -32,26 +32,12 @@ namespace ProGlassAutomation.Agent.AI
                 if (ProGlassAutomation.Agent.Core.AgentHost.IsBuilt &&
                     ProGlassAutomation.Agent.Core.AgentHost.Memory != null)
                 {
-                    // This is a best-effort sync; the agent memory service handles its own persistence rules.
+                    // Best-effort sync; memory service handles persistence rules.
                 }
             }
             catch
             {
                 // Memory sync must not break task execution.
-            }
-        }
-        {
-            lock (_lock)
-            {
-                _items.Add(new TaskMemoryItem
-                {
-                    TaskId = taskId,
-                    Result = result,
-                    Completed = completed,
-                    Timestamp = DateTime.UtcNow
-                });
-                while (_items.Count > 100) // Cap task memory
-                    _items.RemoveAt(0);
             }
         }
 
