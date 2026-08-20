@@ -108,7 +108,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         private bool _isLoading;
         public bool IsLoading { get => _isLoading; protected set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(IsContentVisible)); } }
         private bool _hasError;
-        public bool HasError { get => _hasError; protected set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); } }
+        public bool HasError { get => _hasError; protected set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsEmpty)); OnPropertyChanged(nameof(IsContentVisible)); } }
         private string _errorMessage = "";
         public string ErrorMessage { get => _errorMessage; protected set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); } }
         public bool IsEmpty => !IsLoading && !HasError && TotalCount == 0;

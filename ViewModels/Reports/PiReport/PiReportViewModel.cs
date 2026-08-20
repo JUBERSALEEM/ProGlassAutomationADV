@@ -92,12 +92,11 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             try
             {
                 var filter = BuildFilter();
-                var summaryTask = _service.GetPiSummaryAsync(filter, token);
-                var rowsTask = _service.GetPiRowsAsync(filter, token);
-                await Task.WhenAll(summaryTask, rowsTask);
+                var summary = await _service.GetPiSummaryAsync(filter, token);
                 if (token.IsCancellationRequested) return;
-                Summary = await summaryTask;
-                var paged = await rowsTask;
+                var paged = await _service.GetPiRowsAsync(filter, token);
+                if (token.IsCancellationRequested) return;
+                Summary = summary;
                 Rows = new ObservableCollection<PiReportRow>(paged.Items);
                 TotalCount = paged.TotalCount;
                 TotalPages = paged.TotalPages == 0 ? 1 : paged.TotalPages;
@@ -106,6 +105,7 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
             catch (System.Exception ex) when (!(ex is System.OperationCanceledException))
             {
                 HasError = true; ErrorMessage = ex.Message;
+                AppLogService.Warning($"PiReport LoadAsync error: {ex.Message}");
             }
             finally { IsLoading = false; }
         }

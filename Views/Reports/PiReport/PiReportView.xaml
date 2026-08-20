@@ -208,8 +208,16 @@
                     Message="Try adjusting your filters or date range. The report queries live records in proformainvoices.db."
                     Icon="&#xE8A5;"/>
 
-                <Border Grid.Row="3" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource DangerBrush}" Opacity="0.08" CornerRadius="8" Margin="16" Padding="16">
-                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap"/>
+                <!-- Error State -->
+                <Border Grid.Row="3" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                        CornerRadius="10" Margin="16" Padding="20">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                        <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="20,0" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                    </StackPanel>
                 </Border>
 
                 <ListBox Grid.Row="3" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"

@@ -192,6 +192,18 @@
                 <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Job Order records…"/>
                 <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Job Orders found" Message="Adjust your filters or convert a Proforma Invoice to a Job Order." Icon="&#xE8B7;"/>
 
+                <!-- Error State -->
+                <Border Grid.Row="3" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                        CornerRadius="10" Margin="16" Padding="20">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                        <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="20,0" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                    </StackPanel>
+                </Border>
+
                 <ListBox Grid.Row="3" ItemsSource="{Binding Rows}"
                          Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
