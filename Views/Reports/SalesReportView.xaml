@@ -43,7 +43,6 @@
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
@@ -144,9 +143,9 @@
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="REPORTS HUB" FontSize="9" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
+                            <TextBlock Text="REPORTS HUB" FontSize="10" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
                             <TextBlock Text="Intelligence Center" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,1,0,0"/>
-                            <TextBlock Text="Row-level traceability" FontSize="9" Foreground="#BFDBFE" Margin="0,2,0,0"/>
+                            <TextBlock Text="Row-level traceability" FontSize="10.5" Foreground="#BFDBFE" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -180,14 +179,14 @@
                                     <TextBlock Text="Overview" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="KPI dashboard" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="KPI dashboard" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="DOCUMENTS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                        <TextBlock Text="DOCUMENTS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Proforma Invoice -->
                         <Button Tag="Pi" Click="Nav_Click" ToolTip="Proforma Invoices: quotes, conversion rates, and itemized rows">
@@ -208,7 +207,7 @@
                                     <TextBlock Text="Proforma Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Quotes &amp; conversion" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Quotes &amp; conversion" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -234,7 +233,7 @@
                                     <TextBlock Text="Job Order" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Production &amp; status" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Production &amp; status" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -260,7 +259,7 @@
                                     <TextBlock Text="Delivery" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Dispatched / pending" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Dispatched / pending" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -286,14 +285,14 @@
                                     <TextBlock Text="Tax Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Billed &amp; overdue" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Billed &amp; overdue" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="MASTER DATA" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                        <TextBlock Text="MASTER DATA" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Company / Customer -->
                         <Button Tag="Company" Click="Nav_Click" ToolTip="Client and operating company lifecycle from quotation to settlement">
@@ -314,7 +313,7 @@
                                     <TextBlock Text="Company / Customer" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Lifecycle per client" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Lifecycle per client" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -340,7 +339,7 @@
                                     <TextBlock Text="Salesman" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Revenue per rep" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Revenue per rep" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -366,14 +365,14 @@
                                     <TextBlock Text="Project" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Project drill-down" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Project drill-down" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="INTELLIGENCE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                        <TextBlock Text="INTELLIGENCE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Glass / Specification -->
                         <Button Tag="Glass" Click="Nav_Click" ToolTip="Granular row-level glass specification matching, dimensions, and lifecycle trace">
@@ -394,7 +393,7 @@
                                     <TextBlock Text="Glass / Specification" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Row-level intelligence" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Row-level intelligence" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -420,7 +419,7 @@
                                     <TextBlock Text="Statement" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Customer statements" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Customer statements" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -446,7 +445,7 @@
                                     <TextBlock Text="Profitability / P&amp;L" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Revenue, cost, margin" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Revenue, cost, margin" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -461,9 +460,9 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Central Data Layer" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Central Data Layer" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Shared intelligence across PI → JO → Delivery → Tax Invoice → P&amp;L." FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="Shared intelligence across PI → JO → Delivery → Tax Invoice → P&amp;L." FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -500,9 +499,9 @@
                                 <TextBlock Text="Module-Based ERP Intelligence" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
                                 <TextBlock Text="Every report uses one centralized data layer and your live database. Drill down from any aggregate to exact specification rows and document lifecycles." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="ROW-LEVEL TRACEABILITY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="EXACT SPEC MATCHING" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6"><TextBlock Text="QTY RECONCILIATION" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
+                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="ROW-LEVEL TRACEABILITY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
+                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="EXACT SPEC MATCHING" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
+                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6"><TextBlock Text="QTY RECONCILIATION" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
                                 </StackPanel>
                             </StackPanel>
                             <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="White" Opacity="0.10" VerticalAlignment="Center" Margin="16,0,0,0">
@@ -562,8 +561,8 @@
                             <TextBlock Text="TRACE ANY GLASS ROW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <TextBlock Text="PI → Row → Job Order → Delivery → Tax Invoice → Profitability — every aggregate is explainable and verifiable." FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Margin="0,0,8,0" ToolTip="Switch to Proforma Invoice report"/>
-                                <Button Content="Inspect Glass Rows" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" ToolTip="Switch to Glass / Specification row-level intelligence"/>
+                                <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Height="32" Margin="0,0,8,0" ToolTip="Switch to Proforma Invoice report"/>
+                                <Button Content="Inspect Glass Rows" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" Height="32" ToolTip="Switch to Glass / Specification row-level intelligence"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -580,7 +579,7 @@
                             <StackPanel>
                                 <TextBlock Text="LIFECYCLE BY CUSTOMER" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 <TextBlock Text="Open Company / Customer report to follow PI → JO → DN → TI → Statement for any client with quantities, specs, pending items, and profitability." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Open →" Tag="Company" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Company / Customer Report"/>
+                                <Button Content="Open →" Tag="Company" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Company / Customer Report"/>
                             </StackPanel>
                         </Border>
 
@@ -588,7 +587,7 @@
                             <StackPanel>
                                 <TextBlock Text="ROW-LEVEL SPEC INTELLIGENCE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 <TextBlock Text="Glass / Specification report reads the real spec rows stored inside the PI JSON — exact matching by type-aware identity, dimensions, colour, thickness, PVB, and spacer." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Inspect →" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Glass / Specification Report"/>
+                                <Button Content="Inspect →" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Glass / Specification Report"/>
                             </StackPanel>
                         </Border>
                     </Grid>

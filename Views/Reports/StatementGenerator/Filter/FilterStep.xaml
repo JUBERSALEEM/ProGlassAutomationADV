@@ -29,7 +29,6 @@
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
     RenderOptions.BitmapScalingMode="HighQuality"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">

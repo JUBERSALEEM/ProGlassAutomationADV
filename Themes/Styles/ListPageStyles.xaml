@@ -34,7 +34,7 @@
     </Style>
 
     <Style x:Key="ModuleListKpiLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="11.5"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
     </Style>
@@ -47,7 +47,7 @@
     </Style>
 
     <Style x:Key="ModuleListKpiHintStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontSize" Value="10.5"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="Margin" Value="0,2,0,0"/>
     </Style>
@@ -82,9 +82,18 @@
     </Style>
 
     <Style x:Key="ModuleListFilterComboStyle" TargetType="ComboBox">
-        <Setter Property="Height" Value="38"/>
+        <Setter Property="Height" Value="34"/>
         <Setter Property="MinWidth" Value="128"/>
         <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <!-- Filter-bar DatePicker — same visual height as the report inputs
+         so the toolbar rows align on one baseline (professional rhythm). -->
+    <Style x:Key="ModuleListFilterDatePickerStyle" TargetType="DatePicker">
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="MinWidth" Value="128"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -94,14 +103,14 @@
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="16,10"/>
+        <Setter Property="Padding" Value="16,11"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="ModuleListHeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 

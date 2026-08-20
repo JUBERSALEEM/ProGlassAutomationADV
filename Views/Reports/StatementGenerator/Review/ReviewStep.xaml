@@ -48,7 +48,6 @@
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
@@ -173,7 +172,7 @@
                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="WARNINGS"
-                                       FontSize="9" FontWeight="Bold"
+                                       FontSize="10" FontWeight="Bold"
                                        Foreground="#FFFFFFCC"/>
                             <TextBlock Text="{Binding WarningSummaryDisplay}"
                                        FontSize="12" FontWeight="Bold"
@@ -704,7 +703,7 @@
                                                             Background="{Binding StatusColorHex,
                                                                 Converter={StaticResource ColorStringConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="White"/>
                                                     </Border>
                                                 </Grid>
@@ -759,7 +758,7 @@
                                                             Background="{Binding StatusColorHex,
                                                                 Converter={StaticResource ColorStringConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="White"/>
                                                     </Border>
                                                 </Grid>
@@ -814,7 +813,7 @@
                                                             Background="{Binding StatusColorHex,
                                                                 Converter={StaticResource ColorStringConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="White"/>
                                                     </Border>
                                                 </Grid>

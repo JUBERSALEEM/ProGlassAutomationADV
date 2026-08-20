@@ -15,7 +15,6 @@
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
@@ -74,7 +73,7 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="DELIVERED"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
@@ -92,7 +91,7 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="INVOICED"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
@@ -110,7 +109,7 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="MISSING"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
@@ -248,7 +247,7 @@
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Fix missing invoice now"
-                                                   FontSize="9"
+                                                   FontSize="10"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
@@ -283,7 +282,7 @@
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Generate with warning"
-                                                   FontSize="9"
+                                                   FontSize="10"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
@@ -318,7 +317,7 @@
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Cancel generation"
-                                                   FontSize="9"
+                                                   FontSize="10"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>

@@ -6,7 +6,6 @@
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
@@ -39,7 +38,7 @@
                 ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Row Detail" Click="Detail_Click" Padding="14,0" Height="30" Margin="0,0,8,0" ToolTip="View granular itemized specification rows across all quotes">
+                        <Button Content="Row Detail" Click="Detail_Click" Padding="14,0" Height="32" Margin="0,0,8,0" ToolTip="View granular itemized specification rows across all quotes">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}">
                                     <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -53,7 +52,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="Aggregated by Spec" Click="Agg_Click" Padding="14,0" Height="30" ToolTip="View grouped totals by canonical glass build specification">
+                        <Button Content="Aggregated by Spec" Click="Agg_Click" Padding="14,0" Height="32" ToolTip="View grouped totals by canonical glass build specification">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                                     <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -85,13 +84,13 @@
                             <!-- Search -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="SEARCH" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="150" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="PI # / Customer..." ToolTip="Search by Glass Ref, Spec name, or PI #"/>
+                                <TextBox Width="150" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="PI # / Customer..." ToolTip="Search by Glass Ref, Spec name, or PI #"/>
                             </StackPanel>
 
                             <!-- Glass Type -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="GLASS TYPE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="110" IsEditable="True" Text="{Binding SelectedGlassType, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by glass build type">
+                                <ComboBox Width="110" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedGlassType, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by glass build type">
                                     <ComboBoxItem Content="SGU"/><ComboBoxItem Content="DGU"/><ComboBoxItem Content="LAM"/><ComboBoxItem Content="DGU+LAM"/>
                                 </ComboBox>
                             </StackPanel>
@@ -99,28 +98,28 @@
                             <!-- Glass Ref -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="GLASS REF" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="120" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding GlassRefFilter, UpdateSourceTrigger=PropertyChanged}" Tag="e.g. GL-01" ToolTip="Filter by exact Glass Reference"/>
+                                <TextBox Width="120" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding GlassRefFilter, UpdateSourceTrigger=PropertyChanged}" Tag="e.g. GL-01" ToolTip="Filter by exact Glass Reference"/>
                             </StackPanel>
 
                             <!-- Spec Name -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="SPECIFICATION" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="160" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SpecNameFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Spec name keyword..." ToolTip="Filter by specification name"/>
+                                <TextBox Width="160" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SpecNameFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Spec name keyword..." ToolTip="Filter by specification name"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="32" Padding="16,0" Margin="0,0,6,0" ToolTip="Apply selected filters"/>
-                                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Padding="16,0" ToolTip="Reset filters"/>
+                                <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource ReportToolbarPrimaryButton}" ToolTip="Apply selected filters"/>
+                                <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Reset filters"/>
                             </StackPanel>
                         </WrapPanel>
 
                         <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="8,0,0,6">
                             <TextBlock Text="EXPORT" Style="{StaticResource ModuleFieldLabelStyle}" HorizontalAlignment="Right"/>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Margin="0,0,6,0" ToolTip="Export to CSV"/>
-                                <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Height="32" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
-                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" Height="32" ToolTip="Export to PDF report"/>
+                                <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export to CSV"/>
+                                <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource ReportExportOutlinedButton}" ToolTip="Export to Excel (.xlsx)"/>
+                                <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource ReportExportPrimaryButton}" ToolTip="Export to PDF report"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -228,7 +227,7 @@
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                             <TextBlock Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock Text="{Binding RowId}" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                            <TextBlock Text="{Binding RowId}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
                                         </StackPanel>
                                         <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2" Text="{Binding SpecName}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
@@ -319,7 +318,7 @@
                         <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                        <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="20,0" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                        <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
                     </StackPanel>
                 </Border>
 
@@ -359,8 +358,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTip="Previous page"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" ToolTip="Next page"/>
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Next page"/>
                         </StackPanel>
                     </Grid>
                 </Border>

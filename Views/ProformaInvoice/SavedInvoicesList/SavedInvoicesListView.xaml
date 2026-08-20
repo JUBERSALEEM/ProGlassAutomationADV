@@ -175,16 +175,14 @@
 
                         <DatePicker Grid.Column="4"
                                     SelectedDate="{Binding FromDate}"
-                                    Height="38"
                                     Width="128"
-                                    VerticalContentAlignment="Center"
+                                    Style="{StaticResource ModuleListFilterDatePickerStyle}"
                                     ToolTip="From date"/>
 
                         <DatePicker Grid.Column="6"
                                     SelectedDate="{Binding ToDate}"
-                                    Height="38"
                                     Width="128"
-                                    VerticalContentAlignment="Center"
+                                    Style="{StaticResource ModuleListFilterDatePickerStyle}"
                                     ToolTip="To date"/>
 
                         <ComboBox Grid.Column="8"

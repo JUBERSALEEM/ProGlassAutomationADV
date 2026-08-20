@@ -45,7 +45,6 @@
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
@@ -182,7 +181,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="INVOICED" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="INVOICED" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
                                    FontSize="15" FontWeight="Bold"
@@ -197,7 +196,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="VAT" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="VAT" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentDarkBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
                                    FontSize="15" FontWeight="Bold"
@@ -212,7 +211,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="PAID" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="PAID" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
                                    FontSize="15" FontWeight="Bold"
@@ -227,7 +226,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="OUTSTANDING" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="OUTSTANDING" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
                                    FontSize="15" FontWeight="Bold"
@@ -242,7 +241,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="OVERDUE" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
                                    FontSize="15" FontWeight="Bold"
@@ -257,7 +256,7 @@
                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
-                        <TextBlock Text="ATTACHMENTS" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="ATTACHMENTS" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
@@ -442,7 +441,7 @@
                                                     VerticalAlignment="Center"
                                                     Margin="12,0"
                                                     MinWidth="90">
-                                            <TextBlock Text="DUE" FontSize="9" FontWeight="Bold"
+                                            <TextBlock Text="DUE" FontSize="10" FontWeight="Bold"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                                             <TextBlock Text="{Binding DueDateDisplay, Mode=OneWay}"
                                                        FontSize="11"
@@ -454,7 +453,7 @@
                                                     VerticalAlignment="Center"
                                                     Margin="12,0"
                                                     MinWidth="110">
-                                            <TextBlock Text="TOTAL AED" FontSize="9" FontWeight="Bold"
+                                            <TextBlock Text="TOTAL AED" FontSize="10" FontWeight="Bold"
                                                        Foreground="{DynamicResource SuccessBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding GrandTotalDisplay, Mode=OneWay}"
@@ -467,7 +466,7 @@
                                                     VerticalAlignment="Center"
                                                     Margin="12,0,0,0"
                                                     MinWidth="110">
-                                            <TextBlock Text="BALANCE" FontSize="9" FontWeight="Bold"
+                                            <TextBlock Text="BALANCE" FontSize="10" FontWeight="Bold"
                                                        Foreground="{DynamicResource WarningBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding BalanceDisplay, Mode=OneWay}"
@@ -851,41 +850,41 @@
                                                     </Grid.ColumnDefinitions>
 
                                                     <TextBlock Grid.Column="0" Text="REF"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     <TextBlock Grid.Column="1" Text="SPEC"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="2" Text="S/N"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="3" Text="DIMENSIONS"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     <TextBlock Grid.Column="4" Text="ORDERED"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="5" Text="DELIVERED"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="6" Text="BALANCE"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource WarningBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="7" Text="INVOICED"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentDarkBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="8" Text="DIFF"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="9" Text="STATUS"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                                Margin="12,0,0,0"/>
                                                 </Grid>

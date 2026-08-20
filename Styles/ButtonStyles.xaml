@@ -409,4 +409,64 @@
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         REPORT TOOLBAR BUTTONS — single source of truth for the
+         Reports module's filter / export / pagination chrome.
+         One size (32px actions, 30px pagination), one spacing rhythm
+         (6px between toolbar buttons, 8px between pagination buttons),
+         so every report screen looks professionally consistent.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Apply — the primary filter action -->
+    <Style x:Key="ReportToolbarPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource RowPrimaryButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="76"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Clear — secondary filter action -->
+    <Style x:Key="ReportToolbarOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="76"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Export CSV / Excel -->
+    <Style x:Key="ReportExportOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="Margin" Value="0,0,6,0"/>
+    </Style>
+
+    <!-- Export PDF — the primary export action -->
+    <Style x:Key="ReportExportPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource PrimaryPillButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="16,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+    </Style>
+
+    <!-- Pagination Prev / Next -->
+    <Style x:Key="ReportPaginationButton" TargetType="Button"
+           BasedOn="{StaticResource RowOutlinedButton}">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="12,0"/>
+        <Setter Property="MinWidth" Value="64"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
+    <!-- Retry on the error state -->
+    <Style x:Key="ReportRetryButton" TargetType="Button"
+           BasedOn="{StaticResource RowPrimaryButton}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="20,0"/>
+        <Setter Property="MinWidth" Value="88"/>
+    </Style>
+
 </ResourceDictionary>
