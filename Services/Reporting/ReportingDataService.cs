@@ -143,59 +143,8 @@ namespace ProGlassAutomation.Services.Reporting
             ProformaInvoiceSnapshot snap, string proformaId, string company, string customer,
             string salesman, DateTime issueDate, string piStatus)
         {
-            var rows = new List<GlassSpecReportRow>();
-            if (snap?.SpecGroups == null) return rows;
-            foreach (var grp in snap.SpecGroups)
-            {
-                if (grp?.ItemRows == null) continue;
-                foreach (var r in grp.ItemRows)
-                {
-                    if (r == null) continue;
-                    if (string.IsNullOrWhiteSpace(r.GlassRef) && r.W1 == 0 && r.H1 == 0) continue;
-
-                    var sqm1 = r.Sqm1;
-                    var totalSqm = r.TotalSqm;
-                    var rate = r.Rate;
-                    var amount = Math.Round(sqm1 * r.Qty * rate, 2);
-                    var canonical = SpecificationMatcher.BuildCanonicalKey(
-                        r.GlassRef, grp.SelectedGlassType, grp.SelectedSpecName,
-                        grp.OuterGlassColor, grp.InnerGlassColor, r.W1, r.H1, r.W2, r.H2);
-
-                    rows.Add(new GlassSpecReportRow
-                    {
-                        RowId = $"{proformaId}-G{grp.GroupNumber}-S{r.SerialNumber}",
-                        ProformaId = proformaId,
-                        GlassRef = r.GlassRef ?? "",
-                        SpecName = grp.SelectedSpecName ?? grp.GroupName ?? "",
-                        GlassType = grp.SelectedGlassType ?? "",
-                        OuterColor = grp.OuterGlassColor ?? "",
-                        InnerColor = grp.InnerGlassColor ?? "",
-                        W1 = r.W1, H1 = r.H1, W2 = r.W2, H2 = r.H2,
-                        Qty = r.Qty,
-                        Sqm1 = sqm1,
-                        TotalSqm = totalSqm,
-                        Rate = rate,
-                        Amount = amount,
-                        BaseRate = grp.BaseRate,
-                        GroupNumber = grp.GroupNumber,
-                        GroupName = grp.GroupName ?? "",
-                        SerialNumber = r.SerialNumber,
-                        OuterSheetWidthMm = grp.OuterSheetWidthMm,
-                        OuterSheetHeightMm = grp.OuterSheetHeightMm,
-                        InnerSheetWidthMm = grp.InnerSheetWidthMm,
-                        InnerSheetHeightMm = grp.InnerSheetHeightMm,
-                        CompanyName = company,
-                        CustomerName = customer,
-                        Salesman = salesman,
-                        ProjectName = snap.Project?.ProjectIdentifierName ?? snap.Project?.ProjectReference ?? "",
-                        IssueDate = issueDate,
-                        PiStatus = piStatus,
-                        CanonicalKey = canonical,
-                        DimensionsKey = $"{r.W1}×{r.H1}" + (r.W2 > 0 || r.H2 > 0 ? $" / {r.W2}×{r.H2}" : "")
-                    });
-                }
-            }
-            return rows;
+            return SpecificationIntelligenceService.Instance.ExtractGlassRowsFromPi(
+                snap, proformaId, company, customer, salesman, issueDate, piStatus);
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -1144,33 +1093,7 @@ namespace ProGlassAutomation.Services.Reporting
                 Page = 1, PageSize = 5000
             }, ct);
 
-            var groups = page.Items.GroupBy(r => r.CanonicalKey)
-                .Select(g =>
-                {
-                    var first = g.First();
-                    return new SpecAggregation
-                    {
-                        CanonicalKey = g.Key,
-                        SpecName = first.SpecName,
-                        GlassType = first.GlassType,
-                        GlassRef = first.GlassRef,
-                        DimensionsKey = first.DimensionsKey,
-                        TotalRows = g.Count(),
-                        TotalQty = g.Sum(x => x.Qty),
-                        TotalSqm = Math.Round(g.Sum(x => x.TotalSqm), 3),
-                        TotalValue = Math.Round(g.Sum(x => x.Amount), 2),
-                        AvgRate = g.Average(x => x.Rate),
-                        DeliveredQty = g.Sum(x => x.DeliveredQty),
-                        BalanceQty = g.Sum(x => x.BalanceQty),
-                        DistinctCustomers = g.Select(x => x.CustomerName).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
-                        DistinctProjects = g.Select(x => x.ProjectName).Where(s => !string.IsNullOrWhiteSpace(s)).Distinct(StringComparer.OrdinalIgnoreCase).Count(),
-                        TopCustomers = g.GroupBy(x => x.CustomerName).OrderByDescending(x => x.Sum(v => v.Qty)).Take(3).Select(x => x.Key).ToList()
-                    };
-                })
-                .OrderByDescending(g => g.TotalQty)
-                .ToList();
-
-            return groups;
+            return SpecificationIntelligenceService.Instance.AggregateSpecificationRows(page.Items);
         }
 
         public async Task<RowTrace?> GetRowTraceAsync(string rowId, CancellationToken ct = default)
