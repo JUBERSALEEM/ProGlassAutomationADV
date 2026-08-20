@@ -39,7 +39,7 @@ namespace ProGlassAutomation.Agent.AI
 
                 if (attempts < MaxRetries && !ct.IsCancellationRequested)
                 {
-                    await Task.Delay(RetryDelay, cts.Token).ConfigureAwait(false);
+                    await Task.Delay(RetryDelay, ct).ConfigureAwait(false);
                 }
             }
 
