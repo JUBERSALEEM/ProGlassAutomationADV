@@ -19,7 +19,7 @@
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
             <TextBlock Text="Job Order Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Text="PI converted to factory Job Orders · Pending conversions · Production statuses · Delivered vs Balance quantities." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1050" HorizontalAlignment="Left"/>
+            <TextBlock Text="PI converted to factory Job Orders · Pending conversions · Production statuses · Delivered vs Balance quantities." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->

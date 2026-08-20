@@ -19,7 +19,7 @@
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
             <TextBlock Text="Glass / Specification Report — Row-Level Intelligence" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Text="Reads actual PI spec rows (not headers). Exact specification matching type-aware (SGU/DGU/LAM/DGU+LAM). Row → JO → Delivery → TI traceability with delivered/remaining reconciliation." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1100" HorizontalAlignment="Left"/>
+            <TextBlock Text="Reads actual PI spec rows (not headers). Exact specification matching type-aware (SGU/DGU/LAM/DGU+LAM). Row → JO → Delivery → TI traceability with delivered/remaining reconciliation." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->

@@ -19,7 +19,7 @@
         <!-- Page Header -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
             <TextBlock Text="Project Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Text="Project drill-down: Quotations, customer contracts, sales reps, and total invoiced values." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1050" HorizontalAlignment="Left"/>
+            <TextBlock Text="Project drill-down: Quotations, customer contracts, sales reps, and total invoiced values." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->

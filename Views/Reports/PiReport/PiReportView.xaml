@@ -19,7 +19,7 @@
         <!-- Page Title & Scope Subtitle -->
         <StackPanel Grid.Row="0" Margin="16,14,16,12">
             <TextBlock Text="Proforma Invoice Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
-            <TextBlock Text="Quotations, approvals, conversion to Job Orders, quantities, SQM volume, and row-level specification breakdowns." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1050" HorizontalAlignment="Left"/>
+            <TextBlock Text="Quotations, approvals, conversion to Job Orders, quantities, SQM volume, and row-level specification breakdowns." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
         </StackPanel>
 
         <!-- Main Shell Card -->
