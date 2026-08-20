@@ -66,7 +66,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <TextBlock Text="Exact matching: dimensions + colour + thickness + PVB + spacer are never merged." FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                        <TextBlock Text="Exact matching: dimensions + colour + thickness + PVB + spacer are never merged." FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                     </StackPanel>
                 </Border>
 
@@ -139,7 +139,7 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border Style="{StaticResource ModuleListTableHeaderStyle}">
+                    <Border Style="{StaticResource ReportTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="130"/>
@@ -151,14 +151,14 @@
                                 <ColumnDefinition Width="85"/>
                                 <ColumnDefinition Width="85"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="PI # / ROW ID" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="GLASS REF" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="3" Text="DIMENSIONS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="QTY" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="5" Text="SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="6" Text="DELIVERY" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="TRACE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Text="PI # / ROW ID" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="GLASS REF" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Text="DIMENSIONS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="QTY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="5" Text="SQM" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="6" Text="DELIVERY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="7" Text="TRACE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
                 </Border>
@@ -173,7 +173,7 @@
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <Border Style="{StaticResource ModuleListTableHeaderStyle}">
+                    <Border Style="{StaticResource ReportTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -184,13 +184,13 @@
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="90"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="SPEC (CANONICAL)" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="1" Text="TYPE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="2" Text="ROWS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="4" Text="SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="5" Text="VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="6" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="0" Text="SPEC (CANONICAL)" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="TYPE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="ROWS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="QTY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text="SQM" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="5" Text="VALUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="6" Text="BALANCE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
                 </Border>
@@ -226,16 +226,16 @@
                                             <ColumnDefinition Width="85"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock Text="{Binding RowId}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
+                                            <TextBlock Text="{Binding ProformaId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Text="{Binding RowId}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding SpecName}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding SpecName}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/>
                                         </TextBlock>
-                                        <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         <!-- Col 6: Delivery Status Badge -->
                                         <Border Grid.Column="6" CornerRadius="6" Padding="6,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Border.Style>
@@ -248,7 +248,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="{Binding DeliveryStatus}" FontSize="10" FontWeight="SemiBold">
+                                            <TextBlock Text="{Binding DeliveryStatus}" FontSize="12" FontWeight="SemiBold">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
                                                         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -260,7 +260,7 @@
                                                 </TextBlock.Style>
                                             </TextBlock>
                                         </Border>
-                                        <Button Grid.Column="7" Content="Trace" Command="{Binding DataContext.TraceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect full manufacturing lifecycle of this item"/>
+                                        <Button Grid.Column="7" Content="Trace" Command="{Binding DataContext.TraceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="12" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect full manufacturing lifecycle of this item"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -293,13 +293,13 @@
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="90"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding SpecName}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding CanonicalKey}" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding GlassType}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding TotalRows}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="3" Text="{Binding TotalQty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding TotalSqm, StringFormat={}{0:N2}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding TotalValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding BalanceQty, StringFormat={}{0} pcs}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding SpecName}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding CanonicalKey}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GlassType}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding TotalRows}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding TotalQty}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding TotalSqm, StringFormat={}{0:N2}}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding TotalValue, StringFormat={}AED {0:N0}}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding BalanceQty, StringFormat={}{0} pcs}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -317,7 +317,7 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                         <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
                     </StackPanel>
                 </Border>
@@ -327,20 +327,20 @@
                 ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="4" Visibility="{Binding HasTrace, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="14,10">
                     <StackPanel>
-                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                        <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="Trace — "/><Run Text="{Binding SelectedRow.RowId, Mode=OneWay}"/><Run Text=" — "/><Run Text="{Binding SelectedRow.GlassRef, Mode=OneWay}"/><Run Text=" "/><Run Text="{Binding SelectedRow.W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding SelectedRow.H1, Mode=OneWay}"/>
                         </TextBlock>
                         <ItemsControl ItemsSource="{Binding Trace.Steps}" Margin="0,6,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <TextBlock FontSize="10" Margin="0,2">
+                                    <TextBlock FontSize="12" Margin="0,2">
                                         <Run Text="{Binding Stage, Mode=OneWay}" FontWeight="SemiBold"/><Run Text=": "/><Run Text="{Binding DocumentNumber, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Status, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Qty, Mode=OneWay}"/><Run Text=" pcs"/>
                                     </TextBlock>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}">
+                            <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}">
                                 <Run Text="Ordered "/><Run Text="{Binding Trace.Reconciliation.OrderedQty, Mode=OneWay}"/><Run Text=" · Delivered "/><Run Text="{Binding Trace.Reconciliation.DeliveredQty, Mode=OneWay}"/><Run Text=" · Remaining "/><Run Text="{Binding Trace.Reconciliation.RemainingQty, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding Trace.Reconciliation.DeliveryPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="%"/>
                             </TextBlock>
                         </StackPanel>
@@ -356,7 +356,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Previous page"/>
                             <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Next page"/>

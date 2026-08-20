@@ -69,7 +69,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      2. TABLE HEADER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleListTableHeaderStyle}">
+                <Border Grid.Row="1" Style="{StaticResource ReportTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -81,14 +81,14 @@
                             <ColumnDefinition Width="90"/>
                             <ColumnDefinition Width="80"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="2" Text="CONFIRMED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="4" Text="CUSTOMERS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="5" Text="REVENUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="PROJECTS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="7" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="CONFIRMED" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="CUSTOMERS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="REVENUE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="PROJECTS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="7" Text="TIs" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                     </Grid>
                 </Border>
 
@@ -105,7 +105,7 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                         <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
                     </StackPanel>
                 </Border>
@@ -127,14 +127,14 @@
                                         <ColumnDefinition Width="90"/>
                                         <ColumnDefinition Width="80"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding SalesmanName}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="2" Text="{Binding ConfirmedValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="3" Text="{Binding JobOrderCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="4" Text="{Binding CustomerCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="5" Text="{Binding Revenue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="6" Text="{Binding ProjectCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="7" Text="{Binding TaxInvoiceCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="0" Text="{Binding SalesmanName}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding ConfirmedValue, StringFormat={}AED {0:N0}}" FontSize="12" HorizontalAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="3" Text="{Binding JobOrderCount}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="{Binding CustomerCount}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding Revenue, StringFormat={}AED {0:N0}}" FontSize="12" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="{Binding ProjectCount}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="{Binding TaxInvoiceCount}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -150,7 +150,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
                             <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>

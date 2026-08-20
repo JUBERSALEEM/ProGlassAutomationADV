@@ -106,8 +106,8 @@
                 ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="1" Visibility="{Binding HasMissing, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1" CornerRadius="8" Padding="14,10" Margin="14,10,14,0">
                     <StackPanel>
-                        <TextBlock Text="⚠ Notice: Some invoices do not have Step 9 Profit &amp; Loss calculated — open the quote and run Step 9 calculation to record costs." FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text="{Binding Summary.MissingCostSources, Converter={StaticResource ListToStringConverter}}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="⚠ Notice: Some invoices do not have Step 9 Profit &amp; Loss calculated — open the quote and run Step 9 calculation to record costs." FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                        <TextBlock Text="{Binding Summary.MissingCostSources, Converter={StaticResource ListToStringConverter}}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
@@ -167,7 +167,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      4. TABLE HEADER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="3" Style="{StaticResource ModuleListTableHeaderStyle}">
+                <Border Grid.Row="3" Style="{StaticResource ReportTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="130"/>
@@ -177,12 +177,12 @@
                             <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="150"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="DOCUMENT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="1" Text="REVENUE / TOTAL COST" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                        <TextBlock Grid.Column="2" Text="GROSS PROFIT" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="3" Text="MARGIN" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="4" Text="QTY / SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="5" Text="COST BASIS" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="0" Text="DOCUMENT" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="1" Text="REVENUE / TOTAL COST" Style="{StaticResource ReportHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="GROSS PROFIT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="3" Text="MARGIN" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="4" Text="QTY / SQM" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="COST BASIS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
 
@@ -199,7 +199,7 @@
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                        <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                         <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
                     </StackPanel>
                 </Border>
@@ -225,16 +225,16 @@
 
                                     <!-- Col 1: Revenue vs Cost -->
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock FontSize="11">
+                                        <TextBlock FontSize="12">
                                             <Run Text="AED "/><Run Text="{Binding Revenue, Mode=OneWay, StringFormat={}{0:N0}}" FontWeight="SemiBold"/><Run Text=" / Cost AED "/><Run Text="{Binding Cost, Mode=OneWay, StringFormat={}{0:N0}}"/>
                                         </TextBlock>
-                                        <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                             <Run Text="Glass: AED "/><Run Text="{Binding GlassCost, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" · Prod: AED "/><Run Text="{Binding ProductionCost, Mode=OneWay, StringFormat={}{0:N0}}"/>
                                         </TextBlock>
                                     </StackPanel>
 
                                     <!-- Col 2: Profit -->
-                                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" FontWeight="Bold" Text="{Binding Profit, StringFormat={}AED {0:N0}}">
+                                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" FontWeight="Bold" Text="{Binding Profit, StringFormat={}AED {0:N0}}">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
@@ -246,17 +246,17 @@
                                     </TextBlock>
 
                                     <!-- Col 3: Margin -->
-                                    <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" FontWeight="SemiBold">
+                                    <TextBlock Grid.Column="3" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" FontWeight="SemiBold">
                                         <Run Text="{Binding Margin, Mode=OneWay, StringFormat={}{0:0.0}}"/><Run Text="%"/>
                                     </TextBlock>
 
                                     <!-- Col 4: Qty / SQM -->
-                                    <TextBlock Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                    <TextBlock Grid.Column="4" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}">
                                         <Run Text="{Binding Qty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding Sqm, Mode=OneWay, StringFormat={}{0:N1}}"/>
                                     </TextBlock>
 
                                     <!-- Col 5: Cost Basis -->
-                                    <TextBlock Grid.Column="5" Text="{Binding CostSource}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip="{Binding CostSource}"/>
+                                    <TextBlock Grid.Column="5" Text="{Binding CostSource}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" VerticalAlignment="Center" ToolTip="{Binding CostSource}"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -272,7 +272,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
                             <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>

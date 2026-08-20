@@ -202,26 +202,26 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
 
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="PI NUMBER" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.ProformaId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="PI NUMBER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.ProformaId}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="JOB ORDER" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.JobOrderId}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="JOB ORDER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.JobOrderId}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="COMPANY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRow.CompanyName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="COMPANY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRow.CompanyName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="CUSTOMER" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.CustomerName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="CUSTOMER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.CustomerName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="PROJECT" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.ProjectName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="PROJECT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.ProjectName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="SALESMAN" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.Salesman}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="SALESMAN" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.Salesman}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
 
-                                            <TextBlock Grid.Row="6" Grid.Column="0" Text="SPECIFICATION" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedRow.Specification}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+                                            <TextBlock Grid.Row="6" Grid.Column="0" Text="SPECIFICATION" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedRow.Specification}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
                                         </Grid>
                                     </Border>
 
@@ -241,37 +241,37 @@
                                                 <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
 
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="SR NO" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.SerialNumber}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="SR NO" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.SerialNumber}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
 
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="GLASS REF" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="GLASS REF" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="DIMENSIONS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2">
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="DIMENSIONS" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2">
                                                 <Run Text="{Binding SelectedRow.W1, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding SelectedRow.H1, Mode=OneWay}"/>
                                                 <Run Text="   "/><Run Text="{Binding SelectedRow.W2, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding SelectedRow.H2, Mode=OneWay}"/>
                                             </TextBlock>
 
-                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TOTAL QTY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.TotalQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TOTAL QTY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.TotalQty}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="DELIVERED" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="DELIVERED" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
                                             <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
-                                                <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                                                 <Border CornerRadius="6" Padding="8,2" Margin="10,0,0,0"
                                                         Background="{Binding SelectedRow.DeliveryStatusBrushKey, Converter={StaticResource BrushKeyConverter}}">
-                                                    <TextBlock Text="{Binding SelectedRow.DeliveryStatus}" FontSize="9" FontWeight="Bold" Foreground="White"/>
+                                                    <TextBlock Text="{Binding SelectedRow.DeliveryStatus}" FontSize="12" FontWeight="Bold" Foreground="White"/>
                                                 </Border>
                                             </StackPanel>
 
-                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="BALANCE" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.BalanceQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="BALANCE" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.BalanceQty}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
                                         </Grid>
                                     </Border>
 
                                     <!-- Related delivery notes -->
-                                    <TextBlock Text="RELATED DELIVERY NOTES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,12,0,6"/>
+                                    <TextBlock Text="RELATED DELIVERY NOTES" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,12,0,6"/>
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="10,8">
                                         <StackPanel>
                                             <ItemsControl ItemsSource="{Binding SelectedRow.Deliveries}">
@@ -284,18 +284,18 @@
                                                                     <ColumnDefinition Width="Auto"/>
                                                                 </Grid.ColumnDefinitions>
                                                                 <StackPanel Grid.Column="0">
-                                                                    <TextBlock Text="{Binding DeliveryNoteId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                                                    <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                    <TextBlock Text="{Binding DeliveryNoteId}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                                                    <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                                                         <Run Text="{Binding DeliveryDate, Mode=OneWay, StringFormat={}{0:dd MMM yyyy}}"/>
                                                                         <Run Text=" · "/>
                                                                         <Run Text="{Binding Status, Mode=OneWay}"/>
                                                                     </TextBlock>
-                                                                    <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                    <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                                                         <Run Text="{Binding DriverName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
                                                                     </TextBlock>
                                                                 </StackPanel>
                                                                 <Border Grid.Column="1" CornerRadius="6" Padding="8,3" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                                                    <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}">
+                                                                    <TextBlock FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}">
                                                                         <Run Text="{Binding QtyDelivered, Mode=OneWay}"/><Run Text=" pcs"/>
                                                                     </TextBlock>
                                                                 </Border>
@@ -305,7 +305,7 @@
                                                 </ItemsControl.ItemTemplate>
                                             </ItemsControl>
                                             <TextBlock Text="No deliveries recorded for this row yet."
-                                                       FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       FontSize="11.5" Foreground="{DynamicResource MutedForegroundBrush}"
                                                        Visibility="{Binding SelectedRow.Deliveries.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
                                                        Margin="2,6"/>
                                         </StackPanel>
@@ -323,7 +323,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- Table header -->
-                        <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
+                        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="44"/>
@@ -339,18 +339,18 @@
                                     <ColumnDefinition Width="58"/>
                                     <ColumnDefinition Width="60"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="GLASS REF / SR" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="8" Text="H2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="10" Text="DELIV." Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="11" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="GLASS REF / SR" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="8" Text="H2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="10" Text="DELIV." Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="11" Text="BALANCE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
@@ -365,7 +365,7 @@
                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                                 <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                                <TextBlock Text="{Binding ErrorMessage}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                                <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
                                 <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
                             </StackPanel>
                         </Border>
@@ -394,26 +394,26 @@
                                                 <ColumnDefinition Width="60"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
                                             <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,8,0">
-                                                <TextBlock Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Text="{Binding CustomerName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
+                                                <TextBlock Text="{Binding CompanyName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding CustomerName}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
                                             </StackPanel>
                                             <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
-                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" Margin="0,1,0,0">
+                                                <TextBlock Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+                                                <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" Margin="0,1,0,0">
                                                     <Run Text="Sr "/><Run Text="{Binding SerialNumber, Mode=OneWay}"/>
                                                 </TextBlock>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="8" Text="{Binding H2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="9" Text="{Binding TotalQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="10" Text="{Binding DeliveredQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
-                                            <TextBlock Grid.Column="11" Text="{Binding BalanceQty}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="8" Text="{Binding H2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="9" Text="{Binding TotalQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="10" Text="{Binding DeliveredQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
+                                            <TextBlock Grid.Column="11" Text="{Binding BalanceQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
@@ -433,7 +433,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
                             <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to previous page"/>
                             <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource ReportPaginationButton}" ToolTip="Go to next page"/>

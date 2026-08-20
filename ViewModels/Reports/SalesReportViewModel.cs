@@ -93,7 +93,35 @@ namespace ProGlassAutomation.ViewModels.Reports
         };
 
         private string _activeKey = "Overview";
-        public string ActiveKey { get => _activeKey; set { if (_activeKey == value) return; _activeKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(ActiveViewModel)); OnPropertyChanged(nameof(IsOverview)); } }
+        public string ActiveKey { get => _activeKey; set { if (_activeKey == value) return; _activeKey = value; OnPropertyChanged(); OnPropertyChanged(nameof(ActiveViewModel)); OnPropertyChanged(nameof(IsOverview)); OnPropertyChanged(nameof(CurrentReportTitle)); } }
+
+        // ── Collapsible navigation rail (hamburger) ───────────────────────
+        // Same pattern as the main window's menu toggle: the rail collapses
+        // so the open report uses the full display width.
+        private bool _isRailOpen = true;
+        public bool IsRailOpen
+        {
+            get => _isRailOpen;
+            set { if (_isRailOpen == value) return; _isRailOpen = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsRailCollapsed)); }
+        }
+        public bool IsRailCollapsed => !_isRailOpen;
+        public ICommand ToggleRailCommand { get; private set; } = null!;
+
+        /// <summary>Human title of the active report, for the module header strip.</summary>
+        public string CurrentReportTitle => _activeKey switch
+        {
+            "Pi" => "Proforma Invoice Report",
+            "Jo" => "Job Order Report",
+            "Delivery" => "Delivery Note Report",
+            "TaxInvoice" => "Tax Invoice Report",
+            "Company" => "Company / Customer Report",
+            "Salesman" => "Salesman Report",
+            "Project" => "Project Report",
+            "Glass" => "Glass / Specification Report",
+            "Statement" => "Statement Report",
+            "Profitability" => "Profitability / P&L Report",
+            _ => "Reports Overview"
+        };
 
         public ViewModelBase? ActiveViewModel => _activeKey switch
         {
@@ -124,6 +152,8 @@ namespace ProGlassAutomation.ViewModels.Reports
         public SalesReportViewModel()
         {
             _reportingService = App.Reporting ?? new ReportingDataService();
+
+            ToggleRailCommand = new RelayCommand(_ => IsRailOpen = !IsRailOpen);
 
             PiReport = new PiReportViewModel(_reportingService);
             JoReport = new JoReportViewModel(_reportingService);
