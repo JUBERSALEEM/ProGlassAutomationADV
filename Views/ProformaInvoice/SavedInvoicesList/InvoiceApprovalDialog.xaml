@@ -81,8 +81,7 @@
                                          Visibility="Collapsed"/>
                             </Grid>
                             <ContentPresenter Margin="9,0,0,0"
-                                              VerticalAlignment="Center"
-                                              TextBlock.TextWrapping="Wrap"/>
+                                              VerticalAlignment="Center"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
