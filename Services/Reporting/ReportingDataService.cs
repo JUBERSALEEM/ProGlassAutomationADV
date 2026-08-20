@@ -687,7 +687,7 @@ namespace ProGlassAutomation.Services.Reporting
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>Numeric projection used by the SQL-side row aggregation.</summary>
-        private sealed class DeliveryRowAgg
+        private class DeliveryRowAgg
         {
             public int Id { get; set; }
             public string JobOrderId { get; set; } = "";
