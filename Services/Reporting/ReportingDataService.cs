@@ -1098,43 +1098,7 @@ namespace ProGlassAutomation.Services.Reporting
 
         public async Task<RowTrace?> GetRowTraceAsync(string rowId, CancellationToken ct = default)
         {
-            if (string.IsNullOrWhiteSpace(rowId)) return null;
-
-            // Direct extraction of ProformaId from RowId (e.g. "PI-2026-0842-G1-S1" -> "PI-2026-0842")
-            string piId = rowId.Trim();
-            var gIdx = rowId.IndexOf("-G", StringComparison.OrdinalIgnoreCase);
-            if (gIdx > 0) piId = rowId.Substring(0, gIdx);
-
-            var detailRows = await GetPiRowsDetailAsync(piId, ct);
-            var target = detailRows.FirstOrDefault(r => Eq(r.RowId, rowId)) ?? detailRows.FirstOrDefault();
-            if (target == null) return null;
-
-            var trace = new RowTrace { SourceRow = target };
-            trace.Steps.Add(new TraceStep { Stage = "Proforma Invoice", DocumentNumber = target.ProformaId, Status = target.PiStatus, Qty = target.Qty, Value = target.Amount, Date = target.IssueDate });
-            if (!string.IsNullOrWhiteSpace(target.JobOrderId))
-                trace.Steps.Add(new TraceStep { Stage = "Job Order", DocumentNumber = target.JobOrderId, Qty = target.Qty });
-            if (target.DeliveredQty > 0)
-                trace.Steps.Add(new TraceStep { Stage = "Delivery", DocumentNumber = target.DeliveryNoteId ?? target.JobOrderId, Status = target.DeliveryStatus, Qty = target.DeliveredQty });
-            else
-                trace.Steps.Add(new TraceStep { Stage = "Delivery", Status = "Pending", Qty = 0, Notes = "Not yet delivered" });
-
-            if (target.InvoicedQty > 0)
-                trace.Steps.Add(new TraceStep { Stage = "Tax Invoice", DocumentNumber = target.TaxInvoiceNumber ?? "", Status = target.InvoiceStatus, Qty = target.InvoicedQty });
-            else
-                trace.Steps.Add(new TraceStep { Stage = "Tax Invoice", Status = "Pending", Qty = 0, Notes = "Not yet invoiced" });
-
-            trace.Reconciliation = new QuantityReconciliation
-            {
-                OrderedQty = target.Qty,
-                JobOrderQty = string.IsNullOrWhiteSpace(target.JobOrderId) ? 0 : target.Qty,
-                DeliveredQty = target.DeliveredQty,
-                RemainingQty = target.BalanceQty,
-                InvoicedQty = target.InvoicedQty,
-                DeliveryState = target.DeliveryStatus == "Complete" ? "FullyDelivered" : target.DeliveryStatus == "Partial" ? "PartiallyDelivered" : "NotDelivered",
-                InvoiceState = target.InvoiceStatus == "Complete" ? "FullyInvoiced" : target.InvoiceStatus == "Partial" ? "PartiallyInvoiced" : "Pending"
-            };
-
-            return trace;
+            return await RowTraceabilityService.Instance.TraceRowLifecycleAsync(rowId, ct);
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -1332,21 +1296,7 @@ namespace ProGlassAutomation.Services.Reporting
 
         public async Task<QuantityReconciliation> GetQuantityReconciliationAsync(string proformaId, CancellationToken ct = default)
         {
-            if (string.IsNullOrWhiteSpace(proformaId)) return new QuantityReconciliation();
-            var rows = await GetPiRowsDetailAsync(proformaId, ct);
-            int ordered = rows.Sum(r => r.Qty);
-            int delivered = rows.Sum(r => r.DeliveredQty);
-            int invoiced = rows.Sum(r => r.InvoicedQty);
-            return new QuantityReconciliation
-            {
-                OrderedQty = ordered,
-                JobOrderQty = ordered,
-                DeliveredQty = delivered,
-                RemainingQty = Math.Max(0, ordered - delivered),
-                InvoicedQty = invoiced,
-                DeliveryState = delivered == 0 ? "NotDelivered" : delivered < ordered ? "PartiallyDelivered" : "FullyDelivered",
-                InvoiceState = invoiced == 0 ? "Pending" : invoiced < ordered ? "PartiallyInvoiced" : "FullyInvoiced"
-            };
+            return await RowTraceabilityService.Instance.CalculateReconciliationAsync(proformaId, "", 0, 0, ct);
         }
 
         public async Task<Dictionary<string, object>> GetDocumentChainAsync(string proformaId, CancellationToken ct = default)
