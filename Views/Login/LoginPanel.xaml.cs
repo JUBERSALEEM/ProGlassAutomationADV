@@ -49,10 +49,30 @@ namespace ProGlassAutomation.Views.Login
 
         public void FocusInitialField()
         {
-            if (UsernameBox.Text.Length > 0)
-                PasswordBox.Focus();
-            else
-                UsernameBox.Focus();
+            var target = UsernameBox.Text.Length > 0
+                ? (UIElement)PasswordBox
+                : UsernameBox;
+            FocusField(target);
+        }
+
+        /// <summary>
+        /// Sets BOTH logical and keyboard focus (a control in a window that
+        /// is not keyboard-active otherwise ignores Focus()). Also re-arms
+        /// once layout and the login fade have settled, so the caret is
+        /// guaranteed to be in the field the moment the page appears.
+        /// </summary>
+        public void FocusInitialFieldDeferred()
+        {
+            FocusInitialField();
+            Dispatcher.BeginInvoke(new Action(FocusInitialField),
+                System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+        }
+
+        private static void FocusField(UIElement element)
+        {
+            if (element == null) return;
+            element.Focus();
+            Keyboard.Focus(element);
         }
 
         private async void OnLoaded(object sender, RoutedEventArgs e)
@@ -66,11 +86,11 @@ namespace ProGlassAutomation.Views.Login
                 if (remember && saved.Length > 0)
                 {
                     UsernameBox.Text = saved;
-                    PasswordBox.Focus();
+                    FocusField(PasswordBox);
                 }
                 else
                 {
-                    UsernameBox.Focus();
+                    FocusField(UsernameBox);
                 }
 
                 if (await AuditService.IsUsingDefaultPasswordAsync())
@@ -78,7 +98,7 @@ namespace ProGlassAutomation.Views.Login
                     DefaultCredWarning.Visibility = Visibility.Visible;
                     if (UsernameBox.Text.Length == 0)
                         UsernameBox.Text = AuditService.DefaultAdminUsername;
-                    PasswordBox.Focus();
+                    FocusField(PasswordBox);
                 }
             }
             catch (Exception ex)
@@ -86,12 +106,16 @@ namespace ProGlassAutomation.Views.Login
                 AppLogService.Warning(
                     "Could not restore last username: " + ex.Message,
                     new LogContext { Module = "Auth", Class = nameof(LoginPanel) });
-                UsernameBox.Focus();
+                FocusField(UsernameBox);
             }
         }
 
-        /// <summary>Enter (main or num-pad) in either field = the same single sign-in path.</summary>
-        private void Field_KeyDown(object sender, KeyEventArgs e)
+        /// <summary>
+        /// Enter (main or num-pad) ANYWHERE on the page submits — exactly
+        /// like a Facebook/Instagram login. Tunnels from the root, so it
+        /// works even when no field has keyboard focus.
+        /// </summary>
+        private void Root_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if ((e.Key == Key.Enter || e.Key == Key.Return) && !_signingIn)
             {
@@ -116,7 +140,7 @@ namespace ProGlassAutomation.Views.Login
         {
             var reset = new ResetPasswordWindow { Owner = Window.GetWindow(this) };
             reset.ShowDialog();
-            PasswordBox.Focus();
+            FocusField(PasswordBox);
         }
 
         private async Task TrySignInAsync()
@@ -131,18 +155,28 @@ namespace ProGlassAutomation.Views.Login
             {
                 _signingIn = false;
                 ShowError("Enter your username.");
-                UsernameBox.Focus();
+                FocusField(UsernameBox);
                 return;
             }
 
             // INSTANT feedback: flip the button + lock the form BEFORE any
-            // await, so "SIGN IN" becomes "SIGNING IN…" the same frame the
-            // user clicks or presses Enter — never after a database round-trip.
+            // database work. Task.Yield() hands control back to the renderer
+            // so "SIGNING IN…" is painted THIS frame. Without it, the frame
+            // is swallowed: SQLite/EF 'async' calls complete synchronously,
+            // so the whole sign-in ran as one UI-thread block and the button
+            // never showed "SIGNING IN…" until the flow finished (the lag).
             SetSigningState(true, "Signing in…");
+            await Task.Yield();
 
             try
             {
-                int remaining = await AuditService.LockoutRemainingSecondsAsync(username);
+                // All DB + PBKDF2 hash work runs off the UI thread so the
+                // button never stutters and the form stays responsive while
+                // credentials verify (SQLite calls are thread-safe here —
+                // each AuditService method creates its own DbContext).
+                int remaining = await Task.Run(
+                    () => AuditService.LockoutRemainingSecondsAsync(username));
+
                 if (remaining > 0)
                 {
                     // Return to the idle state FIRST so the error is never
@@ -153,8 +187,8 @@ namespace ProGlassAutomation.Views.Login
                     return;
                 }
 
-                var (ok, error) = await AuditService.SwitchUserAsync(
-                    username, password);
+                var (ok, error) = await Task.Run(
+                    () => AuditService.SwitchUserAsync(username, password));
 
                 if (!ok)
                 {
@@ -179,14 +213,14 @@ namespace ProGlassAutomation.Views.Login
                         });
 
                     PasswordBox.Clear();
-                    PasswordBox.Focus();
+                    FocusField(PasswordBox);
                     return;
                 }
 
                 PersistRememberedUsername(username);
 
-                bool usingDefault =
-                    await AuditService.IsUsingDefaultPasswordAsync(username);
+                bool usingDefault = await Task.Run(
+                    () => AuditService.IsUsingDefaultPasswordAsync(username));
                 if (usingDefault)
                 {
                     var force = new ForcePasswordChangeWindow(username)
@@ -199,7 +233,7 @@ namespace ProGlassAutomation.Views.Login
                         AuditService.LogSessionBoundary(login: false);
                         SignedIn = false;
                         PasswordBox.Clear();
-                        PasswordBox.Focus();
+                        FocusField(PasswordBox);
                         ShowError("You must change the default password before continuing.");
                         return;
                     }

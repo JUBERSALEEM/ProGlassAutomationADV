@@ -404,7 +404,16 @@ namespace ProGlassAutomation.Views.Splash
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
 
-            Dispatcher.BeginInvoke(new Action(() => LoginGate.FocusInitialField()),
+            // Bring keyboard focus back to this window — a Topmost splash
+            // can lose activation (e.g. the user clicked the desktop), and
+            // controls in an inactive window ignore Focus(). Without this
+            // the caret never lands in the field, so typing/Enter does
+            // nothing until the user clicks.
+            try { Activate(); } catch { /* window may be closing */ }
+
+            // Focus now, then re-arm once the fade + layout settle so the
+            // caret is guaranteed in the field the moment the page appears.
+            Dispatcher.BeginInvoke(new Action(() => LoginGate.FocusInitialFieldDeferred()),
                 DispatcherPriority.Input);
 
             return done.Task;

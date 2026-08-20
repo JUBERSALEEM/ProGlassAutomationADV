@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              xmlns:updates="clr-namespace:ProGlassAutomation.Services.Updates"
+             PreviewKeyDown="Root_PreviewKeyDown"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -150,15 +151,13 @@
                                        Margin="2,18,0,6"/>
                             <TextBox x:Name="UsernameBox"
                                      Tag="&#xE77B;"
-                                     Style="{StaticResource RoundedTextBox}"
-                                     KeyDown="Field_KeyDown"/>
+                                     Style="{StaticResource RoundedTextBox}"/>
 
                             <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
                                        Margin="2,14,0,6"/>
                             <PasswordBox x:Name="PasswordBox"
                                          Tag="&#xE72E;"
-                                         Style="{StaticResource RoundedPasswordBox}"
-                                         KeyDown="Field_KeyDown"/>
+                                         Style="{StaticResource RoundedPasswordBox}"/>
 
                             <!-- ── REMEMBER / FORGOT ROW ─────────────── -->
                             <Grid Margin="2,14,2,0">
