@@ -162,7 +162,12 @@ namespace ProGlassAutomation.Services.Database
             if (query == null || selector == null) return 0m;
             try
             {
-                return await query.AsNoTracking().SumAsync(selector, ct).ConfigureAwait(false) ?? 0m;
+                var values = await query.AsNoTracking().Select(selector).ToListAsync(ct).ConfigureAwait(false);
+                return values.Where(v => v.HasValue).Sum(v => v!.Value);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch (Exception ex)
             {

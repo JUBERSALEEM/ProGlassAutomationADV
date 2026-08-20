@@ -186,7 +186,8 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalPi = await query.CountAsync(ct);
             if (summary.TotalPi == 0) return summary;
 
-            summary.TotalValue = await query.SumAsync(i => (decimal?)i.GrandTotalVatInclusive, ct) ?? 0m;
+            var totals = await query.Select(i => i.GrandTotalVatInclusive).ToListAsync(ct);
+            summary.TotalValue = totals.Sum();
 
             var statusGroups = await query.GroupBy(i => i.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count() })
@@ -384,7 +385,10 @@ namespace ProGlassAutomation.Services.Reporting
 
             var summary = new JoReportSummary();
             summary.TotalJo = await query.CountAsync(ct);
-            summary.TotalValue = await query.SumAsync(j => (decimal?)j.GrandTotalVatInclusive, ct) ?? 0m;
+            if (summary.TotalJo == 0) return summary;
+
+            var totals = await query.Select(j => j.GrandTotalVatInclusive).ToListAsync(ct);
+            summary.TotalValue = totals.Sum();
 
             var statusGroups = await query.GroupBy(j => j.Status)
                 .Select(g => new { Status = g.Key, Count = g.Count() })
@@ -557,12 +561,13 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalDn = await query.CountAsync(ct);
             if (summary.TotalDn == 0) return summary;
 
-            summary.TotalOrderedQty = await query.SumAsync(d => (int?)d.TotalOrderedQty, ct) ?? 0;
-            summary.TotalDeliveredQty = await query.SumAsync(d => (int?)d.TotalDeliveredQty, ct) ?? 0;
-            summary.TotalRemainingQty = await query.SumAsync(d => (int?)d.TotalBalanceQty, ct) ?? 0;
+            var dnQtys = await query.Select(d => new { d.TotalOrderedQty, d.TotalDeliveredQty, d.TotalBalanceQty }).ToListAsync(ct);
+            summary.TotalOrderedQty = dnQtys.Sum(x => x.TotalOrderedQty);
+            summary.TotalDeliveredQty = dnQtys.Sum(x => x.TotalDeliveredQty);
+            summary.TotalRemainingQty = dnQtys.Sum(x => x.TotalBalanceQty);
 
-            summary.Pending = await query.CountAsync(d => d.TotalDeliveredQty == 0, ct);
-            summary.Completed = await query.CountAsync(d => d.TotalBalanceQty == 0 && d.TotalOrderedQty > 0, ct);
+            summary.Pending = dnQtys.Count(d => d.TotalDeliveredQty == 0);
+            summary.Completed = dnQtys.Count(d => d.TotalBalanceQty == 0 && d.TotalOrderedQty > 0);
             summary.Partial = Math.Max(0, summary.TotalDn - summary.Pending - summary.Completed);
 
             return summary;
@@ -673,15 +678,16 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalInvoices = await query.CountAsync(ct);
             if (summary.TotalInvoices == 0) return summary;
 
-            summary.TotalAmount = await query.SumAsync(t => (decimal?)t.GrandTotal, ct) ?? 0m;
-            summary.TotalVat = await query.SumAsync(t => (decimal?)t.VatAmount, ct) ?? 0m;
+            var tiAmounts = await query.Select(t => new { t.GrandTotal, t.VatAmount, t.Status, t.DueDate }).ToListAsync(ct);
+            summary.TotalAmount = tiAmounts.Sum(x => x.GrandTotal);
+            summary.TotalVat = tiAmounts.Sum(x => x.VatAmount);
 
-            summary.Issued = await query.CountAsync(t => t.Status == "Issued", ct);
-            summary.Paid = await query.CountAsync(t => t.Status == "Paid", ct);
-            summary.PartiallyPaid = await query.CountAsync(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid", ct);
-            summary.Overdue = await query.CountAsync(t => t.Status == "Overdue" || (t.Status == "Issued" && t.DueDate < DateTime.Today), ct);
-            summary.Draft = await query.CountAsync(t => t.Status == "Draft", ct);
-            summary.Outstanding = await query.Where(t => t.Status == "Issued" || t.Status == "Overdue" || t.Status == "PartiallyPaid").SumAsync(t => (decimal?)t.GrandTotal, ct) ?? 0m;
+            summary.Issued = tiAmounts.Count(t => t.Status == "Issued");
+            summary.Paid = tiAmounts.Count(t => t.Status == "Paid");
+            summary.PartiallyPaid = tiAmounts.Count(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
+            summary.Overdue = tiAmounts.Count(t => t.Status == "Overdue" || (t.Status == "Issued" && t.DueDate < DateTime.Today));
+            summary.Draft = tiAmounts.Count(t => t.Status == "Draft");
+            summary.Outstanding = tiAmounts.Where(t => t.Status == "Issued" || t.Status == "Overdue" || t.Status == "PartiallyPaid" || t.Status == "Partially Paid").Sum(x => x.GrandTotal);
 
             return summary;
         }
@@ -1166,9 +1172,10 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalCount = await query.CountAsync(ct);
             if (summary.TotalCount == 0) return summary;
 
-            summary.TotalInvoiced = await query.SumAsync(s => (decimal?)s.TotalInvoiced, ct) ?? 0m;
-            summary.TotalOutstanding = await query.SumAsync(s => (decimal?)s.TotalOutstanding, ct) ?? 0m;
-            summary.TotalOverdue = await query.SumAsync(s => (decimal?)s.OverdueAmount, ct) ?? 0m;
+            var stAmounts = await query.Select(s => new { s.TotalInvoiced, s.TotalOutstanding, s.OverdueAmount }).ToListAsync(ct);
+            summary.TotalInvoiced = stAmounts.Sum(x => x.TotalInvoiced);
+            summary.TotalOutstanding = stAmounts.Sum(x => x.TotalOutstanding);
+            summary.TotalOverdue = stAmounts.Sum(x => x.OverdueAmount);
 
             return summary;
         }

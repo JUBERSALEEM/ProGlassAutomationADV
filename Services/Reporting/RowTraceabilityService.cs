@@ -350,12 +350,12 @@ namespace ProGlassAutomation.Services.Reporting
                 // 4. Invoiced Qty via TI
                 using (var tiDb = new TaxInvoiceDbContext())
                 {
-                    var invoiced = await tiDb.TaxInvoices.AsNoTracking()
+                    var tiQtys = await tiDb.TaxInvoices.AsNoTracking()
                         .Where(t => t.ProformaId == proformaId)
                         .Select(t => t.TotalQty)
-                        .SumAsync(ct)
+                        .ToListAsync(ct)
                         .ConfigureAwait(false);
-                    recon.InvoicedQty = invoiced;
+                    recon.InvoicedQty = tiQtys.Sum();
                 }
 
                 recon.RemainingQty = Math.Max(0, recon.OrderedQty - recon.DeliveredQty);
