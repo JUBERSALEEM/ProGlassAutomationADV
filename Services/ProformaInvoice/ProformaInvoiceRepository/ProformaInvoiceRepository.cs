@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -341,9 +342,43 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var entity = await db.ProformaInvoices.FindAsync(id);
             if (entity == null) return;
 
+            string? proformaId = entity.ProformaId;
+
             db.ProformaInvoices.Remove(entity);
             await db.SaveChangesAsync();
             RaiseChanged();
+
+            // Remove the invoice's Step 8 attachments (files + manifest)
+            // so no orphaned files remain and a re-created invoice with
+            // the same Proforma ID cannot resurrect stale attachments.
+            await ClearAttachmentsQuietlyAsync(proformaId);
+        }
+
+        /// <summary>
+        /// Best-effort cleanup of a deleted PI's Step 8 attachments.
+        /// The PI row is already gone — a failure here is logged, never
+        /// thrown back to the caller.
+        /// </summary>
+        private static async Task ClearAttachmentsQuietlyAsync(string? proformaId)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return;
+
+            try
+            {
+                await new ProformaAttachmentService().ClearAllAsync(proformaId);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Could not clear attachments for deleted PI " +
+                    $"{proformaId}: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Delete"
+                    });
+            }
         }
     }
 }

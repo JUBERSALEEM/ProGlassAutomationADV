@@ -778,6 +778,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 entity.Status = newStatus;
                 await App.Invoices.UpdateAsync(entity);
+
+                // Cancelling / rejecting a PI clears its Step 8 attachments
+                // so a later re-approval starts clean (same rule as the
+                // ProformaLifecycleSync cancellation path).
+                if (string.Equals(newStatus, "Rejected", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(newStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    await ClearCancelledAttachmentsAsync(entity.ProformaId ?? "");
+                }
+
                 await LoadInvoicesAsync();
             }
             catch (Exception ex)
@@ -787,6 +797,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     "Status Change Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Best-effort cleanup of a cancelled PI's Step 8 attachments
+        /// (files + manifest). A clear failure must never roll back or
+        /// fail the status change — it is logged, not thrown.
+        /// </summary>
+        private async Task ClearCancelledAttachmentsAsync(string proformaId)
+        {
+            try
+            {
+                int cleared = await new ProformaAttachmentService()
+                    .ClearAllAsync(proformaId);
+
+                if (cleared > 0)
+                {
+                    AuditService.Log(
+                        AuditSections.Proforma, "Attachments cleared",
+                        $"{proformaId} — {cleared} Step 8 attachment(s) " +
+                        "removed after cancellation",
+                        "PI", proformaId);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Could not clear attachments for cancelled PI " +
+                    $"{proformaId}: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(SavedInvoicesListViewModel),
+                        Operation = "ChangeStatus"
+                    });
             }
         }
 

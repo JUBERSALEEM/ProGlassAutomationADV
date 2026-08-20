@@ -178,6 +178,73 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
             return DeleteFile(record.FilePath);
         }
 
+        /// <summary>
+        /// Removes EVERY attachment for the invoice: deletes each file
+        /// from disk, deletes the manifest and prunes the invoice folder
+        /// (Images / PDFs / root) when empty.
+        ///
+        /// Used when an invoice is cancelled / rejected or permanently
+        /// deleted, so a later re-approval (or a re-created invoice with
+        /// the same Proforma ID) starts with a clean Step 8. Mirrors the
+        /// downstream cleanup a Job Order delete performs on its master
+        /// delivery notes.
+        ///
+        /// NO permission demand of its own, by design: this method is only
+        /// invoked from flows that are ALREADY authorized (PI status
+        /// change, PI delete, or lifecycle sync after a JO / DN / TI
+        /// delete — the Production role can delete a Job Order without
+        /// holding ProformaEdit, so demanding it here would silently
+        /// block legitimate cleanup). File deletion is best-effort with
+        /// the same BUG-27 semantics as <see cref="DeleteFile"/>: locked
+        /// files are left behind, never thrown.
+        /// </summary>
+        /// <returns>The number of attachment files actually deleted.</returns>
+        public async Task<int> ClearAllAsync(string proformaId)
+        {
+            var manifest = await LoadManifestAsync(proformaId);
+            int cleared = 0;
+
+            foreach (var record in manifest)
+            {
+                if (DeleteFile(record.FilePath))
+                    cleared++;
+            }
+
+            // Remove the manifest, then prune empty folders. Any leftovers
+            // (locked files) keep their folder — same best-effort rule as
+            // per-file deletion.
+            try
+            {
+                string manifestPath = ManifestPath(proformaId);
+                if (File.Exists(manifestPath))
+                    File.Delete(manifestPath);
+
+                string invoiceFolder = InvoiceFolder(proformaId);
+
+                foreach (var sub in new[] { "Images", "PDFs" })
+                {
+                    string dir = Path.Combine(invoiceFolder, sub);
+                    if (Directory.Exists(dir) &&
+                        !Directory.EnumerateFileSystemEntries(dir).Any())
+                    {
+                        Directory.Delete(dir);
+                    }
+                }
+
+                if (Directory.Exists(invoiceFolder) &&
+                    !Directory.EnumerateFileSystemEntries(invoiceFolder).Any())
+                {
+                    Directory.Delete(invoiceFolder);
+                }
+            }
+            catch
+            {
+                // Best-effort pruning only; the manifest may already be gone.
+            }
+
+            return cleared;
+        }
+
         /// <summary>Renames the file on disk + in the manifest.</summary>
         public async Task<bool> RenameAsync(
             string proformaId, string recordId, string newName)
