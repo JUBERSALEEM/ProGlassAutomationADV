@@ -237,8 +237,29 @@
                                         </TextBlock>
                                         <TextBlock Grid.Column="4" Text="{Binding Qty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                         <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                        <Border Grid.Column="6" CornerRadius="6" Padding="6,3" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource TintAmberBrush}">
-                                            <TextBlock Text="{Binding DeliveryStatus}" FontSize="10" FontWeight="SemiBold"/>
+                                        <!-- Col 6: Delivery Status Badge -->
+                                        <Border Grid.Column="6" CornerRadius="6" Padding="6,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding DeliveryStatus}" Value="Complete"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding DeliveryStatus}" Value="Partial"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding DeliveryStatus}" Value="Pending"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding DeliveryStatus}" FontSize="10" FontWeight="SemiBold">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding DeliveryStatus}" Value="Complete"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding DeliveryStatus}" Value="Partial"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
                                         </Border>
                                         <Button Grid.Column="7" Content="Trace" Command="{Binding DataContext.TraceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect full manufacturing lifecycle of this item"/>
                                     </Grid>
