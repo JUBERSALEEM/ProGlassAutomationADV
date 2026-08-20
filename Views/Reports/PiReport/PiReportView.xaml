@@ -213,9 +213,7 @@
                 </Border>
 
                 <ListBox Grid.Row="3" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

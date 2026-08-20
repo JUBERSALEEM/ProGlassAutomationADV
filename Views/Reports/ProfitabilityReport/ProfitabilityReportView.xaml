@@ -194,9 +194,7 @@
                 <emptyState:EmptyStateControl Grid.Row="4" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No profitability data found" Message="Run Step 9 Profit &amp; Loss in a Proforma Invoice to record revenue, costs, and margins." Icon="&#xE913;"/>
 
                 <ListBox Grid.Row="4" ItemsSource="{Binding Rows}"
-                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

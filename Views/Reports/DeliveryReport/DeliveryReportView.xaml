@@ -193,9 +193,7 @@
                 <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No deliveries found" Message="No Delivery Notes match the current filters." Icon="&#xE814;"/>
 
                 <ListBox Grid.Row="3" ItemsSource="{Binding Rows}"
-                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

@@ -212,9 +212,7 @@
                 <emptyState:EmptyStateControl Grid.Row="4" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Tax Invoices found" Message="No records match current filters." Icon="&#xE8C7;"/>
 
                 <ListBox Grid.Row="4" ItemsSource="{Binding Rows}"
-                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>

@@ -211,9 +211,7 @@
                         </Style>
                     </Grid.Style>
                     <ListBox ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                             Background="Transparent" BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             Style="{StaticResource ModuleReportListBoxStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11">
@@ -261,9 +259,7 @@
                         </Style>
                     </Grid.Style>
                     <ListBox ItemsSource="{Binding Aggregations}"
-                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                             Background="Transparent" BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             Style="{StaticResource ModuleReportListBoxStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11">

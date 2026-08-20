@@ -146,9 +146,7 @@
                     </Border>
 
                     <ListBox Grid.Row="1" ItemsSource="{Binding CustomerRows}" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
-                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                             Background="Transparent" BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             Style="{StaticResource ModuleReportListBoxStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11" Cursor="Hand" ToolTip="Click to view full lifecycle and quote history for this customer">
@@ -211,9 +209,7 @@
                     </Border>
 
                     <ListBox Grid.Row="1" ItemsSource="{Binding CompanyRows}"
-                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                             Background="Transparent" BorderThickness="0"
-                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                             Style="{StaticResource ModuleReportListBoxStyle}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11" ToolTip="Operating company summary">

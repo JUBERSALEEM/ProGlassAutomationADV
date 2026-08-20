@@ -137,6 +137,20 @@
         </Setter>
     </Style>
 
+    <!-- High-performance virtualized ListBox for reporting tables (handles 100K+ records lag-free) -->
+    <Style x:Key="ModuleReportListBoxStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="True"/>
+        <Setter Property="VirtualizingPanel.IsVirtualizing" Value="True"/>
+        <Setter Property="VirtualizingPanel.VirtualizationMode" Value="Recycling"/>
+        <Setter Property="VirtualizingPanel.ScrollUnit" Value="Pixel"/>
+        <Setter Property="ItemContainerStyle" Value="{StaticResource ModuleListBoxItemStyle}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
     <!-- Underline tabs (DN / TI code-behind still swap Active/Inactive keys) -->
     <Style x:Key="ModuleListTabInactiveStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>

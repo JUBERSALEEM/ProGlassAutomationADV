@@ -103,9 +103,7 @@
                 <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No projects found" Message="No project records match the current filters. Records without projects are shown as (No Project)." Icon="&#xE8F1;"/>
 
                 <ListBox Grid.Row="2" ItemsSource="{Binding Rows}" SelectedItem="{Binding Selected, Mode=TwoWay}"
-                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
-                         Background="Transparent" BorderThickness="0"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Style="{StaticResource ModuleReportListBoxStyle}"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
