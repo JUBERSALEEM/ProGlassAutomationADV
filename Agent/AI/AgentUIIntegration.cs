@@ -29,5 +29,18 @@ namespace ProGlassAutomation.Agent.AI
             AssistantMode.Settings => "AI Settings",
             _ => "AI"
         };
+
+        /// <summary>Returns whether the mode requires the agent to be active.</summary>
+        public static bool RequiresAgent(AssistantMode mode) => mode switch
+        {
+            AssistantMode.AssistantPanel => true,
+            AssistantMode.VoiceOnly => true,
+            AssistantMode.AgentTasks => true,
+            AssistantMode.Activity => false,
+            AssistantMode.Automation => true,
+            AssistantMode.DeveloperMode => true,
+            AssistantMode.Settings => false,
+            _ => false
+        };
     }
 }
