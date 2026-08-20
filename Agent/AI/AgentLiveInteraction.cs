@@ -7,7 +7,7 @@ namespace ProGlassAutomation.Agent.AI
     /// <summary>Controlled live application interaction with confirmation gates.</summary>
     public sealed class AgentLiveInteraction
     {
-        private readonly IAgentOrchestrator? _agent;
+        private readonly IAIOrchestrator? _agent;
 
         public AgentLiveInteraction(IAIOrchestrator? agent)
         {
