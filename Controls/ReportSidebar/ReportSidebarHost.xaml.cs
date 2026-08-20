@@ -9,6 +9,7 @@
 // toggle IsOpen from their selection state.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Animations;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -124,7 +125,9 @@ namespace ProGlassAutomation.Controls.ReportSidebar
 
         /// <summary>
         /// Opens/closes with the Sheet Store animation: the detail column
-        /// animates 0 ↔ 376px and the panel translates 40px out/in.
+        /// animates 0 ↔ 376px (GridLengthAnimation — WPF has no native
+        /// animation for the GridLength-typed Width) and the panel
+        /// translates 40px out/in.
         /// </summary>
         private void AnimatePanel(bool open)
         {
@@ -134,10 +137,10 @@ namespace ProGlassAutomation.Controls.ReportSidebar
             {
                 DetailPanel.Visibility = Visibility.Visible;
                 DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty,
-                    new DoubleAnimation
+                    new GridLengthAnimation
                     {
-                        From = DetailColumn.ActualWidth,
-                        To = 376,
+                        From = DetailColumn.Width,
+                        To = new GridLength(376),
                         Duration = TimeSpan.FromMilliseconds(220),
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                     });
@@ -168,10 +171,10 @@ namespace ProGlassAutomation.Controls.ReportSidebar
                 PanelSlide.BeginAnimation(System.Windows.Media.TranslateTransform.XProperty, slide);
 
                 DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty,
-                    new DoubleAnimation
+                    new GridLengthAnimation
                     {
-                        From = DetailColumn.ActualWidth,
-                        To = 0,
+                        From = DetailColumn.Width,
+                        To = new GridLength(0),
                         Duration = TimeSpan.FromMilliseconds(160),
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
                     });

@@ -1,8 +1,8 @@
+using ProGlassAutomation.Animations;
 using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Animation;
 
 namespace ProGlassAutomation.Views.Reports
 {
@@ -39,7 +39,8 @@ namespace ProGlassAutomation.Views.Reports
         /// <summary>
         /// Animates the rail column 268 ↔ 0 so the open report uses the full
         /// display width (hamburger in the module header strip reopens it).
-        /// Same choreography as the Sheet Store sidebar.
+        /// Uses the shared GridLengthAnimation — WPF has no native animation
+        /// for the GridLength-typed ColumnDefinition.Width.
         /// </summary>
         private void ApplyRailState(bool open, bool animate)
         {
@@ -53,12 +54,15 @@ namespace ProGlassAutomation.Views.Reports
             }
 
             RailColumn.BeginAnimation(ColumnDefinition.WidthProperty,
-                new DoubleAnimation
+                new GridLengthAnimation
                 {
-                    From = RailColumn.ActualWidth,
-                    To = open ? 268 : 0,
+                    From = RailColumn.Width,
+                    To = open ? new GridLength(268) : new GridLength(0),
                     Duration = TimeSpan.FromMilliseconds(220),
-                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    EasingFunction = new System.Windows.Media.Animation.CubicEase
+                    {
+                        EasingMode = System.Windows.Media.Animation.EasingMode.EaseOut
+                    }
                 });
         }
 

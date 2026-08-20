@@ -1,3 +1,4 @@
+using ProGlassAutomation.Animations;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels.SheetStore;
 using System;
@@ -146,64 +147,5 @@ namespace ProGlassAutomation.Views.SheetStore
 
         private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
             => ProGlassAutomation.Utilities.UiTreeHelper.IsDescendantOf(element, root);
-    }
-
-    /// <summary>
-    /// Animates a ColumnDefinition.Width between two GridLength values.
-    /// WPF has no built-in GridLength animation; DoubleAnimation cannot
-    /// animate GridLength, so this lightweight AnimationTimeline is used for
-    /// the sheet-store slide panel (smooth open/close of the column width).
-    /// </summary>
-    internal sealed class GridLengthAnimation : AnimationTimeline
-    {
-        public override Type TargetPropertyType => typeof(GridLength);
-
-        public static readonly DependencyProperty FromProperty =
-            DependencyProperty.Register(nameof(From), typeof(GridLength), typeof(GridLengthAnimation));
-
-        public static readonly DependencyProperty ToProperty =
-            DependencyProperty.Register(nameof(To), typeof(GridLength), typeof(GridLengthAnimation));
-
-        public GridLength From
-        {
-            get => (GridLength)GetValue(FromProperty);
-            set => SetValue(FromProperty, value);
-        }
-
-        public GridLength To
-        {
-            get => (GridLength)GetValue(ToProperty);
-            set => SetValue(ToProperty, value);
-        }
-
-        public static readonly DependencyProperty EasingFunctionProperty =
-            DependencyProperty.Register(
-                nameof(EasingFunction),
-                typeof(IEasingFunction),
-                typeof(GridLengthAnimation));
-
-        public IEasingFunction EasingFunction
-        {
-            get => (IEasingFunction)GetValue(EasingFunctionProperty);
-            set => SetValue(EasingFunctionProperty, value);
-        }
-
-        protected override Freezable CreateInstanceCore() => new GridLengthAnimation();
-
-        public override object GetCurrentValue(
-            object defaultOriginValue,
-            object defaultDestinationValue,
-            AnimationClock animationClock)
-        {
-            if (animationClock.CurrentProgress == null) return From;
-
-            double progress = animationClock.CurrentProgress.Value;
-            if (EasingFunction != null)
-                progress = EasingFunction.Ease(progress);
-
-            double from = From.Value;
-            double to = To.Value;
-            return new GridLength(from + (to - from) * progress, GridUnitType.Pixel);
-        }
     }
 }
