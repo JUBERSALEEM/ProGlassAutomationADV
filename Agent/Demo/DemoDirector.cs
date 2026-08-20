@@ -530,7 +530,28 @@ namespace ProGlassAutomation.Agent.Demo
             FfmpegHint = FfmpegMp4Composer.Find() == null
                 ? "ffmpeg not found — this job will fail (AVI is not accepted as an MP4)."
                 : "ffmpeg found — MP4 encode will be attempted.";
-            try { Changed?.Invoke(); } catch { /* UI must not break the director */ }
+
+            // The `Changed` event is consumed by UI code that may read
+            // properties bound to ObservableCollection-backed CollectionViews.
+            // Raising it from the demo's background thread will crash with
+            // "CollectionView does not support changes to its source
+            // collection from a thread different from the dispatcher thread."
+            // Dispatch to the UI thread — same pattern as Remember() below.
+            try
+            {
+                var disp = System.Windows.Application.Current?.Dispatcher;
+                if (disp != null && !disp.CheckAccess())
+                {
+                    disp.Invoke(() =>
+                    {
+                        try { Changed?.Invoke(); }
+                        catch { /* a subscriber must never break the director */ }
+                    });
+                    return;
+                }
+                Changed?.Invoke();
+            }
+            catch { /* UI must not break the director */ }
         }
     }
 }
