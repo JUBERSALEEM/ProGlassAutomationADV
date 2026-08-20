@@ -1,22 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Reporting/SpecificationMatcher.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Central Reporting — Canonical Specification Identity
+// MODULE: Central Reporting — Canonical Specification Intelligence Engine
 //
 // PURPOSE:
-//   Type-aware exact specification matching. Must NOT merge:
-//     6 Clear + 12 ASP + 6 Clear  vs  6 Clear + 16 ASP + 6 Clear
-//     1200×800 vs 1200×900 vs different colours/thicknesses/PVB/spacers
+//   Type-aware deterministic specification matching & fingerprinting.
+//   Guarantees that distinct physical configurations are NEVER merged:
+//     • 6 Clear + 12 ASP + 6 Clear  ≠  6 Clear + 16 ASP + 6 Clear
+//     • 1200×800  ≠  1200×900
+//     • 6mm Clear Temp + 1.52 PVB + 6mm Clear  ≠  6mm Clear + 0.76 PVB + 6mm Clear
 //
-// RULES:
-//   • SGU, DGU, LAM, DGU+LAM have different relevant attributes.
-//   • Canonical key is lowercased, trimmed, normalized.
-//   • Dimensions are separate from spec identity (same glass spec
-//     at different sizes = different canonical keys).
-//   • GlassRef is part of identity (ties to physical reference code).
-//
-// USED BY:
-//   Glass/Spec Report aggregation, Row-level traceability, AI spec search.
+// SUPPORTED SPECIFICATION PARAMETERS:
+//   • Glass Reference (physical barcode/tag)
+//   • Glass Type (SGU / DGU / LAM / DGU+LAM)
+//   • Glass Layer Thicknesses (4mm, 5mm, 6mm, 8mm, 10mm, 12mm, 15mm, 19mm)
+//   • Colours (Clear, Extra Clear/Low Iron, Euro Grey, Dark Grey, Bronze, Green, Blue)
+//   • Treatments (Annealed, Tempered/Toughened, Heat Strengthened)
+//   • Coatings (Low-E, Solar Control, Reflective, Double Silver, Sunergy, Solarban)
+//   • Interlayer / PVB (Clear PVB, Acoustic PVB, SentryGlas/SGP, 0.38mm, 0.76mm, 1.14mm, 1.52mm)
+//   • Air Space / Spacer (6mm, 8mm, 9mm, 10mm, 12mm, 14mm, 15mm, 16mm, 18mm, 20mm, Warm Edge, Aluminum, Argon gas)
+//   • Dimensions (W1 × H1, W2 × H2 for shaped panes)
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -31,43 +34,40 @@ namespace ProGlassAutomation.Services.Reporting
             (s ?? "").Trim().ToLowerInvariant();
 
         private static string NormRef(string? s) =>
-            (s ?? "").Trim().ToLowerInvariant();
+            (s ?? "").Trim().ToUpperInvariant();
 
         /// <summary>
-        /// Build a canonical identity key for a glass specification.
-        /// Type-aware: SGU/DGU/LAM/DGU+LAM each include only their relevant
-        /// attributes. Never merges specs that differ on any relevant field.
+        /// Build a deterministic, type-aware canonical identity key for a glass specification.
         /// </summary>
         public static string BuildCanonicalKey(SpecIdentity identity)
         {
-            if (identity == null) return "unknown|||0x0";
+            if (identity == null) return "UNKNOWN|||0x0";
 
             var type = Norm(identity.GlassType);
             if (string.IsNullOrWhiteSpace(type)) type = DetectType(identity.SpecName);
 
             var sb = new StringBuilder();
-            // Glass reference + type are always significant
+
+            // 1. Glass Reference
             sb.Append(NormRef(identity.GlassRef));
             sb.Append('|');
-            sb.Append(type);
+
+            // 2. Glass Build Type
+            sb.Append(type.ToUpperInvariant());
             sb.Append('|');
 
-            // Spec name normalized — captures thickness, colour, treatment,
-            // spacer, PVB, lamination that the Pricing Estimator embedded.
-            // Type-aware parsing: extract only relevant tokens.
-            var specName = NormSpecName(identity.SpecName, type);
-            sb.Append(specName);
+            // 3. Normalized Composition (thicknesses, treatments, coatings, spacer, PVB)
+            var specFingerprint = NormalizeSpecComposition(identity.SpecName, type);
+            sb.Append(specFingerprint);
             sb.Append('|');
 
-            // Dimensions — exact, never merged across sizes
-            // For shape with W2/H2, include them; 0 means rectangular only
+            // 4. Exact Dimensions (never merged across sizes)
             sb.Append(identity.W1).Append('×').Append(identity.H1);
             if (identity.W2 > 0 || identity.H2 > 0)
                 sb.Append('/').Append(identity.W2).Append('×').Append(identity.H2);
 
-            // Colors — significant for identity (different stock)
-            if (!string.IsNullOrWhiteSpace(identity.OuterColor) ||
-                !string.IsNullOrWhiteSpace(identity.InnerColor))
+            // 5. Colours (Outer + Inner stock colors)
+            if (!string.IsNullOrWhiteSpace(identity.OuterColor) || !string.IsNullOrWhiteSpace(identity.InnerColor))
             {
                 sb.Append('|');
                 sb.Append(Norm(identity.OuterColor));
@@ -79,8 +79,7 @@ namespace ProGlassAutomation.Services.Reporting
         }
 
         /// <summary>
-        /// Build canonical key from raw spec group + row data without needing
-        /// to construct SpecIdentity first. Convenience for DB projections.
+        /// Build canonical key directly from row attributes.
         /// </summary>
         public static string BuildCanonicalKey(
             string? glassRef,
@@ -105,8 +104,7 @@ namespace ProGlassAutomation.Services.Reporting
         }
 
         /// <summary>
-        /// True if two identities describe the exact same physical glass.
-        /// Dimensions must match exactly; 1200×800 ≠ 1200×900.
+        /// True if two specifications represent the exact same physical glass configuration.
         /// </summary>
         public static bool IsExactMatch(SpecIdentity a, SpecIdentity b)
         {
@@ -115,46 +113,54 @@ namespace ProGlassAutomation.Services.Reporting
         }
 
         /// <summary>
-        /// Try to detect glass type from spec name when GlassType column is empty
-        /// (legacy invoices or manual specs).
+        /// Detect glass type from specification name when explicit type is missing.
         /// </summary>
         public static string DetectType(string? specName)
         {
             var s = Norm(specName);
             if (string.IsNullOrWhiteSpace(s)) return "sgu";
-            if (s.Contains("dgu+lam") || s.Contains("dgu + lam")) return "dgu+lam";
-            if (s.Contains("dgu")) return "dgu";
-            if (s.Contains("lam")) return "lam";
+            if (s.Contains("dgu+lam") || s.Contains("dgu + lam") || s.Contains("dgu/lam")) return "dgu+lam";
+            if (s.Contains("dgu") || s.Contains("asp") || s.Contains("spacer") || s.Contains("air")) return "dgu";
+            if (s.Contains("lam") || s.Contains("pvb") || s.Contains("sgp") || s.Contains("sentry")) return "lam";
             return "sgu";
         }
 
-        private static string NormSpecName(string? specName, string type)
+        /// <summary>
+        /// Normalize specification composition preserving all critical engineering tokens.
+        /// </summary>
+        private static string NormalizeSpecComposition(string? specName, string type)
         {
             var raw = Norm(specName);
             if (string.IsNullOrWhiteSpace(raw)) return "";
 
-            // Collapse multiple spaces, normalize separators
+            // Normalize spaces and operators
             raw = Regex.Replace(raw, @"\s+", " ").Trim();
             raw = raw.Replace(" + ", "+").Replace(" +", "+").Replace("+ ", "+");
+            raw = raw.Replace(" / ", "/").Replace(" /", "/").Replace("/ ", "/");
 
-            // Type-aware normalization:
-            // SGU: keep entire spec (single pane spec)
-            // DGU: spec contains spacer — keep exactly as is, spacer thickness is significant
-            // LAM: contains PVB — keep exactly as is, PVB thickness is significant
-            // DGU+LAM: contains both — keep exactly
-            // All types: lowercase already, keep punctuation that carries meaning
-
-            // Normalize "mm" spacing: "6 mm" → "6mm"
+            // Normalize unit notations
             raw = Regex.Replace(raw, @"(\d+)\s*mm", "$1mm");
-            // Normalize ASP: "12 mm asp" / "12mmasp" → "12mmasp"
-            raw = Regex.Replace(raw, @"(\d+)\s*m\s*m\s*a\s*s\s*p", "$1mmasp");
+            raw = Regex.Replace(raw, @"(\d+)\s*m\s*m\s*a\s*s\s*p", "$1asp");
+            raw = Regex.Replace(raw, @"(\d+)\s*a\s*s\s*p", "$1asp");
+            raw = Regex.Replace(raw, @"(\d+)\s*a\b", "$1asp"); // 12A -> 12asp
+
+            // Normalize PVB notations
+            raw = Regex.Replace(raw, @"(\d+\.\d+)\s*pvb", "$1pvb");
+            raw = Regex.Replace(raw, @"(\d+\.\d+)\s*sgp", "$1sgp");
+
+            // Normalize Treatments
+            raw = raw.Replace("tempered", "temp").Replace("toughened", "temp");
+            raw = raw.Replace("heat strengthened", "hs").Replace("heat-strengthened", "hs");
+            raw = raw.Replace("annealed", "ann");
+
+            // Strip redundant filler spaces
             raw = raw.Replace(" ", "");
 
             return raw;
         }
 
         /// <summary>
-        /// Human-readable key for grouping in UI (first 50 chars of spec name + dimensions).
+        /// Formats a human-readable title for UI grouping.
         /// </summary>
         public static string DisplayKey(SpecIdentity identity)
         {
