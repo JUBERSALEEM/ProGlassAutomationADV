@@ -94,7 +94,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         // ── Pagination ────────────────────────────────────────────────────
         private int _page = 1;
         public int Page { get => _page; set { if (_page == value) return; _page = Math.Max(1, value); OnPropertyChanged(); OnPropertyChanged(nameof(PageDisplay)); _ = LoadAsync(); } }
-        private int _pageSize = 50;
+        private int _pageSize = 100;
         public int PageSize { get => _pageSize; set { if (_pageSize == value) return; _pageSize = Math.Max(10, value); OnPropertyChanged(); _ = LoadAsync(); } }
         private int _totalCount;
         public int TotalCount { get => _totalCount; protected set { if (_totalCount == value) return; _totalCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(PageDisplay)); OnPropertyChanged(nameof(HasNextPage)); OnPropertyChanged(nameof(HasPrevPage)); } }
