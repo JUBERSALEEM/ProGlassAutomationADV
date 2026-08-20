@@ -14,8 +14,21 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
     /// </summary>
     internal static class DemoWalk
     {
-        public const int BeatMs = 2200;
-        public const int HoldMs = 2800;
+        /// <summary>
+        /// Human-like jitter: a Random generator adds ±20% to every paced delay so
+        /// the demo feels natural instead of mechanically uniform.
+        /// </summary>
+        private static readonly Random _jitter = new();
+
+        /// <summary>Base beat between narrated steps (applied with jitter).</summary>
+        public static int BeatMs => Jitter(2200);
+
+        /// <summary>Hold time for important screens (applied with jitter).</summary>
+        public static int HoldMs => Jitter(2800);
+
+        /// <summary>Jitter a nominal millisecond delay ±20%.</summary>
+        private static int Jitter(int ms) =>
+            ms + (int)(ms * (_jitter.NextDouble() * 0.40 - 0.20));
 
         public static bool Navigate(string target)
         {

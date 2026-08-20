@@ -29,7 +29,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await sales.ListVM.LoadAsync().ConfigureAwait(true);
             await DemoWalk.PresentAsync(events, "opened_list",
                 "Statement list",
-                "Sales Report holds saved account statements. A new statement walks the live four-step generator.",
+                "The statements section stores every account statement we have generated for customers. A statement is a summary of issued tax invoices, payments received and outstanding balances — essentially a customer's account history. Creating a new statement walks through a four-step generator wizard.",
                 $"showList={sales.ShowList}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -47,7 +47,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "wizard",
                 "New statement",
-                "New Statement opened the generator. Same command as the list button.",
+                "The statement generator opens with four steps: filter which invoices to include, preview the selection, execute the statement and review the result. It works the same way whether you are generating a statement for one customer or grouping multiple customers into a single statement run.",
                 $"step={sales.GeneratorVM.CurrentStep}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -60,8 +60,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             }, ct).ConfigureAwait(false);
 
             await DemoWalk.PresentAsync(events, "filtered",
-                "Filters",
-                "Customer Skyline Interiors LLC, company ProGlass Automation Demo. Status chips stay on Issued, Paid, Partially Paid and Overdue.",
+                "Statement filters",
+                "We set which invoices to include — by customer, by company, or by date range. The status chips at the top show the current mix of issued, paid, partially paid and overdue invoices so you can see at a glance what the statement will cover before generating it.",
                 $"customer={sales.GeneratorVM.FilterCustomer} hasFilter={sales.GeneratorVM.HasFilter}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -93,8 +93,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await DemoWalk.PresentAsync(events, "preview",
                 "Preview invoices",
                 sales.GeneratorVM.HasPreview
-                    ? $"Preview found {sales.GeneratorVM.MatchCount} invoices. {sales.GeneratorVM.PreviewVM.SelectionSummaryDisplay}. Generate is not run here — it can open a warning dialog and freeze the recording."
-                    : "Preview ran against the live tax invoices. Generate is skipped so a warning dialog cannot freeze the camera.",
+                    ? $"The preview shows which invoices match our filter — {sales.GeneratorVM.MatchCount} invoices found. We can select or deselect individual invoices before generating the statement. The generate step is skipped in this demo to avoid confirmation dialogs, but in a real session you would click Generate and the statement PDF would be created automatically."
+                    : "The preview step lists every matching invoice. From here you select the ones to include and click Generate to produce the statement PDF.",
                 $"matches={sales.GeneratorVM.MatchCount} selected={sales.GeneratorVM.PreviewVM.SelectedCount} step={sales.GeneratorVM.CurrentStep}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 

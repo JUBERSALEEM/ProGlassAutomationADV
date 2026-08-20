@@ -50,8 +50,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
 
             await PresentAsync(events, "opened_list",
-                "Step 0, invoice list",
-                "This is the live proforma invoice list. A quotation starts here.",
+                "Invoice list",
+                "The Proforma Invoice module is your quotation desk. Every customer quote starts here — from a simple glass sheet to a full curtain wall. Saved quotes are listed with their status so you know which ones are drafts, which were sent, and which the customer confirmed.",
                 "Navigate ProformaInvoice", BeatMs, ct).ConfigureAwait(false);
 
             var pi = await ResolvePiAsync(ct).ConfigureAwait(false);
@@ -67,15 +67,15 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct).ConfigureAwait(false);
             await PresentAsync(events, "new_invoice",
                 "New invoice",
-                "New Invoice opened the nine step wizard. Same command as the list button.",
+                "Creating a new quotation opens the nine-step wizard. Each step handles one part of the quote: company details, customer information, project specs, glass pricing, line items, charges, the preview, attachments, and finally the profit and loss view. It is the same workflow our team follows every day.",
                 "TriggerNewInvoice", BeatMs, ct).ConfigureAwait(false);
 
             // ── 1 Company ────────────────────────────────────────────
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "company",
-                    "Step 1, company",
-                    $"{Company}, Sharjah. Tax number {CompanyTrn}. Valid fourteen days. This letterhead prints on the quotation.",
+                    "Step 1, company profile",
+                    "Step one sets up our company letterhead on the quotation — our trading name, tax registration number required by UAE VAT law, bank details for payment, and the quote validity period. This is what the customer sees at the top of every document we issue.",
                     $"Company={pi.Step1VM.CompanyName} Id={pi.Step1VM.ProformaId}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -85,8 +85,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillCustomerAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "customer",
-                    "Step 2, client",
-                    $"{Customer}. Attention engineer Mariam Al Suwaidi. Salesman A. Rahman. Billing in Al Zahia, Sharjah.",
+                    "Step 2, customer information",
+                    "Step two captures who we are quoting. The customer's legal name and tax registration number are required for UAE invoicing. We also assign a sales representative so every quote is traceable to the person handling the account, and a contact person the factory can call when the job goes into production.",
                     $"Customer={pi.Step2VM.CustomerName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -96,8 +96,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillProjectAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "project",
-                    "Step 3, project",
-                    "Al Zahia Tower, podium glazing. Contract A Z T P O D 26, L P O 4418. This name follows the job and the delivery note.",
+                    "Step 3, project reference",
+                    "The project name ties the quotation to the actual site or building. It travels with the job order, delivery note and tax invoice so everyone in the factory and on site knows which project each piece of glass belongs to. We also record the contract number and purchase order reference for the customer's procurement system.",
                     $"Project={pi.Step3VM.ProjectIdentifierName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -105,16 +105,16 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             // ── 4 Calculators ────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step4",
-                "Step 4, spec generator",
-                "Step 4. I will run the S G U calculator, then the D G U calculator.",
+                "Step 4, specification calculators",
+                "The specification generators are where we design the actual glass build — single glazed or double glazed units, each with its own thickness, colour, treatment, spacer and gas fill. The calculator works out the rate per square metre based on material costs, yield, and target margin. This rate then flows into the line items automatically.",
                 "Step 4", BeatMs, ct).ConfigureAwait(false);
 
             var sgu = await RunSguCalculatorAsync(pi, ct).ConfigureAwait(false);
             if (sgu.Ok)
             {
                 await PresentAsync(events, "sgu_calc",
-                    "S G U calculator",
-                    $"S G U calculator. Rate {sgu.Rate:0.00} dirhams per square metre, yield 0.85, cutting, tempering, 15 percent margin.",
+                    "SGU calculator",
+                    $"Single glazed unit calculator. We set the glass thickness, colour and treatment. The system calculates the selling price per square metre including cutting, tempering and polishing — a fifteen percent margin on top of costs. This rate automatically applies to every SGU line item in the grid.",
                     $"SGU {sgu.SpecName} @ {sgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -123,8 +123,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (dgu.Ok)
             {
                 await PresentAsync(events, "dgu_calc",
-                    "D G U calculator",
-                    $"D G U calculator. Outer and inner 6 millimetre clear F T, 12 millimetre spacer, argon. Rate {dgu.Rate:0.00}.",
+                    "DGU calculator",
+                    $"Double glazed unit calculator. Outer glass six millimetres, inner glass six millimetres, twelve millimetre aluminium spacer with argon gas fill. The DGU calculator combines both panes, the spacer and the gas fill into one all-in rate per square metre — no need to price each component separately.",
                     $"DGU {dgu.SpecName} @ {dgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -135,8 +135,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
             int lines = await FillGridAsync(pi, sgu, dgu, ct).ConfigureAwait(false);
             await PresentAsync(events, "line",
-                "Step 5, data grid",
-                $"Step 5, the data grid. {lines} glass lines. Width, height, quantity, rate and value stay on the proforma.",
+                "Step 5, glass line items",
+                $"Step five is the data grid. Each row is one unique glass piece — its width, height, quantity, the specification rate and the calculated value. Every row stays on the proforma and also appears on the job order and delivery note, so the factory knows exactly what to cut for each position. We have {lines} glass lines in this quotation.",
                 $"rows={lines} SGU={sgu.SpecName} DGU={dgu.SpecName}",
                 HoldMs, ct).ConfigureAwait(false);
 
@@ -146,15 +146,15 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await PresentAsync(events, "step6",
                 "Step 6, other charges",
                 charges.Ok
-                    ? $"Step 6. Enabled {charges.Names}. Other charges total {charges.Total:0.00} dirhams."
-                    : "Step 6. Other charges are on screen.",
+                    ? $"Step six handles delivery, installation and any extra services that are not part of the glass build itself. We have enabled {charges.Names}. These charges appear as a separate line on the quotation so the customer sees exactly what each service costs."
+                    : "Step six handles delivery, installation and extra services that sit outside the glass pricing.",
                 charges.Names, HoldMs, ct).ConfigureAwait(false);
 
             // ── 7 Preview + save ─────────────────────────────────────
             if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "preview",
                 "Step 7, print preview",
-                "Step 7, print preview. This is the live quotation. Rate and value stay on the document.",
+                "The print preview shows the quotation exactly as it will print or go out as PDF. Every section — company letterhead, customer details, line items with dimensions, charges, totals — is laid out on the page. This is what the customer signs. From here we can also save the quote as a draft, which keeps all the data for later.",
                 "Step 7", HoldMs, ct).ConfigureAwait(false);
 
             bool saved = await SaveDraftAsync(pi, ct).ConfigureAwait(false);
@@ -162,7 +162,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await PresentAsync(events, "saved",
                     "Draft saved",
-                    $"Draft {pi.Step1VM.ProformaId} saved. Same persist as leaving the wizard.",
+                    "The quotation is now saved as a draft. We can come back anytime to continue editing, convert it into a job order when the customer confirms, or export it as a PDF. Saved quotes appear in the invoice list with their current status.",
                     $"ProformaId={pi.Step1VM.ProformaId}",
                     BeatMs, ct).ConfigureAwait(false);
             }
@@ -171,8 +171,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 8, ct).ConfigureAwait(false)) return events;
             await ShowAttachmentsAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step8",
-                "Step 8 — Attachments",
-                "Attachments hold drawings and signed copies. This showcase does not invent files or open a picker. The step is live and empty.",
+                "Step 8, attachments",
+                "Attachments hold the signed approval, the customer's purchase order, or marked-up drawings. Every file attached here stays with the quotation and travels to the job order. In a real workflow we would upload the customer's signed PI or LPO at this point to confirm the order.",
                 $"attachments={pi.Step8VM.AttachmentsCount}",
                 HoldMs, ct).ConfigureAwait(false);
 
@@ -180,13 +180,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 9, ct).ConfigureAwait(false)) return events;
             var pnl = await RecalculateProfitAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step9",
-                "Step 9, profit and loss",
+                "Step 9, profit and loss summary",
                 pnl.Ok
-                    ? $"Step 9, profit and loss. Gross {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, profit {pnl.Profit:0.00}, margin {pnl.Margin:0.0} percent."
-                    : "Step 9, profit and loss. Recalculate ran against sheet store and step 4 rates.",
-                pnl.Ok
-                    ? $"gross={pnl.Gross:0.00} profit={pnl.Profit:0.00} margin={pnl.Margin:0.0}"
-                    : "Step 9",
+                    ? $"The final step shows whether the quotation is profitable. It compares the selling price against the glass cost from Sheet Store and the production costs from step four. Gross revenue {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, net profit {pnl.Profit:0.00} which is a {pnl.Margin:0.0} percent margin. This helps decide whether to adjust pricing before sending the quote."
+                    : "Step nine compares the selling price against actual glass and production costs to calculate the real margin on the quotation.",
                 HoldMs, ct).ConfigureAwait(false);
 
             await SaveDraftAsync(pi, ct).ConfigureAwait(false);

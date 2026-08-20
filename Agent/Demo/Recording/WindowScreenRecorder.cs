@@ -264,7 +264,13 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     {
                         Interlocked.Exchange(ref _captureBusy, 0);
                     }
-                }, DispatcherPriority.Normal, ct).Task
+                // DispatcherPriority.Background ensures user input events
+                // are always processed before frame capture. Normal priority
+                // caused the app to freeze because RenderTargetBitmap.Render
+                // forces a full re-layout on every capture — the UI thread
+                // busy-painted frames instead of dispatching mouse clicks
+                // and keyboard input.
+                }, DispatcherPriority.Background, ct).Task
                     .ContinueWith(t =>
                     {
                         Interlocked.Exchange(ref _captureBusy, 0);
