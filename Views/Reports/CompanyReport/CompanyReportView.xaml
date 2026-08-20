@@ -72,9 +72,9 @@
                 <!-- Detail: selected customer's PI lifecycle -->
                 <Border Grid.Row="3" Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12">
                     <StackPanel>
-                        <TextBlock FontSize="11" FontWeight="Bold"><Run Text="Lifecycle — "/><Run Text="{Binding SelectedCustomer.CustomerName}"/></TextBlock>
+                        <TextBlock FontSize="11" FontWeight="Bold"><Run Text="Lifecycle — "/><Run Text="{Binding SelectedCustomer.CustomerName, Mode=OneWay}"/></TextBlock>
                         <ItemsControl ItemsSource="{Binding PiLifecycle}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate><DataTemplate><TextBlock FontSize="10"><Run Text="{Binding ProformaId}" FontWeight="SemiBold"/><Run Text=" · "/><Run Text="{Binding Status}"/><Run Text=" · AED "/><Run Text="{Binding GrandTotal, StringFormat={}{0:N0}}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate>
+                            <ItemsControl.ItemTemplate><DataTemplate><TextBlock FontSize="10"><Run Text="{Binding ProformaId, Mode=OneWay}" FontWeight="SemiBold"/><Run Text=" · "/><Run Text="{Binding Status, Mode=OneWay}"/><Run Text=" · AED "/><Run Text="{Binding GrandTotal, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </Border>

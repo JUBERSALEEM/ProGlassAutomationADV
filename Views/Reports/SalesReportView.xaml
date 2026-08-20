@@ -513,7 +513,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Proforma" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="AED"/><Run Text="{Binding PiReport.Summary.TotalValue, StringFormat={}{0:N0}}"/></TextBlock>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="AED"/><Run Text="{Binding PiReport.Summary.TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -521,7 +521,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Job Orders" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding JoReport.Summary.AwaitingJo}"/><Run Text=" awaiting JO"/></TextBlock>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding JoReport.Summary.AwaitingJo, Mode=OneWay}"/><Run Text=" awaiting JO"/></TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -529,7 +529,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}"><TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Deliveries" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding DeliveryReport.Summary.TotalDn}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding DeliveryReport.Summary.CompletionPct, StringFormat={}{0:0.#}}"/><Run Text="% delivered"/></TextBlock>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding DeliveryReport.Summary.CompletionPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="% delivered"/></TextBlock>
                             </StackPanel>
                         </Border>
 
@@ -537,7 +537,7 @@
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintIndigoBrush}"><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Tax Invoices" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="AED"/><Run Text="{Binding TaxInvoiceReport.Summary.TotalAmount, StringFormat={}{0:N0}}"/></TextBlock>
+                                <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="AED"/><Run Text="{Binding TaxInvoiceReport.Summary.TotalAmount, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
                             </StackPanel>
                         </Border>
                     </Grid>

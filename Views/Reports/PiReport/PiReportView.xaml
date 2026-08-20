@@ -45,7 +45,7 @@
                             <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TOTAL PI" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalPi}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="AED"/><Run Text="{Binding Summary.TotalValue, StringFormat={}{0:N0}}"/></TextBlock>
+                                <TextBlock Style="{StaticResource ModuleListKpiHintStyle}"><Run Text="AED"/><Run Text="{Binding Summary.TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock>
                             </StackPanel>
                         </StackPanel>
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
@@ -175,7 +175,7 @@
                                         <TextBlock Text="{Binding CompanyName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                     </StackPanel>
                                     <TextBlock Grid.Column="4" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"><Run Text="{Binding TotalQty}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, StringFormat={}{0:N2} SQM}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/></TextBlock>
+                                    <TextBlock Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextAlignment="Right"><Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs"/><LineBreak/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/></TextBlock>
                                     <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <Border Width="8" Height="8" CornerRadius="4" Margin="2" ToolTip="Has Job Order">
                                             <Border.Style>
@@ -212,7 +212,7 @@
                 <!-- Detail drawer: spec rows for selected PI -->
                 <Border Grid.Row="3" Visibility="{Binding HasDetail, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,1" Padding="16,10">
                     <StackPanel>
-                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"><Run Text="Specification rows — "/><Run Text="{Binding SelectedRow.ProformaId}"/><Run Text=" ("/><Run Text="{Binding DetailRows.Count, Mode=OneWay}"/><Run Text=" rows)"/></TextBlock>
+                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"><Run Text="Specification rows — "/><Run Text="{Binding SelectedRow.ProformaId, Mode=OneWay}"/><Run Text=" ("/><Run Text="{Binding DetailRows.Count, Mode=OneWay}"/><Run Text=" rows)"/></TextBlock>
                         <ItemsControl ItemsSource="{Binding DetailRows}" Margin="0,8,0,0">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
@@ -223,7 +223,7 @@
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <TextBlock Grid.Column="1" Text="{Binding SpecName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="8,0"/>
-                                            <TextBlock Grid.Column="2" FontSize="10" HorizontalAlignment="Center"><Run Text="{Binding W1}"/><Run Text="×"/><Run Text="{Binding H1}"/></TextBlock>
+                                            <TextBlock Grid.Column="2" FontSize="10" HorizontalAlignment="Center"><Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/></TextBlock>
                                             <TextBlock Grid.Column="3" Text="{Binding Qty, StringFormat={}{0} pcs}" FontSize="10" HorizontalAlignment="Right"/>
                                             <TextBlock Grid.Column="4" Text="{Binding TotalSqm, StringFormat={}{0:N3}}" FontSize="10" HorizontalAlignment="Right"/>
                                             <TextBlock Grid.Column="5" Text="{Binding Amount, StringFormat={}AED {0:N0}}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Right"/>
@@ -233,7 +233,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                            <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"><Run Text="Reconciliation: "/><Run Text="{Binding Reconciliation.OrderedQty}"/><Run Text=" ordered · "/><Run Text="{Binding Reconciliation.DeliveredQty}"/><Run Text=" delivered · "/><Run Text="{Binding Reconciliation.RemainingQty}"/><Run Text=" remaining"/></TextBlock>
+                            <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"><Run Text="Reconciliation: "/><Run Text="{Binding Reconciliation.OrderedQty, Mode=OneWay}"/><Run Text=" ordered · "/><Run Text="{Binding Reconciliation.DeliveredQty, Mode=OneWay}"/><Run Text=" delivered · "/><Run Text="{Binding Reconciliation.RemainingQty, Mode=OneWay}"/><Run Text=" remaining"/></TextBlock>
                             <Border CornerRadius="6" Background="{DynamicResource TintBlueBrush}" Padding="8,3" Margin="12,0,0,0"><TextBlock Text="{Binding Reconciliation.DeliveryState}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/></Border>
                             <Border CornerRadius="6" Background="{DynamicResource TintAmberBrush}" Padding="8,3" Margin="6,0,0,0"><TextBlock Text="{Binding Reconciliation.InvoiceState}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/></Border>
                         </StackPanel>

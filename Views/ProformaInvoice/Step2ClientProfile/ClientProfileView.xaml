@@ -139,7 +139,7 @@
                             </Style.Triggers>
                         </Style>
                     </TextBlock.Style>
-                    <Run Text="Loaded: "/><Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                    <Run Text="Loaded: "/><Run Text="{Binding LoadedProfileName, Mode=OneWay}" FontWeight="Bold"/>
                 </TextBlock>
             </StackPanel>
         </ScrollViewer>

@@ -118,7 +118,7 @@
                                        VerticalAlignment="Center"
                                        FontSize="13" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}">
-                                <Run Text="{Binding CardBorderThickness, StringFormat={}{0:0.#}}"/>
+                                <Run Text="{Binding CardBorderThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                                 <Run Text=" DIP"/>
                             </TextBlock>
                         </DockPanel>
@@ -152,7 +152,7 @@
                                        VerticalAlignment="Center"
                                        FontSize="13" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}">
-                                <Run Text="{Binding CardCornerRadius, StringFormat={}{0:0}}"/>
+                                <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
                                 <Run Text=" px"/>
                             </TextBlock>
                         </DockPanel>
