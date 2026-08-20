@@ -307,20 +307,7 @@
             <Setter Property="Margin" Value="24,22,24,10"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
             <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBlock">
-                        <StackPanel Orientation="Horizontal">
-                            <!-- Accent tick — modern section marker -->
-                            <Border Width="3" Height="12" CornerRadius="1.5"
-                                    Background="{DynamicResource AccentBrush}"
-                                    Margin="0,1,8,0"
-                                    IsHitTestVisible="False"/>
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
         <!-- NAV ITEM — icon chip + label, hover lift -->
@@ -461,7 +448,6 @@
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
                                 <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="ChevronRotate" Property="Angle" Value="90"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
@@ -1083,8 +1069,8 @@
                     ClipToBounds="True">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="{DynamicResource SideMenuBackgroundBrush}" Offset="0"/>
-                        <GradientStop Color="{DynamicResource ModuleBackgroundBrush}" Offset="1"/>
+                        <GradientStop Color="{DynamicResource SideMenuBackgroundColor}" Offset="0"/>
+                        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1"/>
                     </LinearGradientBrush>
                 </Border.Background>
                 <Border.Style>
