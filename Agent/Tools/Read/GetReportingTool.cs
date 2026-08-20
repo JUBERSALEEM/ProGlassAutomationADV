@@ -116,16 +116,16 @@ namespace ProGlassAutomation.Agent.Tools.Read
                     var filter = new ReportingFilter { Customer = string.IsNullOrWhiteSpace(customer) ? null : customer.Trim() };
                     var summary = await _reporting.GetDeliverySummaryAsync(filter);
                     sb.AppendLine($"Delivery summary{(filter.Customer != null ? $" for {filter.Customer}" : "")}:");
-                    sb.AppendLine($"• DN: {summary.TotalDn} · Pending {summary.Pending} · Partial {summary.Partial} · Completed {summary.Completed}");
+                    sb.AppendLine($"• Rows: {summary.TotalRows} total · Not delivered {summary.NotDelivered} · Partial {summary.Partial} · Fully delivered {summary.FullyDelivered}");
                     sb.AppendLine($"• Ordered {summary.TotalOrderedQty} · Delivered {summary.TotalDeliveredQty} · Remaining {summary.TotalRemainingQty} ({summary.CompletionPct:0.#}%)");
                     if (summary.TotalRemainingQty > 0)
                     {
                         var rows = await _reporting.GetDeliveryRowsAsync(new ReportingFilter { Customer = filter.Customer, PageSize = 6 });
-                        var pending = rows.Items.Where(r => r.TotalBalanceQty > 0).Take(5).ToList();
+                        var pending = rows.Items.Where(r => r.BalanceQty > 0).Take(5).ToList();
                         if (pending.Count > 0)
                         {
                             sb.AppendLine("• Top pending deliveries:");
-                            foreach (var r in pending) sb.AppendLine($"  {r.DeliveryNoteId} ({r.JobOrderId}) — {r.CustomerName} · {r.TotalBalanceQty} pcs remaining");
+                            foreach (var r in pending) sb.AppendLine($"  {r.ProformaId} {r.Specification} (Sr {r.SerialNumber}) — {r.CustomerName} · {r.BalanceQty} pcs remaining");
                         }
                     }
                     return ToolResult.Ok(sb.ToString().TrimEnd());
@@ -216,7 +216,7 @@ namespace ProGlassAutomation.Agent.Tools.Read
                 sb.AppendLine("ERP overview (live):");
                 sb.AppendLine($"• PI: {piSummary.TotalPi} total (Confirmed {piSummary.Confirmed}, Pending {piSummary.Pending}) · AED {piSummary.TotalValue:N2}");
                 sb.AppendLine($"• JO: {joSummary.TotalJo} total · {joSummary.AwaitingJo} PI awaiting JO");
-                sb.AppendLine($"• DN: {dnSummary.TotalDn} · {dnSummary.CompletionPct:0.#}% delivered");
+                sb.AppendLine($"• DN rows: {dnSummary.TotalRows} total · {dnSummary.TotalDeliveredQty}/{dnSummary.TotalOrderedQty} pcs delivered ({dnSummary.CompletionPct:0.#}%)");
                 sb.AppendLine($"• TI: {tiSummary.TotalInvoices} · AED {tiSummary.TotalAmount:N2}");
                 sb.AppendLine("Ask specifically: e.g. 'pending deliveries for Apex', 'rows in PI-1045', 'profit for Tower A', 'companies ordered DGU 6+12+6'.");
                 return ToolResult.Ok(sb.ToString().TrimEnd());
