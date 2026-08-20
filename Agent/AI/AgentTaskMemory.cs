@@ -12,7 +12,7 @@ namespace ProGlassAutomation.Agent.AI
         private readonly object _lock = new();
 
         /// <summary>Adds a task memory item and optionally syncs with AgentMemoryService.</summary>
-        public void AddTaskMemory(string taskId, string result, bool completed)
+        public async Task AddTaskMemoryAsync(string taskId, string result, bool completed)
         {
             lock (_lock)
             {
@@ -33,7 +33,6 @@ namespace ProGlassAutomation.Agent.AI
                 if (ProGlassAutomation.Agent.Core.AgentHost.IsBuilt &&
                     ProGlassAutomation.Agent.Core.AgentHost.Memory != null)
                 {
-                    // Real integration: sync approved task facts to persistent agent memory.
                     await ProGlassAutomation.Agent.Core.AgentHost.Memory.AddApprovedAsync(
                         "task_memory", $"Task: {taskId}, Completed: {completed}, Result: {result}").ConfigureAwait(false);
                 }
