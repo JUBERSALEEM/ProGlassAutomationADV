@@ -300,6 +300,16 @@ namespace ProGlassAutomation
         // Leaving the popup schedules a close.
         private void PopupContent_MouseLeave(object sender, MouseEventArgs e)
         {
+            // Don't close the dropdown if the mouse moved into a ComboBox
+            // dropdown list inside the popup (e.g. switching quality/fps).
+            var source = Mouse.DirectlyOver as DependencyObject;
+            bool overCombo = source != null && IsDescendantOf(source, ScreenRecordPanelHost);
+            if (overCombo && ScreenRecordPanelHost != null)
+            {
+                _isMouseOverPopup = true;
+                StopCloseTimer();
+                return;
+            }
             _isMouseOverPopup = false;
             StartCloseTimer();
         }
