@@ -48,7 +48,10 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
         ///   - SourceProformaId    → the source PI's ProformaId
         ///   - ConvertedAt         → DateTime.Now
         ///   - EmbeddedInvoice     → deep clone of PI snapshot
-        ///   - Production          → default fields (Draft, Medium priority)
+        ///   - Production          → initial status derived from the source
+        ///                           PI: Approved → Released (sent to the
+        ///                           factory floor), otherwise Draft.
+        ///                           Priority defaults to Medium.
         /// </summary>
         public static JobOrderSnapshot BuildFromProformaInvoice(SavedProformaInvoice savedInvoice)
         {
@@ -70,6 +73,13 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
             // Derive JOB-YYYY-NNN from PI-YYYY-NNN (replace PI prefix with JOB)
             string jobOrderId = DeriveJobOrderId(savedInvoice.ProformaId);
 
+            // A CONFIRMED quote (status Approved) produces a Job Order that is
+            // already released to the factory floor — the customer confirmed
+            // it, so there is no reason to hold the job in Draft. A quote that
+            // was never confirmed stays Draft until the factory releases it.
+            bool confirmed = string.Equals(
+                savedInvoice.Status, "Approved", StringComparison.OrdinalIgnoreCase);
+
             return new JobOrderSnapshot
             {
                 JobOrderId = jobOrderId,
@@ -78,7 +88,9 @@ namespace ProGlassAutomation.Services.JobOrder.Mapper
                 EmbeddedInvoice = clonedInvoice,
                 Production = new Models.JobOrder.ProductionDetails.ProductionDetails
                 {
-                    Status = JobOrderStatus.Draft.ToString(),
+                    Status = confirmed
+                        ? JobOrderStatus.Released.ToString()
+                        : JobOrderStatus.Draft.ToString(),
                     Priority = JobPriority.Medium.ToString(),
                     DeliveryDate = null,
                     LastEditedAt = DateTime.Now,

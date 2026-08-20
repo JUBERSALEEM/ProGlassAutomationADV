@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
 {
@@ -15,11 +15,11 @@ namespace ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus
         private static readonly Dictionary<JobOrderStatus, (string Label, string BrushKey, string TintKey)> _map =
             new()
             {
-                { JobOrderStatus.Draft,        ("Draft",         "NeutralBrush",  "TintGrayBrush")   },
-                { JobOrderStatus.Released,     ("Released",      "InfoBrush",     "TintBlueBrush")   },
-                { JobOrderStatus.InProduction, ("In Production", "WarningBrush",  "TintAmberBrush")  },
-                { JobOrderStatus.Completed,    ("Completed",     "SuccessBrush",  "TintGreenBrush")  },
-                { JobOrderStatus.Delivered,    ("Delivered",     "AccentBrush",   "TintIndigoBrush") }
+                { JobOrderStatus.Draft,        ("Draft",                 "NeutralBrush",  "TintGrayBrush")   },
+                { JobOrderStatus.Released,     ("Released to factory",   "InfoBrush",     "TintBlueBrush")   },
+                { JobOrderStatus.InProduction, ("In Production",         "WarningBrush",  "TintAmberBrush")  },
+                { JobOrderStatus.Completed,    ("Completed",             "SuccessBrush",  "TintGreenBrush")  },
+                { JobOrderStatus.Delivered,    ("Delivered",             "AccentBrush",   "TintIndigoBrush") }
             };
 
         /// <summary>User-facing label for the given status.</summary>
