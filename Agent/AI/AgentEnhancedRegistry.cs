@@ -12,19 +12,17 @@ namespace ProGlassAutomation.Agent.AI
         public static IReadOnlyList<AgentTypedParameter> BuildParametersForTool(string toolName)
         {
             // Type mappings driven by existing tool names; extensible per phase.
-            return toolName.ToLowerInvariant() switch
+            var list = new List<AgentTypedParameter>();
+            if (toolName.ToLowerInvariant() == "get_inventory" || toolName.ToLowerInvariant() == "searchproformatool")
             {
-                "get_inventory" or "searchproformatool" => new List<AgentTypedParameter>
-                {
-                    new() { Name = "searchTerm", Type = "string", Required = false, ValidationRule = "" }
-                },
-                "updatesheetstocktool" => new List<AgentTypedParameter>
-                {
-                    new() { Name = "sheetId", Type = "string", Required = true, ValidationRule = "^[A-Za-z0-9_-]+$" },
-                    new() { Name = "quantity", Type = "int", Required = true, ValidationRule = @"^\d+$" }
-                },
-                _ => new List<AgentTypedParameter>()
-            }.AsReadOnly();
+                list.Add(new AgentTypedParameter { Name = "searchTerm", Type = "string", Required = false, ValidationRule = "" });
+            }
+            else if (toolName.ToLowerInvariant() == "updatesheetstocktool")
+            {
+                list.Add(new AgentTypedParameter { Name = "sheetId", Type = "string", Required = true, ValidationRule = "^[A-Za-z0-9_-]+$" });
+                list.Add(new AgentTypedParameter { Name = "quantity", Type = "int", Required = true, ValidationRule = @"^\d+$" });
+            }
+            return list.AsReadOnly();
         }
     }
 }
