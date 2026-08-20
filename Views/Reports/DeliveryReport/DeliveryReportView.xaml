@@ -400,40 +400,42 @@
                                     <!-- Related delivery notes -->
                                     <TextBlock Text="RELATED DELIVERY NOTES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,12,0,6"/>
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="10,8">
-                                        <ItemsControl ItemsSource="{Binding SelectedRow.Deliveries}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="2,6">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="*"/>
-                                                                <ColumnDefinition Width="Auto"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <StackPanel Grid.Column="0">
-                                                                <TextBlock Text="{Binding DeliveryNoteId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
-                                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                                                    <Run Text="{Binding DeliveryDate, Mode=OneWay, StringFormat={}{0:dd MMM yyyy}}"/>
-                                                                    <Run Text=" · "/>
-                                                                    <Run Text="{Binding Status, Mode=OneWay}"/>
-                                                                </TextBlock>
-                                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                                                    <Run Text="{Binding DriverName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
-                                                                </TextBlock>
-                                                            </StackPanel>
-                                                            <Border Grid.Column="1" CornerRadius="6" Padding="8,3" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}">
-                                                                    <Run Text="{Binding QtyDelivered, Mode=OneWay}"/><Run Text=" pcs"/>
-                                                                </TextBlock>
-                                                            </Border>
-                                                        </Grid>
-                                                    </Border>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                        <TextBlock Text="No deliveries recorded for this row yet."
-                                                   FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   Visibility="{Binding SelectedRow.Deliveries.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
-                                                   Margin="2,6"/>
+                                        <StackPanel>
+                                            <ItemsControl ItemsSource="{Binding SelectedRow.Deliveries}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="2,6">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <StackPanel Grid.Column="0">
+                                                                    <TextBlock Text="{Binding DeliveryNoteId}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                                                    <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                        <Run Text="{Binding DeliveryDate, Mode=OneWay, StringFormat={}{0:dd MMM yyyy}}"/>
+                                                                        <Run Text=" · "/>
+                                                                        <Run Text="{Binding Status, Mode=OneWay}"/>
+                                                                    </TextBlock>
+                                                                    <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                                                        <Run Text="{Binding DriverName, Mode=OneWay}"/><Run Text=" · "/><Run Text="{Binding VehicleNumber, Mode=OneWay}"/>
+                                                                    </TextBlock>
+                                                                </StackPanel>
+                                                                <Border Grid.Column="1" CornerRadius="6" Padding="8,3" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
+                                                                    <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}">
+                                                                        <Run Text="{Binding QtyDelivered, Mode=OneWay}"/><Run Text=" pcs"/>
+                                                                    </TextBlock>
+                                                                </Border>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="No deliveries recorded for this row yet."
+                                                       FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       Visibility="{Binding SelectedRow.Deliveries.Count, Converter={StaticResource EqualityToVisibilityConverter}, ConverterParameter=0}"
+                                                       Margin="2,6"/>
+                                        </StackPanel>
                                     </Border>
 
                                 </StackPanel>
