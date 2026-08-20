@@ -53,6 +53,8 @@ namespace ProGlassAutomation.Agent.Core
         public static IAIOrchestrator? AI { get; private set; }
         /// <summary>Unified command router integrating typed, voice and agent tasks (Phase 7).</summary>
         public static AIUnifiedCommandRouter? CommandRouter { get; private set; }
+        /// <summary>Multi-step agent task adapter connecting task engine to agent core (Phase 9).</summary>
+        public static AgentTaskAdapter? TaskAdapter { get; private set; }
 
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
@@ -142,6 +144,17 @@ namespace ProGlassAutomation.Agent.Core
                         CommandRouter = null;
                     }
 
+                    // Phase 9 — multi-step agent task adapter
+                    try
+                    {
+                        TaskAdapter = new AgentTaskAdapter();
+                    }
+                    catch (Exception taskEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] task adapter init failed: {taskEx.Message}");
+                        TaskAdapter = null;
+                    }
+
                     return Instance;
                 }
                 catch (Exception ex)
@@ -181,10 +194,13 @@ namespace ProGlassAutomation.Agent.Core
             lock (Gate)
             {
                 _built = false;
-                Instance = null;
-                Voice = null;
+                // Proper resource cleanup before clearing references.
+                try { Voice?.StopSpeaking(); } catch { /* best-effort */ }
                 AI = null;
                 CommandRouter = null;
+                TaskAdapter = null;
+                Instance = null;
+                Voice = null;
             }
         }
     }
