@@ -359,6 +359,13 @@ namespace ProGlassAutomation.Agent.Demo
                     probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
                     jpegs.Count,
                     audioNote);
+
+                // Phase 3 — cleanup temporary files after successful save.
+                // The MP4 is the single deliverable; raw frames, mixed audio,
+                // narration WAVs and the live H.264 pipe output are no longer
+                // needed. Reuses the shared cleanup helper from UserScreenRecordService.
+                Services.Recording.UserScreenRecordService
+                    .CleanupFolderForDemo(folder);
                 return Status;
             }
             catch (OperationCanceledException)

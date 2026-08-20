@@ -242,6 +242,11 @@ namespace ProGlassAutomation.Services.Recording
                     probed.HasValue ? TimeSpan.FromSeconds(probed.Value) : recorder.Duration,
                     EncodedFrames,
                     audioNote);
+
+                // Phase 3 — cleanup temporary files after successful save.
+                // The MP4 is the single deliverable; raw frames, mixed audio
+                // and the live H.264 pipe output are no longer needed.
+                CleanupFolderForDemo(folder);
             }
             catch (OperationCanceledException)
             {
@@ -310,6 +315,46 @@ namespace ProGlassAutomation.Services.Recording
             }
             catch { /* sidecar is optional */ }
             DemoRecordingChrome.ShowFailed(message);
+        }
+
+        /// <summary>
+        /// Removes all temporary files (raw frames, mixed audio, live encode
+        /// leftovers) after a successful MP4 save. The MP4 is the single
+        /// deliverable; everything else can be cleaned up. Best-effort —
+        /// failures are logged but never throw.
+        /// </summary>
+        public static void CleanupFolderForDemo(string? folder)
+        {
+            if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+                return;
+
+            try
+            {
+                string framesDir = System.IO.Path.Combine(folder, "frames");
+                if (Directory.Exists(framesDir))
+                {
+                    try { Directory.Delete(framesDir, recursive: true); }
+                    catch (Exception ex) { AppLogService.Warning($"Cleanup frames: {ex.Message}"); }
+                }
+
+                string audioDir = System.IO.Path.Combine(folder, "audio");
+                if (Directory.Exists(audioDir))
+                {
+                    try { Directory.Delete(audioDir, recursive: true); }
+                    catch (Exception ex) { AppLogService.Warning($"Cleanup audio: {ex.Message}"); }
+                }
+
+                foreach (var file in new[] { "mixed.wav", "live.wav", "mic.wav", "narration.wav", "live.h264.mp4", "events.json", "director.log", "narration.txt" })
+                {
+                    string path = System.IO.Path.Combine(folder, file);
+                    try { if (File.Exists(path)) File.Delete(path); }
+                    catch { /* best-effort */ }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Temp folder cleanup failed: {ex.Message}");
+            }
         }
 
         private void RaiseChanged()
