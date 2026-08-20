@@ -158,8 +158,8 @@
                             <!-- Status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="120" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by payment status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Overdue"/>
+                                <ComboBox Width="130" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by payment status">
+                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Partially Paid"/><ComboBoxItem Content="Overdue"/>
                                 </ComboBox>
                             </StackPanel>
 
@@ -256,6 +256,8 @@
                                                 <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="Paid"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="PartiallyPaid"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Partially Paid"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="Overdue"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger>
                                                 </Style.Triggers>
@@ -267,6 +269,13 @@
                                                     <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding Status}" Value="Paid"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="PartiallyPaid">
+                                                            <Setter Property="Text" Value="Partially Paid"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Partially Paid">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Overdue"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
                                                         <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/></DataTrigger>
                                                     </Style.Triggers>

@@ -25,9 +25,20 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         {
             new KpiItem("TOTAL JO", Summary.TotalJo.ToString("N0"), $"Value AED {Summary.TotalValue:N0}", "AccentBrush"),
             new KpiItem("AWAITING JO", Summary.AwaitingJo.ToString("N0"), "PI not yet converted", "WarningBrush"),
-            new KpiItem("IN PRODUCTION", (Summary.ByStatus.TryGetValue("In Production", out var ip) ? ip : 0).ToString("N0"), "Active jobs", "InfoBrush"),
-            new KpiItem("COMPLETED", (Summary.ByStatus.TryGetValue("Completed", out var c) ? c : 0).ToString("N0"), "Finished", "SuccessBrush"),
+            new KpiItem("IN PRODUCTION", GetStatusCount("In Production", "InProduction").ToString("N0"), "Active jobs", "InfoBrush"),
+            new KpiItem("COMPLETED", GetStatusCount("Completed").ToString("N0"), "Finished", "SuccessBrush"),
         };
+
+        private int GetStatusCount(params string[] statusKeys)
+        {
+            int sum = 0;
+            foreach (var key in statusKeys)
+            {
+                if (Summary.ByStatus.TryGetValue(key, out var count))
+                    sum += count;
+            }
+            return sum;
+        }
 
         private ObservableCollection<JoReportRow> _rows = new();
         public ObservableCollection<JoReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }

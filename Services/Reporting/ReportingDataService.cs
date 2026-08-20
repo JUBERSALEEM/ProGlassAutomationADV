@@ -361,7 +361,13 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Customer))
                 query = query.Where(j => EF.Functions.Like(j.CustomerName, $"%{filter.Customer}%"));
             if (!string.IsNullOrWhiteSpace(filter.Status))
-                query = query.Where(j => j.Status == filter.Status);
+            {
+                var st = filter.Status.Trim();
+                if (Eq(st, "In Production") || Eq(st, "InProduction"))
+                    query = query.Where(j => j.Status == "InProduction" || j.Status == "In Production");
+                else
+                    query = query.Where(j => j.Status == st);
+            }
             if (filter.DateFrom.HasValue)
                 query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
@@ -379,6 +385,17 @@ namespace ProGlassAutomation.Services.Reporting
             var summary = new JoReportSummary();
             summary.TotalJo = await query.CountAsync(ct);
             summary.TotalValue = await query.SumAsync(j => (decimal?)j.GrandTotalVatInclusive, ct) ?? 0m;
+
+            var statusGroups = await query.GroupBy(j => j.Status)
+                .Select(g => new { Status = g.Key, Count = g.Count() })
+                .ToListAsync(ct);
+
+            foreach (var g in statusGroups)
+            {
+                var st = g.Status ?? "Unknown";
+                var displayKey = Eq(st, "InProduction") ? "In Production" : st;
+                summary.ByStatus[displayKey] = g.Count;
+            }
 
             try
             {
@@ -404,7 +421,13 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Customer))
                 query = query.Where(j => EF.Functions.Like(j.CustomerName, $"%{filter.Customer}%"));
             if (!string.IsNullOrWhiteSpace(filter.Status))
-                query = query.Where(j => j.Status == filter.Status);
+            {
+                var st = filter.Status.Trim();
+                if (Eq(st, "In Production") || Eq(st, "InProduction"))
+                    query = query.Where(j => j.Status == "InProduction" || j.Status == "In Production");
+                else
+                    query = query.Where(j => j.Status == st);
+            }
             if (filter.DateFrom.HasValue)
                 query = query.Where(j => j.DeliveryDate == null || j.DeliveryDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
@@ -625,7 +648,13 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(t => EF.Functions.Like(t.CompanyName, $"%{filter.Company}%"));
             if (!string.IsNullOrWhiteSpace(filter.Status))
-                query = query.Where(t => t.Status == filter.Status);
+            {
+                var st = filter.Status.Trim();
+                if (Eq(st, "Partially Paid") || Eq(st, "PartiallyPaid"))
+                    query = query.Where(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
+                else
+                    query = query.Where(t => t.Status == st);
+            }
             if (filter.DateFrom.HasValue)
                 query = query.Where(t => t.IssueDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)
@@ -672,7 +701,13 @@ namespace ProGlassAutomation.Services.Reporting
             if (!string.IsNullOrWhiteSpace(filter.Company))
                 query = query.Where(t => EF.Functions.Like(t.CompanyName, $"%{filter.Company}%"));
             if (!string.IsNullOrWhiteSpace(filter.Status))
-                query = query.Where(t => t.Status == filter.Status);
+            {
+                var st = filter.Status.Trim();
+                if (Eq(st, "Partially Paid") || Eq(st, "PartiallyPaid"))
+                    query = query.Where(t => t.Status == "PartiallyPaid" || t.Status == "Partially Paid");
+                else
+                    query = query.Where(t => t.Status == st);
+            }
             if (filter.DateFrom.HasValue)
                 query = query.Where(t => t.IssueDate >= filter.DateFrom.Value);
             if (filter.DateTo.HasValue)

@@ -140,7 +140,7 @@
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <ComboBox Width="120" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by delivery status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Dispatched"/><ComboBoxItem Content="Delivered"/>
+                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Dispatched"/><ComboBoxItem Content="Delivered"/><ComboBoxItem Content="Signed"/><ComboBoxItem Content="Received"/>
                                 </ComboBox>
                             </StackPanel>
 
@@ -228,8 +228,31 @@
                                     <TextBlock Grid.Column="3" Text="{Binding ProjectName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="8,0"/>
 
                                     <!-- Col 4: Status -->
-                                    <Border Grid.Column="4" Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                    <Border Grid.Column="4" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Delivered"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Received"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Signed"><Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Delivered"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Received"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Signed"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/></DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </Border>
 
                                     <!-- Col 5: Ordered / Delivered / Balance -->

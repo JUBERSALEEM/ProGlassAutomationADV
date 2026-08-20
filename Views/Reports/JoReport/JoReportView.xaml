@@ -140,7 +140,7 @@
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <ComboBox Width="120" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by production status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/>
+                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/><ComboBoxItem Content="Delivered"/>
                                 </ComboBox>
                             </StackPanel>
 
@@ -222,8 +222,45 @@
                                     </StackPanel>
 
                                     <!-- Col 3: Status Badge -->
-                                    <Border Grid.Column="3" VerticalAlignment="Center" Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left">
-                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
+                                    <Border Grid.Column="3" VerticalAlignment="Center" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="InProduction"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="In Production"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Completed"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Delivered"><Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/></DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock FontSize="10" FontWeight="SemiBold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding Status}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Status}" Value="InProduction">
+                                                            <Setter Property="Text" Value="In Production"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="In Production">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Completed">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Delivered">
+                                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding Status}" Value="Draft">
+                                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </Border>
 
                                     <!-- Col 4: Grand Total -->
