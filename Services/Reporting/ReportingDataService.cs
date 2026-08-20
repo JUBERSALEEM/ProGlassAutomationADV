@@ -766,7 +766,14 @@ namespace ProGlassAutomation.Services.Reporting
         {
             IQueryable<DeliveryNoteItem> items = db.DeliveryNoteItems
                 .AsNoTracking()
-                .Where(i => i.DeliveryNote != null && !string.IsNullOrWhiteSpace(i.JobOrderId));
+                .Where(i => i.DeliveryNote != null && !string.IsNullOrWhiteSpace(i.JobOrderId))
+                // Exclude PHANTOM rows: a spec group without real row data
+                // (blank glass ref + zero dims, or zero quantity) must never
+                // appear in the delivery report. This filters existing data
+                // that predates the creation-side guard in DeliveryNoteMapper.
+                .Where(i => !(string.IsNullOrWhiteSpace(i.GlassRef)
+                              && i.W1 == 0 && i.H1 == 0))
+                .Where(i => i.OrderedQty > 0 || i.DeliveredQty > 0);
 
             // A date range describes DELIVERIES in the period — only real DNs
             // participate (undelivered rows are excluded once a range is set).

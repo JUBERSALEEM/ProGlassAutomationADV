@@ -89,6 +89,17 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
 
                     foreach (var row in group.ItemRows)
                     {
+                        // Skip BLANK rows — a spec group that exists in the
+                        // Step 5 grid without actual row data (no glass ref,
+                        // no dimensions, no quantity) must never leak into the
+                        // delivery notes / delivery report as a phantom item.
+                        // Same rule the Job Order report already applies.
+                        if (string.IsNullOrWhiteSpace(row.GlassRef)
+                            && row.W1 == 0 && row.H1 == 0)
+                            continue;
+                        if (row.Qty <= 0)
+                            continue;
+
                         var item = new DeliveryNoteItem
                         {
                             DeliveryNoteId = deliveryNoteId,

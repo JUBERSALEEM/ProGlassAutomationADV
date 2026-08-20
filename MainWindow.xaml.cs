@@ -331,31 +331,19 @@ namespace ProGlassAutomation
         // sub-menu stays inside the host and never collapses. Only one group
         // is open at a time (hover-accordion).
 
-        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host || host.Children.Count == 0) return;
-            if (host.Children[0] is not ToggleButton tb) return;
-            tb.IsChecked = true;
-            CloseOtherSidebarGroups(host);
-        }
-
-        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host || host.Children.Count == 0) return;
-            if (host.Children[0] is not ToggleButton tb) return;
-            tb.IsChecked = false;
-        }
-
-        // Clicking a header only ever OPENS it — it can never toggle it closed.
-        // Close is driven purely by the pointer leaving the group (hover
-        // menu), so a stray click can't fight the hover and collapse it.
+        // Professional accordion sidebar: groups open and close ONLY by
+        // click. Hover never auto-opens another group (the old MouseEnter
+        // behavior made the menu jump while the user moved the pointer
+        // toward an item — opening every group the cursor passed over).
         private void SidebarGroup_Click(object sender, RoutedEventArgs e)
         {
             e.Handled = true;
             if (sender is not ToggleButton tb) return;
-            if (tb.Parent is StackPanel host)
-                CloseOtherSidebarGroups(host);
-            tb.IsChecked = true;
+
+            // Click toggles THIS group; opening one closes the others.
+            bool opening = !tb.IsChecked;
+            CloseOtherSidebarGroups(opening ? tb.Parent as StackPanel : null);
+            tb.IsChecked = opening;
         }
 
         /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>

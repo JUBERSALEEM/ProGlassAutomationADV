@@ -59,7 +59,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             "All Statuses",
             "PI created", "PI confirmed", "Full job created",
-            "Partially delivered", "Fully delivered", "Fully invoiced", "Cancelled"
+            "Partially delivered", "Fully delivered",
+            "Partially invoiced", "Fully invoiced", "Cancelled"
         };
 
         public List<string> SortPresetOptions { get; } = new()
@@ -485,14 +486,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             try
             {
-                // Tax Invoices by proforma.
+                // Tax Invoices by proforma — SUM the invoiced quantity so the
+                // list can distinguish Fully vs Partially invoiced.
                 if (App.TaxInvoices != null)
                 {
                     var tis = await App.TaxInvoices.GetAllAsync();
                     foreach (var t in tis ?? new())
                     {
-                        if (!string.IsNullOrWhiteSpace(t.ProformaId))
-                            state.InvoicedByProforma[t.ProformaId] = true;
+                        if (string.IsNullOrWhiteSpace(t.ProformaId)) continue;
+                        state.InvoicedQtyByProforma.TryGetValue(t.ProformaId, out var qty);
+                        state.InvoicedQtyByProforma[t.ProformaId] = qty + Math.Max(0, t.TotalQty);
                     }
                 }
             }
@@ -508,7 +511,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             public Dictionary<string, bool> JobOrderByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
             public Dictionary<string, (int Delivered, int Ordered)> DeliveryByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
-            public Dictionary<string, bool> InvoicedByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+            /// <summary>Invoiced quantity per proforma (sum of TI TotalQty).</summary>
+            public Dictionary<string, int> InvoicedQtyByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
 
             public (string Status, string BrushKey) Compute(string proformaId, string storedStatus)
             {
@@ -517,19 +522,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     || string.Equals(storedStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
                     return ("Cancelled", "DangerBrush");
 
-                // Fully invoiced
-                if (InvoicedByProforma.ContainsKey(proformaId))
-                    return ("Fully invoiced", "SuccessBrush");
-
-                // Delivered states (derived from delivery notes)
+                // Quantity context: ordered (from delivery notes / master DN),
+                // delivered, invoiced (sum of TI TotalQty).
+                int ordered = 0, delivered = 0, invoiced = 0;
                 if (DeliveryByProforma.TryGetValue(proformaId, out var dq))
                 {
-                    bool fullyDelivered = dq.Ordered > 0 && dq.Delivered >= dq.Ordered;
-                    bool anyDelivered = dq.Delivered > 0;
+                    delivered = dq.Delivered;
+                    ordered = dq.Ordered;
+                }
+                if (InvoicedQtyByProforma.TryGetValue(proformaId, out var iq))
+                    invoiced = iq;
+
+                // Invoicing states are QUANTITY-AWARE: a single partial tax
+                // invoice is NOT "Fully invoiced". Only when the invoiced qty
+                // reaches the ordered qty is the PI fully invoiced; anything
+                // in between is "Partially invoiced".
+                if (invoiced > 0)
+                {
+                    if (ordered > 0 && invoiced >= ordered)
+                        return ("Fully invoiced", "SuccessBrush");
+                    return ("Partially invoiced", "AccentBrush");
+                }
+
+                // Delivered states (derived from delivery notes)
+                if (delivered > 0)
+                {
+                    bool fullyDelivered = ordered > 0 && delivered >= ordered;
                     if (fullyDelivered)
                         return ("Fully delivered", "SuccessBrush");
-                    if (anyDelivered)
-                        return ("Partially delivered", "WarningBrush");
+                    return ("Partially delivered", "WarningBrush");
                 }
 
                 // Full job created

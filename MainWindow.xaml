@@ -294,11 +294,12 @@
         ═══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="10.5"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="20,16,20,8"/>
+            <Setter Property="Margin" Value="20,20,20,10"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         </Style>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -310,7 +311,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="12,2,12,2"/>
+            <Setter Property="Margin" Value="14,3,14,3"/>
             <Setter Property="Height" Value="42"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
@@ -375,7 +376,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="12,2,12,2"/>
+            <Setter Property="Margin" Value="14,3,14,3"/>
             <Setter Property="Height" Value="42"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
@@ -461,8 +462,8 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Margin" Value="20,4,20,6"/>
-            <Setter Property="Padding" Value="6"/>
+            <Setter Property="Margin" Value="20,6,20,8"/>
+            <Setter Property="Padding" Value="6,8"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -475,8 +476,8 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="0,1"/>
-            <Setter Property="Height" Value="34"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Height" Value="36"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -1097,9 +1098,7 @@
                                 <TextBlock Text="SALES"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SalesGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
@@ -1125,9 +1124,7 @@
                                 <TextBlock Text="PRODUCTION"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ProductionGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
@@ -1190,9 +1187,7 @@
                                 <TextBlock Text="DISPATCH"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="DispatchGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
@@ -1218,9 +1213,7 @@
                                 <TextBlock Text="REPORTS"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ReportsGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
@@ -1286,9 +1279,7 @@
                                 <TextBlock Text="MASTER DATA"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="MasterDataGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
@@ -1314,9 +1305,7 @@
                                 <TextBlock Text="SYSTEM"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SystemGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                            Background="Transparent">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
