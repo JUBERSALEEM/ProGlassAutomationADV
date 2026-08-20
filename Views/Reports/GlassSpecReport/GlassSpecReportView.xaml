@@ -3,35 +3,43 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
-             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="16,12,16,10">
-            <TextBlock Text="Glass / Specification Report — Row-Level Intelligence" Style="{StaticResource ModulePageTitleStyle}" FontSize="19"/>
+        <!-- Page Header -->
+        <StackPanel Grid.Row="0" Margin="16,14,16,12">
+            <TextBlock Text="Glass / Specification Report — Row-Level Intelligence" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
             <TextBlock Text="Reads actual PI spec rows (not headers). Exact specification matching type-aware (SGU/DGU/LAM/DGU+LAM). Row → JO → Delivery → TI traceability with delivered/remaining reconciliation." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1100" HorizontalAlignment="Left"/>
         </StackPanel>
 
-        <!-- Shell -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+        <!-- Main Shell Card -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/> <!-- Mode Toggle -->
+                    <RowDefinition Height="Auto"/> <!-- Filter Bar -->
+                    <RowDefinition Height="Auto"/> <!-- Table Header (Detail or Aggregation) -->
+                    <RowDefinition Height="*"/>    <!-- Data Tables / States -->
+                    <RowDefinition Height="Auto"/> <!-- Trace Drawer -->
+                    <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
                 </Grid.RowDefinitions>
 
-                <!-- Mode Toggle -->
+                <!-- ══════════════════════════════════════════════════════════
+                     1. MODE TOGGLE STRIP
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Row Detail" Click="Detail_Click" Padding="14,0" Height="30" Margin="0,0,8,0" ToolTip="View granular itemized specification rows">
+                        <Button Content="Row Detail" Click="Detail_Click" Padding="14,0" Height="30" Margin="0,0,8,0" ToolTip="View granular itemized specification rows across all quotes">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}">
                                     <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -45,7 +53,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="Aggregated by Spec" Click="Agg_Click" Padding="14,0" Height="30" ToolTip="View grouped totals by canonical glass specification">
+                        <Button Content="Aggregated by Spec" Click="Agg_Click" Padding="14,0" Height="30" ToolTip="View grouped totals by canonical glass build specification">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                                     <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -59,28 +67,32 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <TextBlock Text="Exact matching: dimensions + colour + thickness + PVB + spacer are never merged." FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="14,0,0,0"/>
+                        <TextBlock Text="Exact matching: dimensions + colour + thickness + PVB + spacer are never merged." FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Filter Bar -->
+                <!-- ══════════════════════════════════════════════════════════
+                     2. FILTER BAR
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
+
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
                             <TextBox Width="150" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search glass ref..." ToolTip="Search by Glass Ref, Spec name, or PI #"/>
                             <ComboBox Width="110" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedGlassType, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by glass build type">
                                 <ComboBoxItem Content="SGU"/><ComboBoxItem Content="DGU"/><ComboBoxItem Content="LAM"/><ComboBoxItem Content="DGU+LAM"/>
                             </ComboBox>
-                            <TextBox Width="110" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding GlassRefFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Glass Ref" ToolTip="Exact Glass Reference"/>
-                            <TextBox Width="150" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SpecNameFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Spec name" ToolTip="Specification name filter"/>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply filters"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Clear filters"/>
+                            <TextBox Width="120" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding GlassRefFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Glass Ref" ToolTip="Filter by exact Glass Reference"/>
+                            <TextBox Width="150" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SpecNameFilter, UpdateSourceTrigger=PropertyChanged}" Tag="Spec name" ToolTip="Filter by specification name"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply selected filters"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Reset filters"/>
                         </WrapPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,6">
                             <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to CSV"/>
                             <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
                             <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Export to PDF report"/>
@@ -88,7 +100,11 @@
                     </Grid>
                 </Border>
 
-                <!-- Detail Table Header -->
+                <!-- ══════════════════════════════════════════════════════════
+                     3. TABLE HEADERS (Detail vs Aggregation)
+                ══════════════════════════════════════════════════════════════ -->
+
+                <!-- Detail Header -->
                 <Border Grid.Row="2">
                     <Border.Style>
                         <Style TargetType="Border">
@@ -101,14 +117,14 @@
                     <Border Style="{StaticResource ModuleListTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="130"/>
                                 <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="60"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="65"/>
+                                <ColumnDefinition Width="75"/>
+                                <ColumnDefinition Width="85"/>
+                                <ColumnDefinition Width="85"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="PI # / ROW ID" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                             <TextBlock Grid.Column="1" Text="GLASS REF" Style="{StaticResource ModuleListHeaderTextStyle}"/>
@@ -122,7 +138,7 @@
                     </Border>
                 </Border>
 
-                <!-- Aggregation Table Header -->
+                <!-- Aggregation Header -->
                 <Border Grid.Row="2">
                     <Border.Style>
                         <Style TargetType="Border">
@@ -140,8 +156,8 @@
                                 <ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="80"/>
                                 <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="100"/>
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="80"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="SPEC (CANONICAL)" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                             <TextBlock Grid.Column="1" Text="TYPE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
@@ -153,6 +169,10 @@
                         </Grid>
                     </Border>
                 </Border>
+
+                <!-- ══════════════════════════════════════════════════════════
+                     4. DATA LISTS (Detail vs Aggregation)
+                ══════════════════════════════════════════════════════════════ -->
 
                 <!-- Detail List -->
                 <Grid Grid.Row="3">
@@ -170,23 +190,23 @@
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,10">
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="130"/>
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="65"/>
+                                            <ColumnDefinition Width="75"/>
+                                            <ColumnDefinition Width="85"/>
+                                            <ColumnDefinition Width="85"/>
                                         </Grid.ColumnDefinitions>
                                         <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold"/>
-                                            <TextBlock Text="{Binding RowId}" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            <TextBlock Text="{Binding ProformaId}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Text="{Binding RowId}" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0"/>
                                         </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2" Text="{Binding SpecName}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="3" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center">
                                             <Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/>
@@ -196,7 +216,7 @@
                                         <Border Grid.Column="6" CornerRadius="6" Padding="6,3" HorizontalAlignment="Center" VerticalAlignment="Center" Background="{DynamicResource TintAmberBrush}">
                                             <TextBlock Text="{Binding DeliveryStatus}" FontSize="10" FontWeight="SemiBold"/>
                                         </Border>
-                                        <Button Grid.Column="7" Content="Trace" Command="{Binding DataContext.TraceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect full lifecycle of this specific glass item"/>
+                                        <Button Grid.Column="7" Content="Trace" Command="{Binding DataContext.TraceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,3" HorizontalAlignment="Right" ToolTip="Inspect full manufacturing lifecycle of this item"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -228,16 +248,16 @@
                                             <ColumnDefinition Width="70"/>
                                             <ColumnDefinition Width="80"/>
                                             <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="80"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding SpecName}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding CanonicalKey}"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding SpecName}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" ToolTip="{Binding CanonicalKey}" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding GlassType}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="2" Text="{Binding TotalRows}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="3" Text="{Binding TotalQty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
                                         <TextBlock Grid.Column="4" Text="{Binding TotalSqm, StringFormat={}{0:N2}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="5" Text="{Binding TotalValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding BalanceQty}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding BalanceQty, StringFormat={}{0} pcs}" FontSize="11" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
@@ -248,7 +268,9 @@
                 <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading glass rows…"/>
                 <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No glass rows found" Message="No specification rows match the current filters." Icon="&#xE9F9;"/>
 
-                <!-- Trace Drawer -->
+                <!-- ══════════════════════════════════════════════════════════
+                     5. TRACE DRAWER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="4" Visibility="{Binding HasTrace, Converter={StaticResource BoolToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="14,10">
                     <StackPanel>
                         <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
@@ -271,7 +293,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Pagination Footer -->
+                <!-- ══════════════════════════════════════════════════════════
+                     6. PAGINATION FOOTER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="5" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>

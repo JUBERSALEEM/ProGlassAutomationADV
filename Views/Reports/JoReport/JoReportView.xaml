@@ -3,21 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
-             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="16,12,16,10">
-            <TextBlock Text="Job Order Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
-            <TextBlock Text="PI converted to Job Order · PI awaiting conversion · Production status · Quantity · SQM · Value · Actual spec rows" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+        <!-- Page Header -->
+        <StackPanel Grid.Row="0" Margin="16,14,16,12">
+            <TextBlock Text="Job Order Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="PI converted to factory Job Orders · Pending conversions · Production statuses · Delivered vs Balance quantities." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1050" HorizontalAlignment="Left"/>
         </StackPanel>
 
-        <!-- Shell -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+        <!-- Main Shell Card -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -27,69 +33,97 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- KPI Strip -->
+                <!-- ══════════════════════════════════════════════════════════
+                     1. KPI STRIP
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0">
+
+                        <!-- Total JO -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total factory Job Orders in the system">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TOTAL JO" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalJo}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalValue, Mode=OneWay, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0">
+
+                        <!-- Awaiting JO -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Approved Proforma Invoices not yet converted into Job Orders">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="AWAITING JO" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.AwaitingJo}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="PI not yet converted" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="PI awaiting conversion" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0">
+
+                        <!-- Quantity -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total glass piece count and surface area in production">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="QUANTITY" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSqm, StringFormat={}{0:N2} SQM}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalQty, StringFormat={}{0:N0} pcs}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
+
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}"><TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0">
-                                <TextBlock Text="VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+
+                        <!-- Quoted Value -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total quoted value across all active Job Orders">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="QUOTED VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Total quoted" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="Active job value" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Filter Bar -->
+                <!-- ══════════════════════════════════════════════════════════
+                     2. FILTER BAR
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
+
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search JO / PI..." ToolTip="Search by JO #, PI #, or customer"/>
-                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From delivery date"/>
-                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To delivery date"/>
+                            <TextBox Width="170" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search JO / PI..." ToolTip="Search by Job Order #, Proforma #, or customer"/>
+                            <DatePicker Width="135" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From delivery date"/>
+                            <DatePicker Width="135" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To delivery date"/>
                             <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
-                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by job status">
+                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by production status">
                                 <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/>
                             </ComboBox>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply filters"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply selected filters"/>
                             <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Clear filters"/>
                         </WrapPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,6">
                             <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to CSV"/>
                             <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
                             <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Export to PDF report"/>
@@ -97,7 +131,9 @@
                     </Grid>
                 </Border>
 
-                <!-- Table Header -->
+                <!-- ══════════════════════════════════════════════════════════
+                     3. TABLE HEADER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -119,11 +155,12 @@
                     </Grid>
                 </Border>
 
-                <!-- States -->
-                <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Job Order report…"/>
-                <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No job orders found" Message="Adjust filters or convert a PI to JO." Icon="&#xE8B7;"/>
+                <!-- ══════════════════════════════════════════════════════════
+                     4. DATA ROWS / STATES
+                ══════════════════════════════════════════════════════════════ -->
+                <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Job Order records…"/>
+                <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Job Orders found" Message="Adjust your filters or convert a Proforma Invoice to a Job Order." Icon="&#xE8B7;"/>
 
-                <!-- Data List -->
                 <ListBox Grid.Row="3" ItemsSource="{Binding Rows}"
                          ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
                          Background="Transparent" BorderThickness="0"
@@ -131,7 +168,7 @@
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12">
+                            <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="130"/>
@@ -142,21 +179,35 @@
                                         <ColumnDefinition Width="100"/>
                                         <ColumnDefinition Width="110"/>
                                     </Grid.ColumnDefinitions>
+
+                                    <!-- Col 0: JO # -->
                                     <TextBlock Grid.Column="0" Text="{Binding JobOrderId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+
+                                    <!-- Col 1: Source PI Link -->
                                     <TextBlock Grid.Column="1" Text="{Binding SourceProformaId}" FontSize="11" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+
+                                    <!-- Col 2: Customer / Project -->
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
-                                        <TextBlock Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
                                     </StackPanel>
+
+                                    <!-- Col 3: Status Badge -->
                                     <Border Grid.Column="3" VerticalAlignment="Center" Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left">
-                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
                                     </Border>
+
+                                    <!-- Col 4: Grand Total -->
                                     <TextBlock Grid.Column="4" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="5" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11">
+
+                                    <!-- Col 5: Qty & SQM -->
+                                    <TextBlock Grid.Column="5" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}">
                                         <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/>
                                     </TextBlock>
-                                    <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SuccessBrush}">
-                                        <Run Text="{Binding DeliveredQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding BalanceQty, Mode=OneWay}" Foreground="{DynamicResource WarningBrush}"/>
+
+                                    <!-- Col 6: Delivered vs Balance -->
+                                    <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11">
+                                        <Run Text="{Binding DeliveredQty, Mode=OneWay}" Foreground="{DynamicResource SuccessBrush}"/><Run Text=" / "/><Run Text="{Binding BalanceQty, Mode=OneWay}" Foreground="{DynamicResource WarningBrush}"/>
                                     </TextBlock>
                                 </Grid>
                             </Border>
@@ -164,7 +215,9 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <!-- Pagination Footer -->
+                <!-- ══════════════════════════════════════════════════════════
+                     5. PAGINATION FOOTER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -173,8 +226,8 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTip="Previous page"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" ToolTip="Next page"/>
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTip="Go to previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" ToolTip="Go to next page"/>
                         </StackPanel>
                     </Grid>
                 </Border>

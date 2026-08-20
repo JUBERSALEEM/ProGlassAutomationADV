@@ -3,7 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
-             FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -11,26 +17,28 @@
         </Grid.RowDefinitions>
 
         <!-- Page Header -->
-        <StackPanel Grid.Row="0" Margin="16,12,16,10">
-            <TextBlock Text="Company / Customer Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
-            <TextBlock Text="Lifecycle per client and company: Quotes → Job Orders → Deliveries → Invoicing → Statements with amounts and status tracking" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+        <StackPanel Grid.Row="0" Margin="16,14,16,12">
+            <TextBlock Text="Company / Customer Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20" FontWeight="Bold"/>
+            <TextBlock Text="Client and company lifecycles: Quotations → Job Orders → Deliveries → Invoices with amounts, volumes, and balances." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" MaxWidth="1050" HorizontalAlignment="Left"/>
         </StackPanel>
 
-        <!-- Main Shell -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
+        <!-- Main Shell Card -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
             <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/> <!-- View Toggle -->
+                    <RowDefinition Height="Auto"/> <!-- Filter Bar -->
+                    <RowDefinition Height="*"/>    <!-- Data Tables / States -->
+                    <RowDefinition Height="Auto"/> <!-- Lifecycle Detail Drawer -->
+                    <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
                 </Grid.RowDefinitions>
 
-                <!-- View Toggle Bar -->
+                <!-- ══════════════════════════════════════════════════════════
+                     1. VIEW TOGGLE STRIP
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Button Content="Customer View" Click="Customer_Click" Height="30" Padding="14,0" Margin="0,0,8,0" ToolTip="View report aggregated by customer / client">
+                        <Button Content="Customer View" Click="Customer_Click" Height="30" Padding="14,0" Margin="0,0,8,0" ToolTip="View aggregated quotes, job orders, and balances grouped by customer">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}">
                                     <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -44,7 +52,7 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <Button Content="Company View" Click="Company_Click" Height="30" Padding="14,0" ToolTip="View report aggregated by internal operating company">
+                        <Button Content="Company View" Click="Company_Click" Height="30" Padding="14,0" ToolTip="View summary volume and billing grouped by internal company profile">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
                                     <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
@@ -58,39 +66,45 @@
                                 </Style>
                             </Button.Style>
                         </Button>
-                        <TextBlock Text="Select a row below to inspect the full document lifecycle." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                        <TextBlock Text="Select a customer row to view full document history." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Filter Bar -->
+                <!-- ══════════════════════════════════════════════════════════
+                     2. FILTER BAR
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
+
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBox Width="200" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search customer / company..." ToolTip="Search by name, salesman, or document"/>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply current filters"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Reset filter parameters"/>
+                            <TextBox Width="200" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search customer / company..." ToolTip="Search by customer, company, or sales representative"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply selected filters"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Reset filters"/>
                         </WrapPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,6">
                             <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export current table to CSV"/>
                             <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export current table to Excel (.xlsx)"/>
-                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Generate printable PDF report"/>
+                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Export to PDF report"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- Customer List View -->
+                <!-- ══════════════════════════════════════════════════════════
+                     3. DATA TABLES (Customer View & Company View)
+                ══════════════════════════════════════════════════════════════ -->
+
+                <!-- Customer Table Mode -->
                 <Grid Grid.Row="2">
                     <Grid.Style>
                         <Style TargetType="Grid">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ShowCustomers}" Value="True">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ShowCustomers}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Grid.Style>
@@ -98,6 +112,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+
                     <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -118,13 +133,14 @@
                             <TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
+
                     <ListBox Grid.Row="1" ItemsSource="{Binding CustomerRows}" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
                              ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
                              Background="Transparent" BorderThickness="0"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12" Cursor="Hand" ToolTip="Click to view this customer's lifecycle and document history">
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11" Cursor="Hand" ToolTip="Click to view full lifecycle and quote history for this customer">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -149,15 +165,13 @@
                     </ListBox>
                 </Grid>
 
-                <!-- Company List View -->
+                <!-- Company Table Mode -->
                 <Grid Grid.Row="2">
                     <Grid.Style>
                         <Style TargetType="Grid">
                             <Setter Property="Visibility" Value="Collapsed"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding ShowCustomers}" Value="False">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
+                                <DataTrigger Binding="{Binding ShowCustomers}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Grid.Style>
@@ -165,6 +179,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+
                     <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -183,13 +198,14 @@
                             <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
+
                     <ListBox Grid.Row="1" ItemsSource="{Binding CompanyRows}"
                              ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
                              Background="Transparent" BorderThickness="0"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12" ToolTip="Operating company summary">
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,11" ToolTip="Operating company summary">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*"/>
@@ -212,11 +228,12 @@
                     </ListBox>
                 </Grid>
 
-                <!-- Loading & Empty States -->
                 <loading:LoadingStateControl Grid.Row="2" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading company and customer analytics…"/>
-                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No customers or companies found" Message="No records match current filters." Icon="&#xE77B;"/>
+                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No records found" Message="No customer or company records match the current filters." Icon="&#xE77B;"/>
 
-                <!-- Detail Drawer: Selected Customer's Lifecycle -->
+                <!-- ══════════════════════════════════════════════════════════
+                     4. LIFECYCLE DETAIL DRAWER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="3" Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="14,10">
                     <StackPanel>
                         <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
@@ -245,7 +262,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Pagination Footer -->
+                <!-- ══════════════════════════════════════════════════════════
+                     5. PAGINATION FOOTER
+                ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
                     <Grid>
                         <Grid.ColumnDefinitions>
