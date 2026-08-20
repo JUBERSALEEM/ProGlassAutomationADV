@@ -43,8 +43,16 @@
                     <Button x:Name="HudStop" Content="STOP"
                             Click="Stop_Click" Cursor="Hand"
                             FontSize="11" FontWeight="SemiBold"
-                            Padding="12,4" MinWidth="72"
+                            Padding="12,4" MinWidth="72" Margin="0,0,6,0"
                             Foreground="White" Background="#DC2626" BorderThickness="0"/>
+                    <!-- Dismiss the HUD after SAVED / FAILED — previously the
+                         overlay stayed visible forever with no way to close. -->
+                    <Button x:Name="HudClose" Content="CLOSE"
+                            Click="Close_Click" Cursor="Hand"
+                            FontSize="11" FontWeight="SemiBold"
+                            Padding="12,4" MinWidth="72"
+                            Foreground="White" Background="#475569" BorderThickness="0"
+                            Visibility="Collapsed"/>
                 </StackPanel>
                 <TextBlock x:Name="HudTime" Text="00:00.0"
                            FontSize="18" FontWeight="Bold"

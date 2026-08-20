@@ -120,8 +120,22 @@ namespace ProGlassAutomation.Agent.Demo.Video
             if (p == null) return File.Exists(VideoPath) && new FileInfo(VideoPath).Length > 32;
             try
             {
-                await p.WaitForExitAsync(ct).ConfigureAwait(false);
-                return p.ExitCode == 0 && FfmpegMp4Composer.IsValidMp4(VideoPath);
+                // Timeout guard: a wedged ffmpeg must never hang STOP.
+                // image2pipe normally exits on stdin EOF; 8s covers the
+                // final H.264 flush even on a slow laptop.
+                var waitTask = p.WaitForExitAsync(ct);
+                var timeoutTask = Task.Delay(TimeSpan.FromSeconds(8), ct);
+                var exited = await Task.WhenAny(waitTask, timeoutTask).ConfigureAwait(false);
+
+                if (exited == waitTask)
+                {
+                    return p.ExitCode == 0 && FfmpegMp4Composer.IsValidMp4(VideoPath);
+                }
+
+                // Timed out — kill so the caller can fall back to JPEG.
+                Error = "ffmpeg did not exit in time.";
+                try { if (!p.HasExited) p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                return false;
             }
             catch (Exception ex)
             {

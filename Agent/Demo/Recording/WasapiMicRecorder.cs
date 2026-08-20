@@ -81,7 +81,9 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
         private void OnData(object? sender, WaveInEventArgs e)
         {
-            if (e.BytesRecorded <= 0) return;
+            // Respect pause exactly like the loopback recorder — otherwise
+            // the mic keeps recording while the video is paused.
+            if (IsPaused || e.BytesRecorded <= 0) return;
             lock (_gate)
             {
                 try { _writer?.Write(e.Buffer, 0, e.BytesRecorded); }

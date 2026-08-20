@@ -62,10 +62,17 @@ namespace ProGlassAutomation.Views.Shared
             HudStage.Text = stage;
             HudPause.Visibility = Visibility.Collapsed;
             HudStop.Visibility = Visibility.Collapsed;
+            // Let the user dismiss the finished HUD.
+            HudClose.Visibility = Visibility.Visible;
             HudDot.Fill = failed
                 ? new SolidColorBrush(Color.FromRgb(239, 68, 68))
                 : new SolidColorBrush(Color.FromRgb(34, 197, 94));
             HudBar.Width = failed ? 0 : Math.Max(40, HudRoot.ActualWidth - 28);
+        }
+
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+            try { Hide(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         private void Place()

@@ -283,6 +283,11 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             if (window == null || window.ActualWidth < 2 || window.ActualHeight < 2)
                 return null;
 
+            // Never waste a capture on a minimized / hidden window — it
+            // would render an empty frame and drop the next real one.
+            if (!window.IsVisible || window.WindowState == WindowState.Minimized)
+                return null;
+
             var (targetW, targetH) = _settings.CaptureSize;
             double dipW = Math.Max(1, window.ActualWidth);
             double dipH = Math.Max(1, window.ActualHeight);
@@ -353,11 +358,28 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     shot.Width, shot.Height, 96, 96,
                     PixelFormats.Pbgra32, null, shot.Pixels, shot.Width * 4);
                 src.Freeze();
-                var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQualityFor };
-                enc.Frames.Add(BitmapFrame.Create(src));
+
+                byte[] bytes;
+                using (var ms = new MemoryStream())
+                {
+                    var enc = new JpegBitmapEncoder { QualityLevel = _settings.JpegQualityFor };
+                    enc.Frames.Add(BitmapFrame.Create(src));
+                    enc.Save(ms);
+                    bytes = ms.ToArray();
+                }
+
+                // Keep the on-disk frame (fallback encode path) AND feed the
+                // live H.264 pipe. Without this the live encoder was started
+                // but starved — STOP always fell back to the slow JPEG
+                // re-encode (or failed when frames were dropped).
                 Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
-                using (var fs = File.Create(path))
-                    enc.Save(fs);
+                File.WriteAllBytes(path, bytes);
+                var pipe = _pipe;
+                if (pipe != null && !pipe.WriteJpeg(bytes))
+                {
+                    // ffmpeg died — the HUD switches to "JPEG fallback" and
+                    // the stop path uses the on-disk frames instead.
+                }
 
                 if (File.Exists(path))
                 {
