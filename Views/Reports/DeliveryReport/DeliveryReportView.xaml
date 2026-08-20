@@ -331,10 +331,10 @@
                                     <ColumnDefinition Width="1.6*"/>
                                     <ColumnDefinition Width="1.1*"/>
                                     <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
-                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition Width="44"/>
                                     <ColumnDefinition Width="54"/>
                                     <ColumnDefinition Width="58"/>
                                     <ColumnDefinition Width="60"/>
@@ -343,7 +343,7 @@
                                 <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="GLASS REF" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="GLASS REF / SR" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
                                 <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
@@ -385,10 +385,10 @@
                                                 <ColumnDefinition Width="1.6*"/>
                                                 <ColumnDefinition Width="1.1*"/>
                                                 <ColumnDefinition Width="0.8*"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
-                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="44"/>
                                                 <ColumnDefinition Width="54"/>
                                                 <ColumnDefinition Width="58"/>
                                                 <ColumnDefinition Width="60"/>
@@ -401,7 +401,12 @@
                                                 <TextBlock Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding CustomerName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                            <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,6,0">
+                                                <TextBlock Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
+                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" Margin="0,1,0,0">
+                                                    <Run Text="Sr "/><Run Text="{Binding SerialNumber, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </StackPanel>
                                             <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
