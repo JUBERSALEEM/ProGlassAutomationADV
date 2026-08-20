@@ -88,7 +88,9 @@ namespace ProGlassAutomation
                     vm.IsNotificationsOpen = false;
                 if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
                     vm.IsScreenshotOpen = false;
-                if (vm.IsScreenRecordOpen && !In(RecordButton) && !In(ScreenRecordPanelHost))
+                bool comboOpen = Mouse.DirectlyOver is System.Windows.Controls.ComboBoxItem
+                    || Mouse.DirectlyOver is System.Windows.Controls.ComboBox;
+                if (vm.IsScreenRecordOpen && !comboOpen && !In(RecordButton) && !In(ScreenRecordPanelHost))
                     vm.IsScreenRecordOpen = false;
             };
         }
