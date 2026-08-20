@@ -631,7 +631,7 @@ namespace ProGlassAutomation.Services.Reporting
                 ProformaId = x.ProformaId,
                 SpecGroupNumber = x.SpecGroupNumber,
                 SerialNumber = x.SerialNumber,
-                Specification = x.Specification,
+                Specification = FormatSpecification(x.SpecGroupNumber, x.Specification),
                 CustomerName = x.CustomerName,
                 ProjectName = x.ProjectName,
                 GlassRef = x.GlassRef,
@@ -716,6 +716,30 @@ namespace ProGlassAutomation.Services.Reporting
             delivered <= 0 ? "NeutralBrush"
             : delivered >= total ? "SuccessBrush"
             : "WarningBrush";
+
+        /// <summary>
+        /// Displays the specification with its spec-group number so every row
+        /// is traceable to its exact PI → Specification group, e.g.
+        /// "Spec 1 - 6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass".
+        /// Guarded against double-prefixing when the stored name already
+        /// starts with "Spec N".
+        /// </summary>
+        private static string FormatSpecification(int groupNumber, string name)
+        {
+            string prefix = "Spec " + groupNumber;
+            var trimmed = (name ?? "").Trim();
+            if (trimmed.Length == 0)
+                return prefix;
+
+            if (trimmed.StartsWith(prefix + " ", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith(prefix + "-", StringComparison.OrdinalIgnoreCase) ||
+                trimmed.StartsWith("Spec" + groupNumber, StringComparison.OrdinalIgnoreCase))
+            {
+                return trimmed;
+            }
+
+            return prefix + " - " + trimmed;
+        }
 
         /// <summary>
         /// Builds the SQL-side row query. The catalog is the master-DN

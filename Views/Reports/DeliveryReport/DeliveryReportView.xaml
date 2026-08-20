@@ -189,18 +189,18 @@
                         <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="42"/>
-                                    <ColumnDefinition Width="100"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="130"/>
-                                    <ColumnDefinition Width="78"/>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="40"/>
-                                    <ColumnDefinition Width="62"/>
-                                    <ColumnDefinition Width="70"/>
-                                    <ColumnDefinition Width="70"/>
+                                    <ColumnDefinition Width="44"/>
+                                    <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="1.6*"/>
+                                    <ColumnDefinition Width="1.1*"/>
+                                    <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="34"/>
+                                    <ColumnDefinition Width="54"/>
+                                    <ColumnDefinition Width="58"/>
+                                    <ColumnDefinition Width="60"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                                 <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
@@ -243,18 +243,18 @@
                                     <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view delivery history for this row">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="42"/>
-                                                <ColumnDefinition Width="100"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="130"/>
-                                                <ColumnDefinition Width="78"/>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="62"/>
-                                                <ColumnDefinition Width="70"/>
-                                                <ColumnDefinition Width="70"/>
+                                                <ColumnDefinition Width="44"/>
+                                                <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="1.6*"/>
+                                                <ColumnDefinition Width="1.1*"/>
+                                                <ColumnDefinition Width="0.8*"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="34"/>
+                                                <ColumnDefinition Width="54"/>
+                                                <ColumnDefinition Width="58"/>
+                                                <ColumnDefinition Width="60"/>
                                             </Grid.ColumnDefinitions>
 
                                             <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
@@ -369,22 +369,27 @@
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
                                                 <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
                                             </Grid.RowDefinitions>
 
-                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="GLASS REF" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="0" Text="SR NO" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.SerialNumber}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
 
-                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="DIMENSIONS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="1" Grid.Column="1" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2">
+                                            <TextBlock Grid.Row="1" Grid.Column="0" Text="GLASS REF" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="DIMENSIONS" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="2" Grid.Column="1" FontSize="11" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2">
                                                 <Run Text="{Binding SelectedRow.W1, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding SelectedRow.H1, Mode=OneWay}"/>
                                                 <Run Text="   "/><Run Text="{Binding SelectedRow.W2, Mode=OneWay}"/><Run Text=" × "/><Run Text="{Binding SelectedRow.H2, Mode=OneWay}"/>
                                             </TextBlock>
 
-                                            <TextBlock Grid.Row="2" Grid.Column="0" Text="TOTAL QTY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRow.TotalQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="TOTAL QTY" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.TotalQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
 
-                                            <TextBlock Grid.Row="3" Grid.Column="0" Text="DELIVERED" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
+                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="DELIVERED" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" Margin="0,2">
                                                 <TextBlock Text="{Binding SelectedRow.DeliveredQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                                                 <Border CornerRadius="6" Padding="8,2" Margin="10,0,0,0"
                                                         Background="{Binding SelectedRow.DeliveryStatusBrushKey, Converter={StaticResource BrushKeyConverter}}">
@@ -392,8 +397,8 @@
                                                 </Border>
                                             </StackPanel>
 
-                                            <TextBlock Grid.Row="4" Grid.Column="0" Text="BALANCE" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.BalanceQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="0" Text="BALANCE" FontSize="9.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.BalanceQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2"/>
                                         </Grid>
                                     </Border>
 
