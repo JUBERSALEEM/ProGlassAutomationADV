@@ -89,7 +89,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         }
 
         public void Start(string framesFolder, int fps) =>
-            Start(framesFolder, new ScreenRecordSettings { Fps = fps });
+            Start(framesFolder, (new ScreenRecordSettings { Fps = fps }).Clamp());
 
         public void Start(string framesFolder, ScreenRecordSettings settings)
         {
