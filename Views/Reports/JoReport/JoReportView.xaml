@@ -5,98 +5,180 @@
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
         <StackPanel Grid.Row="0" Margin="16,12,16,10">
             <TextBlock Text="Job Order Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
             <TextBlock Text="PI converted to Job Order · PI awaiting conversion · Production status · Quantity · SQM · Value · Actual spec rows" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
         </StackPanel>
+
+        <!-- Shell -->
         <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- KPI Strip -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0"><TextBlock Text="TOTAL JO" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.TotalJo}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="TOTAL JO" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalJo}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
                         </StackPanel>
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0"><TextBlock Text="AWAITING JO" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.AwaitingJo}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="PI not yet converted" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="AWAITING JO" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.AwaitingJo}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="PI not yet converted" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
                         </StackPanel>
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0"><TextBlock Text="QUANTITY" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.TotalQty}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="{Binding Summary.TotalSqm, StringFormat={}{0:N2} SQM}" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="QUANTITY" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalSqm, StringFormat={}{0:N2} SQM}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
                         </StackPanel>
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}"><TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                            <StackPanel Margin="10,0,0,0"><TextBlock Text="VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/><TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/><TextBlock Text="Total quoted" Style="{StaticResource ModuleListKpiHintStyle}"/></StackPanel>
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock Text="VALUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalValue, StringFormat={}AED {0:N0}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="Total quoted" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
                         </StackPanel>
                     </Grid>
                 </Border>
+
+                <!-- Filter Bar -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}"/>
-                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateTo}"/>
-                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}"/>
-                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}"><ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/></ComboBox>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search JO / PI..." ToolTip="Search by JO #, PI #, or customer"/>
+                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From delivery date"/>
+                            <DatePicker Width="130" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To delivery date"/>
+                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by job status">
+                                <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/>
+                            </ComboBox>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply filters"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Clear filters"/>
                         </WrapPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                            <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/>
-                            <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/>
-                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}"/>
+                            <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to CSV"/>
+                            <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export to Excel (.xlsx)"/>
+                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Export to PDF report"/>
                         </StackPanel>
                     </Grid>
                 </Border>
+
+                <!-- Table Header -->
                 <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="90"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="JO #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="2" Text="CUSTOMER / PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="3" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                         <TextBlock Grid.Column="4" Text="GRAND TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
                         <TextBlock Grid.Column="5" Text="QTY / SQM" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        <TextBlock Grid.Column="6" Text="DELIVERED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="DELIVERED / BAL" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
                     </Grid>
                 </Border>
+
+                <!-- States -->
                 <loading:LoadingStateControl Grid.Row="3" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Job Order report…"/>
-                <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No job orders" Message="Adjust filters or convert a PI to JO." Icon="&#xE8B7;"/>
-                <ListBox Grid.Row="3" ItemsSource="{Binding Rows}" Background="Transparent" BorderThickness="0" Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                <emptyState:EmptyStateControl Grid.Row="3" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No job orders found" Message="Adjust filters or convert a PI to JO." Icon="&#xE8B7;"/>
+
+                <!-- Data List -->
+                <ListBox Grid.Row="3" ItemsSource="{Binding Rows}"
+                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
+                         Background="Transparent" BorderThickness="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12">
                                 <Grid>
-                                    <Grid.ColumnDefinitions><ColumnDefinition Width="130"/><ColumnDefinition Width="130"/><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/><ColumnDefinition Width="90"/><ColumnDefinition Width="100"/></Grid.ColumnDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="130"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="110"/>
+                                    </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding JobOrderId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding SourceProformaId}" FontSize="11" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0"><TextBlock Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/></StackPanel>
-                                    <Border Grid.Column="3" VerticalAlignment="Center" Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left"><TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"/></Border>
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
+                                        <TextBlock Text="{Binding CustomerName}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding ProjectName}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+                                    <Border Grid.Column="3" VerticalAlignment="Center" Background="{DynamicResource TintBlueBrush}" CornerRadius="6" Padding="8,3" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="SemiBold"/>
+                                    </Border>
                                     <TextBlock Grid.Column="4" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="5" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11"><Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/></TextBlock>
-                                    <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SuccessBrush}"><Run Text="{Binding DeliveredQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding BalanceQty, Mode=OneWay}" Foreground="{DynamicResource WarningBrush}"/></TextBlock>
+                                    <TextBlock Grid.Column="5" HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="11">
+                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N1}}"/>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="11" Foreground="{DynamicResource SuccessBrush}">
+                                        <Run Text="{Binding DeliveredQty, Mode=OneWay}"/><Run Text=" / "/><Run Text="{Binding BalanceQty, Mode=OneWay}" Foreground="{DynamicResource WarningBrush}"/>
+                                    </TextBlock>
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
+
+                <!-- Pagination Footer -->
                 <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"/>
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTip="Previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" ToolTip="Next page"/>
                         </StackPanel>
                     </Grid>
                 </Border>
+
             </Grid>
         </Border>
     </Grid>

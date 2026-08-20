@@ -5,80 +5,261 @@
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Page Header -->
         <StackPanel Grid.Row="0" Margin="16,12,16,10">
             <TextBlock Text="Company / Customer Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="20"/>
-            <TextBlock Text="Lifecycle per company/customer: PI → Job Order → Delivery → Tax Invoice → Statement → Profitability with documents, values, quantities, specifications, pending items" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
+            <TextBlock Text="Lifecycle per client and company: Quotes → Job Orders → Deliveries → Invoicing → Statements with amounts and status tracking" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
         </StackPanel>
+
+        <!-- Main Shell -->
         <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,12">
             <Grid>
-                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
-                <!-- Toggle -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- View Toggle Bar -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Customers" Command="{Binding ApplyFilterCommand}" Margin="0,0,8,0">
-                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}"><Style.Triggers><DataTrigger Binding="{Binding ShowCompanies}" Value="True"><Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/></DataTrigger></Style.Triggers></Style></Button.Style>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="Customer View" Click="Customer_Click" Height="30" Padding="14,0" Margin="0,0,8,0" ToolTip="View report aggregated by customer / client">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource RowPrimaryButton}">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowCustomers}" Value="False">
+                                            <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                         </Button>
-                        <Button Content="Companies" Command="{Binding ApplyFilterCommand}">
-                            <Button.Style><Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}"><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="False"><Setter Property="Background" Value="{DynamicResource AccentBrush}"/></DataTrigger></Style.Triggers></Style></Button.Style>
+                        <Button Content="Company View" Click="Company_Click" Height="30" Padding="14,0" ToolTip="View report aggregated by internal operating company">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                                    <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ShowCustomers}" Value="False">
+                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                         </Button>
-                        <!-- Toggle logic handled via ShowCustomers property; use simple buttons that flip -->
-                        <Button Content="Customer View" Margin="12,0,0,0" Padding="10,0" Height="28" Click="Customer_Click" Style="{StaticResource RowOutlinedButton}"/>
-                        <Button Content="Company View" Margin="6,0,0,0" Padding="10,0" Height="28" Click="Company_Click" Style="{StaticResource RowOutlinedButton}"/>
+                        <TextBlock Text="Select a row below to inspect the full document lifecycle." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="16,0,0,0"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Filter Bar -->
                 <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
-                    <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <TextBox Width="180" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6"/>
+                            <TextBox Width="200" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search customer / company..." ToolTip="Search by name, salesman, or document"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Apply current filters"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Height="30" Padding="14,0" Margin="0,0,6,6" ToolTip="Reset filter parameters"/>
                         </WrapPanel>
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}"/></StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export current table to CSV"/>
+                            <Button Content="Excel" Command="{Binding ExportExcelCommand}" Style="{StaticResource RowOutlinedButton}" Margin="0,0,6,0" ToolTip="Export current table to Excel (.xlsx)"/>
+                            <Button Content="PDF" Command="{Binding ExportPdfCommand}" Style="{StaticResource PrimaryPillButton}" ToolTip="Generate printable PDF report"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
-                <!-- Customer list -->
+
+                <!-- Customer List View -->
                 <Grid Grid.Row="2">
-                    <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="True"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Grid.Style>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="2" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="5" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        </Grid></Border>
-                    <ListBox Grid.Row="1" ItemsSource="{Binding CustomerRows}" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}" Background="Transparent" BorderThickness="0">
-                        <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="110"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="70"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding CustomerName}" FontSize="11" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding Salesman}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="{Binding JoCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="{Binding TiCount}" FontSize="11" HorizontalAlignment="Center"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding Outstanding, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource WarningBrush}"/>
-                                </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowCustomers}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="70"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="6" Text="OUTSTANDING" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding CustomerRows}" SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
+                             Background="Transparent" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12" Cursor="Hand" ToolTip="Click to view this customer's lifecycle and document history">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="70"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding CustomerName}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding Salesman}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding JoCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding TiCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding Outstanding, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                     </ListBox>
                 </Grid>
-                <!-- Company list -->
+
+                <!-- Company List View -->
                 <Grid Grid.Row="2">
-                    <Grid.Style><Style TargetType="Grid"><Setter Property="Visibility" Value="Collapsed"/><Style.Triggers><DataTrigger Binding="{Binding ShowCustomers}" Value="False"><Setter Property="Visibility" Value="Visible"/></DataTrigger></Style.Triggers></Style></Grid.Style>
-                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
-                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/><TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/><TextBlock Grid.Column="4" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/><TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
-                        </Grid></Border>
-                    <ListBox Grid.Row="1" ItemsSource="{Binding CompanyRows}" Background="Transparent" BorderThickness="0">
-                        <ListBox.ItemTemplate><DataTemplate><Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="80"/><ColumnDefinition Width="110"/><ColumnDefinition Width="110"/></Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="2" Text="{Binding JobOrderCount}" FontSize="11" HorizontalAlignment="Center"/><TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="11" HorizontalAlignment="Center"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold"/><TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}"/>
-                                </Grid></Border></DataTemplate></ListBox.ItemTemplate>
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ShowCustomers}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="0" Style="{StaticResource ModuleListTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="120"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="PIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="JOs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="TIs" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="PI VALUE" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+                    <ListBox Grid.Row="1" ItemsSource="{Binding CompanyRows}"
+                             ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}"
+                             Background="Transparent" BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="16,12" ToolTip="Operating company summary">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="120"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding CompanyName}" FontSize="11" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding PiCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="2" Text="{Binding JobOrderCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="3" Text="{Binding TaxInvoiceCount}" FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding PiValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding InvoicedValue, StringFormat={}AED {0:N0}}" FontSize="11" HorizontalAlignment="Right" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                     </ListBox>
                 </Grid>
-                <loading:LoadingStateControl Grid.Row="2" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading lifecycle…"/>
-                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No customers/companies" Message="Create a PI to see lifecycle analytics." Icon="&#xE77B;"/>
-                <!-- Detail: selected customer's PI lifecycle -->
-                <Border Grid.Row="3" Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12">
+
+                <!-- Loading & Empty States -->
+                <loading:LoadingStateControl Grid.Row="2" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading company and customer analytics…"/>
+                <emptyState:EmptyStateControl Grid.Row="2" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No customers or companies found" Message="No records match current filters." Icon="&#xE77B;"/>
+
+                <!-- Detail Drawer: Selected Customer's Lifecycle -->
+                <Border Grid.Row="3" Visibility="{Binding SelectedCustomer, Converter={StaticResource NullToVisibilityConverter}}" Background="{DynamicResource MenuHoverBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="14,10">
                     <StackPanel>
-                        <TextBlock FontSize="11" FontWeight="Bold"><Run Text="Lifecycle — "/><Run Text="{Binding SelectedCustomer.CustomerName, Mode=OneWay}"/></TextBlock>
-                        <ItemsControl ItemsSource="{Binding PiLifecycle}" Margin="0,6,0,0">
-                            <ItemsControl.ItemTemplate><DataTemplate><TextBlock FontSize="10"><Run Text="{Binding ProformaId, Mode=OneWay}" FontWeight="SemiBold"/><Run Text=" · "/><Run Text="{Binding Status, Mode=OneWay}"/><Run Text=" · AED "/><Run Text="{Binding GrandTotal, Mode=OneWay, StringFormat={}{0:N0}}"/></TextBlock></DataTemplate></ItemsControl.ItemTemplate>
+                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="Lifecycle Trace — "/><Run Text="{Binding SelectedCustomer.CustomerName, Mode=OneWay}"/><Run Text=" ("/><Run Text="{Binding PiLifecycle.Count, Mode=OneWay}"/><Run Text=" quotes)"/>
+                        </TextBlock>
+                        <ItemsControl ItemsSource="{Binding PiLifecycle}" Margin="0,8,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1" Padding="0,4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="100"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="120"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding ProformaId, Mode=OneWay}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Status, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding ProjectName, Mode=OneWay}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding GrandTotal, Mode=OneWay, StringFormat={}AED {0:N2}}" FontSize="10" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </Border>
-                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/><StackPanel Grid.Column="1" Orientation="Horizontal"><Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0"/><Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0"/></StackPanel></Grid></Border>
+
+                <!-- Pagination Footer -->
+                <Border Grid.Row="4" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Padding="12,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" Margin="0,0,8,0" ToolTip="Go to previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Height="28" Padding="12,0" ToolTip="Go to next page"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
             </Grid>
         </Border>
     </Grid>

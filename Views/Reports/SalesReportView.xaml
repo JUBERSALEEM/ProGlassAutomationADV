@@ -1,14 +1,14 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Reports/SalesReportView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Central Reporting — Hub Shell (Master Prompt)
+     MODULE: Central Reporting — Hub Shell
 
      PURPOSE:
        Single hub for the entire module-based Reports system.
        Left nav: 11 report modules (Overview + 10 specialized reports).
        Right pane: active report ViewModel rendered via DataTemplates.
        Overview shows global KPIs; each module uses the SAME central
-       ReportingDataService but has its own purpose/layout.
+       ReportingDataService with its own purpose/layout.
        Exports (CSV/Excel/PDF) respect current filters via shared service.
 
      DESIGN SYSTEM:
@@ -73,69 +73,40 @@
         <DataTemplate DataType="{x:Type vmList:StatementListViewModel}"><vList:StatementListView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmGen:StatementGeneratorViewModel}"><vGen:StatementGeneratorView/></DataTemplate>
 
-        <!-- Report nav button -->
-        <Style x:Key="ReportNavButton" TargetType="Button">
+        <!-- Report Navigation Button Style -->
+        <Style x:Key="ReportNavButtonStyle" TargetType="Button">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Margin" Value="0,2"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Tag" Value="Inactive"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" CornerRadius="10" Padding="10,9" Background="Transparent" BorderThickness="1" BorderBrush="Transparent">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="28"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="8" Background="{DynamicResource MenuHoverBrush}">
-                                    <TextBlock Text="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue='◉'}"
-                                               FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=Report}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
-                                </StackPanel>
-                            </Grid>
+                        <Border x:Name="Bd"
+                                CornerRadius="10"
+                                Padding="10,8"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="1"
+                                BorderBrush="Transparent"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="Tag" Value="Active">
+                                <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="Transparent"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="ReportNavActiveButton" TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}" BorderThickness="0">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="28"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.95">
-                                    <TextBlock Text="{Binding Icon, RelativeSource={RelativeSource TemplatedParent}, FallbackValue='◉'}"
-                                               FontFamily="Segoe MDL2 Assets" FontSize="12"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="{Binding Title, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=Report}" FontSize="12" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis"/>
-                                    <TextBlock Text="{Binding Subtitle, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=''}" FontSize="9" Foreground="#E0E7FF" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -145,323 +116,376 @@
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="268"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- LEFT NAV -->
-        <Border Grid.Column="0" Background="{DynamicResource SideMenuBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,1,0">
-            <Grid>
+        <!-- ══════════════════════════════════════════════════════════
+             LEFT — NAVIGATION RAIL
+        ══════════════════════════════════════════════════════════════ -->
+        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                Grid.Column="0"
+                Margin="14,14,6,14"
+                Background="{DynamicResource SideMenuBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="1"
+                SnapsToDevicePixels="True">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2"
+                                  Direction="270" Opacity="0.10"
+                                  Color="#000000"/>
+            </Border.Effect>
+
+            <Grid Margin="10,12,10,12">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Header -->
-                <Border Grid.Row="0" Margin="14,14,14,8" CornerRadius="12" Background="{DynamicResource AccentBrush}" Padding="14,14">
+                <!-- Brand Header -->
+                <Border Grid.Row="0" Margin="4,2,4,10" CornerRadius="12" Background="{DynamicResource AccentBrush}" Padding="12,12">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="42"/>
+                            <ColumnDefinition Width="38"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="42" Height="42" CornerRadius="10" Background="White" Opacity="0.92">
+                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="White" Opacity="0.92">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="REPORTS" FontSize="9" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
-                            <TextBlock Text="Module-Based" FontSize="15" FontWeight="Bold" Foreground="White" Margin="0,1,0,0"/>
-                            <TextBlock Text="Row-level intelligence" FontSize="9" Foreground="#BFDBFE" Margin="0,2,0,0"/>
+                            <TextBlock Text="REPORTS HUB" FontSize="9" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
+                            <TextBlock Text="Intelligence Center" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,1,0,0"/>
+                            <TextBlock Text="Row-level traceability" FontSize="9" Foreground="#BFDBFE" Margin="0,2,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <!-- Nav list -->
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="8,0,8,8">
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="2,0,2,6">
                     <StackPanel>
 
                         <!-- Overview -->
-                        <Button Content="Overview" Tag="Overview" Click="Nav_Click">
+                        <Button Tag="Overview" Click="Nav_Click" ToolTip="Global KPI overview across all modules">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Overview">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid>
-                                                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Overview" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="KPI dashboard" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Overview" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="KPI dashboard" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <TextBlock Text="DOCUMENTS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="10,14,10,6"/>
+                        <TextBlock Text="DOCUMENTS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
-                        <Button Content="Proforma Invoice" Tag="Pi" Click="Nav_Click">
+                        <!-- Proforma Invoice -->
+                        <Button Tag="Pi" Click="Nav_Click" ToolTip="Proforma invoices, quotes, statuses, and conversion tracking">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Pi">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Proforma Invoice" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Quotes &amp; conversion" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Proforma Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Quotes &amp; conversion" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Job Order" Tag="Jo" Click="Nav_Click">
+                        <!-- Job Order -->
+                        <Button Tag="Jo" Click="Nav_Click" ToolTip="Job orders, production statuses, priorities, and delivery balances">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Jo">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Job Order" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Production &amp; status" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Job Order" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Production &amp; status" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Delivery" Tag="Delivery" Click="Nav_Click">
+                        <!-- Delivery -->
+                        <Button Tag="Delivery" Click="Nav_Click" ToolTip="Delivery notes, dispatched items, remaining balances, and progress">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Delivery">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Delivery" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Dispatched / pending" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Delivery" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Dispatched / pending" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Tax Invoice" Tag="TaxInvoice" Click="Nav_Click">
+                        <!-- Tax Invoice -->
+                        <Button Tag="TaxInvoice" Click="Nav_Click" ToolTip="Tax invoices, billing statuses, payments, and overdue amounts">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Tax Invoice" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Billed &amp; overdue" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Tax Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Billed &amp; overdue" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <TextBlock Text="MASTER DATA" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="10,14,10,6"/>
+                        <TextBlock Text="MASTER DATA" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
-                        <Button Content="Company / Customer" Tag="Company" Click="Nav_Click">
+                        <!-- Company / Customer -->
+                        <Button Tag="Company" Click="Nav_Click" ToolTip="Customer and company lifecycle from quotation to settlement">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Company">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Company / Customer" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Lifecycle per client" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Company / Customer" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Lifecycle per client" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Salesman" Tag="Salesman" Click="Nav_Click">
+                        <!-- Salesman -->
+                        <Button Tag="Salesman" Click="Nav_Click" ToolTip="Sales performance, confirmed quotes, and revenue by representative">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Salesman">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Salesman" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Revenue per rep" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Salesman" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Revenue per rep" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Project" Tag="Project" Click="Nav_Click">
+                        <!-- Project -->
+                        <Button Tag="Project" Click="Nav_Click" ToolTip="Project-based breakdown of quotations, job orders, and invoicing">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Project">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Project" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Project drill-down" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Project" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Project drill-down" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <TextBlock Text="INTELLIGENCE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="10,14,10,6"/>
+                        <TextBlock Text="INTELLIGENCE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
-                        <Button Content="Glass / Specification" Tag="Glass" Click="Nav_Click">
+                        <!-- Glass / Specification -->
+                        <Button Tag="Glass" Click="Nav_Click" ToolTip="Row-level specification intelligence matching dimensions, glass types, and colors">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Glass">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Glass / Specification" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Row-level intelligence" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Glass / Specification" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Row-level intelligence" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Statement" Tag="Statement" Click="Nav_Click">
+                        <!-- Statement -->
+                        <Button Tag="Statement" Click="Nav_Click" ToolTip="Customer account statements, aging, and statement generator wizard">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Statement">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Statement" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Customer statements" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Statement" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Customer statements" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
-                        <Button Content="Profitability / P&amp;L" Tag="Profitability" Click="Nav_Click">
+                        <!-- Profitability -->
+                        <Button Tag="Profitability" Click="Nav_Click" ToolTip="Profit &amp; Loss analysis, revenue, glass and production costs, and gross margins">
                             <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButton}">
+                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Profitability">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border CornerRadius="10" Padding="10,9" Background="{DynamicResource AccentBrush}">
-                                                            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                                                <Border Width="28" Height="28" CornerRadius="8" Background="White" Opacity="0.92"><TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border>
-                                                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center"><TextBlock Text="Profitability / P&amp;L" FontSize="12" FontWeight="Bold" Foreground="White"/><TextBlock Text="Revenue, cost, margin" FontSize="9" Foreground="#E0E7FF" Margin="0,1,0,0"/></StackPanel>
-                                                            </Grid>
-                                                        </Border>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Tag" Value="Active"/></DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </Button.Style>
+                            <Grid>
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
+                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
+                                    <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Profitability / P&amp;L" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="Revenue, cost, margin" FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Grid>
                         </Button>
 
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Footer: centralized layer indicator -->
-                <Border Grid.Row="2" Margin="10,8,10,10" CornerRadius="10" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10,9">
+                <!-- Footer: Centralized layer indicator -->
+                <Border Grid.Row="2" Margin="4,6,4,2" CornerRadius="10" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" Padding="10,8">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Central data layer" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Central Data Layer" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="All reports share one intelligence layer. Row-level trace: PI → JO → DN → TI → P&amp;L." FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,5,0,0"/>
+                        <TextBlock Text="Shared intelligence across PI → JO → Delivery → Tax Invoice → P&amp;L." FontSize="9" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- RIGHT CONTENT -->
+        <!-- ══════════════════════════════════════════════════════════
+             RIGHT — ACTIVE REPORT CONTENT
+        ══════════════════════════════════════════════════════════════ -->
         <Grid Grid.Column="1" Background="{DynamicResource ModuleBackgroundBrush}">
 
             <!-- Default: Overview -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="18">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="18">
                 <ScrollViewer.Style>
                     <Style TargetType="ScrollViewer">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -474,7 +498,7 @@
                 </ScrollViewer.Style>
                 <StackPanel MaxWidth="1100">
 
-                    <!-- Overview header -->
+                    <!-- Overview Header Banner -->
                     <Border CornerRadius="16" Background="{DynamicResource AccentBrush}" Padding="20,18" Margin="0,0,0,14">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -484,7 +508,7 @@
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="REPORTS OVERVIEW" FontSize="10" FontWeight="Bold" Foreground="#DBEAFE"/>
                                 <TextBlock Text="Module-Based ERP Intelligence" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
-                                <TextBlock Text="Every report uses one centralized data layer and your real database. Drill down from any KPI to the exact glass row." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="Every report uses one centralized data layer and your live database. Drill down from any aggregate to exact specification rows and document lifecycles." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="ROW-LEVEL TRACEABILITY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
                                     <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="EXACT SPEC MATCHING" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
@@ -509,7 +533,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14">
+                        <Border Grid.Column="0" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14" ToolTip="Total quotation volume and value from Proforma Invoices">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintBlueBrush}"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Proforma" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
@@ -517,15 +541,15 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14">
+                        <Border Grid.Column="2" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14" ToolTip="Total active job orders and pending conversions">
                             <StackPanel>
-                                <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Job Orders" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
+                                <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}"><TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Job Orders" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" verticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                 <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding JoReport.Summary.AwaitingJo, Mode=OneWay}"/><Run Text=" awaiting JO"/></TextBlock>
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="4" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14">
+                        <Border Grid.Column="4" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14" ToolTip="Dispatched delivery notes and fulfillment percentage">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}"><TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Deliveries" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding DeliveryReport.Summary.TotalDn}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
@@ -533,7 +557,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Column="6" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14">
+                        <Border Grid.Column="6" Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14" ToolTip="Total issued invoices and billed amounts">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintIndigoBrush}"><TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Tax Invoices" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
                                 <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
@@ -546,10 +570,10 @@
                     <Border Background="{DynamicResource CardBackgroundBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14" Margin="0,0,0,14">
                         <StackPanel>
                             <TextBlock Text="TRACE ANY GLASS ROW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="PI → Row → Job Order → Delivery → Tax Invoice → Profitability — every aggregate is explainable." FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
+                            <TextBlock Text="PI → Row → Job Order → Delivery → Tax Invoice → Profitability — every aggregate is explainable and verifiable." FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Margin="0,0,8,0"/>
-                                <Button Content="Inspect Glass Rows" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}"/>
+                                <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Margin="0,0,8,0" ToolTip="Switch to Proforma Invoice report"/>
+                                <Button Content="Inspect Glass Rows" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" ToolTip="Switch to Glass / Specification row-level intelligence"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -566,7 +590,7 @@
                             <StackPanel>
                                 <TextBlock Text="LIFECYCLE BY CUSTOMER" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 <TextBlock Text="Open Company / Customer report to follow PI → JO → DN → TI → Statement for any client with quantities, specs, pending items, and profitability." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Open →" Tag="Company" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+                                <Button Content="Open →" Tag="Company" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Company / Customer Report"/>
                             </StackPanel>
                         </Border>
 
@@ -574,7 +598,7 @@
                             <StackPanel>
                                 <TextBlock Text="ROW-LEVEL SPEC INTELLIGENCE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 <TextBlock Text="Glass / Specification report reads the real spec rows stored inside the PI JSON — exact matching by type-aware identity, dimensions, colour, thickness, PVB, and spacer." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Inspect →" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left"/>
+                                <Button Content="Inspect →" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Glass / Specification Report"/>
                             </StackPanel>
                         </Border>
                     </Grid>

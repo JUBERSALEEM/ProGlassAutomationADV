@@ -86,16 +86,16 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <WrapPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search PI / Customer..."/>
-                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From date"/>
-                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To date"/>
-                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CompanyOptions}" ToolTip="Company"/>
-                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Customer"/>
-                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Status">
+                            <TextBox Width="160" Margin="0,0,8,6" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="Search PI / Customer..." ToolTip="Search by Proforma Invoice #, customer, project, or company"/>
+                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateFrom}" ToolTip="From invoice date"/>
+                            <DatePicker Width="140" Margin="0,0,8,6" SelectedDate="{Binding DateTo}" ToolTip="To invoice date"/>
+                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CompanyOptions}" ToolTip="Filter by company"/>
+                            <ComboBox Width="140" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                            <ComboBox Width="120" Margin="0,0,8,6" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by status">
                                 <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Sent"/><ComboBoxItem Content="Approved"/><ComboBoxItem Content="Rejected"/>
                             </ComboBox>
-                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Padding="14,0" Height="30" Margin="0,0,6,6"/>
-                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Padding="14,0" Height="30" Margin="0,0,6,6"/>
+                            <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource RowPrimaryButton}" Padding="14,0" Height="30" Margin="0,0,6,6" ToolTip="Apply filters"/>
+                            <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource RowOutlinedButton}" Padding="14,0" Height="30" Margin="0,0,6,6" ToolTip="Clear filters"/>
                         </WrapPanel>
                         <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0">
                             <Button Content="CSV" Command="{Binding ExportCsvCommand}" Style="{StaticResource RowOutlinedButton}" Tag="&#xE8A5;" Margin="0,0,6,0" ToolTip="Export CSV (respects filters)"/>
@@ -202,7 +202,7 @@
                                             </Border.Style>
                                         </Border>
                                     </StackPanel>
-                                    <Button Grid.Column="7" Content="Rows" Command="{Binding DataContext.DrillDownCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,4" HorizontalAlignment="Right"/>
+                                    <Button Grid.Column="7" Content="Rows" Command="{Binding DataContext.DrillDownCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" Style="{StaticResource RowOutlinedButton}" FontSize="10" Padding="8,4" HorizontalAlignment="Right" ToolTip="Inspect itemized specification rows for this invoice"/>
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -246,9 +246,9 @@
                         <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="{Binding PageDisplay}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                         <StackPanel Grid.Column="1" Orientation="Horizontal">
-                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28" Margin="0,0,8,0"/>
-                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28"/>
-                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Padding="10,0" Height="28" Margin="8,0,0,0" ToolTip="Refresh"/>
+                            <Button Content="‹ Prev" Command="{Binding PrevPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28" Margin="0,0,8,0" ToolTip="Previous page"/>
+                            <Button Content="Next ›" Command="{Binding NextPageCommand}" Style="{StaticResource RowOutlinedButton}" Padding="12,0" Height="28" ToolTip="Next page"/>
+                            <Button Content="↻" Command="{Binding RefreshCommand}" Style="{StaticResource RowPrimaryButton}" Padding="10,0" Height="28" Margin="8,0,0,0" ToolTip="Refresh report"/>
                         </StackPanel>
                     </Grid>
                 </Border>
