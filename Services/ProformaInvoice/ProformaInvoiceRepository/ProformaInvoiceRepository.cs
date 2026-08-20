@@ -355,6 +355,41 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         }
 
         /// <summary>
+        /// Internal lifecycle write used by ProformaLifecycleSync when a
+        /// Job Order / Delivery Note / Tax Invoice is removed and nothing
+        /// downstream remains. Deliberately does NOT demand ProformaEdit:
+        /// the authorization boundary is the originating downstream delete,
+        /// which the invoking repository already enforced (see the
+        /// interface contract). Without this, the Production role could
+        /// delete a Job Order but the resulting PI cancellation would
+        /// throw PermissionDeniedException inside the sync and never be
+        /// persisted — leaving the PI stuck in its old status.
+        /// </summary>
+        public async Task<bool> MarkCancelledAsync(string proformaId)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return false;
+
+            using var db = new ProformaInvoicesDbContext();
+            var entity = await db.ProformaInvoices
+                .FirstOrDefaultAsync(x => x.ProformaId == proformaId);
+            if (entity == null) return false;
+
+            entity.Status = "Rejected";
+            entity.UpdatedAt = DateTime.Now;
+
+            // Keep the snapshot's status in sync so Step 1 / print preview
+            // reflect the cancellation too.
+            var snap = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            if (snap.Company != null)
+                snap.Company.ProformaStatus = "Rejected";
+            entity.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
+
+            await db.SaveChangesAsync();
+            RaiseChanged();
+            return true;
+        }
+
+        /// <summary>
         /// Best-effort cleanup of a deleted PI's Step 8 attachments.
         /// The PI row is already gone — a failure here is logged, never
         /// thrown back to the caller.

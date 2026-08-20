@@ -2,12 +2,18 @@
 // Proforma Invoice must match what is still on the lists.
 //
 // Display status (Fully invoiced / delivered / Full job created) is derived
-// from remaining related documents. When NONE remain, a confirmed PI is
-// stored as Rejected so the list shows Cancelled.
+// from remaining related documents. When NONE remain, the PI is stored as
+// Rejected so the list shows Cancelled.
+//
+// This sync is ONLY invoked from downstream DELETE operations, so a PI that
+// reaches it demonstrably had a Job Order / Delivery Note / Tax Invoice — it
+// entered the workflow. Its stored status therefore must NOT gate the
+// cancellation: a Job Order can be built from a Draft quote via the picker
+// ("include non-approved" checkbox), and deleting that Job Order must still
+// cancel the PI instead of leaving it showing "PI created".
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
-using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,26 +56,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 if (anyJob || anyDelivery || anyTaxInvoice)
                     return;
 
-                var pi = await App.Invoices.GetByProformaIdAsync(proformaId);
-                if (pi == null) return;
-
-                if (IsCancelled(pi.Status))
+                // MarkCancelledAsync is a dedicated lifecycle write: it
+                // persists status + snapshot without demanding ProformaEdit
+                // (authorization is the originating downstream delete), so
+                // e.g. the Production role deleting a Job Order still gets
+                // the PI cancelled. It also raises the change signal so the
+                // saved-invoices list refreshes to "Cancelled" immediately.
+                bool updated = await App.Invoices
+                    .MarkCancelledAsync(proformaId);
+                if (!updated)
                     return;
-
-                // Only a confirmed / in-workflow PI becomes Cancelled.
-                // A draft that never entered the chain stays Draft.
-                if (!IsConfirmed(pi.Status))
-                    return;
-
-                pi.Status = "Rejected";
-                pi.UpdatedAt = DateTime.Now;
-
-                var snap = ProformaInvoiceMapper.DeserializeSnapshot(pi);
-                if (snap.Company != null)
-                    snap.Company.ProformaStatus = "Rejected";
-                pi.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
-
-                await App.Invoices.UpdateAsync(pi);
 
                 AuditService.Log(
                     AuditSections.Proforma, "Invoice cancelled",
@@ -129,12 +125,5 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     });
             }
         }
-
-        private static bool IsCancelled(string? status) =>
-            string.Equals(status, "Rejected", StringComparison.OrdinalIgnoreCase) ||
-            string.Equals(status, "Cancelled", StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsConfirmed(string? status) =>
-            string.Equals(status, "Approved", StringComparison.OrdinalIgnoreCase);
     }
 }

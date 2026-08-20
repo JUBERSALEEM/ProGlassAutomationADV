@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,5 +80,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             string term, int take);
 
         Task DeleteAsync(int id);
+
+        /// <summary>
+        /// Internal lifecycle write: marks the invoice with the given
+        /// ProformaId as Cancelled (stored "Rejected") and syncs the
+        /// snapshot's ProformaStatus, WITHOUT demanding ProformaEdit.
+        ///
+        /// Authorization is the originating downstream delete (JobOrder
+        /// Delete / DeliveryNote Edit / TaxInvoice Edit) — the repository
+        /// that invoked the lifecycle sync has already enforced it. The
+        /// Production role, for example, can delete a Job Order without
+        /// holding ProformaEdit; demanding it here would make the sync
+        /// throw and silently leave the PI in its old status. Same
+        /// bookkeeping philosophy as JobOrderRepository's master-DN
+        /// cleanup. Returns false when no invoice has that ProformaId.
+        /// </summary>
+        Task<bool> MarkCancelledAsync(string proformaId);
     }
 }
