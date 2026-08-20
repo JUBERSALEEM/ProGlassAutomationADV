@@ -67,22 +67,63 @@ namespace ProGlassAutomation.Services.Reporting
 
     public class DeliveryReportRow
     {
+        // ── Row identity — every row traces to its exact
+        //    PI → Specification → Sr No ──────────────────────────────
         public int Id { get; set; }
-        public string DeliveryNoteId { get; set; } = "";
         public string JobOrderId { get; set; } = "";
         public string ProformaId { get; set; } = "";
+        public int SpecGroupNumber { get; set; }
+        public int SerialNumber { get; set; }
+
+        // ── Display columns ─────────────────────────────────────────
+        public string Specification { get; set; } = "";
+        public string CompanyName { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
-        public string Status { get; set; } = "";
-        public string DeliveryType { get; set; } = "";
-        public bool IsMasterDn { get; set; }
-        public bool HasTaxInvoice { get; set; }
+        public string Salesman { get; set; } = "";
+        public string GlassRef { get; set; } = "";
+        public int W1 { get; set; }
+        public int H1 { get; set; }
+        public int W2 { get; set; }
+        public int H2 { get; set; }
+
+        // ── Quantity reconciliation (per exact row) ─────────────────
+        public int TotalQty { get; set; }
+        public int DeliveredQty { get; set; }
+        public int BalanceQty { get; set; }
+
+        // ── Row delivery state ──────────────────────────────────────
+        public string DeliveryStatus { get; set; } = "";
+        public string DeliveryStatusBrushKey { get; set; } = "NeutralBrush";
+
+        /// <summary>Complete glass description for the detail panel.</summary>
+        public string GlassDetails => BuildGlassDetails();
+
+        /// <summary>Related delivery notes — populated on selection (detail panel).</summary>
+        public List<DeliveryNoteDelivery> Deliveries { get; set; } = new();
+
+        private string BuildGlassDetails()
+        {
+            var parts = new List<string>();
+            if (!string.IsNullOrWhiteSpace(GlassRef)) parts.Add(GlassRef);
+            parts.Add($"{W1} × {H1}");
+            if (W2 > 0 || H2 > 0) parts.Add($"{W2} × {H2}");
+            return string.Join("  ·  ", parts);
+        }
+    }
+
+    /// <summary>
+    /// One Delivery Note's delivery of a single PI spec row — shown in the
+    /// row detail panel (which DN, when, how many pieces).
+    /// </summary>
+    public class DeliveryNoteDelivery
+    {
+        public string DeliveryNoteId { get; set; } = "";
         public DateTime DeliveryDate { get; set; }
-        public int TotalOrderedQty { get; set; }
-        public int TotalDeliveredQty { get; set; }
-        public int TotalBalanceQty { get; set; }
+        public string Status { get; set; } = "";
+        public int QtyDelivered { get; set; }
         public string DriverName { get; set; } = "";
-        public DateTime CreatedAt { get; set; }
+        public string VehicleNumber { get; set; } = "";
     }
 
     public class TaxInvoiceReportRow
@@ -352,10 +393,10 @@ namespace ProGlassAutomation.Services.Reporting
 
     public class DeliveryReportSummary
     {
-        public int TotalDn { get; set; }
-        public int Pending { get; set; }
+        public int TotalRows { get; set; }
+        public int NotDelivered { get; set; }
         public int Partial { get; set; }
-        public int Completed { get; set; }
+        public int FullyDelivered { get; set; }
         public int TotalOrderedQty { get; set; }
         public int TotalDeliveredQty { get; set; }
         public int TotalRemainingQty { get; set; }

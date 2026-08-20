@@ -541,7 +541,7 @@
                         <Border Grid.Column="4" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14,14" ToolTip="Dispatched delivery notes and fulfillment percentage">
                             <StackPanel>
                                 <StackPanel Orientation="Horizontal"><Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}"><TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><TextBlock Text="Deliveries" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/></StackPanel>
-                                <TextBlock Text="{Binding DeliveryReport.Summary.TotalDn}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                <TextBlock Text="{Binding DeliveryReport.Summary.TotalRows}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
                                 <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="{Binding DeliveryReport.Summary.CompletionPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="% delivered"/></TextBlock>
                             </StackPanel>
                         </Border>
