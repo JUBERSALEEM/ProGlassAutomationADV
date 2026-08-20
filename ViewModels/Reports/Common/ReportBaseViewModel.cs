@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using System;
@@ -36,6 +37,16 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         protected ReportBaseViewModel(IReportingDataService service)
         {
             _service = service ?? new ReportingDataService();
+
+            // LIVE DATA: every report screen reloads itself whenever any
+            // document changes anywhere in the app (PI / JO / DN / TI /
+            // statement writes raise DocumentLifecycle). This is the same
+            // cross-module signal the document list pages subscribe to —
+            // without it each report was stale until the user pressed
+            // Refresh. Debounced so a burst of writes (e.g. a PI save that
+            // raises the signal several times) triggers ONE reload, and the
+            // reload never lands on the user's critical path.
+            DocumentLifecycle.Subscribe(ReloadOnDataChangedAsync);
         }
 
         // ── Filter ────────────────────────────────────────────────────────
@@ -123,6 +134,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         // ── Cancellation ──────────────────────────────────────────────────
         private CancellationTokenSource? _cts;
         private CancellationTokenSource? _debounceCts;
+        private CancellationTokenSource? _lifecycleCts;
 
         // ── Commands ──────────────────────────────────────────────────────
         public ICommand ApplyFilterCommand { get; protected set; } = null!;
@@ -186,6 +198,34 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 await LoadAsync();
             }
             catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+        }
+
+        /// <summary>
+        /// Fired by DocumentLifecycle when any document changes. Debounced
+        /// (400ms) so consecutive raises coalesce into one reload. Keeps the
+        /// user's current page — identical semantics to pressing Refresh.
+        /// The concrete LoadAsync already cancels any in-flight load via its
+        /// own token, so overlapping reloads cannot corrupt state.
+        /// </summary>
+        private async Task ReloadOnDataChangedAsync()
+        {
+            _lifecycleCts?.Cancel();
+            _lifecycleCts = new CancellationTokenSource();
+            var token = _lifecycleCts.Token;
+            try
+            {
+                await Task.Delay(400, token);
+                if (token.IsCancellationRequested) return;
+                await LoadAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                // Superseded by a newer change — nothing to do.
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Report auto-reload failed: {ex.Message}");
+            }
         }
 
         public abstract Task LoadAsync();

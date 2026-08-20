@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementList/StatementListViewModel.cs
 // PROJECT: ProGlassAutomation
 // CHAT 17 — ALL BUGS FIXED
@@ -13,6 +13,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Statement.Pdf;
 using ProGlassAutomation.Services.Statement.Repository;
 using System;
@@ -157,6 +158,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         public StatementListViewModel(IStatementRepository repo)
         {
             _repo = repo;
+
+            // LIVE DATA: refresh whenever any document changes (statement
+            // created/deleted, or PI/JO/DN/TI writes) — same cross-module
+            // signal the module list pages subscribe to. The wizard
+            // (StatementGeneratorViewModel) deliberately does NOT subscribe:
+            // reloading mid-wizard would wipe the user's filter state.
+            DocumentLifecycle.Subscribe(LoadAsync);
 
             NewStatementCommand = new RelayCommand(
                 _ => OnRequestNewStatement?.Invoke());
