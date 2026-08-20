@@ -284,28 +284,26 @@ namespace ProGlassAutomation.Agent.Demo
                 string audioForMux = liveOk ? liveMix! : narrationWav!;
                 string? produced = null;
 
-                if (haveLiveVideo)
-                {
-                    Set(DemoJobState.Rendering, "Muxing live encode + audio (no second full encode).");
-                    recorder.EncodeStage = "Muxing live encode…";
-                    recorder.EncodePercent = 85;
-                    produced = await FfmpegMp4Composer
-                        .MuxCopyVideoAudioAsync(recorder.LiveVideoPath!, audioForMux, mp4, ct)
-                        .ConfigureAwait(false);
-                    log.AppendLine("Used live H.264 pipe + remux.");
-                }
+                // Calculate actual achieved framerate — the nominal rec.Fps
+                // is a UI-thread target that is rarely met. Using it directly
+                // stamps frames at the wrong interval, making the video play
+                // faster or slower than real time.
+                double actualFps = Math.Clamp(
+                    recorder.EncodedFrames / Math.Max(1, recorder.Duration.TotalSeconds),
+                    1, 30);
 
-                if (produced == null && jpegs.Count > 0)
+                if (jpegs.Count > 0)
                 {
                     Set(DemoJobState.Rendering,
-                        $"Encoding {outW}×{outH} @ {rec.Fps} fps MP4 with ffmpeg (JPEG fallback).");
-                    recorder.EncodeStage = "JPEG fallback encode…";
+                        $"{outW}×{outH} @ {actualFps:F1} fps — composing from {jpegs.Count} captured frames.");
+                    recorder.EncodeStage = "Composing video from captured frames…";
                     recorder.EncodePercent = 50;
                     produced = await FfmpegMp4Composer
                         .ComposeFramesAudioAsync(
                             framesDir, "f%05d.jpg", audioForMux, mp4,
-                            rec.Fps, outW, outH, ct, rec.EncodeCrf)
+                            (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
                         .ConfigureAwait(false);
+                    log.AppendLine($"Composed from {jpegs.Count} JPEG frames at {actualFps:F1} actual fps.");
                 }
 
                 log.AppendLine(
