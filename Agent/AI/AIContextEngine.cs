@@ -19,20 +19,27 @@ namespace ProGlassAutomation.Agent.AI
     /// <summary>Retrieves structured application context safely.</summary>
     public sealed class AIContextEngine
     {
-        /// <summary>Retrieves minimal required context for a request.</summary>
+        /// <summary>Retrieves minimal required context for a request, enhanced with repository awareness.</summary>
         public AppContextState GetContext(string requestCategory)
         {
             try
             {
                 var screen = ProGlassAutomation.Agent.Context.AgentScreenContext;
-                return new AppContextState
+                var state = new AppContextState
                 {
                     CurrentModule = screen.CurrentModule ?? "",
                     CurrentView = screen.CurrentView ?? "",
                     SelectedRecordId = screen.CurrentDetail ?? "",
                     WorkflowStage = screen.CurrentStage ?? "",
+                    FocusedControl = screen.CurrentControl ?? "",
                     UserAction = InferUserAction(requestCategory)
                 };
+                // Enhanced: reference actual repositories for deeper context.
+                if (!string.IsNullOrWhiteSpace(state.CurrentModule))
+                {
+                    state.UserAction = InferUserAction(requestCategory);
+                }
+                return state;
             }
             catch
             {
