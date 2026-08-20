@@ -27,6 +27,7 @@ using ProGlassAutomation.Agent.Teaching;
 using ProGlassAutomation.Agent.Tools.Registry;
 using ProGlassAutomation.Agent.Voice;
 using ProGlassAutomation.Agent.Voice.SpeechToText.Whisper;
+using ProGlassAutomation.Agent.AI;
 using ProGlassAutomation.Agent.Voice.TextToSpeech;
 using System;
 using System.Diagnostics;
@@ -48,6 +49,8 @@ namespace ProGlassAutomation.Agent.Core
         public static IAgentSecurityService? Security { get; private set; }
         public static IAgentAuditService? Audit { get; private set; }
         public static AgentVoicePipeline? Voice { get; private set; }
+        /// <summary>Central unified AI orchestrator (Phase 6 integration).</summary>
+        public static IAIOrchestrator? AI { get; private set; }
 
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
@@ -114,6 +117,18 @@ namespace ProGlassAutomation.Agent.Core
                         new AgentWhisperBridge(App.SpeechToText),
                         new AgentSpeechAdapter(App.TextToSpeech));
 
+                    // Phase 6 — unified AI orchestrator integration
+                    try
+                    {
+                        var router = new AIModelRouter(AIProviderBridge.BuildProviders());
+                        AI = new AIOrchestrator(router);
+                    }
+                    catch (Exception aiEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] AI orchestrator init failed: {aiEx.Message}");
+                        AI = null;
+                    }
+
                     return Instance;
                 }
                 catch (Exception ex)
@@ -155,6 +170,7 @@ namespace ProGlassAutomation.Agent.Core
                 _built = false;
                 Instance = null;
                 Voice = null;
+                AI = null;
             }
         }
     }
