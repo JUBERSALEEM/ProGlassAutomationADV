@@ -51,6 +51,8 @@ namespace ProGlassAutomation.Agent.Core
         public static AgentVoicePipeline? Voice { get; private set; }
         /// <summary>Central unified AI orchestrator (Phase 6 integration).</summary>
         public static IAIOrchestrator? AI { get; private set; }
+        /// <summary>Unified command router integrating typed, voice and agent tasks (Phase 7).</summary>
+        public static AIUnifiedCommandRouter? CommandRouter { get; private set; }
 
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
@@ -129,6 +131,17 @@ namespace ProGlassAutomation.Agent.Core
                         AI = null;
                     }
 
+                    // Phase 7 — unified command router
+                    try
+                    {
+                        CommandRouter = AI != null ? new AIUnifiedCommandRouter(AI) : null;
+                    }
+                    catch (Exception cmdEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] command router init failed: {cmdEx.Message}");
+                        CommandRouter = null;
+                    }
+
                     return Instance;
                 }
                 catch (Exception ex)
@@ -171,6 +184,7 @@ namespace ProGlassAutomation.Agent.Core
                 Instance = null;
                 Voice = null;
                 AI = null;
+                CommandRouter = null;
             }
         }
     }
