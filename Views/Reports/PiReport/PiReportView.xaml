@@ -141,7 +141,7 @@
 
                 <!-- Data -->
                 <ListBox Grid.Row="4" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                         Style="{StaticResource ModuleListBoxItemStyle}" Background="Transparent" BorderThickness="0"
+                         ItemContainerStyle="{StaticResource ModuleListBoxItemStyle}" Background="Transparent" BorderThickness="0"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                     <ListBox.ItemTemplate>
