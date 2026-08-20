@@ -293,70 +293,97 @@
              SIDEBAR GROUP LABEL (MAIN / SALES / etc.)
         ═══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="20,20,20,10"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
-        </Style>
-
         <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR NAV ITEM (single, no children) — Button-based
+             SIDEBAR — modern 2050 glass style
+             Section headers, icon-chip nav tiles, animated group headers
+             and frosted sub-menu cards. Click accordion behavior is kept
+             (groups open/close on click only).
         ═══════════════════════════════════════════════════════════════ -->
 
+        <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="24,22,24,10"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBlock">
+                        <StackPanel Orientation="Horizontal">
+                            <!-- Accent tick — modern section marker -->
+                            <Border Width="3" Height="12" CornerRadius="1.5"
+                                    Background="{DynamicResource AccentBrush}"
+                                    Margin="0,1,8,0"
+                                    IsHitTestVisible="False"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- NAV ITEM — icon chip + label, hover lift -->
         <Style x:Key="SidebarNavItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="14,3,14,3"/>
-            <Setter Property="Height" Value="42"/>
+            <Setter Property="Margin" Value="14,4,14,4"/>
+            <Setter Property="Height" Value="46"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Border x:Name="Accent"
-                                    Width="3"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Stretch"
-                                    Margin="0,8,0,8"
-                                    CornerRadius="2"
-                                    Background="{DynamicResource AccentBrush}"
-                                    Opacity="0"
-                                    IsHitTestVisible="False"/>
-                            <Border x:Name="Bg"
-                                    Background="Transparent"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="12,0"
-                                    SnapsToDevicePixels="True">
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="12"
+                                Padding="8,0"
+                                SnapsToDevicePixels="True">
+                            <Grid>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock x:Name="Icon"
-                                               Text="{TemplateBinding Tag}"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="14"
-                                               Width="20"
-                                               TextAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,12,0"/>
+                                    <!-- Icon chip -->
+                                    <Border x:Name="Chip"
+                                            Width="34" Height="34"
+                                            CornerRadius="10"
+                                            Background="{DynamicResource MenuHoverBrush}"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,12,0"
+                                            SnapsToDevicePixels="True">
+                                        <TextBlock x:Name="Icon"
+                                                   Text="{TemplateBinding Tag}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="14"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="13"
+                                               FontSize="13.5"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </Border>
-                        </Grid>
+                                <!-- Active accent bar (right edge) -->
+                                <Border x:Name="Accent"
+                                        Width="3"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Stretch"
+                                        Margin="0,10,0,10"
+                                        CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                                 <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
@@ -367,40 +394,43 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR GROUP TOGGLE HEADER (expandable, rotating chevron)
-        ═══════════════════════════════════════════════════════════════ -->
-
+        <!-- GROUP TOGGLE — icon chip + chevron, animated open state -->
         <Style x:Key="SidebarGroupToggle" TargetType="ToggleButton">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="14,3,14,3"/>
-            <Setter Property="Height" Value="42"/>
+            <Setter Property="Margin" Value="14,4,14,4"/>
+            <Setter Property="Height" Value="46"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="12,0"
+                                CornerRadius="12"
+                                Padding="8,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock x:Name="Icon"
-                                               Text="{TemplateBinding Tag}"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="14"
-                                               Width="20"
-                                               TextAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,12,0"/>
+                                    <Border x:Name="Chip"
+                                            Width="34" Height="34"
+                                            CornerRadius="10"
+                                            Background="{DynamicResource MenuHoverBrush}"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,12,0"
+                                            SnapsToDevicePixels="True">
+                                        <TextBlock x:Name="Icon"
+                                                   Text="{TemplateBinding Tag}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="14"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="13"
+                                               FontSize="13.5"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -408,7 +438,7 @@
                                 <TextBlock x:Name="Chevron"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="10"
+                                           FontSize="11"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"
@@ -422,18 +452,22 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="White"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
                                 <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="ChevronRotate" Property="Angle" Value="90"/>
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
                                             <DoubleAnimation Storyboard.TargetName="ChevronRotate"
                                                              Storyboard.TargetProperty="Angle"
-                                                             To="90" Duration="0:0:0.2"/>
+                                                             From="0" To="90" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.EnterActions>
@@ -442,7 +476,7 @@
                                         <Storyboard>
                                             <DoubleAnimation Storyboard.TargetName="ChevronRotate"
                                                              Storyboard.TargetProperty="Angle"
-                                                             To="0" Duration="0:0:0.2"/>
+                                                             From="90" To="0" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
@@ -453,63 +487,70 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR SUB-MENU CONTAINER (nested rounded card)
-        ═══════════════════════════════════════════════════════════════ -->
-
+        <!-- SUB-MENU CONTAINER — frosted rounded card -->
         <Style x:Key="SidebarSubMenuCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource SidebarCardBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Margin" Value="20,6,20,8"/>
-            <Setter Property="Padding" Value="6,8"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Margin" Value="24,6,24,10"/>
+            <Setter Property="Padding" Value="8,10"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR SUB-ITEM (bullet dot + text)
-        ═══════════════════════════════════════════════════════════════ -->
-
+        <!-- SUB-ITEM — chevron affordance on hover -->
         <Style x:Key="SidebarSubItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="0,2"/>
-            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="2,2,2,2"/>
+            <Setter Property="Height" Value="38"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Padding="12,0"
+                                CornerRadius="9"
+                                Padding="10,0"
                                 SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Ellipse x:Name="Dot"
-                                         Width="5" Height="5"
-                                         Fill="{DynamicResource MutedForegroundBrush}"
-                                         Margin="0,0,12,0"
-                                         VerticalAlignment="Center"/>
-                                <TextBlock x:Name="Label"
-                                           Text="{TemplateBinding Content}"
-                                           FontSize="12"
-                                           FontWeight="Medium"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border x:Name="Dot"
+                                            Width="6" Height="6"
+                                            CornerRadius="3"
+                                            Background="{DynamicResource MutedForegroundBrush}"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            SnapsToDevicePixels="True"/>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="Arrow"
+                                           Text="&#xE76C;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="10"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           Opacity="0"/>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                                <Setter TargetName="Arrow" Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -1033,13 +1074,19 @@
 
             <Border Width="300"
                     HorizontalAlignment="Left"
-                    Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,0,1,0"
-                    CornerRadius="0,12,12,0"
+                    CornerRadius="0,16,16,0"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
-                    SnapsToDevicePixels="True">
+                    SnapsToDevicePixels="True"
+                    ClipToBounds="True">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{DynamicResource SideMenuBackgroundBrush}" Offset="0"/>
+                        <GradientStop Color="{DynamicResource ModuleBackgroundBrush}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -1050,8 +1097,24 @@
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                <!-- Accent edge — modern 2050 top accent line -->
+                <Border Grid.Row="0" VerticalAlignment="Top" Height="3"
+                        CornerRadius="0,0,3,0"
+                        IsHitTestVisible="False">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+
+                <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
@@ -1374,6 +1437,7 @@
                                        TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
+                </Grid>
                 </Grid>
             </Border>
 

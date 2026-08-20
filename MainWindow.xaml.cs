@@ -341,7 +341,8 @@ namespace ProGlassAutomation
             if (sender is not ToggleButton tb) return;
 
             // Click toggles THIS group; opening one closes the others.
-            bool opening = !tb.IsChecked;
+            // IsChecked is bool? — normalize to a definite bool.
+            bool opening = tb.IsChecked != true;
             CloseOtherSidebarGroups(opening ? tb.Parent as StackPanel : null);
             tb.IsChecked = opening;
         }
