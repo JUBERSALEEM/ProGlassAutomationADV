@@ -1,20 +1,18 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Splash/SplashView.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Splash Screen — professional enterprise loading gate
+// MODULE: Splash Screen — industrial glass identity
 //
-// CHANGES vs "Aurora 2050" v3.x:
-//   ✓ Removed the 9 animated module feature chips and their stagger
-//     logic (AnimateFeatureBadges / FeatureItem / BuildFeatures) —
-//     marketing clutter has no place on an enterprise loading gate.
-//   ✓ Removed the rotating fake loading messages (timer + list) — the
-//     splash now shows one honest status line with animated dots.
-//   ✓ Removed the elastic BackEase logo bounce and the shimmer sweep
-//     (StartShimmerAnimation) — replaced with a gentle settle-in.
-//   ✓ Removed top trust-badge animations (TopLeftBadge / TopCenterPill
-//     / TopRightBadge are gone from the XAML too).
-//   ✓ Choreography tightened to ~2.3s so it finishes inside App.xaml.cs
-//     startup delay (2800ms) with margin.
+// Professional glass choreography (~2.5s, finishes inside App.xaml.cs
+// startup delay with margin):
+//   0ms   top trust chips fade in (frame effect, 100ms stagger)
+//   100ms logo settles (fade + gentle scale)
+//   450ms product name fades + slides up
+//   750ms tagline fades in
+//   1000ms frosted module chips fade in as ONE panel (no marketing
+//          stagger — professional, not flashy)
+//   700ms  luminous progress bar fills
+//   950ms  status pill + animated dots
 //
 // PRESERVED (zero regression — App.xaml.cs depends on these):
 //   • FadeOutAndClose(Action), RunLoginAsync(), ShowTermsGate()
@@ -22,19 +20,22 @@
 //   • TermsVersion, RecordAcceptance, AcceptTerms_Changed,
 //     ContinueFromTerms_Click, DeclineTerms_Click
 //   • SplashView_Loaded / SplashView_Unloaded timers + cleanup
-//   • Animated loading dots (kept — subtle, not gimmicky)
+//   • Animated loading dots (one DispatcherTimer)
 //
 // PERFORMANCE:
-//   • One DispatcherTimer (dots) instead of three (messages + dots).
-//   • No per-badge animations; no shimmer storyboard; no static arrays.
-//   • All brushes frozen; animations one-shot (never repeat).
+//   • Feature list is a static readonly array — allocated once.
+//   • One shared DataTemplate; the panel fades as one element (no
+//     per-badge storyboards).
+//   • All brushes frozen; all animations one-shot.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
 
@@ -42,7 +43,7 @@ namespace ProGlassAutomation.Views.Splash
 {
     /// <summary>
     /// Splash window shown at application startup.
-    /// Animates in over ~2.3 seconds while App.xaml.cs performs
+    /// Animates in over ~2.5 seconds while App.xaml.cs performs
     /// background initialization. When the main window is ready,
     /// App.xaml.cs calls <see cref="FadeOutAndClose(Action)"/> to
     /// dismiss the splash and reveal the main window.
@@ -53,65 +54,120 @@ namespace ProGlassAutomation.Views.Splash
         private DispatcherTimer? _loadingDotsTimer;
         private int _loadingDotsCount;
 
+        // ══════════════════════════════════════════════════════════════════
+        //  FEATURE MODULE DATA — frosted glass chips
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Immutable module descriptor rendered by FeatureBadgeTemplate.
+        /// Icon = Segoe MDL2 glyph, Label = module name, BorderBrush is
+        /// reserved for per-chip tinting.
+        /// </summary>
+        private sealed record FeatureItem(string Icon, string Label, Brush BorderBrush);
+
+        // Static — allocated once at type init, referenced by all instances.
+        private static readonly IReadOnlyList<FeatureItem> _features = BuildFeatures();
+
+        private static IReadOnlyList<FeatureItem> BuildFeatures()
+        {
+            static SolidColorBrush Frozen(byte r, byte g, byte b)
+            {
+                var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+                brush.Freeze();
+                return brush;
+            }
+
+            var frost = Frozen(0xBF, 0xDB, 0xFE); // #BFDBFE
+            var cerulean = Frozen(0x93, 0xC5, 0xFD); // #93C5FD
+            var azure = Frozen(0x60, 0xA5, 0xFA); // #60A5FA
+            var sapphire = Frozen(0x3B, 0x82, 0xF6); // #3B82F6
+            var royal = Frozen(0x1D, 0x4E, 0xD8); // #1D4ED8
+            var navy = Frozen(0x1E, 0x3A, 0x8A); // #1E3A8A
+
+            return new[]
+            {
+                new FeatureItem("\uE9F9", "Dashboard",    frost),
+                new FeatureItem("\uE8A5", "Proforma",     cerulean),
+                new FeatureItem("\uEA37", "Sheet Store",  azure),
+                new FeatureItem("\uE9D9", "Job Orders",   sapphire),
+                new FeatureItem("\uE7B8", "Delivery",     royal),
+                new FeatureItem("\uE8C7", "Tax Invoice",  navy),
+                new FeatureItem("\uE8F7", "Statements",   sapphire),
+                new FeatureItem("\uE8C8", "Reports",      azure),
+                new FeatureItem("\uE8F2", "AI Assistant", royal),
+            };
+        }
+
         public SplashView()
         {
             InitializeComponent();
+
+            // Populate the frosted module chip strip once.
+            FeaturePanel.ItemsSource = _features;
 
             Loaded += SplashView_Loaded;
             Unloaded += SplashView_Unloaded;
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOADED — start animation sequence (calm, ~2.3s)
+        //  LOADED — start animation sequence (calm, ~2.5s)
         // ══════════════════════════════════════════════════════════════════
 
         private void SplashView_Loaded(object sender, RoutedEventArgs e)
         {
-            // ─── PHASE 1: Logo settles in (fade + gentle scale) ──────
+            // ─── PHASE 1: Top trust chips fade in (0–600ms) — frame ──
+            FadeIn(TopLeftBadge, fromMs: 0, durationMs: 400);
+            FadeIn(TopCenterPill, fromMs: 100, durationMs: 400);
+            FadeIn(TopRightBadge, fromMs: 200, durationMs: 400);
+
+            // ─── PHASE 2: Logo settles in (100–600ms) ────────────────
             var logoScale = new DoubleAnimation
             {
                 From = 0.92,
                 To = 1,
                 BeginTime = TimeSpan.FromMilliseconds(100),
-                Duration = TimeSpan.FromMilliseconds(450),
+                Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
-            LogoScale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleXProperty, logoScale);
-            LogoScale.BeginAnimation(System.Windows.Media.ScaleTransform.ScaleYProperty, logoScale.Clone());
+            LogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, logoScale);
+            LogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, logoScale.Clone());
 
             var logoFade = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
                 BeginTime = TimeSpan.FromMilliseconds(100),
-                Duration = TimeSpan.FromMilliseconds(450),
+                Duration = TimeSpan.FromMilliseconds(500),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             LogoBorder.BeginAnimation(OpacityProperty, logoFade);
 
-            // ─── PHASE 2: App name fade + slide up (450–850ms) ───────
+            // ─── PHASE 3: App name fade + slide up (450–900ms) ───────
             var nameFade = new DoubleAnimation
             {
                 From = 0,
                 To = 1,
-                Duration = TimeSpan.FromMilliseconds(400),
+                Duration = TimeSpan.FromMilliseconds(450),
                 BeginTime = TimeSpan.FromMilliseconds(450)
             };
             var nameSlide = new DoubleAnimation
             {
                 From = 12,
                 To = 0,
-                Duration = TimeSpan.FromMilliseconds(400),
+                Duration = TimeSpan.FromMilliseconds(450),
                 BeginTime = TimeSpan.FromMilliseconds(450),
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             };
             AppNameText.BeginAnimation(OpacityProperty, nameFade);
-            AppNameTranslate.BeginAnimation(System.Windows.Media.TranslateTransform.YProperty, nameSlide);
+            AppNameTranslate.BeginAnimation(TranslateTransform.YProperty, nameSlide);
 
-            // ─── PHASE 3: Tagline fade (750–1150ms) ──────────────────
+            // ─── PHASE 4: Tagline fade (750–1150ms) ──────────────────
             FadeIn(TaglineText, fromMs: 750, durationMs: 400);
 
-            // ─── PHASE 4: Progress bar fill (700–2600ms) ─────────────
+            // ─── PHASE 5: Module chips — one uniform fade (1000ms) ───
+            FadeIn(FeaturePanel, fromMs: 1000, durationMs: 450);
+
+            // ─── PHASE 6: Progress bar fill (700–2600ms) ─────────────
             double track = ProgressTrack.ActualWidth;
             if (track < 80)
                 track = Math.Max(240, ActualWidth * 0.35);
@@ -125,7 +181,7 @@ namespace ProGlassAutomation.Views.Splash
             };
             ProgressFill.BeginAnimation(WidthProperty, progressAnim);
 
-            // ─── PHASE 5: Status line fades in + dots start ──────────
+            // ─── PHASE 7: Status pill fades in + dots start ──────────
             FadeIn(LoadingText, fromMs: 950, durationMs: 350);
             FadeIn(LoadingDots, fromMs: 950, durationMs: 350);
             StartLoadingDotsAnimation();

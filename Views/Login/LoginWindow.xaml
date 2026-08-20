@@ -8,6 +8,7 @@
         WindowStyle="None"
         ResizeMode="NoResize"
         ShowInTaskbar="True"
+        Background="#040B1C"
         FontFamily="Segoe UI"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">

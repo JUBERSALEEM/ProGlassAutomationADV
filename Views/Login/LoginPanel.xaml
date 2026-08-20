@@ -11,28 +11,37 @@
              SnapsToDevicePixels="True">
 
     <!-- ═══════════════════════════════════════════════════════════════
-         SIGN-IN PANEL — professional enterprise layout.
+         SIGN-IN PANEL — professional glass login.
 
-         Composition (kept deliberately quiet and corporate):
-           • deep navy stage with a soft aurora — brand, not decoration
-           • one centered glass card (420px, no scrolling)
-           • brand mark → heading → fields → action → footer
-           • accent-driven primary button (follows the app accent)
-           • status strip + inline error/warning panels
+         Composition (one action, no duplicated references):
+           • brand mark + tagline          (identity, not an action)
+           • username / password fields    (Enter submits, like every
+                                            professional login)
+           • ONE "SIGN IN" button — the single action on the page; its
+             label flips to "SIGNING IN…" the moment it is clicked or
+             Enter is pressed
+           • status strip is hidden while idle and only appears during
+             signing / after success (no permanent "Ready to sign in")
+
+         Glassmorphism: the panel root is translucent so the splash's
+         aurora glows through, and the card is a frosted glass sheet
+         (translucent white gradient + light border + top sheen +
+         soft shadow).
 
          ALL x:Name elements and event handlers required by
          LoginPanel.xaml.cs are preserved verbatim:
            SignInBusyDot, SignInStatusText, DefaultCredWarning,
            UsernameBox, PasswordBox, RememberUserCheck, ErrorPanel,
            ErrorText, SignInButton, ForgotPasswordButton, ExitButton
+         (StatusStrip is a NEW container used by SetSigningState).
     ═══════════════════════════════════════════════════════════════════ -->
     <UserControl.Resources>
 
-        <!-- ═══ STAGE ═══ -->
+        <!-- ═══ STAGE — translucent so the splash aurora shows through ═══ -->
         <LinearGradientBrush x:Key="PageBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#040B1C" Offset="0.0"/>
-            <GradientStop Color="#0A1A44" Offset="0.45"/>
-            <GradientStop Color="#0B2A6E" Offset="1.0"/>
+            <GradientStop Color="#D9040B1C" Offset="0.0"/>
+            <GradientStop Color="#D90A1A44" Offset="0.45"/>
+            <GradientStop Color="#D90B2A6E" Offset="1.0"/>
         </LinearGradientBrush>
         <RadialGradientBrush x:Key="OrbRight" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
             <GradientStop Color="#4D82F6FF" Offset="0.0"/>
@@ -45,10 +54,15 @@
             <GradientStop Color="#3B82F600" Offset="1.0"/>
         </RadialGradientBrush>
 
-        <!-- ═══ CARD ═══ -->
+        <!-- ═══ FROSTED CARD ═══ -->
         <LinearGradientBrush x:Key="GlassCard" StartPoint="0,0" EndPoint="0,1">
-            <GradientStop Color="#2AFFFFFF" Offset="0.0"/>
-            <GradientStop Color="#0EFFFFFF" Offset="1.0"/>
+            <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#0CFFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <!-- Diagonal sheen across the top-left of the card (glass look). -->
+        <LinearGradientBrush x:Key="CardSheen" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
+            <GradientStop Color="#00FFFFFF" Offset="0.55"/>
         </LinearGradientBrush>
         <DropShadowEffect x:Key="CardShadow" Color="#000000"
                           BlurRadius="40" ShadowDepth="6" Opacity="0.45"/>
@@ -74,7 +88,7 @@
             <Setter Property="Margin" Value="2,0,0,6"/>
         </Style>
 
-        <!-- ═══ TEXT INPUT — glass, icon chip, rounded ═══ -->
+        <!-- ═══ TEXT INPUT — frosted glass, icon chip, rounded ═══ -->
         <Style x:Key="RoundedTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="42"/>
             <Setter Property="FontSize" Value="15"/>
@@ -85,8 +99,8 @@
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="Chrome"
                                 CornerRadius="10"
-                                Background="#16FFFFFF"
-                                BorderBrush="#55BFDBFE"
+                                Background="#1CFFFFFF"
+                                BorderBrush="#66BFDBFE"
                                 BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -112,8 +126,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
-                                <Setter TargetName="Chrome" Property="Background" Value="#24FFFFFF"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#A5CFFD"/>
+                                <Setter TargetName="Chrome" Property="Background" Value="#2CFFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
@@ -127,7 +141,7 @@
             </Setter>
         </Style>
 
-        <!-- ═══ PASSWORD INPUT ═══ -->
+        <!-- ═══ PASSWORD INPUT — frosted glass ═══ -->
         <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
             <Setter Property="Height" Value="42"/>
             <Setter Property="FontSize" Value="15"/>
@@ -138,8 +152,8 @@
                     <ControlTemplate TargetType="PasswordBox">
                         <Border x:Name="Chrome"
                                 CornerRadius="10"
-                                Background="#16FFFFFF"
-                                BorderBrush="#55BFDBFE"
+                                Background="#1CFFFFFF"
+                                BorderBrush="#66BFDBFE"
                                 BorderThickness="1"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -165,8 +179,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
-                                <Setter TargetName="Chrome" Property="Background" Value="#24FFFFFF"/>
+                                <Setter TargetName="Chrome" Property="BorderBrush" Value="#A5CFFD"/>
+                                <Setter TargetName="Chrome" Property="Background" Value="#2CFFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Chrome" Property="BorderBrush" Value="#93C5FD"/>
@@ -297,7 +311,7 @@
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         STAGE
+         STAGE (translucent — the splash aurora glows through)
     ═══════════════════════════════════════════════════════════════════ -->
     <Grid Background="{StaticResource PageBg}">
         <Ellipse Width="360" Height="360"
@@ -310,7 +324,7 @@
                  Margin="-80,0,0,-80" IsHitTestVisible="False"/>
 
         <!-- ═══════════════════════════════════════════════════════════
-             SIGN-IN CARD
+             FROSTED GLASS SIGN-IN CARD
         ═══════════════════════════════════════════════════════════════ -->
         <Border Width="420"
                 Margin="16"
@@ -318,193 +332,189 @@
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{StaticResource GlassCard}"
-                BorderBrush="#55FFFFFF"
+                BorderBrush="#66FFFFFF"
                 BorderThickness="1"
                 Effect="{StaticResource CardShadow}"
                 SnapsToDevicePixels="True">
 
-            <Border Padding="28,24">
-                <!-- Safety net: on unusually short screens the card scrolls
-                     instead of clipping; on normal screens (≥768px tall)
-                     the content fits and the scrollbar never appears. -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
-                              PanningMode="VerticalOnly"
-                              Focusable="False"
-                              FocusVisualStyle="{x:Null}">
-                    <StackPanel>
+            <Grid>
+                <!-- Diagonal glass sheen (top-left highlight). -->
+                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        Background="{StaticResource CardSheen}"
+                        IsHitTestVisible="False"/>
 
-                    <!-- ── BRAND ─────────────────────────────────────── -->
-                    <StackPanel HorizontalAlignment="Center">
-                        <Border Width="52" Height="52" CornerRadius="12"
-                                SnapsToDevicePixels="True"
-                                HorizontalAlignment="Center">
-                            <Border.Background>
-                                <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                            Stretch="UniformToFill"/>
-                            </Border.Background>
-                            <Border.Effect>
-                                <DropShadowEffect Color="#1D4ED8" BlurRadius="24"
-                                                  ShadowDepth="0" Opacity="0.55"/>
-                            </Border.Effect>
-                        </Border>
-                        <TextBlock Text="ProGlass Automation"
-                                   FontSize="18" FontWeight="Bold"
-                                   Foreground="{StaticResource NameGradient}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,12,0,0"/>
-                        <TextBlock Text="Industrial ERP for glass production"
-                                   FontSize="12"
-                                   Foreground="{StaticResource Cerulean}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
+                <Border Padding="28,24"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+                    <!-- Safety net: on unusually short screens the card scrolls
+                         instead of clipping; on normal screens (≥768px tall)
+                         the content fits and the scrollbar never appears. -->
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  PanningMode="VerticalOnly"
+                                  Focusable="False"
+                                  FocusVisualStyle="{x:Null}">
+                        <StackPanel>
 
-                    <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,18,0,0"/>
+                            <!-- ── BRAND ─────────────────────────────── -->
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="54" Height="54" CornerRadius="13"
+                                        SnapsToDevicePixels="True"
+                                        HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                                    Stretch="UniformToFill"/>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#1D4ED8" BlurRadius="24"
+                                                          ShadowDepth="0" Opacity="0.55"/>
+                                    </Border.Effect>
+                                </Border>
+                                <TextBlock Text="ProGlass Automation"
+                                           FontSize="19" FontWeight="Bold"
+                                           Foreground="{StaticResource NameGradient}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <TextBlock Text="Industrial ERP for glass production"
+                                           FontSize="12"
+                                           Foreground="{StaticResource Cerulean}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
 
-                    <!-- ── HEADING ───────────────────────────────────── -->
-                    <TextBlock Text="Sign in"
-                               FontSize="22" FontWeight="Bold"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               Margin="0,16,0,0"/>
-                    <TextBlock Text="Identify who signs each document and audit entry."
-                               FontSize="12"
-                               Foreground="{StaticResource Frost}"
-                               HorizontalAlignment="Center"
-                               Margin="0,5,0,0"
-                               TextWrapping="Wrap"
-                               TextAlignment="Center"/>
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,18,0,0"/>
 
-                    <!-- ── DEFAULT-CREDENTIAL WARNING (first run) ────── -->
-                    <Border x:Name="DefaultCredWarning"
-                            Margin="0,14,0,0" Padding="12,9"
-                            CornerRadius="10"
-                            Background="#22F59E0B"
-                            BorderBrush="{StaticResource WarningOnGlass}"
-                            BorderThickness="1"
-                            Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE7BA;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="14"
-                                       VerticalAlignment="Top"
-                                       Margin="0,1,10,0"
-                                       Foreground="{StaticResource WarningOnGlass}"/>
-                            <TextBlock TextWrapping="Wrap" FontSize="12.5"
-                                       Foreground="{StaticResource Ice}">
-                                <Run Text="First run:" FontWeight="Bold"/>
-                                <Run Text=" sign in as"/>
-                                <Run Text=" admin / admin" FontWeight="Bold"/>
-                                <Run Text=" — then change the password in User Center."/>
+                            <!-- ── DEFAULT-CREDENTIAL WARNING (first run) ── -->
+                            <Border x:Name="DefaultCredWarning"
+                                    Margin="0,14,0,0" Padding="12,9"
+                                    CornerRadius="10"
+                                    Background="#22F59E0B"
+                                    BorderBrush="{StaticResource WarningOnGlass}"
+                                    BorderThickness="1"
+                                    Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7BA;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               VerticalAlignment="Top"
+                                               Margin="0,1,10,0"
+                                               Foreground="{StaticResource WarningOnGlass}"/>
+                                    <TextBlock TextWrapping="Wrap" FontSize="12.5"
+                                               Foreground="{StaticResource Ice}">
+                                        <Run Text="First run:" FontWeight="Bold"/>
+                                        <Run Text=" use"/>
+                                        <Run Text=" admin / admin" FontWeight="Bold"/>
+                                        <Run Text=" — then change the password in User Center."/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ── FIELDS ────────────────────────────── -->
+                            <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
+                                       Margin="2,18,0,6"/>
+                            <TextBox x:Name="UsernameBox"
+                                     Tag="&#xE77B;"
+                                     Style="{StaticResource RoundedTextBox}"
+                                     KeyDown="Field_KeyDown"/>
+
+                            <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
+                                       Margin="2,14,0,6"/>
+                            <PasswordBox x:Name="PasswordBox"
+                                         Tag="&#xE72E;"
+                                         Style="{StaticResource RoundedPasswordBox}"
+                                         KeyDown="Field_KeyDown"/>
+
+                            <!-- ── REMEMBER / FORGOT ROW ─────────────── -->
+                            <Grid Margin="2,14,2,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <CheckBox x:Name="RememberUserCheck"
+                                          Content="Remember username"
+                                          IsChecked="True"
+                                          Style="{StaticResource LoginCheckBoxStyle}"
+                                          HorizontalAlignment="Left"/>
+                                <Button x:Name="ForgotPasswordButton"
+                                        Grid.Column="1"
+                                        Content="Forgot password?"
+                                        Style="{StaticResource TextLinkButtonStyle}"
+                                        Click="ForgotPassword_Click"
+                                        HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <!-- ── ERROR PANEL ───────────────────────── -->
+                            <Border x:Name="ErrorPanel"
+                                    Margin="0,14,0,0" Padding="13,10"
+                                    CornerRadius="10"
+                                    Background="#33DC2626"
+                                    BorderBrush="{StaticResource DangerOnGlass}"
+                                    BorderThickness="1"
+                                    Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xEA39;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                    <TextBlock x:Name="ErrorText"
+                                               FontSize="12.5" FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ── THE SINGLE ACTION ─────────────────── -->
+                            <Button x:Name="SignInButton"
+                                    Content="SIGN IN"
+                                    Height="44"
+                                    Margin="0,16,0,0"
+                                    Style="{StaticResource SignInButtonStyle}"
+                                    Click="SignIn_Click"/>
+
+                            <!-- ── STATUS STRIP — hidden until signing ── -->
+                            <StackPanel x:Name="StatusStrip"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,12,0,0"
+                                        Visibility="Collapsed">
+                                <Ellipse x:Name="SignInBusyDot" Width="8" Height="8"
+                                         Fill="#4ADE80" Margin="0,0,8,0"
+                                         VerticalAlignment="Center"
+                                         Visibility="Collapsed"/>
+                                <TextBlock x:Name="SignInStatusText"
+                                           Text=""
+                                           FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{StaticResource Ice}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <!-- ── FOOTER ────────────────────────────── -->
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,16,0,0"/>
+
+                            <Button x:Name="ExitButton"
+                                    Content="Exit"
+                                    Height="26"
+                                    Margin="0,10,0,0"
+                                    Style="{StaticResource TextLinkButtonStyle}"
+                                    Click="Exit_Click"
+                                    HorizontalAlignment="Center"/>
+
+                            <TextBlock HorizontalAlignment="Center"
+                                       FontSize="11"
+                                       Foreground="{StaticResource Frost}"
+                                       Opacity="0.75"
+                                       Margin="0,8,0,0">
+                                <Run Text="Version"/>
+                                <Run Text=" "/>
+                                <Run Text="{x:Static updates:AppInfo.Version}"/>
                             </TextBlock>
+
                         </StackPanel>
-                    </Border>
-
-                    <!-- ── FIELDS ────────────────────────────────────── -->
-                    <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
-                               Margin="2,18,0,6"/>
-                    <TextBox x:Name="UsernameBox"
-                             Tag="&#xE77B;"
-                             Style="{StaticResource RoundedTextBox}"
-                             KeyDown="Field_KeyDown"/>
-
-                    <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
-                               Margin="2,14,0,6"/>
-                    <PasswordBox x:Name="PasswordBox"
-                                 Tag="&#xE72E;"
-                                 Style="{StaticResource RoundedPasswordBox}"
-                                 KeyDown="Field_KeyDown"/>
-
-                    <!-- ── REMEMBER / FORGOT ROW ─────────────────────── -->
-                    <Grid Margin="2,14,2,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <CheckBox x:Name="RememberUserCheck"
-                                  Content="Remember username"
-                                  IsChecked="True"
-                                  Style="{StaticResource LoginCheckBoxStyle}"
-                                  HorizontalAlignment="Left"/>
-                        <Button x:Name="ForgotPasswordButton"
-                                Grid.Column="1"
-                                Content="Forgot password?"
-                                Style="{StaticResource TextLinkButtonStyle}"
-                                Click="ForgotPassword_Click"
-                                HorizontalAlignment="Right"/>
-                    </Grid>
-
-                    <!-- ── ERROR PANEL ───────────────────────────────── -->
-                    <Border x:Name="ErrorPanel"
-                            Margin="0,14,0,0" Padding="13,10"
-                            CornerRadius="10"
-                            Background="#33DC2626"
-                            BorderBrush="{StaticResource DangerOnGlass}"
-                            BorderThickness="1"
-                            Visibility="Collapsed">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xEA39;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="14"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"
-                                       Foreground="{StaticResource DangerOnGlass}"/>
-                            <TextBlock x:Name="ErrorText"
-                                       FontSize="12.5" FontWeight="SemiBold"
-                                       TextWrapping="Wrap"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource DangerOnGlass}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ── SIGN IN ───────────────────────────────────── -->
-                    <Button x:Name="SignInButton"
-                            Content="SIGN IN"
-                            Height="44"
-                            Margin="0,16,0,0"
-                            Style="{StaticResource SignInButtonStyle}"
-                            Click="SignIn_Click"/>
-
-                    <!-- ── STATUS STRIP ──────────────────────────────── -->
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Margin="0,12,0,0">
-                        <Ellipse x:Name="SignInBusyDot" Width="8" Height="8"
-                                 Fill="#4ADE80" Margin="0,0,8,0"
-                                 VerticalAlignment="Center"
-                                 Visibility="Collapsed"/>
-                        <TextBlock x:Name="SignInStatusText"
-                                   Text="Ready to sign in"
-                                   FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{StaticResource Ice}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <!-- ── FOOTER ────────────────────────────────────── -->
-                    <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,16,0,0"/>
-
-                    <Button x:Name="ExitButton"
-                            Content="Exit"
-                            Height="26"
-                            Margin="0,10,0,0"
-                            Style="{StaticResource TextLinkButtonStyle}"
-                            Click="Exit_Click"
-                            HorizontalAlignment="Center"/>
-
-                    <TextBlock HorizontalAlignment="Center"
-                               FontSize="11"
-                               Foreground="{StaticResource Frost}"
-                               Opacity="0.75"
-                               Margin="0,8,0,0">
-                        <Run Text="Version"/>
-                        <Run Text=" "/>
-                        <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    </TextBlock>
-
-                </StackPanel>
-                </ScrollViewer>
-            </Border>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
         </Border>
     </Grid>
 </UserControl>

@@ -6,6 +6,17 @@
 // Sign-in UI hosted ON the splash window so splash and login never
 // fight z-order as two maximized windows. LoginWindow also hosts this
 // panel if a standalone window is needed.
+//
+// Behaviour contract:
+//   • ONE action on the page — the SIGN IN button. Enter in either
+//     field triggers the identical path.
+//   • The instant the user clicks SIGN IN or presses Enter, the button
+//     flips to "SIGNING IN…" and the form locks — BEFORE any await, so
+//     the feedback is immediate even on a slow database.
+//   • A re-entrancy guard prevents double submission (Enter + click
+//     racing, or Enter held down).
+//   • The status strip only appears while signing in / after success;
+//     it is hidden while idle (no permanent "Ready to sign in" text).
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
@@ -26,6 +37,9 @@ namespace ProGlassAutomation.Views.Login
 
         /// <summary>Fired once the user signs in (true) or exits (false).</summary>
         public event Action<bool>? Completed;
+
+        /// <summary>Prevents double submission (Enter + click racing).</summary>
+        private bool _signingIn;
 
         public LoginPanel()
         {
@@ -76,13 +90,18 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
+        /// <summary>Enter in either field = the same single sign-in path.</summary>
         private void Field_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter) _ = TrySignInAsync();
+            if (e.Key == Key.Enter && !_signingIn)
+                _ = TrySignInAsync();
         }
 
         private void SignIn_Click(object sender, RoutedEventArgs e)
-            => _ = TrySignInAsync();
+        {
+            if (!_signingIn)
+                _ = TrySignInAsync();
+        }
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
@@ -99,27 +118,34 @@ namespace ProGlassAutomation.Views.Login
 
         private async Task TrySignInAsync()
         {
+            if (_signingIn) return;
+            _signingIn = true;
+
             string username = UsernameBox.Text?.Trim() ?? "";
             string password = PasswordBox.Password ?? "";
 
             if (username.Length == 0)
             {
+                _signingIn = false;
                 ShowError("Enter your username.");
                 UsernameBox.Focus();
                 return;
             }
 
-            int remaining = await AuditService.LockoutRemainingSecondsAsync(username);
-            if (remaining > 0)
-            {
-                ShowError($"Too many attempts. Try again in {remaining}s.");
-                return;
-            }
-
-            SetSigningState(true, "Signing in — verifying username and password…");
+            // INSTANT feedback: flip the button + lock the form BEFORE any
+            // await, so "SIGN IN" becomes "SIGNING IN…" the same frame the
+            // user clicks or presses Enter — never after a database round-trip.
+            SetSigningState(true, "Signing in…");
 
             try
             {
+                int remaining = await AuditService.LockoutRemainingSecondsAsync(username);
+                if (remaining > 0)
+                {
+                    ShowError($"Too many attempts. Try again in {remaining}s.");
+                    return;
+                }
+
                 var (ok, error) = await AuditService.SwitchUserAsync(
                     username, password);
 
@@ -194,7 +220,8 @@ namespace ProGlassAutomation.Views.Login
             finally
             {
                 if (!SignedIn)
-                    SetSigningState(false, "Ready to sign in");
+                    SetSigningState(false, "");   // idle — status strip hidden
+                _signingIn = false;
             }
         }
 
@@ -223,13 +250,18 @@ namespace ProGlassAutomation.Views.Login
         }
 
         /// <summary>
-        /// Updates the status strip and locks the form while credentials
-        /// are being checked so the user can see signing is in progress.
+        /// Updates the button + status strip and locks the form while
+        /// credentials are being checked. The status strip is shown ONLY
+        /// while signing in / after success — idle shows nothing.
         /// </summary>
         private void SetSigningState(bool busy, string status)
         {
+            bool showStatus = busy || SignedIn;
+            StatusStrip.Visibility = showStatus
+                ? Visibility.Visible
+                : Visibility.Collapsed;
             SignInStatusText.Text = status ?? string.Empty;
-            SignInBusyDot.Visibility = busy || SignedIn
+            SignInBusyDot.Visibility = showStatus
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
