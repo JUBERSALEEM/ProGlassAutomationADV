@@ -74,7 +74,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "company",
-                    "Step 1, company profile",
+                    "Your company letterhead on every document",
                     "Step one sets up our company letterhead on the quotation — our trading name, tax registration number required by UAE VAT law, bank details for payment, and the quote validity period. This is what the customer sees at the top of every document we issue.",
                     $"Company={pi.Step1VM.CompanyName} Id={pi.Step1VM.ProformaId}",
                     HoldMs, ct).ConfigureAwait(false);
@@ -85,7 +85,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillCustomerAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "customer",
-                    "Step 2, customer information",
+                    "Who we are quoting — customer and sales rep",
                     "Step two captures who we are quoting. The customer's legal name and tax registration number are required for UAE invoicing. We also assign a sales representative so every quote is traceable to the person handling the account, and a contact person the factory can call when the job goes into production.",
                     $"Customer={pi.Step2VM.CustomerName}",
                     HoldMs, ct).ConfigureAwait(false);
@@ -96,7 +96,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (await FillProjectAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "project",
-                    "Step 3, project reference",
+                    "Project and contract — ties the glass to the building",
                     "The project name ties the quotation to the actual site or building. It travels with the job order, delivery note and tax invoice so everyone in the factory and on site knows which project each piece of glass belongs to. We also record the contract number and purchase order reference for the customer's procurement system.",
                     $"Project={pi.Step3VM.ProjectIdentifierName}",
                     HoldMs, ct).ConfigureAwait(false);
@@ -105,9 +105,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             // ── 4 Calculators ────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step4",
-                "Step 4, specification calculators",
+                "Designing the glass build — SGU and DGU calculators",
                 "The specification generators are where we design the actual glass build — single glazed or double glazed units, each with its own thickness, colour, treatment, spacer and gas fill. The calculator works out the rate per square metre based on material costs, yield, and target margin. This rate then flows into the line items automatically.",
-                "Step 4", BeatMs, ct).ConfigureAwait(false);
+                "Design glazing specs", BeatMs, ct).ConfigureAwait(false);
 
             var sgu = await RunSguCalculatorAsync(pi, ct).ConfigureAwait(false);
             if (sgu.Ok)
@@ -135,7 +135,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
             int lines = await FillGridAsync(pi, sgu, dgu, ct).ConfigureAwait(false);
             await PresentAsync(events, "line",
-                "Step 5, glass line items",
+                "Glass line items — dimensions, quantities and values",
                 $"Step five is the data grid. Each row is one unique glass piece — its width, height, quantity, the specification rate and the calculated value. Every row stays on the proforma and also appears on the job order and delivery note, so the factory knows exactly what to cut for each position. We have {lines} glass lines in this quotation.",
                 $"rows={lines} SGU={sgu.SpecName} DGU={dgu.SpecName}",
                 HoldMs, ct).ConfigureAwait(false);
@@ -144,7 +144,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
             var charges = await SelectChargesAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step6",
-                "Step 6, other charges",
+                "Additional charges — delivery, installation and extras",
                 charges.Ok
                     ? $"Step six handles delivery, installation and any extra services that are not part of the glass build itself. We have enabled {charges.Names}. These charges appear as a separate line on the quotation so the customer sees exactly what each service costs."
                     : "Step six handles delivery, installation and extra services that sit outside the glass pricing.",
@@ -153,9 +153,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             // ── 7 Preview + save ─────────────────────────────────────
             if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "preview",
-                "Step 7, print preview",
+                "Live quotation preview and draft save",
                 "The print preview shows the quotation exactly as it will print or go out as PDF. Every section — company letterhead, customer details, line items with dimensions, charges, totals — is laid out on the page. This is what the customer signs. From here we can also save the quote as a draft, which keeps all the data for later.",
-                "Step 7", HoldMs, ct).ConfigureAwait(false);
+                "Quotation preview and draft save", HoldMs, ct).ConfigureAwait(false);
 
             bool saved = await SaveDraftAsync(pi, ct).ConfigureAwait(false);
             if (saved)
@@ -171,7 +171,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 8, ct).ConfigureAwait(false)) return events;
             await ShowAttachmentsAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step8",
-                "Step 8, attachments",
+                "Attachments — signed approvals and drawings",
                 "Attachments hold the signed approval, the customer's purchase order, or marked-up drawings. Every file attached here stays with the quotation and travels to the job order. In a real workflow we would upload the customer's signed PI or LPO at this point to confirm the order.",
                 $"attachments={pi.Step8VM.AttachmentsCount}",
                 HoldMs, ct).ConfigureAwait(false);
@@ -180,7 +180,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (!await AdvanceToAsync(pi, 9, ct).ConfigureAwait(false)) return events;
             var pnl = await RecalculateProfitAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step9",
-                "Step 9, profit and loss summary",
+                "Profitability check — margin before sending",
                 pnl.Ok
                     ? $"The final step shows whether the quotation is profitable. It compares the selling price against the glass cost from Sheet Store and the production costs from step four. Gross revenue {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, net profit {pnl.Profit:0.00} which is a {pnl.Margin:0.0} percent margin. This helps decide whether to adjust pricing before sending the quote."
                     : "Step nine compares the selling price against actual glass and production costs to calculate the real margin on the quotation.",
@@ -220,12 +220,17 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step1VM;
                 s.CompanyName = Company;
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyTrn = CompanyTrn;
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyLocation = CompanyLocation;
                 s.Representative = "Khalid Al Nuaimi";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.RepresentativeMobile = "+971 50 882 1140";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyEmail = "quotes@proglass.ae";
                 s.BankName = "Emirates NBD";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.AccountNumber = "AE070260001234567890123";
                 s.ValidUntil = DateTime.Now.AddDays(14);
                 s.ProformaStatus = "Draft";
@@ -242,12 +247,17 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step2VM;
                 s.CustomerName = Customer;
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CustomerTrn = CustomerTrn;
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CustomerReferenceCode = "ANG-014";
                 s.BillingAddress = "Warehouse 22, Al Zahia, Sharjah, UAE";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.AttentionExecutiveName = "Eng. Mariam Al Suwaidi";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.SalesRepresentative = "A. Rahman";
                 s.DocumentPreparedBy = "Fatima Hassan";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.ClientContactPhone = "+971 55 320 7781";
                 return s.CustomerName == Customer;
             }, ct).ConfigureAwait(false);
@@ -262,8 +272,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step3VM;
                 s.ProjectIdentifierName = Project;
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.ProjectContractNo = "AZT-POD-26";
                 s.ProjectReference = "Podium curtain wall and lobby partitions — Al Zahia Tower";
+                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.SiteDeliveryLocation = "Al Zahia, Sharjah";
                 s.LpoNumber = "4418";
                 return s.ProjectIdentifierName == Project;

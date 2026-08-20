@@ -15,10 +15,11 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
     internal static class DemoWalk
     {
         /// <summary>
-        /// Human-like jitter: a Random generator adds ±20% to every paced delay so
-        /// the demo feels natural instead of mechanically uniform.
+        /// Thread-local Random for jitter. Random is NOT thread-safe; each
+        /// thread gets its own instance to avoid contention when the demo
+        /// runs tasks on background threads.
         /// </summary>
-        private static readonly Random _jitter = new();
+        private static readonly ThreadLocal<Random> _jitter = new(() => new());
 
         /// <summary>Base beat between narrated steps (applied with jitter).</summary>
         public static int BeatMs => Jitter(2200);
@@ -27,8 +28,21 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public static int HoldMs => Jitter(2800);
 
         /// <summary>Jitter a nominal millisecond delay ±20%.</summary>
-        private static int Jitter(int ms) =>
-            ms + (int)(ms * (_jitter.NextDouble() * 0.40 - 0.20));
+        private static int Jitter(int ms)
+        {
+            var rng = _jitter.Value ?? new Random();
+            return ms + (int)(ms * (rng.NextDouble() * 0.40 - 0.20));
+        }
+
+        /// <summary>
+        /// Human-like typing delay: 60–160ms per keystroke. Call between
+        /// each field fill so the demo doesn't set 9 fields at once.
+        /// </summary>
+        public static Task TypeDelayAsync(CancellationToken ct)
+        {
+            int delay = 60 + (_jitter.Value?.Next(100) ?? 60);
+            return Task.Delay(delay, ct);
+        }
 
         public static bool Navigate(string target)
         {
