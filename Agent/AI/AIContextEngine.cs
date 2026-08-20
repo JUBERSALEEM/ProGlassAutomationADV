@@ -1,16 +1,11 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ProGlassAutomation.Agent.AI
 {
     public sealed class AppContextState
     {
         public string CurrentModule { get; init; } = "";
-        public string CurrentView { get; init; } = "";
         public string SelectedRecordId { get; init; } = "";
-        public string WorkflowStage { get; init; } = "";
-        public string FocusedControl { get; init; } = "";
         public bool IsDialogOpen { get; init; }
         public string UserAction { get; init; } = "";
     }
@@ -23,15 +18,11 @@ namespace ProGlassAutomation.Agent.AI
             {
                 var userAction = InferUserAction(requestCategory);
                 var currentModule = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentModule ?? "";
-                var currentView = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentView ?? "";
                 var state = new AppContextState
                 {
                     CurrentModule = currentModule,
-                    CurrentView = currentView,
                     SelectedRecordId = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentDetail ?? "",
-                    WorkflowStage = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentStage ?? "",
-                    FocusedControl = ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentControl ?? "",
-                    IsDialogOpen = currentModule.Contains("Dialog") || currentView.Contains("Dialog"),
+                    IsDialogOpen = currentModule.Contains("Dialog"),
                     UserAction = !string.IsNullOrWhiteSpace(currentModule) ? userAction : "general"
                 };
                 return state;
