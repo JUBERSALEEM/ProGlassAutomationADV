@@ -184,6 +184,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 pnl.Ok
                     ? $"The final step shows whether the quotation is profitable. It compares the selling price against the glass cost from Sheet Store and the production costs from step four. Gross revenue {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, net profit {pnl.Profit:0.00} which is a {pnl.Margin:0.0} percent margin. This helps decide whether to adjust pricing before sending the quote."
                     : "Step nine compares the selling price against actual glass and production costs to calculate the real margin on the quotation.",
+                pnl.Ok
+                    ? $"gross={pnl.Gross:0.00} profit={pnl.Profit:0.00} margin={pnl.Margin:0.0}"
+                    : "Step 9",
                 HoldMs, ct).ConfigureAwait(false);
 
             await SaveDraftAsync(pi, ct).ConfigureAwait(false);
@@ -220,17 +223,12 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step1VM;
                 s.CompanyName = Company;
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyTrn = CompanyTrn;
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyLocation = CompanyLocation;
                 s.Representative = "Khalid Al Nuaimi";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.RepresentativeMobile = "+971 50 882 1140";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CompanyEmail = "quotes@proglass.ae";
                 s.BankName = "Emirates NBD";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.AccountNumber = "AE070260001234567890123";
                 s.ValidUntil = DateTime.Now.AddDays(14);
                 s.ProformaStatus = "Draft";
@@ -247,17 +245,12 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step2VM;
                 s.CustomerName = Customer;
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CustomerTrn = CustomerTrn;
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.CustomerReferenceCode = "ANG-014";
                 s.BillingAddress = "Warehouse 22, Al Zahia, Sharjah, UAE";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.AttentionExecutiveName = "Eng. Mariam Al Suwaidi";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.SalesRepresentative = "A. Rahman";
                 s.DocumentPreparedBy = "Fatima Hassan";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.ClientContactPhone = "+971 55 320 7781";
                 return s.CustomerName == Customer;
             }, ct).ConfigureAwait(false);
@@ -272,10 +265,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 var s = pi.Step3VM;
                 s.ProjectIdentifierName = Project;
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.ProjectContractNo = "AZT-POD-26";
                 s.ProjectReference = "Podium curtain wall and lobby partitions — Al Zahia Tower";
-                await DemoWalk.TypeDelayAsync(ct).ConfigureAwait(false);
                 s.SiteDeliveryLocation = "Al Zahia, Sharjah";
                 s.LpoNumber = "4418";
                 return s.ProjectIdentifierName == Project;
