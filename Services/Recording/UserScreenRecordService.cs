@@ -178,7 +178,7 @@ namespace ProGlassAutomation.Services.Recording
                 // thread may not meet — using it directly produces a video
                 // whose duration is shorter than real time (fast playback).
                 double totalSecs = Math.Max(1, recorder.Duration.TotalSeconds);
-                double actualFps = Math.Clamp(recorder.EncodedFrames / totalSecs, 1, 30);
+                double actualFps = Math.Clamp(recorder.EncodedFrames / totalSecs, 1, 60);
 
                 recorder.EncodeStage = "Composing video from captured frames…";
                 recorder.EncodePercent = 60;

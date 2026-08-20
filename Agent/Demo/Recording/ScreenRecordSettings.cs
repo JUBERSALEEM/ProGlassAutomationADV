@@ -128,13 +128,13 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             if (Array.IndexOf(AllowedFps, Fps) < 0)
             {
-                Fps = Fps <= 35 ? 30
-                    : Fps <= 45 ? 40
-                    : Fps <= 55 ? 50
+                Fps = Fps <= 30 ? 30
+                    : Fps <= 40 ? 40
+                    : Fps <= 50 ? 50
                     : 60;
             }
 
-            JpegQuality = Math.Clamp(JpegQuality, 50, 95);
+            JpegQuality = Math.Clamp(JpegQuality, 50, 96);
             return this;
         }
     }
