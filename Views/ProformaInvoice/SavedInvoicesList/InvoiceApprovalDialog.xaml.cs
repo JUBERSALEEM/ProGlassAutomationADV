@@ -46,17 +46,18 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             if (LpoRadio == null || LpoPanel == null || ValidationBorder == null) return;
 
             bool lpoSelected = LpoRadio.IsChecked == true;
-            ValidationBorder.Visibility = Visibility.Collapsed;
 
-            // The LPO number field is shown for BOTH options:
-            //   • LPO       → required (an LPO always carries a number).
-            //   • Signed PI → optional (sometimes the number is written on it,
-            //                 sometimes the signed PI has no LPO at all).
+            // Hidden (not Collapsed) keeps the reserved strip laid out, so
+            // showing an error later never re-measures the window.
+            ValidationBorder.Visibility = Visibility.Hidden;
+
+            // The label stays a constant single line in BOTH states, so
+            // switching modes cannot change the dialog's layout height.
             if (LpoLabel != null)
             {
                 LpoLabel.Text = lpoSelected
                     ? "LPO / PO NUMBER (REQUIRED)"
-                    : "LPO / PO NUMBER (OPTIONAL — only if shown on the signed PI)";
+                    : "LPO / PO NUMBER (OPTIONAL)";
             }
 
             if (lpoSelected)

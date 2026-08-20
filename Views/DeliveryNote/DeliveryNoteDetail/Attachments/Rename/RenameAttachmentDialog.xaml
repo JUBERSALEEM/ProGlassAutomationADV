@@ -4,7 +4,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Save Attachment As"
         Width="470"
-        Height="330"
+        Height="334"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -104,9 +104,11 @@
          GLASSY CARD — rounded 12px, drop shadow, subtle border.
          FIXED window height (no SizeToContent): the dialog never
          re-measures when the validation banner appears, so it can never
-         jump or collapse. The '*' validation row absorbs the banner;
-         the footer stays pinned. Margin is large enough for the drop
-         shadow to render fully (no square clipping at the edges).
+         jump or collapse. The validation strip is ALWAYS laid out
+         (Visibility=Hidden when clean) at a fixed height, so showing an
+         error changes nothing in the layout. No '*' rows — the card is
+         exactly as tall as its content. Margin is large enough for the
+         drop shadow to render fully (no square clipping at the edges).
     ═══════════════════════════════════════════════════════════════════ -->
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Background="{DynamicResource ModuleBackgroundBrush}"
@@ -126,8 +128,8 @@
                 <!-- Icon + title area -->
                 <RowDefinition Height="Auto"/>
                 <!-- Filename input -->
-                <RowDefinition Height="*"/>
-                <!-- Validation zone (reserved — footer never moves) -->
+                <RowDefinition Height="Auto"/>
+                <!-- Validation strip (fixed height, hidden when clean) -->
                 <RowDefinition Height="Auto"/>
                 <!-- Buttons -->
             </Grid.RowDefinitions>
@@ -214,16 +216,18 @@
                 </Border>
             </Grid>
 
-            <!-- ── VALIDATION AREA — grows into the reserved '*' row so
-                 the window and footer never move when it appears ────── -->
+            <!-- ── VALIDATION STRIP — always reserved at a fixed height;
+                 Visibility toggles Hidden/Visible only, so the window and
+                 footer never move when an error appears ─────────────── -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
                     x:Name="ValidationBorder"
+                    Height="34"
                     Margin="28,12,28,0"
                     Padding="12,8"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource TintRedBrush}"
                     VerticalAlignment="Top"
-                    Visibility="Collapsed">
+                    Visibility="Hidden">
                 <TextBlock x:Name="ValidationText"
                            FontSize="11" FontWeight="SemiBold"
                            TextWrapping="Wrap"

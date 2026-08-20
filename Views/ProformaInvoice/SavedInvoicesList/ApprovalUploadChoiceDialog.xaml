@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Upload Confirmation"
         Width="470"
-        Height="410"
+        Height="372"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -17,8 +17,9 @@
         SnapsToDevicePixels="True">
 
     <!-- FIXED window height (no SizeToContent): the dialog can never
-         re-measure or flash at the wrong size on first show. Margin is
-         large enough for the drop shadow to render fully. -->
+         re-measure or flash at the wrong size on first show. The card is
+         exactly as tall as its content (no spacer rows, no dead space).
+         Margin is large enough for the drop shadow to render fully. -->
     <Border CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
@@ -37,8 +38,6 @@
                 <!-- Note -->
                 <RowDefinition Height="Auto"/>
                 <!-- JPG / PDF buttons -->
-                <RowDefinition Height="*"/>
-                <!-- Spacer — keeps the footer pinned to the bottom -->
                 <RowDefinition Height="Auto"/>
                 <!-- Footer -->
             </Grid.RowDefinitions>
@@ -100,7 +99,7 @@
             </StackPanel>
 
             <!-- Footer -->
-            <Border Grid.Row="4"
+            <Border Grid.Row="3"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
                     Background="{DynamicResource MenuHoverBrush}"

@@ -11,6 +11,10 @@
 //   • applies ThemeManager.UiScale as a LayoutTransform so Ctrl+Wheel
 //     zoom shows MORE or LESS content (content size = client / scale)
 //   • never locks a design canvas on the shell
+//   • applies the zoom to the MAIN workspace window ONLY — modal
+//     dialogs and secondary windows always render at their designed
+//     size (scaling a fixed-size dialog's content makes it look
+//     oversized and, with SizeToContent, collapses it)
 // Splash is a poster: it uses a local Viewbox in SplashView.xaml only.
 
 using System;
@@ -137,6 +141,22 @@ namespace ProGlassAutomation.Behaviors
             if (window.Content is not FrameworkElement fe) return;
             if (string.Equals(window.GetType().Name, "SplashView", StringComparison.Ordinal))
                 return;
+
+            // Only the main workspace window zooms (Ctrl+Wheel). Modal
+            // dialogs and secondary windows must ALWAYS render at their
+            // designed size: scaling their content inside a fixed-size
+            // window makes the dialog look oversized (and, with
+            // SizeToContent, re-applying the transform on SizeChanged
+            // chases the re-measure and makes the dialog collapse/jump).
+            if (!ReferenceEquals(window, Application.Current?.MainWindow))
+            {
+                // Clear any transform a previous call may have applied
+                // (e.g. a dialog opened while zoom was active).
+                fe.ClearValue(FrameworkElement.WidthProperty);
+                fe.ClearValue(FrameworkElement.HeightProperty);
+                fe.LayoutTransform = Transform.Identity;
+                return;
+            }
 
             double scale = ThemeManager.UiScale;
             double availW = window.ActualWidth;
