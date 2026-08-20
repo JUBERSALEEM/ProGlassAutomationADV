@@ -39,16 +39,19 @@ namespace ProGlassAutomation.Services.Database
             Expression<Func<TSource, TResult>> selector,
             int page = 1,
             int pageSize = 100,
-            CancellationToken ct = default);
+            CancellationToken ct = default)
+            where TSource : class;
 
         Task<int> ExecuteCountAsync<TSource>(
             IQueryable<TSource> query,
-            CancellationToken ct = default);
+            CancellationToken ct = default)
+            where TSource : class;
 
         Task<decimal> ExecuteSumAsync<TSource>(
             IQueryable<TSource> query,
             Expression<Func<TSource, decimal?>> selector,
-            CancellationToken ct = default);
+            CancellationToken ct = default)
+            where TSource : class;
     }
 
     /// <summary>
@@ -70,6 +73,7 @@ namespace ProGlassAutomation.Services.Database
             int page = 1,
             int pageSize = DefaultPageSize,
             CancellationToken ct = default)
+            where TSource : class
         {
             if (query == null) throw new ArgumentNullException(nameof(query));
             if (selector == null) throw new ArgumentNullException(nameof(selector));
@@ -132,6 +136,7 @@ namespace ProGlassAutomation.Services.Database
         public async Task<int> ExecuteCountAsync<TSource>(
             IQueryable<TSource> query,
             CancellationToken ct = default)
+            where TSource : class
         {
             if (query == null) return 0;
             try
@@ -152,6 +157,7 @@ namespace ProGlassAutomation.Services.Database
             IQueryable<TSource> query,
             Expression<Func<TSource, decimal?>> selector,
             CancellationToken ct = default)
+            where TSource : class
         {
             if (query == null || selector == null) return 0m;
             try
