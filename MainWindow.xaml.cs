@@ -303,8 +303,8 @@ namespace ProGlassAutomation
             // Don't close the dropdown if the mouse moved into a ComboBox
             // dropdown list inside the popup (e.g. switching quality/fps).
             var source = Mouse.DirectlyOver as DependencyObject;
-            bool overCombo = source != null && IsDescendantOf(source, ScreenRecordPanelHost);
-            if (overCombo && ScreenRecordPanelHost != null)
+            bool overCombo = source != null && source is System.Windows.Controls.ComboBoxItem;
+            if ((overCombo || (source != null && IsDescendantOf(source, ScreenRecordPanelHost))) && ScreenRecordPanelHost != null)
             {
                 _isMouseOverPopup = true;
                 StopCloseTimer();
