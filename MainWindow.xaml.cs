@@ -46,6 +46,8 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
+            _hoverTimer.Tick += HoverTimer_Tick;
+
             // X-6: refuse to close while a multi-step write is running.
             Closing += MainWindow_Closing;
 
@@ -322,29 +324,90 @@ namespace ProGlassAutomation
             }
         }
 
-        // ── sidebar groups: MOUSE ON/OFF open/close (hover menu) ─────────
-        // Mouse over a group header opens its sub-menu; moving away closes it.
-        // The header is a ToggleButton (so the chevron + accent follow IsChecked),
-        // but IsHitTestVisible is False so a click cannot natively toggle it and
-        // fight the hover. The whole group (header + sub-menu card) is ONE
-        // StackPanel host, so moving the pointer from the header into the
-        // sub-menu stays inside the host and never collapses. Only one group
-        // is open at a time (hover-accordion).
+        // ── sidebar groups: CLICK + MOUSE ON/OFF (integrated) ────────────
+        // Both behaviors work together:
+        //   • Mouse ON a group header (hover, 300ms)  -> opens + closes others
+        //   • Mouse OFF the group (header + submenu)  -> closes it
+        //   • Click a closed group                    -> opens it AND PINS it
+        //     (stays open even after the mouse leaves)
+        //   • Click the open/pinned group             -> closes it + unpins
+        //
+        // The header is a ToggleButton whose IsChecked drives the sub-menu
+        // Visibility. NOTE: ToggleButton.OnClick() calls OnToggle() BEFORE
+        // raising the Click event — so by the time this handler runs the
+        // IsChecked has ALREADY flipped. We must NOT re-set it (that would
+        // cancel the toggle) — only enforce accordion + pin semantics.
+        private StackPanel? _pinnedGroupHost;
+        private readonly DispatcherTimer _hoverTimer =
+            new() { Interval = TimeSpan.FromMilliseconds(300) };
+        private StackPanel? _hoverPending;
 
-        // Professional accordion sidebar: groups open and close ONLY by
-        // click. Hover never auto-opens another group (the old MouseEnter
-        // behavior made the menu jump while the user moved the pointer
-        // toward an item — opening every group the cursor passed over).
+        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is not StackPanel host || host.Children.Count == 0) return;
+            if (host.Children[0] is not ToggleButton) return;
+
+            // Delay before hover-open so the cursor passing through a
+            // header while moving to a lower group does not jump menus.
+            _hoverPending = host;
+            _hoverTimer.Stop();
+            _hoverTimer.Start();
+        }
+
+        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is not StackPanel host) return;
+
+            if (ReferenceEquals(_hoverPending, host))
+            {
+                _hoverPending = null;
+                _hoverTimer.Stop();
+            }
+
+            // Hover-close unless the group is pinned open by a click.
+            if (!ReferenceEquals(_pinnedGroupHost, host)
+                && host.Children.Count > 0
+                && host.Children[0] is ToggleButton tb)
+            {
+                tb.IsChecked = false;
+            }
+        }
+
+        private void HoverTimer_Tick(object? sender, EventArgs e)
+        {
+            _hoverTimer.Stop();
+            var host = _hoverPending;
+            _hoverPending = null;
+            if (host == null || host.Children.Count == 0) return;
+            if (host.Children[0] is not ToggleButton tb) return;
+
+            tb.IsChecked = true;
+            CloseOtherSidebarGroups(host);
+
+            // Hover never pins — and it clears any previous click-pin that
+            // the hover accordion just closed, so the newly hovered group
+            // closes normally on mouse-leave instead of staying open.
+            _pinnedGroupHost = null;
+        }
+
         private void SidebarGroup_Click(object sender, RoutedEventArgs e)
         {
-            e.Handled = true;
             if (sender is not ToggleButton tb) return;
+            if (tb.Parent is not StackPanel host) return;
 
-            // Click toggles THIS group; opening one closes the others.
-            // IsChecked is bool? — normalize to a definite bool.
-            bool opening = tb.IsChecked != true;
-            CloseOtherSidebarGroups(opening ? tb.Parent as StackPanel : null);
-            tb.IsChecked = opening;
+            // IsChecked was already toggled by the control — read the new state.
+            if (tb.IsChecked == true)
+            {
+                // Opened: pin it (survives mouse-leave) and close the others.
+                _pinnedGroupHost = host;
+                CloseOtherSidebarGroups(host);
+            }
+            else
+            {
+                // Closed by click: unpin.
+                if (ReferenceEquals(_pinnedGroupHost, host))
+                    _pinnedGroupHost = null;
+            }
         }
 
         /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
