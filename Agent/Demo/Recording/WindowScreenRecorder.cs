@@ -30,7 +30,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     /// </summary>
     public sealed class WindowScreenRecorder : IDisposable
     {
-        private const int MaxPendingEncodes = 8;
+        private const int MaxPendingEncodes = 4;
 
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
@@ -186,7 +186,6 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         {
             int fps = Math.Max(1, _settings.Fps);
             var interval = TimeSpan.FromMilliseconds(1000.0 / fps);
-            var next = DateTime.UtcNow;
             int i = 0;
 
             while (!ct.IsCancellationRequested)
@@ -198,19 +197,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     continue;
                 }
 
-                var now = DateTime.UtcNow;
-                if (now < next)
-                {
-                    try { await Task.Delay(next - now, ct).ConfigureAwait(false); }
-                    catch (OperationCanceledException) { break; }
-                    now = DateTime.UtcNow;
-                }
-                else if (now > next + interval + interval)
-                {
-                    int missed = (int)((now - next).TotalMilliseconds / interval.TotalMilliseconds) - 1;
-                    if (missed > 0) DroppedFrames += missed;
-                    next = now;
-                }
+                var captureStart = DateTime.UtcNow;
 
                 if (Volatile.Read(ref _pendingEncodes) >= MaxPendingEncodes
                     || Volatile.Read(ref _captureBusy) != 0)
@@ -230,7 +217,22 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     }
                 }
 
-                next += interval;
+                // Sleep for the remainder of the target interval, so captures
+                // are evenly spaced regardless of how long the capture took.
+                // If the capture took longer than the interval, we track it as
+                // a drop and fire the next frame immediately (catch up).
+                var elapsed = DateTime.UtcNow - captureStart;
+                var remaining = interval - elapsed;
+                if (remaining > TimeSpan.Zero)
+                {
+                    try { await Task.Delay(remaining, ct).ConfigureAwait(false); }
+                    catch (OperationCanceledException) { break; }
+                }
+                else if (-remaining > interval)
+                {
+                    int missed = (int)(-remaining.TotalMilliseconds / interval.TotalMilliseconds) - 1;
+                    if (missed > 0) DroppedFrames += missed;
+                }
             }
         }
 
@@ -262,7 +264,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     {
                         Interlocked.Exchange(ref _captureBusy, 0);
                     }
-                }, DispatcherPriority.Background, ct).Task
+                }, DispatcherPriority.Normal, ct).Task
                     .ContinueWith(t =>
                     {
                         Interlocked.Exchange(ref _captureBusy, 0);

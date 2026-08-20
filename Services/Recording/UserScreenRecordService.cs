@@ -173,40 +173,36 @@ namespace ProGlassAutomation.Services.Recording
                 string mp4 = Path.Combine(
                     folder, "ScreenRecording_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".mp4");
 
-                string? produced = null;
-                string? liveVideo = recorder.LiveVideoPath;
-                if (!string.IsNullOrEmpty(liveVideo)
-                    && File.Exists(liveVideo)
-                    && new FileInfo(liveVideo).Length > 32)
+                // Calculate the actual achieved frame rate from the recorded data.
+                // The nominal fps setting (rec.Fps) is a target that the UI
+                // thread may not meet — using it directly produces a video
+                // whose duration is shorter than real time (fast playback).
+                double totalSecs = Math.Max(1, recorder.Duration.TotalSeconds);
+                double actualFps = Math.Clamp(recorder.EncodedFrames / totalSecs, 1, 30);
+
+                recorder.EncodeStage = "Composing video from captured frames…";
+                recorder.EncodePercent = 60;
+                DemoRecordingChrome.UpdateStage($"Encoding at {actualFps:F1} fps…");
+
+                // Always compoe from the saved JPEG frames using the ACTUAL
+                // frame rate. The live H.264 pipe is only a HUD indicator; its
+                // static -framerate produces wrong timing. The JPEGs exist —
+                // compoing them correctly is the only path to correct duration.
+                var framesList = recorder.Frames
+                    .Select(f => f.Path)
+                    .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
+                    .ToList();
+                if (framesList.Count == 0)
                 {
-                    recorder.EncodeStage = "Muxing audio onto live encode…";
-                    recorder.EncodePercent = 88;
-                    DemoRecordingChrome.UpdateStage("Muxing audio… 88%");
-                    produced = await FfmpegMp4Composer
-                        .MuxCopyVideoAudioAsync(liveVideo, liveMix, mp4, ct)
-                        .ConfigureAwait(false);
+                    Fail("No frames captured. Nothing to save.");
+                    return;
                 }
 
-                if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
-                {
-                    var fallback = recorder.Frames
-                        .Select(f => f.Path)
-                        .Where(p => !string.IsNullOrEmpty(p) && File.Exists(p))
-                        .ToList();
-                    if (fallback.Count == 0)
-                    {
-                        Fail("No live encode and no JPEG frames. Nothing to save.");
-                        return;
-                    }
-                    recorder.EncodeStage = "JPEG fallback encode…";
-                    recorder.EncodePercent = 55;
-                    DemoRecordingChrome.UpdateStage("Encoding JPEG fallback…");
-                    produced = await FfmpegMp4Composer
-                        .ComposeFramesAudioAsync(
-                            Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
-                            rec.Fps, outW, outH, ct, rec.EncodeCrf)
-                        .ConfigureAwait(false);
-                }
+                string? produced = await FfmpegMp4Composer
+                    .ComposeFramesAudioAsync(
+                        Path.Combine(folder, "frames"), "f%05d.jpg", liveMix, mp4,
+                        (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
+                    .ConfigureAwait(false);
 
                 if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
                 {
