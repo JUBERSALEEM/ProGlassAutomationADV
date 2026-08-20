@@ -34,8 +34,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             // Show that the confirmation is grounded on the real Step 8
             // attachments already attached to this invoice.
             AttachmentNote.Text =
-                $"Grounded on the {attachmentCount} document(s) attached " +
-                "in Step 8 (Attachments).";
+                $"{attachmentCount} file(s) currently attached in Step 8 (Attachments).";
 
             OnModeChanged(this, null);
         }
