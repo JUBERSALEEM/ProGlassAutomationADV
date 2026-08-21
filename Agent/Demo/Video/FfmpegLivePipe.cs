@@ -1,5 +1,7 @@
 using System;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -61,7 +63,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     RedirectStandardError = true,
                     RedirectStandardOutput = true
                 };
-                var p = Process.Start(psi);
+                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                var p = toolResult.IsSuccess ? toolResult.Value : null;
                 if (p == null) return null;
                 var pipe = new FfmpegLivePipe(videoPath)
                 {

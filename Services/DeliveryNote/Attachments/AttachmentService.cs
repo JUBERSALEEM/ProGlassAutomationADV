@@ -1,4 +1,7 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.Common;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -255,7 +258,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         /// <summary>
         /// Opens an attachment with the OS default handler.
         ///
-        /// SECURITY (S-9): UseShellExecute = true asks Windows to run the
+        /// SECURITY (S-9 + Phase 8): UseShellExecute = true asks Windows to run the
         /// file with whatever handler is registered for its extension. For
         /// a .pdf or .png that is a viewer; for a .exe, .bat, .cmd, .ps1,
         /// .js, .lnk or .scr it is EXECUTION with the user's privileges.
@@ -270,34 +273,46 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         /// The allow-list is re-applied HERE, at the moment of launch,
         /// because that is the only place the guarantee cannot be bypassed
         /// by a caller. Anything not an approved image or PDF is refused.
+        ///
+        /// Phase 8: Now uses ProcessStartGuard.TryOpenFile with full validation:
+        ///   - Path inside allowed root (AppData\ProGlassAutomation)
+        ///   - No traversal, no UNC, no ADS
+        ///   - Extension allow-list + MIME sniffing via AttachmentValidationService
+        ///   - Size cap double-checked
+        ///   - CorrelationId + ErrorId for support
         /// </summary>
         public void OpenInDefaultApp(string filePath)
         {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException(
-                    "No file path supplied.", nameof(filePath));
+            var corrId = CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
+            using var scope = CorrelationContext.BeginScope(corrId);
 
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"File not found: {filePath}");
-
-            var ext = Path.GetExtension(filePath).ToLowerInvariant();
-
-            bool allowed =
-                AttachmentLimits.ImageExtensions.Contains(ext) ||
-                AttachmentLimits.PdfExtensions.Contains(ext);
-
-            if (!allowed)
+            // Phase 8: Use central guard with full validation
+            var validationResult = AttachmentValidationService.ValidateAttachmentAsync(filePath, corrId).GetAwaiter().GetResult();
+            if (validationResult.IsFailure)
             {
-                throw new InvalidOperationException(
-                    $"Refusing to open '{Path.GetFileName(filePath)}': " +
-                    "only image and PDF attachments can be opened.");
+                AppLogService.Warning($"Attachment open blocked: {validationResult.Error} [{corrId}]",
+                    new LogContext { Module = "Security", Operation = "OpenAttachment", CorrelationId = corrId, Extra = $"Path={filePath}" });
+                throw new InvalidOperationException(validationResult.Error);
             }
 
-            Process.Start(new ProcessStartInfo
+            var result = ProcessStartGuard.TryOpenFile(filePath, corrId);
+            if (result.IsFailure)
             {
-                FileName = filePath,
-                UseShellExecute = true
-            });
+                throw new InvalidOperationException(result.Error);
+            }
+        }
+
+        // Phase 8: New Result-based API for ViewModels
+        public Result OpenInDefaultAppWithResult(string filePath, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", "OpenAttachment");
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            var validationResult = AttachmentValidationService.ValidateAttachmentAsync(filePath, corrId).GetAwaiter().GetResult();
+            if (validationResult.IsFailure)
+                return Result.Fail(validationResult.Error, corrId, null, validationResult.ErrorId);
+
+            return ProcessStartGuard.TryOpenFile(filePath, corrId);
         }
 
         // ═════════════════════════════════════════════════════════════════

@@ -1,4 +1,6 @@
 ﻿using CsvHelper;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 // CsvConfiguration and InjectionOptions live in CsvHelper.Configuration,
 // not CsvHelper — required by SafeCsvConfig below (audit fix C-3).
 using CsvHelper.Configuration;
@@ -141,11 +143,7 @@ namespace ProGlassAutomation.Services.Export.Csv
                 {
                     try
                     {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = path,
-                            UseShellExecute = true
-                        });
+                                    ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
                     }
                     catch
                     {

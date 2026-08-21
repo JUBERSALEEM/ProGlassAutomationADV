@@ -16,6 +16,8 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
@@ -1813,12 +1815,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                         "ProGlassAutomation", "Backups");
 
                     System.IO.Directory.CreateDirectory(folder);
-                    System.Diagnostics.Process.Start(
-                        new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = folder,
-                            UseShellExecute = true
-                        });
+                                ProcessStartGuard.TryOpenFolder(folder, CorrelationContext.NewId());
                 }
                 catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
@@ -1857,12 +1854,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .GetCurrentProcess().MainModule?.FileName;
                 if (string.IsNullOrEmpty(exe)) return;
 
-                System.Diagnostics.Process.Start(
-                    new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = exe,
-                        UseShellExecute = true
-                    });
+                            // Phase 8: Restart via guard — validate exe is inside app folder
+            if (ProcessStartGuard.IsPathInsideAllowedRoot(exe)) Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = exe, UseShellExecute = true });
 
                 System.Windows.Application.Current.Shutdown();
             }

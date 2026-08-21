@@ -1,5 +1,7 @@
 using System;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;

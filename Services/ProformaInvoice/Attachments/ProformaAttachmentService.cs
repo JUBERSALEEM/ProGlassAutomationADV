@@ -22,6 +22,8 @@
 
 using ProGlassAutomation.Models.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using System;
@@ -363,11 +365,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
                     "only image and PDF attachments can be opened.");
             }
 
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = filePath,
-                UseShellExecute = true
-            });
+                        var corrId = CorrelationContext.NewIdFor("ProformaInvoice", "OpenAttachment");
+            using var scope = CorrelationContext.BeginScope(corrId);
+            var result = ProcessStartGuard.TryOpenFile(filePath, corrId);
+            if (result.IsFailure) throw new InvalidOperationException(result.Error);
         }
 
         // ══════════════════════════════════════════════════════════════

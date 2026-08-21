@@ -1,5 +1,7 @@
 using System;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -60,7 +62,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                         RedirectStandardOutput = true,
                         RedirectStandardError = true
                     };
-                    using var p = Process.Start(psi);
+                                    var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
                     if (p == null) continue;
                     if (!p.WaitForExit(1500)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
@@ -86,7 +89,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                         RedirectStandardOutput = true,
                         RedirectStandardError = true
                     };
-                    using var p = Process.Start(psi);
+                                    var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
                     if (p == null) continue;
                     if (!p.WaitForExit(4000)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
@@ -183,7 +187,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
             };
             try
             {
-                using var p = Process.Start(psi);
+                                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
                 if (p == null) return loopbackWav ?? micWav;
 
                 // P-1: drain both redirected pipes before waiting, or the
@@ -289,7 +294,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
             try
             {
-                using var p = Process.Start(psi);
+                                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
                 if (p == null) return null;
 
                 // Drain first, then wait — never the other way round.
@@ -374,7 +380,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     RedirectStandardOutput = true,
                     RedirectStandardError = true
                 };
-                using var p = Process.Start(psi);
+                                var toolResult = ProcessStartGuard.TryStartTool(psi.FileName, psi.Arguments, CorrelationContext.NewId());
+                using var p = toolResult.IsSuccess ? toolResult.Value : null;
                 if (p == null) return null;
 
                 // P-1: stderr is redirected too. Reading only stdout leaves

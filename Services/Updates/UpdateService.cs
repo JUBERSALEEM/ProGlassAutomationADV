@@ -12,6 +12,8 @@
 
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -326,10 +328,7 @@ namespace ProGlassAutomation.Services.Updates
                         return;
                     }
 
-                    Process.Start(new ProcessStartInfo(path)
-                    {
-                        UseShellExecute = true
-                    });
+                                ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
 
                     // Give the installer a moment to start, then exit so
                     // application files can be replaced safely.
@@ -346,7 +345,7 @@ namespace ProGlassAutomation.Services.Updates
                 {
                     // Archive release: reveal it so the user can extract
                     // and run Setup — the app still never self-replaces.
-                    Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    ProcessStartGuard.TryOpenExplorerSelect(path, CorrelationContext.NewId());
                     SetState(UpdateState.DownloadCompleted,
                         "Unzip the archive and run Setup to install.");
                 }

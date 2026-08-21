@@ -1,4 +1,6 @@
 ﻿using ClosedXML.Excel;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.FileSystem;
 using System;
@@ -83,11 +85,7 @@ namespace ProGlassAutomation.Services.Export.Excel
                 {
                     try
                     {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = path,
-                            UseShellExecute = true
-                        });
+                                    ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
                     }
                     catch
                     {

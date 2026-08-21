@@ -1,5 +1,7 @@
 using ProGlassAutomation.Agent.Demo;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Agent.Demo.Video;
 using ProGlassAutomation.Agent.Tools.Demo;
@@ -285,11 +287,7 @@ namespace ProGlassAutomation.Services.Recording
             {
                 Directory.CreateDirectory(
                     Directory.Exists(target) ? target : (Path.GetDirectoryName(target) ?? folder));
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = File.Exists(target) || Directory.Exists(target) ? target : folder,
-                    UseShellExecute = true
-                });
+                            ProcessStartGuard.TryOpenFolder(File.Exists(target) || Directory.Exists(target) ? target : folder, CorrelationContext.NewId());
             }
             catch (Exception ex)
             {

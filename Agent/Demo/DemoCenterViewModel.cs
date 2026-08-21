@@ -93,11 +93,7 @@ namespace ProGlassAutomation.Agent.Demo
                 try
                 {
                     Directory.CreateDirectory(FfmpegMp4Composer.ToolsFolder);
-                    Process.Start(new ProcessStartInfo
-                    {
-                        FileName = FfmpegMp4Composer.ToolsFolder,
-                        UseShellExecute = true
-                    });
+                                    ProcessStartGuard.TryOpenFolder(FfmpegMp4Composer.ToolsFolder, CorrelationContext.NewId());
                 }
                 catch (Exception ex)
                 {
@@ -440,11 +436,7 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 Directory.CreateDirectory(
                     Directory.Exists(target) ? target : (Path.GetDirectoryName(target) ?? folder));
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = File.Exists(target) || Directory.Exists(target) ? target : folder,
-                    UseShellExecute = true
-                });
+                                ProcessStartGuard.TryOpenFolder(File.Exists(target) || Directory.Exists(target) ? target : folder, CorrelationContext.NewId());
             }
             catch (Exception ex)
             {
@@ -456,11 +448,11 @@ namespace ProGlassAutomation.Agent.Demo
         {
             try
             {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = url,
-                    UseShellExecute = true
-                });
+                                // Phase 8: Validate URL before opening — only https and allow-list
+                if (url.StartsWith("https://", System.StringComparison.OrdinalIgnoreCase) && (url.Contains("ffmpeg.org") || url.Contains("github.com")))
+                    Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
+                else
+                    SetLocalStatus($"Blocked untrusted URL: {url}");
             }
             catch (Exception ex)
             {

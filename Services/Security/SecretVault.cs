@@ -16,6 +16,7 @@
 // and keys exist only in memory for the running session.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
@@ -33,12 +34,146 @@ namespace ProGlassAutomation.Services.Security
 
         // App-level entropy mixed into DPAPI so blobs from other apps
         // on the same machine cannot be replayed into this vault.
+        // Phase 8: Entropy versioned for rotation — old blobs can be migrated.
         private static readonly byte[] Entropy =
             Encoding.UTF8.GetBytes("ProGlassAutomation.v2.vault");
+
+        private static readonly byte[] EntropyV1 =
+            Encoding.UTF8.GetBytes("ProGlassAutomation.v1.vault");
 
         private static string VaultPath => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "secrets.dat");
+
+        private static string VaultBackupPath => VaultPath + ".bak";
+
+        // ── Rotation & Health ──────────────────────────────────────────
+
+        /// <summary>
+        /// Phase 8: Checks vault health — can decrypt all entries, no corruption.
+        /// Returns Result with count of valid entries.
+        /// </summary>
+        public static Result<int> CheckHealth(string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewId();
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            try
+            {
+                var map = Load();
+                int valid = 0;
+                foreach (var kvp in map)
+                {
+                    try
+                    {
+                        var cipher = Convert.FromBase64String(kvp.Value);
+                        var plain = ProtectedData.Unprotect(cipher, Entropy, DataProtectionScope.CurrentUser);
+                        if (plain.Length > 0) valid++;
+                    }
+                    catch
+                    {
+                        // Try old entropy
+                        try
+                        {
+                            var cipher = Convert.FromBase64String(kvp.Value);
+                            var plain = ProtectedData.Unprotect(cipher, EntropyV1, DataProtectionScope.CurrentUser);
+                            if (plain.Length > 0) valid++;
+                        }
+                        catch { }
+                    }
+                }
+
+                AppLogService.Info($"SecretVault health: {valid}/{map.Count} valid [{corrId}]",
+                    new LogContext { Module = "Security", Operation = "CheckHealth", CorrelationId = corrId });
+
+                return Result<int>.Ok(valid, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errId = AppLogService.Error($"SecretVault health check failed: {ex.Message}", ex,
+                    new LogContext { Module = "Security", Operation = "CheckHealth", CorrelationId = corrId });
+                return Result<int>.Fail(ex.Message, ex, corrId, errId);
+            }
+        }
+
+        /// <summary>
+        /// Phase 8: Rotates vault — re-encrypts all entries with current entropy.
+        /// Migrates from V1 entropy if found. Creates backup before rotation.
+        /// </summary>
+        public static Result<int> Rotate(string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewId();
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            try
+            {
+                var map = Load();
+                if (map.Count == 0) return Result<int>.Ok(0, corrId);
+
+                // Backup
+                try
+                {
+                    lock (_lock)
+                    {
+                        if (File.Exists(VaultPath))
+                            File.Copy(VaultPath, VaultBackupPath, overwrite: true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning($"SecretVault backup failed: {ex.Message}",
+                        new LogContext { Module = "Security", Operation = "Rotate", CorrelationId = corrId });
+                }
+
+                var newMap = new Dictionary<string, string>();
+                int migrated = 0;
+
+                foreach (var kvp in map)
+                {
+                    string? plainText = null;
+
+                    // Try current entropy
+                    try
+                    {
+                        var cipher = Convert.FromBase64String(kvp.Value);
+                        var plain = ProtectedData.Unprotect(cipher, Entropy, DataProtectionScope.CurrentUser);
+                        plainText = Encoding.UTF8.GetString(plain);
+                    }
+                    catch
+                    {
+                        // Try old entropy
+                        try
+                        {
+                            var cipher = Convert.FromBase64String(kvp.Value);
+                            var plain = ProtectedData.Unprotect(cipher, EntropyV1, DataProtectionScope.CurrentUser);
+                            plainText = Encoding.UTF8.GetString(plain);
+                            migrated++;
+                        }
+                        catch { }
+                    }
+
+                    if (!string.IsNullOrEmpty(plainText))
+                    {
+                        var plain = Encoding.UTF8.GetBytes(plainText);
+                        var cipher = ProtectedData.Protect(plain, Entropy, DataProtectionScope.CurrentUser);
+                        newMap[kvp.Key] = Convert.ToBase64String(cipher);
+                    }
+                }
+
+                Save(newMap);
+
+                AppLogService.Info($"SecretVault rotated: {newMap.Count} entries, {migrated} migrated from V1 [{corrId}]",
+                    new LogContext { Module = "Security", Operation = "Rotate", CorrelationId = corrId, Extra = $"Migrated={migrated}" });
+
+                return Result<int>.Ok(newMap.Count, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errId = AppLogService.Error($"SecretVault rotation failed: {ex.Message}", ex,
+                    new LogContext { Module = "Security", Operation = "Rotate", CorrelationId = corrId });
+                return Result<int>.Fail(ex.Message, ex, corrId, errId);
+            }
+        }
 
         /// <summary>Encrypts and stores one secret under a logical key.</summary>
         public static void Store(string key, string secret)
