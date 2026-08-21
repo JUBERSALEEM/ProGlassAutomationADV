@@ -9,7 +9,7 @@
          OFFLINE · SECURE)
        • centered glass logo tile with halo + orbit ring + sheen
        • product name (metallic gradient) + tagline
-       • frosted module chips (static, one uniform fade — no marketing
+       • circular module orbs (static, one uniform fade — no marketing
          flash, no stagger)
        • luminous progress bar + frosted status pill with animated dots
        • frosted footer bar (product · version · city)
@@ -164,35 +164,68 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ═══ FROSTED MODULE CHIP (feature strip) ═══ -->
+        <!-- ═══ MODULE ORB (feature strip) — circular glass tile ═══
+             Each module renders as a distinct circle: tinted glyph inside
+             a frosted glass disc, wrapped by a dashed tint ring and a soft
+             coloured halo, with the label centred underneath. The per-item
+             tint is bound from FeatureItem.BorderBrush. -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <Border Height="34" Padding="12,0,14,0"
-                    Margin="4"
-                    CornerRadius="10"
-                    BorderThickness="1"
-                    BorderBrush="#4DFFFFFF"
-                    SnapsToDevicePixels="True"
-                    UseLayoutRounding="True">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-                <StackPanel Orientation="Horizontal">
+            <StackPanel Width="96" Margin="6,8"
+                        HorizontalAlignment="Center"
+                        SnapsToDevicePixels="True"
+                        UseLayoutRounding="True">
+
+                <Grid Width="72" Height="72" HorizontalAlignment="Center">
+
+                    <!-- Soft coloured halo behind the orb -->
+                    <Ellipse Width="72" Height="72"
+                             Fill="{Binding BorderBrush}"
+                             Opacity="0.14"
+                             IsHitTestVisible="False"/>
+
+                    <!-- Dashed tint ring -->
+                    <Ellipse Width="68" Height="68"
+                             Stroke="{Binding BorderBrush}"
+                             StrokeThickness="1.5"
+                             StrokeDashArray="2 3"
+                             Opacity="0.75"
+                             IsHitTestVisible="False"/>
+
+                    <!-- Frosted glass disc -->
+                    <Ellipse Width="56" Height="56">
+                        <Ellipse.Fill>
+                            <RadialGradientBrush Center="0.35,0.3"
+                                                 GradientOrigin="0.35,0.3"
+                                                 RadiusX="0.75" RadiusY="0.75">
+                                <GradientStop Color="#40FFFFFF" Offset="0.0"/>
+                                <GradientStop Color="#14FFFFFF" Offset="0.6"/>
+                                <GradientStop Color="#08FFFFFF" Offset="1.0"/>
+                            </RadialGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+
+                    <!-- Module glyph -->
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="13"
-                               Foreground="{StaticResource Ice}"
+                               FontSize="22"
+                               Foreground="{Binding BorderBrush}"
+                               HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <TextBlock Text="{Binding Label}"
-                               FontSize="11"
-                               FontWeight="SemiBold"
-                               Foreground="{StaticResource Frost}"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
+                               IsHitTestVisible="False"/>
+                </Grid>
+
+                <!-- Label -->
+                <TextBlock Text="{Binding Label}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource Frost}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           MaxWidth="92"
+                           Margin="0,8,0,0"
+                           IsHitTestVisible="False"/>
+            </StackPanel>
         </DataTemplate>
 
         <!-- ═══ TERMS — DECLINE (ghost) ═══ -->
@@ -382,12 +415,12 @@
                            Foreground="{StaticResource Cerulean}"
                            Opacity="0"/>
 
-                <!-- Module chips — static glass, one uniform fade -->
+                <!-- Module orbs — circular glass tiles, one uniform fade -->
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
                               HorizontalAlignment="Center"
-                              MaxWidth="860"
-                              Margin="0,22,0,0"
+                              MaxWidth="960"
+                              Margin="0,18,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
