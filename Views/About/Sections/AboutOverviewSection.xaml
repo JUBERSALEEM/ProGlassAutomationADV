@@ -1,0 +1,149 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/AboutOverviewSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "About" tab (overview + principles + compliance +
+             data ownership + capabilities + privacy)
+
+     Edited independently of the other About sections. Uses the shared
+     styles/templates in ../AboutStyles.xaml.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutOverviewSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ ABOUT ═══ -->
+        <Border Style="{StaticResource AboutCardStyle}">
+            <StackPanel>
+                <TextBlock Text="About ProGlass Automation"
+                           Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Text="Purpose-built ERP for UAE glass manufacturing"
+                           Style="{StaticResource SectionSubtitleStyle}"/>
+
+                <TextBlock Text="OVERVIEW" Style="{StaticResource SubHeadingStyle}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}">
+                    <Run Text="ProGlass Automation is a purpose-built Windows desktop application designed specifically for "/>
+                    <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold"/>
+                    <Run Text=". It replaces spreadsheet-driven workflows with a fully integrated system covering raw material inventory, quoting, production planning, delivery tracking, and financial reporting — all in one place."/>
+                </TextBlock>
+
+                <TextBlock Text="ENGINEERING PRINCIPLES" Style="{StaticResource SubHeadingStyle}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}">
+                    <Run Text="The system is engineered around three core principles:"/>
+                    <LineBreak/><LineBreak/>
+                    <Run Text="• Deterministic calculations —" FontWeight="Bold"/>
+                    <Run Text=" every formula produces the same result every time, with no hidden state or race conditions. Financial and production totals are always reproducible."/>
+                    <LineBreak/><LineBreak/>
+                    <Run Text="• Modular isolation —" FontWeight="Bold"/>
+                    <Run Text=" each business domain (Sheet Store, Proforma Invoice, Job Order, Delivery Note, Tax Invoice) has its own database. A bug in one module cannot corrupt data in another."/>
+                    <LineBreak/><LineBreak/>
+                    <Run Text="• AI-safe architecture —" FontWeight="Bold"/>
+                    <Run Text=" strict MVVM conventions, naming rules, and code organization ensure the codebase remains extensible and maintainable for years — whether extended by a human or an AI assistant."/>
+                </TextBlock>
+
+                <TextBlock Text="FINANCIAL &amp; COMPLIANCE" Style="{StaticResource SubHeadingStyle}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}">
+                    <Run Text="All monetary values are stored and displayed in "/>
+                    <Run Text="AED (UAE Dirham)" FontWeight="Bold"/>
+                    <Run Text=" with full precision. UAE 5% VAT is built in with zero-rated export support and full audit trails on every calculation. Tax invoices comply with FTA (Federal Tax Authority) format requirements including sequential numbering, VAT registration number, and mandatory bilingual field labels."/>
+                </TextBlock>
+
+                <TextBlock Text="DATA OWNERSHIP &amp; DEPLOYMENT" Style="{StaticResource SubHeadingStyle}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}">
+                    <Run Text="Standalone .exe deployment — no cloud dependencies, no subscription fees, no data leaves your machine. All customer records, invoices, delivery photos, and financial data remain on your local Windows PC, backed up automatically on each application exit (last 7 database copies retained). Perfect for offline factory environments and full data-sovereignty requirements."/>
+                </TextBlock>
+
+                <TextBlock Text="EXTENSIBILITY &amp; FUTURE" Style="{StaticResource SubHeadingStyle}"/>
+                <TextBlock Style="{StaticResource BodyTextStyle}">
+                    <Run Text="The current release ships with 8 active modules covering the full production lifecycle. Upcoming production-stage modules (Cutting, Holes/Cutouts, Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/DGU) will slot into the existing shell without any database migration. Optional AI Assistant (Google Gemini) provides in-app glass-industry expertise and workflow guidance — fully user-controlled, disable-able, and using only user-provided API keys."/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ CAPABILITIES ═══ -->
+        <Border Style="{StaticResource AboutCardStyle}">
+            <StackPanel>
+                <TextBlock Text="Key Capabilities"
+                           Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Text="What sets ProGlass Automation apart"
+                           Style="{StaticResource SectionSubtitleStyle}"/>
+                <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
+                              ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                              HorizontalAlignment="Center"
+                              Margin="0,4,0,4">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
+                              ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                              HorizontalAlignment="Center"
+                              Margin="0,12,0,4">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ PRIVACY ═══ -->
+        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Padding="26,20"
+                Margin="0,0,0,16">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Text="&#xE72E;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="14"
+                               Foreground="{DynamicResource AccentBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Privacy"
+                               FontSize="15" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding PrivacyLines}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,7">
+                                <TextBlock Text="•"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,0,9,0"/>
+                                <TextBlock Text="{Binding}"
+                                           FontSize="12"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

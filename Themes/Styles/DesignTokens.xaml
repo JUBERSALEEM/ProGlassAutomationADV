@@ -12,7 +12,6 @@
        CardCornerRadius         = 12   cards, panels, action buttons
                                        (Settings → Appearance slider)
        CardCornerRadiusLarge    = 12   dialogs, heroes (same as card)
-       PillCornerRadius         = 999  status chips only — not buttons
 
      TYPE SCALE:
        20 Bold     page title
@@ -82,8 +81,8 @@
 
     <!-- ══ TOOLBAR BUTTONS — one primary + one secondary for all ═════ -->
 
-    <!-- Toolbar action buttons use a full pill radius (999) to match
-         the Proforma-list Export pills. -->
+    <!-- Toolbar action buttons use the canonical 12px card radius,
+         matching every other button and card in the app. -->
     <Style x:Key="ModuleToolbarPrimaryButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FontSize" Value="12"/>

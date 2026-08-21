@@ -1,0 +1,93 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/Sections/ModulesSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About → "Modules" tab (active modules + end-to-end workflow)
+
+     Edited independently of the other About sections. Uses the shared
+     styles/templates in ../AboutStyles.xaml.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.ModulesSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <StackPanel>
+
+        <!-- ═══ MODULES ═══ -->
+        <Border Style="{StaticResource AboutCardStyle}">
+            <StackPanel>
+                <TextBlock Text="Active Modules"
+                           Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Text="Fully functional and battle-tested — ready for daily use"
+                           Style="{StaticResource SectionSubtitleStyle}"/>
+                <ItemsControl ItemsSource="{Binding Modules}"
+                              ItemTemplate="{StaticResource ModuleChipTemplate}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="2"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+        <!-- ═══ WORKFLOW ═══ -->
+        <Border Style="{StaticResource AboutCardStyle}">
+            <StackPanel>
+                <TextBlock Text="End-to-End Production Workflow"
+                           Style="{StaticResource SectionTitleStyle}"/>
+                <TextBlock Text="From raw glass sheets to tax invoice — every stage tracked"
+                           Style="{StaticResource SectionSubtitleStyle}"/>
+
+                <TextBlock Text="SALES CYCLE" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                <ItemsControl ItemsSource="{Binding SalesCycle}"
+                              ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                              HorizontalAlignment="Center"
+                              Margin="0,0,0,16">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <TextBlock Text="PRODUCTION STAGES (upcoming)" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                <ItemsControl ItemsSource="{Binding ProductionStages}"
+                              ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                              Margin="0,0,0,16">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="2" Columns="4"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <TextBlock Text="DISPATCH &amp; BILLING" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                <ItemsControl ItemsSource="{Binding DispatchBilling}"
+                              ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                              HorizontalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+</UserControl>

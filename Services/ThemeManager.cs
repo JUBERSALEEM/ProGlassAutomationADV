@@ -489,8 +489,7 @@ namespace ProGlassAutomation.Services
         /// Applies one corner radius to every card, input and button via
         /// CardCornerRadius / ControlCornerRadius / CardCornerRadiusLarge.
         /// All three are the SAME value so nothing looks "more round"
-        /// than the Appearance slider (default 12). PillCornerRadius stays
-        /// 999 only for true chips; button styles now bind CardCornerRadius.
+        /// than the Appearance slider (default 12).
         /// </summary>
         public static void ApplyCardCornerRadius(double radius)
         {

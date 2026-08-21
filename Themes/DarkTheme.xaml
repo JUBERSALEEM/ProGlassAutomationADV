@@ -256,7 +256,6 @@
     <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadiusLarge">12</CornerRadius>
-    <CornerRadius x:Key="PillCornerRadius">999</CornerRadius>
 
     <!-- Card border thickness — one source of truth for every card/panel
          edge. Driven by the Appearance > Border Thickness setting; cards

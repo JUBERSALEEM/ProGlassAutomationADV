@@ -99,6 +99,37 @@ public sealed class AboutViewModel : ViewModelBase
         "Build " + Services.Updates.AppInfo.BuildLabel;
 
     // ══════════════════════════════════════════════════════════════════
+    //  TABBED SECTIONS (Chat 24 — About split into switchable sections)
+    // ══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Top tab labels. Each tab maps to a separate section UserControl in
+    /// Views/About/Sections, so a section can be edited on its own.
+    /// </summary>
+    public IReadOnlyList<string> Tabs { get; } = new[]
+    {
+        "About",
+        "Modules",
+        "Developer"
+    };
+
+    /// <summary>
+    /// Index of the visible tab (0 = About, 1 = Modules, 2 = Developer).
+    /// Raises PropertyChanged so the section views can switch visibility.
+    /// </summary>
+    public int SelectedTabIndex
+    {
+        get => _selectedTabIndex;
+        set
+        {
+            if (_selectedTabIndex == value) return;
+            _selectedTabIndex = value;
+            OnPropertyChanged();
+        }
+    }
+    private int _selectedTabIndex;
+
+    // ══════════════════════════════════════════════════════════════════
     //  PRIVACY (v2) — plain-language data handling summary
     // ══════════════════════════════════════════════════════════════════
 
