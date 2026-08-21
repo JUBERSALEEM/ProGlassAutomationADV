@@ -165,6 +165,21 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        // ── active navigation key ──────────────────────────────────────
+        // Matches each sidebar button's CommandParameter, so the sidebar can
+        // highlight the currently open module (active indicator).
+        private string _currentModuleKey = "Dashboard";
+        public string CurrentModuleKey
+        {
+            get => _currentModuleKey;
+            private set
+            {
+                if (_currentModuleKey == value) return;
+                _currentModuleKey = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void UpdateAiScreenContext()
         {
             try
@@ -301,6 +316,7 @@ namespace ProGlassAutomation.ViewModels
 
         public void OpenSettingsPage(string page)
         {
+            CurrentModuleKey = "Settings";
             CurrentViewModel = SettingsVM;
             SettingsVM.SwitchSettingsPageCommand.Execute(page ?? "Appearance");
             IsSettingsOpen = false;
@@ -483,8 +499,8 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 try { ProformaInvoiceVM.TriggerNewInvoice(); } catch { }
             });
-            ShowAboutCommand = new RelayCommand(_ => { CurrentViewModel = AboutVM; IsMenuOpen = false; });
-            ShowSettingsCommand = new RelayCommand(_ => { CurrentViewModel = SettingsVM; IsMenuOpen = false; });
+            ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
+            ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
             ShowUserSwitchCommand = new RelayCommand(_ => IsUserSwitchOpen = !IsUserSwitchOpen);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsOpen = !IsSettingsOpen);
             ToggleNotificationsCommand = new RelayCommand(_ => IsNotificationsOpen = !IsNotificationsOpen);
@@ -577,6 +593,7 @@ namespace ProGlassAutomation.ViewModels
 
         private void Navigate(object parameter)
         {
+            CurrentModuleKey = parameter?.ToString() ?? "";
             switch (parameter?.ToString())
             {
                 case "Dashboard": CurrentViewModel = DashboardVM; break;

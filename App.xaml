@@ -115,6 +115,7 @@
             <conv:SliderValueLabelConverter         x:Key="SliderValueLabelConverter"/>
             <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
             <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
+            <conv:StringEqualsMultiConverter        x:Key="StringEqualsMultiConverter"/>
             <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
             <conv:NullToVisibilityConverter         x:Key="NullToVisibilityConverter"/>
             <conv:ListToStringConverter             x:Key="ListToStringConverter"/>

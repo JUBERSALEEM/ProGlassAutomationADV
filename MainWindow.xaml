@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
      MODULE: Main Shell (Chat 24 v4.0 — theme-based redesign)
@@ -155,13 +155,6 @@
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="StorageCardGradient"
-                             StartPoint="0,0" EndPoint="1,1"
-                             >
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
-        </LinearGradientBrush>
-
         <LinearGradientBrush x:Key="SidebarActiveGradient"
                              StartPoint="0,0" EndPoint="1,1"
                              >
@@ -291,6 +284,101 @@
             </Setter>
         </Style>
 
+        <!-- Shared top-bar pill typography — one treatment for every pill. -->
+        <Style x:Key="TopPillTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="TopPillCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             AI AGENT PILL — a real Button (keyboard + pressed states).
+             Matches the other top-bar controls: 36px, ControlCornerRadius,
+             1px accent border, tinted fill.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="TopAiPillStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Height="36"
+                                Padding="12,0"
+                                Background="{DynamicResource TintBlueBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Grid Width="12" Height="12" Margin="0,0,10,0">
+                                    <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
+                                        <Ellipse.RenderTransform>
+                                            <ScaleTransform x:Name="AiPulseScale"
+                                                            ScaleX="1" ScaleY="1"
+                                                            CenterX="6" CenterY="6"/>
+                                        </Ellipse.RenderTransform>
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever">
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetName="AiPulseScale"
+                                                            Storyboard.TargetProperty="ScaleX"
+                                                            From="1" To="2.5" Duration="0:0:2"/>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetName="AiPulseScale"
+                                                            Storyboard.TargetProperty="ScaleY"
+                                                            From="1" To="2.5" Duration="0:0:2"/>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            From="0.5" To="0" Duration="0:0:2"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+                                    <Ellipse Width="10" Height="10"
+                                             Fill="{DynamicResource SuccessBrush}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="AI AGENT"
+                                               Style="{StaticResource TopPillCaptionStyle}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="Assistant"
+                                               Style="{StaticResource TopPillTitleStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,1,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- ═══════════════════════════════════════════════════════════════
              SIDEBAR GROUP LABEL (MAIN / SALES / etc.)
         ═══════════════════════════════════════════════════════════════ -->
@@ -312,7 +400,9 @@
             <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
         </Style>
 
-        <!-- NAV ITEM — icon chip + label, hover lift -->
+        <!-- NAV ITEM — icon chip + label, active indicator + keyboard focus.
+             Active state: compares CommandParameter to DataContext.CurrentModuleKey
+             (via StringEqualsMultiConverter) so the open module is always lit. -->
         <Style x:Key="SidebarNavItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -326,7 +416,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="8,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -334,7 +424,7 @@
                                     <!-- Icon chip -->
                                     <Border x:Name="Chip"
                                             Width="34" Height="34"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource MenuHoverBrush}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
@@ -377,6 +467,24 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <!-- Active module -->
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -397,14 +505,14 @@
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="8,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                     <Border x:Name="Chip"
                                             Width="34" Height="34"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource MenuHoverBrush}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,12,0"
@@ -444,6 +552,9 @@
                                 <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                                 <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Icon" Property="Foreground" Value="White"/>
@@ -480,13 +591,15 @@
             <Setter Property="Background" Value="{DynamicResource SidebarCardBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Margin" Value="24,6,24,10"/>
             <Setter Property="Padding" Value="8,10"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- SUB-ITEM — chevron affordance on hover -->
+        <!-- SUB-ITEM — dot + label with active indicator (no hover chevron:
+             the group chevron already means expand/collapse; sub-items keep
+             a clear dot + accent bar for the active module). -->
         <Style x:Key="SidebarSubItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -500,7 +613,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="9"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="10,0"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -519,14 +632,16 @@
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                                <TextBlock x:Name="Arrow"
-                                           Text="&#xE76C;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="10"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Right"
-                                           VerticalAlignment="Center"
-                                           Opacity="0"/>
+                                <!-- Active accent bar (right edge) -->
+                                <Border x:Name="Accent"
+                                        Width="3"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Stretch"
+                                        Margin="0,8,0,8"
+                                        CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"/>
                             </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -535,11 +650,26 @@
                                 <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
-                                <Setter TargetName="Arrow" Property="Opacity" Value="1"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                            </Trigger>
+                            <!-- Active module -->
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                            </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -677,8 +807,8 @@
                             Cursor="Hand"
                             MouseLeftButtonDown="Logo_MouseLeftButtonDown"
                             ToolTip="About ProGlass Automation">
-                    <Border Width="38" Height="38"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
+                    <Border Width="36" Height="36"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Effect="{StaticResource LogoGlow}"
                             SnapsToDevicePixels="True">
                         <Border.Background>
@@ -739,81 +869,25 @@
                         </Button.Style>
                     </Button>
 
-                    <!-- AI AGENT PULSE PILL (theme-based accent) -->
-                    <Border Height="36"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="12,0"
+                    <!-- AI AGENT PILL — a real Button (theme-based accent) -->
+                    <Button Style="{StaticResource TopAiPillStyle}"
                             Margin="0,0,10,0"
-                            Background="{DynamicResource TintBlueBrush}"
-                            BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="1"
-                            Cursor="Hand"
-                            SnapsToDevicePixels="True"
-                            ToolTip="ProGlass Agent — local assistant you can teach">
-                        <Border.InputBindings>
-                            <MouseBinding MouseAction="LeftClick"
-                                          Command="{Binding ToggleAgentChatCommand}"/>
-                        </Border.InputBindings>
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <Grid Width="12" Height="12" Margin="0,0,10,0">
-                                <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
-                                    <Ellipse.RenderTransform>
-                                        <ScaleTransform x:Name="AiPulseScale"
-                                                        ScaleX="1" ScaleY="1"
-                                                        CenterX="6" CenterY="6"/>
-                                    </Ellipse.RenderTransform>
-                                    <Ellipse.Triggers>
-                                        <EventTrigger RoutedEvent="Loaded">
-                                            <BeginStoryboard>
-                                                <Storyboard RepeatBehavior="Forever">
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetName="AiPulseScale"
-                                                        Storyboard.TargetProperty="ScaleX"
-                                                        From="1" To="2.5" Duration="0:0:2"/>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetName="AiPulseScale"
-                                                        Storyboard.TargetProperty="ScaleY"
-                                                        From="1" To="2.5" Duration="0:0:2"/>
-                                                    <DoubleAnimation
-                                                        Storyboard.TargetProperty="Opacity"
-                                                        From="0.5" To="0" Duration="0:0:2"/>
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </EventTrigger>
-                                    </Ellipse.Triggers>
-                                </Ellipse>
-                                <Ellipse Width="10" Height="10"
-                                         Fill="{DynamicResource SuccessBrush}"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"/>
-                            </Grid>
-                            <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="AI AGENT"
-                                           FontSize="9"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                                <TextBlock Text="Assistant"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           Margin="0,1,0,0"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
+                            Command="{Binding ToggleAgentChatCommand}"
+                            ToolTip="ProGlass Agent — local assistant you can teach"/>
 
                     <!-- DATE/TIME PILL -->
                     <Border Height="36"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="10,0"
                             Margin="0,0,10,0"
                             SnapsToDevicePixels="True"
                             ToolTip="Current date and time">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Background="{StaticResource DateTimeIconGradient}"
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
@@ -825,13 +899,11 @@
                             </Border>
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="{Binding CurrentDateText}"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           FontWeight="Medium"/>
+                                           Style="{StaticResource TopPillCaptionStyle}"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding CurrentTimeText}"
-                                           FontSize="12"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Style="{StaticResource TopPillTitleStyle}"
+                                           FontSize="12" FontWeight="Bold"
                                            Margin="0,1,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -839,10 +911,10 @@
 
                     <!-- CONNECTIVITY PILL -->
                     <Border Height="36"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,0"
                             Margin="0,0,10,0"
-                            BorderBrush="#4DFFFFFF"
+                            BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True"
                             ToolTip="Internet connection state">
@@ -874,9 +946,9 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <TextBlock Text="{Binding ConnectivityLabel}"
-                                       FontSize="11" FontWeight="Bold"
-                                       Foreground="White"
-                                       VerticalAlignment="Center"/>
+                                       Style="{StaticResource TopPillTitleStyle}"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
                         </StackPanel>
                     </Border>
 
@@ -950,12 +1022,12 @@
                                         Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="6,0,14,0"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Width="30" Height="30"
-                                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{StaticResource AvatarGradient}"
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
@@ -967,17 +1039,12 @@
                                         </Border>
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=&apos;User&apos;}"
+                                                       Style="{StaticResource TopPillTitleStyle}"
                                                        FontSize="12"
-                                                       FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        MaxWidth="120"/>
                                             <TextBlock Text="{Binding CurrentUserRole, FallbackValue=&apos;User&apos;}"
-                                                       FontSize="9"
-                                                       FontWeight="Medium"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       VerticalAlignment="Center"
+                                                       Style="{StaticResource TopPillCaptionStyle}"
                                                        TextTrimming="CharacterEllipsis"
                                                        MaxWidth="120"/>
                                         </StackPanel>
@@ -1056,7 +1123,7 @@
                     HorizontalAlignment="Left"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,0,1,0"
-                    CornerRadius="0,16,16,0"
+                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
                     SnapsToDevicePixels="True"
@@ -1169,7 +1236,7 @@
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
-                                              Tag="&#xE7B8;"
+                                              Tag="&#xE8C6;"
                                               Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ProductionGroup,
@@ -1377,12 +1444,13 @@
                                 ValueChanged="ScrollSlider_ValueChanged"/>
                     </Grid>
 
-                    <!-- STORAGE FOOTER -->
+                    <!-- STORAGE FOOTER (neutral card — the accent gradient
+                         now lives only in the thin bar, not the whole card) -->
                     <Border Grid.Row="1"
                             Margin="12,0,12,14"
                             Padding="14,12"
                             CornerRadius="{DynamicResource CardCornerRadius}"
-                            Background="{StaticResource StorageCardGradient}"
+                            Background="{DynamicResource SidebarCardBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
