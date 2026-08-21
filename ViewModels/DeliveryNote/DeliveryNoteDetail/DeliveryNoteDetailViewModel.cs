@@ -529,12 +529,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// Those are JO copies whose pcs already left on a sibling DN —
         /// they look like "empty rows" and must not stay in the grid.
         /// </summary>
-        private bool ShouldDisplayRow(DnItemRowViewModel row)
-        {
-            if (_showFullMaster) return true;
-            if (_isMasterDn) return row.BalanceQty > 0;
-            return row.DeliveredQty > 0 || row.BalanceQty > 0;
-        }
+        private bool ShouldDisplayRow(DnItemRowViewModel row) =>
+            // Phase 6: Delegated to domain service — testable, reusable
+            Services.DeliveryNote.DeliveryNoteLineService.ShouldDisplayRow(row, IsMasterDn, ShowFullMaster);
 
         private void RebuildGroupedView()
         {
@@ -930,11 +927,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void FillAllRemaining()
         {
-            foreach (var row in _itemRows)
-            {
-                if (row.BalanceQty > 0)
-                    row.DeliveredQty = row.BalanceQty;
-            }
+            // Phase 6: Delegated to domain service
+            Services.DeliveryNote.DeliveryNoteLineService.FillAllRemaining(_itemRows);
             RecalculateTotals();
             CommandManager.InvalidateRequerySuggested();
         }
@@ -947,9 +941,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void ResetAllQty()
         {
-            foreach (var row in _itemRows)
-                row.DeliveredQty = 0;
-
+            // Phase 6: Delegated to domain service
+            Services.DeliveryNote.DeliveryNoteLineService.ResetAllQty(_itemRows);
             RecalculateTotals();
             CommandManager.InvalidateRequerySuggested();
         }
@@ -2176,11 +2169,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void RecalculateTotals()
         {
-            TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
-            TotalPreviouslyDeliveredQty =
-                ItemRows.Sum(r => r.PreviouslyDeliveredQty);
-            TotalDeliveredQty = ItemRows.Sum(r => r.DeliveredQty);
-            TotalBalanceQty = ItemRows.Sum(r => r.BalanceQty);
+            // Phase 6: Delegated to domain service — pure calculation
+            var totals = Services.DeliveryNote.DeliveryNoteLineService.CalculateTotals(ItemRows);
+            TotalOrderedQty = totals.Ordered;
+            TotalPreviouslyDeliveredQty = totals.PrevDelivered;
+            TotalDeliveredQty = totals.Delivered;
+            TotalBalanceQty = totals.Balance;
         }
     }
 }
