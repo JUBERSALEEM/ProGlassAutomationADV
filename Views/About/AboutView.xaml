@@ -1,13 +1,18 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — tabbed shell (v5)
+     MODULE: About — tabbed glass shell (v6)
 
-     The single oversized About page is now a shell:
-       • compact hero (icon + identity + version/build)
-       • a segmented top tab strip: About · Modules · Developer
-       • a content area that switches between three separate section
-         UserControls (one XAML file per section, edited independently)
+     Glass identity (matches Splash / Login):
+       • deep-navy aurora stage with soft orbs
+       • frosted glass hero + segmented tabs + section cards
+       • light glass text (Ice / Frost / Cerulean / Snow)
+
+     Structure:
+       • compact glass hero (icon + identity + version/build)
+       • segmented top tab strip: About · Modules · Developer
+       • content area switches between three section UserControls
+         (one XAML file per section, edited independently)
 
      PRESERVED:
        • AboutViewModel bindings (AppName, AppTagline, Version, Build,
@@ -33,7 +38,7 @@
                 <ResourceDictionary Source="AboutStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ═══ SEGMENTED TAB STRIP ═══ -->
+            <!-- ═══ SEGMENTED GLASS TAB STRIP ═══ -->
             <Style x:Key="AboutTabListStyle" TargetType="ListBox">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -51,7 +56,7 @@
             <Style x:Key="AboutTabItemStyle" TargetType="ListBoxItem">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                <Setter Property="Foreground" Value="{StaticResource GlassFrost}"/>
                 <Setter Property="FontSize" Value="13"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="Margin" Value="0,0,8,0"/>
@@ -60,8 +65,8 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
                             <Border x:Name="TabBg"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    Background="#14FFFFFF"
+                                    BorderBrush="#40BFDBFE"
                                     BorderThickness="1"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="18,9"
@@ -71,16 +76,12 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background"
-                                            Value="{DynamicResource MenuHoverBrush}"/>
+                                    <Setter TargetName="TabBg" Property="Background" Value="#26FFFFFF"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter TargetName="TabBg" Property="BorderBrush"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Setter TargetName="TabBg" Property="Background" Value="{StaticResource GlassAccentDeep}"/>
+                                    <Setter TargetName="TabBg" Property="BorderBrush" Value="{StaticResource GlassAccent}"/>
+                                    <Setter Property="Foreground" Value="{StaticResource GlassSnow}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -90,9 +91,16 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- ═══ ROOT ═══ -->
-    <Grid Background="{DynamicResource WindowBackgroundBrush}"
-          Focusable="False">
+    <!-- ═══ ROOT — glass stage ═══ -->
+    <Grid Background="{StaticResource GlassPageBg}">
+        <Ellipse Width="560" Height="560"
+                 Fill="{StaticResource GlassOrbA}"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-180,-140,0" IsHitTestVisible="False"/>
+        <Ellipse Width="420" Height="420"
+                 Fill="{StaticResource GlassOrbB}"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-120,0,0,-120" IsHitTestVisible="False"/>
 
         <ScrollViewer x:Name="RootScrollViewer"
                       VerticalScrollBarVisibility="Auto"
@@ -105,78 +113,85 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="40,40,40,40">
 
-                <!-- ═══ HERO — compact identity strip ═══ -->
+                <!-- ═══ HERO — frosted identity strip ═══ -->
                 <Border Style="{StaticResource HeroCardStyle}">
                     <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                        <Border Background="{StaticResource GlassSheen}"
+                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                                IsHitTestVisible="False"/>
 
-                        <!-- App icon -->
-                        <Grid Grid.Column="0" Margin="0,0,24,0">
-                            <Ellipse Width="104" Height="104"
-                                     Stroke="{DynamicResource AccentBrush}"
-                                     StrokeThickness="1" StrokeDashArray="4 6"
-                                     Opacity="0.4" IsHitTestVisible="False"/>
-                            <Border Width="84" Height="84"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    BorderThickness="1"
-                                    SnapsToDevicePixels="True">
-                                <Border Width="76" Height="76"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        ClipToBounds="True">
-                                    <Border.Background>
-                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                                    Stretch="UniformToFill"/>
-                                    </Border.Background>
+                        <Grid Margin="30,26">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- App icon -->
+                            <Grid Grid.Column="0" Margin="0,0,24,0">
+                                <Ellipse Width="104" Height="104"
+                                         Stroke="{StaticResource GlassAccent}"
+                                         StrokeThickness="1" StrokeDashArray="4 6"
+                                         Opacity="0.5" IsHitTestVisible="False"/>
+                                <Border Width="84" Height="84"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Background="#26FFFFFF"
+                                        BorderBrush="#66BFDBFE"
+                                        BorderThickness="1"
+                                        SnapsToDevicePixels="True">
+                                    <Border Width="76" Height="76"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            ClipToBounds="True">
+                                        <Border.Background>
+                                            <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                                        Stretch="UniformToFill"/>
+                                        </Border.Background>
+                                    </Border>
                                 </Border>
-                            </Border>
+                            </Grid>
+
+                            <!-- Identity -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding AppName}"
+                                           FontSize="30" FontWeight="Bold"
+                                           Foreground="{StaticResource GlassSnow}"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="{Binding AppTagline}"
+                                           FontSize="13"
+                                           Margin="0,4,0,0"
+                                           Foreground="{StaticResource GlassCerulean}"
+                                           IsHitTestVisible="False"/>
+                            </StackPanel>
+
+                            <!-- Version / build / edition -->
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center"
+                                        HorizontalAlignment="Right">
+                                <Border Background="{StaticResource GlassAccentDeep}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,8"
+                                        HorizontalAlignment="Right"
+                                        BorderBrush="#66BFDBFE" BorderThickness="1"
+                                        SnapsToDevicePixels="True">
+                                    <TextBlock Text="{Binding Version}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="White"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
+                                        HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding Build}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{StaticResource GlassAccent}"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
+                                        HorizontalAlignment="Right">
+                                    <TextBlock Text="Enterprise Edition"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{StaticResource GlassAccent}"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+                            </StackPanel>
                         </Grid>
-
-                        <!-- Identity -->
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding AppName}"
-                                       FontSize="30" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="{Binding AppTagline}"
-                                       FontSize="13"
-                                       Margin="0,4,0,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       IsHitTestVisible="False"/>
-                        </StackPanel>
-
-                        <!-- Version / build / edition -->
-                        <StackPanel Grid.Column="2" VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                            <Border Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,8"
-                                    HorizontalAlignment="Right"
-                                    SnapsToDevicePixels="True">
-                                <TextBlock Text="{Binding Version}"
-                                           FontSize="12" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           IsHitTestVisible="False"/>
-                            </Border>
-                            <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                    HorizontalAlignment="Right">
-                                <TextBlock Text="{Binding Build}"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           IsHitTestVisible="False"/>
-                            </Border>
-                            <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
-                                    HorizontalAlignment="Right">
-                                <TextBlock Text="Enterprise Edition"
-                                           FontSize="12" FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           IsHitTestVisible="False"/>
-                            </Border>
-                        </StackPanel>
                     </Grid>
                 </Border>
 

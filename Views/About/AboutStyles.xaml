@@ -1,50 +1,96 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutStyles.xaml
      PROJECT: ProGlassAutomation
-     MODULE: About — shared card / typography / templates
+     MODULE: About — shared glass visual language (v6)
 
      ONE source of truth for the About page. Merged by:
-       • AboutView.xaml                       (shell: hero + tabs)
+       • AboutView.xaml                       (shell: glass stage + hero + tabs)
        • Sections/AboutOverviewSection.xaml
        • Sections/ModulesSection.xaml
        • Sections/DeveloperSection.xaml
 
-     All corners are the canonical 12px cards (CardCornerRadius /
-     CardCornerRadiusLarge / ControlCornerRadius). No pill radius.
+     Glass identity (matches the Splash / Login glass stage):
+       • deep-navy aurora backdrop + soft orbs
+       • frosted glass cards (translucent white gradient, 1px light border,
+         top sheen, soft shadow)
+       • light glass text (Ice / Frost / Cerulean)
+       • fixed glass accent (azure) so contrast is guaranteed on the stage
+
+     All corners are the canonical 12px (CardCornerRadius etc). No pill.
 ═══════════════════════════════════════════════════════════════════════ -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
-    <!-- ═══ SHARED CARD / TYPOGRAPHY (theme-adaptive) ═══ -->
+    <!-- ═══ PALETTE — frozen ═══ -->
+    <SolidColorBrush x:Key="GlassIce"     Color="#DBEAFE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFrost"   Color="#BFDBFE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassCerulean" Color="#93C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSnow"    Color="#F8FAFC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccent"  Color="#60A5FA" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccentDeep" Color="#3B82F6" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassMuted"   Color="#8FB3E6" po:Freeze="True"/>
+
+    <!-- ═══ STAGE — deep navy aurora ═══ -->
+    <LinearGradientBrush x:Key="GlassPageBg" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#0B1026" Offset="0.0"/>
+        <GradientStop Color="#102A56" Offset="0.5"/>
+        <GradientStop Color="#0B1026" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="GlassOrbA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
+        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
+        <GradientStop Color="#1D4ED800" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlassOrbB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+        <GradientStop Color="#60A5FA66" Offset="0.0"/>
+        <GradientStop Color="#3B82F633" Offset="0.55"/>
+        <GradientStop Color="#3B82F600" Offset="1.0"/>
+    </RadialGradientBrush>
+
+    <!-- ═══ GLASS CARD ═══ -->
+    <LinearGradientBrush x:Key="GlassCard" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassSheen" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+    </LinearGradientBrush>
+    <DropShadowEffect x:Key="GlassShadow" Color="#000000"
+                      BlurRadius="28" ShadowDepth="4" Opacity="0.4"/>
+
+    <!-- ═══ SHARED STYLES (glass) ═══ -->
     <Style x:Key="AboutCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"     Value="1.5"/>
+        <Setter Property="Background"          Value="{StaticResource GlassCard}"/>
+        <Setter Property="BorderBrush"         Value="#66FFFFFF"/>
+        <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"             Value="30,26"/>
         <Setter Property="Margin"              Value="0,0,0,20"/>
+        <Setter Property="Effect"              Value="{StaticResource GlassShadow}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
     </Style>
 
     <Style x:Key="HeroCardStyle" TargetType="Border"
            BasedOn="{StaticResource AboutCardStyle}">
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="#88BFDBFE"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
     </Style>
 
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="19"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassSnow}"/>
         <Setter Property="Margin"            Value="0,0,0,4"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="12"/>
-        <Setter Property="Foreground"        Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassCerulean}"/>
         <Setter Property="Margin"            Value="0,0,0,18"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -52,7 +98,7 @@
     <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="11"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassAccent}"/>
         <Setter Property="Margin"            Value="0,16,0,8"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -61,14 +107,14 @@
         <Setter Property="TextWrapping"      Value="Wrap"/>
         <Setter Property="LineHeight"        Value="24"/>
         <Setter Property="FontSize"          Value="13.5"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassIce}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="10"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassMuted}"/>
         <Setter Property="Margin"            Value="0,0,0,8"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -76,20 +122,20 @@
     <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="9"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassMuted}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="InfoValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="12"/>
         <Setter Property="FontWeight"        Value="SemiBold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassSnow}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="ChipStyle" TargetType="Border">
-        <Setter Property="Background"        Value="{DynamicResource TintIndigoBrush}"/>
-        <Setter Property="BorderBrush"       Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background"        Value="#14FFFFFF"/>
+        <Setter Property="BorderBrush"       Value="#40BFDBFE"/>
         <Setter Property="BorderThickness"   Value="1"/>
         <Setter Property="CornerRadius"      Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"           Value="16,8"/>
@@ -97,45 +143,45 @@
     </Style>
 
     <Style x:Key="IconTileStyle" TargetType="Border">
-        <Setter Property="Background"        Value="{DynamicResource TintIndigoBrush}"/>
+        <Setter Property="Background"        Value="#14FFFFFF"/>
         <Setter Property="CornerRadius"      Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <Style x:Key="GlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"        Value="{StaticResource GlassAccent}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
-    <!-- ═══ TEMPLATES ═══ -->
+    <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,0,10"
-                MinWidth="120" BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource TintIndigoBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                MinWidth="120" BorderThickness="1"
+                Background="#14FFFFFF"
+                BorderBrush="#40BFDBFE"
                 SnapsToDevicePixels="True">
             <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="20"
-                           Foreground="{DynamicResource AccentBrush}"
+                           Foreground="{StaticResource GlassAccent}"
                            HorizontalAlignment="Center"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Value}"
                            FontSize="15" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,4,0,0"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{StaticResource GlassSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Label}"
                            FontSize="9" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,2,0,0"
-                           Foreground="{DynamicResource AccentBrush}"
+                           Foreground="{StaticResource GlassAccent}"
                            IsHitTestVisible="False"/>
             </StackPanel>
         </Border>
@@ -143,9 +189,9 @@
 
     <DataTemplate x:Key="ModuleChipTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="6"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="1"
+                Background="#14FFFFFF"
+                BorderBrush="#40BFDBFE"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -167,23 +213,23 @@
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}"
                                FontSize="14" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Foreground="{StaticResource GlassSnow}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
                                FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Foreground="{StaticResource GlassFrost}"
                                TextWrapping="Wrap"
                                Margin="0,2,0,0"
                                IsHitTestVisible="False"/>
                 </StackPanel>
 
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
-                        Background="{DynamicResource TintIndigoBrush}"
+                <Border BorderBrush="#40BFDBFE" BorderThickness="1" Grid.Column="2"
+                        Background="#14FFFFFF"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                         VerticalAlignment="Center"
                         SnapsToDevicePixels="True">
                     <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}"
+                               Foreground="{StaticResource GlassAccent}"
                                IsHitTestVisible="False"/>
                 </Border>
             </Grid>
@@ -192,15 +238,15 @@
 
     <DataTemplate x:Key="TechItemTemplate">
         <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="6"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource TintIndigoBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="1"
+                Background="#14FFFFFF"
+                BorderBrush="#40BFDBFE"
                 SnapsToDevicePixels="True">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="17"
-                           Foreground="{DynamicResource AccentBrush}"
+                           Foreground="{StaticResource GlassAccent}"
                            VerticalAlignment="Center"
                            Margin="0,0,12,0"
                            IsHitTestVisible="False"/>
@@ -216,9 +262,9 @@
 
     <DataTemplate x:Key="CapabilityCardTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,20" Margin="8"
-                MinWidth="230" MaxWidth="280" BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                MinWidth="230" MaxWidth="280" BorderThickness="1"
+                Background="#14FFFFFF"
+                BorderBrush="#40BFDBFE"
                 SnapsToDevicePixels="True">
             <StackPanel HorizontalAlignment="Center">
                 <Border Style="{StaticResource IconTileStyle}"
@@ -231,14 +277,14 @@
                 </Border>
                 <TextBlock Text="{Binding Title}"
                            FontSize="14" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{StaticResource GlassSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Margin="0,12,0,6"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
                            FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{StaticResource GlassFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
@@ -249,9 +295,9 @@
 
     <DataTemplate x:Key="WorkflowCardTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,20" Margin="8"
-                MinWidth="200" MaxWidth="240" BorderThickness="{DynamicResource CardBorderThickness}"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                MinWidth="200" MaxWidth="240" BorderThickness="1"
+                Background="#14FFFFFF"
+                BorderBrush="#40BFDBFE"
                 SnapsToDevicePixels="True">
             <StackPanel HorizontalAlignment="Center">
                 <Border Style="{StaticResource IconTileStyle}"
@@ -264,14 +310,14 @@
                 </Border>
                 <TextBlock Text="{Binding Name}"
                            FontSize="13" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           Foreground="{StaticResource GlassSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Margin="0,10,0,4"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
                            FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Foreground="{StaticResource GlassFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
