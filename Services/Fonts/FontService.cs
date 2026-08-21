@@ -106,7 +106,10 @@ namespace ProGlassAutomation.Services.Fonts
             var list = new List<FontOption>();
             try
             {
-                foreach (var family in Fonts.SystemFontFamilies)
+                // Fully qualified: the local namespace segment "Fonts"
+                // (ProGlassAutomation.Services.Fonts) would otherwise shadow
+                // System.Windows.Media.Fonts.
+                foreach (var family in System.Windows.Media.Fonts.SystemFontFamilies)
                     list.Add(new FontOption { Name = family.Source, Source = "System" });
             }
             catch (Exception ex)
@@ -181,8 +184,9 @@ namespace ProGlassAutomation.Services.Fonts
             {
                 if (!File.Exists(path)) return null;
                 var glyph = new GlyphTypeface(new Uri(path));
+                // GlyphTypeface.FamilyNames is keyed by CultureInfo.
                 if (glyph.FamilyNames.TryGetValue(
-                        System.Windows.Markup.XmlLanguage.GetLanguage("en-us"),
+                        System.Globalization.CultureInfo.GetCultureInfo("en-us"),
                         out var name) && !string.IsNullOrWhiteSpace(name))
                     return name;
 
