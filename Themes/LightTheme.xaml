@@ -311,4 +311,28 @@
     <!-- ── BrushKeyConverter (unchanged) ──────────────────────────── -->
     <conv:BrushKeyConverter x:Key="BrushKeyConverter"/>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID-GLASS SHELL CHROME (top bar · sidebar · dropdowns)
+         Frosted white surfaces over the light stage; subtle dark hairline
+         + soft shadow carry the depth.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="ShellGlassBrush" StartPoint="0,0" EndPoint="0,1"
+                         po:Freeze="True">
+        <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#E6FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#D9FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="ShellGlassBorderBrush" Color="#24000000" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
+    <RadialGradientBrush x:Key="AuroraA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#3338BDF8" Offset="0.0"/>
+        <GradientStop Color="#0038BDF8" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="AuroraB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#268183F4" Offset="0.0"/>
+        <GradientStop Color="#008183F4" Offset="1.0"/>
+    </RadialGradientBrush>
+
 </ResourceDictionary>

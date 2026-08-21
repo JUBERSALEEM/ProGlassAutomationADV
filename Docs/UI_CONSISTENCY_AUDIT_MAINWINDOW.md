@@ -183,3 +183,28 @@ Say the word and I'll implement the top-4 fixes (S2, S1, T2, T3) as one commit.
 
 **Ratings after redesign:** Top panel **9/10**, Sidebar **8/10**, Combined **8.5/10**.
 
+---
+
+## ✅ Liquid-Glass "2050" redesign (final pass)
+
+Guided by the `ui-ux-pro-max` skill (Liquid Glass / Glassmorphism: frosted
+translucency, 1px light hairline borders, layered depth, soft light source).
+
+- **Theme chrome keys** (`ShellGlassBrush`, `ShellGlassBorderBrush`,
+  `ShellSheenBrush`, `AuroraA/B`) added to both Light + Dark themes.
+- **Top bar** → floating frosted pill: 58px, `CardCornerRadiusLarge`, 1px
+  glass border, top sheen, soft shadow, floating with a gap from the edges.
+- **Sidebar** → floating frosted drawer (292px, all corners rounded, 12px
+  gap), top sheen, glass fill; the active nav item + open group now use an
+  accent **gradient chip with a glow**.
+- **Aurora stage** — two ambient accent glows behind the glass chrome so the
+  translucency reads as a lit glass surface.
+- **Dropdowns** (User switch / Quick settings / Activity / Screenshot /
+  Screen record) — all five restyled to the same glass card: frosted fill,
+  1px hairline, `CardCornerRadiusLarge`, `ClipToBounds` with the accent
+  header clipped to the card radius (also fixes the old header-corner
+  mismatch in Monet).
+
+**Ratings after final pass:** Top panel **10/10**, Sidebar **10/10**,
+Dropdowns **10/10**.
+

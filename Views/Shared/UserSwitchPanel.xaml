@@ -7,10 +7,11 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border CornerRadius="{DynamicResource CardCornerRadius}"
-            Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{DynamicResource CardBorderThickness}">
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+            Background="{DynamicResource ShellGlassBrush}"
+            BorderBrush="{DynamicResource ShellGlassBorderBrush}"
+            BorderThickness="1"
+            ClipToBounds="True">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" ShadowDepth="3"
                               Opacity="0.18" Color="#000000" Direction="270"/>
@@ -26,7 +27,7 @@
             <!-- ── Header ───────────────────────────────────────────── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="12,12,0,0"
+
                     Padding="18,12">
                 <StackPanel>
                     <TextBlock Text="Switch User"
@@ -82,7 +83,7 @@
             <Border Grid.Row="2"
                     Margin="0,14,0,0"
                     Padding="16,12"
-                    CornerRadius="0,0,12,12"
+
                     Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0">

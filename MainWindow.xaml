@@ -118,6 +118,11 @@
                           Opacity="0.15" Color="Black" Direction="0"
                           po:Freeze="True"/>
 
+        <!-- Glow behind the active sidebar item (theme-accent). -->
+        <DropShadowEffect x:Key="NavActiveGlow"
+                          BlurRadius="14" ShadowDepth="0"
+                          Opacity="0.45" Color="{DynamicResource AccentColor}"/>
+
         <!-- Theme-based accent gradients (use AccentColor resources so they
              follow the chosen accent + Light/Dark). -->
         <LinearGradientBrush x:Key="LogoBrandGradient"
@@ -479,7 +484,8 @@
                                         <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
                                     </MultiBinding>
                                 </DataTrigger.Binding>
-                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
+                                <Setter TargetName="Chip" Property="Effect" Value="{StaticResource NavActiveGlow}"/>
                                 <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
@@ -556,8 +562,9 @@
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Icon" Property="Foreground" Value="White"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
+                                <Setter TargetName="Chip" Property="Effect" Value="{StaticResource NavActiveGlow}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
                                 <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
@@ -770,16 +777,38 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             TOP BAR — RESTRUCTURED
+             AURORA STAGE — ambient light sources behind the glass chrome.
+             The floating top bar + drawer are translucent, so these glows
+             read through them; content stays opaque on top.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Ellipse Grid.RowSpan="2" Width="720" Height="720"
+                 Fill="{DynamicResource AuroraA}"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-320,-180,0" IsHitTestVisible="False"/>
+        <Ellipse Grid.RowSpan="2" Width="520" Height="520"
+                 Fill="{DynamicResource AuroraB}"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-160,0,0,-160" IsHitTestVisible="False"/>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TOP BAR — floating liquid-glass pill
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Height="48"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="0,0,0,1"
+                Height="58"
+                Margin="16,12,16,0"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{DynamicResource ShellGlassBrush}"
+                BorderBrush="{DynamicResource ShellGlassBorderBrush}"
+                BorderThickness="1"
                 Panel.ZIndex="50"
                 Effect="{StaticResource TopBarShadow}"
+                ClipToBounds="True"
                 SnapsToDevicePixels="True">
+
+            <!-- Top sheen (clipped by the pill radius) -->
+            <Border Height="1" VerticalAlignment="Top"
+                    Background="{DynamicResource ShellSheenBrush}"
+                    IsHitTestVisible="False"/>
 
             <Grid Margin="16,0">
                 <Grid.ColumnDefinitions>
@@ -1119,21 +1148,17 @@
                  LEFT DRAWER — REDESIGNED SIDEBAR (all groups expandable)
             ═══════════════════════════════════════════════════════════ -->
 
-            <Border Width="300"
+            <Border Width="292"
                     HorizontalAlignment="Left"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="0,0,1,0"
+                    Margin="12"
+                    BorderBrush="{DynamicResource ShellGlassBorderBrush}"
+                    BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    Background="{DynamicResource ShellGlassBrush}"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
                     SnapsToDevicePixels="True"
                     ClipToBounds="True">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="{DynamicResource SideMenuBackgroundColor}" Offset="0"/>
-                        <GradientStop Color="{DynamicResource ModuleBackgroundColor}" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -1149,6 +1174,12 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
+
+                    <!-- Top sheen (clipped by the drawer radius) -->
+                    <Border Grid.RowSpan="2" Height="1" VerticalAlignment="Top"
+                            Background="{DynamicResource ShellSheenBrush}"
+                            IsHitTestVisible="False"/>
+
                 <!-- Accent edge — modern 2050 top accent line -->
                 <Border Grid.Row="0" VerticalAlignment="Top" Height="3"
                         CornerRadius="0,0,3,0"
