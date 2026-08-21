@@ -40,9 +40,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
     ///   creating an invoice from the PI picker dialog directly — before
     ///   any deliveries exist. All DN-driven flows use delivered qty only.
     /// </summary>
-    public class TaxInvoiceViewModel : ViewModelBase,
+    public class TaxInvoiceViewModel : ViewModelBase, IDisposable,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        // Phase 4: Named handler for static event — detachable
+        private Func<Task>? _dataSeededHandler;
+        private bool _disposed;
+
         public string Title { get; } = "Tax Invoices";
 
         // ══════════════════════════════════════════════════════════════
@@ -138,8 +142,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         public TaxInvoiceViewModel()
         {
             ListVM = new TaxInvoiceListViewModel();
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            // Phase 4: Named handler — detachable, no lambda leak
+            _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
             DetailVM = new TaxInvoiceDetailViewModel();
 
             // Wire list → detail navigation
@@ -542,9 +547,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                AppLogService.Debug(
-                    $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ex.Message}");
+                AppLogService.Warning(
+                    $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ex.Message}",
+                    new LogContext { Module = "TaxInvoice", Operation = "SafeLoadList" });
             }
+        }
+
+        // Phase 4: Event lifetime — detach static events
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

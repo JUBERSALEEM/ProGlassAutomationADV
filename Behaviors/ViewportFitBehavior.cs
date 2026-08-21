@@ -52,6 +52,10 @@ namespace ProGlassAutomation.Behaviors
 
         private static bool _installed;
 
+        // Phase 4: Named handlers for static events — detachable, no lambda leak
+        private static EventHandler? _uiScaleHandler;
+        private static EventHandler? _displaySettingsHandler;
+
         public static void Install()
         {
             if (_installed) return;
@@ -62,11 +66,12 @@ namespace ProGlassAutomation.Behaviors
                 FrameworkElement.LoadedEvent,
                 new RoutedEventHandler(OnWindowLoaded));
 
-            ThemeManager.UiScaleChanged += (_, _) => ApplyScaleToOpenWindows();
+            _uiScaleHandler = (_, _) => ApplyScaleToOpenWindows();
+            ThemeManager.UiScaleChanged += _uiScaleHandler;
 
             try
             {
-                SystemEvents.DisplaySettingsChanged += (_, _) =>
+                _displaySettingsHandler = (_, _) =>
                 {
                     var app = Application.Current;
                     if (app == null) return;
@@ -83,10 +88,28 @@ namespace ProGlassAutomation.Behaviors
                         }
                     }));
                 };
+                SystemEvents.DisplaySettingsChanged += _displaySettingsHandler;
             }
             catch
             {
                 // Session 0 / no interactive desktop.
+            }
+        }
+
+        public static void Uninstall()
+        {
+            if (!_installed) return;
+            _installed = false;
+
+            if (_uiScaleHandler != null)
+            {
+                try { ThemeManager.UiScaleChanged -= _uiScaleHandler; } catch { }
+                _uiScaleHandler = null;
+            }
+            if (_displaySettingsHandler != null)
+            {
+                try { SystemEvents.DisplaySettingsChanged -= _displaySettingsHandler; } catch { }
+                _displaySettingsHandler = null;
             }
         }
 

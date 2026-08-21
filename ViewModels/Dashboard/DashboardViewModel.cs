@@ -29,8 +29,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Chat 15:     Added TiDashboardVM (Tax Invoices tab).
     /// Chat 16:     Added StDashboardVM (Statements tab).
     /// </summary>
-    public class DashboardViewModel : ViewModelBase
+    public class DashboardViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handler for static event — detachable
+        private EventHandler? _currentUserChangedHandler;
+        private bool _disposed;
+
         // ── tab pages ─────────────────────────────────────────────────────
         public List<DashboardPageBase> Pages { get; }
 
@@ -139,21 +143,27 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             _activePage = OverviewVM;
             _ = OverviewVM.LoadAsync();
 
-            // v2: greeting follows the signed-in user
-            Services.Audit.AuditService.CurrentUserChanged += (_, __) =>
+            // Phase 4: Named handler — detachable, no lambda leak
+            _currentUserChangedHandler = (_, __) =>
             {
                 OnPropertyChanged(nameof(CurrentUserDisplay));
                 OnPropertyChanged(nameof(WelcomeLine));
             };
+            Services.Audit.AuditService.CurrentUserChanged += _currentUserChangedHandler;
         }
 
-        /// <summary>
-        /// Called by DashboardView.xaml.cs OnLoaded.
-        /// Refreshes the active page every time the user navigates to Dashboard.
-        /// </summary>
         public void OnViewLoaded()
         {
             _ = ActivePage.LoadAsync();
+        }
+
+        // Phase 4: Event lifetime — detach static event
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

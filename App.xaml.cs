@@ -507,15 +507,13 @@ namespace ProGlassAutomation
             // Start the service now, but do NOT broadcast an identity until
             // LoginWindow verifies a password. Starting as the seeded admin
             // made colleagues see "admin online" during the splash.
+            // Phase 4: No lambda subscription to static event — named handler + detachable
             try
             {
                 Presence = new UserPresenceService();
                 Presence.Start("", "");
 
-                AuditService.CurrentUserChanged += (_, __) =>
-                    Presence.UpdateIdentity(
-                        AuditService.CurrentUsername,
-                        AuditService.CurrentUser?.DisplayName ?? "");
+                AuditService.CurrentUserChanged += OnCurrentUserChanged;
             }
             catch (Exception ex)
             {
@@ -731,6 +729,23 @@ namespace ProGlassAutomation
             await frame.Task;
         }
 
+        // Phase 4: Named handler for static event — detachable, no lambda leak
+        private static void OnCurrentUserChanged(object? sender, EventArgs e)
+        {
+            try
+            {
+                Presence?.UpdateIdentity(
+                    AuditService.CurrentUsername,
+                    AuditService.CurrentUser?.DisplayName ?? "");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Presence identity update failed: {ex.Message}",
+                    new LogContext { Module = "Network", Operation = "Presence.UpdateIdentity" });
+            }
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  SPEECH-TO-TEXT INITIALIZATION — background + timeout + fallback
         //
@@ -911,6 +926,9 @@ namespace ProGlassAutomation
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // Phase 4: Detach static events — no leak
+            try { AuditService.CurrentUserChanged -= OnCurrentUserChanged; } catch { }
+
             // Record shutdown in the audit trail (bounded wait — the
             // app must still exit promptly even if the DB is locked).
             try

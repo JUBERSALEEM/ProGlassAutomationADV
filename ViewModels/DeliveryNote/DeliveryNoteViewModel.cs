@@ -39,6 +39,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
     public class DeliveryNoteViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        // Phase 4: Named handler for static event — detachable
+        private Func<Task>? _dataSeededHandler;
+        private bool _disposed;
+
         public string Title { get; } = "Delivery Notes";
 
         // ══════════════════════════════════════════════════════════════
@@ -130,6 +134,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         /// <summary>Switches tabs. Parameter = tab key constant.</summary>
         public ICommand SwitchTabCommand { get; }
 
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            GC.SuppressFinalize(this);
+        }
+
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             WriteIndented = false,
@@ -143,8 +156,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public DeliveryNoteViewModel()
         {
             ListVM = new DeliveryNoteListViewModel();
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+                        _dataSeededHandler = async () => { try { await ListVM.LoadAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
             DetailVM = new DeliveryNoteDetailViewModel();
 
             // ── List → open real DN detail ────────────────────────────────

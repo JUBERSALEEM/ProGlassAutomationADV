@@ -26,8 +26,12 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.SystemCenter
 {
-    public class SystemCenterViewModel : ViewModelBase
+    public class SystemCenterViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handlers for static events — detachable
+        private EventHandler? _currentUserChangedHandler;
+        private bool _disposed;
+
         public const string TabUsers = "Users";
         public const string TabActivity = "Activity";
 
@@ -77,13 +81,14 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             // ── Activity commands ─────────────────────────────────────
             RefreshActivityCommand = new RelayCommand(_ => LoadActivityAsync());
 
-            // Live updates — service raises on the UI thread.
+            // Phase 4: Named handlers — detachable, no lambda leak
             AuditService.ActivityLogged += OnActivityLogged;
-            AuditService.CurrentUserChanged += (_, __) =>
+            _currentUserChangedHandler = (_, __) =>
             {
                 RefreshCurrentFlags();
                 OnPropertyChanged(nameof(CurrentUserDisplay));
             };
+            AuditService.CurrentUserChanged += _currentUserChangedHandler;
 
             // Same-network presence (UDP heartbeats from colleagues).
             if (App.Presence != null)
@@ -417,6 +422,16 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
                 Details = e.Details,
                 Section = e.Section
             };
+        }
+
+        // Phase 4: Event lifetime — detach static events
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { AuditService.ActivityLogged -= OnActivityLogged; } catch { }
+            try { AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

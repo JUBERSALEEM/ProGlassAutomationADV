@@ -23,8 +23,12 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
-    public class SavedJobOrdersListViewModel : ViewModelBase
+    public class SavedJobOrdersListViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handler for static event — detachable
+        private Func<Task>? _dataSeededHandler;
+        private bool _disposed;
+
         // ── reentrancy guard ──────────────────────────────────────────────
         private int _loadingFlag = 0;
         private int _reloadQueued = 0;
@@ -260,8 +264,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
 
             // Instant refresh when sample data is seeded.
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+                        _dataSeededHandler = async () => { try { await LoadJobOrdersAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
 
             // A DN / TI delete in another module must refresh this list
             // immediately so derived delivery status matches remaining docs.
@@ -887,6 +891,15 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             }
         }
 
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            GC.SuppressFinalize(this);
+        }
+
         private static void ShowExportResult(ExportResult result, string formatLabel)
         {
             if (result.Success || result.Cancelled)
@@ -933,8 +946,26 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             return map;
         }
 
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            GC.SuppressFinalize(this);
+        }
+
         private static bool Eq(string? a, string b) =>
             string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            GC.SuppressFinalize(this);
+        }
 
         private static int PriorityRank(string? priority) =>
             priority?.ToLowerInvariant() switch

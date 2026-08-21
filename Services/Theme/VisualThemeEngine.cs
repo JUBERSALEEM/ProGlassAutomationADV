@@ -101,20 +101,31 @@ namespace ProGlassAutomation.Services.Theme
         private static string _lastWallpaperPath = "";
         private static double _lastWallpaperOpacity = 0.85;
 
+        // Phase 4: Named handler for static event — detachable, no lambda leak
+        private static readonly EventHandler _accentChangedHandler = OnAccentChanged;
+
         /// <summary>
         /// Re-derive Monet's accent-tinted palette whenever the user
         /// changes the accent colour, then re-layer the wallpaper of
         /// the module on screen so nothing disappears. Subscribed
         /// exactly once (static engine lives for the whole process).
+        /// Phase 4: Now named handler + WeakEventManager option.
         /// </summary>
         static VisualThemeEngine()
         {
-            ThemeManager.AccentChanged += (_, __) =>
-            {
-                if (Current != Monet) return;
-                Apply(Monet, _lastWallpaperPath, _lastWallpaperOpacity);
-                ApplyModule(LastRequestedModule, App.Config?.Appearance);
-            };
+            ThemeManager.AccentChanged += _accentChangedHandler;
+        }
+
+        public static void Unsubscribe()
+        {
+            try { ThemeManager.AccentChanged -= _accentChangedHandler; } catch { }
+        }
+
+        private static void OnAccentChanged(object? sender, EventArgs e)
+        {
+            if (Current != Monet) return;
+            Apply(Monet, _lastWallpaperPath, _lastWallpaperOpacity);
+            ApplyModule(LastRequestedModule, App.Config?.Appearance);
         }
 
         /// <summary>

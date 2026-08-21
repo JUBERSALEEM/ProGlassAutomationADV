@@ -72,10 +72,15 @@ namespace ProGlassAutomation.ViewModels
     /// v1.2 (Chat 24): AiChatVM now receives voice services
     /// (App.SpeechToText, App.TextToSpeech) for voice assistant features.
     /// </summary>
-    public class MainViewModel : ViewModelBase
+    public class MainViewModel : ViewModelBase, IDisposable
     {
         private ViewModelBase _currentViewModel;
         private bool _isMenuOpen;
+
+        // Phase 4: Named handlers for static events — detachable
+        private EventHandler<bool>? _connectivityHandler;
+        private EventHandler? _currentUserChangedHandler;
+        private bool _disposed;
 
         // ── modules ───────────────────────────────────────────────────────
         public DashboardViewModel DashboardVM { get; }
@@ -716,35 +721,30 @@ namespace ProGlassAutomation.ViewModels
                 IsNotificationsOpen = !IsNotificationsOpen);
 
             // ── connectivity pill: follow the shared ConnectivityService ──
+            // Phase 4: Named handlers for static events — detachable, no lambda leak
             if (App.Connectivity != null)
-
             {
                 _isOnline = App.Connectivity.IsOnline;
-                App.Connectivity.ConnectivityChanged += (_, online) =>
+                _connectivityHandler = (_, online) =>
                 {
                     var dispatcher = System.Windows.Application.Current?.Dispatcher;
                     if (dispatcher == null) return;
-
                     if (dispatcher.CheckAccess()) IsOnline = online;
                     else dispatcher.InvokeAsync(() => IsOnline = online);
                 };
+                App.Connectivity.ConnectivityChanged += _connectivityHandler;
             }
 
             // default landing page
             CurrentViewModel = DashboardVM;
-
-            // v2 §9: the landing module gets its wallpaper layer too
-            // (constructor bypasses Navigate()).
             ApplyModuleWallpaper("Dashboard");
-
-            // Live clock on the top bar.
             StartClock();
-
-            // Signed-in user pill + storage footer.
             RefreshCurrentUser();
             RefreshStorage();
-            Services.Audit.AuditService.CurrentUserChanged += (_, __) =>
+
+            _currentUserChangedHandler = (_, __) =>
                 System.Windows.Application.Current?.Dispatcher.InvokeAsync(RefreshCurrentUser);
+            Services.Audit.AuditService.CurrentUserChanged += _currentUserChangedHandler;
 
             // ── PHASE K: hand the agent its two shell capabilities ────────
             //
@@ -957,6 +957,22 @@ namespace ProGlassAutomation.ViewModels
 
             ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(
                 moduleKey, App.Config?.Appearance);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  PHASE 4 — Event Lifetime
+        // ══════════════════════════════════════════════════════════════
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            try { if (_connectivityHandler != null && App.Connectivity != null) App.Connectivity.ConnectivityChanged -= _connectivityHandler; } catch { }
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            try { _clockTimer?.Stop(); _clockTimer = null; } catch { }
+
+            GC.SuppressFinalize(this);
         }
     }
 }

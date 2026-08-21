@@ -34,8 +34,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
     /// BUG-75 [MEDIUM]: Export success shows LastExportStatus feedback.
     /// BUG-76 [LOW]: Added ExportCsvFromListCommand for detail view parity.
     /// </summary>
-    public class SavedInvoicesListViewModel : ViewModelBase
+    public class SavedInvoicesListViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handler for static event — detachable
+        private Func<Task>? _dataSeededHandler;
+        private bool _disposed;
+
         private int _loadingFlag;
         private int _reloadQueued;
 
@@ -183,9 +187,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
 
-            // Instant refresh when sample data is seeded.
-            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
-                async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            // Phase 4: Named handler — detachable, no lambda leak
+            _dataSeededHandler = async () => { try { await LoadInvoicesAsync(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } };
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded += _dataSeededHandler;
 
             // Instant refresh when this PI changes OR when a related JO / DN /
             // TI is created or deleted. Display status is derived from those
@@ -1162,6 +1166,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
+        }
+
+        // Phase 4: Event lifetime — detach static events
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { DocumentLifecycle.Unsubscribe(LoadInvoicesAsync); } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

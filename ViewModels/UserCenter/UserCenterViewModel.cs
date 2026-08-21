@@ -45,8 +45,12 @@ namespace ProGlassAutomation.ViewModels.UserCenter
         }
     }
 
-    public sealed class UserCenterViewModel : ViewModelBase
+    public sealed class UserCenterViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handler for static event — detachable
+        private EventHandler? _currentUserChangedHandler;
+        private bool _disposed;
+
         private readonly ObservableCollection<UserCard> _users = new();
         public ObservableCollection<UserCard> Users => _users;
 
@@ -121,11 +125,13 @@ namespace ProGlassAutomation.ViewModels.UserCenter
 
         public UserCenterViewModel()
         {
-            AuditService.CurrentUserChanged += (_, __) =>
+            // Phase 4: Named handler — detachable, no lambda leak
+            _currentUserChangedHandler = (_, __) =>
             {
                 OnPropertyChanged(nameof(CurrentUserName));
                 _ = LoadAsync();
             };
+            AuditService.CurrentUserChanged += _currentUserChangedHandler;
 
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
 
@@ -297,9 +303,17 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             if (ok)
             {
                 ReasonNote = "";
-                // Clears the default-credential banner once admin rotates.
                 await LoadAsync();
             }
+        }
+
+        // Phase 4: Event lifetime — detach static event
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

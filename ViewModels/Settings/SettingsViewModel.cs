@@ -31,8 +31,13 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
-    public sealed class SettingsViewModel : ViewModelBase
+    public sealed class SettingsViewModel : ViewModelBase, IDisposable
     {
+        // Phase 4: Named handlers for static events — detachable
+        private EventHandler? _themeChangedHandler;
+        private EventHandler? _uiScaleChangedHandler;
+        private bool _disposed;
+
         private string _geminiTestStatus = string.Empty;
         private string _groqTestStatus = string.Empty;
         private string _cohereTestStatus = string.Empty;
@@ -282,13 +287,16 @@ namespace ProGlassAutomation.ViewModels.Settings
             ResetUiScaleCommand = new RelayCommand(_ =>
                 UiScale = Services.Viewport.ViewportService.DefaultUiScale);
 
-            ThemeManager.ThemeChanged += (_, __) =>
-                OnPropertyChanged(nameof(IsDarkTheme));
-            ThemeManager.UiScaleChanged += (_, __) =>
+            // Phase 4: Named handlers — no lambda leak
+            _themeChangedHandler = (_, __) => OnPropertyChanged(nameof(IsDarkTheme));
+            ThemeManager.ThemeChanged += _themeChangedHandler;
+
+            _uiScaleChangedHandler = (_, __) =>
             {
                 OnPropertyChanged(nameof(UiScale));
                 OnPropertyChanged(nameof(UiScalePercent));
             };
+            ThemeManager.UiScaleChanged += _uiScaleChangedHandler;
 
             // Dynamic Theme Engine — accent presets (Settings UI)
             ApplyAccentCommand = new RelayCommand(param =>
@@ -1826,6 +1834,17 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 BackupSets.Add(set);
             }
+        }
+
+        // Phase 4: Event lifetime — detach static events
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch { }
+            try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch { }
+            try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch { }
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>Relaunches the exe and closes this instance (used
