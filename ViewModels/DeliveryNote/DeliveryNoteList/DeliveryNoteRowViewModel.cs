@@ -50,7 +50,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         /// True when this DN has been converted to a Tax Invoice.
         /// Set by TaxInvoiceDetailViewModel.SaveAsync() via
         /// DeliveryNoteRepository.MarkAsInvoicedAsync().
-        /// Drives invoiced badge in DN list and history sidebar.
+        /// Used to gate the "Generate Tax Invoice" action (cannot invoice
+        /// twice) and in the detail history sidebar.
         /// </summary>
         public bool HasTaxInvoice { get; }
 
@@ -61,38 +62,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         /// </summary>
         public string TaxInvoiceId { get; }
 
-        /// <summary>
-        /// Convenience alias for HasTaxInvoice.
-        /// Use in XAML bindings where "IsInvoiced" reads more naturally.
-        /// </summary>
-        public bool IsInvoiced => HasTaxInvoice;
-
-        /// <summary>
-        /// Display text for the invoiced badge in the list row.
-        /// Returns "✅ {TaxInvoiceId}" when invoiced.
-        /// Returns "" when not yet invoiced.
-        /// Used in XAML badge Visibility + Text binding.
-        /// </summary>
-        public string InvoicedBadgeText =>
-            HasTaxInvoice && !string.IsNullOrWhiteSpace(TaxInvoiceId)
-                ? $"✅ {TaxInvoiceId}"
-                : "";
-
         // ── Computed display properties ───────────────────────────────────
 
         /// <summary>
-        /// List-level display status per the business requirement:
-        ///   "Invoiced"   — the DN has been converted to a Tax Invoice.
-        ///   "Dn created" — otherwise (created, dispatched, delivered, etc).
-        /// The stored Status string is kept intact for the detail/production
-        /// flows; this is the user-facing list status.
+        /// List-level display status — DELIVERY status only (no tax-invoice
+        /// state). "Draft" is shown as "Dispatching" for the operator; every
+        /// other stored status is shown verbatim.
         /// </summary>
         public string DisplayStatus =>
-            IsInvoiced
-                ? "Invoiced"
-                : string.Equals(Status, "Draft", StringComparison.OrdinalIgnoreCase)
-                    ? "Dispatching"
-                    : (string.IsNullOrWhiteSpace(Status) ? "Dispatching" : Status);
+            string.Equals(Status, "Draft", StringComparison.OrdinalIgnoreCase)
+                ? "Dispatching"
+                : (string.IsNullOrWhiteSpace(Status) ? "Dispatching" : Status);
 
         public string StatusLabel { get; }
         public string StatusBrushKey { get; }

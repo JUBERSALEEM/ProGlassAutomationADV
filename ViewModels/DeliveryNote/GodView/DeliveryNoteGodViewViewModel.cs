@@ -135,7 +135,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
         {
             Kpis.Clear();
 
-            var real = _allRows.Where(i => !i.IsMasterDn).ToList();
+            // Real delivery notes only — exclude Master DNs AND auto-generated
+            // Dummy balance DNs so the counts match what an operator sees.
+            var real = _allRows.Where(i => !i.IsMasterDn &&
+                        !string.Equals(i.DeliveryType, "Dummy",
+                            StringComparison.OrdinalIgnoreCase)).ToList();
 
             Kpis.Add(new GodViewKpiViewModel
             {
@@ -175,14 +179,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
                 Label = "With balance remaining",
                 TintBrushKey = "TintAmberBrush",
                 ValueBrushKey = "WarningBrush"
-            });
-
-            Kpis.Add(new GodViewKpiViewModel
-            {
-                Icon = "🧾",
-                Value = real.Count(i => i.HasTaxInvoice).ToString("N0"),
-                Label = "Invoiced",
-                TintBrushKey = "TintPurpleBrush"
             });
         }
     }

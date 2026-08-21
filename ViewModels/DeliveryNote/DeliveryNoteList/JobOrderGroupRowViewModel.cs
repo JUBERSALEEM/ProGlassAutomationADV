@@ -25,6 +25,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string ProjectName { get; }
 
         // Family stats — qty
+        /// <summary>Real delivery notes in this group (Dummy balance DNs excluded).</summary>
         public int DnCount { get; }
         public int TotalOrdered { get; }
         public int TotalDelivered { get; }
@@ -56,53 +57,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public bool HasFoc { get; }
         public bool HasRework { get; }
         public bool HasReturn { get; }
-
-        // ── CHAT 19 INVOICED ─────────────────────────────────────────────
-
-        /// <summary>
-        /// True when AT LEAST ONE split DN in this group is invoiced.
-        /// Shows "🧾 PARTIAL INVOICE" badge on group row.
-        /// </summary>
-        public bool HasAnyInvoiced { get; }
-
-        /// <summary>
-        /// True when ALL dispatched/delivered split DNs are invoiced.
-        /// Shows "✅ FULLY INVOICED" badge on group row.
-        /// Only counts DNs that are eligible (dispatched or later).
-        /// </summary>
-        public bool IsFullyInvoiced { get; }
-
-        /// <summary>
-        /// Count of DNs in this group that are invoiced.
-        /// </summary>
-        public int InvoicedCount { get; }
-
-        /// <summary>
-        /// Count of DNs that are eligible for invoicing
-        /// (dispatched/delivered/signed/received).
-        /// </summary>
-        public int EligibleForInvoiceCount { get; }
-
-        /// <summary>
-        /// e.g. "2 of 3 invoiced" — shown in group row tooltip/badge.
-        /// </summary>
-        public string InvoicedCountDisplay { get; }
-
-        /// <summary>
-        /// Badge text for group row:
-        ///   "✅ FULLY INVOICED"   — when IsFullyInvoiced = true
-        ///   "🧾 PARTIAL INVOICE"  — when HasAnyInvoiced but not all
-        ///   ""                    — when no invoices exist
-        /// </summary>
-        public string InvoicedBadgeText { get; }
-
-        /// <summary>
-        /// Badge background key for XAML:
-        ///   "TintGreenBrush"  — fully invoiced
-        ///   "TintIndigoBrush" — partially invoiced
-        ///   ""                — not invoiced (badge hidden)
-        /// </summary>
-        public string InvoicedBadgeBrushKey { get; }
 
         // ── Factory ───────────────────────────────────────────────────────
 
@@ -140,7 +94,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             JobOrderSqmSummary? sqm)
         {
             JobOrderId = jobOrderId;
-            DnCount = family.Count;
+
+            // Count real delivery notes only — Dummy DNs are auto-generated
+            // balance placeholders, not actual deliveries.
+            DnCount = family.Count(x =>
+                !string.Equals(x.DeliveryType, "Dummy",
+                    StringComparison.OrdinalIgnoreCase));
 
             var latest = family
                 .OrderByDescending(x => x.SequenceNumber)
@@ -209,50 +168,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             HasReturn = family.Any(x =>
                 string.Equals(x.DeliveryType, "Return",
                     StringComparison.OrdinalIgnoreCase));
-
-            // ── CHAT 19 INVOICED: invoice state aggregation ───────────────
-
-            // Eligible = dispatched or later (invoice-worthy statuses)
-            var eligibleDns = family.Where(x =>
-                string.Equals(x.Status, "Dispatched",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Delivered",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Signed",
-                    StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Received",
-                    StringComparison.OrdinalIgnoreCase)).ToList();
-
-            EligibleForInvoiceCount = eligibleDns.Count;
-            InvoicedCount = eligibleDns.Count(x => x.HasTaxInvoice);
-
-            HasAnyInvoiced = InvoicedCount > 0;
-
-            // Fully invoiced = all eligible DNs are invoiced
-            // AND at least one eligible DN exists
-            IsFullyInvoiced = EligibleForInvoiceCount > 0
-                && InvoicedCount == EligibleForInvoiceCount;
-
-            InvoicedCountDisplay = EligibleForInvoiceCount > 0
-                ? $"{InvoicedCount} of {EligibleForInvoiceCount} invoiced"
-                : "";
-
-            // Badge text + brush
-            if (IsFullyInvoiced)
-            {
-                InvoicedBadgeText = "✅ FULLY INVOICED";
-                InvoicedBadgeBrushKey = "TintGreenBrush";
-            }
-            else if (HasAnyInvoiced)
-            {
-                InvoicedBadgeText = "🧾 PARTIAL INVOICE";
-                InvoicedBadgeBrushKey = "TintIndigoBrush";
-            }
-            else
-            {
-                InvoicedBadgeText = "";
-                InvoicedBadgeBrushKey = "";
-            }
         }
     }
 }

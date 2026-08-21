@@ -428,9 +428,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
+        // Delivery statuses only — no tax-invoice state ("Invoiced" removed).
+        // "Delivered" was also added (it was missing from the list).
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Dispatching", "Dispatched", "Signed", "Received", "Invoiced"
+            "All Statuses", "Dispatching", "Dispatched", "Delivered", "Signed", "Received"
         };
 
         // CHAT 19: Dummy removed — Master DN is internal, not in any list
@@ -780,7 +782,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 ReturnedItems =
                     new ObservableCollection<DeliveryNoteRowViewModel>(returnedItems);
 
-                TotalCount = allItems.Count;
+                // Count real delivery notes only — auto-generated Dummy DNs
+                // (balance placeholders) are NOT delivery notes, so they must
+                // not inflate the "Total Delivery Notes" figure.
+                TotalCount = allItems.Count(x => !x.IsDummy);
                 PendingJobsCount = pendingItems.Count;
                 ReworkCount = reworkItems.Count;
                 ReturnedCount = returnedItems.Count;
