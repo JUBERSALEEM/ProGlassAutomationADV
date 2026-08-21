@@ -3,6 +3,9 @@
     Spec name lives only in the Step 4 result bar. Bindings unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters.DguLamParametersView"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:glass="clr-namespace:ProGlassAutomation.Controls.GlassShowcase"

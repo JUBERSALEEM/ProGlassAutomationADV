@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Shared/SectionActivityView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared — per-section Activity tab
@@ -10,6 +10,9 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Shared.SectionActivityView"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{DynamicResource AppFontFamily}"
@@ -127,10 +130,10 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="🕓"
-                               FontSize="36"
-                               HorizontalAlignment="Center"
-                               Opacity="0.6"/>
+                    <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="34"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Center"/>
                     <TextBlock Text="No activity recorded yet"
                                FontSize="14" FontWeight="SemiBold"
                                HorizontalAlignment="Center"

@@ -176,7 +176,7 @@
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="OVERDUE" FontSize="8" FontWeight="Bold"
+                            <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                     </StackPanel>

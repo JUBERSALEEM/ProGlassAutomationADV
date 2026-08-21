@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/System/SystemCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: System Center — Users + Activity Log
@@ -10,6 +10,9 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.SystemCenter.SystemCenterView"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -68,9 +71,15 @@
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
-            <TextBlock Text="🛠  System Center"
-                       FontSize="20" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="18" VerticalAlignment="Center"
+                           Margin="0,0,10,0"
+                           Foreground="{DynamicResource AccentBrush}"/>
+                <TextBlock Text="System Center"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            </StackPanel>
             <TextBlock FontSize="12" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                 <Run Text="User management &amp; audit trail — signed in as "/>
