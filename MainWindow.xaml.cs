@@ -46,6 +46,7 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
+            // Wire the sidebar hover timer (delayed group open on mouse enter).
             _hoverTimer.Tick += HoverTimer_Tick;
 
             // X-6: refuse to close while a multi-step write is running.
