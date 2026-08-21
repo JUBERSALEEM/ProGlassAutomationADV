@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Converters/StringEqualsMultiConverter.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Shared — multi-binding string equality (case-insensitive)
