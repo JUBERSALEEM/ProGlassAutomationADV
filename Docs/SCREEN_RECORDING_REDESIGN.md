@@ -40,7 +40,7 @@ This is exactly the Android screen-recorder style. Pinned by
 
 ---
 
-## 2. Recording HUD too big — redesigned to an Android-style pill
+## 2. Recording HUD too big — redesigned to a compact card
 
 **Symptom:** the floating REC overlay was a ~420px-wide, multi-row card
 (REC badge + time, a stats line, an audio line, a progress bar, and a
@@ -48,14 +48,17 @@ stage line) — far bigger than the "time · pause · stop" trio a phone
 recorder shows.
 
 **Fix** (`Views/Shared/RecordOverlayWindow.xaml(.cs)`): the always-visible
-chrome is now a single pill:
+chrome is now a single compact card using the app's **12px card style**
+(`CardCornerRadius`), the same shape as the top-bar date/time, agent and
+connectivity cards:
 
 ```
 ● REC   12:34   [⏸] [⏹]
 ```
 
-- Time on the **left**, then two **40×40 square controls** — pause (flips
-  ⏸/▶ via Segoe MDL2 glyphs) and stop (red ⏹).
+- Time on the **left**, then two **38×38 rounded controls** — pause (flips
+  ⏸/▶ via Segoe MDL2 glyphs) and stop (red ⏹), both with the app's 12px
+  corner radius.
 - Stats, audio, and progress-bar rows are **gone**. A single status line
   appears only while finalizing (`Saving…`) or after finishing
   (`SAVED · 02:31 · 120 frames` + a ✕ close button).
@@ -136,7 +139,7 @@ smoother UI.
 | `Agent/Demo/Video/FfmpegLivePipe.cs` | lanczos scaling |
 | `Agent/Demo/Video/FfmpegMp4Composer.cs` | 320k audio |
 | `Agent/Demo/DemoRecordingChrome.cs` | uses `RecordingTime.Format` |
-| `Views/Shared/RecordOverlayWindow.xaml(.cs)` | compact pill HUD, no per-tick move |
+| `Views/Shared/RecordOverlayWindow.xaml(.cs)` | compact 12px card HUD, no per-tick move |
 | `Tests/Agent/ScreenRecordSettingsTests.cs` | updated + 16:9 / supersample / live-pipe defaults |
 | `Tests/Agent/RecordingTimeTests.cs` | **new** — timer format incl. overflow |
 
@@ -148,5 +151,6 @@ dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release
 ```
 
 Manual check: start a screen recording — the overlay is a single compact
-pill (time left, pause + stop right), the timer shows `MM:SS`, and the UI
-stays responsive (no live re-encode running in the background).
+12px card (time left, pause + stop right) matching the app's other cards,
+the timer shows `MM:SS`, and the UI stays responsive (no live re-encode
+running in the background).

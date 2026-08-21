@@ -8,11 +8,12 @@ using System.Windows.Threading;
 namespace ProGlassAutomation.Views.Shared
 {
     /// <summary>
-    /// Compact, Android-recorder style overlay. A separate topmost window,
-    /// so RenderTargetBitmap of MainWindow never includes the REC controls.
+    /// Compact recording card (12px card style, matching the app's other
+    /// top-bar cards). A separate topmost window, so RenderTargetBitmap of
+    /// MainWindow never includes the REC controls.
     ///
     /// Redesign notes:
-    ///   • One pill row — time on the left, then pause + stop. No stats,
+    ///   • One card row — time on the left, then pause + stop. No stats,
     ///     audio, progress bar or stage rows in the always-visible chrome.
     ///   • The window is only re-positioned when it actually moves (the old
     ///     version moved it on every 200ms tick, which added jank).
@@ -162,7 +163,7 @@ namespace ProGlassAutomation.Views.Shared
             }
 
             // Only surface the encoder stage while it is meaningful; the
-            // idle HUD stays a single quiet pill.
+            // idle HUD stays a single quiet card.
             if (rec != null && !string.IsNullOrWhiteSpace(rec.EncodeStage))
                 SetStage(rec.EncodeStage +
                     (rec.EncodePercent > 0 ? $"  {rec.EncodePercent}%" : ""));

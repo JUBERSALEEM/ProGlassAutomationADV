@@ -14,30 +14,66 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
-    <!--
-      Compact Android-recorder style HUD.
+    <Window.Resources>
+        <!-- Matches the app's rounded action buttons: CardCornerRadius (12). -->
+        <Style x:Key="HudButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
 
-      Layout (single pill, left → right):
+    <!--
+      Compact recording card — same 12px card shape as the app's other
+      top-bar cards (date/time, agent, connectivity), not a pill.
+
+      Layout (single card, left → right):
         ● REC   12:34   [⏸] [⏹]
 
       - Time sits on the LEFT, followed by two small square controls
-        (pause, stop) — exactly the "time · pause · stop" trio of a phone
-        screen recorder. The close button only appears when the recording
-        has finished (SAVED / FAILED) so the user can dismiss the HUD.
-      - The stats / audio / progress-bar / stage rows that made the old HUD
-        ~3× taller are gone. A single status line appears only while the
-        recording is finalizing or after it finishes.
+        (pause, stop) — the "time · pause · stop" trio of a phone screen
+        recorder. The close button only appears when the recording has
+        finished (SAVED / FAILED) so the user can dismiss the card.
+      - A single status line appears only while the recording is finalizing
+        or after it finishes.
     -->
     <Border x:Name="HudRoot"
-            CornerRadius="999"
-            Padding="12,6"
-            BorderThickness="1">
+            CornerRadius="{DynamicResource CardCornerRadius}"
+            Padding="14,10"
+            BorderThickness="1"
+            BorderBrush="#4DFFFFFF">
         <Border.Background>
             <SolidColorBrush Color="#E6101824"/>
         </Border.Background>
-        <Border.BorderBrush>
-            <SolidColorBrush Color="#55FFFFFF"/>
-        </Border.BorderBrush>
 
         <StackPanel>
             <DockPanel LastChildFill="False">
@@ -59,42 +95,35 @@
                             VerticalAlignment="Center" Margin="14,0,0,0">
                     <!-- Pause / Resume — ⏸ ▶ (Segoe MDL2) -->
                     <Button x:Name="HudPause"
-                            Click="Pause_Click" Cursor="Hand"
-                            Width="40" Height="40" Margin="0,0,6,0"
-                            Foreground="White" Background="#334155"
-                            BorderThickness="0" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16" Padding="0" VerticalContentAlignment="Center"
-                            HorizontalContentAlignment="Center"
+                            Style="{StaticResource HudButtonStyle}"
+                            Click="Pause_Click"
+                            Margin="0,0,6,0"
+                            Background="#334155"
                             AutomationProperties.Name="Pause or resume recording">
                         <TextBlock Text="&#xE769;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16" VerticalAlignment="Center"
+                                   FontSize="15" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Stop — ⏹ (Segoe MDL2) -->
                     <Button x:Name="HudStop"
-                            Click="Stop_Click" Cursor="Hand"
-                            Width="40" Height="40" Margin="0,0,6,0"
-                            Foreground="White" Background="#DC2626"
-                            BorderThickness="0" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16" Padding="0" VerticalContentAlignment="Center"
-                            HorizontalContentAlignment="Center"
+                            Style="{StaticResource HudButtonStyle}"
+                            Click="Stop_Click"
+                            Margin="0,0,6,0"
+                            Background="#DC2626"
                             AutomationProperties.Name="Stop and save recording">
-                        <TextBlock x:Name="HudStopGlyph" Text="&#xE71A;"
-                                   FontFamily="Segoe MDL2 Assets" FontSize="16"
-                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                        <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="15" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Dismiss after SAVED / FAILED -->
                     <Button x:Name="HudClose"
-                            Click="Close_Click" Cursor="Hand"
-                            Width="40" Height="40"
-                            Foreground="White" Background="#475569"
-                            BorderThickness="0" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16" Padding="0" VerticalContentAlignment="Center"
-                            HorizontalContentAlignment="Center"
+                            Style="{StaticResource HudButtonStyle}"
+                            Click="Close_Click"
+                            Background="#475569"
                             Visibility="Collapsed"
                             AutomationProperties.Name="Close">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14" VerticalAlignment="Center"
+                                   FontSize="13" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
