@@ -9,8 +9,8 @@
 //     (fixes ScreenRecord ComboBox items closing the parent popup on click)
 //   ✓ Click-outside guard in PreviewMouseLeftButtonDown updated to check
 //     Popup targets safely across nested controls
-//   ✓ Hover timer state race condition fixed in PopupContent_MouseLeave
-//     (ScreenRecord popup now relies on click-outside dismiss, not hover timer)
+//   ✓ Top-bar popups and sidebar groups are CLICK-ONLY — hover open/close
+//     and its close timers were removed entirely
 //   ✓ UiTreeHelper also patched centrally for other views
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -22,7 +22,6 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Threading;
 
 namespace ProGlassAutomation
 {
@@ -39,8 +38,6 @@ namespace ProGlassAutomation
         public MainWindow()
         {
             InitializeComponent();
-
-            _hoverTimer.Tick += HoverTimer_Tick;
 
             // Shutdown safety guard
             Closing += MainWindow_Closing;
@@ -262,68 +259,19 @@ namespace ProGlassAutomation
             }
         }
 
-        // ── sidebar groups ────────────────────────────────────────────────
-        private StackPanel? _pinnedGroupHost;
-        private readonly DispatcherTimer _hoverTimer =
-            new() { Interval = TimeSpan.FromMilliseconds(300) };
-        private StackPanel? _hoverPending;
-
-        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host || host.Children.Count == 0) return;
-            if (host.Children[0] is not ToggleButton) return;
-
-            _hoverPending = host;
-            _hoverTimer.Stop();
-            _hoverTimer.Start();
-        }
-
-        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host) return;
-
-            if (ReferenceEquals(_hoverPending, host))
-            {
-                _hoverPending = null;
-                _hoverTimer.Stop();
-            }
-
-            if (!ReferenceEquals(_pinnedGroupHost, host)
-                && host.Children.Count > 0
-                && host.Children[0] is ToggleButton tb)
-            {
-                tb.IsChecked = false;
-            }
-        }
-
-        private void HoverTimer_Tick(object? sender, EventArgs e)
-        {
-            _hoverTimer.Stop();
-            var host = _hoverPending;
-            _hoverPending = null;
-            if (host == null || host.Children.Count == 0) return;
-            if (host.Children[0] is not ToggleButton tb) return;
-
-            tb.IsChecked = true;
-            CloseOtherSidebarGroups(host);
-            _pinnedGroupHost = null;
-        }
+        // ── sidebar groups (click-only accordion — no hover open/close) ────
+        // Clicking a group header toggles its sub-menu. Only one group can
+        // be open at a time (accordion). Hover behaviour was fully removed:
+        // groups never open on mouse-enter or close on mouse-leave.
 
         private void SidebarGroup_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not ToggleButton tb) return;
             if (tb.Parent is not StackPanel host) return;
 
+            // WPF already toggled IsChecked before the Click event fired.
             if (tb.IsChecked == true)
-            {
-                _pinnedGroupHost = host;
                 CloseOtherSidebarGroups(host);
-            }
-            else
-            {
-                if (ReferenceEquals(_pinnedGroupHost, host))
-                    _pinnedGroupHost = null;
-            }
         }
 
         private void CloseOtherSidebarGroups(StackPanel keep)

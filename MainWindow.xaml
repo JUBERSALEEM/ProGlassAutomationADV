@@ -1140,10 +1140,7 @@
                                 <!-- SALES (expandable) -->
                                 <TextBlock Text="SALES"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="SalesGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="SalesGroupHost">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
@@ -1168,10 +1165,7 @@
                                 <!-- PRODUCTION (expandable) -->
                                 <TextBlock Text="PRODUCTION"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="ProductionGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="ProductionGroupHost">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
@@ -1233,10 +1227,7 @@
                                 <!-- DISPATCH (expandable) -->
                                 <TextBlock Text="DISPATCH"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="DispatchGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="DispatchGroupHost">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
@@ -1261,10 +1252,7 @@
                                 <!-- REPORTS (expandable) -->
                                 <TextBlock Text="REPORTS"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="ReportsGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="ReportsGroupHost">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
@@ -1329,10 +1317,7 @@
                                 <!-- MASTER DATA (expandable) -->
                                 <TextBlock Text="MASTER DATA"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="MasterDataGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="MasterDataGroupHost">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
@@ -1357,10 +1342,7 @@
                                 <!-- SYSTEM (expandable) -->
                                 <TextBlock Text="SYSTEM"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="SystemGroupHost"
-                                            Background="Transparent"
-                                            MouseEnter="SidebarGroup_MouseEnter"
-                                            MouseLeave="SidebarGroup_MouseLeave">
+                                <StackPanel x:Name="SystemGroupHost">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
