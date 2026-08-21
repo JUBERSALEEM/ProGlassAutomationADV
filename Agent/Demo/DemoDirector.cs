@@ -290,7 +290,7 @@ namespace ProGlassAutomation.Agent.Demo
                 // faster or slower than real time.
                 double actualFps = Math.Clamp(
                     recorder.EncodedFrames / Math.Max(1, recorder.Duration.TotalSeconds),
-                    1, 30);
+                    1, 60);
 
                 if (jpegs.Count > 0)
                 {

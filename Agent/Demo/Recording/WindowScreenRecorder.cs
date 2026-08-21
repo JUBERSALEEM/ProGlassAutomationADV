@@ -89,7 +89,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         }
 
         public void Start(string framesFolder, int fps) =>
-            Start(framesFolder, new ScreenRecordSettings { Fps = fps });
+            Start(framesFolder, (new ScreenRecordSettings { Fps = fps }).Clamp());
 
         public void Start(string framesFolder, ScreenRecordSettings settings)
         {
@@ -300,8 +300,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             double dipW = Math.Max(1, window.ActualWidth);
             double dipH = Math.Max(1, window.ActualHeight);
             var dpiInfo = VisualTreeHelper.GetDpi(window);
-            double nativeW = dipW * dpiInfo.DpiScaleX;
-            double nativeH = dipH * dpiInfo.DpiScaleY;
+            // Defensive: some systems/drivers report 0 DPI scale; default to 1.0
+            // to avoid zero-size captures (would produce empty 2x2 frames).
+            double scaleX = dpiInfo.DpiScaleX > 0 ? dpiInfo.DpiScaleX : 1.0;
+            double scaleY = dpiInfo.DpiScaleY > 0 ? dpiInfo.DpiScaleY : 1.0;
+            double nativeW = dipW * scaleX;
+            double nativeH = dipH * scaleY;
             double scale = Math.Max(
                 Math.Min(targetW / Math.Max(1, nativeW), targetH / Math.Max(1, nativeH)),
                 1.0);
@@ -310,7 +314,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             int capH = Math.Max(2, ((int)Math.Round(nativeH * scale)) & ~1);
             capW = Math.Min(capW, targetW);
             capH = Math.Min(capH, targetH);
-            int dpi = Math.Max(96, (int)Math.Round(96 * dpiInfo.DpiScaleX * scale));
+            int dpi = Math.Max(96, (int)Math.Round(96 * scaleX * scale));
 
             BitmapSource? bmp;
             try
@@ -335,8 +339,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             try
             {
                 var origin = window.PointToScreen(new Point(0, 0));
-                double pxW = dipW * dpiInfo.DpiScaleX;
-                double pxH = dipH * dpiInfo.DpiScaleY;
+                double pxW = dipW * scaleX;
+                double pxH = dipH * scaleY;
                 if (pxW > 0 && pxH > 0)
                 {
                     cx = (int)Math.Round((pos.X - origin.X) / pxW * capW);

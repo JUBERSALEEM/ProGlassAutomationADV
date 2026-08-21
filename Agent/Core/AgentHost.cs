@@ -27,6 +27,7 @@ using ProGlassAutomation.Agent.Teaching;
 using ProGlassAutomation.Agent.Tools.Registry;
 using ProGlassAutomation.Agent.Voice;
 using ProGlassAutomation.Agent.Voice.SpeechToText.Whisper;
+using ProGlassAutomation.Agent.AI;
 using ProGlassAutomation.Agent.Voice.TextToSpeech;
 using System;
 using System.Diagnostics;
@@ -48,6 +49,12 @@ namespace ProGlassAutomation.Agent.Core
         public static IAgentSecurityService? Security { get; private set; }
         public static IAgentAuditService? Audit { get; private set; }
         public static AgentVoicePipeline? Voice { get; private set; }
+        /// <summary>Central unified AI orchestrator (Phase 6 integration).</summary>
+        public static IAIOrchestrator? AI { get; private set; }
+        /// <summary>Unified command router integrating typed, voice and agent tasks (Phase 7).</summary>
+        public static AIUnifiedCommandRouter? CommandRouter { get; private set; }
+        /// <summary>Multi-step agent task adapter connecting task engine to agent core (Phase 9).</summary>
+        public static AgentTaskAdapter? TaskAdapter { get; private set; }
 
         /// <summary>
         /// Navigation callback, set once by the shell. Assigning it before
@@ -114,6 +121,40 @@ namespace ProGlassAutomation.Agent.Core
                         new AgentWhisperBridge(App.SpeechToText),
                         new AgentSpeechAdapter(App.TextToSpeech));
 
+                    // Phase 6 — unified AI orchestrator integration
+                    try
+                    {
+                        var router = new AIModelRouter(AIProviderBridge.BuildProviders());
+                        AI = new AIOrchestrator(router);
+                    }
+                    catch (Exception aiEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] AI orchestrator init failed: {aiEx.Message}");
+                        AI = null;
+                    }
+
+                    // Phase 7 — unified command router
+                    try
+                    {
+                        CommandRouter = AI != null ? new AIUnifiedCommandRouter(AI) : null;
+                    }
+                    catch (Exception cmdEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] command router init failed: {cmdEx.Message}");
+                        CommandRouter = null;
+                    }
+
+                    // Phase 9 — multi-step agent task adapter
+                    try
+                    {
+                        TaskAdapter = new AgentTaskAdapter();
+                    }
+                    catch (Exception taskEx)
+                    {
+                        AppLogService.Debug($"[AgentHost] task adapter init failed: {taskEx.Message}");
+                        TaskAdapter = null;
+                    }
+
                     return Instance;
                 }
                 catch (Exception ex)
@@ -153,6 +194,11 @@ namespace ProGlassAutomation.Agent.Core
             lock (Gate)
             {
                 _built = false;
+                // Proper resource cleanup before clearing references.
+                try { Voice?.StopSpeaking(); } catch { /* best-effort */ }
+                AI = null;
+                CommandRouter = null;
+                TaskAdapter = null;
                 Instance = null;
                 Voice = null;
             }
