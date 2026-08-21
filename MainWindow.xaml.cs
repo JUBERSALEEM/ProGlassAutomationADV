@@ -32,9 +32,6 @@ namespace ProGlassAutomation
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Guard flag prevents recursive sync between ScrollViewer and Slider
-        private bool _isSyncingScroll;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -328,27 +325,6 @@ namespace ProGlassAutomation
             {
                 vm.IsMenuOpen = false;
             }
-        }
-
-        private void MenuScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            if (_isSyncingScroll) return;
-            var sv = sender as ScrollViewer;
-            if (sv == null || sv.ScrollableHeight <= 0) return;
-
-            _isSyncingScroll = true;
-            ScrollSlider.Value = sv.VerticalOffset / sv.ScrollableHeight;
-            _isSyncingScroll = false;
-        }
-
-        private void ScrollSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isSyncingScroll) return;
-            if (MenuScrollViewer == null || MenuScrollViewer.ScrollableHeight <= 0) return;
-
-            _isSyncingScroll = true;
-            MenuScrollViewer.ScrollToVerticalOffset(e.NewValue * MenuScrollViewer.ScrollableHeight);
-            _isSyncingScroll = false;
         }
     }
 }

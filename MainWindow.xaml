@@ -25,9 +25,7 @@
        ✓ All 3 code-behind handlers (names/signatures unchanged)
        ✓ Drawer model (hamburger toggles IsMenuOpen)
        ✓ Elevation caster pattern (empty Border for the shadow)
-       ✓ Menu scroll ↔ slider sync (MenuScrollViewer + ScrollSlider names)
        ✓ AI Chat overlay + Agent Chat overlay
-       ✓ Glassy vertical slider + thumb
 ═══════════════════════════════════════════════════════════════════ -->
 
 <Window x:Class="ProGlassAutomation.MainWindow"
@@ -102,11 +100,6 @@
         <DropShadowEffect x:Key="CardShadow"
                           BlurRadius="18" ShadowDepth="3"
                           Opacity="0.08" Color="#0F172A" Direction="270"
-                          po:Freeze="True"/>
-
-        <DropShadowEffect x:Key="TopBarShadow"
-                          BlurRadius="12" ShadowDepth="2"
-                          Opacity="0.06" Color="Black" Direction="270"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="LogoGlow"
@@ -683,87 +676,6 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             GLASSY VERTICAL SLIDER (preserved, theme-based track)
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <LinearGradientBrush x:Key="SliderTrackFillGradient"
-                             StartPoint="0,0" EndPoint="0,1"
-                             >
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="SliderThumbInnerGradient"
-                             StartPoint="0,0" EndPoint="1,1"
-                             >
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-        </LinearGradientBrush>
-
-        <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Thumb">
-                        <Grid>
-                            <Ellipse Width="20" Height="20" Fill="{DynamicResource ModuleBackgroundBrush}">
-                                <Ellipse.Effect>
-                                    <DropShadowEffect BlurRadius="6"
-                                                      ShadowDepth="1"
-                                                      Opacity="0.2"
-                                                      Color="Black"/>
-                                </Ellipse.Effect>
-                            </Ellipse>
-                            <Ellipse Width="8" Height="8"
-                                     Fill="{StaticResource SliderThumbInnerGradient}"/>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="InvisibleRepeatButton" TargetType="RepeatButton">
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="IsTabStop" Value="False"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="RepeatButton">
-                        <Border Background="Transparent"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="GlassyVerticalSliderStyle" TargetType="Slider">
-            <Setter Property="Width" Value="24"/>
-            <Setter Property="Orientation" Value="Vertical"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="IsMoveToPointEnabled" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Slider">
-                        <Grid HorizontalAlignment="Center">
-                            <Border Width="6" CornerRadius="3" Background="{DynamicResource BorderBrush}"/>
-                            <Track x:Name="PART_Track" IsDirectionReversed="True">
-                                <Track.DecreaseRepeatButton>
-                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
-                                                  Command="Slider.DecreaseLarge"/>
-                                </Track.DecreaseRepeatButton>
-                                <Track.Thumb>
-                                    <Thumb Style="{StaticResource GlassySliderThumbStyle}"/>
-                                </Track.Thumb>
-                                <Track.IncreaseRepeatButton>
-                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
-                                                  Command="Slider.IncreaseLarge"/>
-                                </Track.IncreaseRepeatButton>
-                            </Track>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
     </Window.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -777,42 +689,27 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             AURORA STAGE — ambient light sources behind the glass chrome.
-             The floating top bar + drawer are translucent, so these glows
-             read through them; content stays opaque on top.
-        ═══════════════════════════════════════════════════════════════ -->
-        <Ellipse Grid.RowSpan="2" Width="720" Height="720"
-                 Fill="{DynamicResource AuroraA}"
-                 HorizontalAlignment="Right" VerticalAlignment="Top"
-                 Margin="0,-320,-180,0" IsHitTestVisible="False"/>
-        <Ellipse Grid.RowSpan="2" Width="520" Height="520"
-                 Fill="{DynamicResource AuroraB}"
-                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-                 Margin="-160,0,0,-160" IsHitTestVisible="False"/>
+             TOP PANEL — dark bar with a dashboard-style module switcher.
 
-        <!-- ═══════════════════════════════════════════════════════════
-             TOP BAR — floating liquid-glass pill
+             Row 0 · main bar: hamburger, logo, visible search, right cluster
+             Row 1 · segmented module switch (dark track + accent pills) —
+                     same pattern as the Dashboard workspace picker.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Height="58"
-                Margin="16,12,16,0"
-                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{DynamicResource ShellGlassBrush}"
-                BorderBrush="{DynamicResource ShellGlassBorderBrush}"
-                BorderThickness="1"
+                Background="{DynamicResource SideMenuBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,0,1"
                 Panel.ZIndex="50"
-                Effect="{StaticResource TopBarShadow}"
-                ClipToBounds="True"
                 SnapsToDevicePixels="True">
 
-            <!-- Single child: a Grid that layers the sheen over the content -->
             <Grid>
-                <!-- Top sheen (clipped by the pill radius) -->
-                <Border Height="1" VerticalAlignment="Top"
-                        Background="{DynamicResource ShellSheenBrush}"
-                        IsHitTestVisible="False"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/><!-- main bar -->
+                    <RowDefinition Height="Auto"/><!-- module switcher -->
+                </Grid.RowDefinitions>
 
-                <Grid Margin="16,0">
+                <!-- ── MAIN BAR ─────────────────────────────────────── -->
+                <Grid Grid.Row="0" Height="56" Margin="16,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/><!-- Hamburger -->
                         <ColumnDefinition Width="Auto"/><!-- Logo -->
@@ -859,13 +756,13 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- SEARCH — hosts the GlobalSearchBar. The module name is no
-                     longer shown in the top bar (it is already prominent in
-                     each module's own view), so the search is narrower and the
-                     top panel has more breathing room. -->
+                <!-- SEARCH — clearly visible: fills the middle column, framed
+                     by the module-switch strip below. -->
                 <Border Grid.Column="2"
-                        MaxWidth="340"
+                        MinWidth="280"
+                        MaxWidth="520"
                         HorizontalAlignment="Stretch"
+                        Margin="8,0"
                         VerticalAlignment="Center">
                     <globalSearch:GlobalSearchBar DataContext="{Binding GlobalSearchVM}"/>
                 </Border>
@@ -1099,6 +996,98 @@
 
                 </StackPanel>
                 </Grid>
+
+                <!-- ═══════════════════════════════════════════════════
+                     MODULE SWITCHER — dashboard-style segmented picker.
+                     Dark track, accent pill marks the active module.
+                ═══════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="1" Margin="16,0,16,12">
+                    <Border Background="{DynamicResource ElevatedSurfaceBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="3"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center">
+                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Disabled"
+                                      Focusable="False"
+                                      FocusVisualStyle="{x:Null}">
+                            <ItemsControl ItemsSource="{Binding QuickModules}"
+                                          KeyboardNavigation.TabNavigation="Continue">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.NavigateCommand,
+                                                          RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding Key}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="0"
+                                                Margin="1,0"
+                                                Cursor="Hand"
+                                                FocusVisualStyle="{x:Null}"
+                                                ToolTip="{Binding Title}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="Pill"
+                                                            Background="Transparent"
+                                                            CornerRadius="{DynamicResource CardCornerRadius}"
+                                                            Padding="12,7"
+                                                            SnapsToDevicePixels="True">
+                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                            <TextBlock x:Name="Icon"
+                                                                       Text="{Binding Icon}"
+                                                                       FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="13"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,7,0"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock x:Name="Label"
+                                                                       Text="{Binding Title}"
+                                                                       FontSize="12"
+                                                                       FontWeight="SemiBold"
+                                                                       VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Pill" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        </Trigger>
+                                                        <!-- Active module -->
+                                                        <DataTrigger Value="True">
+                                                            <DataTrigger.Binding>
+                                                                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                                                    <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                                                    <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                </MultiBinding>
+                                                            </DataTrigger.Binding>
+                                                            <Setter TargetName="Pill" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                                            <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="Pill" Property="Opacity" Value="0.8"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+                </Grid>
+
             </Grid>
         </Border>
 
@@ -1202,13 +1191,7 @@
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
                         <ScrollViewer x:Name="MenuScrollViewer"
-                                      Grid.Column="0"
                                       VerticalScrollBarVisibility="Hidden"
                                       HorizontalScrollBarVisibility="Disabled"
                                       CanContentScroll="False"
@@ -1216,8 +1199,7 @@
                                       PanningMode="VerticalOnly"
                                       Focusable="False"
                                       FocusVisualStyle="{x:Null}"
-                                      behaviors:SmoothScrollBehavior.IsEnabled="True"
-                                      ScrollChanged="MenuScrollViewer_ScrollChanged">
+                                      behaviors:SmoothScrollBehavior.IsEnabled="True">
                             <StackPanel Margin="0,12,0,16">
 
                                 <!-- MAIN -->
@@ -1468,14 +1450,6 @@
                             </StackPanel>
                         </ScrollViewer>
 
-                        <!-- Vertical scroll slider (preserved) -->
-                        <Slider x:Name="ScrollSlider"
-                                Grid.Column="1"
-                                Style="{StaticResource GlassyVerticalSliderStyle}"
-                                Margin="2,20,10,20"
-                                Minimum="0" Maximum="1"
-                                SmallChange="0.05" LargeChange="0.15"
-                                ValueChanged="ScrollSlider_ValueChanged"/>
                     </Grid>
 
                     <!-- STORAGE FOOTER (neutral card — the accent gradient

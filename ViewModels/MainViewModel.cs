@@ -180,6 +180,24 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        /// <summary>One segment in the top-bar quick module switcher.</summary>
+        public sealed record QuickModuleItem(string Key, string Title, string Icon);
+
+        /// <summary>
+        /// Quick module switcher shown in the top panel (dashboard-style
+        /// segmented pills). Key maps to NavigateCommand's CommandParameter.
+        /// </summary>
+        public IReadOnlyList<QuickModuleItem> QuickModules { get; } = new[]
+        {
+            new QuickModuleItem("Dashboard",       "Dashboard",   "\uE80F"),
+            new QuickModuleItem("SheetStore",      "Sheet Store", "\uE7B8"),
+            new QuickModuleItem("ProformaInvoice", "Proforma",    "\uE8A5"),
+            new QuickModuleItem("JobOrder",        "Job Order",   "\uE822"),
+            new QuickModuleItem("DeliveryNote",    "Delivery",    "\uE7F4"),
+            new QuickModuleItem("TaxInvoice",      "Tax Invoice", "\uE8C7"),
+            new QuickModuleItem("SalesReport",     "Reports",     "\uE8C8")
+        };
+
         private void UpdateAiScreenContext()
         {
             try
