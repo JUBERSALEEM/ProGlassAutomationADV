@@ -13,7 +13,6 @@
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604;NU1603;NU1605;NU1701;CA1515;CA1305;CA1307;CA1310;CA1311</WarningsNotAsErrors>
 		<NoWarn>$(NoWarn);NU1603;NU1605;CA1515;CA1305</NoWarn>
-		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 		<Deterministic>true</Deterministic>

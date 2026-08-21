@@ -36,6 +36,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Services.Updates
 {
@@ -109,8 +110,9 @@ namespace ProGlassAutomation.Services.Updates
             // Uses GetCertContentType + the certificate constructor, the
             // supported replacement for the obsoleted CreateFromSignedFile
             // (SYSLIB0057). This fails for unsigned or tampered files and
-            // for files that are not Authenticode-signed at all.
-            X509Certificate2 cert;
+            // for files that are not Authenticode-signed at all. The
+            // certificate is created directly inside the using so it is
+            // disposed on every path (CA2000).
             try
             {
                 if (X509Certificate2.GetCertContentType(filePath) !=
@@ -121,43 +123,41 @@ namespace ProGlassAutomation.Services.Updates
                     return result;
                 }
 
-                cert = new X509Certificate2(filePath);
+                using (var cert = new X509Certificate2(filePath))
+                {
+                    result.CertificateSubject = cert.Subject ?? "";
+                    result.CertificateThumbprint = cert.Thumbprint ?? "";
+
+                    if (!IsWithinValidityPeriod(cert, clock))
+                    {
+                        result.Reason =
+                            "The signing certificate is expired or not yet valid.";
+                        return result;
+                    }
+
+                    if (!HasCodeSigningEku(cert))
+                    {
+                        result.Reason =
+                            "The signing certificate does not carry the Code Signing usage.";
+                        return result;
+                    }
+
+                    if (!MatchesPinnedPublisher(
+                            cert.Subject ?? "",
+                            cert.Thumbprint ?? "",
+                            pinnedSubjects,
+                            pinnedThumbprints))
+                    {
+                        result.Reason =
+                            "The signing certificate is not a trusted publisher.";
+                        return result;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 result.Reason = $"No valid signer certificate: {ex.Message}";
                 return result;
-            }
-
-            using (cert)
-            {
-                result.CertificateSubject = cert.Subject ?? "";
-                result.CertificateThumbprint = cert.Thumbprint ?? "";
-
-                if (!IsWithinValidityPeriod(cert, clock))
-                {
-                    result.Reason =
-                        "The signing certificate is expired or not yet valid.";
-                    return result;
-                }
-
-                if (!HasCodeSigningEku(cert))
-                {
-                    result.Reason =
-                        "The signing certificate does not carry the Code Signing usage.";
-                    return result;
-                }
-
-                if (!MatchesPinnedPublisher(
-                        cert.Subject ?? "",
-                        cert.Thumbprint ?? "",
-                        pinnedSubjects,
-                        pinnedThumbprints))
-                {
-                    result.Reason =
-                        "The signing certificate is not a trusted publisher.";
-                    return result;
-                }
             }
 
             // ── 2. Verify signature + file hash (the authoritative check) ──
@@ -373,11 +373,23 @@ namespace ProGlassAutomation.Services.Updates
                 int hr = WinVerifyTrust(IntPtr.Zero, ref GenericVerifyV2, pData);
 
                 // ── Close the trust provider state — MUST run even on ──
-                // failure or WinVerifyTrust leaks provider state.
+                // failure or WinVerifyTrust leaks provider state. The close
+                // HRESULT is captured and logged (CA1806) rather than
+                // ignored; a failed close does not change the verdict below.
                 var close = Marshal.PtrToStructure<WinTrustData>(pData);
                 close.dwStateAction = WtdStateActionClose;
                 Marshal.StructureToPtr(close, pData, false);
-                WinVerifyTrust(IntPtr.Zero, ref GenericVerifyV2, pData);
+                int closeHr = WinVerifyTrust(IntPtr.Zero, ref GenericVerifyV2, pData);
+                if (closeHr != 0)
+                {
+                    AppLogService.Warning(
+                        $"WinVerifyTrust close returned 0x{closeHr:X8}",
+                        new LogContext
+                        {
+                            Module = "Updates",
+                            Operation = "VerifySignature"
+                        });
+                }
 
                 if (hr == 0)
                 {

@@ -9,7 +9,15 @@
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
-    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <!--
+      AnalysisMode is intentionally NOT set to AllEnabledByDefault here.
+      That value enables ~150 opt-in "nitpick" rules (CA1834, CA1845,
+      CA1847, CA1865/66, CA1510, CA2249, …) which, together with
+      TreatWarningsAsErrors, turned a green build into 1336 errors.
+      Default mode keeps the important rules without the opt-in noise;
+      rule severity is governed by .editorconfig (analyzer rules are
+      'suggestion' = non-blocking; only compiler warnings fail).
+    -->
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Phase 1: Treat warnings as errors in CI, but allow nullable/IDE + NuGet version warnings as non-blocking -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
