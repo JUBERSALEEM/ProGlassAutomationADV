@@ -87,11 +87,20 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IDashboardFilterService, DashboardFilterService>();
 
             // ── Workflow — Multi-DB Coordinator (Phase 2) ─────────────
-            // Stateless, uses App.* repos internally, but registered for DI
-            services.AddSingleton<Services.Workflow.DocumentOperationCoordinator>(sp => null!); // static, placeholder
+            services.AddSingleton<Services.Workflow.DocumentOperationCoordinator>(sp => null!); // static
+            services.AddSingleton<Services.DeliveryNote.DeliveryNoteLineService>();
+            services.AddSingleton<Services.DeliveryNote.DeliveryNoteValidationService>();
+            services.AddSingleton<Services.DeliveryNote.DeliveryNoteExportService>();
+            services.AddSingleton<Services.DeliveryNote.DeliveryNoteHistoryService>();
+            services.AddSingleton<Services.TaxInvoice.TaxInvoiceLineService>();
+            services.AddSingleton<Services.TaxInvoice.TaxInvoiceValidationService>();
+            services.AddSingleton<Services.TaxInvoice.TaxInvoiceFamilyService>();
+            services.AddSingleton<Services.ProformaInvoice.SpecGroupService>();
+            services.AddSingleton<Services.Settings.AppearanceService>();
 
             // ── Theme — Weak Event Manager (Phase 4) ──────────────────
             services.AddSingleton<Services.Theme.ThemeWeakEventManager>(sp => null!); // static
+            services.AddSingleton<Services.Theme.VisualThemeEngine>(sp => null!); // static
 
             // ── Module ViewModels — Transient (fresh state per navigation) ──
             // Phase 5: Main shell now resolves these via DI, not `new`
