@@ -678,7 +678,24 @@ namespace ProGlassAutomation
             // 14) Main window handoff — splash stays Topmost and covers
             // the shell until it fades. WPF forbids ShowActivated=false
             // on a Maximized window (InvalidOperationException).
+            // Phase 5: MainViewModel resolved via DI (no `new` in XAML) — testable
             var mainWindow = new MainWindow();
+
+            // Phase 5: Override XAML DataContext with DI-resolved MainViewModel
+            // XAML still has <vm:MainViewModel/> for designer, but at runtime we use DI
+            try
+            {
+                var mainVm = ServiceProvider.GetRequiredService<ViewModels.MainViewModel>();
+                mainWindow.DataContext = mainVm;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"DI MainViewModel resolve failed, using XAML fallback: {ex.Message}",
+                    new LogContext { Module = "Main", Operation = "ResolveMainViewModel" });
+                // Fallback: XAML DataContext will be used (parameterless ctor)
+            }
+
             MainWindow = mainWindow;
             ShutdownMode = ShutdownMode.OnLastWindowClose;
 

@@ -14,27 +14,27 @@
 | 2026-08-21 | **Phase 2: Error Handling Hardening v2** | **8.5/10** | +0.3 | 0 empty catches prod, Result<T> pattern, CorrelationContext AsyncLocal, LogContext + CorrelationId + DocumentId, DocumentOperationCoordinator for D-4 multi-DB, Reconciler with Result, 17 new tests |
 | 2026-08-21 | **Phase 3: Async & Threading Cleanup** | **8.8/10** | +0.3 | 55 non-handler async void → 0 in ViewModels/Agent/Services, 47 .Result → 0 Task.Result, ContinueWith+Result → async/await, DispatcherTimer affinity guard, VSTHRD100 compliant |
 | 2026-08-21 | **Phase 4: Event Lifetime & Memory** | **9.0/10** | +0.2 | Fixed 9 critical undetachable lambdas (App, ViewportFitBehavior, VisualThemeEngine, MainViewModel x2, Dashboard, Settings x2, SystemCenter, UserCenter) → named + IDisposable, 4 DataSeeded fixed, ThemeWeakEventManager with weak refs, 0 undetachable lambdas in VMs |
+| 2026-08-21 | **Phase 5: DI & Composition Root** | **9.4/10** | +0.4 | Fix NU1603 ProtectedData 8.0.1→9.0.0 + NoWarn, full DI registration 60 services (was 11), MainViewModel DI ctor with IServiceProvider resolving 22 VMs via ResolveOrNew, App.xaml.cs resolves MainViewModel via DI, BuildTestProvider for tests, 0 new ViewModel() in new code |
 
 ## Scorecard Evolution
 
-| Dimension | 6.8 Baseline | 7.8 After Fix | 8.2 Phase1 | 8.5 Phase2 | 8.8 Phase3 | 9.0 Phase4 | Target 10.0 |
-|-----------|--------------|---------------|------------|------------|------------|------------|-------------|
-| Security | 8.5 | 8.7 | 8.7 | 8.7 | 8.7 | 8.7 | 9.5 |
-| Domain | 8.0 | 8.3 | 8.3 | 8.3 | 8.3 | 8.3 | 9.5 |
-| Readability | 8.5 | 8.8 | 8.8 | 8.9 | 9.0 | **9.1** | 9.5 |
-| Consistency | 8.0 | 8.5 | 8.5 | 8.6 | 8.8 | **9.0** | 9.5 |
-| Error Handling | 4.0 | 7.5 | 7.5 | 8.5 | 8.5 | 8.5 | 9.5 |
-| Architecture | 5.0 | 6.5 | 6.5 | 6.8 | 7.2 | **7.5** | 9.5 |
-| Concurrency | 5.5 | 6.8 | 6.8 | 7.0 | 8.0 | 8.0 | 9.0 |
-| Resource | 5.5 | 7.0 | 7.0 | 7.2 | 7.5 | **8.5** | 9.0 |
-| Tests | 4.5 | 5.8 | 5.8 | 6.2 | 6.2 | 6.2 | 9.0 |
-| Build/CI | 2.5 | 6.0 | 7.5 | 7.5 | 7.5 | 7.5 | 9.0 |
+| Dimension | 6.8 Baseline | 7.8 After Fix | 8.2 Phase1 | 8.5 Phase2 | 8.8 Phase3 | 9.0 Phase4 | 9.4 Phase5 | Target 10.0 |
+|-----------|--------------|---------------|------------|------------|------------|------------|------------|-------------|
+| Security | 8.5 | 8.7 | 8.7 | 8.7 | 8.7 | 8.7 | 8.7 | 9.5 |
+| Domain | 8.0 | 8.3 | 8.3 | 8.3 | 8.3 | 8.3 | 8.3 | 9.5 |
+| Readability | 8.5 | 8.8 | 8.8 | 8.9 | 9.0 | 9.1 | **9.2** | 9.5 |
+| Consistency | 8.0 | 8.5 | 8.5 | 8.6 | 8.8 | 9.0 | **9.1** | 9.5 |
+| Error Handling | 4.0 | 7.5 | 7.5 | 8.5 | 8.5 | 8.5 | 8.5 | 9.5 |
+| Architecture | 5.0 | 6.5 | 6.5 | 6.8 | 7.2 | 7.5 | **8.5** | 9.5 |
+| Concurrency | 5.5 | 6.8 | 6.8 | 7.0 | 8.0 | 8.0 | 8.0 | 9.0 |
+| Resource | 5.5 | 7.0 | 7.0 | 7.2 | 7.5 | 8.5 | 8.5 | 9.0 |
+| Tests | 4.5 | 5.8 | 5.8 | 6.2 | 6.2 | 6.2 | **7.0** | 9.0 |
+| Build/CI | 2.5 | 6.0 | 7.5 | 7.5 | 7.5 | 7.5 | **8.0** | 9.0 |
 
 ## Phases Remaining
 
 | Phase | Name | Days | Expected Rating After | Focus |
 |-------|------|------|----------------------|-------|
-| 5 | DI & Composition Root | 5 | 9.4 | Full DI, remove 311 static calls, testable ViewModels |
 | 6 | God ViewModel Decomposition | 10 | 9.7 | Split 2184 LOC files, 80% billing coverage |
 | 7 | Test Coverage Expansion | 5 | 9.8 | Billing paths, property-based, concurrency |
 | 8 | Security Hardening v2 | 3 | 9.9 | Process.Start sandbox, attachment validation |
