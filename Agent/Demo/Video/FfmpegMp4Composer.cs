@@ -146,7 +146,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
                   $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
-                  $"-c:a aac -b:a 256k -ar 48000 -shortest -movflags +faststart \"{mp4Path}\""
+                  $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{mp4Path}\""
                 : $"-y -framerate {fps} -i \"{input}\" " +
                   $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
                   $"-movflags +faststart \"{mp4Path}\"";
@@ -227,7 +227,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -i \"{videoPath}\" -i \"{wavPath}\" " +
-                  $"-c:v copy -c:a aac -b:a 256k -ar 48000 -shortest " +
+                  $"-c:v copy -c:a aac -b:a 320k -ar 48000 -shortest " +
                   $"-movflags +faststart \"{mp4Path}\""
                 : $"-y -i \"{videoPath}\" -c:v copy -movflags +faststart \"{mp4Path}\"";
             return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);

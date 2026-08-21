@@ -18,18 +18,65 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Theory]
-        [InlineData(ScreenRecordQuality.Hd720, 1920, 1080, 92, 17)]
-        [InlineData(ScreenRecordQuality.FullHd, 2560, 1440, 94, 16)]
-        [InlineData(ScreenRecordQuality.Qhd2K, 3200, 1800, 95, 15)]
-        [InlineData(ScreenRecordQuality.Uhd4K, 3840, 2160, 96, 14)]
-        public void Quality_uses_oversample_and_crisp_encode(
-            ScreenRecordQuality quality, int capW, int capH, int jpeg, int crf)
+        [InlineData(ScreenRecordQuality.Hd720, 94, 16)]
+        [InlineData(ScreenRecordQuality.FullHd, 96, 15)]
+        [InlineData(ScreenRecordQuality.Qhd2K, 96, 14)]
+        [InlineData(ScreenRecordQuality.Uhd4K, 97, 13)]
+        public void Quality_uses_crisp_jpeg_and_crf(
+            ScreenRecordQuality quality, int jpeg, int crf)
         {
             var s = new ScreenRecordSettings { Quality = quality }.Clamp();
-            Assert.Equal((capW, capH), s.CaptureSize);
             Assert.Equal(jpeg, s.JpegQualityFor);
             Assert.Equal(crf, s.EncodeCrf);
             Assert.True(s.JpegQuality >= jpeg);
+        }
+
+        // ── Lag fix: native (1:1) capture by default ────────────────────
+
+        [Theory]
+        [InlineData(ScreenRecordQuality.Hd720)]
+        [InlineData(ScreenRecordQuality.FullHd)]
+        [InlineData(ScreenRecordQuality.Qhd2K)]
+        [InlineData(ScreenRecordQuality.Uhd4K)]
+        public void Capture_is_native_output_size_by_default(
+            ScreenRecordQuality quality)
+        {
+            var s = new ScreenRecordSettings { Quality = quality }.Clamp();
+            Assert.False(s.Supersample);
+            Assert.Equal(s.OutputSize, s.CaptureSize);
+        }
+
+        [Fact]
+        public void Supersample_restores_oversampled_capture()
+        {
+            var s = new ScreenRecordSettings
+            {
+                Quality = ScreenRecordQuality.FullHd,
+                Supersample = true
+            }.Clamp();
+
+            Assert.Equal((2560, 1440), s.CaptureSize);
+            Assert.Equal((1920, 1080), s.OutputSize);
+        }
+
+        [Fact]
+        public void Live_preview_encode_defaults_off()
+        {
+            var s = new ScreenRecordSettings();
+            Assert.False(s.LivePreviewEncode);
+        }
+
+        // ── YouTube aspect ratio: every output is an even 16:9 frame ────
+
+        [Fact]
+        public void Every_quality_is_even_16_by_9()
+        {
+            foreach (var q in ScreenRecordSettings.Qualities)
+            {
+                Assert.Equal(0, q.Width & 1);
+                Assert.Equal(0, q.Height & 1);
+                Assert.Equal(16.0 / 9.0, (double)q.Width / q.Height, 3);
+            }
         }
 
         [Theory]
@@ -77,14 +124,21 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 Quality = ScreenRecordQuality.Uhd4K,
                 Fps = 60,
-                CaptureLiveAudio = false
+                CaptureLiveAudio = false,
+                Supersample = true,
+                LivePreviewEncode = true
             };
             var b = a.Clone();
             a.Fps = 30;
             a.Quality = ScreenRecordQuality.Hd720;
+            a.Supersample = false;
+            a.LivePreviewEncode = false;
+
             Assert.Equal(60, b.Fps);
             Assert.Equal(ScreenRecordQuality.Uhd4K, b.Quality);
             Assert.False(b.CaptureLiveAudio);
+            Assert.True(b.Supersample);
+            Assert.True(b.LivePreviewEncode);
         }
     }
 }

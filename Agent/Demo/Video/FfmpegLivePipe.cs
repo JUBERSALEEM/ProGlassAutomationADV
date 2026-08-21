@@ -44,7 +44,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             Directory.CreateDirectory(Path.GetDirectoryName(videoPath)!);
 
             string vf =
-                $"scale={w}:{h}:flags=fast_bilinear:force_original_aspect_ratio=decrease," +
+                $"scale={w}:{h}:flags=lanczos:force_original_aspect_ratio=decrease," +
                 $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2,format=yuv420p";
             string args =
                 $"-y -f image2pipe -vcodec mjpeg -framerate {fps} -i - " +

@@ -56,7 +56,28 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public int Fps { get; set; } = 30;
         public bool CaptureLiveAudio { get; set; } = true;
         public bool CaptureMicrophone { get; set; } = true;
-        public int JpegQuality { get; set; } = 94;
+        public int JpegQuality { get; set; } = 96;
+
+        /// <summary>
+        /// When true, frames are captured at a supersampled size and
+        /// ffmpeg lanczos-downscales them to the output for extra crispness.
+        /// Defaults to FALSE: supersampling costs up to ~1.8× the pixels per
+        /// frame (RenderTargetBitmap + JPEG + H.264), which is the dominant
+        /// source of recording lag. 1:1 capture with the final lanczos +
+        /// unsharp chain recovers most of the sharpness at a fraction of the
+        /// CPU. Power users recording 4K on a fast machine can re-enable it.
+        /// </summary>
+        public bool Supersample { get; set; }
+
+        /// <summary>
+        /// When true, frames are ALSO piped into a live H.264 encoder during
+        /// recording (FfmpegLivePipe) as a HUD "live encode" indicator.
+        /// Defaults to FALSE: the final MP4 is always composed from the saved
+        /// JPEG frames, so this second, concurrent encoder burns CPU for a
+        /// preview that is discarded on stop — a direct cause of recording
+        /// lag. Leave off unless live-preview output is actually wanted.
+        /// </summary>
+        public bool LivePreviewEncode { get; set; }
 
         public (int Width, int Height) OutputSize
         {
@@ -68,34 +89,41 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         }
 
         /// <summary>
-        /// Oversampled capture size so ffmpeg lanczos-downscales to a
-        /// sharper 720 / 1080 / 2K / 4K. 4K captures native to avoid OOM.
+        /// Capture resolution. Default is the native output size (1:1) —
+        /// see <see cref="Supersample"/> for the optional oversampled path.
+        /// Every output size is an even 16:9 frame (YouTube default).
         /// </summary>
-        public (int Width, int Height) CaptureSize => Quality switch
-        {
-            ScreenRecordQuality.Hd720 => (1920, 1080),
-            ScreenRecordQuality.FullHd => (2560, 1440),
-            ScreenRecordQuality.Qhd2K => (3200, 1800),
-            ScreenRecordQuality.Uhd4K => (3840, 2160),
-            _ => (1920, 1080)
-        };
+        public (int Width, int Height) CaptureSize => Supersample
+            ? Quality switch
+            {
+                ScreenRecordQuality.Hd720 => (1920, 1080),
+                ScreenRecordQuality.FullHd => (2560, 1440),
+                ScreenRecordQuality.Qhd2K => (3200, 1800),
+                ScreenRecordQuality.Uhd4K => (3840, 2160),
+                _ => (1920, 1080)
+            }
+            : OutputSize;
 
         public int JpegQualityFor => Quality switch
         {
-            ScreenRecordQuality.Hd720 => 92,
-            ScreenRecordQuality.FullHd => 94,
-            ScreenRecordQuality.Qhd2K => 95,
-            ScreenRecordQuality.Uhd4K => 96,
-            _ => 94
+            ScreenRecordQuality.Hd720 => 94,
+            ScreenRecordQuality.FullHd => 96,
+            ScreenRecordQuality.Qhd2K => 96,
+            ScreenRecordQuality.Uhd4K => 97,
+            _ => 96
         };
 
         public int EncodeCrf => Quality switch
         {
-            ScreenRecordQuality.Hd720 => 17,
-            ScreenRecordQuality.FullHd => 16,
-            ScreenRecordQuality.Qhd2K => 15,
-            ScreenRecordQuality.Uhd4K => 14,
-            _ => 16
+            // Lower CRF = higher quality. Default x264 is ~23; these are
+            // already aggressive, nudged one step further for cleaner
+            // screen text. Final encode runs once at STOP, so the extra
+            // bitrate costs disk, not recording latency.
+            ScreenRecordQuality.Hd720 => 16,
+            ScreenRecordQuality.FullHd => 15,
+            ScreenRecordQuality.Qhd2K => 14,
+            ScreenRecordQuality.Uhd4K => 13,
+            _ => 15
         };
 
         public string Summary
@@ -118,7 +146,9 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             Fps = Fps,
             CaptureLiveAudio = CaptureLiveAudio,
             CaptureMicrophone = CaptureMicrophone,
-            JpegQuality = JpegQuality
+            JpegQuality = JpegQuality,
+            Supersample = Supersample,
+            LivePreviewEncode = LivePreviewEncode
         };
 
         public ScreenRecordSettings Clamp()

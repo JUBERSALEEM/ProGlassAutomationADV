@@ -49,14 +49,14 @@ namespace ProGlassAutomation.Agent.Demo
                 var win = Ensure();
                 if (!win.IsVisible) win.Show();
                 win.SetFinal("SAVED",
-                    Fmt(duration) + " · " + frames + " frames",
+                    RecordingTime.Format(duration) + " · " + frames + " frames",
                     (audioNote ?? "") + "\n" + path,
                     failed: false);
                 try
                 {
                     MessageBox.Show(
                         "Recording saved.\n\n" +
-                        "Duration: " + Fmt(duration) + "\n" +
+                        "Duration: " + RecordingTime.Format(duration) + "\n" +
                         "Frames: " + frames + "\n" +
                         "Audio: " + (string.IsNullOrWhiteSpace(audioNote) ? "none" : audioNote) + "\n\n" +
                         path,
@@ -128,13 +128,6 @@ namespace ProGlassAutomation.Agent.Demo
             }
             catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             return _overlay;
-        }
-
-        private static string Fmt(TimeSpan ts)
-        {
-            if (ts < TimeSpan.Zero) ts = TimeSpan.Zero;
-            return string.Format("{0:00}:{1:00}.{2:0}",
-                (int)ts.TotalMinutes, ts.Seconds, ts.Milliseconds / 100);
         }
 
         private static void RunOnUi(Action work)

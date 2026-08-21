@@ -8,8 +8,16 @@ using System.Windows.Threading;
 namespace ProGlassAutomation.Views.Shared
 {
     /// <summary>
-    /// Separate topmost window. RenderTargetBitmap of MainWindow never
-    /// includes this, so the REC controls stay off the video.
+    /// Compact, Android-recorder style overlay. A separate topmost window,
+    /// so RenderTargetBitmap of MainWindow never includes the REC controls.
+    ///
+    /// Redesign notes:
+    ///   • One pill row — time on the left, then pause + stop. No stats,
+    ///     audio, progress bar or stage rows in the always-visible chrome.
+    ///   • The window is only re-positioned when it actually moves (the old
+    ///     version moved it on every 200ms tick, which added jank).
+    ///   • Time uses RecordingTime.Format — a plain MM:SS / H:MM:SS that no
+    ///     longer overflows past 99 minutes.
     /// </summary>
     public partial class RecordOverlayWindow : Window
     {
@@ -18,17 +26,18 @@ namespace ProGlassAutomation.Views.Shared
         private Action? _onStop;
         private Action? _onPause;
         private DateTime _started;
-        private string _module = "";
+        private double _lastLeft = double.NaN;
+        private double _lastTop = double.NaN;
 
         public RecordOverlayWindow()
         {
             InitializeComponent();
             _timer = new DispatcherTimer(DispatcherPriority.Background)
             {
-                Interval = TimeSpan.FromMilliseconds(200)
+                Interval = TimeSpan.FromMilliseconds(250)
             };
             _timer.Tick += (_, _) => Tick();
-            Loaded += (_, _) => Place();
+            Loaded += (_, _) => { _lastLeft = double.NaN; _lastTop = double.NaN; Place(); };
         }
 
         public void Bind(
@@ -37,12 +46,17 @@ namespace ProGlassAutomation.Views.Shared
             Action? onStop,
             Action? onPause)
         {
-            _module = module ?? "";
             _recorder = recorder;
             _onStop = onStop;
             _onPause = onPause;
             _started = DateTime.UtcNow;
+
             HudPause.Visibility = onPause == null ? Visibility.Collapsed : Visibility.Visible;
+            HudStage.Text = "";
+            HudStage.Visibility = Visibility.Collapsed;
+            HudClose.Visibility = Visibility.Collapsed;
+            HudStop.Visibility = Visibility.Visible;
+
             _timer.Start();
             Tick();
             Place();
@@ -50,24 +64,43 @@ namespace ProGlassAutomation.Views.Shared
 
         public void SetStage(string message)
         {
-            HudStage.Text = message ?? "";
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                HudStage.Visibility = Visibility.Collapsed;
+                return;
+            }
+
+            HudStage.Text = message;
+            HudStage.Visibility = Visibility.Visible;
         }
 
         public void SetFinal(string badge, string stats, string stage, bool failed)
         {
             _timer.Stop();
             _recorder = null;
+
             HudBadge.Text = badge;
-            HudStats.Text = stats;
-            HudStage.Text = stage;
+            HudDot.Fill = new SolidColorBrush(
+                failed ? Color.FromRgb(239, 68, 68) : Color.FromRgb(34, 197, 94));
+
+            // Final state is a single status line + a close button; the
+            // full detail (path, frames, audio) is shown in the saved dialog.
+            string summary = stats ?? "";
+            if (!string.IsNullOrWhiteSpace(stage) &&
+                !string.Equals(stage, summary, StringComparison.Ordinal))
+            {
+                summary = string.IsNullOrWhiteSpace(summary)
+                    ? stage
+                    : summary + "\n" + stage;
+            }
+            HudStage.Text = summary ?? "";
+            HudStage.Visibility = string.IsNullOrWhiteSpace(summary)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+
             HudPause.Visibility = Visibility.Collapsed;
             HudStop.Visibility = Visibility.Collapsed;
-            // Let the user dismiss the finished HUD.
             HudClose.Visibility = Visibility.Visible;
-            HudDot.Fill = failed
-                ? new SolidColorBrush(Color.FromRgb(239, 68, 68))
-                : new SolidColorBrush(Color.FromRgb(34, 197, 94));
-            HudBar.Width = failed ? 0 : Math.Max(40, HudRoot.ActualWidth - 28);
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)
@@ -80,17 +113,30 @@ namespace ProGlassAutomation.Views.Shared
             try
             {
                 var main = Application.Current?.MainWindow;
+                double left, top;
                 if (main == null || !main.IsVisible)
                 {
-                    Left = SystemParameters.WorkArea.Right - ActualWidth - 24;
-                    Top = SystemParameters.WorkArea.Bottom - ActualHeight - 24;
-                    return;
+                    left = SystemParameters.WorkArea.Right - ActualWidth - 24;
+                    top = SystemParameters.WorkArea.Bottom - ActualHeight - 24;
                 }
-                var origin = main.PointToScreen(new Point(0, 0));
-                double srcW = PresentationSource.FromVisual(main)
-                    ?.CompositionTarget?.TransformToDevice.M11 ?? 1;
-                Left = origin.X / srcW + (main.ActualWidth - ActualWidth) / 2;
-                Top = origin.Y / srcW + main.ActualHeight - ActualHeight - 28;
+                else
+                {
+                    var origin = main.PointToScreen(new Point(0, 0));
+                    double srcW = PresentationSource.FromVisual(main)
+                        ?.CompositionTarget?.TransformToDevice.M11 ?? 1;
+                    left = origin.X / srcW + (main.ActualWidth - ActualWidth) / 2;
+                    top = origin.Y / srcW + main.ActualHeight - ActualHeight - 28;
+                }
+
+                // Only move when the position actually changed — setting
+                // Left/Top every tick was a hidden source of recording jank.
+                if (Math.Abs(left - _lastLeft) > 0.5 || Math.Abs(top - _lastTop) > 0.5)
+                {
+                    _lastLeft = left;
+                    _lastTop = top;
+                    Left = left;
+                    Top = top;
+                }
             }
             catch { /* last position is fine */ }
         }
@@ -99,41 +145,31 @@ namespace ProGlassAutomation.Views.Shared
         {
             var rec = _recorder;
             var elapsed = rec != null ? rec.Elapsed : DateTime.UtcNow - _started;
-            HudTime.Text = Fmt(elapsed);
+            HudTime.Text = RecordingTime.Format(elapsed);
 
             bool paused = rec?.IsPaused == true;
             HudBadge.Text = rec == null ? "IDLE" : paused ? "PAUSED" : "REC";
-            HudDot.Opacity = paused ? 0.35 : 1;
-            HudPause.Content = paused ? "RESUME" : "PAUSE";
+            HudBadge.Foreground = paused
+                ? new SolidColorBrush(Color.FromRgb(251, 191, 36))
+                : new SolidColorBrush(Color.FromRgb(252, 165, 165));
+            HudDot.Opacity = paused ? 0.4 : 1.0;
 
-            int frames = rec?.EncodedFrames ?? 0;
-            int dropped = rec?.DroppedFrames ?? 0;
-            bool live = rec?.LiveEncodeActive == true;
-            long bytes = rec?.LiveBytesPiped ?? 0;
-            string size = bytes >= 1024 * 1024
-                ? $"{bytes / (1024.0 * 1024.0):0.0} MB piped"
-                : bytes > 0 ? $"{bytes / 1024.0:0} KB piped" : "waiting";
-            HudStats.Text =
-                $"{frames} frames · {dropped} dropped · " +
-                (live ? "live encode · " + size : "JPEG fallback") +
-                (string.IsNullOrEmpty(_module) ? "" : " · " + _module);
+            // Pause button flips between pause (⏸) and resume (▶) glyphs.
+            if (HudPause.Visibility == Visibility.Visible)
+            {
+                if (HudPause.Content is System.Windows.Controls.TextBlock pauseGlyph)
+                    pauseGlyph.Text = paused ? "\uE768" : "\uE769";
+            }
 
-            string inner = rec == null ? "Internal …" : rec.LiveAudioStarted ? "Internal ON" : "Internal OFF";
-            string mic = rec == null ? "Mic …" : rec.MicAudioStarted ? "Mic ON" : "Mic OFF";
-            HudAudio.Text = string.IsNullOrWhiteSpace(rec?.AudioError)
-                ? inner + "   " + mic
-                : inner + "   " + mic + "   (" + rec!.AudioError + ")";
+            // Only surface the encoder stage while it is meaningful; the
+            // idle HUD stays a single quiet pill.
+            if (rec != null && !string.IsNullOrWhiteSpace(rec.EncodeStage))
+                SetStage(rec.EncodeStage +
+                    (rec.EncodePercent > 0 ? $"  {rec.EncodePercent}%" : ""));
+            else if (rec == null)
+                SetStage(HudStage.Text);
 
-            if (!string.IsNullOrWhiteSpace(rec?.EncodeStage))
-                HudStage.Text = rec!.EncodeStage +
-                    (rec.EncodePercent > 0 ? $"  {rec.EncodePercent}%" : "");
-
-            double barMax = Math.Max(40, HudRoot.ActualWidth - 28);
-            if (rec != null && rec.EncodePercent > 0)
-                HudBar.Width = barMax * Math.Clamp(rec.EncodePercent / 100.0, 0, 1);
-            else
-                HudBar.Width = paused ? barMax * 0.15 : Math.Min(barMax, 24 + (frames % 40));
-
+            // Follow the main window without the per-tick move cost.
             Place();
         }
 
@@ -146,13 +182,6 @@ namespace ProGlassAutomation.Views.Shared
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
             try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-        }
-
-        private static string Fmt(TimeSpan ts)
-        {
-            if (ts < TimeSpan.Zero) ts = TimeSpan.Zero;
-            return string.Format("{0:00}:{1:00}.{2:0}",
-                (int)ts.TotalMinutes, ts.Seconds, ts.Milliseconds / 100);
         }
     }
 }

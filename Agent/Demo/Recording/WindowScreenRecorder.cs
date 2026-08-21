@@ -30,7 +30,10 @@ namespace ProGlassAutomation.Agent.Demo.Recording
     /// </summary>
     public sealed class WindowScreenRecorder : IDisposable
     {
-        private const int MaxPendingEncodes = 4;
+        // Absorbs bursts: JPEG encode runs on background threads, so a short
+        // UI stall should queue frames instead of dropping them. 4 was too
+        // tight and turned a busy dispatcher into visible frame drops (lag).
+        private const int MaxPendingEncodes = 8;
 
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();
@@ -111,11 +114,26 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             LiveAudioStarted = false;
             MicAudioStarted = false;
             string parent = Directory.GetParent(framesFolder)?.FullName ?? framesFolder;
-            _liveVideoPath = Path.Combine(parent, "live.h264.mp4");
-            var (outW, outH) = _settings.OutputSize;
+
+            // ── Live H.264 preview pipe (lag fix) ─────────────────────
+            // The final MP4 is always composed from the saved JPEG frames
+            // (correct timing), so a concurrent live encoder is pure CPU
+            // overhead — it re-encodes every frame in real time and its
+            // output is discarded on stop. It now defaults OFF
+            // (LivePreviewEncode). Turning it off removes the biggest
+            // background CPU consumer and directly reduces recording lag.
             try { _pipe?.Dispose(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-            _pipe = FfmpegLivePipe.TryStart(
-                _liveVideoPath, _settings.Fps, outW, outH, _settings.EncodeCrf);
+            _pipe = null;
+            _liveVideoPath = null;
+
+            if (_settings.LivePreviewEncode)
+            {
+                _liveVideoPath = Path.Combine(parent, "live.h264.mp4");
+                var (outW, outH) = _settings.OutputSize;
+                _pipe = FfmpegLivePipe.TryStart(
+                    _liveVideoPath, _settings.Fps, outW, outH, _settings.EncodeCrf);
+            }
+
             if (_settings.CaptureLiveAudio)
                 LiveAudioStarted = _audio.Start(System.IO.Path.Combine(parent, "live.wav"));
             if (_settings.CaptureMicrophone)
