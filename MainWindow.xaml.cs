@@ -36,11 +36,24 @@ namespace ProGlassAutomation
         // Guard flag prevents recursive sync between ScrollViewer and Slider
         private bool _isSyncingScroll;
 
+        // ── Floating widget drag state (AI Agent pill + Screen Record) ──
+        private bool _widgetDragging;
+        private bool _widgetDragMoved;
+        private Point _widgetDragStart;
+        private double _widgetDragStartLeft;
+        private double _widgetDragStartTop;
+        private FrameworkElement? _widgetDragTarget;
+        private bool _widgetsPositioned;
+
         public MainWindow()
         {
             InitializeComponent();
 
             _hoverTimer.Tick += HoverTimer_Tick;
+
+            // Position the draggable AI + screen-record widgets at their
+            // original top-right spot once the shell is laid out.
+            Loaded += MainWindow_Loaded;
 
             // Shutdown safety guard
             Closing += MainWindow_Closing;
@@ -490,6 +503,145 @@ namespace ProGlassAutomation
             {
                 vm.IsMenuOpen = false;
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  FLOATING WIDGETS — drag to move, click (no drag) to act
+        //
+        //  The AI Agent pill and the Screen Record button live on a
+        //  full-window Canvas (FloatingWidgetLayer) so they can be dragged
+        //  out of the way instead of covering content behind them.
+        //
+        //  Click vs drag: on press we record the start point and capture
+        //  the mouse; if the pointer moves beyond a small threshold it is
+        //  a drag (the widget follows); otherwise the release is a click
+        //  and the widget's normal action runs (open agent / toggle
+        //  screen recording).
+        // ══════════════════════════════════════════════════════════════
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Anchor the widgets once, at their original top-right spot
+            // (just left of the fixed user card). After that the user fully
+            // controls their position for the session — never re-anchor.
+            if (_widgetsPositioned) return;
+            if (FloatingWidgetLayer == null || AiAgentPill == null || RecordButton == null)
+                return;
+
+            try
+            {
+                double recordLeft;
+                if (UserCardButton != null)
+                {
+                    // Place the record button just left of the user card.
+                    var userOrigin = UserCardButton.TranslatePoint(new Point(0, 0), FloatingWidgetLayer);
+                    recordLeft = userOrigin.X - RecordButton.ActualWidth - 12;
+                }
+                else
+                {
+                    double width = FloatingWidgetLayer.ActualWidth;
+                    double recordW = RecordButton.ActualWidth > 0 ? RecordButton.ActualWidth : 36;
+                    recordLeft = Math.Max(0, width - recordW - 130);
+                }
+
+                Canvas.SetLeft(RecordButton, Math.Max(0, recordLeft));
+                Canvas.SetTop(RecordButton, 6);
+
+                double aiW = AiAgentPill.ActualWidth > 0 ? AiAgentPill.ActualWidth : 120;
+                Canvas.SetLeft(AiAgentPill, Math.Max(0, recordLeft - aiW - 10));
+                Canvas.SetTop(AiAgentPill, 6);
+
+                _widgetsPositioned = true;
+            }
+            catch
+            {
+                // Positioning is cosmetic — never break the shell.
+            }
+        }
+
+        private void FloatingWidget_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not FrameworkElement el || FloatingWidgetLayer == null) return;
+
+            _widgetDragTarget = el;
+            _widgetDragging = true;
+            _widgetDragMoved = false;
+
+            _widgetDragStart = e.GetPosition(FloatingWidgetLayer);
+            _widgetDragStartLeft = Canvas.GetLeft(el);
+            _widgetDragStartTop = Canvas.GetTop(el);
+            if (double.IsNaN(_widgetDragStartLeft)) _widgetDragStartLeft = 0;
+            if (double.IsNaN(_widgetDragStartTop)) _widgetDragStartTop = 0;
+
+            // Bring the grabbed widget to the front of the floating layer.
+            Panel.SetZIndex(el, 300);
+
+            try { el.CaptureMouse(); } catch { /* capture is best-effort */ }
+
+            // Own the press so the Button / pill click machinery never fires
+            // while we decide between click and drag.
+            e.Handled = true;
+        }
+
+        private void FloatingWidget_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_widgetDragging || _widgetDragTarget == null || FloatingWidgetLayer == null) return;
+
+            var pos = e.GetPosition(FloatingWidgetLayer);
+            double dx = pos.X - _widgetDragStart.X;
+            double dy = pos.Y - _widgetDragStart.Y;
+
+            const double threshold = 3;
+            if (!_widgetDragMoved && (Math.Abs(dx) > threshold || Math.Abs(dy) > threshold))
+                _widgetDragMoved = true;
+
+            if (_widgetDragMoved)
+            {
+                double maxLeft = Math.Max(0, FloatingWidgetLayer.ActualWidth - _widgetDragTarget.ActualWidth);
+                double maxTop = Math.Max(0, FloatingWidgetLayer.ActualHeight - _widgetDragTarget.ActualHeight);
+                Canvas.SetLeft(_widgetDragTarget, Clamp(_widgetDragStartLeft + dx, 0, maxLeft));
+                Canvas.SetTop(_widgetDragTarget, Clamp(_widgetDragStartTop + dy, 0, maxTop));
+            }
+
+            e.Handled = true;
+        }
+
+        private void FloatingWidget_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (!_widgetDragging || _widgetDragTarget == null) return;
+
+            var el = _widgetDragTarget;
+            _widgetDragging = false;
+            _widgetDragTarget = null;
+
+            try { el.ReleaseMouseCapture(); } catch { /* not captured */ }
+
+            if (!_widgetDragMoved)
+            {
+                // Clean click (no drag) → perform the widget's action.
+                if (ReferenceEquals(el, AiAgentPill))
+                    ToggleAgentChat();
+                else if (ReferenceEquals(el, RecordButton))
+                    DropdownButton_Click(el, new RoutedEventArgs(System.Windows.Controls.Primitives.ButtonBase.ClickEvent));
+            }
+
+            e.Handled = true;
+        }
+
+        private void ToggleAgentChat()
+        {
+            if (DataContext is MainViewModel vm
+                && vm.ToggleAgentChatCommand.CanExecute(null))
+            {
+                vm.ToggleAgentChatCommand.Execute(null);
+            }
+        }
+
+        private static double Clamp(double value, double min, double max)
+        {
+            if (value < min) return min;
+            if (value > max) return max;
+            return value;
         }
 
         private void MenuScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
