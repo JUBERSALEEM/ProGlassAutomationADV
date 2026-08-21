@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Reports/StatementGenerator/Review/ReviewStep.xaml
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Wizard Step 4: REVIEW (Chat 21 v3)
@@ -219,7 +219,8 @@
                                         Background="#FFFFFF33"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Margin="0,0,14,0">
-                                    <TextBlock Text="📄"
+                                    <TextBlock Text="&#xE8A5;"
+                                               FontFamily="Segoe MDL2 Assets"
                                                FontSize="20"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
@@ -265,7 +266,8 @@
                                             CornerRadius="0,0,0,8"
                                             HorizontalAlignment="Right"
                                             VerticalAlignment="Top">
-                                        <TextBlock Text="📎"
+                                        <TextBlock Text="&#xE723;"
+                                                   FontFamily="Segoe MDL2 Assets"
                                                    FontSize="12"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -326,7 +328,7 @@
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-                                            <TextBlock Text="⬇" FontSize="18" FontWeight="Bold"
+                                            <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="18" FontWeight="Bold"
                                                        Foreground="White"
                                                        Margin="0,0,10,0"
                                                        VerticalAlignment="Center"/>
@@ -363,7 +365,7 @@
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-                                            <TextBlock Text="📋 " FontSize="12"
+                                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                                        VerticalAlignment="Center"/>
                                             <TextBlock Text="Copy File Path"
                                                        FontSize="12" FontWeight="SemiBold"
@@ -402,7 +404,8 @@
                                         Background="#FFFFFF33"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Margin="0,0,14,0">
-                                    <TextBlock Text="📚"
+                                    <TextBlock Text="&#xE8F1;"
+                                               FontFamily="Segoe MDL2 Assets"
                                                FontSize="17"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
@@ -452,7 +455,7 @@
                                                     </Style>
                                                 </Border.Style>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="📄 Merged  " FontSize="12" FontWeight="Bold"
+                                                    <TextBlock FontSize="12" FontWeight="Bold"
                                                                VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
@@ -465,6 +468,8 @@
                                                                 </Style.Triggers>
                                                             </Style>
                                                         </TextBlock.Style>
+                                                        <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/>
+                                                        <Run Text=" Merged  "/>
                                                     </TextBlock>
                                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
                                                             VerticalAlignment="Center">
@@ -844,7 +849,7 @@
                     <StackPanel Grid.Column="0"
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
-                        <TextBlock Text="📊 " FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center"/>
                         <TextBlock FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    VerticalAlignment="Center">

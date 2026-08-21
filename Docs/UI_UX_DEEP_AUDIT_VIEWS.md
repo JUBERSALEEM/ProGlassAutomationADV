@@ -89,3 +89,52 @@ ComingSoonView, SheetStoreUseDialog.
 The 14 missing-snapping files + TextFormattingMode correction + ≤9px floor + emoji→MDL2 in Shared dialogs is entirely low-risk and directly attacks the "blurred/dull" complaint.
 
 Say **"go"** and I'll implement phases 1–2 first, build-check, and push.
+
+---
+
+## Phase 3 — consistency pass (DONE)
+
+Committed as **"Phase-3 consistency pass (Views)"** on `arena/01a02595-proglassautomationadv`.
+
+### D5 — dashboards respect the global radius slider ✅
+- `Styles/DashboardStyles.xaml`: `DashCardRadius`/`DashTileRadius`/`DashPillRadius` and
+  `SoftCardRadius`/`SoftHeroRadius`/`SoftPillRadius`/`SoftBadgeRadius` retired (they were
+  hardcoded `StaticResource`, so dashboards ignored the Settings→Appearance radius slider).
+- All 8 setters now resolve through the theme tokens `CardCornerRadius` /
+  `ControlCornerRadius` / `CardCornerRadiusLarge` (dynamic) → every dashboard/tile/pill
+  follows the global slider.
+- Both style families (`DashCardStyle` *and* `SoftCardStyle`) are actively used across the
+  13 dashboards, so **neither was retired wholesale** (D4 deferred to the module pass);
+  the two systems are now radius-consistent.
+
+### D1 — hardcoded radii → tokens (card surfaces) ✅
+- 10 report **page cards** (`CornerRadius="10" Margin="16" Padding="20"`) across
+  Company/Delivery/GlassSpec/Jo/Pi/Profitability/Project/Salesman/Statement/TaxInvoice
+  reports → `CardCornerRadius`.
+- `SalesReportView`: brand header, footer, 4 stat cards, overview hero, workflow banner → tokens.
+- `SettingsDemoSection`: 7 redundant `CornerRadius="12"` overrides → `CardCornerRadius`.
+- `RenameAttachmentDialog` close-button → `ControlCornerRadius`.
+- **Intentional exceptions left hardcoded:** circular icon tiles (28–38px, r7–r10), status
+  dots (4–10px), and capsule pills (r20) — those radii are size-proportional and mapping them
+  to the 8–18px tokens would visually round them into wrong shapes.
+
+### D3 — icon language unified (emoji → Segoe MDL2) ✅
+- `AiChatView`: send (E724), robot/bot (E99A), chat (E8BD), mute (E74F), volume (E767),
+  mic (E720), stop (E71A), processing-sync (E895), close (E711) — all with `Segoe MDL2 Assets`.
+- Statement Generator: document (E8A5), attach (E723), download (E896), clipboard (E8C8),
+  library (E8F1), merged-tab (E8A5 run), chart (E9D9), line-chart (E9D2).
+- `GradientHeroCard` icon badge: MDL2 font + neutral Page fallback (was ✨).
+- Kept as semantic marks per the audit: `✓`/`✕`/`⚠`; kept `⚖` (no MDL2 equivalent) and the
+  `🥇🥈🥉` medals (no MDL2 equivalent, and the view comments confirm the model `StatusIcon`/
+  `MedalIcon` emoji are **never rendered** in the TiDashboard).
+
+### D2 — fonts ✅
+- The only remaining hardcoded `FontFamily` is `Consolas` for intentional monospace
+  (account number / proforma id / pricing / terminal) — correct, left in place.
+
+### Pre-existing (NOT from this pass)
+- `verify_all.sh` reports a `using_check` FAIL on `Views/Reports/SalesReportView.xaml.cs`
+  (`'EasingMode' needs 'using System.Windows.Media.Animation;'`). This is a **tool false
+  positive** — the file already uses the fully-qualified
+  `System.Windows.Media.Animation.EasingMode.EaseOut`, so no `using` is required. It fails
+  identically at HEAD (pre-existing), unrelated to these changes.

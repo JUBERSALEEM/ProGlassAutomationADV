@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Reports/StatementGenerator/Preview/PreviewStep.xaml
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Wizard Step 2: PREVIEW (Chat 22 v3)
@@ -496,7 +496,7 @@
                     </Grid.RowDefinitions>
 
                     <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <TextBlock Text="📈  " FontSize="14"
+                        <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                    VerticalAlignment="Center"/>
                         <TextBlock Text="Aging Analysis"
                                    FontSize="13" FontWeight="Bold"

@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
      MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
@@ -90,7 +90,8 @@
                                 Background="{StaticResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
-                            <TextBlock Text="➤"
+                            <TextBlock Text="&#xE724;"
+                                       FontFamily="Segoe MDL2 Assets"
                                        Foreground="White"
                                        FontSize="16"
                                        HorizontalAlignment="Center"
@@ -268,7 +269,7 @@
                                 Background="#33FFFFFF"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
-                            <TextBlock Text="🤖" FontSize="20"
+                            <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="20"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -328,7 +329,7 @@
                                 Background="{StaticResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
-                            <TextBlock Text="💬" FontSize="36"
+                            <TextBlock Text="&#xE8BD;" FontFamily="Segoe MDL2 Assets" FontSize="36"
                                        Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -726,19 +727,20 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <TextBlock FontSize="16"
+                                        <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="16"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    IsHitTestVisible="False">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="🔇"/>
+                                                    <Setter Property="Text" Value="&#xE74F;"/>
                                                     <Setter Property="Foreground"
                                                             Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsSpeakerOn}"
                                                                      Value="True">
-                                                            <Setter Property="Text" Value="🔊"/>
+                                                            <Setter Property="Text" Value="&#xE767;"/>
                                                             <Setter Property="Foreground"
                                                                     Value="White"/>
                                                         </DataTrigger>
@@ -863,23 +865,24 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock FontSize="16"
+                                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="16"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        IsHitTestVisible="False">
                                                 <TextBlock.Style>
                                                     <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="🎤"/>
+                                                        <Setter Property="Text" Value="&#xE720;"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsListening}"
                                                                          Value="True">
-                                                                <Setter Property="Text" Value="⏹"/>
+                                                                <Setter Property="Text" Value="&#xE71A;"/>
                                                                 <Setter Property="Foreground"
                                                                         Value="White"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding IsProcessingVoice}"
                                                                          Value="True">
-                                                                <Setter Property="Text" Value="⏳"/>
+                                                                <Setter Property="Text" Value="&#xE895;"/>
                                                                 <Setter Property="Foreground"
                                                                         Value="White"/>
                                                             </DataTrigger>
@@ -955,7 +958,8 @@
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
                         <TextBlock x:Name="icon"
-                                   Text="🤖"
+                                   Text="&#xE99A;"
+                                   FontFamily="Segoe MDL2 Assets"
                                    FontSize="26"
                                    Foreground="White"
                                    HorizontalAlignment="Center"
@@ -968,7 +972,7 @@
                                     Property="Opacity" Value="0.9"/>
                         </Trigger>
                         <DataTrigger Binding="{Binding IsOpen}" Value="True">
-                            <Setter TargetName="icon" Property="Text" Value="✕"/>
+                            <Setter TargetName="icon" Property="Text" Value="&#xE711;"/>
                             <Setter TargetName="icon" Property="FontSize" Value="20"/>
                         </DataTrigger>
                     </ControlTemplate.Triggers>

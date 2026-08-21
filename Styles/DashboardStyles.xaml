@@ -80,9 +80,10 @@
     <Thickness x:Key="DashCardMargin">5</Thickness>
     <Thickness x:Key="DashPagePadding">14,12,14,14</Thickness>
 
-    <CornerRadius x:Key="DashCardRadius">10</CornerRadius>
-    <CornerRadius x:Key="DashTileRadius">8</CornerRadius>
-    <CornerRadius x:Key="DashPillRadius">6</CornerRadius>
+    <!-- Radii are now sourced from the theme tokens ControlCornerRadius /
+         CardCornerRadius / CardCornerRadiusLarge so every dashboard respects
+         the global radius slider (formerly StaticResource DashCardRadius=10,
+         DashTileRadius=8, DashPillRadius=6 — retired in the Phase-3 pass). -->
 
     <!-- ═══════════════════════════════════════════════════════════════
          SURFACES
@@ -96,7 +97,7 @@
         <Setter Property="BorderBrush"
                 Value="{DynamicResource DashGlassBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="{StaticResource DashCardRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>
         <Setter Property="Margin" Value="{StaticResource DashCardMargin}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -113,7 +114,7 @@
                 Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius" Value="{StaticResource DashTileRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -290,7 +291,7 @@
          STATUS PILL
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="DashPillStyle" TargetType="Border">
-        <Setter Property="CornerRadius" Value="{StaticResource DashPillRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="7,2"/>
         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -561,10 +562,8 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Geometry from the reference ─────────────────────────────── -->
-    <CornerRadius x:Key="SoftCardRadius">12</CornerRadius>
-    <CornerRadius x:Key="SoftHeroRadius">12</CornerRadius>
-    <CornerRadius x:Key="SoftPillRadius">10</CornerRadius>
-    <CornerRadius x:Key="SoftBadgeRadius">10</CornerRadius>
+    <!-- Radii retired: SoftCardRadius/SoftHeroRadius/SoftPillRadius/
+         SoftBadgeRadius now resolve to the theme radius tokens. -->
     <Thickness    x:Key="SoftCardPadding">20</Thickness>
     <Thickness    x:Key="SoftPagePadding">24</Thickness>
 
@@ -596,7 +595,7 @@
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius"    Value="{StaticResource SoftCardRadius}"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Effect"          Value="{StaticResource SoftCardShadow}"/>
@@ -627,7 +626,7 @@
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius"    Value="{StaticResource SoftCardRadius}"/>
+        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -637,7 +636,7 @@
         <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Background"   Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="CornerRadius" Value="{StaticResource SoftHeroRadius}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"      Value="24"/>
         <Setter Property="Margin"       Value="0,0,0,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -755,7 +754,7 @@
     <Style x:Key="SoftBadgeStyle" TargetType="Border">
         <Setter Property="Width"               Value="40"/>
         <Setter Property="Height"              Value="40"/>
-        <Setter Property="CornerRadius"        Value="{StaticResource SoftBadgeRadius}"/>
+        <Setter Property="CornerRadius"        Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="HorizontalAlignment" Value="Right"/>
         <Setter Property="VerticalAlignment"   Value="Top"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -798,7 +797,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Root"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="{StaticResource SoftPillRadius}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"

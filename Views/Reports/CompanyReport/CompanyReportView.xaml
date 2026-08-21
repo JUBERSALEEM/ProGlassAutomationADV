@@ -241,7 +241,7 @@
                 <!-- Error State -->
                 <Border Grid.Row="2" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
                         Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                        CornerRadius="10" Margin="16" Padding="20">
+                        CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
                         <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
