@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/Sections/DeveloperSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: About → "Developer" tab (identity + contact + tech stack +
@@ -33,7 +33,7 @@
             <StackPanel>
                 <TextBlock Text="Developer"
                            Style="{StaticResource SectionTitleStyle}"/>
-                <TextBlock Text="Built and maintained by Juber Saleem"
+                <TextBlock Text="Made in India by Juber Saleem · Baraut, Uttar Pradesh"
                            Style="{StaticResource SectionSubtitleStyle}"/>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"

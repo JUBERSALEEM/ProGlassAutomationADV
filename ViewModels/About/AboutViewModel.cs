@@ -82,7 +82,7 @@ public sealed class AboutViewModel : ViewModelBase
     public string AppName { get; } = "ProGlass Automation";
 
     /// <summary>One-line tagline shown under the app name.</summary>
-    public string AppTagline { get; } = "Software for Glass Production Workflow";
+    public string AppTagline { get; } = "Made in India · for the UAE glass industry";
 
     /// <summary>
     /// Semantic version string shown in the version pill.
@@ -150,8 +150,8 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>Developer's display name.</summary>
     public string DeveloperName { get; } = "Juber Saleem";
 
-    /// <summary>Developer's country of origin.</summary>
-    public string Country { get; } = "India";
+    /// <summary>Developer's city + state + country.</summary>
+    public string Country { get; } = "Baraut, Uttar Pradesh, India";
 
     /// <summary>
     /// Developer contact email.
@@ -178,17 +178,16 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>
     /// Left-side vertical pillars in the hero card.
     /// Emphasis on QUANTITY / IDENTITY:
-    ///   Modules count · UAE-built · Theme flexibility.
+    ///   Modules count · Made in India · Theme flexibility.
     /// </summary>
     public IReadOnlyList<HeroPillar> LeftPillars { get; } = new[]
     {
-        new HeroPillar("\uE9F9", "8",     "MODULES"),
-        // E909 (Globe), NOT the UAE flag emoji. HeroPillarTemplate renders
+        new HeroPillar("\uE9F9", "8",      "MODULES"),
+        // E909 (Globe), NOT the India flag emoji. HeroPillarTemplate renders
         // this through FontFamily="Segoe MDL2 Assets", which contains no
-        // emoji glyphs, so the flag fell back to four .notdef boxes on
-        // screen - visible as tofu in the hero card. Every pillar glyph must
-        // therefore be an MDL2 codepoint.
-        new HeroPillar("\uE909", "UAE",   "BUILT"),
+        // emoji glyphs, so a flag would fall back to .notdef boxes on
+        // screen. Every pillar glyph must therefore be an MDL2 codepoint.
+        new HeroPillar("\uE909", "INDIA", "MADE IN"),
         new HeroPillar("\uE790", "DARK",  "+ LIGHT"),
     };
 
@@ -358,7 +357,7 @@ public sealed class AboutViewModel : ViewModelBase
     private static string BuildCopyright()
     {
         int year = Math.Max(DateTime.Now.Year, CopyrightYearFloor);
-        return $"© {year} ProGlass Automation. Developed by Juber Saleem. All rights reserved.";
+        return $"© {year} ProGlass Automation. Made in India by Juber Saleem. All rights reserved.";
     }
 }
 

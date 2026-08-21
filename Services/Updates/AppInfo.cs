@@ -16,7 +16,7 @@ namespace ProGlassAutomation.Services.Updates
     {
         public const string Name = "ProGlass Automation";
         public const string Developer = "Juber Saleem";
-        public const string Copyright = "© 2026 Juber Saleem. All rights reserved.";
+        public const string Copyright = "© 2026 Juber Saleem. Made in India. All rights reserved.";
 
         /// <summary>GitHub repository backing the OTA update check.</summary>
         public const string GitHubOwner = "JUBERSALEEM";

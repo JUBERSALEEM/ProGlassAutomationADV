@@ -34,6 +34,13 @@
     <SolidColorBrush x:Key="SideMenuBackgroundBrush"
                      Color="#0F172A"
                      po:Freeze="True"/>
+    <!-- Opaque Color twins for the drawer gradient (MainWindow uses
+         SideMenuBackgroundColor / ModuleBackgroundColor as DynamicResource
+         Color). LightTheme defined these; DarkTheme did not, so in dark
+         mode the drawer gradient fell back to transparent and the side
+         menu bar became invisible. Added for parity. -->
+    <Color x:Key="ModuleBackgroundColor">#0F172A</Color>
+    <Color x:Key="SideMenuBackgroundColor">#0F172A</Color>
     <SolidColorBrush x:Key="MenuHoverBrush"
                      Color="#1E293B"
                      po:Freeze="True"/>

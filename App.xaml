@@ -7,15 +7,6 @@
                  Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
-
-            <!-- ═══ GLOBAL FONT (FontService) ══════════════════════════
-                 Referenced with DynamicResource across the app so
-                 FontService.ApplyFont can restyle the whole UI at once.
-                 Bold / italic are applied via AppFontWeight / AppFontStyle. -->
-            <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
-            <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
-            <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
-
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
@@ -84,6 +75,16 @@
                 <ResourceDictionary Source="/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- ═══ GLOBAL FONT (FontService) ══════════════════════════
+                 Referenced with DynamicResource across the app so
+                 FontService.ApplyFont can restyle the whole UI at once.
+                 Bold / italic are applied via AppFontWeight / AppFontStyle.
+                 Declared AFTER the merged dictionaries (XAML requires
+                 property elements before content, not interleaved). -->
+            <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+            <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
+            <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
 
             <!-- ══════════════════════════════════════════════════════════
                      BUILT-IN CONVERTERS (preserved)

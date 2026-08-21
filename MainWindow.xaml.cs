@@ -56,7 +56,6 @@ namespace ProGlassAutomation
                     vm.IsScreenshotOpen = false;
                     vm.IsScreenRecordOpen = false;
                 }
-                StopCloseTimer();
             };
 
             // Non-blocking popup click-outside dismiss handler
@@ -214,88 +213,10 @@ namespace ProGlassAutomation
             }
         }
 
-        // ── top-bar dropdowns ─────────────────────────────────────────────
-        private DispatcherTimer? _dropdownCloseTimer;
-        private bool _isMouseOverPopup;
-
-        private void SetOpen(object sender, bool open)
-        {
-            if (DataContext is not MainViewModel vm) return;
-            if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = open;
-            else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = open;
-            else if (ReferenceEquals(sender, UserCardButton)) vm.IsUserSwitchOpen = open;
-            else if (ReferenceEquals(sender, ScreenshotButton)) vm.IsScreenshotOpen = open;
-            else if (ReferenceEquals(sender, RecordButton)) vm.IsScreenRecordOpen = open;
-        }
-
-        private void OpenDropdown(object sender)
-        {
-            _isMouseOverPopup = false;
-            StopCloseTimer();
-
-            if (DataContext is MainViewModel vm)
-            {
-                vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
-                vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
-                vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
-                vm.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
-                vm.IsScreenRecordOpen = ReferenceEquals(sender, RecordButton);
-            }
-        }
-
-        private void CloseDropdown(object sender)
-        {
-            StopCloseTimer();
-            SetOpen(sender, false);
-        }
-
-        private void StopCloseTimer()
-        {
-            if (_dropdownCloseTimer == null) return;
-            _dropdownCloseTimer.Stop();
-            _dropdownCloseTimer = null;
-        }
-
-        // Phase 3: Thread-affinity guard — uses CreateDispatcherTimerWithHandler
-        private void StartCloseTimer()
-        {
-            StopCloseTimer();
-            _dropdownCloseTimer = AsyncUtility.CreateDispatcherTimerWithHandler(
-                TimeSpan.FromMilliseconds(1200),
-                (_, _) =>
-                {
-                    _dropdownCloseTimer!.Stop();
-                    _dropdownCloseTimer = null;
-
-                    if (_isMouseOverPopup) return;
-
-                    if (DataContext is MainViewModel vm)
-                    {
-                        vm.IsSettingsOpen = false;
-                        vm.IsNotificationsOpen = false;
-                        vm.IsUserSwitchOpen = false;
-                        vm.IsScreenshotOpen = false;
-                        vm.IsScreenRecordOpen = false;
-                    }
-                },
-                "MainWindow DropdownClose");
-            _dropdownCloseTimer.Start();
-        }
-
-        // Hover a button: open its popup
-        private void TopBarButton_MouseEnter(object sender, MouseEventArgs e)
-        {
-            _isMouseOverPopup = false;
-            StopCloseTimer();
-            OpenDropdown(sender);
-        }
-
-        // Leave a button: schedule close
-        private void TopBarButton_MouseLeave(object sender, MouseEventArgs e)
-        {
-            _isMouseOverPopup = false;
-            StartCloseTimer();
-        }
+        // ── top-bar dropdowns (click-only — no hover open/close) ───────────
+        // Click toggles a popup; clicking outside dismisses it (the
+        // PreviewMouseLeftButtonDown handler in the constructor). Hover
+        // open/close was removed so the popups behave like normal menus.
 
         // Click toggles popup
         private void DropdownButton_Click(object sender, RoutedEventArgs e)
@@ -310,52 +231,22 @@ namespace ProGlassAutomation
 
             if (isOpen)
             {
-                CloseDropdown(sender);
+                // Close the one popup that was open.
+                if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = false;
+                else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = false;
+                else if (ReferenceEquals(sender, UserCardButton)) vm.IsUserSwitchOpen = false;
+                else if (ReferenceEquals(sender, ScreenshotButton)) vm.IsScreenshotOpen = false;
+                else if (ReferenceEquals(sender, RecordButton)) vm.IsScreenRecordOpen = false;
             }
             else
             {
-                if (DataContext is MainViewModel m2)
-                {
-                    m2.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
-                    m2.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
-                    m2.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
-                    m2.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
-                    m2.IsScreenRecordOpen = ReferenceEquals(sender, RecordButton);
-                }
-                StopCloseTimer();
+                // Open exactly this popup, close all the others.
+                vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
+                vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
+                vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
+                vm.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
+                vm.IsScreenRecordOpen = ReferenceEquals(sender, RecordButton);
             }
-        }
-
-        // Entering popup cancels close timer
-        private void PopupContent_MouseEnter(object sender, MouseEventArgs e)
-        {
-            _isMouseOverPopup = true;
-            StopCloseTimer();
-        }
-
-        // Leaving popup — special handling for ScreenRecord to avoid closing
-        // when interacting with ComboBox dropdowns (which live in separate Popup)
-        private void PopupContent_MouseLeave(object sender, MouseEventArgs e)
-        {
-            // Screen recording dropdown: rely on click-outside dismiss
-            // to avoid closing when interacting with ComboBox dropdowns
-            if (ReferenceEquals(sender, ScreenRecordPanelHost))
-            {
-                _isMouseOverPopup = false;
-                StopCloseTimer();
-                return;
-            }
-
-            var source = Mouse.DirectlyOver as DependencyObject;
-            if (source != null && IsDescendantOf(source, ScreenRecordPanelHost))
-            {
-                _isMouseOverPopup = true;
-                StopCloseTimer();
-                return;
-            }
-
-            _isMouseOverPopup = false;
-            StartCloseTimer();
         }
 
         private void Logo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -367,7 +258,6 @@ namespace ProGlassAutomation
                 vm.IsScreenshotOpen = false;
                 vm.IsUserSwitchOpen = false;
                 vm.IsScreenRecordOpen = false;
-                StopCloseTimer();
                 vm.NavigateFromAgent("About");
             }
         }

@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
      MODULE: Main Shell (Chat 24 v4.0 — theme-based redesign)
@@ -886,8 +886,6 @@
                                 Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
                                 Click="DropdownButton_Click"
-                                MouseEnter="TopBarButton_MouseEnter"
-                                MouseLeave="TopBarButton_MouseLeave"
                                 ToolTip="Recent activity"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
@@ -904,8 +902,6 @@
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
                             Click="DropdownButton_Click"
-                            MouseEnter="TopBarButton_MouseEnter"
-                            MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Settings"
                             Margin="0,0,10,0"/>
 
@@ -914,16 +910,12 @@
                             Style="{StaticResource TopIconButton}"
                             Content="&#xEB9F;"
                             Click="DropdownButton_Click"
-                            MouseEnter="TopBarButton_MouseEnter"
-                            MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Capture screenshot"
                             Margin="0,0,10,0"/>
 
                     <!-- SCREEN RECORD — independent of Demo Center walks -->
                     <Button x:Name="RecordButton"
                             Click="DropdownButton_Click"
-                            MouseEnter="TopBarButton_MouseEnter"
-                            MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Screen recording — this app window"
                             AutomationProperties.AutomationId="Shell.ScreenRecord"
                             Margin="0,0,10,0">
@@ -1479,7 +1471,7 @@
                Opened="UserSwitchPopup_Opened"
                Closed="UserSwitchPopup_Closed">
             <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"
-                                        MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+                                        />
         </Popup>
 
         <!-- Quick-settings popup (non-blocking, same pattern as user card) -->
@@ -1494,7 +1486,7 @@
                Opened="SettingsPopup_Opened"
                Closed="SettingsPopup_Closed">
             <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="280"
-                                            MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+                                            />
         </Popup>
 
         <!-- About is NOT a popup: clicking the logo (LogoPanel) opens the full
@@ -1512,7 +1504,7 @@
                Opened="NotificationsPopup_Opened"
                Closed="NotificationsPopup_Closed">
             <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
-                                        MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+                                        />
         </Popup>
 
         <!-- Screenshot popup (dedicated, separate from About) -->
@@ -1527,7 +1519,7 @@
                Opened="ScreenshotPopup_Opened"
                Closed="ScreenshotPopup_Closed">
             <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
-                                         MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+                                         />
         </Popup>
 
         <!-- Screen record popup (independent of Demo Center) -->
@@ -1542,7 +1534,7 @@
                Opened="ScreenRecordPopup_Opened"
                Closed="ScreenRecordPopup_Closed">
             <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
-                                           MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+                                           />
         </Popup>
 </Grid>
 </Window>

@@ -1,11 +1,11 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Splash Screen — industrial glass identity
 
      Professional glassmorphism composition on the deep-navy stage:
        • aurora backdrop (layered soft orbs)
-       • top frosted trust chips (MADE FOR UAE / ENTERPRISE · vX /
+       • top frosted trust chips (MADE IN INDIA / ENTERPRISE · vX /
          OFFLINE · SECURE)
        • centered glass logo tile with halo + orbit ring + sheen
        • product name (metallic gradient) + tagline
@@ -295,7 +295,7 @@
                         HorizontalAlignment="Left" Opacity="0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE774;" Style="{StaticResource ChipGlyphStyle}"/>
-                        <TextBlock Text="MADE FOR UAE" Style="{StaticResource ChipTextStyle}"/>
+                        <TextBlock Text="MADE IN INDIA" Style="{StaticResource ChipTextStyle}"/>
                     </StackPanel>
                 </Border>
                 <Border x:Name="TopCenterPill" Style="{StaticResource TrustChipStyle}"
@@ -375,7 +375,7 @@
                 </TextBlock>
 
                 <TextBlock x:Name="TaglineText"
-                           Text="Industrial ERP for glass production"
+                           Text="Made in India for the UAE glass industry"
                            FontSize="13.5"
                            HorizontalAlignment="Center"
                            Margin="0,7,0,0"
@@ -456,7 +456,7 @@
                     <Run Text="© 2026 ProGlass Automation"/>
                     <Run Text="  ·  v"/>
                     <Run Text="{x:Static updates:AppInfo.Version}"/>
-                    <Run Text="  ·  Sharjah, UAE"/>
+                    <Run Text="  ·  Baraut, Uttar Pradesh, India"/>
                 </TextBlock>
             </Border>
         </Grid>
