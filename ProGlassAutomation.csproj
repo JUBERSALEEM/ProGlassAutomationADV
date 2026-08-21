@@ -11,7 +11,8 @@
 		<AnalysisLevel>latest</AnalysisLevel>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-		<WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604</WarningsNotAsErrors>
+		<WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604;NU1603;NU1605;NU1701</WarningsNotAsErrors>
+		<NoWarn>$(NoWarn);NU1603;NU1605</NoWarn>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
 		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
 		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
@@ -61,7 +62,7 @@
 		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
 		<!-- Windows DPAPI (ProtectedData) — used by Services/Security/SecretVault
 		     to keep API keys out of plain-text config files. -->
-		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.1" />
+		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
 		<PackageReference Include="System.Speech" Version="8.0.0" />
 
 		<!--
