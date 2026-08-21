@@ -8,6 +8,7 @@ using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
 using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;

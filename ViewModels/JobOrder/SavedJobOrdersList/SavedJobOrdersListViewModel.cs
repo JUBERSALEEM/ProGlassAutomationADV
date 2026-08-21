@@ -896,7 +896,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             if (_disposed) return;
             _disposed = true;
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
             GC.SuppressFinalize(this);
         }
 
@@ -946,26 +945,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             return map;
         }
 
-        public void Dispose()
-        {
-            if (_disposed) return;
-            _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            GC.SuppressFinalize(this);
-        }
-
         private static bool Eq(string? a, string b) =>
             string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
-
-        public void Dispose()
-        {
-            if (_disposed) return;
-            _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            GC.SuppressFinalize(this);
-        }
 
         private static int PriorityRank(string? priority) =>
             priority?.ToLowerInvariant() switch

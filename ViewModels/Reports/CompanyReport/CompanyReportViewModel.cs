@@ -28,11 +28,18 @@ namespace ProGlassAutomation.ViewModels.Reports.CompanyReport
         private ObservableCollection<CompanyReportRow> _companyRows = new();
         public ObservableCollection<CompanyReportRow> CompanyRows { get => _companyRows; set { _companyRows = value; OnPropertyChanged(); } }
 
+        // NOTE: these "selected row" properties intentionally hide the
+        // base ReportBaseViewModel.SelectedCustomer/SelectedCompany
+        // (string filter values) — they hold the selected grid row
+        // (CustomerReportRow / CompanyReportRow) used to load the
+        // lifecycle detail. The base string filters remain available via
+        // base.SelectedCustomer / base.SelectedCompany and are used by
+        // BuildFilter().
         private CustomerReportRow? _selectedCustomer;
-        public CustomerReportRow? SelectedCustomer { get => _selectedCustomer; set { _selectedCustomer = value; OnPropertyChanged(); if (value != null) _ = LoadCustomerDetailAsync(value.CustomerName); } }
+        public new CustomerReportRow? SelectedCustomer { get => _selectedCustomer; set { _selectedCustomer = value; OnPropertyChanged(); if (value != null) _ = LoadCustomerDetailAsync(value.CustomerName); } }
 
         private CompanyReportRow? _selectedCompany;
-        public CompanyReportRow? SelectedCompany { get => _selectedCompany; set { _selectedCompany = value; OnPropertyChanged(); } }
+        public new CompanyReportRow? SelectedCompany { get => _selectedCompany; set { _selectedCompany = value; OnPropertyChanged(); } }
 
         // Detail: lifecycle PI→JO→DN→TI for selected customer
         private ObservableCollection<PiReportRow> _piLifecycle = new();

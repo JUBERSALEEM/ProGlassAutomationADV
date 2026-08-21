@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Commands/RelayCommand.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Commands (Chat 25 v1.0 — async-safe)
@@ -55,14 +55,14 @@ namespace ProGlassAutomation.Commands
             _canExecute = canExecute;
         }
 
-        public bool CanExecute(object parameter) =>
-            _canExecute?.Invoke(parameter) ?? true;
+        public bool CanExecute(object? parameter) =>
+            _canExecute?.Invoke(parameter!) ?? true;
 
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
             try
             {
-                _execute(parameter);
+                _execute(parameter!);
             }
             catch (Services.Audit.PermissionDeniedException denied)
             {
@@ -136,7 +136,7 @@ namespace ProGlassAutomation.Commands
             }
         }
 
-        public event EventHandler CanExecuteChanged
+        public event EventHandler? CanExecuteChanged
         {
             add => CommandManager.RequerySuggested += value;
             remove => CommandManager.RequerySuggested -= value;

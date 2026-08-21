@@ -144,8 +144,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         }
 
         // ── Footer timestamp ─────────────────────────────────────────
+        // Intentionally hides DashboardPageBase.LastRefreshed so this page
+        // can use its own format ("Last refreshed dd MMM yyyy, HH:mm")
+        // instead of the base's generic "Updated HH:mm:ss" stamp.
         private string _lastRefreshed = string.Empty;
-        public string LastRefreshed
+        public new string LastRefreshed
         {
             get => _lastRefreshed;
             private set
