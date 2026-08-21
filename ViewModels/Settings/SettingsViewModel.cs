@@ -23,6 +23,7 @@ using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

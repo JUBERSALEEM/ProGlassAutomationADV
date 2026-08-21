@@ -45,7 +45,30 @@ namespace ProGlassAutomation.Services.SampleData
     {
         /// <summary>Raised (UI thread) after a successful seed so open
         /// lists refresh instantly without a manual refresh.</summary>
-        public static event Action DataSeeded;
+        /// <remarks>
+        /// Func&lt;Task&gt; rather than Action: every subscriber is an async
+        /// reload (the ViewModels assign `async () => await LoadAsync()`),
+        /// so the event must carry Task-returning delegates (CS0029).
+        /// Handlers are awaited one at a time; a failing handler is logged
+        /// and must not break the others.
+        /// </remarks>
+        public static event Func<Task>? DataSeeded;
+
+        /// <summary>
+        /// Invokes every DataSeeded handler sequentially. A throwing
+        /// handler is logged and never prevents the others from running.
+        /// </summary>
+        private static async Task RaiseDataSeededAsync()
+        {
+            if (DataSeeded == null) return;
+
+            foreach (Func<Task> handler in DataSeeded.GetInvocationList())
+            {
+                try { await handler(); }
+                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            }
+        }
+
         /// <summary>
         /// Returns true when any business table already has data
         /// (seeding would mix demo with real records — refuse).
@@ -138,7 +161,7 @@ namespace ProGlassAutomation.Services.SampleData
                 "Sample data loaded",
                 "6 sheets, 3 PIs, 2 JOs, 2 DNs, 3 TIs seeded for first-run exploration");
 
-            try { DataSeeded?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            await RaiseDataSeededAsync();
 
             return "Sample data loaded ✔\n\n" +
                    "• Sheet Store: 6 glass sheets\n" +
@@ -232,7 +255,7 @@ namespace ProGlassAutomation.Services.SampleData
 
             // Re-uses the seed event on purpose: every subscribed list
             // reloads and shows the now-empty database immediately.
-            try { DataSeeded?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+            await RaiseDataSeededAsync();
 
             return "All data cleared ✔\n\n" +
                    $"• Sheet Store: {sh} sheet(s) removed\n" +

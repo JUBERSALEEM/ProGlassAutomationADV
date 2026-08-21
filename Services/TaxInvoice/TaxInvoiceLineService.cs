@@ -37,7 +37,7 @@ namespace ProGlassAutomation.Services.TaxInvoice
             decimal discountAmount,
             decimal vatRate = 0.05m)
         {
-            decimal subtotal = items.Sum(i => i.LineTotal);
+            decimal subtotal = items.Sum(i => i.Value);
             decimal afterDiscount = Math.Max(0, subtotal - discountAmount);
             decimal vat = Math.Round(afterDiscount * vatRate, 2);
             decimal grandTotal = afterDiscount + vat;

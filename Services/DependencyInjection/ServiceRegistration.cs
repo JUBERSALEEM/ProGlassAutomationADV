@@ -112,13 +112,13 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // Dashboard + sub-dashboards
             services.AddTransient<DashboardViewModel>();
-            services.AddTransient<ViewModels.Dashboard.Overview.OverviewDashboardViewModel>();
+            services.AddTransient<ViewModels.Dashboard.OverviewDashboardViewModel>();
             services.AddTransient<ViewModels.Dashboard.DeliveryNote.DnDashboard.DnDashboardViewModel>();
             services.AddTransient<ViewModels.Dashboard.JobOrder.JoDashboard.JoDashboardViewModel>();
             services.AddTransient<ViewModels.Dashboard.TaxInvoice.TiDashboard.TiDashboardViewModel>();
             services.AddTransient<ViewModels.Dashboard.Statement.StDashboardViewModel>();
-            services.AddTransient<ViewModels.Dashboard.SheetStore.SheetStoreDashboardViewModel>();
-            services.AddTransient<ViewModels.Dashboard.ProformaInvoice.PiDashboard.PiDashboardViewModel>();
+            services.AddTransient<ViewModels.Dashboard.SheetStoreDashboardViewModel>();
+            services.AddTransient<ViewModels.Dashboard.PiDashboardViewModel>();
 
             // Proforma Invoice + wizard steps
             services.AddTransient<ProformaInvoiceViewModel>();

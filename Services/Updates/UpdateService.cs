@@ -610,14 +610,17 @@ namespace ProGlassAutomation.Services.Updates
                 // handing a corrupt installer to the user.
                 if (!IsDownloadComplete(total, copied))
                 {
+                    // Inside this branch IsDownloadComplete returned false,
+                    // which means total is guaranteed non-null (it returns
+                    // true for a null Content-Length).
                     AppLogService.Warning(
                         $"Update download was truncated: expected " +
-                        $"{total.Value} bytes, got {copied}. File discarded.",
+                        $"{total!.Value} bytes, got {copied}. File discarded.",
                         new LogContext { Module = "Updates", Operation = "Download" });
 
                     AuditService.Log(AuditSections.Updates,
                         "UPDATE_DOWNLOAD_TRUNCATED",
-                        $"{fileName}: expected {total.Value} bytes, got {copied}.");
+                        $"{fileName}: expected {total!.Value} bytes, got {copied}.");
 
                     // Best-effort delete of the partial file.
                     try { if (File.Exists(targetPath)) File.Delete(targetPath); }

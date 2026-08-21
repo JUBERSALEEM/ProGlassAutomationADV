@@ -370,7 +370,11 @@ namespace ProGlassAutomation.Services.Updates
                 pData = Marshal.AllocHGlobal(Marshal.SizeOf<WinTrustData>());
                 Marshal.StructureToPtr(data, pData, false);
 
-                int hr = WinVerifyTrust(IntPtr.Zero, ref GenericVerifyV2, pData);
+                // WinVerifyTrust takes the action GUID by ref, so a
+                // static readonly field cannot be passed directly (CS0199).
+                // Copy it into a local first.
+                Guid actionId = GenericVerifyV2;
+                int hr = WinVerifyTrust(IntPtr.Zero, ref actionId, pData);
 
                 // ── Close the trust provider state — MUST run even on ──
                 // failure or WinVerifyTrust leaks provider state. The close
@@ -379,7 +383,8 @@ namespace ProGlassAutomation.Services.Updates
                 var close = Marshal.PtrToStructure<WinTrustData>(pData);
                 close.dwStateAction = WtdStateActionClose;
                 Marshal.StructureToPtr(close, pData, false);
-                int closeHr = WinVerifyTrust(IntPtr.Zero, ref GenericVerifyV2, pData);
+                Guid closeActionId = GenericVerifyV2;
+                int closeHr = WinVerifyTrust(IntPtr.Zero, ref closeActionId, pData);
                 if (closeHr != 0)
                 {
                     AppLogService.Warning(
