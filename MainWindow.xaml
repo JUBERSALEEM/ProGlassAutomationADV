@@ -238,6 +238,11 @@
              TOP-BAR ICON BUTTON (40×40 rounded, theme-based)
         ═══════════════════════════════════════════════════════════════ -->
 
+        <!-- Top panel pill radius — every control in the top bar (search,
+             theme toggle, AI agent, date/time, connectivity, user card and
+             the icon buttons) shares this 14px rounded-pill corner. -->
+        <CornerRadius x:Key="TopPillCornerRadius">14</CornerRadius>
+
         <Style x:Key="TopIconButton" TargetType="Button">
             <Setter Property="Width" Value="36"/>
             <Setter Property="Height" Value="36"/>
@@ -254,7 +259,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="{StaticResource TopPillCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontFamily="Segoe MDL2 Assets"
@@ -314,7 +319,7 @@
                                 Background="{DynamicResource TintBlueBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                CornerRadius="{StaticResource TopPillCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Grid Width="12" Height="12" Margin="0,0,10,0">
@@ -689,27 +694,20 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             TOP PANEL — dark bar with a dashboard-style module switcher.
-
-             Row 0 · main bar: hamburger, logo, visible search, right cluster
-             Row 1 · segmented module switch (dark track + accent pills) —
-                     same pattern as the Dashboard workspace picker.
+             TOP PANEL — single dark bar of rounded 14px pills:
+             hamburger · logo · search · theme · AI agent · date/time ·
+             connectivity · notifications · settings · screenshot ·
+             record · user card.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
+                Height="60"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,0,0,1"
                 Panel.ZIndex="50"
                 SnapsToDevicePixels="True">
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/><!-- main bar -->
-                    <RowDefinition Height="Auto"/><!-- module switcher -->
-                </Grid.RowDefinitions>
-
-                <!-- ── MAIN BAR ─────────────────────────────────────── -->
-                <Grid Grid.Row="0" Height="56" Margin="16,0">
+            <Grid Margin="16,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/><!-- Hamburger -->
                         <ColumnDefinition Width="Auto"/><!-- Logo -->
@@ -736,7 +734,7 @@
                             MouseLeftButtonDown="Logo_MouseLeftButtonDown"
                             ToolTip="About ProGlass Automation">
                     <Border Width="36" Height="36"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{StaticResource TopPillCornerRadius}"
                             Effect="{StaticResource LogoGlow}"
                             SnapsToDevicePixels="True">
                         <Border.Background>
@@ -808,14 +806,14 @@
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{StaticResource TopPillCornerRadius}"
                             Padding="10,0"
                             Margin="0,0,10,0"
                             SnapsToDevicePixels="True"
                             ToolTip="Current date and time">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    CornerRadius="{StaticResource TopPillCornerRadius}"
                                     Background="{StaticResource DateTimeIconGradient}"
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
@@ -839,7 +837,7 @@
 
                     <!-- CONNECTIVITY PILL -->
                     <Border Height="36"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{StaticResource TopPillCornerRadius}"
                             Padding="12,0"
                             Margin="0,0,10,0"
                             BorderBrush="{DynamicResource BorderBrush}"
@@ -950,12 +948,12 @@
                                         Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        CornerRadius="{StaticResource TopPillCornerRadius}"
                                         Padding="6,0,14,0"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Width="30" Height="30"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                CornerRadius="{StaticResource TopPillCornerRadius}"
                                                 Background="{StaticResource AvatarGradient}"
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
@@ -995,99 +993,6 @@
                     </Button>
 
                 </StackPanel>
-                </Grid>
-
-                <!-- ═══════════════════════════════════════════════════
-                     MODULE SWITCHER — dashboard-style segmented picker.
-                     Dark track, accent pill marks the active module.
-                ═══════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="1" Margin="16,0,16,12">
-                    <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="3"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                                      VerticalScrollBarVisibility="Disabled"
-                                      Focusable="False"
-                                      FocusVisualStyle="{x:Null}">
-                            <ItemsControl ItemsSource="{Binding QuickModules}"
-                                          KeyboardNavigation.TabNavigation="Continue">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel Orientation="Horizontal"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Button Command="{Binding DataContext.NavigateCommand,
-                                                          RelativeSource={RelativeSource AncestorType=Window}}"
-                                                CommandParameter="{Binding Key}"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                Padding="0"
-                                                Margin="1,0"
-                                                Cursor="Hand"
-                                                FocusVisualStyle="{x:Null}"
-                                                ToolTip="{Binding Title}">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="Pill"
-                                                            Background="Transparent"
-                                                            CornerRadius="{DynamicResource CardCornerRadius}"
-                                                            Padding="12,7"
-                                                            SnapsToDevicePixels="True">
-                                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                            <TextBlock x:Name="Icon"
-                                                                       Text="{Binding Icon}"
-                                                                       FontFamily="Segoe MDL2 Assets"
-                                                                       FontSize="13"
-                                                                       VerticalAlignment="Center"
-                                                                       Margin="0,0,7,0"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                            <TextBlock x:Name="Label"
-                                                                       Text="{Binding Title}"
-                                                                       FontSize="12"
-                                                                       FontWeight="SemiBold"
-                                                                       VerticalAlignment="Center"
-                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="Pill" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-                                                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-                                                        </Trigger>
-                                                        <!-- Active module -->
-                                                        <DataTrigger Value="True">
-                                                            <DataTrigger.Binding>
-                                                                <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
-                                                                    <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
-                                                                    <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                                </MultiBinding>
-                                                            </DataTrigger.Binding>
-                                                            <Setter TargetName="Pill" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                            <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                            <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                                            <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
-                                                        </DataTrigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="Pill" Property="Opacity" Value="0.8"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Border>
-                </Grid>
-
             </Grid>
         </Border>
 
@@ -1143,8 +1048,7 @@
             <Border Width="292"
                     HorizontalAlignment="Left"
                     Margin="12"
-                    BorderBrush="{DynamicResource ShellGlassBorderBrush}"
-                    BorderThickness="1"
+                    BorderThickness="0"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellGlassBrush}"
                     Panel.ZIndex="10"
