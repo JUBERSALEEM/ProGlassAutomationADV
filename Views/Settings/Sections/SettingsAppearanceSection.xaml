@@ -66,7 +66,7 @@
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
-                                   Text="Normal = clean default. Monet = colour-adaptive glass surfaces derived from your accent colour. Professional = premium corporate finish with cool crisp surfaces."/>
+                                   Text="Normal = clean default. Monet = colour-adaptive glass derived from your accent colour. Professional = premium corporate with cool crisp surfaces. Glass = frosted translucency with a glass stage. Ocean = deep teal corporate. Your choice restyles the whole app instantly."/>
 
                         <!-- Defined card edge — one switch, applied globally
                              through the OutlineBrush theme key. -->

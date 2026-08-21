@@ -48,6 +48,8 @@ namespace ProGlassAutomation.Services.Theme
         public const string Normal = "Normal";
         public const string Monet = "Monet";
         public const string Professional = "Professional";
+        public const string Glass = "Glass";
+        public const string Ocean = "Ocean";
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
         private static readonly string[] ManagedKeys =
@@ -158,6 +160,14 @@ namespace ProGlassAutomation.Services.Theme
                     case Professional:
                         ApplyProfessional(resources);
                         break;
+
+                    case Glass:
+                        ApplyGlass(resources);
+                        break;
+
+                    case Ocean:
+                        ApplyOcean(resources);
+                        break;
                 }
 
                 // System-wide wallpaper chrome: paint the window
@@ -232,6 +242,12 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                     case Professional:
                         ApplyProfessional(resources);
+                        break;
+                    case Glass:
+                        ApplyGlass(resources);
+                        break;
+                    case Ocean:
+                        ApplyOcean(resources);
                         break;
                 }
 
@@ -551,6 +567,103 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0x8C, 0x9C, 0xB0));
         }
 
+        // ── GLASS — frosted translucency (premium glass identity) ─────
+
+        private static void ApplyGlass(ResourceDictionary resources)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+            // Cool glass stage gradient.
+            var window = new LinearGradientBrush(
+                dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
+                     : Color.FromRgb(0xEE, 0xF4, 0xFB),
+                dark ? Color.FromRgb(0x12, 0x22, 0x44)
+                     : Color.FromRgb(0xE4, 0xED, 0xF9),
+                new Point(0, 0), new Point(1, 1));
+            window.Freeze();
+            resources["WindowBackgroundBrush"] = window;
+
+            // Frosted surfaces — translucent and lightly accent-tinted so
+            // the stage gradient reads through each card (the glass look).
+            var accent = ThemeManager.AccentColor;
+            resources["ModuleBackgroundBrush"] = GlassSurface(
+                resources, "ModuleBackgroundBrush", accent,
+                Colors.White, dark ? 0.86 : 0.78, dark);
+            resources["ElevatedSurfaceBrush"] = GlassSurface(
+                resources, "ElevatedSurfaceBrush", accent,
+                Colors.White, dark ? 0.92 : 0.84, dark);
+            resources["SideMenuBackgroundBrush"] = GlassSurface(
+                resources, "SideMenuBackgroundBrush", accent,
+                Colors.White, dark ? 0.94 : 0.86, dark);
+            resources["MenuHoverBrush"] = GlassSurface(
+                resources, "MenuHoverBrush", accent,
+                Color.FromRgb(0xF3, 0xF4, 0xF6), dark ? 0.60 : 0.55, dark);
+
+            // Softer radii suit the frosted material.
+            resources["CardCornerRadius"] = new CornerRadius(14);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(18);
+            resources["ControlCornerRadius"] = new CornerRadius(10);
+
+            ApplyKeyline(resources, dark
+                ? Color.FromRgb(0x4A, 0x5E, 0x7E)
+                : Color.FromRgb(0x9C, 0xB2, 0xD0));
+        }
+
+        // ── OCEAN — deep teal corporate ───────────────────────────────
+
+        private static void ApplyOcean(ResourceDictionary resources)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+            var window = new LinearGradientBrush(
+                dark ? Color.FromRgb(0x07, 0x1A, 0x24)
+                     : Color.FromRgb(0xEC, 0xF7, 0xF9),
+                dark ? Color.FromRgb(0x0A, 0x24, 0x33)
+                     : Color.FromRgb(0xDD, 0xF0, 0xF4),
+                new Point(0, 0), new Point(1, 1));
+            window.Freeze();
+            resources["WindowBackgroundBrush"] = window;
+
+            Color teal = dark
+                ? Color.FromRgb(0x0E, 0x2A, 0x38)
+                : Color.FromRgb(0xD6, 0xEC, 0xF1);
+
+            Color moduleBg = ThemeManager.GetThemeColor(
+                "ModuleBackgroundBrush", Colors.White);
+            var moduleBrush = new SolidColorBrush(
+                ColorMath.Mix(moduleBg, teal, 0.55));
+            moduleBrush.Freeze();
+            resources["ModuleBackgroundBrush"] = moduleBrush;
+
+            Color elevated = ThemeManager.GetThemeColor(
+                "ElevatedSurfaceBrush", Colors.White);
+            var elevatedBrush = new SolidColorBrush(
+                ColorMath.Mix(elevated, teal, 0.45));
+            elevatedBrush.Freeze();
+            resources["ElevatedSurfaceBrush"] = elevatedBrush;
+
+            Color sideMenu = ThemeManager.GetThemeColor(
+                "SideMenuBackgroundBrush", Colors.White);
+            var sideMenuBrush = new SolidColorBrush(
+                ColorMath.Mix(sideMenu, teal, 0.40));
+            sideMenuBrush.Freeze();
+            resources["SideMenuBackgroundBrush"] = sideMenuBrush;
+
+            resources["CardCornerRadius"] = new CornerRadius(12);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(16);
+            resources["ControlCornerRadius"] = new CornerRadius(8);
+
+            var hover = new SolidColorBrush(dark
+                ? Color.FromRgb(0x14, 0x35, 0x47)
+                : Color.FromRgb(0xE4, 0xF2, 0xF6));
+            hover.Freeze();
+            resources["MenuHoverBrush"] = hover;
+
+            ApplyKeyline(resources, dark
+                ? Color.FromRgb(0x2E, 0x5A, 0x6E)
+                : Color.FromRgb(0x7F, 0xB4, 0xC4));
+        }
+
         // ── Helpers ─────────────────────────────────────────────────────
 
         private static void ClearOverrides(ResourceDictionary resources)
@@ -577,6 +690,8 @@ namespace ProGlassAutomation.Services.Theme
             {
                 Monet => Monet,
                 Professional => Professional,
+                Glass => Glass,
+                Ocean => Ocean,
                 _ => Normal
             };
         }

@@ -1142,7 +1142,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Glass,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean
         };
 
         public string SelectedVisualTheme
