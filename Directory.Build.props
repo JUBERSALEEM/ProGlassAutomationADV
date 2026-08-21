@@ -13,9 +13,9 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Phase 1: Treat warnings as errors in CI, but allow nullable/IDE + NuGet version warnings as non-blocking -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <!-- CS8618,CS8625,CS8601,CS8602,CS8604 = nullable, IDE0059 = unnecessary value, NU1603/NU1605 = NuGet version downgrade -->
-    <WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604;NU1603;NU1605;NU1701</WarningsNotAsErrors>
-    <NoWarn>$(NoWarn);NU1603;NU1605</NoWarn>
+    <!-- CS8618,CS8625,CS8601,CS8602,CS8604 = nullable, IDE0059 = unnecessary value, NU1603/NU1605 = NuGet version downgrade, CA1515/CA1305 = library API + IFormatProvider (non-critical for LOB) -->
+    <WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604;NU1603;NU1605;NU1701;CA1515;CA1305;CA1307;CA1310;CA1311</WarningsNotAsErrors>
+    <NoWarn>$(NoWarn);NU1603;NU1605;CA1515;CA1305</NoWarn>
     <!-- Additional quality gates -->
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>

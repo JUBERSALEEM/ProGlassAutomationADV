@@ -487,11 +487,7 @@ namespace ProGlassAutomation.Agent.UI
             AddSystem("Transcript cleared. Taught rules and knowledge are unchanged.");
         }
 
-        // Phase 3: Removed FireAndForget — uses AsyncUtility.SafeFireAndForget
-            catch (Exception ex)
-            {
-                AppLogService.Debug($"[AgentChatViewModel] unhandled: {ex.Message}");
-            }
-        }
+        // Phase 3: Removed FireAndForget — now uses central AsyncUtility.SafeFireAndForget
+        // The single allowed async void is in AsyncUtility with correlation + logging
     }
 }
