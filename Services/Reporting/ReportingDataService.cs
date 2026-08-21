@@ -1182,7 +1182,20 @@ namespace ProGlassAutomation.Services.Reporting
                             salesman = snap?.Client?.SalesRepresentative ?? "";
                         }
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        // Phase 2: Never swallow — log with correlation context
+                        AppLogService.Warning(
+                            $"Could not extract salesman for customer '{g.Key}': {ex.Message}",
+                            new LogContext
+                            {
+                                Module = "Reporting",
+                                Class = nameof(ReportingDataService),
+                                Method = nameof(GetCustomerRowsAsync),
+                                Operation = "EnrichSalesman",
+                                Extra = $"Customer={g.Key}"
+                            });
+                    }
                     return new CustomerReportRow
                     {
                         CustomerName = g.Key,

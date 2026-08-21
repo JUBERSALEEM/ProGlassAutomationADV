@@ -1,0 +1,9 @@
+# Code owners — Phase 1
+* @JUBERSALEEM
+
+# Security-sensitive areas require senior review
+/Services/Security/ @JUBERSALEEM
+/Services/Audit/ @JUBERSALEEM
+/Services/Export/ @JUBERSALEEM
+/Agent/AI/ @JUBERSALEEM
+/.github/workflows/ @JUBERSALEEM

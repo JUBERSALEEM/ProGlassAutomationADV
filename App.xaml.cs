@@ -464,14 +464,43 @@ namespace ProGlassAutomation
                 // 9c-1) AI learning memory (aimemory.db)
                 AiMemoryService.InitializeAsync());
 
-            // 9c-2) Cross-database integrity sweep (Phase 2):
+            // 9c-2) Cross-database integrity sweep (Phase 2 — Result + Correlation):
             //       reconcile Tax Invoice → Delivery Note invoiced links on
             //       startup, so any link left broken by a crash / failed write
             //       is automatically healed. Runs in the background and never
-            //       blocks startup; failures are logged, never fatal.
+            //       blocks startup; failures are logged with CorrelationId, never fatal.
+            //       Now uses Result pattern: returns Result<int> with repaired count.
             ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
-                () => ProGlassAutomation.Services.TaxInvoice.Repository
-                    .TaxInvoiceDnReconciler.ReconcileAsync(),
+                async () =>
+                {
+                    var corrId = ProGlassAutomation.Services.Common.CorrelationContext.NewIdFor("Reconciler", "Startup");
+                    using var scope = ProGlassAutomation.Services.Common.CorrelationContext.BeginScope(corrId, null, "Reconciler");
+                    var result = await ProGlassAutomation.Services.TaxInvoice.Repository
+                        .TaxInvoiceDnReconciler.ReconcileWithResultAsync(corrId);
+                    if (result.IsFailure)
+                    {
+                        AppLogService.Warning(
+                            $"Reconciliation sweep failed [{corrId}]: {result.Error} (ErrorId={result.ErrorId})",
+                            new LogContext
+                            {
+                                Module = "TaxInvoice",
+                                Operation = "StartupReconcile",
+                                CorrelationId = corrId
+                            });
+                    }
+                    else if (result.Value > 0)
+                    {
+                        AppLogService.Info(
+                            $"Reconciliation sweep healed {result.Value} DN link(s) [{corrId}]",
+                            new LogContext
+                            {
+                                Module = "TaxInvoice",
+                                Operation = "StartupReconcile",
+                                CorrelationId = corrId,
+                                Extra = $"Repaired={result.Value}"
+                            });
+                    }
+                },
                 "Tax-invoice → delivery-note reconciliation sweep failed");
 
             // 9c-2) Same-network user presence (Users page).

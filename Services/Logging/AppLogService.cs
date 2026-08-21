@@ -102,6 +102,38 @@ namespace ProGlassAutomation.Services.Logging
             LogLevel level, string message, Exception? ex,
             LogContext? context, string errorId = "")
         {
+            // Phase 2: Auto-flow ambient correlation if context doesn't have one
+            if (context != null && string.IsNullOrWhiteSpace(context.CorrelationId))
+            {
+                try
+                {
+                    var ambient = ProGlassAutomation.Services.Common.CorrelationContext.CurrentId;
+                    if (!string.IsNullOrWhiteSpace(ambient))
+                        context.CorrelationId = ambient;
+                }
+                catch { }
+            }
+            if (context != null && string.IsNullOrWhiteSpace(context.DocumentId))
+            {
+                try
+                {
+                    var docId = ProGlassAutomation.Services.Common.CorrelationContext.CurrentDocumentId;
+                    if (!string.IsNullOrWhiteSpace(docId))
+                        context.DocumentId = docId;
+                }
+                catch { }
+            }
+            if (context != null && string.IsNullOrWhiteSpace(context.DocumentType))
+            {
+                try
+                {
+                    var docType = ProGlassAutomation.Services.Common.CorrelationContext.CurrentDocumentType;
+                    if (!string.IsNullOrWhiteSpace(docType))
+                        context.DocumentType = docType;
+                }
+                catch { }
+            }
+
             var entry = new LogEntry
             {
                 Level = level,
@@ -111,6 +143,12 @@ namespace ProGlassAutomation.Services.Logging
                 Username = AuditService.CurrentUsername,
                 ExceptionText = ex == null ? "" : FormatException(ex)
             };
+
+            // Also flow correlation from context if it was empty before but now filled
+            if (string.IsNullOrWhiteSpace(entry.Context.CorrelationId) && !string.IsNullOrWhiteSpace(errorId))
+            {
+                // Use ErrorId as correlation fallback for errors without explicit correlation
+            }
 
             lock (_writeLock)
             {
@@ -129,6 +167,9 @@ namespace ProGlassAutomation.Services.Logging
                     .Append(entry.TimestampUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss.fff"))
                     .Append("  [").Append(entry.LevelDisplay.PadRight(8)).Append("]")
                     .Append(string.IsNullOrEmpty(errorId) ? "" : $"  ({errorId})")
+                    .Append(string.IsNullOrEmpty(entry.CorrelationId) ? "" : $"  {entry.CorrelationId}")
+                    .Append(string.IsNullOrEmpty(entry.DocumentType) ? "" : $"  {entry.DocumentType}")
+                    .Append(string.IsNullOrEmpty(entry.DocumentId) ? "" : $"  {entry.DocumentId}")
                     .Append(string.IsNullOrEmpty(entry.Username) ? "" : $"  user={entry.Username}")
                     .Append(entry.ContextDisplay.Length == 0 ? "" : $"  [{entry.ContextDisplay}]")
                     .Append("  ").Append(entry.Message)

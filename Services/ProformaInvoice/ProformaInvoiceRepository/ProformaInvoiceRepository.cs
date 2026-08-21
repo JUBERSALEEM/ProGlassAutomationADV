@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Common;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 {
@@ -413,6 +414,138 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         Class = nameof(ProformaInvoiceRepository),
                         Operation = "Delete"
                     });
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PHASE 2 — Result Pattern with CorrelationId
+        //  New explicit-error APIs for billing pipeline
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Phase 2: Insert with explicit Result and CorrelationId.
+        /// Returns Result with ErrorId for UI dialog and CorrelationId for log tracing.
+        /// </summary>
+        public async Task<Result<int>> InsertWithResultAsync(SavedProformaInvoice invoice, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
+            using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
+
+            try
+            {
+                var id = await InsertAsync(invoice!);
+                AppLogService.Info(
+                    $"PI inserted: {invoice!.ProformaId} (Id={id})",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Insert",
+                        DocumentId = invoice.ProformaId,
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result<int>.Ok(id, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to insert PI {invoice?.ProformaId}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Insert",
+                        DocumentId = invoice?.ProformaId ?? "",
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result<int>.Fail($"Could not save invoice {invoice?.ProformaId}: {ex.Message}", ex, corrId, errorId);
+            }
+        }
+
+        /// <summary>
+        /// Phase 2: Update with Result and CorrelationId.
+        /// </summary>
+        public async Task<Result> UpdateWithResultAsync(SavedProformaInvoice invoice, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
+            using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
+
+            try
+            {
+                await UpdateAsync(invoice!);
+                AppLogService.Info(
+                    $"PI updated: {invoice!.ProformaId}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Update",
+                        DocumentId = invoice.ProformaId,
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Ok(corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to update PI {invoice?.ProformaId}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Update",
+                        DocumentId = invoice?.ProformaId ?? "",
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Fail($"Could not update invoice {invoice?.ProformaId}: {ex.Message}", ex, corrId, errorId);
+            }
+        }
+
+        /// <summary>
+        /// Phase 2: Delete with Result and CorrelationId.
+        /// </summary>
+        public async Task<Result> DeleteWithResultAsync(int id, string? proformaId = null, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", proformaId ?? id.ToString());
+            using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", proformaId ?? id.ToString(), corrId);
+
+            try
+            {
+                await DeleteAsync(id);
+                AppLogService.Info(
+                    $"PI deleted: Id={id}, ProformaId={proformaId}",
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Delete",
+                        DocumentId = proformaId ?? id.ToString(),
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Ok(corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to delete PI Id={id}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(ProformaInvoiceRepository),
+                        Operation = "Delete",
+                        DocumentId = proformaId ?? id.ToString(),
+                        DocumentType = "ProformaInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Fail($"Could not delete invoice: {ex.Message}", ex, corrId, errorId);
             }
         }
     }

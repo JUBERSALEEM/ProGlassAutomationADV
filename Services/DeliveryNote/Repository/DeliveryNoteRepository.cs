@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Common;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
@@ -956,5 +958,83 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 TaxInvoiceId = e.TaxInvoiceId,
                 HasTaxInvoice = e.HasTaxInvoice
             };
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PHASE 2 — Result Pattern with CorrelationId
+        // ═══════════════════════════════════════════════════════════════
+
+        public async Task<Result<SavedDeliveryNote>> InsertWithResultAsync(SavedDeliveryNote entity, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
+            using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
+
+            try
+            {
+                var result = await InsertAsync(entity!);
+                AppLogService.Info(
+                    $"DN inserted: {entity!.DeliveryNoteId} for JO {entity.JobOrderId}",
+                    new LogContext
+                    {
+                        Module = "Delivery",
+                        Operation = "Insert",
+                        DocumentId = entity.DeliveryNoteId,
+                        DocumentType = "DeliveryNote",
+                        CorrelationId = corrId
+                    });
+                return Result<SavedDeliveryNote>.Ok(result, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to insert DN {entity?.DeliveryNoteId}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Delivery",
+                        Operation = "Insert",
+                        DocumentId = entity?.DeliveryNoteId ?? "",
+                        DocumentType = "DeliveryNote",
+                        CorrelationId = corrId
+                    });
+                return Result<SavedDeliveryNote>.Fail($"Could not save delivery note {entity?.DeliveryNoteId}: {ex.Message}", ex, corrId, errorId);
+            }
+        }
+
+        public async Task<Result> UpdateWithResultAsync(SavedDeliveryNote entity, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
+            using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
+
+            try
+            {
+                await UpdateAsync(entity!);
+                AppLogService.Info(
+                    $"DN updated: {entity!.DeliveryNoteId}",
+                    new LogContext
+                    {
+                        Module = "Delivery",
+                        Operation = "Update",
+                        DocumentId = entity.DeliveryNoteId,
+                        DocumentType = "DeliveryNote",
+                        CorrelationId = corrId
+                    });
+                return Result.Ok(corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to update DN {entity?.DeliveryNoteId}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Delivery",
+                        Operation = "Update",
+                        DocumentId = entity?.DeliveryNoteId ?? "",
+                        DocumentType = "DeliveryNote",
+                        CorrelationId = corrId
+                    });
+                return Result.Fail($"Could not update delivery note {entity?.DeliveryNoteId}: {ex.Message}", ex, corrId, errorId);
+            }
+        }
     }
 }

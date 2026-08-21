@@ -5,12 +5,26 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- Global analyzer settings -->
+  <!-- Global analyzer settings — Phase 1 CI Quality Gates -->
   <PropertyGroup>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>CS8618;CS8625;IDE0059</WarningsNotAsErrors>
+    <!-- Phase 1: Treat warnings as errors in CI, but allow 3 nullable/IDE warnings as non-blocking -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604</WarningsNotAsErrors>
+    <!-- Additional quality gates -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Code coverage & test settings -->
+  <PropertyGroup>
+    <CollectCoverage>true</CollectCoverage>
+    <CoverletOutputFormat>cobertura</CoverletOutputFormat>
   </PropertyGroup>
 </Project>

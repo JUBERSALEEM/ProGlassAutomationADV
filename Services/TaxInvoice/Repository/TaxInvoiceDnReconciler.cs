@@ -2,6 +2,7 @@
 // FILE: Services/TaxInvoice/Repository/TaxInvoiceDnReconciler.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Tax Invoice — cross-database DN invoiced-link reconciliation
+// VERSION: Phase 2 — 2026-08-21 — Added Result + CorrelationId
 //
 // PURPOSE (Phase 2 — cross-database data integrity):
 //   A Tax Invoice is written to taxinvoices.db, and the Delivery Notes it
@@ -23,9 +24,12 @@
 //   A full sweep (ReconcileAsync) runs at app startup so any link left
 //   broken by a crash or failed write is automatically healed on the next
 //   launch. It is a background, fire-and-forget operation.
+//
+//   Phase 2: Now returns Result with CorrelationId for tracing.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
@@ -63,9 +67,13 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         /// not already. Idempotent and non-destructive.
         /// Returns the number of DN links repaired (0 when fully consistent).
         /// Never throws — logs failures and returns 0.
+        /// Phase 2: Now supports CorrelationId for tracing.
         /// </summary>
-        public static async Task<int> ReconcileAsync()
+        public static async Task<int> ReconcileAsync(string? correlationId = null)
         {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("Reconciler", "StartupSweep");
+            using var scope = CorrelationContext.BeginScope(corrId, null, "Reconciler");
+
             if (App.TaxInvoices == null || App.DeliveryNotes == null)
                 return 0;
 
@@ -125,7 +133,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                         {
                             Module = "TaxInvoice",
                             Class = nameof(TaxInvoiceDnReconciler),
-                            Operation = "ReconcileAsync"
+                            Operation = "ReconcileAsync",
+                            CorrelationId = corrId,
+                            DocumentId = invNum,
+                            DocumentType = "TaxInvoice",
+                            Extra = $"Missing={missing.Count}, Verified={verified}"
                         });
 
                     try
@@ -140,6 +152,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     catch { /* audit is best-effort */ }
                 }
 
+                if (repaired > 0)
+                {
+                    AppLogService.Info(
+                        $"Reconciliation sweep complete: {repaired} DN link(s) repaired [{corrId}]",
+                        new LogContext
+                        {
+                            Module = "TaxInvoice",
+                            Operation = "ReconcileAsync",
+                            CorrelationId = corrId,
+                            Extra = $"Repaired={repaired}"
+                        });
+                }
+
                 return repaired;
             }
             catch (Exception ex)
@@ -151,9 +176,35 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                     {
                         Module = "TaxInvoice",
                         Class = nameof(TaxInvoiceDnReconciler),
-                        Operation = "ReconcileAsync"
+                        Operation = "ReconcileAsync",
+                        CorrelationId = corrId
                     });
                 return 0;
+            }
+        }
+
+        /// <summary>
+        /// Phase 2: Reconcile with Result pattern — for explicit error handling in startup.
+        /// </summary>
+        public static async Task<Result<int>> ReconcileWithResultAsync(string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewId();
+            try
+            {
+                var count = await ReconcileAsync(corrId);
+                return Result<int>.Ok(count, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errId = AppLogService.Error(
+                    $"ReconcileWithResult failed: {ex.Message}", ex,
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "ReconcileWithResult",
+                        CorrelationId = corrId
+                    });
+                return Result<int>.Fail(ex.Message, ex, corrId, errId);
             }
         }
 
@@ -178,9 +229,18 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                             StringComparison.OrdinalIgnoreCase))
                         verified++;
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // A failed verification for one DN must not stop the sweep.
+                    // Phase 2: Log verification failures with correlation
+                    AppLogService.Warning(
+                        $"VerifyMarked failed for DN {id}: {ex.Message}",
+                        new LogContext
+                        {
+                            Module = "TaxInvoice",
+                            Operation = "VerifyMarked",
+                            DocumentId = id,
+                            DocumentType = "DeliveryNote"
+                        });
                 }
             }
             return verified;

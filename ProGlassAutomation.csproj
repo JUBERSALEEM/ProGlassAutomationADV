@@ -10,8 +10,12 @@
 		<EnableNETAnalyzers>true</EnableNETAnalyzers>
 		<AnalysisLevel>latest</AnalysisLevel>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-		<TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<WarningsNotAsErrors>CS8618;CS8625;IDE0059;CS8601;CS8602;CS8604</WarningsNotAsErrors>
 		<AnalysisMode>AllEnabledByDefault</AnalysisMode>
+		<RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+		<Deterministic>true</Deterministic>
 
 		<!-- ── ONE authoritative version source (OTA spec §5) ────────
 		     About / Settings / update checker / installer / releases all

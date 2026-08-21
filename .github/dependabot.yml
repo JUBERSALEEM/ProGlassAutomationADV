@@ -1,0 +1,30 @@
+# ═══════════════════════════════════════════════════════════════════════
+# Dependabot — Phase 1
+# Keeps NuGet packages updated (EF Core, ClosedXML, QuestPDF, etc.)
+# ═══════════════════════════════════════════════════════════════════════
+
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Asia/Dubai"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "nuget"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"

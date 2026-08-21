@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.Services.Common;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Services.TaxInvoice.Repository
 {
@@ -526,5 +528,83 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
                 CreatedAt = e.CreatedAt,
                 UpdatedAt = e.UpdatedAt
             };
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PHASE 2 — Result Pattern with CorrelationId
+        // ═══════════════════════════════════════════════════════════════
+
+        public async Task<Result<SavedTaxInvoice>> InsertWithResultAsync(SavedTaxInvoice entity, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", entity?.InvoiceNumber);
+            using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", entity?.InvoiceNumber ?? "", corrId);
+
+            try
+            {
+                var result = await InsertAsync(entity!);
+                AppLogService.Info(
+                    $"TI inserted: {entity!.InvoiceNumber} for DN {entity.DeliveryNoteReference}",
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "Insert",
+                        DocumentId = entity.InvoiceNumber,
+                        DocumentType = "TaxInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result<SavedTaxInvoice>.Ok(result, corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to insert TI {entity?.InvoiceNumber}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "Insert",
+                        DocumentId = entity?.InvoiceNumber ?? "",
+                        DocumentType = "TaxInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result<SavedTaxInvoice>.Fail($"Could not save tax invoice {entity?.InvoiceNumber}: {ex.Message}", ex, corrId, errorId);
+            }
+        }
+
+        public async Task<Result> DeleteWithResultAsync(int id, string? invoiceNumber = null, string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoiceNumber ?? id.ToString());
+            using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", invoiceNumber ?? id.ToString(), corrId);
+
+            try
+            {
+                await DeleteAsync(id);
+                AppLogService.Info(
+                    $"TI deleted: Id={id}, InvoiceNumber={invoiceNumber}",
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "Delete",
+                        DocumentId = invoiceNumber ?? id.ToString(),
+                        DocumentType = "TaxInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Ok(corrId);
+            }
+            catch (Exception ex)
+            {
+                var errorId = AppLogService.Error(
+                    $"Failed to delete TI Id={id}: {ex.Message}",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Operation = "Delete",
+                        DocumentId = invoiceNumber ?? id.ToString(),
+                        DocumentType = "TaxInvoice",
+                        CorrelationId = corrId
+                    });
+                return Result.Fail($"Could not delete tax invoice: {ex.Message}", ex, corrId, errorId);
+            }
+        }
     }
 }
