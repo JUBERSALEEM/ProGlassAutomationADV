@@ -29,7 +29,6 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Extensions.DependencyInjection;
-using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
@@ -66,10 +65,10 @@ namespace ProGlassAutomation.Services.DependencyInjection
         public static ServiceCollection AddProGlassServices(this ServiceCollection services)
         {
             // ── Core — Logging & Common (Phase 2) ─────────────────────
-            // These are stateless facades today, but registered so future
-            // code can inject IAppLogService / ICorrelationContext
-            services.AddSingleton<Services.Logging.AppLogService>(sp => null!); // static facade, placeholder
-            services.AddSingleton<CorrelationContext>(sp => null!); // static, placeholder
+            // AppLogService and CorrelationContext are STATIC facades and
+            // are consumed directly (not through the container). Static
+            // classes cannot be used as type arguments (CS0718), so they
+            // are intentionally NOT registered here — see Phase 10 fix.
 
             // ── Repositories (each owns its own SQLite file) ──────────
             // Singleton — one per app lifetime, owns DB file + connection pool
@@ -87,7 +86,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IDashboardFilterService, DashboardFilterService>();
 
             // ── Workflow — Multi-DB Coordinator (Phase 2) ─────────────
-            services.AddSingleton<Services.Workflow.DocumentOperationCoordinator>(sp => null!); // static
+            // DocumentOperationCoordinator is a static facade (CS0718 —
+            // not registrable). Consumed directly.
             services.AddSingleton<Services.DeliveryNote.DeliveryNoteLineService>();
             services.AddSingleton<Services.DeliveryNote.DeliveryNoteValidationService>();
             services.AddSingleton<Services.DeliveryNote.DeliveryNoteExportService>();
@@ -99,8 +99,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<Services.Settings.AppearanceService>();
 
             // ── Theme — Weak Event Manager (Phase 4) ──────────────────
-            services.AddSingleton<Services.Theme.ThemeWeakEventManager>(sp => null!); // static
-            services.AddSingleton<Services.Theme.VisualThemeEngine>(sp => null!); // static
+            // ThemeWeakEventManager / VisualThemeEngine are static facades
+            // (CS0718 — not registrable). Consumed directly.
 
             // ── Module ViewModels — Transient (fresh state per navigation) ──
             // Phase 5: Main shell now resolves these via DI, not `new`
@@ -189,7 +189,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.Reports.ProfitabilityReport.ProfitabilityReportViewModel>();
 
             // ── Agent (Phase 5: lazy, singleton) ──────────────────────
-            services.AddSingleton<Agent.Core.AgentHost>(sp => null!); // static facade, lazy
+            // AgentHost is a static facade (CS0718 — not registrable).
+            // Consumed directly.
             services.AddTransient<Agent.UI.AgentChatViewModel>();
             services.AddTransient<Agent.UI.AgentSettingsViewModel>();
             services.AddTransient<ViewModels.AI.AiChatViewModel>();

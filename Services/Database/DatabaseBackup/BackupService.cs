@@ -55,6 +55,9 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
         private static readonly string BackupFolder =
             Path.Combine(AppDataFolder, "Backups");
 
+        /// <summary>Root folder where backup sets are stored (for the restore drill).</summary>
+        public static string GetBackupsFolder() => BackupFolder;
+
         private const int MaxBackupSets = 10;
         private const int LegacyMaxBackups = 7;
 

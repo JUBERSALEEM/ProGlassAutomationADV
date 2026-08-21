@@ -57,8 +57,12 @@ namespace ProGlassAutomation.Services.Common
         public static Result Fail(string error, string? correlationId = null, Exception? ex = null, string? errorId = null) =>
             new(false, error, errorId ?? "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
 
-        public static Result Fail(string error, Exception ex, string? correlationId = null) =>
-            new(false, error, "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
+        // Phase 10 fix: the 4-arg (error, ex, correlationId, errorId) form
+        // is used across Services; the previous 3-arg overload left the
+        // 4th argument unmatched (CS1501). errorId is optional so existing
+        // 2- and 3-arg calls remain valid.
+        public static Result Fail(string error, Exception ex, string? correlationId = null, string? errorId = null) =>
+            new(false, error, errorId ?? "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
 
         public Result WithCorrelation(string correlationId) =>
             new(IsSuccess, Error, ErrorId, correlationId, Exception);
@@ -101,8 +105,10 @@ namespace ProGlassAutomation.Services.Common
         public static Result<T> Fail(string error, string? correlationId = null, Exception? ex = null, string? errorId = null) =>
             new(false, default, error, errorId ?? "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
 
-        public static Result<T> Fail(string error, Exception ex, string? correlationId = null) =>
-            new(false, default, error, "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
+        // Phase 10 fix: add optional errorId so the common 4-arg
+        // (error, ex, correlationId, errorId) call form resolves.
+        public static Result<T> Fail(string error, Exception ex, string? correlationId = null, string? errorId = null) =>
+            new(false, default, error, errorId ?? "", correlationId ?? CorrelationContext.CurrentId ?? "", ex);
 
         public static Result<T> Fail(Result other) =>
             new(false, default, other.Error, other.ErrorId, other.CorrelationId, other.Exception);

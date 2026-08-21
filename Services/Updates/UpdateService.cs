@@ -328,7 +328,25 @@ namespace ProGlassAutomation.Services.Updates
                         return;
                     }
 
-                                ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
+                    // ── RE-VERIFY SIGNATURE AT LAUNCH (Phase 10) ─────
+                    // Defence in depth: the file was verified at download,
+                    // but the time between download and install is exactly
+                    // when a tampered file could be swapped in. Verify
+                    // again immediately before launch.
+                    var verdict = UpdateSignatureVerifier.Verify(path);
+                    if (!verdict.IsValid)
+                    {
+                        AuditService.Log(AuditSections.Updates,
+                            "UPDATE_INSTALL_BLOCKED_SIGNATURE",
+                            verdict.Reason);
+
+                        SetState(UpdateState.Failed,
+                            "The update installer failed signature " +
+                            "verification and was not launched.");
+                        return;
+                    }
+
+                    ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
 
                     // Give the installer a moment to start, then exit so
                     // application files can be replaced safely.
@@ -610,8 +628,40 @@ namespace ProGlassAutomation.Services.Updates
                         "Please try again.");
                 }
 
+                // ── AUTHENTICITY GATE (Phase 10 — audit C-1) ─────────
+                // The origin check above proves WHERE the file came from;
+                // this proves WHO built it. Verify the Authenticode
+                // signature (signature + file hash via WinVerifyTrust)
+                // before the installer is ever handed to the user.
+                var verdict = UpdateSignatureVerifier.Verify(targetPath);
+                if (!verdict.IsValid)
+                {
+                    AppLogService.Warning(
+                        $"Update signature verification failed: {verdict.Reason}",
+                        new LogContext
+                        {
+                            Module = "Updates",
+                            Operation = "VerifySignature",
+                            Extra = $"File={fileName}, Subject={verdict.CertificateSubject}"
+                        });
+
+                    AuditService.Log(AuditSections.Updates,
+                        "UPDATE_SIGNATURE_INVALID",
+                        $"v{update.LatestVersion}: {verdict.Reason}");
+
+                    try { if (File.Exists(targetPath)) File.Delete(targetPath); }
+                    catch { /* cleanup is best-effort */ }
+
+                    return (false, "",
+                        "This update failed signature verification and was " +
+                        "discarded. No file was kept. If you trust this " +
+                        "release, verify the publisher manually before " +
+                        "installing.");
+                }
+
                 AppLogService.Info(
-                    $"Update downloaded to {targetPath}",
+                    $"Update downloaded and signature-verified: {targetPath} " +
+                    $"(publisher={verdict.CertificateSubject})",
                     new LogContext { Module = "Updates", Operation = "Download" });
 
                 return (true, targetPath, "");

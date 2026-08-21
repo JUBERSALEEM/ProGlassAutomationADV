@@ -30,6 +30,7 @@
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Observability;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using System;
 using System.Collections.Generic;
@@ -57,6 +58,8 @@ namespace ProGlassAutomation.Services.Workflow
         {
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoice?.InvoiceNumber);
             using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", invoice?.InvoiceNumber ?? "", corrId);
+            using var activity = DocumentPipelineTracer.StartDocumentOperation(
+                "SaveWithDnLink", "TaxInvoice", invoice?.InvoiceNumber, corrId);
 
             AppLogService.Info(
                 $"Starting TI save with DN link: TI={invoice?.InvoiceNumber}, DNs={invoice?.DeliveryNoteReference}",
@@ -73,7 +76,10 @@ namespace ProGlassAutomation.Services.Workflow
             // Step 1: Save TI
             var repo = App.TaxInvoices;
             if (repo == null)
+            {
+                DocumentPipelineTracer.MarkFailure(activity, "TaxInvoice repository not initialized");
                 return Result<SavedTaxInvoice>.Fail("TaxInvoice repository not initialized", corrId);
+            }
 
             Result<SavedTaxInvoice> tiResult;
             if (repo is TaxInvoiceRepository concreteRepo)
@@ -114,6 +120,7 @@ namespace ProGlassAutomation.Services.Workflow
                         CorrelationId = corrId,
                         Extra = $"ErrorId={tiResult.ErrorId}"
                     });
+                DocumentPipelineTracer.MarkFailure(activity, tiResult.Error);
                 return tiResult;
             }
 
@@ -131,6 +138,7 @@ namespace ProGlassAutomation.Services.Workflow
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId
                     });
+                DocumentPipelineTracer.MarkSuccess(activity);
                 return tiResult;
             }
 
@@ -181,6 +189,7 @@ namespace ProGlassAutomation.Services.Workflow
                         });
                 }
 
+                DocumentPipelineTracer.MarkSuccess(activity);
                 return tiResult;
             }
             catch (Exception ex)
@@ -203,6 +212,7 @@ namespace ProGlassAutomation.Services.Workflow
 
                 // Return success for TI but with warning in Extra — UI can show "Saved, but DN link pending"
                 // For now return Ok with warning logged; caller can check logs via correlation
+                DocumentPipelineTracer.MarkFailure(activity, "DN marking failed — reconciliation will heal on next startup");
                 return Result<SavedTaxInvoice>.Ok(tiResult.Value!, corrId, errorId);
             }
 
@@ -216,6 +226,8 @@ namespace ProGlassAutomation.Services.Workflow
         {
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoiceNumber);
             using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", invoiceNumber, corrId);
+            using var activity = DocumentPipelineTracer.StartDocumentOperation(
+                "DeleteWithDnUnlink", "TaxInvoice", invoiceNumber, corrId);
 
             AppLogService.Info(
                 $"Starting TI delete with DN unlink: TI={invoiceNumber} Id={id}",
@@ -230,14 +242,21 @@ namespace ProGlassAutomation.Services.Workflow
 
             var repo = App.TaxInvoices;
             if (repo == null)
+            {
+                DocumentPipelineTracer.MarkFailure(activity, "TaxInvoice repository not initialized");
                 return Result.Fail("TaxInvoice repository not initialized", corrId);
+            }
 
             try
             {
                 if (repo is TaxInvoiceRepository concrete)
                 {
                     var delResult = await concrete.DeleteWithResultAsync(id, invoiceNumber, corrId);
-                    if (delResult.IsFailure) return delResult;
+                    if (delResult.IsFailure)
+                    {
+                        DocumentPipelineTracer.MarkFailure(activity, delResult.Error);
+                        return delResult;
+                    }
                 }
                 else
                 {
@@ -264,6 +283,7 @@ namespace ProGlassAutomation.Services.Workflow
                         });
                 }
 
+                DocumentPipelineTracer.MarkSuccess(activity);
                 return Result.Ok(corrId);
             }
             catch (Exception ex)
@@ -279,6 +299,7 @@ namespace ProGlassAutomation.Services.Workflow
                         DocumentType = "TaxInvoice",
                         CorrelationId = corrId
                     });
+                DocumentPipelineTracer.MarkFailure(activity, ex.Message);
                 return Result.Fail($"Could not delete tax invoice {invoiceNumber}: {ex.Message}", ex, corrId, errorId);
             }
         }
@@ -292,17 +313,28 @@ namespace ProGlassAutomation.Services.Workflow
         {
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", dn?.DeliveryNoteId);
             using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", dn?.DeliveryNoteId ?? "", corrId);
+            using var activity = DocumentPipelineTracer.StartDocumentOperation(
+                "Save", "DeliveryNote", dn?.DeliveryNoteId, corrId);
 
             var repo = App.DeliveryNotes;
             if (repo == null)
+            {
+                DocumentPipelineTracer.MarkFailure(activity, "DeliveryNotes repo not initialized");
                 return Result<Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote>.Fail("DeliveryNotes repo not initialized", corrId);
+            }
 
             if (repo is Services.DeliveryNote.Repository.DeliveryNoteRepository concrete)
-                return await concrete.InsertWithResultAsync(dn!, corrId);
+            {
+                var result = await concrete.InsertWithResultAsync(dn!, corrId);
+                if (result.IsSuccess) DocumentPipelineTracer.MarkSuccess(activity);
+                else DocumentPipelineTracer.MarkFailure(activity, result.Error);
+                return result;
+            }
 
             try
             {
                 var saved = await repo.InsertAsync(dn!);
+                DocumentPipelineTracer.MarkSuccess(activity);
                 return Result<Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote>.Ok(saved, corrId);
             }
             catch (Exception ex)
@@ -317,6 +349,7 @@ namespace ProGlassAutomation.Services.Workflow
                         DocumentType = "DeliveryNote",
                         CorrelationId = corrId
                     });
+                DocumentPipelineTracer.MarkFailure(activity, ex.Message);
                 return Result<Models.DeliveryNote.SavedDeliveryNote.SavedDeliveryNote>.Fail(ex.Message, ex, corrId, errId);
             }
         }
