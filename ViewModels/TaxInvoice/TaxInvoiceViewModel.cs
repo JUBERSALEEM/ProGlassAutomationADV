@@ -1,5 +1,6 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.Shared;
 using ProGlassAutomation.ViewModels.TaxInvoice.GodView;
@@ -143,23 +144,23 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
             // Wire list → detail navigation
             ListVM.OnInvoiceOpenRequested = id =>
-                SafeFireAsync(() => LoadDetailAsync(id));
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
 
             // Shell opens ProformaPickerDialog — ListVM never touches Views
             ListVM.OnCreateInvoiceRequested = () =>
-                SafeFireAsync(OpenProformaPickerAsync);
+                AsyncUtility.SafeFireAndForget(OpenProformaPickerAsync, "TaxInvoice");
 
             // Wire detail → list back navigation
             DetailVM.OnRequestBackToList = () =>
-                SafeFireAsync(ReturnToList);
+                AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice");
 
             BackToListCommand = new RelayCommand(
-                _ => SafeFireAsync(ReturnToList));
+                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "TaxInvoice"));
 
             // ── God View tab: row-open hands off to detail flow ───────
             GodViewVM = new TaxInvoiceGodViewViewModel();
             GodViewVM.OnOpenRequested = id =>
-                SafeFireAsync(() => LoadDetailAsync(id));
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "TaxInvoice");
 
             // ── Activity tab: live audit feed for this section ────────
             ActivityVM = new SectionActivityViewModel(
@@ -169,7 +170,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 SwitchTab(param as string ?? TabWorkspace));
 
             // Initial list load
-            SafeFireAsync(SafeLoadListAsync);
+            AsyncUtility.SafeFireAndForget(SafeLoadListAsync, "TaxInvoice");
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -195,21 +196,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         //  SAFE ASYNC FIRE
         // ═════════════════════════════════════════════════════════════════
 
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Unexpected error:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
+        
 
         // ═════════════════════════════════════════════════════════════════
         //  NAVIGATION

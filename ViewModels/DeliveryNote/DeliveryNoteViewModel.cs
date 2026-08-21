@@ -2,6 +2,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
@@ -147,13 +148,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             DetailVM = new DeliveryNoteDetailViewModel();
 
             // ── List → open real DN detail ────────────────────────────────
-            ListVM.OnDeliveryNoteOpenRequested = id => SafeFireAsync(
-                () => LoadDetailAsync(id));
+            ListVM.OnDeliveryNoteOpenRequested = id => AsyncUtility.SafeFireAndForget(
+                () => LoadDetailAsync(id), "DeliveryNote");
 
             // ── List → create new DN from JO picker ──────────────────────
             // CHAT 19: Updated flow handles Master DN balance automatically
-            ListVM.OnCreateDnFromJobOrder = jo => SafeFireAsync(
-                () => CreateDnFromJobOrderAsync(jo));
+            ListVM.OnCreateDnFromJobOrder = jo => AsyncUtility.SafeFireAndForget(
+                () => CreateDnFromJobOrderAsync(jo), "DeliveryNote");
 
             // ── Chat 14: DN List Master Invoice ───────────────────────────
             ListVM.OnRequestOpenTaxInvoiceForProforma = async piId =>
@@ -173,11 +174,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             };
 
             // ── Detail → back to list ─────────────────────────────────────
-            DetailVM.OnRequestBackToList = () => SafeFireAsync(ReturnToList);
+            DetailVM.OnRequestBackToList = () => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote");
 
             // CHAT 19: After dispatch with balance remaining, user chose
             // "Yes — create next DN". Shell builds next DN from Master DN balance.
-            DetailVM.OnRequestCreateDnFromMaster = masterDn => SafeFireAsync(
+            DetailVM.OnRequestCreateDnFromMaster = masterDn => AsyncUtility.SafeFireAndForget(
                 () => CreateDnFromMasterBalanceAsync(
                     new Models.JobOrder.SavedJobOrder.SavedJobOrder
                     {
@@ -187,7 +188,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         ProjectName = masterDn.ProjectName,
                         FullSnapshotJson = "{}"
                     },
-                    masterDn));
+                    masterDn), "DeliveryNote");
 
             DetailVM.OnRequestAutoCreateTaxInvoice = async dnId =>
             {
@@ -195,11 +196,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 return await OnRequestAutoCreateTaxInvoice(dnId);
             };
 
-            DetailVM.OnRequestOpenMasterDn = jobOrderId => SafeFireAsync(
-                () => OpenMasterForJobOrderAsync(jobOrderId));
+            DetailVM.OnRequestOpenMasterDn = jobOrderId => AsyncUtility.SafeFireAndForget(
+                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
 
-            ListVM.OnRequestOpenMaster = jobOrderId => SafeFireAsync(
-                () => OpenMasterForJobOrderAsync(jobOrderId));
+            ListVM.OnRequestOpenMaster = jobOrderId => AsyncUtility.SafeFireAndForget(
+                () => OpenMasterForJobOrderAsync(jobOrderId), "DeliveryNote");
 
             // ── Chat 14: DN Detail Convert → single-DN invoice ────────────
             DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
@@ -219,12 +220,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             };
 
             BackToListCommand = new RelayCommand(
-                _ => SafeFireAsync(ReturnToList));
+                _ => AsyncUtility.SafeFireAndForget(ReturnToList, "DeliveryNote"));
 
             // ── God View tab: row-open hands off to detail flow ───────
             GodViewVM = new DeliveryNoteGodViewViewModel();
             GodViewVM.OnOpenRequested = id =>
-                SafeFireAsync(() => LoadDetailAsync(id));
+                AsyncUtility.SafeFireAndForget(() => LoadDetailAsync(id), "DeliveryNote");
 
             // ── Activity tab: live audit feed for this section ────────
             ActivityVM = new SectionActivityViewModel(
@@ -313,21 +314,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         //  SAFE ASYNC FIRE
         // ═════════════════════════════════════════════════════════════════
 
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Unexpected error:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
+        
 
         // ═════════════════════════════════════════════════════════════════
         //  NAVIGATION

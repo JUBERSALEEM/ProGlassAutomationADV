@@ -62,12 +62,12 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             });
 
             // ── Users commands ────────────────────────────────────────
-            CreateUserCommand = new RelayCommand(_ => CreateUser());
+            CreateUserCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(CreateUserAsync, "SystemCenter CreateUser"));
             ToggleActiveCommand = new RelayCommand(param =>
-                ToggleActive(param as UserRowViewModel));
+                AsyncUtility.SafeFireAndForget(() => ToggleActiveAsync(param as UserRowViewModel), "SystemCenter ToggleActive"));
             RefreshUsersCommand = new RelayCommand(_ => LoadUsersAsync());
 
-            SwitchUserCommand = new RelayCommand(_ => SwitchUser());
+            SwitchUserCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(SwitchUserAsync, "SystemCenter SwitchUser"));
 
             // v2: full role catalogue (permissions resolve per role)
             RoleOptions = new List<string>(
@@ -229,7 +229,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             });
         }
 
-        private async void CreateUser()
+        private async Task CreateUserAsync()
         {
             var (ok, error) = await AuditService.CreateUserAsync(
                 NewUsername, NewDisplayName, SelectedRole, NewPassword);
@@ -248,7 +248,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             }
         }
 
-        private async void ToggleActive(UserRowViewModel? row)
+        private async Task ToggleActiveAsync(UserRowViewModel? row)
         {
             if (row == null) return;
 
@@ -299,7 +299,7 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
         public ICommand SwitchUserCommand { get; }
 
-        private async void SwitchUser()
+        private async Task SwitchUserAsync()
         {
             var (ok, error) = await AuditService.SwitchUserAsync(
                 SwitchUsername, SwitchPassword);

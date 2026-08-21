@@ -16,6 +16,7 @@
 //   E-FIX DateTime.HasValue removed — LastUsedAt is DateTime not DateTime?
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.MasterData;
 using System;
 using System.Collections.Generic;
@@ -375,7 +376,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             });
 
             RefreshCardsCommand = new RelayCommand(
-                _ => SafeFireAsync(LoadCardsAsync));
+                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step1"));
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -516,10 +517,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         }
 
         // ── SafeFireAsync — avoids async void crashes ─────────────────
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try { await action(); }
-            catch { /* error shown via CardsErrorMessage */ }
-        }
+        
     }
 }

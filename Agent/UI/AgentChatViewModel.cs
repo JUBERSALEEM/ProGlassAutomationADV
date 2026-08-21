@@ -27,6 +27,7 @@
 
 using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
@@ -73,7 +74,7 @@ namespace ProGlassAutomation.Agent.UI
                 // has an optional parameter, and a method group with optional
                 // parameters cannot convert to Func<Task>. The lambda binds the
                 // default explicitly, so a typed turn stays silent.
-                _ => FireAndForget(() => SendAsync()),
+                _ => AsyncUtility.SafeFireAndForget(() => SendAsync(), "AgentChat Send"),
                 _ => CanSend);
 
             ClearCommand = new RelayCommand(_ => ClearTranscript());
@@ -83,7 +84,7 @@ namespace ProGlassAutomation.Agent.UI
             // open - previously nothing on screen changed, so there was no
             // way to tell whether it was hearing anything.
             SpeakCommand = new RelayCommand(
-                _ => FireAndForget(ListenAsync),
+                _ => AsyncUtility.SafeFireAndForget(ListenAsync, "AgentChat Listen"),
                 _ => !IsBusy && !IsListening);
 
             // STOP. Cancels an in-flight turn and silences the voice.
@@ -486,12 +487,7 @@ namespace ProGlassAutomation.Agent.UI
             AddSystem("Transcript cleared. Taught rules and knowledge are unchanged.");
         }
 
-        private static async void FireAndForget(Func<Task> work)
-        {
-            try
-            {
-                await work();
-            }
+        // Phase 3: Removed FireAndForget — uses AsyncUtility.SafeFireAndForget
             catch (Exception ex)
             {
                 AppLogService.Debug($"[AgentChatViewModel] unhandled: {ex.Message}");

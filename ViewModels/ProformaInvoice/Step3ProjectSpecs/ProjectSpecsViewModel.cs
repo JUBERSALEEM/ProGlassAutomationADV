@@ -10,6 +10,7 @@
 //   All P-01..P-10 features + client filter logic preserved.
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.MasterData;
 using System;
 using System.Collections.Generic;
@@ -212,7 +213,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
             });
 
             RefreshCardsCommand = new RelayCommand(
-                _ => SafeFireAsync(LoadCardsAsync));
+                _ => AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step3"));
 
             ClearClientFilterCommand = new RelayCommand(_ =>
             {
@@ -292,7 +293,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
             _activeClientFilter = clientName ?? "";
             FilteredClientName = _activeClientFilter;
             _showingAll = false;
-            SafeFireAsync(LoadCardsAsync);
+            AsyncUtility.SafeFireAndForget(LoadCardsAsync, "PI Step3");
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -343,10 +344,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
                 LoadedProfileName = "";
         }
 
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try { await action(); }
-            catch { /* error shown via CardsErrorMessage */ }
-        }
+        
     }
 }

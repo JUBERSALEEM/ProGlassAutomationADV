@@ -18,6 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Win32;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
@@ -47,21 +48,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             _company = company;
 
             AddImageCommand = new RelayCommand(
-                _ => SafeFire(AddImageAsync));
+                _ => AsyncUtility.SafeFireAndForget(AddImageAsync, "PI Step8"));
             AddPdfCommand = new RelayCommand(
-                _ => SafeFire(AddPdfAsync));
+                _ => AsyncUtility.SafeFireAndForget(AddPdfAsync, "PI Step8"));
             OpenAttachmentCommand = new RelayCommand(param =>
             {
                 if (param is ProformaAttachmentRowViewModel row)
                     OpenAttachment(row);
             });
             RenameAttachmentCommand = new RelayCommand(
-                param => SafeFire(() => RenameAttachmentAsync(
-                    param as ProformaAttachmentRowViewModel)));
+                param => AsyncUtility.SafeFireAndForget(() => RenameAttachmentAsync(
+                    param as ProformaAttachmentRowViewModel), "PI Step8"));
             DeleteAttachmentCommand = new RelayCommand(
-                param => SafeFire(() => DeleteAttachmentAsync(
-                    param as ProformaAttachmentRowViewModel)));
-            RefreshCommand = new RelayCommand(_ => SafeFire(LoadAsync));
+                param => AsyncUtility.SafeFireAndForget(() => DeleteAttachmentAsync(
+                    param as ProformaAttachmentRowViewModel), "PI Step8"));
+            RefreshCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(LoadAsync, "PI Step8"));
 
             // Follow Proforma ID changes (new invoice / id edit in Step 1)
             _company.PropertyChanged += (_, e) =>
@@ -70,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
                 {
                     OnPropertyChanged(nameof(ProformaId));
                     OnPropertyChanged(nameof(HasProformaId));
-                    SafeFire(LoadAsync);
+                    AsyncUtility.SafeFireAndForget(LoadAsync, "PI Step8");
                 }
             };
         }
@@ -390,29 +391,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         //  SAFE FIRE — async command helper (never crashes the wizard)
         // ══════════════════════════════════════════════════════════════
 
-        private async void SafeFire(Func<Task> action)
-        {
-            try
-            {
-                await action();
-            }
-            catch (Services.Audit.PermissionDeniedException denied)
-            {
-                // A-1: this is the security boundary working as designed,
-                // not a fault. SafeFire is an async void handler, so the
-                // throw never reaches App.DispatcherUnhandledException and
-                // would otherwise have shown only a vague inline message.
-                // Match the dialog the rest of the app uses for denials.
-                StatusMessage = "⚠ " + denied.UserMessage;
-
-                MessageBox.Show(
-                    denied.UserMessage, "Permission Denied",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (Exception ex)
-            {
-                StatusMessage = $"⚠ {ex.Message}";
-            }
-        }
+        
     }
 }

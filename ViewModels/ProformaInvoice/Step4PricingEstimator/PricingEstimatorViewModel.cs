@@ -1,6 +1,7 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using System;
 using System.Collections.ObjectModel;
@@ -244,7 +245,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             // Fire-and-forget with its own guard — a constructor cannot
             // await, and an empty/locked Sheet Store must never stop the
             // pricing panels from opening.
-            LoadSheetStoreDataAsync();
+            AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator");
         }
 
         /// <summary>
@@ -253,7 +254,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// stay empty and every price box reads 0.00.
         /// Never throws; each panel guards itself internally.
         /// </summary>
-        private async void LoadSheetStoreDataAsync()
+        private async Task LoadSheetStoreDataAsync()
         {
             try
             {
@@ -272,7 +273,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// Re-reads Sheet Store data. Call after the user edits stock so
         /// Step 4 reflects the new prices without reopening the wizard.
         /// </summary>
-        public void RefreshSheetStoreData() => LoadSheetStoreDataAsync();
+        public void RefreshSheetStoreData() => AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator Refresh");
 
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================
 

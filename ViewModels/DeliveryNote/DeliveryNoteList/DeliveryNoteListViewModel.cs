@@ -738,17 +738,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     allTask, prepTask, delTask,
                     pendingTask, reworkTask, returnedTask);
 
-                var allItems = allTask.Result
+                // Phase 3: No .Result — use await (tasks already completed, but await is deadlock-safe)
+                var allItems = (await allTask)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var prepItems = prepTask.Result
+                var prepItems = (await prepTask)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var delItems = delTask.Result
+                var delItems = (await delTask)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var pendingItems = pendingTask.Result
+                var pendingItems = (await pendingTask)
                     .Select(x => new PendingQtyRowViewModel(x)).ToList();
-                var reworkItems = reworkTask.Result
+                var reworkItems = (await reworkTask)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var returnedItems = returnedTask.Result
+                var returnedItems = (await returnedTask)
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
 
                 _rawAll = allItems;

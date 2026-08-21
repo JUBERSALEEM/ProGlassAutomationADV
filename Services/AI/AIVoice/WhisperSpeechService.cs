@@ -328,7 +328,9 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 "🎤 Listening — click again to stop");
         }
 
-        public async void StopListening()
+        // Phase 3: Was async void — now async Task, VSTHRD100 compliant
+        // Callers must use SafeFireAndForget or await
+        public async Task StopListeningAsync()
         {
             if (!_isListening || _isDisposed) return;
 
@@ -338,7 +340,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
             try
             {
-                var audioBytes = await _audioCapture.StopAndGetAudioAsync();
+                var audioBytes = await _audioCapture.StopAndGetAudioAsync().ConfigureAwait(true);
 
                 if (audioBytes == null || audioBytes.Length < MinAudioBytes)
                 {
@@ -349,7 +351,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                     return;
                 }
 
-                var text = await ProcessAudioAsync(audioBytes);
+                var text = await ProcessAudioAsync(audioBytes).ConfigureAwait(true);
 
                 if (!string.IsNullOrWhiteSpace(text))
                 {
@@ -371,11 +373,16 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                AppLogService.Debug(
-                    $"[WhisperSTT] Processing failed: {ex.Message}");
+                AppLogService.Warning(
+                    $"[WhisperSTT] Processing failed: {ex.Message}",
+                    new LogContext { Module = "AI", Operation = "StopListening" });
                 StatusChanged?.Invoke(this, $"Error: {ex.Message}");
             }
         }
+
+        // Backward compat — keeps old void signature but delegates to Task version via SafeFireAndForget
+        public void StopListening() =>
+            Utilities.AsyncUtility.SafeFireAndForget(StopListeningAsync, "Whisper StopListening");
 
         public async Task<string> ListenOnceAsync(int timeoutMs = 10000)
         {

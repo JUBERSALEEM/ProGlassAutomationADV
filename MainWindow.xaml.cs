@@ -14,6 +14,7 @@
 //   ✓ UiTreeHelper also patched centrally for other views
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
 using System;
 using System.Windows;
@@ -255,29 +256,29 @@ namespace ProGlassAutomation
             _dropdownCloseTimer = null;
         }
 
+        // Phase 3: Thread-affinity guard — uses CreateDispatcherTimerWithHandler
         private void StartCloseTimer()
         {
             StopCloseTimer();
-            _dropdownCloseTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(1200)
-            };
-            _dropdownCloseTimer.Tick += (_, _) =>
-            {
-                _dropdownCloseTimer!.Stop();
-                _dropdownCloseTimer = null;
-
-                if (_isMouseOverPopup) return;
-
-                if (DataContext is MainViewModel vm)
+            _dropdownCloseTimer = AsyncUtility.CreateDispatcherTimerWithHandler(
+                TimeSpan.FromMilliseconds(1200),
+                (_, _) =>
                 {
-                    vm.IsSettingsOpen = false;
-                    vm.IsNotificationsOpen = false;
-                    vm.IsUserSwitchOpen = false;
-                    vm.IsScreenshotOpen = false;
-                    vm.IsScreenRecordOpen = false;
-                }
-            };
+                    _dropdownCloseTimer!.Stop();
+                    _dropdownCloseTimer = null;
+
+                    if (_isMouseOverPopup) return;
+
+                    if (DataContext is MainViewModel vm)
+                    {
+                        vm.IsSettingsOpen = false;
+                        vm.IsNotificationsOpen = false;
+                        vm.IsUserSwitchOpen = false;
+                        vm.IsScreenshotOpen = false;
+                        vm.IsScreenRecordOpen = false;
+                    }
+                },
+                "MainWindow DropdownClose");
             _dropdownCloseTimer.Start();
         }
 
@@ -454,10 +455,11 @@ namespace ProGlassAutomation
             }
         }
 
+        // Phase 3: No async void — use central SafeFireAndForget
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
         {
             if (UserSwitchPanelHost != null)
-                UserSwitchPanelHost.RefreshAsync();
+                AsyncUtility.SafeFireAndForget(() => UserSwitchPanelHost.RefreshAsync(), "MainWindow UserSwitch Refresh");
         }
 
         private void UserSwitchPopup_Closed(object sender, System.EventArgs e)
@@ -472,7 +474,7 @@ namespace ProGlassAutomation
         private void NotificationsPopup_Opened(object sender, System.EventArgs e)
         {
             if (ActivityPanelHost != null)
-                _ = ActivityPanelHost.LoadAsync();
+                AsyncUtility.SafeFireAndForget(() => ActivityPanelHost.LoadAsync(), "MainWindow Activity Load");
         }
         private void NotificationsPopup_Closed(object sender, System.EventArgs e) { }
 

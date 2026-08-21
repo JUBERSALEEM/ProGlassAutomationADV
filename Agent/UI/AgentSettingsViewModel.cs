@@ -14,6 +14,7 @@
 
 using Microsoft.Win32;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Agent.Configuration;
 using ProGlassAutomation.Agent.Core;
 using ProGlassAutomation.Agent.Interfaces;
@@ -59,14 +60,14 @@ namespace ProGlassAutomation.Agent.UI
             ToggleLocalOnlyCommand = new RelayCommand(_ => ToggleLocalOnly());
             ToggleCloudConsentCommand = new RelayCommand(_ => ToggleCloudConsent());
             RemoveKeyCommand = new RelayCommand(_ => RemoveKey());
-            RefreshRulesCommand = new RelayCommand(_ => FireRefreshRules());
-            ApproveRuleCommand = new RelayCommand(p => FireApprove(p));
-            RevokeRuleCommand = new RelayCommand(p => FireRevoke(p));
-            ClearTeachingCommand = new RelayCommand(_ => FireClearTeaching());
-            ClearMemoryCommand = new RelayCommand(_ => FireClearMemory());
-            ClearKnowledgeCommand = new RelayCommand(_ => FireClearKnowledge());
-            ExportKnowledgeCommand = new RelayCommand(_ => FireExport());
-            ImportKnowledgeCommand = new RelayCommand(_ => FireImport());
+            RefreshRulesCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(RefreshRulesAsync, "AgentSettings RefreshRules"));
+            ApproveRuleCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => ApproveAsync(p), "AgentSettings Approve"));
+            RevokeRuleCommand = new RelayCommand(p => AsyncUtility.SafeFireAndForget(() => RevokeAsync(p), "AgentSettings Revoke"));
+            ClearTeachingCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ClearTeachingAsync, "AgentSettings ClearTeaching"));
+            ClearMemoryCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ClearMemoryAsync, "AgentSettings ClearMemory"));
+            ClearKnowledgeCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ClearKnowledgeAsync, "AgentSettings ClearKnowledge"));
+            ExportKnowledgeCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExportAsync, "AgentSettings Export"));
+            ImportKnowledgeCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ImportAsync, "AgentSettings Import"));
 
             var advice = LocalModelAdvisor.Advise();
             HardwareAdvice = advice.Advice;
@@ -300,7 +301,7 @@ namespace ProGlassAutomation.Agent.UI
                 : "Cloud consent withdrawn — answering locally.";
         }
 
-        private async void FireRefreshRules() => await RefreshRulesAsync();
+        
 
         /// <summary>Reloads the taught-rule list. Never throws.</summary>
         public async Task RefreshRulesAsync()
@@ -334,7 +335,7 @@ namespace ProGlassAutomation.Agent.UI
             }
         }
 
-        private async void FireApprove(object? param)
+        private async Task ApproveAsync(object? param)
         {
             if (param is not TaughtRuleRow row) return;
 
@@ -349,7 +350,7 @@ namespace ProGlassAutomation.Agent.UI
             await RefreshRulesAsync();
         }
 
-        private async void FireRevoke(object? param)
+        private async Task RevokeAsync(object? param)
         {
             if (param is not TaughtRuleRow row) return;
 
@@ -363,7 +364,7 @@ namespace ProGlassAutomation.Agent.UI
             await RefreshRulesAsync();
         }
 
-        private async void FireClearTeaching()
+        private async Task ClearTeachingAsync()
         {
             AgentHost.Ensure();
             if (AgentHost.Teaching == null) return;
@@ -373,7 +374,7 @@ namespace ProGlassAutomation.Agent.UI
             await RefreshRulesAsync();
         }
 
-        private async void FireClearMemory()
+        private async Task ClearMemoryAsync()
         {
             AgentHost.Ensure();
             if (AgentHost.Memory == null) return;
@@ -383,7 +384,7 @@ namespace ProGlassAutomation.Agent.UI
             Status = "Conversation and saved memory cleared.";
         }
 
-        private async void FireClearKnowledge()
+        private async Task ClearKnowledgeAsync()
         {
             AgentHost.Ensure();
             if (AgentHost.Knowledge == null) return;
@@ -392,7 +393,7 @@ namespace ProGlassAutomation.Agent.UI
             Status = "Knowledge base cleared. Reopen this page to reseed the basics.";
         }
 
-        private async void FireExport()
+        private async Task ExportAsync()
         {
             try
             {
@@ -421,7 +422,7 @@ namespace ProGlassAutomation.Agent.UI
             }
         }
 
-        private async void FireImport()
+        private async Task ImportAsync()
         {
             try
             {

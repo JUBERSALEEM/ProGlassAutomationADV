@@ -196,14 +196,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 return;
             }
 
-            // ── Parallel loads for speed ─────────────────────────────
+            // ── Parallel loads for speed — Phase 3: no .Result, use await
             var allTask = App.DeliveryNotes.GetAllAsync();
             var pendingTask = App.DeliveryNotes.GetPendingQtyJobsAsync();
 
             await Task.WhenAll(allTask, pendingTask);
 
-            var all = allTask.Result;
-            var pending = pendingTask.Result;
+            var all = await allTask;
+            var pending = await pendingTask;
             var today = DateTime.Today;
 
             // ── Counts ───────────────────────────────────────────────

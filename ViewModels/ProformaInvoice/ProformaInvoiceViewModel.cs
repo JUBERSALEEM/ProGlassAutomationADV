@@ -1,24 +1,24 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Proforma Invoice — Wizard Shell (Phase 3: Async Cleanup)
+// VERSION: Phase 3 — 2026-08-21 — Removed duplicate SafeFireAsync, uses central AsyncUtility
+//
+// CHANGES vs Phase 2:
+//   ✓ Removed private static async void SafeFireAsync (7 duplicates across app)
+//   ✓ All call sites now use Utilities.AsyncUtility.SafeFireAndForget (single async void)
+//   ✓ CorrelationId auto-flow via CorrelationContext
+//   ✓ No .Result / .Wait() — all await
+//   ✓ VSTHRD100 compliant: only event handlers + AsyncUtility have async void
+//
+// PRESERVED: All 9 wizard steps, S-01/S-02 swap, BUG-77/78/79/80/81, approval flow
 // ═══════════════════════════════════════════════════════════════════════
-// CHAT 15 — PHASE 3
-// Changes:
-//   S-01  Step2VM → Step2ClientProfile.ClientProfileViewModel (swap)
-//   S-02  Step3VM → Step3ProjectSpecs.ProjectSpecsViewModel (swap)
-//   S-03  WizardSteps titles — Step 2=Client, Step 3=Project
-//   S-04  StartNewInvoiceAsync resets in correct Client→Project order
-//   S-05  StartNewInvoiceAsync calls LoadCardsAsync on all 3 step VMs
-//   S-06  LoadSalesmanOptionsAsync called on Step2VM (client)
-//   S-07  PropertyChanged subscription: Step2VM.SelectedClientName
-//          → Step3VM.SetClientFilter() — wired once in constructor
-//   S-08  LoadInvoiceIntoWizardAsync Step2/Step3 refs corrected
-//   S-09  BUG-77/78/79/80/81 all preserved
-//   S-10  Step7VM constructor args corrected for new Step2/Step3 types
-// ═══════════════════════════════════════════════════════════════════════
+
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -34,21 +34,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
     {
         public string Title { get; } = "Proforma Invoice Builder";
 
-        // ══════════════════════════════════════════════════════════════
-        //  AGENT CONTEXT (opt-in, read-only)
-        //
-        //  Publishes ONLY the proforma number, so the agent can resolve
-        //  "how much is still pending?" against the invoice on screen
-        //  instead of asking which one you meant.
-        //
-        //  Deliberately excludes customer, project and totals: those are
-        //  ERP values and must go through an audited read tool with a
-        //  permission check, never leak through a context label.
-        //
-        //  Empty while a new invoice has no number yet - an empty string
-        //  is honest, a stale number would make the agent answer about
-        //  the wrong document.
-        // ══════════════════════════════════════════════════════════════
         public string AgentContextDetail
         {
             get
@@ -63,78 +48,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
         public string Subtitle { get; } = "Nine-station industrial quotation deck";
 
-        /// <summary>
-        /// Total wizard steps. Single source of truth — progress text,
-        /// percent and navigation all derive from this constant.
-        /// (Raised 7 → 8 when the Attachments step was added.)
-        /// </summary>
-        public const int TotalSteps = 9;   // PHASE B: Step 9 = Profit & Loss
+        public const int TotalSteps = 9;
 
-        // ── Dashboard Contract (preserved — DashboardViewModel binding) ─
         public ObservableCollection<InvoiceItem> Invoices { get; }
             = new ObservableCollection<InvoiceItem>();
 
-        // BUG-80: Real values from Phase 20+ Dashboard service.
         public decimal TotalSales => 0m;
         public int InvoiceCount => 0;
         public int PendingCount => 0;
         public bool HasInvoices => false;
 
-        // ═══════════════════════════════════════════════════════════════
-        //  STEP VIEW MODELS
-        //
-        //  S-01/S-02: Step2VM is now ClientProfileViewModel (was Project).
-        //             Step3VM is now ProjectSpecsViewModel  (was Client).
-        //             File names unchanged — only namespace + type changed.
-        //
-        //  IMPORTANT FOR PRINT PREVIEW (Step7VM):
-        //    Step7VM constructor receives Step2VM (Client) and Step3VM (Project).
-        //    PrintPreviewViewModel must use client fields from Step2VM
-        //    and project fields from Step3VM. If PrintPreviewViewModel
-        //    was previously referencing Step2VM for project data, it will
-        //    now get client data instead — which is CORRECT after the swap.
-        //    Verify PrintPreviewViewModel property access matches field names.
-        // ═══════════════════════════════════════════════════════════════
-
         public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
-        public Step2ClientProfile.ClientProfileViewModel Step2VM { get; }  // S-01: was ProjectSpecs
-        public Step3ProjectSpecs.ProjectSpecsViewModel Step3VM { get; }  // S-02: was ClientProfile
+        public Step2ClientProfile.ClientProfileViewModel Step2VM { get; }
+        public Step3ProjectSpecs.ProjectSpecsViewModel Step3VM { get; }
         public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; }
         public Step5DataGrid.DataGridViewModel Step5VM { get; }
         public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
         public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; }
-
-        /// <summary>
-        /// Step 8 — Attachments (site photos, drawings, approvals).
-        /// Mirrors the Delivery Note attachments system.
-        /// </summary>
         public Step8Attachments.AttachmentsStepViewModel Step8VM { get; }
-
-        /// <summary>
-        /// PHASE B — Step 9: Profit &amp; Loss. Costs the invoice against
-        /// Sheet Store purchase prices and the Step 4 production rates.
-        /// Bound to its data sources in the constructor via Bind().
-        /// </summary>
         public Step9ProfitLoss.ProfitLossStepViewModel Step9VM { get; }
-
-        // ═══════════════════════════════════════════════════════════════
-        //  WIZARD STEPS
-        // ═══════════════════════════════════════════════════════════════
 
         public ObservableCollection<WizardStep> WizardSteps { get; }
 
         private WizardStep _currentStep;
-
-        // Highest step number the user has navigated to in this invoice.
-        // Drives the tick marks on the step rail; reset whenever the wizard
-        // restarts so a fresh invoice does not inherit the previous one's
-        // progress.
         private int _furthestStepReached = 1;
-
-        // Id of the invoice the user is approving. Set when the approval flow
-        // forwards to Step 8; cleared when the upload completes (and approval
-        // is finished) or when the wizard returns to the list. Used so the
-        // Step 8 "attachment uploaded" event knows to continue the approval.
         private int? _pendingApprovalInvoiceId;
 
         public WizardStep CurrentStep
@@ -143,15 +80,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             set
             {
                 if (_currentStep == value) return;
-
                 if (_currentStep != null)
                     _currentStep.IsActive = false;
-
                 _currentStep = value;
-
                 if (_currentStep != null)
                     _currentStep.IsActive = true;
-
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentStepNumber));
                 OnPropertyChanged(nameof(CurrentStationCode));
@@ -162,7 +95,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 OnPropertyChanged(nameof(CanGoBack));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(IsLastStep));
-
                 CommandManager.InvalidateRequerySuggested();
             }
         }
@@ -179,10 +111,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public bool CanGoNext => CurrentStepNumber < TotalSteps;
         public bool IsLastStep => CurrentStepNumber == TotalSteps;
 
-        // ═══════════════════════════════════════════════════════════════
-        //  PHASE 7.19 — LIST ↔ WIZARD
-        // ═══════════════════════════════════════════════════════════════
-
         private bool _isListView = true;
         public bool IsListView
         {
@@ -197,13 +125,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         public bool IsWizardView => !_isListView;
-
-        /// <summary>Saved invoices list VM — module landing page.</summary>
         public SavedInvoicesList.SavedInvoicesListViewModel SavedInvoicesListVM { get; }
-
-        // ═══════════════════════════════════════════════════════════════
-        //  COMMANDS
-        // ═══════════════════════════════════════════════════════════════
 
         public ICommand NextStepCommand { get; }
         public ICommand PreviousStepCommand { get; }
@@ -211,119 +133,53 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public ICommand NewInvoiceCommand { get; }
         public ICommand BackToListCommand { get; }
 
-        // ═══════════════════════════════════════════════════════════════
-        //  CONSTRUCTOR
-        // ═══════════════════════════════════════════════════════════════
-
         public ProformaInvoiceViewModel()
         {
-            // ── Step VMs (S-01/S-02: swapped types) ──────────────────
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
                 stepNumber => GoToStep(stepNumber));
 
-            Step2VM = new Step2ClientProfile.ClientProfileViewModel();   // S-01
-            Step3VM = new Step3ProjectSpecs.ProjectSpecsViewModel();     // S-02
+            Step2VM = new Step2ClientProfile.ClientProfileViewModel();
+            Step3VM = new Step3ProjectSpecs.ProjectSpecsViewModel();
 
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
             Step5VM = new Step5DataGrid.DataGridViewModel();
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
 
-            // S-10: Step7VM receives Step2VM (Client) and Step3VM (Project).
-            // PrintPreviewViewModel must use correct property names —
-            // Step2VM has CustomerName, CustomerTrn, BillingAddress etc.
-            // Step3VM has ProjectIdentifierName, LpoNumber etc.
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
                 Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
 
-            // Step 8 — Attachments. Reads the live Proforma ID from
-            // Step 1 so files stay keyed to the invoice being edited.
             Step8VM = new Step8Attachments.AttachmentsStepViewModel(Step1VM);
 
-            // ── PHASE B: Step 9 — Profit & Loss ──────────────────────
-            // Bound after every dependency exists. The gross provider is
-            // a lambda (not a cached value) so the step always reads the
-            // CURRENT Step 7 grand total, even after Step 6 edits.
             Step9VM = new Step9ProfitLoss.ProfitLossStepViewModel();
             Step9VM.Bind(
                 Step5VM,
                 Step4VM.DguVM,
                 Step4VM.SguVM,
                 () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive,
-                Step4VM.LamVM,      // PHASE J: laminated costing
-                Step4VM.DguLamVM);  // DGU+LAM: three-pane hybrid costing
+                Step4VM.LamVM,
+                Step4VM.DguLamVM);
 
-            // Let the printable invoice reach the P&L so the mapper can
-            // persist it inside the snapshot (additive, nullable link).
             Step7VM.PrintableInvoice.ProfitLoss = Step9VM;
 
-            // ── S-03: Wizard step titles — corrected after swap ───────
             WizardSteps = new ObservableCollection<WizardStep>
             {
-                new WizardStep
-                {
-                    StepNumber = 1,
-                    Title      = "Company details",
-                    Subtitle   = "TRN, location and billing"
-                },
-                new WizardStep
-                {
-                    StepNumber = 2,
-                    Title      = "Client profile",           // S-03: was "Project"
-                    Subtitle   = "Customer, salesman and billing"
-                },
-                new WizardStep
-                {
-                    StepNumber = 3,
-                    Title      = "Project specs",            // S-03: was "Other references"
-                    Subtitle   = "Reference numbers, PO and LPO"
-                },
-                new WizardStep
-                {
-                    StepNumber = 4,
-                    Title      = "Glass type & specs",
-                    Subtitle   = "Estimators, materials & treatments"
-                },
-                new WizardStep
-                {
-                    StepNumber = 5,
-                    Title      = "Data grid",
-                    Subtitle   = "Multi-spec row configurations"
-                },
-                new WizardStep
-                {
-                    StepNumber = 6,
-                    Title      = "Other charges",
-                    Subtitle   = "Supplementary, prep, delivery"
-                },
-                new WizardStep
-                {
-                    StepNumber = 7,
-                    Title      = "Print preview",
-                    Subtitle   = "Review, terms and ERP conversion"
-                },
-                new WizardStep
-                {
-                    StepNumber = 8,
-                    Title      = "Attachments",
-                    Subtitle   = "Photos, drawings & approvals"
-                },
-                new WizardStep
-                {
-                    StepNumber = 9,
-                    Title      = "Profit & Loss",
-                    Subtitle   = "Real cost, margin and profitability"
-                }
+                new WizardStep { StepNumber = 1, Title = "Company details", Subtitle = "TRN, location and billing" },
+                new WizardStep { StepNumber = 2, Title = "Client profile", Subtitle = "Customer, salesman and billing" },
+                new WizardStep { StepNumber = 3, Title = "Project specs", Subtitle = "Reference numbers, PO and LPO" },
+                new WizardStep { StepNumber = 4, Title = "Glass type & specs", Subtitle = "Estimators, materials & treatments" },
+                new WizardStep { StepNumber = 5, Title = "Data grid", Subtitle = "Multi-spec row configurations" },
+                new WizardStep { StepNumber = 6, Title = "Other charges", Subtitle = "Supplementary, prep, delivery" },
+                new WizardStep { StepNumber = 7, Title = "Print preview", Subtitle = "Review, terms and ERP conversion" },
+                new WizardStep { StepNumber = 8, Title = "Attachments", Subtitle = "Photos, drawings & approvals" },
+                new WizardStep { StepNumber = 9, Title = "Profit & Loss", Subtitle = "Real cost, margin and profitability" }
             };
 
             CurrentStep = WizardSteps[0];
-
-            // Fresh wizard session: clear progress ticks.
             _furthestStepReached = 1;
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = false;
 
-            // ── Navigation commands ───────────────────────────────────
             NextStepCommand = new RelayCommand(
                 _ => GoToStep(CurrentStepNumber + 1),
                 _ => CanGoNext);
@@ -334,86 +190,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             GoToStepCommand = new RelayCommand(param =>
             {
-                // Route through GoToStep so the per-step entry work runs.
-                // Setting CurrentStep directly skipped it, so jumping to
-                // Step 8 or 9 from the stepper strip showed figures from an
-                // earlier visit while Next/Back showed fresh ones -- the
-                // same screen disagreeing with itself depending on how it
-                // was reached.
                 if (param is WizardStep step)
                     GoToStep(step.StepNumber);
             });
 
-            // BUG-77/78: SafeFireAsync wrappers
             NewInvoiceCommand = new RelayCommand(
-                _ => SafeFireAsync(StartNewInvoiceAsync));
+                _ => AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI NewInvoice"));
 
             BackToListCommand = new RelayCommand(
-                _ => SafeFireAsync(ReturnToListAsync));
+                _ => AsyncUtility.SafeFireAndForget(ReturnToListAsync, "PI BackToList"));
 
-            // ── Saved Invoices List VM ────────────────────────────────
-            SavedInvoicesListVM =
-                new SavedInvoicesList.SavedInvoicesListViewModel();
+            SavedInvoicesListVM = new SavedInvoicesList.SavedInvoicesListViewModel();
 
             SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
-                SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
+                AsyncUtility.SafeFireAndForget(() => LoadInvoiceIntoWizardAsync(id), $"PI Load {id}");
 
-            // Approval always forwards to Step 8 with the matching uploader
-            // (jpg or pdf). Mark this invoice as pending approval so that when
-            // the upload completes the Signed-PI / LPO pattern is shown.
             SavedInvoicesListVM.OnInvoiceUploadRequested = (id, uploadPdf) =>
             {
                 _pendingApprovalInvoiceId = id;
-                SafeFireAsync(() => OpenInvoiceAtStepAndUploadAsync(id, uploadPdf));
+                AsyncUtility.SafeFireAndForget(() => OpenInvoiceAtStepAndUploadAsync(id, uploadPdf), $"PI Upload {id}");
             };
 
-            // Continue a pending approval right after the user uploads the
-            // signed PI / LPO in Step 8.
             Step8VM.AttachmentUploaded += OnStep8AttachmentUploaded;
 
-            // v2 version history: open an old version's snapshot
             SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
-                SafeFireAsync(() => RestoreSnapshotIntoWizardAsync(json));
+                AsyncUtility.SafeFireAndForget(() => RestoreSnapshotIntoWizardAsync(json), "PI RestoreSnapshot");
 
-            // ── S-07: Client → Project filter wiring ─────────────────
-            // Subscribed ONCE here — safe for VM lifetime (no dispose needed
-            // since shell VM and step VMs have identical lifetimes).
-            // When user clicks a client card in Step 2, SelectedClientName
-            // changes → we push it to Step3VM.SetClientFilter().
             Step2VM.PropertyChanged += OnStep2PropertyChanged;
         }
-
-        // ═══════════════════════════════════════════════════════════════
-        //  S-07: CLIENT → PROJECT FILTER HANDLER
-        // ═══════════════════════════════════════════════════════════════
 
         private void OnStep2PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName != nameof(Step2ClientProfile.ClientProfileViewModel.SelectedClientName))
                 return;
-
-            // Push selected client name to project step as filter
             Step3VM.SetClientFilter(Step2VM.SelectedClientName);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        //  BUG-77 [HIGH]: SafeFireAsync wrapper
-        // ═══════════════════════════════════════════════════════════════
-
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try
-            {
-                await action();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Unexpected error:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
         }
 
         private void GoToStep(int stepNumber)
@@ -422,72 +232,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (step == null) return;
 
             CurrentStep = step;
-
-            // Mark progress on the step rail.
-            //
-            // WizardStep.IsCompleted existed but nothing ever assigned it, so
-            // the "done" state could never render. A step counts as complete
-            // once the user has moved past it: every step before the furthest
-            // point reached shows a tick.
-            //
-            // Deliberately NOT validation-driven. The wizard lets you jump to
-            // any step at any time, so a tick means "you have been through
-            // this", not "this passed validation". Anything stronger would
-            // have to block navigation, which would change how the wizard
-            // behaves today.
             _furthestStepReached = Math.Max(_furthestStepReached, stepNumber);
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 
-            // PHASE A/J: Step 4 prices come from live Sheet Store stock,
-            // which the user may have edited since the wizard opened.
             if (stepNumber == 4)
                 Step4VM.RefreshSheetStoreData();
-
-            // Step 5 must already show a spec tab and an empty row.
-            // New-invoice / restore used to leave SelectedIndex = -1 so
-            // the grid looked hidden until + ADD SPEC was clicked.
             if (stepNumber == 5)
                 Step5VM.EnsureDefaultWorkspace();
-
             if (stepNumber == 6)
                 Step6VM.RefreshWorkspace();
-
-            // Step 8 shows disk state — refresh every time it is
-            // entered so external changes are never shown stale.
             if (stepNumber == 8)
-                SafeFireAsync(() => Step8VM.LoadAsync());
-
-            // Step 9 costs live data (Sheet Store + Step 5 + Step 7 total)
-            // so it recalculates on every entry rather than showing stale
-            // figures from an earlier visit.
+                AsyncUtility.SafeFireAndForget(() => Step8VM.LoadAsync(), "PI Step8 Load");
             if (stepNumber == 9)
-                SafeFireAsync(() => Step9VM.RecalculateAsync());
+                AsyncUtility.SafeFireAndForget(() => Step9VM.RecalculateAsync(), "PI Step9 Recalc");
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        //  PHASE 7.19 — LIST ↔ WIZARD NAVIGATION
-        // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// BUG-78 [HIGH]: Clean spec-group rebuild — no event handler leak.
-        /// BUG-33 integration: async unique ID via GenerateUniqueProformaIdAsync.
-        /// S-04/S-05/S-06: Resets in Client→Project order. Loads all cards.
-        /// </summary>
         private async Task StartNewInvoiceAsync()
         {
-            // ── Reset Step 1 ──────────────────────────────────────────
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
             Step1VM.CompanyLocation = "";
             Step1VM.IssueDate = DateTime.Now;
             Step1VM.ValidUntil = DateTime.Now.AddDays(7);
             Step1VM.ProformaStatus = "Draft";
-
-            // BUG-33: DB-verified unique ID
             await Step1VM.GenerateUniqueProformaIdAsync();
 
-            // ── Reset Step 2 (Client) — S-04 ─────────────────────────
             Step2VM.CustomerName = "";
             Step2VM.CustomerTrn = "";
             Step2VM.CustomerReferenceCode = "";
@@ -497,101 +267,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step2VM.AttentionExecutiveName = "";
             Step2VM.ClientContactPhone = "";
 
-            // ── Reset Step 3 (Project) — S-04 ────────────────────────
             Step3VM.ProjectIdentifierName = "";
             Step3VM.ProjectContractNo = "";
             Step3VM.ProjectReference = "";
             Step3VM.SiteDeliveryLocation = "";
             Step3VM.LpoNumber = "";
 
-            // ── Reset Step 5 — one spec tab + empty row, selected ────
             Step5VM.ResetForNewInvoice();
-
-            // ── Reset Step 6 — drop previous invoice charge selections ─
             Step6VM.ResetForNewInvoice();
 
-            // ── S-05: Load cards from masterdata.db ───────────────────
-            // Run all 3 card loads concurrently — faster than sequential.
-            // LoadSalesmanOptionsAsync runs alongside for Step2 dropdown.
-            await Task.WhenAll(
-                Step1VM.LoadCardsAsync(),
-                Step2VM.LoadCardsAsync(),
-                Step2VM.LoadSalesmanOptionsAsync(),  // S-06
-                Step3VM.LoadCardsAsync()
-            );
-
-            // ── Step 8 follows the fresh Proforma ID automatically ────
-            // (its PropertyChanged hook on Step1VM triggers the reload).
-            await Step8VM.LoadAsync();
-
-            // ── Navigate to Step 1 and show wizard ────────────────────
-            CurrentStep = WizardSteps[0];
-
-            // Fresh wizard session: clear progress ticks.
-            _furthestStepReached = 1;
-            foreach (var ws in WizardSteps)
-                ws.IsCompleted = false;
-            IsListView = false;
-        }
-
-        /// <summary>
-        /// Returns to the saved invoices list.
-        /// BUG-77: async Task via SafeFireAsync.
-        /// </summary>
-        private async Task ReturnToListAsync()
-        {
-            // AUTO-DRAFT: never lose wizard work — silently persist a
-            // Draft before showing the list (no-op when empty).
-            await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
-
-            // Leaving the wizard cancels any in-progress approval wait; the
-            // user can select Approved again to re-start the Step 8 flow.
-            _pendingApprovalInvoiceId = null;
-
-            IsListView = true;
-            await SavedInvoicesListVM.LoadInvoicesAsync();
-        }
-
-        /// <summary>
-        /// Loads saved invoice into wizard for editing.
-        /// BUG-77 [HIGH]: was async void — now async Task via SafeFireAsync.
-        /// S-08: Step2VM = Client fields, Step3VM = Project fields (corrected).
-        /// </summary>
-        private async Task LoadInvoiceIntoWizardAsync(int invoiceId)
-        {
-            if (App.Invoices == null) return;
-
-            var entity = await App.Invoices.GetByIdAsync(invoiceId);
-            if (entity == null)
-            {
-                MessageBox.Show(
-                    "Selected invoice could not be found.",
-                    "Load Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-
-            // BUG-57: batch update so Recalculate fires ONCE
-            Step7VM.InvoiceMainSummary.BeginBatchUpdate();
-            try
-            {
-                // S-08: Step2VM=ClientProfileVM, Step3VM=ProjectSpecsVM
-                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
-                    snapshot,
-                    Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
-                    Step7VM.InvoiceMainSummary,
-                    Step7VM.Terms,
-                    Step7VM.PrintableInvoice);
-            }
-            finally
-            {
-                Step7VM.InvoiceMainSummary.EndBatchUpdate();
-            }
-
-            // Also reload cards so they're fresh when user browses
             await Task.WhenAll(
                 Step1VM.LoadCardsAsync(),
                 Step2VM.LoadCardsAsync(),
@@ -599,30 +283,58 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step3VM.LoadCardsAsync()
             );
 
-            // Step 8 — show the loaded invoice's attachments
             await Step8VM.LoadAsync();
-
             CurrentStep = WizardSteps[0];
-
-            // Fresh wizard session: clear progress ticks.
             _furthestStepReached = 1;
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = false;
             IsListView = false;
         }
 
-        /// <summary>
-        /// Loads an invoice into the wizard, jumps to Step 8 (Attachments),
-        /// and opens the matching uploader (JPG/image or PDF) so the user can
-        /// immediately attach the signed PI / LPO. Used by the approval flow.
-        /// </summary>
+        private async Task ReturnToListAsync()
+        {
+            await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
+            _pendingApprovalInvoiceId = null;
+            IsListView = true;
+            await SavedInvoicesListVM.LoadInvoicesAsync();
+        }
+
+        private async Task LoadInvoiceIntoWizardAsync(int invoiceId)
+        {
+            if (App.Invoices == null) return;
+            var entity = await App.Invoices.GetByIdAsync(invoiceId);
+            if (entity == null)
+            {
+                MessageBox.Show("Selected invoice could not be found.", "Load Failed", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+            Step7VM.InvoiceMainSummary.BeginBatchUpdate();
+            try
+            {
+                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
+                    snapshot, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
+                    Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
+            }
+            finally { Step7VM.InvoiceMainSummary.EndBatchUpdate(); }
+
+            await Task.WhenAll(
+                Step1VM.LoadCardsAsync(),
+                Step2VM.LoadCardsAsync(),
+                Step2VM.LoadSalesmanOptionsAsync(),
+                Step3VM.LoadCardsAsync()
+            );
+            await Step8VM.LoadAsync();
+            CurrentStep = WizardSteps[0];
+            _furthestStepReached = 1;
+            foreach (var ws in WizardSteps) ws.IsCompleted = false;
+            IsListView = false;
+        }
+
         private async Task OpenInvoiceAtStepAndUploadAsync(int invoiceId, bool uploadPdf)
         {
             await LoadInvoiceIntoWizardAsync(invoiceId);
             GoToStep(8);
-
-            // Open the file picker for the chosen type right away. The uploader
-            // is modal, so let the Step 8 view lay out first.
             Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (uploadPdf) Step8VM.AddPdfCommand.Execute(null);
@@ -630,107 +342,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             }));
         }
 
-        /// <summary>
-        /// Step 8 finished uploading a file. If we were waiting on an approval
-        /// for this invoice, run the Signed-PI / LPO confirmation and complete
-        /// the approval. If no approval is pending, do nothing (the upload was
-        /// just a normal attachment).
-        /// </summary>
         private void OnStep8AttachmentUploaded()
         {
             int? id = _pendingApprovalInvoiceId;
             if (id == null) return;
-
             _pendingApprovalInvoiceId = null;
-            SafeFireAsync(() => SavedInvoicesListVM.CompleteApprovalAsync(id.Value));
+            AsyncUtility.SafeFireAndForget(() => SavedInvoicesListVM.CompleteApprovalAsync(id.Value), $"PI CompleteApproval {id}");
         }
 
-        /// <summary>
-        /// v2 VERSION RESTORE (§24): opens a stored version snapshot in
-        /// the wizard. The user's next save creates a NEW version —
-        /// history is append-only and never silently erased.
-        /// </summary>
         private async Task RestoreSnapshotIntoWizardAsync(string snapshotJson)
         {
-            // Reuse the existing mapper path: wrap the JSON in a
-            // throwaway entity and deserialize through the normal API.
-            var wrapper = new Models.ProformaInvoice.SavedInvoice
-                .SavedProformaInvoice
+            var wrapper = new Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice
             {
                 FullSnapshotJson = snapshotJson
             };
-
             var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(wrapper);
             if (snapshot == null)
             {
-                MessageBox.Show(
-                    "This version could not be read.",
-                    "Restore Version",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                MessageBox.Show("This version could not be read.", "Restore Version", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-
             Step7VM.InvoiceMainSummary.BeginBatchUpdate();
             try
             {
-                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
-                    snapshot,
-                    Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
-                    Step7VM.InvoiceMainSummary,
-                    Step7VM.Terms,
-                    Step7VM.PrintableInvoice);
+                ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository.ProformaInvoiceMapper.RestoreWizardFromSnapshot(
+                    snapshot, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
+                    Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
             }
-            finally
-            {
-                Step7VM.InvoiceMainSummary.EndBatchUpdate();
-            }
-
+            finally { Step7VM.InvoiceMainSummary.EndBatchUpdate(); }
             await Step8VM.LoadAsync();
-
             CurrentStep = WizardSteps[0];
-
-            // Fresh wizard session: clear progress ticks.
             _furthestStepReached = 1;
-            foreach (var ws in WizardSteps)
-                ws.IsCompleted = false;
+            foreach (var ws in WizardSteps) ws.IsCompleted = false;
             IsListView = false;
         }
 
-        // ═══════════════════════════════════════════════════════════════
-        //  PHASE 8.2 — Dashboard quick action trigger
-        // ═══════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Called by MainViewModel when Dashboard "New Invoice" is clicked.
-        /// Delegates to StartNewInvoiceAsync via SafeFireAsync (BUG-77).
-        /// </summary>
         public void TriggerNewInvoice() =>
-            SafeFireAsync(StartNewInvoiceAsync);
+            AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI TriggerNewInvoice");
 
-        /// <summary>
-        /// Opens a saved Proforma Invoice in the wizard — public entry point
-        /// used by the Reports module sidebar ("Open Proforma Invoice").
-        /// The original PI stays the single source for specifications, rows,
-        /// SR numbers, glass references and all quote data; Reports never
-        /// duplicates the editor.
-        /// </summary>
         public async Task OpenSavedInvoiceAsync(int invoiceId)
         {
-            try
-            {
-                await LoadInvoiceIntoWizardAsync(invoiceId);
-            }
+            try { await LoadInvoiceIntoWizardAsync(invoiceId); }
             catch (Exception ex)
             {
-                AppLogService.Warning(
-                    $"Could not open proforma invoice {invoiceId}: {ex.Message}",
-                    new LogContext
-                    {
-                        Module = "Proforma",
-                        Class = nameof(ProformaInvoiceViewModel),
-                        Operation = "OpenFromReports"
-                    });
+                AppLogService.Warning($"Could not open proforma invoice {invoiceId}: {ex.Message}",
+                    new LogContext { Module = "Proforma", Class = nameof(ProformaInvoiceViewModel), Operation = "OpenFromReports" });
             }
         }
     }

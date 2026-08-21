@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
@@ -201,12 +202,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             // BUG-60: all handlers now wrapped safely
             PrintCommand = new RelayCommand(_ => ExecutePrint());
-            ExportPdfCommand = new RelayCommand(_ => SafeFireAsync(ExecuteExportPdfAsync));
-            SaveInvoiceCommand = new RelayCommand(_ => SafeFireAsync(ExecuteSaveInvoiceAsync));
-            LoadInvoiceCommand = new RelayCommand(_ => SafeFireAsync(ExecuteLoadInvoiceAsync));
+            ExportPdfCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportPdfAsync, "PI Step7"));
+            SaveInvoiceCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteSaveInvoiceAsync, "PI Step7"));
+            LoadInvoiceCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteLoadInvoiceAsync, "PI Step7"));
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
-            ExportExcelCommand = new RelayCommand(_ => SafeFireAsync(ExecuteExportExcelAsync));
-            ExportCsvCommand = new RelayCommand(_ => SafeFireAsync(ExecuteExportCsvAsync));
+            ExportExcelCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportExcelAsync, "PI Step7"));
+            ExportCsvCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExecuteExportCsvAsync, "PI Step7"));
 
             Client.PropertyChanged += OnClientChanged;
             Company.PropertyChanged += OnCompanyChanged;
@@ -216,18 +217,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         //  BUG-60: Safe async fire wrapper
         // ══════════════════════════════════════════════════════════════════
 
-        private static async void SafeFireAsync(Func<Task> action)
-        {
-            try { await action(); }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Unexpected error:\n\n{ex.Message}",
-                    "Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
+        
 
         private void OnClientChanged(object sender, PropertyChangedEventArgs e)
         {

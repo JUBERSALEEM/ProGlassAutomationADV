@@ -865,9 +865,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"),
                 _ => _entity != null && !IsSaving && !IsLoading);
 
+            // Phase 3: No async void — wrapper uses central AsyncUtility
             ConvertToTaxInvoiceCommand = new RelayCommand(
-                execute: param => ConvertToTaxInvoiceAsync(
-                    param as DnHistoryEntryViewModel),
+                execute: param => AsyncUtility.SafeFireAndForget(
+                    () => ConvertToTaxInvoiceAsync(param as DnHistoryEntryViewModel),
+                    $"DN ConvertToTI {DeliveryNoteId}"),
                 canExecute: param => CanConvertToTaxInvoice(
                     param as DnHistoryEntryViewModel));
 
@@ -1744,7 +1746,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 || targetStatus == "Received";
         }
 
-        private async void ConvertToTaxInvoiceAsync(
+        private async Task ConvertToTaxInvoiceAsync(
             DnHistoryEntryViewModel? entry)
         {
             if (string.IsNullOrWhiteSpace(ProformaId))

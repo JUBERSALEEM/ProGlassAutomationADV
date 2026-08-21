@@ -409,7 +409,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         public ProfitLossStepViewModel()
         {
-            RecalculateCommand = new RelayCommand(_ => FireRecalculate());
+            RecalculateCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(FireRecalculateAsync, "ProfitLoss Recalc"));
 
             Rows.CollectionChanged += (_, __) => OnPropertyChanged(nameof(HasRows));
         }
@@ -631,7 +631,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 DispatcherPriority.Background);
         }
 
-        private async void FireRecalculate()
+        private async Task FireRecalculateAsync()
         {
             // async void is confined to this command entry point and the
             // body cannot throw (RecalculateAsync swallows everything).

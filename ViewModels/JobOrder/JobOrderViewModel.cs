@@ -1,44 +1,35 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/JobOrder/JobOrderViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Job Order — Shell (Phase 3: Async Cleanup)
+// VERSION: Phase 3 — 2026-08-21 — Removed async void, uses central AsyncUtility
+//
+// CHANGES vs Phase 2:
+//   ✓ LoadJobOrderIntoDetail was async void => now void + SafeFireAndForget
+//   ✓ ReturnToList was async void => now async Task ReturnToListAsync + wrapper
+//   ✓ RestoreVersion was async void => now async Task RestoreVersionAsync + wrapper
+//   ✓ All call sites use AsyncUtility.SafeFireAndForget (single async void)
+//   ✓ VSTHRD100 compliant
+// ═══════════════════════════════════════════════════════════════════════
+
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels.JobOrder.GodView;
 using ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail;
 using ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList;
 using ProGlassAutomation.ViewModels.Shared;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.JobOrder
 {
-    /// <summary>
-    /// Shell ViewModel for the Job Order module.
-    /// Owns the list ↔ detail view toggle and both sub-VMs.
-    ///
-    /// Phase 10.5: Added OnRequestOpenDeliveryNote callback to propagate
-    /// DN navigation requests up to MainViewModel.
-    ///
-    /// TAB STRIP (new): Workspace | God View | Activity
-    ///   • Workspace — the original list ↔ detail flow (unchanged)
-    ///   • God View  — all-records overview (JobOrderGodViewViewModel)
-    ///   • Activity  — live audit feed for this section
-    /// </summary>
     public class JobOrderViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
         public string Title { get; } = "Job Orders";
-
-        // ══════════════════════════════════════════════════════════════
-        //  AGENT CONTEXT (opt-in, read-only)
-        //
-        //  Publishes the job order number ONLY while the detail view is
-        //  actually open. On the list screen there is no single record in
-        //  focus, so it returns empty rather than naming whichever row
-        //  happens to be highlighted - the agent would otherwise answer
-        //  about a document the user is not looking at.
-        //
-        //  No customer, project or value: those are ERP data and need an
-        //  audited read tool with a permission check.
-        // ══════════════════════════════════════════════════════════════
         public string AgentContextDetail
         {
             get
@@ -46,7 +37,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                 try
                 {
                     if (!IsDetailView) return "";
-
                     var id = DetailVM?.JobOrderId;
                     return string.IsNullOrWhiteSpace(id) ? "" : $"editing {id}";
                 }
@@ -55,23 +45,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         }
         public string Subtitle { get; } = "Track production status of approved invoices";
 
-        // ── tab keys ──────────────────────────────────────────────────────
         public const string TabWorkspace = "Workspace";
         public const string TabGodView = "GodView";
         public const string TabActivity = "Activity";
 
-        // ── sub-VMs ───────────────────────────────────────────────────────
-
         public SavedJobOrdersListViewModel ListVM { get; }
         public JobOrderDetailViewModel DetailVM { get; }
-
-        /// <summary>God View tab — every job order in the system.</summary>
         public JobOrderGodViewViewModel GodViewVM { get; }
-
-        /// <summary>Activity tab — live audit feed for this section.</summary>
         public SectionActivityViewModel ActivityVM { get; }
-
-        // ── view state toggle ─────────────────────────────────────────────
 
         private bool _isListView = true;
         public bool IsListView
@@ -88,11 +69,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
         public bool IsDetailView => !_isListView;
 
-        // ── tab strip state ───────────────────────────────────────────────
-
         private string _activeTab = TabWorkspace;
-
-        /// <summary>Which tab is active: Workspace / GodView / Activity.</summary>
         public string ActiveTab
         {
             get => _activeTab;
@@ -111,97 +88,63 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         public bool IsGodViewTab => ActiveTab == TabGodView;
         public bool IsActivityTab => ActiveTab == TabActivity;
 
-        // ── commands ──────────────────────────────────────────────────────
-
         public ICommand BackToListCommand { get; }
-
-        /// <summary>Switches tabs. Parameter = tab key constant.</summary>
         public ICommand SwitchTabCommand { get; }
-
-        // ── callback for main shell (Phase 10.5) ──────────────────────────
-
-        /// <summary>
-        /// Fired when JO detail view requests to open a newly created DN.
-        /// MainViewModel wires this to navigate to DN module + open detail.
-        /// Parameter = DN database Id.
-        /// </summary>
         public Action<int>? OnRequestOpenDeliveryNote { get; set; }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  CONSTRUCTOR
-        // ═════════════════════════════════════════════════════════════════
 
         public JobOrderViewModel()
         {
             ListVM = new SavedJobOrdersListViewModel();
             DetailVM = new JobOrderDetailViewModel();
 
-            // When user clicks OPEN on a list row → load detail
-            ListVM.OnJobOrderOpenRequested = LoadJobOrderIntoDetail;
+            // Phase 3: No async void — wrap with SafeFireAndForget
+            ListVM.OnJobOrderOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder Open {id}");
 
-            // v2 §24: version restore from history dialog
-            ListVM.OnVersionRestoreRequested = RestoreVersion;
+            ListVM.OnVersionRestoreRequested = versionId =>
+                AsyncUtility.SafeFireAndForget(() => RestoreVersionAsync(versionId), $"JobOrder Restore {versionId}");
 
-            // When user clicks Save/Back in detail → return to list
-            DetailVM.OnRequestBackToList = ReturnToList;
+            DetailVM.OnRequestBackToList = () =>
+                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList");
 
-            // Phase 10.5: When user clicks Create DN → propagate to shell
             DetailVM.OnRequestOpenDeliveryNote = dnId =>
                 OnRequestOpenDeliveryNote?.Invoke(dnId);
 
-            BackToListCommand = new RelayCommand(_ => ReturnToList());
+            BackToListCommand = new RelayCommand(_ =>
+                AsyncUtility.SafeFireAndForget(ReturnToListAsync, "JobOrder BackToList"));
 
-            // ── God View tab: row-open hands off to detail flow ───────
             GodViewVM = new JobOrderGodViewViewModel();
-            GodViewVM.OnOpenRequested = LoadJobOrderIntoDetail;
+            GodViewVM.OnOpenRequested = id =>
+                AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(id), $"JobOrder GodView Open {id}");
 
-            // ── Activity tab: live audit feed for this section ────────
             ActivityVM = new SectionActivityViewModel(AuditSections.JobOrder);
 
             SwitchTabCommand = new RelayCommand(param =>
                 SwitchTab(param as string ?? TabWorkspace));
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  TAB SWITCHING
-        // ═════════════════════════════════════════════════════════════════
-
         private void SwitchTab(string tabKey)
         {
             ActiveTab = tabKey;
-
-            // Load lazily when each overview tab is entered.
             switch (tabKey)
             {
                 case TabGodView:
-                    GodViewVM.LoadAsync();
+                    AsyncUtility.SafeFireAndForget(() => GodViewVM.LoadAsync(), "JobOrder GodView Load");
                     break;
                 case TabActivity:
-                    ActivityVM.LoadAsync();
+                    AsyncUtility.SafeFireAndForget(() => ActivityVM.LoadAsync(), "JobOrder Activity Load");
                     break;
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  NAVIGATION
-        // ═════════════════════════════════════════════════════════════════
+        // Phase 3: Was async void LoadJobOrderIntoDetail — now sync wrapper
+        private void LoadJobOrderIntoDetail(int jobOrderId) =>
+            AsyncUtility.SafeFireAndForget(() => OpenJobOrderAsync(jobOrderId), $"JobOrder LoadDetail {jobOrderId}");
 
-        private async void LoadJobOrderIntoDetail(int jobOrderId)
-            => _ = OpenJobOrderAsync(jobOrderId);
-
-        /// <summary>
-        /// Opens a Job Order in its detail workspace — public entry point
-        /// used by the Reports module sidebar ("Open Job Order") and the
-        /// internal list/detail callbacks. The original JO remains the
-        /// single source for production, items and delivery context.
-        /// </summary>
         public async Task OpenJobOrderAsync(int jobOrderId)
         {
-            // BUG-FIX: previously unguarded — an exception here escaped
-            // into async-void territory and could crash the app.
             try
             {
-                // §28: don't steamroll unsaved edits when opening another JO.
                 if (!await ProGlassAutomation.Services.Safety
                     .UnsavedChangesGuard.ConfirmLeaveAsync(
                         () => DetailVM.HasUnsavedChanges,
@@ -211,7 +154,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
                 await DetailVM.LoadAsync(jobOrderId);
                 IsListView = false;
-                ActiveTab = TabWorkspace;   // open always lands on workspace
+                ActiveTab = TabWorkspace;
             }
             catch (Exception ex)
             {
@@ -223,11 +166,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
         }
 
-        private async void ReturnToList()
+        // Phase 3: Was async void — now async Task
+        private async Task ReturnToListAsync()
         {
             try
             {
-                // §28: user decides Cancel / Discard / Save & Continue.
                 if (!await ProGlassAutomation.Services.Safety
                     .UnsavedChangesGuard.ConfirmLeaveAsync(
                         () => DetailVM.HasUnsavedChanges,
@@ -240,20 +183,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                AppLogService.Debug(
-                    $"[JobOrderVM] ReturnToList failed: {ex.Message}");
+                AppLogService.Warning(
+                    $"[JobOrderVM] ReturnToList failed: {ex.Message}",
+                    new LogContext { Module = "JobOrder", Operation = "ReturnToList" });
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  v2 §24 — VERSION RESTORE
-        // ═════════════════════════════════════════════════════════════════
-
-        /// <summary>
-        /// Opens the job order that owns the chosen version, then applies
-        /// the version snapshot into the editor (pending save).
-        /// </summary>
-        private async void RestoreVersion(int versionId)
+        // Phase 3: Was async void — now async Task
+        private async Task RestoreVersionAsync(int versionId)
         {
             try
             {
@@ -262,8 +199,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
                 if (version == null || App.Jobs == null) return;
 
-                var entity = await App.Jobs
-                    .GetByJobOrderIdAsync(version.EntityId);
+                var entity = await App.Jobs.GetByJobOrderIdAsync(version.EntityId);
 
                 if (entity == null)
                 {
@@ -292,8 +228,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                AppLogService.Debug(
-                    $"[JobOrderVM] RestoreVersion failed: {ex.Message}");
+                AppLogService.Warning(
+                    $"[JobOrderVM] RestoreVersion failed: {ex.Message}",
+                    new LogContext { Module = "JobOrder", Operation = "RestoreVersion" });
             }
         }
     }

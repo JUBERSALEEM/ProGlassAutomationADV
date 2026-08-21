@@ -246,42 +246,41 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             public TimeSpan Timestamp { get; init; }
         }
 
-        private Task<PixelShot?> CapturePixelsAsync(CancellationToken ct)
+        // Phase 3: No ContinueWith + .Result — use async/await, single _captureBusy handling
+        private async Task<PixelShot?> CapturePixelsAsync(CancellationToken ct)
         {
             var disp = Application.Current?.Dispatcher;
-            if (disp == null) return Task.FromResult<PixelShot?>(null);
-            Interlocked.Exchange(ref _captureBusy, 1);
+            if (disp == null) return null;
+            if (Interlocked.Exchange(ref _captureBusy, 1) != 0) return null;
+
             try
             {
-                return disp.InvokeAsync(() =>
-                {
-                    try
-                    {
-                        ct.ThrowIfCancellationRequested();
-                        return CaptureOnUi();
-                    }
-                    finally
-                    {
-                        Interlocked.Exchange(ref _captureBusy, 0);
-                    }
                 // DispatcherPriority.Background ensures user input events
                 // are always processed before frame capture. Normal priority
                 // caused the app to freeze because RenderTargetBitmap.Render
-                // forces a full re-layout on every capture — the UI thread
-                // busy-painted frames instead of dispatching mouse clicks
-                // and keyboard input.
-                }, DispatcherPriority.Background, ct).Task
-                    .ContinueWith(t =>
-                    {
-                        Interlocked.Exchange(ref _captureBusy, 0);
-                        if (t.IsCanceled || t.IsFaulted) return null;
-                        return t.Result;
-                    }, CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Default);
+                // forces a full re-layout on every capture.
+                var shot = await disp.InvokeAsync(() =>
+                {
+                    ct.ThrowIfCancellationRequested();
+                    return CaptureOnUi();
+                }, DispatcherPriority.Background, ct).Task.ConfigureAwait(false);
+
+                return shot;
             }
-            catch
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Warning(
+                    $"CapturePixels failed: {ex.Message}",
+                    new Services.Logging.LogContext { Module = "Recording", Operation = "CapturePixels" });
+                return null;
+            }
+            finally
             {
                 Interlocked.Exchange(ref _captureBusy, 0);
-                return Task.FromResult<PixelShot?>(null);
             }
         }
 

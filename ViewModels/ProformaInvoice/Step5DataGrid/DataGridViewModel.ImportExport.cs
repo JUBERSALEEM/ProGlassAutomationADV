@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
 using System;
@@ -29,13 +30,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private void WireImportExportCommands()
         {
-            ImportCutListCommand = new RelayCommand(_ => SafeIo(ImportCutListAsync));
-            ExportExcelCommand = new RelayCommand(_ => SafeIo(() =>
-                CutListGridIo.ExportExcelAsync(SpecGroups, CurrentDocumentId())));
-            ExportCsvCommand = new RelayCommand(_ => SafeIo(() =>
-                CutListGridIo.ExportCsvAsync(SpecGroups, CurrentDocumentId())));
-            ExportPdfCommand = new RelayCommand(_ => SafeIo(() =>
-                CutListGridIo.ExportPdfAsync(SpecGroups, CurrentDocumentId())));
+            ImportCutListCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ImportCutListAsync, "PI Step5"));
+            ExportExcelCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
+                CutListGridIo.ExportExcelAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
+            ExportCsvCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
+                CutListGridIo.ExportCsvAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
+            ExportPdfCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(() =>
+                CutListGridIo.ExportPdfAsync(SpecGroups, CurrentDocumentId()), "PI Step5"));
         }
 
         private static string CurrentDocumentId()
@@ -53,34 +54,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        private async void SafeIo(Func<Task<ExportResult>> work)
-        {
-            try
-            {
-                var result = await work();
-                if (result.Cancelled) return;
-                IoStatus = result.Success
-                    ? $"Saved {result.SavedPath}"
-                    : result.ErrorMessage ?? "Export failed.";
-            }
-            catch (Exception ex)
-            {
-                IoStatus = ex.Message;
-                MessageBox.Show(ex.Message, "Cut list",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
+        
 
-        private async void SafeIo(Func<Task> work)
-        {
-            try { await work(); }
-            catch (Exception ex)
-            {
-                IoStatus = ex.Message;
-                MessageBox.Show(ex.Message, "Cut list",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
+        
 
         private async Task ImportCutListAsync()
         {

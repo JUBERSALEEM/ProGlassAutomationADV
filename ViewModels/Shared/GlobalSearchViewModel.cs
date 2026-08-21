@@ -24,6 +24,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -78,7 +79,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                 if (_selectedModule == value) return;
                 _selectedModule = value ?? ModuleAll;
                 OnPropertyChanged();
-                FireSearch();
+                AsyncUtility.SafeFireAndForget(FireSearchAsync, "GlobalSearch");
             }
         }
 
@@ -92,7 +93,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                 if (_searchText == value) return;
                 _searchText = value ?? "";
                 OnPropertyChanged();
-                FireSearch();
+                AsyncUtility.SafeFireAndForget(FireSearchAsync, "GlobalSearch");
             }
         }
 
@@ -204,7 +205,7 @@ namespace ProGlassAutomation.ViewModels.Shared
             OnPropertyChanged(nameof(SelectedResult));
         }
 
-        private async void FireSearch()
+        private async Task FireSearchAsync()
         {
             await SearchAsync().ConfigureAwait(true);
         }

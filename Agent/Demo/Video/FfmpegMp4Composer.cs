@@ -194,11 +194,14 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 await p.WaitForExitAsync(ct).ConfigureAwait(false);
                 await Task.WhenAll(mixOut, mixErr).ConfigureAwait(false);
 
+                // Phase 3: No .Result — use await (tasks already completed after WhenAll)
+                var mixErrText = await mixErr.ConfigureAwait(false);
+
                 if (p.ExitCode == 0 && File.Exists(outputWav) && new FileInfo(outputWav).Length > 44)
                     return outputWav;
 
                 AppLogService.Debug(
-                    $"[ffmpeg mix] exit {p.ExitCode}: {Tail(mixErr.Result)}");
+                    $"[ffmpeg mix] exit {p.ExitCode}: {Tail(mixErrText)}");
             }
             catch (Exception ex)
             {
@@ -308,11 +311,14 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
                 await Task.WhenAll(stdoutTask, stderrTask).ConfigureAwait(false);
 
+                // Phase 3: No .Result — await completed tasks
+                var stderrText = await stderrTask.ConfigureAwait(false);
+
                 if (p.ExitCode == 0 && IsValidMp4(mp4Path))
                     return mp4Path;
 
                 AppLogService.Debug(
-                    $"[ffmpeg] exit {p.ExitCode}: {Tail(stderrTask.Result)}");
+                    $"[ffmpeg] exit {p.ExitCode}: {Tail(stderrText)}");
                 return null;
             }
             catch (OperationCanceledException)

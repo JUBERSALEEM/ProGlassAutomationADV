@@ -47,8 +47,8 @@ namespace ProGlassAutomation.Views.Shared
             Loaded += OnLoaded;
         }
 
-        /// <summary>Reloads the active-user list when the panel opens.</summary>
-        public async void RefreshAsync()
+        /// <summary>Reloads the active-user list when the panel opens — Phase 3: async Task.</summary>
+        public async Task RefreshAsync()
         {
             _users.Clear();
             _users.AddRange((await AuditService.GetUsersAsync())
@@ -63,6 +63,7 @@ namespace ProGlassAutomation.Views.Shared
             SwitchButton.IsEnabled = false;
         }
 
+        // Phase 3: Event handler — async void allowed for WPF Loaded event
         private async void OnLoaded(object sender, RoutedEventArgs e)
             => await RefreshCoreAsync();
 
