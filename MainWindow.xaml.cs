@@ -1,41 +1,34 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: MainWindow.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Main Shell (Chat 23 v3.1)
-// VERSION: Chat 23 v3.1 — Removed ApiKeyBox handler (moved to SettingsView)
+// MODULE: Main Shell (Chat 24 v4.1 Bugfix)
+// VERSION: Chat 24 v4.1 — Fixed Screen Recording ComboBox & Dropdown Close Bug
 //
-// CHANGES vs v3.0:
-//   ✓ REMOVED ApiKeyBox_PasswordChanged handler (moved to SettingsView)
-//   ✓ REMOVED the Loaded handler's ApiKeyBox.Password restoration
-//     (now handled in SettingsView.xaml.cs's Loaded handler)
-//   ✓ REMOVED the unused `using` for VM (not needed after handler removal)
-//
-// PRESERVED (verbatim):
-//   • DimOverlay_MouseLeftButtonDown — closes the menu drawer
-//   • MenuScrollViewer_ScrollChanged — slider follows scroll
-//   • ScrollSlider_ValueChanged — scroll follows slider
-//   • _isSyncingScroll bool guard
-//
-// REGRESSION RISK: ZERO
-//   Only removed code that has been relocated to SettingsView.xaml.cs.
+// FIXES:
+//   ✓ IsDescendantOf now bridges WPF Popup & LogicalTree boundaries
+//     (fixes ScreenRecord ComboBox items closing the parent popup on click)
+//   ✓ Click-outside guard in PreviewMouseLeftButtonDown updated to check
+//     Popup targets safely across nested controls
+//   ✓ Hover timer state race condition fixed in PopupContent_MouseLeave
+//     (ScreenRecord popup now relies on click-outside dismiss, not hover timer)
+//   ✓ UiTreeHelper also patched centrally for other views
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.ViewModels;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace ProGlassAutomation
 {
     /// <summary>
-    /// Main shell window. Hosts top bar, left navigation drawer,
-    /// module content area (framed), and the floating AI chat view.
-    /// Settings and About are now full-screen modules (v3.1) hosted
-    /// via ContentControl, not drawers.
-    ///
-    /// DataContext = MainViewModel (set in XAML).
+    /// Main shell window code-behind.
+    /// Hosts top bar, left navigation drawer, module content area,
+    /// and popups (Screen Record, User Switch, Quick Settings, Notifications, Screenshots).
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -46,14 +39,12 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
-            // Wire the sidebar hover timer (delayed group open on mouse enter).
             _hoverTimer.Tick += HoverTimer_Tick;
 
-            // X-6: refuse to close while a multi-step write is running.
+            // Shutdown safety guard
             Closing += MainWindow_Closing;
 
-            // Close any open top-bar popup when the window deactivates, so a
-            // stray popup never lingers over another app (reference behaviour).
+            // Close top-bar popups when the main window deactivates (app loses focus)
             Deactivated += (_, _) =>
             {
                 if (DataContext is MainViewModel vm)
@@ -67,11 +58,7 @@ namespace ProGlassAutomation
                 StopCloseTimer();
             };
 
-            // Close any open top-bar popup when the user clicks anywhere that
-            // is NOT its trigger button AND NOT inside the popup's own content.
-            // (Clicking inside an open popup must not dismiss it.) Keeps each
-            // popup's StaysOpen reliable while letting a click on a module
-            // dismiss it.
+            // Non-blocking popup click-outside dismiss handler
             PreviewMouseLeftButtonDown += (_, e) =>
             {
                 if (DataContext is not MainViewModel vm) return;
@@ -83,38 +70,101 @@ namespace ProGlassAutomation
 
                 if (vm.IsUserSwitchOpen && !In(UserCardButton) && !In(UserSwitchPanelHost))
                     vm.IsUserSwitchOpen = false;
+
                 if (vm.IsSettingsOpen && !In(SettingsButton) && !In(SettingsPanelHost))
                     vm.IsSettingsOpen = false;
+
                 if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
                     vm.IsNotificationsOpen = false;
+
                 if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
                     vm.IsScreenshotOpen = false;
-                if (vm.IsScreenRecordOpen && !In(RecordButton) && !In(ScreenRecordPanelHost))
-                    vm.IsScreenRecordOpen = false;
+
+                // Screen Recording Popup: check if click originated inside button, host panel, or popup
+                // IMPORTANT: ComboBox dropdown items live in a separate Popup visual tree.
+                // IsDescendantOf now bridges Popup.PlacementTarget -> ComboBox -> PanelHost,
+                // so clicking a ComboBox item is correctly recognized as inside.
+                if (vm.IsScreenRecordOpen)
+                {
+                    bool insideRecordUI = In(RecordButton)
+                                       || In(ScreenRecordPanelHost)
+                                       || In(ScreenRecordPopup);
+
+                    if (!insideRecordUI)
+                    {
+                        vm.IsScreenRecordOpen = false;
+                    }
+                }
             };
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  SHUTDOWN SAFETY — audit finding X-6
+        //  SMART VISUAL & LOGICAL TREE TRAVERSER
+        //  Bridges WPF Popup & ComboBox boundaries so clicks on dropdown
+        //  items trace back to their parent host control.
         //
-        //  There was no Closing handler at all. Clicking X during a save,
-        //  export or backup killed the process mid-write.
-        //
-        //  Each SQLite file is individually safe — a killed transaction
-        //  rolls back. The real exposure is a MULTI-DATABASE business
-        //  operation: creating a tax invoice writes taxinvoices.db and
-        //  then updates deliverynotes.db, and no transaction can span two
-        //  database files (audit finding D-4). Dying between those two
-        //  writes leaves a delivery note flagged as invoiced with no
-        //  invoice behind it.
-        //
-        //  This asks the user rather than deciding for them: their data
-        //  is their business, and silently blocking a close is as rude as
-        //  silently corrupting it. Cancel is the DEFAULT so an accidental
-        //  Enter keypress keeps the data safe.
+        //  WPF Popup creates a separate visual tree. VisualTreeHelper.GetParent
+        //  returns null at the root of that tree. To bridge:
+        //    - Try Visual parent
+        //    - Try Logical parent
+        //    - Try FrameworkElement.Parent / TemplatedParent
+        //    - Try FrameworkContentElement.Parent
+        //    - If current is Popup, follow PlacementTarget
+        //  This allows ComboBoxItem (inside inner Popup) -> inner Popup ->
+        //  ComboBox (PlacementTarget) -> StackPanel -> ScreenRecordPanelHost
+        //  to be detected as descendant.
         // ══════════════════════════════════════════════════════════════
-        private void MainWindow_Closing(
-            object? sender, System.ComponentModel.CancelEventArgs e)
+        private static bool IsDescendantOf(DependencyObject? element, DependencyObject? root)
+        {
+            if (element == null || root == null) return false;
+
+            var current = element;
+            while (current != null)
+            {
+                if (ReferenceEquals(current, root)) return true;
+
+                DependencyObject? parent = null;
+
+                // 1. Visual Tree Parent (most common)
+                try { parent = VisualTreeHelper.GetParent(current); }
+                catch { parent = null; }
+
+                // 2. Logical Tree Parent (for non-Visuals like ColumnDefinition)
+                if (parent == null)
+                {
+                    try { parent = LogicalTreeHelper.GetParent(current); }
+                    catch { parent = null; }
+                }
+
+                // 3. FrameworkElement fallbacks
+                if (parent == null && current is FrameworkElement fe)
+                {
+                    parent = fe.Parent ?? fe.TemplatedParent as DependencyObject;
+                }
+
+                // 4. FrameworkContentElement fallback
+                if (parent == null && current is FrameworkContentElement fce)
+                {
+                    parent = fce.Parent ?? fce.TemplatedParent as DependencyObject;
+                }
+
+                // 5. Popup boundary — follow PlacementTarget to bridge separate visual trees
+                //    This is the critical fix for ComboBox dropdowns inside ScreenRecord popup.
+                if (parent == null && current is Popup popup)
+                {
+                    parent = popup.PlacementTarget;
+                }
+
+                current = parent;
+            }
+
+            return false;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SHUTDOWN SAFETY
+        // ══════════════════════════════════════════════════════════════
+        private void MainWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             try
             {
@@ -133,12 +183,11 @@ namespace ProGlassAutomation
                     "Operation In Progress",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning,
-                    MessageBoxResult.No);   // safe default
+                    MessageBoxResult.No);
 
                 if (answer != MessageBoxResult.Yes)
                 {
                     e.Cancel = true;
-
                     Services.Logging.AppLogService.Info(
                         "Close cancelled — critical operation in progress.",
                         new Services.Logging.LogContext
@@ -160,29 +209,14 @@ namespace ProGlassAutomation
             }
             catch
             {
-                // A fault in the shutdown guard must never trap the user
-                // inside the application. Allow the close.
+                // Allow close on error
             }
         }
 
-        // ── top-bar user card → non-blocking user-switch popup ──────────
-        // Uses the shared DropdownButton_Click handler (hover-peek +
-        // click-toggle) like the other top-bar popups.
-
-        private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
-            => ProGlassAutomation.Utilities.UiTreeHelper.IsDescendantOf(element, root);
-
-        // ── top-bar dropdowns (reference pattern) ─────────────────────────
-        // One shared close-timer + a single "pointer over popup" flag.
-        //  - Hover a button opens its popup.
-        //  - Moving away starts a short close-timer.
-        //  - Moving INTO the popup cancels it (so it stays open).
-        //  - Clicking toggles: same button closes, another opens.
-
+        // ── top-bar dropdowns ─────────────────────────────────────────────
         private DispatcherTimer? _dropdownCloseTimer;
         private bool _isMouseOverPopup;
 
-        // Maps a trigger button to its popup-open VM property.
         private void SetOpen(object sender, bool open)
         {
             if (DataContext is not MainViewModel vm) return;
@@ -197,7 +231,7 @@ namespace ProGlassAutomation
         {
             _isMouseOverPopup = false;
             StopCloseTimer();
-            // Open ONLY this one; close the others (reference behaviour).
+
             if (DataContext is MainViewModel vm)
             {
                 vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
@@ -226,14 +260,15 @@ namespace ProGlassAutomation
             StopCloseTimer();
             _dropdownCloseTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(400)   // give time to reach the popup
+                Interval = TimeSpan.FromMilliseconds(1200)
             };
             _dropdownCloseTimer.Tick += (_, _) =>
             {
                 _dropdownCloseTimer!.Stop();
                 _dropdownCloseTimer = null;
-                if (_isMouseOverPopup) return;   // pointer reached the popup
-                // Close whichever is open.
+
+                if (_isMouseOverPopup) return;
+
                 if (DataContext is MainViewModel vm)
                 {
                     vm.IsSettingsOpen = false;
@@ -246,7 +281,7 @@ namespace ProGlassAutomation
             _dropdownCloseTimer.Start();
         }
 
-        // Hover a button: open ITS popup (and close the others).
+        // Hover a button: open its popup
         private void TopBarButton_MouseEnter(object sender, MouseEventArgs e)
         {
             _isMouseOverPopup = false;
@@ -254,14 +289,14 @@ namespace ProGlassAutomation
             OpenDropdown(sender);
         }
 
-        // Leave a button: schedule a close (cancelled if we enter the popup).
+        // Leave a button: schedule close
         private void TopBarButton_MouseLeave(object sender, MouseEventArgs e)
         {
             _isMouseOverPopup = false;
             StartCloseTimer();
         }
 
-        // Click toggles: same button open -> close; otherwise open.
+        // Click toggles popup
         private void DropdownButton_Click(object sender, RoutedEventArgs e)
         {
             if (DataContext is not MainViewModel vm) return;
@@ -278,7 +313,6 @@ namespace ProGlassAutomation
             }
             else
             {
-                // Close the others, open this one.
                 if (DataContext is MainViewModel m2)
                 {
                     m2.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
@@ -291,53 +325,53 @@ namespace ProGlassAutomation
             }
         }
 
-        // Entering an open popup cancels the close.
+        // Entering popup cancels close timer
         private void PopupContent_MouseEnter(object sender, MouseEventArgs e)
         {
             _isMouseOverPopup = true;
             StopCloseTimer();
         }
 
-        // Leaving the popup schedules a close.
+        // Leaving popup — special handling for ScreenRecord to avoid closing
+        // when interacting with ComboBox dropdowns (which live in separate Popup)
         private void PopupContent_MouseLeave(object sender, MouseEventArgs e)
         {
+            // Screen recording dropdown: rely on click-outside dismiss
+            // to avoid closing when interacting with ComboBox dropdowns
+            if (ReferenceEquals(sender, ScreenRecordPanelHost))
+            {
+                _isMouseOverPopup = false;
+                StopCloseTimer();
+                return;
+            }
+
+            var source = Mouse.DirectlyOver as DependencyObject;
+            if (source != null && IsDescendantOf(source, ScreenRecordPanelHost))
+            {
+                _isMouseOverPopup = true;
+                StopCloseTimer();
+                return;
+            }
+
             _isMouseOverPopup = false;
             StartCloseTimer();
         }
 
-        /// <summary>
-        /// Clicking the app logo opens the FULL, stylish About module (the
-        /// rich AboutView), not a small popup. Navigation goes through the
-        /// same switch the sidebar/agent use so the module wallpaper and AI
-        /// screen context stay correct.
-        /// </summary>
         private void Logo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (DataContext is MainViewModel vm)
             {
-                // Close every top-bar popup, then open the full About module.
                 vm.IsSettingsOpen = false;
                 vm.IsNotificationsOpen = false;
                 vm.IsScreenshotOpen = false;
                 vm.IsUserSwitchOpen = false;
+                vm.IsScreenRecordOpen = false;
                 StopCloseTimer();
                 vm.NavigateFromAgent("About");
             }
         }
 
-        // ── sidebar groups: CLICK + MOUSE ON/OFF (integrated) ────────────
-        // Both behaviors work together:
-        //   • Mouse ON a group header (hover, 300ms)  -> opens + closes others
-        //   • Mouse OFF the group (header + submenu)  -> closes it
-        //   • Click a closed group                    -> opens it AND PINS it
-        //     (stays open even after the mouse leaves)
-        //   • Click the open/pinned group             -> closes it + unpins
-        //
-        // The header is a ToggleButton whose IsChecked drives the sub-menu
-        // Visibility. NOTE: ToggleButton.OnClick() calls OnToggle() BEFORE
-        // raising the Click event — so by the time this handler runs the
-        // IsChecked has ALREADY flipped. We must NOT re-set it (that would
-        // cancel the toggle) — only enforce accordion + pin semantics.
+        // ── sidebar groups ────────────────────────────────────────────────
         private StackPanel? _pinnedGroupHost;
         private readonly DispatcherTimer _hoverTimer =
             new() { Interval = TimeSpan.FromMilliseconds(300) };
@@ -348,8 +382,6 @@ namespace ProGlassAutomation
             if (sender is not StackPanel host || host.Children.Count == 0) return;
             if (host.Children[0] is not ToggleButton) return;
 
-            // Delay before hover-open so the cursor passing through a
-            // header while moving to a lower group does not jump menus.
             _hoverPending = host;
             _hoverTimer.Stop();
             _hoverTimer.Start();
@@ -365,7 +397,6 @@ namespace ProGlassAutomation
                 _hoverTimer.Stop();
             }
 
-            // Hover-close unless the group is pinned open by a click.
             if (!ReferenceEquals(_pinnedGroupHost, host)
                 && host.Children.Count > 0
                 && host.Children[0] is ToggleButton tb)
@@ -384,10 +415,6 @@ namespace ProGlassAutomation
 
             tb.IsChecked = true;
             CloseOtherSidebarGroups(host);
-
-            // Hover never pins — and it clears any previous click-pin that
-            // the hover accordion just closed, so the newly hovered group
-            // closes normally on mouse-leave instead of staying open.
             _pinnedGroupHost = null;
         }
 
@@ -396,22 +423,18 @@ namespace ProGlassAutomation
             if (sender is not ToggleButton tb) return;
             if (tb.Parent is not StackPanel host) return;
 
-            // IsChecked was already toggled by the control — read the new state.
             if (tb.IsChecked == true)
             {
-                // Opened: pin it (survives mouse-leave) and close the others.
                 _pinnedGroupHost = host;
                 CloseOtherSidebarGroups(host);
             }
             else
             {
-                // Closed by click: unpin.
                 if (ReferenceEquals(_pinnedGroupHost, host))
                     _pinnedGroupHost = null;
             }
         }
 
-        /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
         private void CloseOtherSidebarGroups(StackPanel keep)
         {
             var all = new[]
@@ -439,15 +462,11 @@ namespace ProGlassAutomation
 
         private void UserSwitchPopup_Closed(object sender, System.EventArgs e)
         {
-            // If the user switched identities, refresh the top-bar pill.
             if (DataContext is MainViewModel vm)
                 vm.RefreshCurrentUserPublic();
         }
 
-        private void SettingsPopup_Opened(object sender, System.EventArgs e)
-        {
-            // Nothing to preload — quick-settings rows navigate on demand.
-        }
+        private void SettingsPopup_Opened(object sender, System.EventArgs e) { }
         private void SettingsPopup_Closed(object sender, System.EventArgs e) { }
 
         private void NotificationsPopup_Opened(object sender, System.EventArgs e)
@@ -463,10 +482,6 @@ namespace ProGlassAutomation
         private void ScreenRecordPopup_Opened(object sender, System.EventArgs e) { }
         private void ScreenRecordPopup_Closed(object sender, System.EventArgs e) { }
 
-        /// <summary>
-        /// Click on the dim overlay closes the menu drawer.
-        /// (Settings drawer no longer exists — Settings is a module.)
-        /// </summary>
         private void DimOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (DataContext is MainViewModel vm)
@@ -475,10 +490,6 @@ namespace ProGlassAutomation
             }
         }
 
-        /// <summary>
-        /// Wheel/pan scroll on the menu updates the slider position.
-        /// Guarded by _isSyncingScroll to prevent recursive updates.
-        /// </summary>
         private void MenuScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_isSyncingScroll) return;
@@ -490,10 +501,6 @@ namespace ProGlassAutomation
             _isSyncingScroll = false;
         }
 
-        /// <summary>
-        /// Slider drag scrolls the menu content.
-        /// Guarded by _isSyncingScroll to prevent recursive updates.
-        /// </summary>
         private void ScrollSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isSyncingScroll) return;
