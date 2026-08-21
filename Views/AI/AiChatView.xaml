@@ -207,14 +207,15 @@
             hidden"). The messages row (*) absorbs the shrink; the
             mic/speaker/status rows always stay visible.
         -->
-        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
+        <!-- Draggable AI service window. Its position is set in code
+             (AiChatView.xaml.cs) so the user can drag it out of the way. -->
+        <Canvas x:Name="ChatCanvas">
+        <Border x:Name="ChatPanel"
+                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="420" Height="600"
                 MaxHeight="{Binding ActualHeight,
                             RelativeSource={RelativeSource AncestorType=Window},
                             Converter={StaticResource WindowInsetConverter},
                             ConverterParameter=130}"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Margin="0,0,25,95"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 Effect="{StaticResource PanelShadow}"
@@ -239,12 +240,17 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Header -->
-                <Border Grid.Row="0"
+                <!-- Header — drag handle for the whole AI window -->
+                <Border x:Name="ChatHeader"
+                        Grid.Row="0"
                         CornerRadius="12,12,0,0"
                         Padding="16,12"
                         Background="{StaticResource ChatBrand}"
-                        SnapsToDevicePixels="True">
+                        Cursor="SizeAll"
+                        SnapsToDevicePixels="True"
+                        MouseLeftButtonDown="ChatHeader_MouseLeftButtonDown"
+                        MouseMove="ChatHeader_MouseMove"
+                        MouseLeftButtonUp="ChatHeader_MouseLeftButtonUp">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -920,6 +926,7 @@
 
             </Grid>
         </Border>
+        </Canvas>
 
         <!-- Floating toggle button — v2: draggable.
              Click (no movement) toggles the chat; dragging moves the

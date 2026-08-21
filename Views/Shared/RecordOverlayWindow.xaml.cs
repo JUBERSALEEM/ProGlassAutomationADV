@@ -30,6 +30,12 @@ namespace ProGlassAutomation.Views.Shared
         private double _lastLeft = double.NaN;
         private double _lastTop = double.NaN;
 
+        /// <summary>
+        /// Once the user drags the HUD, stop auto-following the main window
+        /// — the recorder stays where they put it.
+        /// </summary>
+        private bool _userMoved;
+
         public RecordOverlayWindow()
         {
             InitializeComponent();
@@ -111,6 +117,10 @@ namespace ProGlassAutomation.Views.Shared
 
         private void Place()
         {
+            // After the user has dragged the recorder, respect that position
+            // instead of snapping it back to the window's bottom edge.
+            if (_userMoved) return;
+
             try
             {
                 var main = Application.Current?.MainWindow;
@@ -183,6 +193,51 @@ namespace ProGlassAutomation.Views.Shared
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
             try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  DRAG — move the recorder HUD anywhere on the screen
+        //
+        //  The HUD is a borderless topmost window; DragMove() lets the user
+        //  hold anywhere on the card (except the pause/stop/close buttons)
+        //  and move it out of the way. After the first drag, the HUD no
+        //  longer auto-follows the main window (see _userMoved).
+        // ══════════════════════════════════════════════════════════════
+
+        private void HudDrag_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            // The pause / stop / close buttons must stay clickable.
+            if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
+
+            if (e.ButtonState == MouseButtonState.Pressed)
+            {
+                try
+                {
+                    DragMove();
+                }
+                catch
+                {
+                    // DragMove throws if the button was already released.
+                    return;
+                }
+
+                _userMoved = true;
+            }
+        }
+
+        private static bool IsInsideButton(DependencyObject? d)
+        {
+            while (d != null)
+            {
+                if (d is System.Windows.Controls.Primitives.ButtonBase) return true;
+
+                DependencyObject? parent = null;
+                try { parent = VisualTreeHelper.GetParent(d); } catch { /* template boundary */ }
+                if (parent == null && d is FrameworkElement fe && fe.TemplatedParent != null)
+                    parent = fe.TemplatedParent;
+                d = parent;
+            }
+            return false;
         }
     }
 }

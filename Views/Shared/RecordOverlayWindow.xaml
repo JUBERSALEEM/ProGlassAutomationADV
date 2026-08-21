@@ -70,7 +70,10 @@
             CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="14,10"
             BorderThickness="1"
-            BorderBrush="#4DFFFFFF">
+            BorderBrush="#4DFFFFFF"
+            Cursor="SizeAll"
+            ToolTip="Drag to move the recorder"
+            MouseLeftButtonDown="HudDrag_MouseLeftButtonDown">
         <Border.Background>
             <SolidColorBrush Color="#E6101824"/>
         </Border.Background>

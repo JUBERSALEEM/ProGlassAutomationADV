@@ -738,9 +738,66 @@
                     </Button>
 
                     <!-- AI AGENT PULSE PILL (theme-based accent) -->
-                    <!-- AI AGENT pill + SCREEN RECORD button are now FLOATING
-                         widgets (draggable) — see the FloatingWidgetLayer
-                         Canvas near the end of the root grid. -->
+                    <Border Height="36"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            Padding="12,0"
+                            Margin="0,0,10,0"
+                            Background="{DynamicResource TintBlueBrush}"
+                            BorderBrush="{DynamicResource AccentBrush}"
+                            BorderThickness="1"
+                            Cursor="Hand"
+                            SnapsToDevicePixels="True"
+                            ToolTip="ProGlass Agent — local assistant you can teach">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding ToggleAgentChatCommand}"/>
+                        </Border.InputBindings>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Grid Width="12" Height="12" Margin="0,0,10,0">
+                                <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
+                                    <Ellipse.RenderTransform>
+                                        <ScaleTransform x:Name="AiPulseScale"
+                                                        ScaleX="1" ScaleY="1"
+                                                        CenterX="6" CenterY="6"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetName="AiPulseScale"
+                                                        Storyboard.TargetProperty="ScaleX"
+                                                        From="1" To="2.5" Duration="0:0:2"/>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetName="AiPulseScale"
+                                                        Storyboard.TargetProperty="ScaleY"
+                                                        From="1" To="2.5" Duration="0:0:2"/>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        From="0.5" To="0" Duration="0:0:2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource SuccessBrush}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                            </Grid>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="AI AGENT"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Assistant"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
 
                     <!-- DATE/TIME PILL -->
                     <Border Height="36"
@@ -860,8 +917,26 @@
                             ToolTip="Capture screenshot"
                             Margin="0,0,10,0"/>
 
-                    <!-- SCREEN RECORD is now a FLOATING widget — see the
-                         FloatingWidgetLayer Canvas near the end of the grid. -->
+                    <!-- SCREEN RECORD — independent of Demo Center walks -->
+                    <Button x:Name="RecordButton"
+                            Click="DropdownButton_Click"
+                            MouseEnter="TopBarButton_MouseEnter"
+                            MouseLeave="TopBarButton_MouseLeave"
+                            ToolTip="Screen recording — this app window"
+                            AutomationProperties.AutomationId="Shell.ScreenRecord"
+                            Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
+                                <Setter Property="Content" Value="&#xE714;"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
                     <!-- USER CARD — opens a NON-BLOCKING user-switch popup.
                          Single click opens; double-click (or clicking another
@@ -1384,103 +1459,6 @@
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
             </Border>
-
-            <!-- ═══════════════════════════════════════════════════════
-                 FLOATING WIDGET LAYER — draggable AI Agent + Screen Record
-
-                 These two widgets used to be fixed in the top bar where they
-                 could cover content underneath. They are now free-floating:
-                 hold the left mouse button to drag them anywhere over the
-                 window; release without moving to click (open the agent /
-                 toggle screen recording). Position is kept for the session.
-            ═══════════════════════════════════════════════════════════ -->
-            <Canvas x:Name="FloatingWidgetLayer"
-                    Grid.RowSpan="2"
-                    Panel.ZIndex="150"
-                    ClipToBounds="False">
-
-                <!-- AI AGENT PULSE PILL — draggable -->
-                <Border x:Name="AiAgentPill"
-                        Height="36"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="12,0"
-                        Background="{DynamicResource TintBlueBrush}"
-                        BorderBrush="{DynamicResource AccentBrush}"
-                        BorderThickness="1"
-                        Cursor="Hand"
-                        SnapsToDevicePixels="True"
-                        ToolTip="Drag to move · click to open the agent"
-                        PreviewMouseLeftButtonDown="FloatingWidget_PreviewMouseLeftButtonDown"
-                        PreviewMouseMove="FloatingWidget_PreviewMouseMove"
-                        PreviewMouseLeftButtonUp="FloatingWidget_PreviewMouseLeftButtonUp">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Grid Width="12" Height="12" Margin="0,0,10,0">
-                            <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
-                                <Ellipse.RenderTransform>
-                                    <ScaleTransform x:Name="AiPulseScale"
-                                                    ScaleX="1" ScaleY="1"
-                                                    CenterX="6" CenterY="6"/>
-                                </Ellipse.RenderTransform>
-                                <Ellipse.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard RepeatBehavior="Forever">
-                                                <DoubleAnimation
-                                                    Storyboard.TargetName="AiPulseScale"
-                                                    Storyboard.TargetProperty="ScaleX"
-                                                    From="1" To="2.5" Duration="0:0:2"/>
-                                                <DoubleAnimation
-                                                    Storyboard.TargetName="AiPulseScale"
-                                                    Storyboard.TargetProperty="ScaleY"
-                                                    From="1" To="2.5" Duration="0:0:2"/>
-                                                <DoubleAnimation
-                                                    Storyboard.TargetProperty="Opacity"
-                                                    From="0.5" To="0" Duration="0:0:2"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </Ellipse.Triggers>
-                            </Ellipse>
-                            <Ellipse Width="10" Height="10"
-                                     Fill="{DynamicResource SuccessBrush}"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center"/>
-                        </Grid>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="AI AGENT"
-                                       FontSize="9"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock Text="Assistant"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       Margin="0,1,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-
-                <!-- SCREEN RECORD — draggable -->
-                <Button x:Name="RecordButton"
-                        ToolTip="Drag to move · click to toggle screen recording"
-                        AutomationProperties.AutomationId="Shell.ScreenRecord"
-                        PreviewMouseLeftButtonDown="FloatingWidget_PreviewMouseLeftButtonDown"
-                        PreviewMouseMove="FloatingWidget_PreviewMouseMove"
-                        PreviewMouseLeftButtonUp="FloatingWidget_PreviewMouseLeftButtonUp">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
-                            <Setter Property="Content" Value="&#xE714;"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ScreenRecordVM.IsRecording}" Value="True">
-                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                </Button>
-
-            </Canvas>
 
         </Grid>
     
