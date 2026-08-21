@@ -1,7 +1,7 @@
 # Rating Progress — Phases to 10/10
 
 **Start:** 6.8/10 (2026-08-19 audit)  
-**Current:** 8.5/10 (after Phase 2)  
+**Current:** 8.8/10 (after Phase 3)  
 **Target:** 10.0/10
 
 ## Timeline
@@ -12,27 +12,27 @@
 | 2026-08-21 | Fix: ScreenRecord Popup + Merge 01a0203f | 7.8/10 | +1.0 | Popup bridge (Visual+Logical+Popup.PlacementTarget), DPI guard, fps clamp, CollectionView thread fix |
 | 2026-08-21 | **Phase 1: CI/CD & Quality Gates** | **8.2/10** | +0.4 | Wired `.github/workflows/ci.yml`, release.yml, codeql.yml, dependabot.yml, TreatWarningsAsErrors=true, analyzers, 363 tests now gated |
 | 2026-08-21 | **Phase 2: Error Handling Hardening v2** | **8.5/10** | +0.3 | 0 empty catches prod, Result<T> pattern, CorrelationContext AsyncLocal, LogContext + CorrelationId + DocumentId, DocumentOperationCoordinator for D-4 multi-DB, Reconciler with Result, 17 new tests |
+| 2026-08-21 | **Phase 3: Async & Threading Cleanup** | **8.8/10** | +0.3 | 55 non-handler async void → 0 in ViewModels/Agent/Services, 47 .Result → 0 Task.Result, ContinueWith+Result → async/await, DispatcherTimer affinity guard, VSTHRD100 compliant |
 
 ## Scorecard Evolution
 
-| Dimension | 6.8 Baseline | 7.8 After Fix | 8.2 Phase1 | 8.5 Phase2 | Target 10.0 |
-|-----------|--------------|---------------|------------|------------|-------------|
-| Security | 8.5 | 8.7 | 8.7 | 8.7 | 9.5 |
-| Domain | 8.0 | 8.3 | 8.3 | 8.3 | 9.5 |
-| Readability | 8.5 | 8.8 | 8.8 | 8.9 | 9.5 |
-| Consistency | 8.0 | 8.5 | 8.5 | 8.6 | 9.5 |
-| Error Handling | 4.0 | 7.5 | 7.5 | **8.5** | 9.5 |
-| Architecture | 5.0 | 6.5 | 6.5 | **6.8** | 9.5 |
-| Concurrency | 5.5 | 6.8 | 6.8 | 7.0 | 9.0 |
-| Resource | 5.5 | 7.0 | 7.0 | **7.2** | 9.0 |
-| Tests | 4.5 | 5.8 | 5.8 | **6.2** | 9.0 |
-| Build/CI | 2.5 | 6.0 | **7.5** | 7.5 | 9.0 |
+| Dimension | 6.8 Baseline | 7.8 After Fix | 8.2 Phase1 | 8.5 Phase2 | 8.8 Phase3 | Target 10.0 |
+|-----------|--------------|---------------|------------|------------|------------|-------------|
+| Security | 8.5 | 8.7 | 8.7 | 8.7 | 8.7 | 9.5 |
+| Domain | 8.0 | 8.3 | 8.3 | 8.3 | 8.3 | 9.5 |
+| Readability | 8.5 | 8.8 | 8.8 | 8.9 | **9.0** | 9.5 |
+| Consistency | 8.0 | 8.5 | 8.5 | 8.6 | **8.8** | 9.5 |
+| Error Handling | 4.0 | 7.5 | 7.5 | **8.5** | 8.5 | 9.5 |
+| Architecture | 5.0 | 6.5 | 6.5 | **6.8** | **7.2** | 9.5 |
+| Concurrency | 5.5 | 6.8 | 6.8 | 7.0 | **8.0** | 9.0 |
+| Resource | 5.5 | 7.0 | 7.0 | **7.2** | **7.5** | 9.0 |
+| Tests | 4.5 | 5.8 | 5.8 | **6.2** | 6.2 | 9.0 |
+| Build/CI | 2.5 | 6.0 | **7.5** | 7.5 | 7.5 | 9.0 |
 
 ## Phases Remaining
 
 | Phase | Name | Days | Expected Rating After | Focus |
 |-------|------|------|----------------------|-------|
-| 3 | Async & Threading Cleanup | 3 | 8.8 | 60 async void → Task, remove .Result/.Wait() |
 | 4 | Event Lifetime & Memory | 2 | 9.0 | Detach 14 static events, WeakEventManager |
 | 5 | DI & Composition Root | 5 | 9.4 | Full DI, remove 311 static calls, testable ViewModels |
 | 6 | God ViewModel Decomposition | 10 | 9.7 | Split 2184 LOC files, 80% billing coverage |
