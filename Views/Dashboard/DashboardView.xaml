@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/DashboardView.xaml
      PROJECT: ProGlassAutomation
 
@@ -56,7 +56,7 @@
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
              xmlns:ti="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard"
              xmlns:st="clr-namespace:ProGlassAutomation.Views.Dashboard.Statement"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

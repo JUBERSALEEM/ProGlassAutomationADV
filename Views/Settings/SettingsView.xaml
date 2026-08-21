@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — SHELL (navigation rail + section hosts)
@@ -27,7 +27,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"

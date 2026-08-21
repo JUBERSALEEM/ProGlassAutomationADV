@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
      MODULE: About — tabbed glass shell (v6)
@@ -26,7 +26,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:aboutSections="clr-namespace:ProGlassAutomation.Views.About.Sections"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

@@ -8,7 +8,7 @@
         AllowsTransparency="True"
         ResizeMode="NoResize"
         Background="Transparent"
-        FontFamily="Segoe UI"
+        FontFamily="{DynamicResource AppFontFamily}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"

@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/ProformaInvoice/SavedInvoicesList/VersionsDialog.xaml
      PROJECT: ProGlassAutomation
      MODULE: Proforma Invoice — version history (§24)
@@ -16,7 +16,7 @@
         Width="560" Height="540"
         MinWidth="460" MinHeight="340"
         WindowStartupLocation="CenterOwner"
-        FontFamily="Segoe UI"
+        FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource ModuleBackgroundBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">

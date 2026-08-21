@@ -11,7 +11,7 @@
         MinHeight="600"
         MinWidth="1000"
         WindowStartupLocation="CenterOwner"
-        FontFamily="Segoe UI"
+        FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource WindowBackgroundBrush}">
 
     <Grid>

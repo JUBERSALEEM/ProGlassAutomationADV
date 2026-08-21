@@ -82,6 +82,23 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// IndustrialSteel | MinimalIvory. Applied to every PDF.
         /// </summary>
         public string PdfLayoutId { get; set; } = "ClassicNavy";
+
+        /// <summary>
+        /// Global UI font family (applied through the AppFontFamily resource).
+        /// "Segoe UI" by default. May be a system font or an imported one
+        /// (see FontService). Empty/unknown names fall back to Segoe UI.
+        /// </summary>
+        public string FontFamilyName { get; set; } = "Segoe UI";
+
+        /// <summary>
+        /// Global UI font weight: "Normal" | "Bold".
+        /// </summary>
+        public string FontWeightName { get; set; } = "Normal";
+
+        /// <summary>
+        /// Global UI font style: "Normal" | "Italic".
+        /// </summary>
+        public string FontStyleName { get; set; } = "Normal";
     }
 
     /// <summary>

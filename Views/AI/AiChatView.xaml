@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
      MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
@@ -18,7 +18,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Focusable="False">

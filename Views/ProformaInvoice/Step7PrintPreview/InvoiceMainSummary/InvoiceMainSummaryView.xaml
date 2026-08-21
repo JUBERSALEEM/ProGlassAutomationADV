@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 7 left form: label + field rows. Not icon line-items.
     Bindings unchanged.
 -->
@@ -10,7 +10,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="420" d:DesignWidth="520"
-             FontFamily="Segoe UI">
+             FontFamily="{DynamicResource AppFontFamily}">
 
     <UserControl.Resources>
         <Style x:Key="SummaryLabelStyle" TargetType="TextBlock">

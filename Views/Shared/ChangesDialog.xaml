@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Shared/ChangesDialog.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared — GitHub-style before/after change viewer
@@ -15,7 +15,7 @@
         Width="640" Height="520"
         MinWidth="480" MinHeight="320"
         WindowStartupLocation="CenterOwner"
-        FontFamily="Segoe UI"
+        FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource ModuleBackgroundBrush}"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">

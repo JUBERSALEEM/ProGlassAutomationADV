@@ -1,7 +1,7 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.Shared.ComingSoonView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="Segoe UI">
+             FontFamily="{DynamicResource AppFontFamily}">
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
             <Border Width="110" Height="110" CornerRadius="{DynamicResource CardCornerRadius}" HorizontalAlignment="Center">

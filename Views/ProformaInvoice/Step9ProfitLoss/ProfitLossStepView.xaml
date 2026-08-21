@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 9 — P&amp;L. Approved mockup:
     one workbench, KPI strip, always-visible build-order layers, rate-check row.
     Bindings and calculations unchanged.
@@ -11,7 +11,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="760" d:DesignWidth="1100"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

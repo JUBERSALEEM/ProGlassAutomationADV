@@ -1,4 +1,4 @@
-<!-- LAYOUT-03 BENTO MOSAIC — Overview. Bindings unchanged. -->
+﻿<!-- LAYOUT-03 BENTO MOSAIC — Overview. Bindings unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,7 +6,7 @@
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
              xmlns:mini="clr-namespace:ProGlassAutomation.Controls.MiniBarChart"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

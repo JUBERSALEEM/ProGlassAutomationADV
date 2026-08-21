@@ -23,7 +23,7 @@
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
@@ -52,7 +52,7 @@
     <!-- ── MenuItem (root + sub) ───────────────────────────────────────── -->
     <Style x:Key="ModernMenuItemStyle" TargetType="MenuItem">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="Padding" Value="12,9"/>
         <Setter Property="Margin" Value="2,1"/>

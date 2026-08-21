@@ -1,4 +1,4 @@
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,7 +6,7 @@
              xmlns:beh="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="280" d:DesignWidth="1200"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

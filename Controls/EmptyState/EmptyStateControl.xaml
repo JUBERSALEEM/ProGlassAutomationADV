@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Controls/EmptyState/EmptyStateControl.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared UI — empty / no-data state (§30)
@@ -24,7 +24,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
              x:Name="Root"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
     <UserControl.Resources>

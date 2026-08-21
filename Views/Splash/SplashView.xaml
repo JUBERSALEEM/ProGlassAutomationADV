@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Splash Screen — industrial glass identity
@@ -43,7 +43,9 @@
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
-        FontFamily="Segoe UI"
+        FontFamily="{DynamicResource AppFontFamily}"
+        FontWeight="{DynamicResource AppFontWeight}"
+        FontStyle="{DynamicResource AppFontStyle}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Fixed"

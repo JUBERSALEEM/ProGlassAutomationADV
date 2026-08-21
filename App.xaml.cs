@@ -558,6 +558,11 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
                 Config.Appearance?.CardCornerRadius ?? 12);
 
+            // 9i) Restore the persisted global UI font (family + weight +
+            //     style) via FontService. Imported fonts are re-registered
+            //     for this session from the app Fonts folder.
+            ProGlassAutomation.Services.Fonts.FontService.ApplySavedFont();
+
             string density = Config.Appearance?.DisplayDensity ?? "Compact";
             try
             {

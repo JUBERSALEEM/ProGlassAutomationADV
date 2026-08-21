@@ -12,7 +12,7 @@
     ShowInTaskbar="False"
     Background="Transparent"
     AllowsTransparency="True"
-    FontFamily="Segoe UI"
+    FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"

@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     LAM — 3D well left, three layer cards right (scroll, no star-row squeeze).
     Bindings unchanged.
 -->
@@ -6,7 +6,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:glass="clr-namespace:ProGlassAutomation.Controls.GlassShowcase"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

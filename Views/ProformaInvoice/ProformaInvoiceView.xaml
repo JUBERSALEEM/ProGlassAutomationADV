@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     PI shell — steps 1–9 live in a single top panel. No sidebar.
     Bindings, commands and AutomationIds preserved.
 -->
@@ -20,7 +20,7 @@
              mc:Ignorable="d"
              d:DesignHeight="900"
              d:DesignWidth="1400"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

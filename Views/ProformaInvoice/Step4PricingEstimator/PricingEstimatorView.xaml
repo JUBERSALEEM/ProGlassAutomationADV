@@ -1,11 +1,11 @@
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              xmlns:dgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters"
              xmlns:lam="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters"
              xmlns:dgulam="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

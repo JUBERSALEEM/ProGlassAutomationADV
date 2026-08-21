@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════
      SHEET STORE — restructured layout
      The main DataGrid list is the priority. Stats no longer crowd the
      top; instead a detail/stats panel slides in from the right when a
@@ -10,7 +10,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

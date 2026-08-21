@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 7 terms checklist. Compact rows, not a card per clause.
     All edit / reorder / payment-subline bindings kept.
 -->
@@ -11,7 +11,7 @@
              xmlns:models="clr-namespace:ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions"
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="520"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

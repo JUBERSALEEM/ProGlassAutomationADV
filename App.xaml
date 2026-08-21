@@ -7,6 +7,15 @@
                  Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
+
+            <!-- ═══ GLOBAL FONT (FontService) ══════════════════════════
+                 Referenced with DynamicResource across the app so
+                 FontService.ApplyFont can restyle the whole UI at once.
+                 Bold / italic are applied via AppFontWeight / AppFontStyle. -->
+            <FontFamily x:Key="AppFontFamily">Segoe UI</FontFamily>
+            <FontWeight x:Key="AppFontWeight">Normal</FontWeight>
+            <FontStyle x:Key="AppFontStyle">Normal</FontStyle>
+
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
@@ -137,9 +146,11 @@
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="Padding"                  Value="12,0"/>
 
-                <!-- Typography — 13px body, Segoe UI, theme foreground -->
+                <!-- Typography — 13px body, theme foreground. Font family is
+                     the global AppFontFamily so FontService restyles the
+                     whole app; icons keep their own Segoe MDL2 family. -->
                 <Setter Property="FontSize"   Value="{DynamicResource DensityBodyFontSize}"/>
-                <Setter Property="FontFamily" Value="Segoe UI"/>
+                <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
 
                 <!-- Surface — theme-aware background + border -->

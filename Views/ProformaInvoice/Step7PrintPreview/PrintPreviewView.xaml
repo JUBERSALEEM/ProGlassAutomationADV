@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 7 — Preview. Approved board:
     left steel controls (summary, terms checklist, save/export at BOTTOM)
     · right paper-white A4.
@@ -16,7 +16,7 @@
              mc:Ignorable="d"
              d:DesignHeight="900"
              d:DesignWidth="1400"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Reports/SalesReportView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Central Reporting — Hub Shell & Overview Dashboard
@@ -40,7 +40,7 @@
     xmlns:vProf="clr-namespace:ProGlassAutomation.Views.Reports.ProfitabilityReport"
     xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
     xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Shell"
-    FontFamily="Segoe UI"
+    FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"

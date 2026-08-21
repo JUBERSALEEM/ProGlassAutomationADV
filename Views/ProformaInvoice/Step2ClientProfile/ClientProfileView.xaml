@@ -1,8 +1,8 @@
-<!-- Step 2 — flat industrial form. No cards. -->
+﻿<!-- Step 2 — flat industrial form. No cards. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile.ClientProfileView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
     <UserControl.Resources>

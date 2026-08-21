@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/CompanyCenter/CompanyCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Company Center (Phase 1)
@@ -10,7 +10,7 @@
 <UserControl x:Class="ProGlassAutomation.Views.CompanyCenter.CompanyCenterView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

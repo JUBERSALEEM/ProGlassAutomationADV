@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Tax Invoice Dashboard
@@ -44,7 +44,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

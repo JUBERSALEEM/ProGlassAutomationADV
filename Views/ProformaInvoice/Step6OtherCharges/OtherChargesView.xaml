@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 6 — Charges. Approved mockup composition:
     one workbench, KPI strip, then three table bands:
     Predefined · Wastage · Custom. Bindings and popups unchanged.
@@ -14,7 +14,7 @@
              mc:Ignorable="d"
              d:DesignHeight="1200"
              d:DesignWidth="1200"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

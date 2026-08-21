@@ -342,7 +342,7 @@
                         <ContentPresenter x:Name="cp"
                                           TextElement.Foreground="White"
                                           TextElement.FontSize="12"
-                                          TextElement.FontFamily="Segoe UI">
+                                          TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
                                 <!-- Any TextBlock created (including the
                                      implicit one WPF creates for string
@@ -351,7 +351,7 @@
                                     <Setter Property="TextWrapping" Value="Wrap"/>
                                     <Setter Property="Foreground" Value="White"/>
                                     <Setter Property="FontSize" Value="12"/>
-                                    <Setter Property="FontFamily" Value="Segoe UI"/>
+                                    <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                     <Setter Property="LineHeight" Value="17"/>
                                 </Style>
                             </ContentPresenter.Resources>

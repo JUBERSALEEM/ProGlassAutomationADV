@@ -1,8 +1,8 @@
-<!-- Step 3 — PROJECT NAME then PROJECT REFERENCE. No cards. -->
+﻿<!-- Step 3 — PROJECT NAME then PROJECT REFERENCE. No cards. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step3ProjectSpecs.ProjectSpecsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
     <UserControl.Resources>

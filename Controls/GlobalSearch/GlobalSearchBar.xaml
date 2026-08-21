@@ -1,4 +1,4 @@
-<UserControl x:Class="ProGlassAutomation.Controls.GlobalSearch.GlobalSearchBar"
+﻿<UserControl x:Class="ProGlassAutomation.Controls.GlobalSearch.GlobalSearchBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,7 +6,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignWidth="420"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

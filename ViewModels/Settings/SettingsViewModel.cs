@@ -22,6 +22,7 @@ using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Fonts;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -30,7 +31,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.IO;
 using System.Threading;
+using System.Windows;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace ProGlassAutomation.ViewModels.Settings
 {
@@ -305,6 +308,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyAccentCommand = new RelayCommand(param =>
                 ApplyAccentPreset(param as string ?? "GlassBlue"));
 
+            // Global font engine (system-wide UI font)
+            InitializeFontSettings();
+
             // v2 sections: security keys, OTA updates, backup & restore
             InitializeV2Sections();
         }
@@ -534,6 +540,165 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ProGlassAutomation.Services.Audit.AuditSections.Settings,
                 "Accent changed",
                 presetKey == "GlassBlue" ? "Glass Blue (default)" : presetKey);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  GLOBAL FONT (FontService) — system-wide UI typography
+        //
+        //  Lets the user pick any installed or imported font, weight
+        //  (Regular/Bold) and style (Normal/Italic). The choice is applied
+        //  app-wide through the AppFontFamily / AppFontWeight / AppFontStyle
+        //  resources and persisted in the appearance config.
+        // ══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<FontOption> FontOptions { get; } = new();
+
+        public IReadOnlyList<string> FontWeightChoices { get; } =
+            new[] { "Regular", "Bold" };
+
+        public IReadOnlyList<string> FontStyleChoices { get; } =
+            new[] { "Normal", "Italic" };
+
+        private FontOption? _selectedFont;
+        public FontOption? SelectedFont
+        {
+            get => _selectedFont;
+            set
+            {
+                if (value == null || ReferenceEquals(_selectedFont, value)) return;
+                _selectedFont = value;
+                OnPropertyChanged();
+                ApplyFontSelection();
+            }
+        }
+
+        private string _selectedFontWeight = "Regular";
+        public string SelectedFontWeight
+        {
+            get => _selectedFontWeight;
+            set
+            {
+                if (_selectedFontWeight == value || string.IsNullOrWhiteSpace(value)) return;
+                _selectedFontWeight = value;
+                OnPropertyChanged();
+                ApplyFontSelection();
+            }
+        }
+
+        private string _selectedFontStyle = "Normal";
+        public string SelectedFontStyle
+        {
+            get => _selectedFontStyle;
+            set
+            {
+                if (_selectedFontStyle == value || string.IsNullOrWhiteSpace(value)) return;
+                _selectedFontStyle = value;
+                OnPropertyChanged();
+                ApplyFontSelection();
+            }
+        }
+
+        public ICommand ImportFontCommand { get; private set; } = null!;
+        public ICommand ResetFontCommand { get; private set; } = null!;
+
+        public string FontStatus =>
+            string.IsNullOrWhiteSpace(FontService.CurrentFamily)
+                ? "Segoe UI (default)"
+                : FontService.CurrentFamily +
+                  (FontService.CurrentWeight == FontWeights.Bold ? " · Bold" : "") +
+                  (FontService.CurrentStyle == FontStyles.Italic ? " · Italic" : "");
+
+        private void InitializeFontSettings()
+        {
+            ReloadFontOptions();
+
+            var current = App.Config?.Appearance;
+            _selectedFontWeight = string.Equals(current?.FontWeightName, "Bold", StringComparison.OrdinalIgnoreCase)
+                ? "Bold" : "Regular";
+            _selectedFontStyle = string.Equals(current?.FontStyleName, "Italic", StringComparison.OrdinalIgnoreCase)
+                ? "Italic" : "Normal";
+
+            string family = current?.FontFamilyName ?? FontService.DefaultFontFamily;
+            _selectedFont = FontOptions.FirstOrDefault(f =>
+                string.Equals(f.Name, family, StringComparison.OrdinalIgnoreCase))
+                ?? FontOptions.FirstOrDefault(f =>
+                    string.Equals(f.Name, FontService.DefaultFontFamily, StringComparison.OrdinalIgnoreCase));
+
+            ImportFontCommand = new RelayCommand(_ => ImportFontDialog());
+            ResetFontCommand = new RelayCommand(_ =>
+            {
+                FontService.ResetToDefault();
+                ReloadFontOptions();
+                var d = FontOptions.FirstOrDefault(f =>
+                    string.Equals(f.Name, FontService.DefaultFontFamily, StringComparison.OrdinalIgnoreCase));
+                if (d != null) { _selectedFont = d; OnPropertyChanged(nameof(SelectedFont)); }
+                _selectedFontWeight = "Regular"; OnPropertyChanged(nameof(SelectedFontWeight));
+                _selectedFontStyle = "Normal"; OnPropertyChanged(nameof(SelectedFontStyle));
+                OnPropertyChanged(nameof(FontStatus));
+            });
+        }
+
+        private void ReloadFontOptions()
+        {
+            FontOptions.Clear();
+            foreach (var f in FontService.GetAvailableFonts())
+                FontOptions.Add(f);
+        }
+
+        private void ApplyFontSelection()
+        {
+            if (_selectedFont == null) return;
+
+            var weight = string.Equals(_selectedFontWeight, "Bold", StringComparison.OrdinalIgnoreCase)
+                ? FontWeights.Bold : FontWeights.Normal;
+            var style = string.Equals(_selectedFontStyle, "Italic", StringComparison.OrdinalIgnoreCase)
+                ? FontStyles.Italic : FontStyles.Normal;
+
+            FontService.ApplyFont(_selectedFont.Name, weight, style);
+            OnPropertyChanged(nameof(FontStatus));
+        }
+
+        private void ImportFontDialog()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Import font",
+                Filter = "Font files (*.ttf;*.otf;*.ttc;*.fon)|*.ttf;*.otf;*.ttc;*.fon|All files (*.*)|*.*",
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            var result = FontService.ImportFont(dialog.FileName);
+            if (!result.IsSuccess)
+            {
+                try
+                {
+                    System.Windows.MessageBox.Show(
+                        result.Error, "Import font",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                catch { /* status still updated */ }
+                return;
+            }
+
+            ReloadFontOptions();
+            var imported = FontOptions.FirstOrDefault(f =>
+                string.Equals(f.Name, result.Value, StringComparison.OrdinalIgnoreCase));
+            if (imported != null)
+            {
+                _selectedFont = imported;
+                OnPropertyChanged(nameof(SelectedFont));
+                ApplyFontSelection();
+            }
+
+            try
+            {
+                System.Windows.MessageBox.Show(
+                    "Font imported: " + result.Value + "\nIt is now applied app-wide.",
+                    "Import font", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch { /* status still updated */ }
         }
 
         /// <summary>Detected display tier for the Performance section.</summary>

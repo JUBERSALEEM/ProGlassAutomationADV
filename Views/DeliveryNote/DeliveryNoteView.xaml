@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/DeliveryNote/DeliveryNoteView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Delivery Note shell
@@ -44,7 +44,7 @@
              xmlns:detailVm="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail"
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.DeliveryNote.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"

@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     Step 5 grand-total strip. Slim table — not a gradient hero card.
     Bindings unchanged.
 -->
@@ -10,7 +10,7 @@
              mc:Ignorable="d"
              d:DesignHeight="180"
              d:DesignWidth="900"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 

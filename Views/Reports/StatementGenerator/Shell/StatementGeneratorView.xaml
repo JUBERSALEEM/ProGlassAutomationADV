@@ -43,7 +43,7 @@
     xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
-    FontFamily="Segoe UI"
+    FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"

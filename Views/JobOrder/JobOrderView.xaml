@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Job Order shell
@@ -40,7 +40,7 @@
              xmlns:detail="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail"
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.JobOrder.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
-             FontFamily="Segoe UI"
+             FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
