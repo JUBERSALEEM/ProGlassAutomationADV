@@ -90,7 +90,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="InputBorder"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="0"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             SnapsToDevicePixels="True">
