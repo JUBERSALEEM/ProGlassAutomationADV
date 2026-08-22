@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
@@ -96,13 +96,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             AddRowCommand = new RelayCommand(_ =>
             {
-                int next = Rows.Count > 0
-                    ? Rows.Max(r => r.SerialNumber) + 1
-                    : 1;
-
+                // SerialNumber is only a PLACEHOLDER here — the parent
+                // (TaxInvoiceDetailViewModel) renumbers every row across ALL
+                // spec groups continuously (1..N), so a second group continues
+                // after the first instead of restarting at Sr 1.
                 var row = new InvRowViewModel(this)
                 {
-                    SerialNumber = next,
+                    SerialNumber = Rows.Count + 1,
                     Rate = BaseRate   // inherit current group rate
                 };
 
@@ -115,7 +115,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             {
                 if (param is not InvRowViewModel row) return;
                 Rows.Remove(row);
-                RenumberRows();
                 RecalculateGroup();
                 OnRowChanged?.Invoke();
             });
@@ -140,10 +139,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         // ── Helpers ───────────────────────────────────────────────────────
 
-        private void RenumberRows()
-        {
-            for (int i = 0; i < Rows.Count; i++)
-                Rows[i].SerialNumber = i + 1;
-        }
+        // NOTE: per-group renumbering was REMOVED. Serial numbers are now
+        // assigned continuously across ALL spec groups by the parent
+        // TaxInvoiceDetailViewModel.RenumberAllSerialNumbers(), matching the
+        // Step 5 cut-list behaviour (Spec 2 continues after Spec 1).
     }
 }

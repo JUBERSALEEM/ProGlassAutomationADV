@@ -683,7 +683,39 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 if (param is TaxInvoiceRowViewModel member)
                     await NavigateToFamilyMemberAsync(member);
             });
+
+            // Continuous SR NO across ALL spec groups (same as Step 5): any
+            // row/group add or remove triggers ONE global renumber pass so a
+            // second spec group continues after the first (Sr 11, not Sr 1).
+            SpecGroups.CollectionChanged += (_, e) =>
+            {
+                if (e.OldItems != null)
+                    foreach (InvSpecGroupViewModel g in e.OldItems)
+                        g.Rows.CollectionChanged -= OnGroupRowsChanged;
+                if (e.NewItems != null)
+                    foreach (InvSpecGroupViewModel g in e.NewItems)
+                        g.Rows.CollectionChanged += OnGroupRowsChanged;
+
+                RenumberAllSerialNumbers();
+            };
         }
+
+        /// <summary>
+        /// Assigns CONTINUOUS serial numbers (SR NO) across ALL spec groups,
+        /// matching the Step 5 cut-list. Serial numbers flow through to the
+        /// saved Tax Invoice and its PDF/export.
+        /// </summary>
+        public void RenumberAllSerialNumbers()
+        {
+            int serial = 0;
+            foreach (var group in SpecGroups)
+                foreach (var row in group.Rows)
+                    row.SerialNumber = ++serial;
+        }
+
+        private void OnGroupRowsChanged(object? sender,
+            System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+            => RenumberAllSerialNumbers();
 
         // ══════════════════════════════════════════════════════════════════
         //  NAVIGATE TO SIBLING INVOICE (Chat 16 — family sidebar click)
