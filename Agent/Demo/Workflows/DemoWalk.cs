@@ -69,6 +69,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             int dwellMs, CancellationToken ct)
         {
             DemoStage.Now(title + " — " + narration);
+            // Timestamp the instant the screen/voice beat starts. Previously
+            // Utc was assigned after speech completed, shifting captions and
+            // reconstructed narration one full sentence behind the picture.
+            var beatStartedUtc = DateTime.UtcNow;
             var spoken = await SpeakAndWaitAsync(narration, ct).ConfigureAwait(false);
             events.Add(new VerifiedEvent
             {
@@ -76,6 +80,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 Title = title,
                 Narration = narration,
                 Evidence = evidence,
+                Utc = beatStartedUtc,
                 SpokenDuration = spoken
             });
             int settle = spoken > TimeSpan.Zero
@@ -114,7 +119,14 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 await Task.Delay(40, ct).ConfigureAwait(false);
             }
 
-            var hardStop = DateTime.UtcNow.AddSeconds(40);
+            // Long technical narration regularly exceeded the fixed 40-second
+            // cutoff. The next beat then called Stop(), cutting the sentence
+            // while the picture advanced. Budget from word count with a safe
+            // ceiling instead of truncating legitimate agent speech.
+            int words = text.Split((char[]?)null,
+                StringSplitOptions.RemoveEmptyEntries).Length;
+            double budgetSeconds = Math.Clamp(words / 1.7 + 15, 45, 120);
+            var hardStop = DateTime.UtcNow.AddSeconds(budgetSeconds);
             while (tts.IsSpeaking && DateTime.UtcNow < hardStop)
             {
                 ct.ThrowIfCancellationRequested();

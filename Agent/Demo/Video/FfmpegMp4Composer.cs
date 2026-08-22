@@ -137,10 +137,17 @@ namespace ProGlassAutomation.Agent.Demo.Video
             int w = Math.Max(2, width) & ~1;
             int h = Math.Max(2, height) & ~1;
             string input = Path.Combine(framesFolder, pattern);
+            bool hasAudio = wavPath != null && File.Exists(wavPath);
             string vf =
                 $"scale={w}:{h}:flags=lanczos:force_original_aspect_ratio=decrease," +
                 $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2," +
-                "unsharp=5:5:0.6:5:5:0.0,format=yuv420p";
+                // Screen content benefits from stronger luma sharpening than
+                // camera footage. Keep chroma untouched to avoid colour halos.
+                "unsharp=5:5:0.8:5:5:0.0,format=yuv420p" +
+                // If live loopback is unavailable, narration is synthesized
+                // after capture and can outlast the frames. Clone the final
+                // frame so -shortest follows audio instead of cutting speech.
+                (hasAudio ? ",tpad=stop_mode=clone:stop_duration=600" : "");
 
             Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
 
@@ -153,10 +160,10 @@ namespace ProGlassAutomation.Agent.Demo.Video
             try { if (File.Exists(packingPath)) File.Delete(packingPath); } catch { }
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
                   $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{packingPath}\""
                 : $"-y -framerate {fps} -i \"{input}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
                   $"-movflags +faststart \"{packingPath}\"";
 
             string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct).ConfigureAwait(false);

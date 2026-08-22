@@ -93,20 +93,35 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 $"matches={sales.GeneratorVM.MatchCount} selected={sales.GeneratorVM.PreviewVM.SelectedCount} step={sales.GeneratorVM.CurrentStep}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
-            // ── Step 3: Execute (pipeline auto-runs on entry) ──────────────
-            if (sales.GeneratorVM.NextStepCommand.CanExecute(null))
-            {
+            // PreviewCommand loads data but intentionally does not navigate.
+            // The old demo pressed Next only once from Step 1; that merely
+            // entered Step 2, then narrated Steps 3/4 over the preview screen.
+            // Advance deterministically to Step 2, then to Step 3.
+            if (sales.GeneratorVM.CurrentStep == 1)
                 await DemoWalk.TryCommandAsync(
-                    sales.GeneratorVM.NextStepCommand, null, ct)
-                    .ConfigureAwait(false);
-            }
+                    sales.GeneratorVM.NextStepCommand, null, ct).ConfigureAwait(false);
 
-            bool executed = await DemoWalk.WaitUntilAsync(
-                () => sales.GeneratorVM.IsStep3Complete
-                    || sales.GeneratorVM.HasLastPdf,
-                60_000, ct).ConfigureAwait(false);
+            await DemoWalk.WaitUntilAsync(
+                () => sales.GeneratorVM.CurrentStep == 2,
+                5_000, ct).ConfigureAwait(false);
+            await WpfUiDriver.OnUiAsync(() =>
+            {
+                sales.GeneratorVM.PreviewVM.SelectAll();
+                return sales.GeneratorVM.PreviewVM.HasSelection;
+            }, ct).ConfigureAwait(false);
 
-            await WpfUiDriver.DwellAsync(1400, ct).ConfigureAwait(false);
+            await DemoWalk.TryCommandAsync(
+                sales.GeneratorVM.NextStepCommand, null, ct).ConfigureAwait(false);
+            bool enteredExecute = await DemoWalk.WaitUntilAsync(
+                () => sales.GeneratorVM.CurrentStep == 3,
+                5_000, ct).ConfigureAwait(false);
+            if (!enteredExecute) return events;
+
+            // Call the VM entry point as well as relying on the view's
+            // PropertyChanged hook. Its re-entry guard makes this safe and
+            // removes a visual-tree timing race in automated recording.
+            _ = sales.GeneratorVM.RunPipelineAsync();
+            await WpfUiDriver.DwellAsync(700, ct).ConfigureAwait(false);
 
             await DemoWalk.PresentAsync(events, "execute",
                 "Execute pipeline",

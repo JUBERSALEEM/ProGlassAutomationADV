@@ -108,6 +108,11 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("DeliveryNote", expanded);
             Assert.Contains("TaxInvoice", expanded);
             Assert.Contains("UserCenter", expanded);
+            Assert.Contains("Optimization", expanded);
+            Assert.Contains("DoublingLamination", expanded);
+            Assert.Contains("PiReport", expanded);
+            Assert.Contains("TaxInvoiceReport", expanded);
+            Assert.Contains("StatementReport", expanded);
         }
 
         [Fact]

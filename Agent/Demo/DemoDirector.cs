@@ -462,9 +462,31 @@ namespace ProGlassAutomation.Agent.Demo
                 "CompanyCenter" => new CompanyCenterWorkflow(),
                 "Dashboard" => new DashboardWorkflow(),
                 "JobProfitability" => new JobProfitabilityWorkflow(),
+                "Optimization" => Tour("Optimization", "Optimization", "Optimization", "Plan efficient sheet yield and cutting layouts."),
+                "Cutting" => Tour("Cutting", "Cutting", "Cutting", "Track glass cutting through production."),
+                "HolesCutouts" => Tour("HolesCutouts", "HolesCutouts", "Holes and Cutouts", "Manage drilling and shaped cutouts."),
+                "Polish" => Tour("Polish", "Polish", "Polish", "Track edge-polishing operations."),
+                "EdgeDeletion" => Tour("EdgeDeletion", "EdgeDeletion", "Edge Deletion", "Track coating edge deletion."),
+                "Mitring" => Tour("Mitring", "Mitring", "Mitring", "Manage mitred-edge fabrication."),
+                "Tempering" => Tour("Tempering", "Tempering", "Tempering", "Track furnace and tempering work."),
+                "Pairing" => Tour("Pairing", "Pairing", "Pairing", "Pair panes for insulated assembly."),
+                "DoublingLamination" => Tour("DoublingLamination", "DoublingLamination", "Doubling and Lamination", "Assemble DGU and laminated safety units."),
+                "PiReport" => Tour("PiReport", "PiReport", "Proforma Report", "Analyze quotation volume, values and status."),
+                "JoReport" => Tour("JoReport", "JoReport", "Job Order Report", "Analyze production orders and progress."),
+                "DeliveryReport" => Tour("DeliveryReport", "DeliveryReport", "Delivery Report", "Analyze dispatch quantities and balances."),
+                "TaxInvoiceReport" => Tour("TaxInvoiceReport", "TaxInvoiceReport", "Tax Invoice Report", "Analyze invoicing and VAT values."),
+                "StatementReport" => Tour("StatementReport", "StatementReport", "Statement Report", "Analyze generated customer statements."),
+                "SystemCenter" => Tour("SystemCenter", "SystemCenter", "System Center", "Administer users and system access."),
+                "Diagnostics" => Tour("Diagnostics", "Diagnostics", "Diagnostics", "Inspect application health and operational logs."),
+                "Settings" => Tour("Settings", "Settings", "Settings", "Configure recording, services and appearance."),
+                "About" => Tour("About", "About", "About ProGlass", "Review platform capabilities and release information."),
                 _ => null
             };
         }
+
+        private static IDemoWorkflowRunner Tour(
+            string id, string navigate, string title, string purpose) =>
+            new ModuleTourWorkflow(id, navigate, title, purpose);
 
         public static string NewJobFolder(string module)
         {
