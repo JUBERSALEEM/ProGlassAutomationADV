@@ -240,6 +240,15 @@ by the earlier sharpness/visibility sweeps but are concrete and low-risk):
   **Kept at 9px:** the two MDL2 *icon* glyphs (AiChat stop-button `E711`,
   `OtherChargesView` chevron `E70D`) — those size an icon, not text.
 
-### 5.3–5.6 — remaining (not started)
+### 5.3 — B2 closed: snapping on the 9 placeholder wrappers ✅
+The audit listed 14 files missing `SnapsToDevicePixels`/`UseLayoutRounding`.
+Re-checked: the 4 dialog/window files (JobOrderPickerDialog, SavedInvoicesListDialog,
+InvoiceMainSummaryView, and the SheetStoreUse area) **already carry**
+`SnapsToDevicePixels` + `UseLayoutRounding` + `ClearType`/`Fixed` hinting from the
+earlier passes. `ComingSoonView` was fixed in 5.1. The remaining 9 thin wrapper views
+(`OptimizationView` + 8 Production views) now declare `UseLayoutRounding` +
+`SnapsToDevicePixels` on their root `UserControl`, completing the B2/R2 checklist.
+
+### 5.4–5.6 — remaining (not started)
 PI wizard steps, DN/JO/TI detail polish, SheetStore, Reports, Settings — and the
 "module shells vs. real content" decision for the 9 placeholder modules.
