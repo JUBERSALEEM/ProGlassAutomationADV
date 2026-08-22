@@ -101,7 +101,7 @@
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
                             <Run Text=" pcs"/>
@@ -249,7 +249,7 @@
                                         Padding="12,10">
                                     <StackPanel>
                                         <TextBlock FontSize="12" FontWeight="Bold"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center">
                                             <Run Text="&#xE70F; " FontFamily="Segoe MDL2 Assets"/><Run Text="CREATE INVOICE"/>
                                         </TextBlock>

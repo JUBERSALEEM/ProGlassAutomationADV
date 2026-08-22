@@ -249,6 +249,25 @@ earlier passes. `ComingSoonView` was fixed in 5.1. The remaining 9 thin wrapper 
 (`OptimizationView` + 8 Production views) now declare `UseLayoutRounding` +
 `SnapsToDevicePixels` on their root `UserControl`, completing the B2/R2 checklist.
 
-### 5.4–5.6 — remaining (not started)
-PI wizard steps, DN/JO/TI detail polish, SheetStore, Reports, Settings — and the
-"module shells vs. real content" decision for the 9 placeholder modules.
+### 5.4 — C4: white-on-accent → OnAccentForegroundBrush ✅
+Replaced **64 hardcoded `Foreground="White"`/`#FFFFFF`** that sit directly on
+`AccentBrush` with `{DynamicResource OnAccentForegroundBrush}` (theme-derived,
+inverts to dark text when a light accent preset like Amber is selected — see
+`Services/ThemeManager.cs` + `ColorMath.cs`). Scope verified with an XML-aware
+ancestor scan (not a naive grep), so only genuine accent-surface text changed:
+- KPI cards + column headers: `StatementListView`, `SheetStoreView`,
+  `DiagnosticsView`, `SectionActivityView`.
+- Accent buttons: God views (DN/JO/TI), `VersionsDialog`, workflow dialogs.
+- Accent headers/pills: `SalesReportView` brand + overview headers, picker
+  dialogs (JO/PI), shared top-bar panels (Activity/QuickSettings/Screenshot/
+  UserSwitch), `HistoryView`, `DnOverviewSection`.
+- **Left as-is (not C4):** white on *fixed* semantic colors (`SuccessBrush`/
+  `WarningBrush`/`DangerBrush`) — those aren't accent-driven, so white on them
+  is a static (if occasionally borderline) design choice, not a theme break.
+  A future `OnSuccessForeground`/`OnWarningForeground` token pass could address
+  the low-contrast amber case specifically.
+
+### 5.5 — remaining (not started)
+B1 (TextFormattingMode Display→Ideal sweep, needs build/visual QA), R5 (fixed
+130/150/170px row widths), PI wizard steps, DN/JO/TI detail polish, SheetStore,
+Reports, Settings — and the "module shells vs. real content" decision.

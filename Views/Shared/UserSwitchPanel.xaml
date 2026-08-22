@@ -33,9 +33,9 @@
                 <StackPanel>
                     <TextBlock Text="Switch User"
                                FontSize="14" FontWeight="Bold"
-                               Foreground="White"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="Pick a user and enter their password to continue as them"
-                               FontSize="10" Foreground="White"
+                               FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"
                                TextWrapping="Wrap"/>
                 </StackPanel>

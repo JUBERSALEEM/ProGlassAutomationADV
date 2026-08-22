@@ -30,7 +30,7 @@
                     Padding="18,12">
                 <TextBlock Text="Recent Activity"
                            FontSize="14" FontWeight="Bold"
-                           Foreground="White"/>
+                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
             </Border>
 
             <ScrollViewer Grid.Row="1" MaxHeight="320"

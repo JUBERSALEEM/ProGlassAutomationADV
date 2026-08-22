@@ -55,7 +55,7 @@
                     </StackPanel>
                     <TextBlock Text="{Binding StatementNumber}"
                                FontSize="22" FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding CustomerName}"
                                FontSize="13"
@@ -361,7 +361,7 @@
                                     <TextBlock Text="CLOSE"
                                                FontSize="12"
                                                FontWeight="Bold"
-                                               Foreground="White"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"
                                                HorizontalAlignment="Center"/>
                                 </Border>

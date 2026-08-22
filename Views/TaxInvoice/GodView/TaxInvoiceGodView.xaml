@@ -163,7 +163,7 @@
                                         Padding="10,3"
                                         BorderThickness="0"
                                         Background="{DynamicResource AccentBrush}"
-                                        Foreground="White"
+                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                         Command="{Binding DataContext.OpenCommand,
                                                     RelativeSource={RelativeSource
                                                         AncestorType=DataGrid}}"

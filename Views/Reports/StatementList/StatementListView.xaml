@@ -40,7 +40,7 @@
                         <TextBlock Text="≡"
                                    FontSize="26"
                                    FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
@@ -54,7 +54,7 @@
                         <TextBlock Text="Account Statements"
                                    FontSize="22"
                                    FontWeight="Bold"
-                                   Foreground="White"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="{Binding StatusMessage}"
                                    FontSize="12"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -135,7 +135,7 @@
                     <TextBlock Text="{Binding TotalStatements}"
                                FontSize="28"
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Total saved"
                                FontSize="11"
@@ -278,7 +278,7 @@
                                 CornerRadius="10,0,0,10">
                             <TextBlock Text="⌕"
                                        FontSize="15"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
@@ -347,7 +347,7 @@
                         FontSize="12"
                         FontWeight="SemiBold"
                         Cursor="Hand"
-                        Foreground="White"
+                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                         BorderThickness="0">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
@@ -358,13 +358,13 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="↻"
                                                FontSize="14"
-                                               Foreground="White"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,6,0"/>
                                     <TextBlock Text="Refresh"
                                                FontSize="12"
                                                FontWeight="SemiBold"
-                                               Foreground="White"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -448,14 +448,14 @@
                             HorizontalAlignment="Center">
                         <TextBlock Text="↻"
                                    FontSize="32"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Loading statements..."
                                FontSize="15"
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,18,0,0"/>
                     <TextBlock Text="Preparing data and totals"
@@ -644,7 +644,7 @@
                                                     Margin="0,0,8,0">
                                                 <TextBlock FontSize="10"
                                                            FontWeight="Bold"
-                                                           Foreground="White">
+                                                           Foreground="{DynamicResource OnAccentForegroundBrush}">
                                                     <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                                                     <Run Text=" inv"/>
                                                 </TextBlock>
@@ -767,7 +767,7 @@
                                                 FontWeight="SemiBold"
                                                 Cursor="Hand"
                                                 IsEnabled="{Binding HasPdf}"
-                                                Foreground="White"
+                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                 BorderThickness="0">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
@@ -778,7 +778,7 @@
                                                         <TextBlock Text="PDF"
                                                                    FontSize="12"
                                                                    FontWeight="Bold"
-                                                                   Foreground="White"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Center"/>
                                                     </Border>

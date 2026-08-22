@@ -46,9 +46,9 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Select Job Order"
                                    FontSize="16" FontWeight="Bold"
-                                   Foreground="White"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="Choose a Job Order to create a Delivery Note from"
-                                   FontSize="11" Foreground="White"
+                                   FontSize="11" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Opacity="0.85" Margin="0,3,0,0"/>
                     </StackPanel>
 

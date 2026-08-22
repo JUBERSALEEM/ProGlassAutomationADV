@@ -184,7 +184,7 @@
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="REPORTS HUB" FontSize="11" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
-                            <TextBlock Text="Intelligence Center" FontSize="14" FontWeight="Bold" Foreground="White" Margin="0,1,0,0"/>
+                            <TextBlock Text="Intelligence Center" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
                             <TextBlock Text="Row-level traceability" FontSize="11.5" Foreground="#BFDBFE" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
@@ -196,7 +196,7 @@
                                 Cursor="Hand"
                                 ToolTip="Collapse navigation rail"
                                 Command="{Binding ToggleRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -608,7 +608,7 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="REPORTS OVERVIEW" FontSize="11" FontWeight="Bold" Foreground="#DBEAFE"/>
-                                <TextBlock Text="Module-Based ERP Intelligence" FontSize="22" FontWeight="Bold" Foreground="White" Margin="0,6,0,0"/>
+                                <TextBlock Text="Module-Based ERP Intelligence" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
                                 <TextBlock Text="Every report uses one centralized data layer and your live database. Drill down from any aggregate to exact specification rows and document lifecycles." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="ROW-LEVEL TRACEABILITY" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
@@ -617,7 +617,7 @@
                                 </StackPanel>
                             </StackPanel>
                             <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="White" Opacity="0.10" VerticalAlignment="Center" Margin="16,0,0,0">
-                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="52" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="52" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>
                     </Border>

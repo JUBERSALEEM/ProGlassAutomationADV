@@ -100,17 +100,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="DATE &amp; TIME"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    ToolTip="When the action happened"/>
                         <TextBlock Grid.Column="1" Text="ACTION"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    ToolTip="What was done"/>
                         <TextBlock Grid.Column="2" Text="DETAILS"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="12,0,0,0"
                                    ToolTip="Full detail of the action"/>
                         <TextBlock Grid.Column="3" Text="DIFF"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="10,0,0,0"
                                    ToolTip="Before/after changes (when recorded)"/>
                     </Grid>

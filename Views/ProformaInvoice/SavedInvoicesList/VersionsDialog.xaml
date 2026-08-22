@@ -113,7 +113,7 @@
                                                 Cursor="Hand"
                                                 BorderThickness="0"
                                                 Background="{DynamicResource AccentBrush}"
-                                                Foreground="White"
+                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                 VerticalAlignment="Center"
                                                 Click="OnRestoreClick"
                                                 Tag="{Binding}"/>

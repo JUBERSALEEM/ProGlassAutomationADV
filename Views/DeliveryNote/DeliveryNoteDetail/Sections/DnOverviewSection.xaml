@@ -212,7 +212,7 @@
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DeliveryDateDisplay}"
                                            FontSize="16" FontWeight="Bold"
-                                           Foreground="White"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            HorizontalAlignment="Right"/>
                                 <TextBlock Text="{Binding DeliveryTime}"
                                            FontSize="11" FontWeight="SemiBold"
