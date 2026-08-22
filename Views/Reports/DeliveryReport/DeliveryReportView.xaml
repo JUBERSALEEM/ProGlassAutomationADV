@@ -227,7 +227,9 @@
                 <Grid Grid.Row="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition x:Name="DetailColumn" Width="Auto"/>
+                        <!-- Animated panel column: width 0 when closed, expands to
+                             370 (360 panel + 10 margin) when a row is selected. -->
+                        <ColumnDefinition x:Name="DetailColumn" Width="0"/>
                     </Grid.ColumnDefinitions>
 
                     <Grid Grid.Column="0">
@@ -288,12 +290,24 @@
 
                     <!-- Row-level rows (virtualized, single grid) -->
                     <ListBox Grid.Row="1" ItemsSource="{Binding Rows}"
-                             SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
                              Style="{StaticResource ModuleReportListBoxStyle}"
                              Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view delivery history for this row">
+                                <Border Padding="14,9" Cursor="Hand"
+                                        ToolTip="Click to view delivery history for this row"
+                                        MouseLeftButtonDown="Row_Click"
+                                        Tag="{Binding}">
+                                    <Border.Style>
+                                        <Style TargetType="Border" BasedOn="{StaticResource ModuleListRowStyle}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="44"/>

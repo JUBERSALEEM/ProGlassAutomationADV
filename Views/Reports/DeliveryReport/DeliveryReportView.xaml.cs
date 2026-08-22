@@ -1,17 +1,19 @@
 using ProGlassAutomation.Animations;
+using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
 using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media.Animation;
 
 namespace ProGlassAutomation.Views.Reports.DeliveryReport
 {
     /// <summary>
-    /// Delivery report — Sheet Store pattern. Selecting a row (ListBox
-    /// SelectedItem) slides in the right detail panel with that row's
-    /// quantities + delivery history; clearing the selection collapses it.
+    /// Delivery report — Sheet Store pattern. Clicking a row (MouseLeftButtonDown
+    /// on the row Border) slides in the right detail panel with that row's
+    /// quantities + delivery history; clicking again collapses it.
     /// </summary>
     public partial class DeliveryReportView : UserControl
     {
@@ -32,6 +34,21 @@ namespace ProGlassAutomation.Views.Reports.DeliveryReport
             _vm = DataContext as DeliveryReportViewModel;
             if (_vm != null)
                 _vm.PropertyChanged += OnVmPropertyChanged;
+        }
+
+        /// <summary>
+        /// Sheet Store pattern — click a row to open the right panel; click
+        /// the same row again to close it. Uses the Border's Tag (not the
+        /// ListBox SelectedItem, whose ItemContainerStyle disables focus).
+        /// </summary>
+        private void Row_Click(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not Border row ||
+                row.Tag is not DeliveryReportRow item ||
+                DataContext is not DeliveryReportViewModel vm)
+                return;
+
+            vm.SelectedRow = ReferenceEquals(vm.SelectedRow, item) ? null : item;
         }
 
         private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)

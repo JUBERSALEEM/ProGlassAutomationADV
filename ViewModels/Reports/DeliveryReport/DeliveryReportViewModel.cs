@@ -208,7 +208,11 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             set
             {
                 if (ReferenceEquals(_selectedRow, value)) return;
+
+                if (_selectedRow != null) _selectedRow.IsSelected = false;
                 _selectedRow = value;
+                if (_selectedRow != null) _selectedRow.IsSelected = true;
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasSelectedRow));
                 OnPropertyChanged(nameof(SidebarSubtitle));

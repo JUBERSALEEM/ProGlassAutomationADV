@@ -116,6 +116,9 @@ namespace ProGlassAutomation.Services.Reporting
         public string DeliveryStatus { get; set; } = "";
         public string DeliveryStatusBrushKey { get; set; } = "NeutralBrush";
 
+        /// <summary>True while this row is selected (drives the side panel + highlight).</summary>
+        public bool IsSelected { get; set; }
+
         /// <summary>Complete glass description for the inline detail.</summary>
         public string GlassDetails => BuildGlassDetails();
 
