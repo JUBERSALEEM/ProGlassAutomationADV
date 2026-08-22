@@ -87,18 +87,22 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     if (group.ItemRows == null || group.ItemRows.Count == 0)
                         continue;
 
-                    foreach (var row in group.ItemRows)
+                    // DEDUP: one DeliveryNoteItem per exact Step 5 row key
+                    // (SerialNumber within the spec group). The PI snapshot
+                    // can contain duplicated rows (e.g. a DGU entered as
+                    // outer + inner with the same serial), which would
+                    // otherwise surface as 9 rows → 18 in the Delivery Note.
+                    // OrderedQty is replicated across such splits → take MAX;
+                    // there is no delivered quantity yet on a fresh DN.
+                    var rowsBySerial = group.ItemRows
+                        .Where(r => !(string.IsNullOrWhiteSpace(r.GlassRef)
+                                      && r.W1 == 0 && r.H1 == 0))
+                        .Where(r => r.Qty > 0)
+                        .GroupBy(r => r.SerialNumber);
+
+                    foreach (var rowGroup in rowsBySerial)
                     {
-                        // Skip BLANK rows — a spec group that exists in the
-                        // Step 5 grid without actual row data (no glass ref,
-                        // no dimensions, no quantity) must never leak into the
-                        // delivery notes / delivery report as a phantom item.
-                        // Same rule the Job Order report already applies.
-                        if (string.IsNullOrWhiteSpace(row.GlassRef)
-                            && row.W1 == 0 && row.H1 == 0)
-                            continue;
-                        if (row.Qty <= 0)
-                            continue;
+                        var row = rowGroup.First();
 
                         var item = new DeliveryNoteItem
                         {
@@ -116,18 +120,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                             H1 = row.H1,
                             W2 = row.W2,
                             H2 = row.H2,
-                            OrderedQty = row.Qty,
+                            OrderedQty = rowGroup.Max(r => r.Qty),
                             PreviouslyDeliveredQty = 0,
                             DeliveredQty = 0,
-                            BalanceQty = row.Qty,
+                            BalanceQty = rowGroup.Max(r => r.Qty),
                             ReworkQty = 0,
                             ReturnedQty = 0,
                             Notes = ""
                         };
 
                         items.Add(item);
-                        entity.TotalOrderedQty += row.Qty;
-                        entity.TotalBalanceQty += row.Qty;
+                        entity.TotalOrderedQty += item.OrderedQty;
+                        entity.TotalBalanceQty += item.BalanceQty;
                     }
                 }
             }
