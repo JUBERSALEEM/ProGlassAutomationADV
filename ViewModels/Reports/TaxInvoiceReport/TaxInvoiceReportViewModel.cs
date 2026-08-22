@@ -31,7 +31,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
         public string PiFilter
         {
             get => _piFilter;
-            set { if (_piFilter == value) return; _piFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_piFilter == value) return; _piFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private List<string> _piOptions = new() { AllFilter };

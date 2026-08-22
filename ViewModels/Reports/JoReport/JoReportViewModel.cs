@@ -31,7 +31,7 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         public string SourcePiFilter
         {
             get => _sourcePiFilter;
-            set { if (_sourcePiFilter == value) return; _sourcePiFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_sourcePiFilter == value) return; _sourcePiFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private List<string> _sourcePiOptions = new() { AllFilter };

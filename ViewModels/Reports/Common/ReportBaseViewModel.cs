@@ -88,19 +88,39 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         }
 
         private string _selectedCompany = "";
-        public string SelectedCompany { get => _selectedCompany; set { if (_selectedCompany == value) return; _selectedCompany = value; OnPropertyChanged(); } }
+        public string SelectedCompany
+        {
+            get => _selectedCompany;
+            set { if (_selectedCompany == value) return; _selectedCompany = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+        }
 
         private string _selectedCustomer = "";
-        public string SelectedCustomer { get => _selectedCustomer; set { if (_selectedCustomer == value) return; _selectedCustomer = value; OnPropertyChanged(); } }
+        public string SelectedCustomer
+        {
+            get => _selectedCustomer;
+            set { if (_selectedCustomer == value) return; _selectedCustomer = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+        }
 
         private string _selectedProject = "";
-        public string SelectedProject { get => _selectedProject; set { if (_selectedProject == value) return; _selectedProject = value; OnPropertyChanged(); } }
+        public string SelectedProject
+        {
+            get => _selectedProject;
+            set { if (_selectedProject == value) return; _selectedProject = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+        }
 
         private string _selectedSalesman = "";
-        public string SelectedSalesman { get => _selectedSalesman; set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); } }
+        public string SelectedSalesman
+        {
+            get => _selectedSalesman;
+            set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+        }
 
         private string _selectedStatus = "";
-        public string SelectedStatus { get => _selectedStatus; set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); } }
+        public string SelectedStatus
+        {
+            get => _selectedStatus;
+            set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+        }
 
         // ── Pagination ────────────────────────────────────────────────────
         private int _page = 1;
@@ -185,7 +205,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             };
         }
 
-        private async Task DebouncedReloadAsync()
+        protected async Task DebouncedReloadAsync()
         {
             _debounceCts?.Cancel();
             _debounceCts = new CancellationTokenSource();

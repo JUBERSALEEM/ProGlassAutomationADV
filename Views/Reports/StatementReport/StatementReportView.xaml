@@ -143,7 +143,6 @@
 
                             <!-- Action Buttons -->
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="0,0,6,6">
-                                <Button Content="Apply" Command="{Binding ApplyFilterCommand}" Style="{StaticResource ReportToolbarPrimaryButton}" ToolTip="Apply selected filters"/>
                                 <Button Content="Clear" Command="{Binding ClearFilterCommand}" Style="{StaticResource ReportToolbarOutlinedButton}" ToolTip="Reset filters"/>
                             </StackPanel>
                         </WrapPanel>

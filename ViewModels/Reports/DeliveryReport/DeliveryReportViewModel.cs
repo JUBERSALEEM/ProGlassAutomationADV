@@ -75,49 +75,49 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         public string PiFilter
         {
             get => _piFilter;
-            set { if (_piFilter == value) return; _piFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_piFilter == value) return; _piFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _specificationFilter = AllFilter;
         public string SpecificationFilter
         {
             get => _specificationFilter;
-            set { if (_specificationFilter == value) return; _specificationFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_specificationFilter == value) return; _specificationFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _glassRefFilter = AllFilter;
         public string GlassRefFilter
         {
             get => _glassRefFilter;
-            set { if (_glassRefFilter == value) return; _glassRefFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_glassRefFilter == value) return; _glassRefFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _salesmanFilter = AllFilter;
         public string SalesmanFilter
         {
             get => _salesmanFilter;
-            set { if (_salesmanFilter == value) return; _salesmanFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_salesmanFilter == value) return; _salesmanFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _projectFilter = AllFilter;
         public string ProjectFilter
         {
             get => _projectFilter;
-            set { if (_projectFilter == value) return; _projectFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_projectFilter == value) return; _projectFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _customerFilter = AllFilter;
         public string CustomerFilter
         {
             get => _customerFilter;
-            set { if (_customerFilter == value) return; _customerFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_customerFilter == value) return; _customerFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         private string _glassTypeFilter = AllFilter;
         public string GlassTypeFilter
         {
             get => _glassTypeFilter;
-            set { if (_glassTypeFilter == value) return; _glassTypeFilter = value ?? AllFilter; OnPropertyChanged(); }
+            set { if (_glassTypeFilter == value) return; _glassTypeFilter = value ?? AllFilter; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
         }
 
         // ── Option lists (distinct stored values, "All" first) ──────────
