@@ -99,10 +99,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public DataGridViewModel()
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
-            SpecGroups.CollectionChanged += (_, __) =>
+            SpecGroups.CollectionChanged += (_, e) =>
             {
+                // Keep every group's rows wired so a row add/remove anywhere
+                // triggers ONE global renumber pass (continuous SR NO).
+                if (e.OldItems != null)
+                    foreach (SpecGroup g in e.OldItems)
+                        g.ItemRows.CollectionChanged -= OnGroupRowsChanged;
+                if (e.NewItems != null)
+                    foreach (SpecGroup g in e.NewItems)
+                        g.ItemRows.CollectionChanged += OnGroupRowsChanged;
+
                 OnPropertyChanged(nameof(TotalSpecGroups));
                 EnsureSelection();
+                RenumberAllSerialNumbers();
             };
 
             AddSpecGroupCommand = new RelayCommand(
@@ -206,6 +216,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             SelectedSpecGroup = SpecGroups.Count > 0 ? SpecGroups[0] : null;
         }
+
+        /// <summary>
+        /// Assigns CONTINUOUS serial numbers (SR NO) across ALL spec groups so
+        /// a cut list reads 1..N end-to-end: Spec 1 rows 1..10, Spec 2 rows
+        /// 11..20, and so on — never restarting at 1 for each spec. The serial
+        /// number flows through to Job Order, Delivery Note and Tax Invoice
+        /// (they all read the PI's serial numbers), so every module shows the
+        /// same continuous numbering.
+        /// </summary>
+        public void RenumberAllSerialNumbers()
+        {
+            int serial = 0;
+            foreach (var group in SpecGroups)
+                foreach (var row in group.ItemRows)
+                    row.SerialNumber = ++serial;
+        }
+
+        private void OnGroupRowsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+            => RenumberAllSerialNumbers();
 
         private void RenumberGroups()
         {

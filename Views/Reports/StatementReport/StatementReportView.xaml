@@ -246,6 +246,13 @@
                                         </Expander.Header>
                                         <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
                                             <StackPanel>
+                                                <Button Content="Open Tax Invoice"
+                                                        Command="{Binding DataContext.OpenTaxInvoiceCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                        CommandParameter="{Binding}"
+                                                        Style="{StaticResource PrimaryPillButton}"
+                                                        Height="34" Margin="0,0,0,12"
+                                                        HorizontalAlignment="Left"
+                                                        ToolTip="Open the original Tax Invoice"/>
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="108"/>

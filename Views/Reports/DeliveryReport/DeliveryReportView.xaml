@@ -400,6 +400,15 @@
 
                                     <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
 
+                                    <!-- Open the owning Job Order (same affordance as PI/JO/TI reports) -->
+                                    <Button Content="Open Job Order"
+                                            Command="{Binding OpenJobOrderCommand}"
+                                            CommandParameter="{Binding SelectedRow}"
+                                            Style="{StaticResource PrimaryPillButton}"
+                                            Height="36" Margin="0,0,0,14"
+                                            HorizontalAlignment="Stretch"
+                                            ToolTip="Open the Job Order that owns this delivery row"/>
+
                                     <!-- Selected row identity -->
                                     <TextBlock Text="SPECIFICATION" FontSize="10" FontWeight="Bold"
                                                Foreground="{DynamicResource MutedForegroundBrush}" Margin="4,0,0,8"/>

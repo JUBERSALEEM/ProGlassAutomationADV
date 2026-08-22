@@ -494,6 +494,22 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("TaxInvoice");
                 _ = TaxInvoiceVM.OpenInvoiceAsync(invoiceId);
             };
+            SalesReportVM.OnOpenJobOrderByNumber = async jobOrderId =>
+            {
+                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
+                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (jo == null) return;
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(jo.Id);
+            };
+            SalesReportVM.OnOpenTaxInvoiceByNumber = async invoiceNumber =>
+            {
+                if (string.IsNullOrWhiteSpace(invoiceNumber) || App.TaxInvoices == null) return;
+                var inv = await App.TaxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
+                if (inv == null) return;
+                Navigate("TaxInvoice");
+                await TaxInvoiceVM.OpenInvoiceAsync(inv.Id);
+            };
 
             // Statement Generator warning/alert actions — navigate to the real
             // related document instead of leaving dead "→ open" labels.

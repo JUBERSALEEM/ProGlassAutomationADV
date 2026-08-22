@@ -108,6 +108,12 @@ namespace ProGlassAutomation.ViewModels.Reports
         public Action<int>? OnOpenJobOrder { get; set; }
         public Action<int>? OnOpenTaxInvoice { get; set; }
 
+        // Delivery / Statement rows carry a document REFERENCE (string) rather
+        // than a DB id, so they route through by-number callbacks that the
+        // shell resolves before navigating.
+        public Action<string>? OnOpenJobOrderByNumber { get; set; }
+        public Action<string>? OnOpenTaxInvoiceByNumber { get; set; }
+
         public SalesReportViewModel()
         {
             _reportingService = App.Reporting ?? new ReportingDataService();
@@ -125,6 +131,8 @@ namespace ProGlassAutomation.ViewModels.Reports
             PiReport.OpenDocumentRequested = id => OnOpenProforma?.Invoke(id);
             JoReport.OpenDocumentRequested = id => OnOpenJobOrder?.Invoke(id);
             TaxInvoiceReport.OpenDocumentRequested = id => OnOpenTaxInvoice?.Invoke(id);
+            DeliveryReport.OpenJobOrderRequested = joId => OnOpenJobOrderByNumber?.Invoke(joId);
+            StatementReport.OpenTaxInvoiceRequested = invNum => OnOpenTaxInvoiceByNumber?.Invoke(invNum);
 
             NavigateReportCommand = new RelayCommand(p =>
             {

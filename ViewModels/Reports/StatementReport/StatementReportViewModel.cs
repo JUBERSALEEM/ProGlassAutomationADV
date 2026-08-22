@@ -1,3 +1,4 @@
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementReport
 {
@@ -23,9 +25,25 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
         public StatementReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
+
+            // Open the Tax Invoice behind a ledger line — same "open the
+            // original document" affordance the other reports provide. The row
+            // carries the invoice number (string); the hub resolves it to a DB
+            // id and navigates.
+            OpenTaxInvoiceCommand = new RelayCommand(p =>
+            {
+                if (p is StatementLineRow r && !string.IsNullOrWhiteSpace(r.InvoiceNumber))
+                    OpenTaxInvoiceRequested?.Invoke(r.InvoiceNumber);
+            });
+
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }
+
+        /// <summary>Raised with the line's invoice number when the user clicks
+        /// "Open Tax Invoice". Wired by the hub to MainViewModel.</summary>
+        public Action<string>? OpenTaxInvoiceRequested { get; set; }
+        public ICommand OpenTaxInvoiceCommand { get; private set; } = null!;
 
         private StatementLineSummary _summary = new();
         public StatementLineSummary Summary

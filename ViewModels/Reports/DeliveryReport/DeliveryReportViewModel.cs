@@ -50,9 +50,24 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
 
             CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
 
+            // Open the Job Order that owns the selected delivery row — same
+            // "open the original document" affordance the PI / JO / TI reports
+            // already provide. The row carries the JO reference (string); the
+            // hub resolves it to a DB id and navigates.
+            OpenJobOrderCommand = new RelayCommand(p =>
+            {
+                if (p is DeliveryReportRow r && !string.IsNullOrWhiteSpace(r.JobOrderId))
+                    OpenJobOrderRequested?.Invoke(r.JobOrderId);
+            });
+
             _ = LoadDeliveryFilterOptionsAsync();
             _ = LoadAsync();
         }
+
+        /// <summary>Raised with the row's JobOrderId when the user clicks
+        /// "Open Job Order". Wired by the hub to MainViewModel.</summary>
+        public Action<string>? OpenJobOrderRequested { get; set; }
+        public ICommand OpenJobOrderCommand { get; private set; } = null!;
 
         // ── Filters (data-driven dropdowns; "All" = no filter) ──────────
 
