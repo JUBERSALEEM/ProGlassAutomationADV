@@ -99,6 +99,14 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             "DeliveryNotes",
             "Attachments");
 
+        // Proforma Invoice Step 8 attachment root (matches ProformaAttachmentService)
+        // Structure: ProformaInvoices\\Attachments\\{ProformaId}\\{Images|PDFs}\\{filename}
+        private static string PiAttachmentRoot => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation",
+            "ProformaInvoices",
+            "Attachments");
+
         public List<WorkflowStepState> Steps { get; }
 
         public StatementWorkflowEngine()
@@ -298,7 +306,9 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             // ── Load Proforma Invoice Step 8 attachments (JPG + PDF) ───────
             // The PI Step 8 attachments live in a separate manifest (not the
             // Tax Invoice attachment table). Read every image + PDF so they
-            // are merged into the statement, not dropped.
+            // are merged into the statement, not dropped. Fall back to a
+            // rebuilt path when the stored FilePath is stale (drive/user
+            // changed), same as the DN attachment resolver.
             try
             {
                 var piAttachmentService = new ProformaAttachmentService();
@@ -309,13 +319,12 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 int loaded = 0;
                 foreach (var record in manifest)
                 {
-                    if (string.IsNullOrWhiteSpace(record.FilePath) ||
-                        !File.Exists(record.FilePath))
-                        continue;
+                    string? resolved = ResolvePiAttachmentPath(record, proformaId);
+                    if (resolved == null) continue;
 
                     try
                     {
-                        var bytes = await File.ReadAllBytesAsync(record.FilePath);
+                        var bytes = await File.ReadAllBytesAsync(resolved);
                         if (bytes.Length == 0) continue;
 
                         result.ProformaAttachments.Add(
@@ -1099,6 +1108,47 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
 
             return null; // not found via any strategy
+        }
+
+        /// <summary>
+        /// Resolves a Proforma Invoice Step 8 attachment file path with a
+        /// fallback: use the manifest's stored FilePath first; if that is
+        /// stale, rebuild it from the known AppData folder structure
+        /// ({ProformaId}\\{Images|PDFs}\\{filename}) based on AttachmentType.
+        /// </summary>
+        private static string? ResolvePiAttachmentPath(
+            ProGlassAutomation.Models.ProformaInvoice.Attachments.ProformaAttachmentRecord record,
+            string proformaId)
+        {
+            string fileName = record.FileName ?? "";
+
+            // Strategy 1: stored absolute path
+            if (!string.IsNullOrWhiteSpace(record.FilePath) &&
+                File.Exists(record.FilePath))
+                return record.FilePath;
+
+            if (string.IsNullOrWhiteSpace(fileName)) return null;
+
+            // Strategy 2: rebuild from AppData structure
+            string primarySubfolder = string.Equals(
+                record.AttachmentType, "Pdf",
+                StringComparison.OrdinalIgnoreCase)
+                ? "PDFs" : "Images";
+
+            string rebuilt = Path.Combine(
+                PiAttachmentRoot, proformaId, primarySubfolder, fileName);
+            if (File.Exists(rebuilt)) return rebuilt;
+
+            // Strategy 3: search both subfolders (type may have been mis-recorded)
+            foreach (var subfolder in new[] { "Images", "PDFs" })
+            {
+                if (subfolder == primarySubfolder) continue;
+                string tryPath = Path.Combine(
+                    PiAttachmentRoot, proformaId, subfolder, fileName);
+                if (File.Exists(tryPath)) return tryPath;
+            }
+
+            return null;
         }
 
         // ═════════════════════════════════════════════════════════════════

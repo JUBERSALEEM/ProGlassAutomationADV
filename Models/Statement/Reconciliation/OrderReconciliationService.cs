@@ -286,12 +286,21 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                 {
                     if (spec.ItemRows == null) continue;
 
+                    // Prefer the full specification name (e.g.
+                    // "6mm Clear FT Glass + 12mm AsP + 6mm Clear FT Glass")
+                    // over the generic "Spec 1" group label.
+                    string specName = !string.IsNullOrWhiteSpace(spec.SelectedSpecName)
+                        ? spec.SelectedSpecName
+                        : (!string.IsNullOrWhiteSpace(spec.GroupName)
+                            ? spec.GroupName
+                            : $"Spec {spec.GroupNumber}");
+
                     foreach (var row in spec.ItemRows)
                     {
                         lines.Add(new PiLineInfo
                         {
                             SpecGroupNumber = spec.GroupNumber,
-                            SpecGroupName = spec.GroupName ?? "",
+                            SpecGroupName = specName,
                             SerialNumber = row.SerialNumber,
                             GlassRef = row.GlassRef ?? "",
                             W1 = row.W1,

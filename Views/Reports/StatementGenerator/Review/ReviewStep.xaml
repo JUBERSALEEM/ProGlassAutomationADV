@@ -588,14 +588,15 @@
                             </ItemsControl>
 
                             <!-- Summary footer -->
-                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6" Margin="0,4,0,0">
+                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
-                                        <Run Text="Qty "/><Run Text="{Binding IncludedTotalQty, Mode=OneWay}"/>
-                                        <Run Text=" pcs   ·   Sqm "/><Run Text="{Binding IncludedTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}"/>
-                                        <Run Text=" m²"/>
-                                    </TextBlock>
+                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Qty" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IncludedTotalQty, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="pcs" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Sqm" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding IncludedTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="m²" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
@@ -668,14 +669,15 @@
                             </ItemsControl>
 
                             <!-- Summary footer -->
-                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6" Margin="0,4,0,0">
+                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
-                                        <Run Text="Qty "/><Run Text="{Binding DueTotalQty, Mode=OneWay}"/>
-                                        <Run Text=" pcs   ·   Sqm "/><Run Text="{Binding DueTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}"/>
-                                        <Run Text=" m²"/>
-                                    </TextBlock>
+                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,0,16,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Qty" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DueTotalQty, Mode=OneWay}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="pcs" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Sqm" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding DueTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="m²" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
