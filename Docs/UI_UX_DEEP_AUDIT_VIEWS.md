@@ -285,6 +285,21 @@ project, driver, vehicle) already sits in star-sized (`1.5*`/`1.4*`) columns wit
 are stretch TextBoxes, not fixed-width. Leaving the column widths alone to avoid
 regressing the 1366px grid budget for zero measured benefit.
 
-### 5.7 — remaining (not started)
-PI wizard step polish, DN/JO/TI detail polish, SheetStore, Reports, Settings —
-and the "module shells vs. real content" decision for the 9 placeholder modules.
+### 5.7 — PI wizard audited: no redesign needed ✅ (verified clean)
+Full 25-file audit of the ProformaInvoice wizard (shell + Steps 1–9 + Saved
+Invoices dialogs) against every audit flag. **Already conforms to the design
+system** — the earlier global phases + the wizard's own prior "approved mockup
+composition" passes brought it there:
+- 0 emoji; 0 non-print hardcoded hex (only 2 black drop-shadows + print-paper white).
+- 2 `DropShadowEffect`s total; all 9 step roots share `Ideal`/`ClearType`/`Fixed`/
+  `AppFontFamily`/`UseLayoutRounding`/`SnapsToDevicePixels`.
+- Section cards / KPI strips / step navigator / footer all route through theme
+  tokens and `PrimaryPillButton`/`OutlinedPillButton`/`ModuleSectionCardStyle`.
+- Only 2 hardcoded radii (20×20 step-dot circle `10`; `3` on a small list item) and
+  a `1` hairline on spec-group chips — all intentional size-proportional exceptions.
+No changes made (forcing a redesign would be make-work + regression risk).
+
+### 5.8 — remaining (not started)
+Reports (incl. StatementGenerator violet-brand re-theme — the largest remaining
+visual outlier), DN/JO/TI detail polish, SheetStore, Settings — and the "module
+shells vs. real content" decision for the 9 placeholder modules.
