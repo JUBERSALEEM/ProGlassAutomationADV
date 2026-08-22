@@ -160,8 +160,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             const string system =
                 "You extract glass cut-list rows from factory documents. " +
                 "Return ONLY a JSON array. Each object: " +
-                "{\"ref\":\"\",\"w1\":0,\"h1\":0,\"w2\":0,\"h2\":0,\"qty\":1}. " +
-                "Sizes are millimetres. qty defaults to 1. Skip headers and totals.";
+                "{\"ref\":\"\",\"type\":\"\",\"w1\":0,\"h1\":0,\"w2\":0,\"h2\":0,\"qty\":1}. " +
+                "Set type to the glass type when stated: SGU, DGU, LAM or DGU+LAM " +
+                "(empty string when unknown). Sizes are millimetres. qty defaults " +
+                "to 1. Skip headers and totals.";
 
             var response = await gemini.AskWithFileAsync(
                 system,
