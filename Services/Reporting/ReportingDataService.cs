@@ -69,6 +69,13 @@ namespace ProGlassAutomation.Services.Reporting
             string jobOrderId, int specGroupNumber, int serialNumber,
             CancellationToken ct = default);
 
+        // ── Delivery report filter lookups (data-driven, not hardcoded) ──
+        Task<List<string>> GetDeliveryPiOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetDeliverySpecificationOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetDeliveryGlassRefOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetDeliveryProjectOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetDeliverySalesmanOptionsAsync(CancellationToken ct = default);
+
         // ── Tax Invoice Report ───────────────────────────────────────
         Task<TaxInvoiceReportSummary> GetTaxInvoiceSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
         Task<PagedResult<TaxInvoiceReportRow>> GetTaxInvoiceRowsAsync(ReportingFilter filter, CancellationToken ct = default);
@@ -571,7 +578,8 @@ namespace ProGlassAutomation.Services.Reporting
             var summary = new DeliveryReportSummary();
 
             using var db = new DeliveryNotesDbContext();
-            var query = BuildDeliveryRowQuery(db, filter);
+            var salesmanJobIds = await ResolveSalesmanJobOrderIdsAsync(filter.Salesman, ct);
+            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds);
 
             summary.TotalRows = await query.CountAsync(ct);
             if (summary.TotalRows == 0) return summary;
@@ -604,7 +612,8 @@ namespace ProGlassAutomation.Services.Reporting
             filter ??= new ReportingFilter();
 
             using var db = new DeliveryNotesDbContext();
-            var query = BuildDeliveryRowQuery(db, filter);
+            var salesmanJobIds = await ResolveSalesmanJobOrderIdsAsync(filter.Salesman, ct);
+            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds);
 
             var totalCount = await query.CountAsync(ct);
             if (totalCount == 0)
@@ -649,7 +658,7 @@ namespace ProGlassAutomation.Services.Reporting
                 ProformaId = x.ProformaId,
                 SpecGroupNumber = x.SpecGroupNumber,
                 SerialNumber = x.SerialNumber,
-                Specification = FormatSpecification(x.SpecGroupNumber, x.Specification),
+                Specification = FormatSpecification(x.Specification),
                 CustomerName = x.CustomerName,
                 ProjectName = x.ProjectName,
                 GlassRef = x.GlassRef,
@@ -736,28 +745,13 @@ namespace ProGlassAutomation.Services.Reporting
             : "WarningBrush";
 
         /// <summary>
-        /// Displays the specification with its spec-group number so every row
-        /// is traceable to its exact PI → Specification group, e.g.
-        /// "Spec 1 - 6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass".
-        /// Guarded against double-prefixing when the stored name already
-        /// starts with "Spec N".
+        /// Returns the FULL specification name exactly as stored on the
+        /// DeliveryNoteItem (already resolved to the real spec name at DN
+        /// creation time via SelectedSpecName → GroupName precedence).
+        /// No artificial "Spec N" prefix — the user wants the exact spec
+        /// name as it appears on the Proforma Invoice.
         /// </summary>
-        private static string FormatSpecification(int groupNumber, string name)
-        {
-            string prefix = "Spec " + groupNumber;
-            var trimmed = (name ?? "").Trim();
-            if (trimmed.Length == 0)
-                return prefix;
-
-            if (trimmed.StartsWith(prefix + " ", StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith(prefix + "-", StringComparison.OrdinalIgnoreCase) ||
-                trimmed.StartsWith("Spec" + groupNumber, StringComparison.OrdinalIgnoreCase))
-            {
-                return trimmed;
-            }
-
-            return prefix + " - " + trimmed;
-        }
+        private static string FormatSpecification(string name) => (name ?? "").Trim();
 
         /// <summary>
         /// Builds the SQL-side row query. The catalog is the master-DN
@@ -767,7 +761,8 @@ namespace ProGlassAutomation.Services.Reporting
         /// stays exactly one report row and never merges with another spec.
         /// </summary>
         private static IQueryable<DeliveryRowAgg> BuildDeliveryRowQuery(
-            DeliveryNotesDbContext db, ReportingFilter filter)
+            DeliveryNotesDbContext db, ReportingFilter filter,
+            HashSet<string>? salesmanJobOrderIds = null)
         {
             IQueryable<DeliveryNoteItem> items = db.DeliveryNoteItems
                 .AsNoTracking()
@@ -797,6 +792,22 @@ namespace ProGlassAutomation.Services.Reporting
                 items = items.Where(i => i.DeliveryNote!.DeliveryNoteId == filter.DeliveryNoteId);
             if (!string.IsNullOrWhiteSpace(filter.Customer))
                 items = items.Where(i => EF.Functions.Like(i.DeliveryNote!.CustomerName, $"%{filter.Customer}%"));
+
+            // Exact-match filters — the dropdowns provide the exact stored
+            // value (as it appears on the PI / JO), so equality is correct
+            // and never merges across specifications or glass rows.
+            if (!string.IsNullOrWhiteSpace(filter.Project))
+                items = items.Where(i => i.DeliveryNote!.ProjectName == filter.Project);
+            if (!string.IsNullOrWhiteSpace(filter.GlassRef))
+                items = items.Where(i => i.GlassRef == filter.GlassRef);
+            if (!string.IsNullOrWhiteSpace(filter.Specification))
+                items = items.Where(i => i.SpecGroupName == filter.Specification);
+
+            // Salesman lives only in the JO snapshot JSON (not a column), so
+            // it is resolved to a set of JobOrderIds before the query runs.
+            if (salesmanJobOrderIds != null)
+                items = items.Where(i => salesmanJobOrderIds.Contains(i.JobOrderId));
+
             if (filter.HasSearch)
             {
                 var term = filter.SearchText.Trim();
@@ -878,6 +889,46 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 AppLogService.Warning($"Delivery report enrichment failed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Resolves a salesman name to the set of JobOrderIds whose JO
+        /// snapshot carries that sales representative. Salesman is not a
+        /// column on DeliveryNoteItems — it lives only in the JO JSON — so
+        /// the salesman filter is applied by JobOrderId. Returns null when
+        /// no salesman filter is requested (no filtering).
+        /// </summary>
+        private static async Task<HashSet<string>?> ResolveSalesmanJobOrderIdsAsync(
+            string? salesman, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(salesman)) return null;
+
+            var ids = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using var joDb = new JobOrdersDbContext();
+                var snapshots = await joDb.JobOrders.AsNoTracking()
+                    .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
+                    .ToListAsync(ct);
+
+                foreach (var s in snapshots)
+                {
+                    var snap = JobOrderMapper.DeserializeSnapshot(
+                        new SavedJobOrder
+                        {
+                            JobOrderId = s.JobOrderId,
+                            FullSnapshotJson = s.FullSnapshotJson
+                        });
+                    var rep = (snap?.EmbeddedInvoice?.Client?.SalesRepresentative ?? "").Trim();
+                    if (string.Equals(rep, salesman.Trim(), StringComparison.OrdinalIgnoreCase))
+                        ids.Add(s.JobOrderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Salesman resolution failed: {ex.Message}");
+            }
+            return ids;
         }
 
         // ════════════════════════════════════════════════════════════════
@@ -1892,6 +1943,87 @@ namespace ProGlassAutomation.Services.Reporting
         public async Task<List<string>> GetGlassTypeOptionsAsync(CancellationToken ct = default)
         {
             return new List<string> { "SGU", "DGU", "LAM", "DGU+LAM" };
+        }
+
+        // ── Delivery report filter lookups (data-driven) ──────────────
+
+        public async Task<List<string>> GetDeliveryPiOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new DeliveryNotesDbContext();
+                var list = await db.DeliveryNotes.AsNoTracking()
+                    .Where(d => !d.IsMasterDn && !string.IsNullOrWhiteSpace(d.ProformaId))
+                    .Select(d => d.ProformaId)
+                    .Distinct().ToListAsync(ct);
+                return list.OrderBy(s => s).ToList()!;
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetDeliverySpecificationOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new DeliveryNotesDbContext();
+                var list = await db.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => !string.IsNullOrWhiteSpace(i.SpecGroupName))
+                    .Select(i => i.SpecGroupName)
+                    .Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetDeliveryGlassRefOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new DeliveryNotesDbContext();
+                var list = await db.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => !string.IsNullOrWhiteSpace(i.GlassRef))
+                    .Select(i => i.GlassRef)
+                    .Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetDeliveryProjectOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new DeliveryNotesDbContext();
+                var list = await db.DeliveryNotes.AsNoTracking()
+                    .Where(d => !d.IsMasterDn && !string.IsNullOrWhiteSpace(d.ProjectName))
+                    .Select(d => d.ProjectName)
+                    .Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetDeliverySalesmanOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var joDb = new JobOrdersDbContext();
+                var snapshots = await joDb.JobOrders.AsNoTracking()
+                    .Select(j => new { j.FullSnapshotJson })
+                    .ToListAsync(ct);
+
+                var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var s in snapshots)
+                {
+                    var snap = JobOrderMapper.DeserializeSnapshot(
+                        new SavedJobOrder { FullSnapshotJson = s.FullSnapshotJson });
+                    var rep = (snap?.EmbeddedInvoice?.Client?.SalesRepresentative ?? "").Trim();
+                    if (!string.IsNullOrWhiteSpace(rep)) set.Add(rep);
+                }
+                return set.OrderBy(s => s).ToList();
+            }
+            catch (Exception ex) { AppLogService.Warning($"Delivery salesman options warning: {ex.Message}"); }
+            return new List<string>();
         }
 
         public async Task<List<string>> GetPiStatusOptionsAsync(CancellationToken ct = default)

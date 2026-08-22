@@ -119,10 +119,67 @@
                         </Grid.ColumnDefinitions>
 
                         <WrapPanel Grid.Column="0" VerticalAlignment="Center">
-                            <!-- Search -->
+                            <!-- PI number -->
                             <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="SEARCH" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Width="180" Height="34" Style="{StaticResource ModuleListFilterInputStyle}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Tag="PI # / JO # / DN # / Glass..." ToolTip="Search by PI #, JO #, DN #, customer, glass ref or specification"/>
+                                <TextBlock Text="PI NUMBER" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding PiOptions}"
+                                          SelectedItem="{Binding PiFilter}"
+                                          ToolTip="Filter by Proforma Invoice number"/>
+                            </StackPanel>
+
+                            <!-- Specification -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="SPECIFICATION" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="210" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding SpecificationOptions}"
+                                          SelectedItem="{Binding SpecificationFilter}"
+                                          ToolTip="Filter by exact glass specification"/>
+                            </StackPanel>
+
+                            <!-- Glass ref -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="GLASS REF" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="110" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding GlassRefOptions}"
+                                          SelectedItem="{Binding GlassRefFilter}"
+                                          ToolTip="Filter by exact glass reference"/>
+                            </StackPanel>
+
+                            <!-- Salesman -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="SALESMAN" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding DeliverySalesmanOptions}"
+                                          SelectedItem="{Binding SalesmanFilter}"
+                                          ToolTip="Filter by sales representative"/>
+                            </StackPanel>
+
+                            <!-- Project -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="PROJECT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding DeliveryProjectOptions}"
+                                          SelectedItem="{Binding ProjectFilter}"
+                                          ToolTip="Filter by project"/>
+                            </StackPanel>
+
+                            <!-- Customer -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="150" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding DeliveryCustomerOptions}"
+                                          SelectedItem="{Binding CustomerFilter}"
+                                          ToolTip="Filter by customer"/>
+                            </StackPanel>
+
+                            <!-- Delivery status -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ItemsSource="{Binding StatusOptions}"
+                                          SelectedItem="{Binding SelectedStatus}"
+                                          ToolTip="Filter by delivery status"/>
                             </StackPanel>
 
                             <!-- Date From -->
@@ -135,21 +192,6 @@
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <DatePicker Width="128" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter rows by delivery date end"/>
-                            </StackPanel>
-
-                            <!-- Customer -->
-                            <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
-                            </StackPanel>
-
-                            <!-- Row delivery status -->
-                            <StackPanel Margin="0,0,8,6">
-                                <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}"
-                                          ItemsSource="{Binding StatusFilterOptions}"
-                                          SelectedItem="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}"
-                                          ToolTip="Filter by row delivery status"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->
@@ -200,7 +242,7 @@
                             <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="3" Text="COMPANY / CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="4" Text="GLASS REF / SR" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" Text="GLASS REF" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="5" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="6" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
                             <TextBlock Grid.Column="7" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
@@ -259,12 +301,7 @@
                                                 <TextBlock Text="{Binding CompanyName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock Text="{Binding CustomerName}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextTrimming="CharacterEllipsis" Margin="0,1,0,0"/>
                                             </StackPanel>
-                                            <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis" HorizontalAlignment="Center"/>
-                                                <TextBlock FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" Margin="0,1,0,0">
-                                                    <Run Text="Sr "/><Run Text="{Binding SerialNumber, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
+                                            <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
                                             <TextBlock Grid.Column="5" Text="{Binding W1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Grid.Column="6" Text="{Binding H1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Grid.Column="7" Text="{Binding W2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
