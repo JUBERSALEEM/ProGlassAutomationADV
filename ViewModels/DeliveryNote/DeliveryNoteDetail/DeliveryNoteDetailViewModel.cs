@@ -1136,15 +1136,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 foreach (var oldRow in _itemRows)
                     oldRow.DeliveredQtyChanged -= OnItemDeliveredQtyChanged;
 
-                // DEDUP: one visible row per (SpecGroupNumber, SerialNumber).
-                // The DeliveryNoteItems table has NO unique constraint on
+                // DEDUP: one item per (SpecGroupNumber, SerialNumber). The
+                // DeliveryNoteItems table has NO unique constraint on
                 // (JobOrderId, SpecGroupNumber, SerialNumber), so a stored
                 // outer/inner split or a master+real merge can otherwise
                 // render one JO row as two (9 rows → 18). Merge duplicates:
                 // OrderedQty is REPLICATED across splits → take MAX; delivered
-                // quantities accumulate → SUM. This keeps the grid 1:1 with
-                // the Proforma Invoice Step 5 DataGrid.
-                var rows = _entity.Items
+                // quantities accumulate → SUM. We replace _entity.Items with
+                // the merged set so display, Save AND Dispatch all operate on
+                // the same 1:1 view as the Proforma Invoice Step 5 DataGrid.
+                var dedupedItems = _entity.Items
                     .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
                     .Select(g =>
                     {
@@ -1173,6 +1174,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     })
                     .OrderBy(i => i.SpecGroupNumber)
                     .ThenBy(i => i.SerialNumber)
+                    .ToList();
+
+                _entity.Items = dedupedItems;
+
+                var rows = dedupedItems
                     .Select(i => new DnItemRowViewModel(i))
                     .ToList();
 
