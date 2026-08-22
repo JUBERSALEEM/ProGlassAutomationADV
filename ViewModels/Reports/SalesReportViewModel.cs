@@ -20,13 +20,9 @@
 using ProGlassAutomation;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Reporting;
-using ProGlassAutomation.ViewModels.Reports.CompanyReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
-using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
-using ProGlassAutomation.ViewModels.Reports.ProjectReport;
-using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
 using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
 using System;
@@ -44,10 +40,6 @@ namespace ProGlassAutomation.ViewModels.Reports
         public JoReportViewModel JoReport { get; }
         public DeliveryReportViewModel DeliveryReport { get; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; }
-        public CompanyReportViewModel CompanyReport { get; }
-        public SalesmanReportViewModel SalesmanReport { get; }
-        public ProjectReportViewModel ProjectReport { get; }
-        public GlassSpecReportViewModel GlassReport { get; }
         public StatementReportViewModel StatementReport { get; }
 
         // ── Hub navigation ────────────────────────────────────────────────
@@ -66,10 +58,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             new ReportNavItem{ Key="Jo", Title="Job Order", Icon="\uE8B7", Subtitle="Production & status" },
             new ReportNavItem{ Key="Delivery", Title="Delivery", Icon="\uE814", Subtitle="Dispatched / pending" },
             new ReportNavItem{ Key="TaxInvoice", Title="Tax Invoice", Icon="\uE8C7", Subtitle="Billed & overdue" },
-            new ReportNavItem{ Key="Company", Title="Company / Customer", Icon="\uE77B", Subtitle="Lifecycle per client" },
-            new ReportNavItem{ Key="Salesman", Title="Salesman", Icon="\uE716", Subtitle="Revenue per rep" },
-            new ReportNavItem{ Key="Project", Title="Project", Icon="\uE8F1", Subtitle="Project drill-down" },
-            new ReportNavItem{ Key="Glass", Title="Glass / Specification", Icon="\uE9F9", Subtitle="Row-level intelligence" },
             new ReportNavItem{ Key="Statement", Title="Statement", Icon="\uE9F7", Subtitle="Customer statements" },
         };
 
@@ -95,10 +83,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Jo" => "Job Order Report",
             "Delivery" => "Delivery Note Report",
             "TaxInvoice" => "Tax Invoice Report",
-            "Company" => "Company / Customer Report",
-            "Salesman" => "Salesman Report",
-            "Project" => "Project Report",
-            "Glass" => "Glass / Specification Report",
             "Statement" => "Statement Report",
             _ => "Reports Overview"
         };
@@ -109,10 +93,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Jo" => JoReport,
             "Delivery" => DeliveryReport,
             "TaxInvoice" => TaxInvoiceReport,
-            "Company" => CompanyReport,
-            "Salesman" => SalesmanReport,
-            "Project" => ProjectReport,
-            "Glass" => GlassReport,
             "Statement" => StatementReport,
             _ => null
         };
@@ -138,10 +118,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             JoReport = new JoReportViewModel(_reportingService);
             DeliveryReport = new DeliveryReportViewModel(_reportingService);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_reportingService);
-            CompanyReport = new CompanyReportViewModel(_reportingService);
-            SalesmanReport = new SalesmanReportViewModel(_reportingService);
-            ProjectReport = new ProjectReportViewModel(_reportingService);
-            GlassReport = new GlassSpecReportViewModel(_reportingService);
             StatementReport = new StatementReportViewModel(_reportingService);
 
             // Route "open original document" requests from report sidebars to

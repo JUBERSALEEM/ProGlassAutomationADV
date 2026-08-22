@@ -662,10 +662,6 @@ namespace ProGlassAutomation.ViewModels
                 case "JoReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Jo"; break;
                 case "DeliveryReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Delivery"; break;
                 case "TaxInvoiceReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "TaxInvoice"; break;
-                case "CompanyReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Company"; break;
-                case "SalesmanReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Salesman"; break;
-                case "ProjectReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Project"; break;
-                case "GlassReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Glass"; break;
                 case "StatementReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Statement"; _ = SalesReportVM.StatementReport.LoadAsync(); break;
                 case "StatementGenerator": CurrentViewModel = StatementModuleVM; break;
                 case "About": CurrentViewModel = AboutVM; break;

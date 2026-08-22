@@ -272,38 +272,6 @@
 			<DependentUpon>%(Filename)</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Page Update="Views\Reports\CompanyReport\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\CompanyReport\*.xaml.cs">
-			<DependentUpon>%(Filename)</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
-		<Page Update="Views\Reports\SalesmanReport\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\SalesmanReport\*.xaml.cs">
-			<DependentUpon>%(Filename)</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
-		<Page Update="Views\Reports\ProjectReport\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\ProjectReport\*.xaml.cs">
-			<DependentUpon>%(Filename)</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
-		<Page Update="Views\Reports\GlassSpecReport\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\GlassSpecReport\*.xaml.cs">
-			<DependentUpon>%(Filename)</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
 		<Page Update="Views\Reports\StatementReport\*.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>

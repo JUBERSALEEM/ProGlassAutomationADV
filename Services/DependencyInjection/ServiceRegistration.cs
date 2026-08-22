@@ -182,10 +182,6 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.Reports.JoReport.JoReportViewModel>();
             services.AddTransient<ViewModels.Reports.DeliveryReport.DeliveryReportViewModel>();
             services.AddTransient<ViewModels.Reports.TaxInvoiceReport.TaxInvoiceReportViewModel>();
-            services.AddTransient<ViewModels.Reports.CompanyReport.CompanyReportViewModel>();
-            services.AddTransient<ViewModels.Reports.SalesmanReport.SalesmanReportViewModel>();
-            services.AddTransient<ViewModels.Reports.ProjectReport.ProjectReportViewModel>();
-            services.AddTransient<ViewModels.Reports.GlassSpecReport.GlassSpecReportViewModel>();
             services.AddTransient<ViewModels.Reports.StatementReport.StatementReportViewModel>();
 
             // ── Agent (Phase 5: lazy, singleton) ──────────────────────

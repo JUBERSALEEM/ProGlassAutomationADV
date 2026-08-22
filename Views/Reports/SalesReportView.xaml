@@ -5,10 +5,9 @@
 
      PURPOSE:
        Enterprise hub for module-based Reports system in ProGlass Automation.
-       Left panel: Floating rounded navigation rail with 11 categorized items:
-         • DOCUMENTS: Overview, Proforma Invoice, Job Order, Delivery, Tax Invoice
-         • MASTER DATA: Company / Customer, Salesman, Project
-         • INTELLIGENCE: Glass / Specification, Statement, Profitability / P&L
+       Left panel: Floating rounded navigation rail with 6 focused items:
+         • DOCUMENTS: Overview, Proforma Invoice, Job Order, Delivery,
+           Tax Invoice, Statement
        Right pane: Active report ViewModel rendered via DataTemplates.
        Overview screen: Global KPI summary, workflow guidance, and quick actions.
 ═══════════════════════════════════════════════════════════════════════ -->
@@ -21,19 +20,11 @@
     xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Reports.JoReport"
     xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Reports.DeliveryReport"
     xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport"
-    xmlns:vmComp="clr-namespace:ProGlassAutomation.ViewModels.Reports.CompanyReport"
-    xmlns:vmSales="clr-namespace:ProGlassAutomation.ViewModels.Reports.SalesmanReport"
-    xmlns:vmProj="clr-namespace:ProGlassAutomation.ViewModels.Reports.ProjectReport"
-    xmlns:vmGlass="clr-namespace:ProGlassAutomation.ViewModels.Reports.GlassSpecReport"
     xmlns:vmStRep="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementReport"
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
     xmlns:vTi="clr-namespace:ProGlassAutomation.Views.Reports.TaxInvoiceReport"
-    xmlns:vComp="clr-namespace:ProGlassAutomation.Views.Reports.CompanyReport"
-    xmlns:vSales="clr-namespace:ProGlassAutomation.Views.Reports.SalesmanReport"
-    xmlns:vProj="clr-namespace:ProGlassAutomation.Views.Reports.ProjectReport"
-    xmlns:vGlass="clr-namespace:ProGlassAutomation.Views.Reports.GlassSpecReport"
     xmlns:vStRep="clr-namespace:ProGlassAutomation.Views.Reports.StatementReport"
     FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Ideal"
@@ -48,10 +39,6 @@
         <DataTemplate DataType="{x:Type vmJo:JoReportViewModel}"><vJo:JoReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmDn:DeliveryReportViewModel}"><vDn:DeliveryReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmTi:TaxInvoiceReportViewModel}"><vTi:TaxInvoiceReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmComp:CompanyReportViewModel}"><vComp:CompanyReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmSales:SalesmanReportViewModel}"><vSales:SalesmanReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmProj:ProjectReportViewModel}"><vProj:ProjectReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmGlass:GlassSpecReportViewModel}"><vGlass:GlassSpecReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmStRep:StatementReportViewModel}"><vStRep:StatementReportView/></DataTemplate>
 
         <!-- Report Navigation Button Style -->
@@ -334,114 +321,6 @@
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="MASTER DATA" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
-
-                        <!-- Company / Customer -->
-                        <Button Tag="Company" Click="Nav_Click" ToolTip="Client and operating company lifecycle from quotation to settlement">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Company / Customer" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="Lifecycle per client" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Company"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Salesman -->
-                        <Button Tag="Salesman" Click="Nav_Click" ToolTip="Sales representative performance, confirmed values, and quote conversion">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE716;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Salesman" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="Revenue per rep" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Salesman"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Project -->
-                        <Button Tag="Project" Click="Nav_Click" ToolTip="Project-based breakdown of quotations, job orders, and invoicing">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8F1;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Project" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="Project drill-down" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Project"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <TextBlock Text="INTELLIGENCE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
-
-                        <!-- Glass / Specification -->
-                        <Button Tag="Glass" Click="Nav_Click" ToolTip="Granular row-level glass specification matching, dimensions, and lifecycle trace">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Glass / Specification" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="Row-level intelligence" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Glass"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
                         <!-- Statement -->
                         <Button Tag="Statement" Click="Nav_Click" ToolTip="Customer statements and aging analysis (read-only report)">
                             <Button.Style>
@@ -639,7 +518,7 @@
                             <TextBlock Text="PI → Row → Job Order → Delivery → Tax Invoice → Profitability — every aggregate is explainable and verifiable." FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
                             <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                 <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Height="32" Margin="0,0,8,0" ToolTip="Switch to Proforma Invoice report"/>
-                                <Button Content="Inspect Glass Rows" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" Height="32" ToolTip="Switch to Glass / Specification row-level intelligence"/>
+                                <Button Content="Open Delivery Report" Tag="Delivery" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" Height="32" ToolTip="Switch to the Delivery Note report"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -654,17 +533,17 @@
 
                         <Border Grid.Column="0" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="LIFECYCLE BY CUSTOMER" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Open Company / Customer report to follow PI → JO → DN → TI → Statement for any client with quantities, specs, pending items, and profitability." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Open →" Tag="Company" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Company / Customer Report"/>
+                                <TextBlock Text="PRODUCTION TRACKING" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Open the Job Order report to follow production stages and delivered balance for every factory job." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <Button Content="Open →" Tag="Jo" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Job Order Report"/>
                             </StackPanel>
                         </Border>
 
                         <Border Grid.Column="2" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="ROW-LEVEL SPEC INTELLIGENCE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Glass / Specification report reads the real spec rows stored inside the PI JSON — exact matching by type-aware identity, dimensions, colour, thickness, PVB, and spacer." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Inspect →" Tag="Glass" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Glass / Specification Report"/>
+                                <TextBlock Text="DELIVERY FULFILLMENT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Open the Delivery report for a single unified grid of every PI specification row with Total / Delivered / Balance reconciled from the stored Delivery Notes." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <Button Content="Open →" Tag="Delivery" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Delivery Report"/>
                             </StackPanel>
                         </Border>
                     </Grid>
