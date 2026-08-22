@@ -26,7 +26,6 @@
     xmlns:vmProj="clr-namespace:ProGlassAutomation.ViewModels.Reports.ProjectReport"
     xmlns:vmGlass="clr-namespace:ProGlassAutomation.ViewModels.Reports.GlassSpecReport"
     xmlns:vmStRep="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementReport"
-    xmlns:vmProf="clr-namespace:ProGlassAutomation.ViewModels.Reports.ProfitabilityReport"
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
@@ -36,7 +35,6 @@
     xmlns:vProj="clr-namespace:ProGlassAutomation.Views.Reports.ProjectReport"
     xmlns:vGlass="clr-namespace:ProGlassAutomation.Views.Reports.GlassSpecReport"
     xmlns:vStRep="clr-namespace:ProGlassAutomation.Views.Reports.StatementReport"
-    xmlns:vProf="clr-namespace:ProGlassAutomation.Views.Reports.ProfitabilityReport"
     FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
@@ -55,7 +53,6 @@
         <DataTemplate DataType="{x:Type vmProj:ProjectReportViewModel}"><vProj:ProjectReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmGlass:GlassSpecReportViewModel}"><vGlass:GlassSpecReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmStRep:StatementReportViewModel}"><vStRep:StatementReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmProf:ProfitabilityReportViewModel}"><vProf:ProfitabilityReportView/></DataTemplate>
 
         <!-- Report Navigation Button Style -->
         <Style x:Key="ReportNavButtonStyle" TargetType="Button">
@@ -466,32 +463,6 @@
                                     </TextBlock>
                                     <TextBlock Text="Customer statements" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                </StackPanel>
-                            </Grid>
-                        </Button>
-
-                        <!-- Profitability -->
-                        <Button Tag="Profitability" Click="Nav_Click" ToolTip="Profit &amp; Loss analysis: revenue, glass and production costs, and gross margins">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Tag" Value="Active"/></DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Grid>
-                                <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
-                                <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
-                                    <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Profitability / P&amp;L" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
-                                    </TextBlock>
-                                    <TextBlock Text="Revenue, cost, margin" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Profitability"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>

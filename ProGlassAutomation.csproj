@@ -312,14 +312,6 @@
 			<DependentUpon>%(Filename)</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
-		<Page Update="Views\Reports\ProfitabilityReport\*.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\ProfitabilityReport\*.xaml.cs">
-			<DependentUpon>%(Filename)</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
 	</ItemGroup>
 
 </Project>

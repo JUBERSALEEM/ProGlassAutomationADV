@@ -1240,6 +1240,10 @@
                                                 Content="Statement Generator"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="StatementGenerator"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Job Profitability"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobProfitability"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>
@@ -1297,14 +1301,6 @@
                                                 Content="Statement"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="StatementReport"/>
-                                        <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Profitability / P&amp;L"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="ProfitabilityReport"/>
-                                        <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Job Profitability"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="JobProfitability"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>

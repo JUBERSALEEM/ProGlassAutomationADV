@@ -187,7 +187,6 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.Reports.ProjectReport.ProjectReportViewModel>();
             services.AddTransient<ViewModels.Reports.GlassSpecReport.GlassSpecReportViewModel>();
             services.AddTransient<ViewModels.Reports.StatementReport.StatementReportViewModel>();
-            services.AddTransient<ViewModels.Reports.ProfitabilityReport.ProfitabilityReportViewModel>();
 
             // ── Agent (Phase 5: lazy, singleton) ──────────────────────
             // AgentHost is a static facade (CS0718 — not registrable).

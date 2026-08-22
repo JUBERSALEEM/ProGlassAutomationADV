@@ -25,7 +25,6 @@ using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
 using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
 using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
-using ProGlassAutomation.ViewModels.Reports.ProfitabilityReport;
 using ProGlassAutomation.ViewModels.Reports.ProjectReport;
 using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
@@ -50,7 +49,6 @@ namespace ProGlassAutomation.ViewModels.Reports
         public ProjectReportViewModel ProjectReport { get; }
         public GlassSpecReportViewModel GlassReport { get; }
         public StatementReportViewModel StatementReport { get; }
-        public ProfitabilityReportViewModel ProfitabilityReport { get; }
 
         // ── Hub navigation ────────────────────────────────────────────────
         public class ReportNavItem
@@ -73,7 +71,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             new ReportNavItem{ Key="Project", Title="Project", Icon="\uE8F1", Subtitle="Project drill-down" },
             new ReportNavItem{ Key="Glass", Title="Glass / Specification", Icon="\uE9F9", Subtitle="Row-level intelligence" },
             new ReportNavItem{ Key="Statement", Title="Statement", Icon="\uE9F7", Subtitle="Customer statements" },
-            new ReportNavItem{ Key="Profitability", Title="Profitability / P&L", Icon="\uE913", Subtitle="Revenue, cost, margin" },
         };
 
         private string _activeKey = "Overview";
@@ -103,7 +100,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Project" => "Project Report",
             "Glass" => "Glass / Specification Report",
             "Statement" => "Statement Report",
-            "Profitability" => "Profitability / P&L Report",
             _ => "Reports Overview"
         };
 
@@ -118,7 +114,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Project" => ProjectReport,
             "Glass" => GlassReport,
             "Statement" => StatementReport,
-            "Profitability" => ProfitabilityReport,
             _ => null
         };
 
@@ -148,7 +143,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             ProjectReport = new ProjectReportViewModel(_reportingService);
             GlassReport = new GlassSpecReportViewModel(_reportingService);
             StatementReport = new StatementReportViewModel(_reportingService);
-            ProfitabilityReport = new ProfitabilityReportViewModel(_reportingService);
 
             // Route "open original document" requests from report sidebars to
             // the shell callbacks (MainViewModel wires OnOpenProforma/...).
