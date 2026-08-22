@@ -88,10 +88,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         public StDashboardViewModel()
         {
             GoToStatementsCommand = new RelayCommand(_ =>
-                NavigateTo?.Invoke("SalesReport"));
+                NavigateTo?.Invoke("StatementGenerator"));
 
             NewStatementCommand = new RelayCommand(_ =>
-                NavigateTo?.Invoke("SalesReport"));
+                NavigateTo?.Invoke("StatementGenerator"));
 
             OpenPdfCommand = new RelayCommand(p =>
             {

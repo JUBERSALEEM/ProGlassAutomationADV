@@ -4,26 +4,22 @@
 // MODULE: Central Reporting — Hub (replaces Chat 16 shell)
 //
 // PURPOSE:
-//   Central Reports hub: owns 10 module ViewModels and the legacy
-//   Statement List↔Generator toggle. All report ViewModels share ONE
-//   IReportingDataService instance (central data-intelligence layer).
+//   Central Reports hub: owns the read-only report ViewModels. All report
+//   ViewModels share ONE IReportingDataService instance (central
+//   data-intelligence layer). The interactive Statement Generator
+//   (list ↔ wizard) moved out to its own module (StatementModuleViewModel)
+//   in the Dispatch section.
 //
 // ARCHITECTURE:
 //   MainWindow → SalesReportViewModel (hub) → ActiveReportViewModel
 //   Each report is a separate module with its own purpose/layout but
 //   reuses this centralized service for relationships/joins/filtering/
 //   aggregation/row-level data/spec matching/quantity reconciliation.
-//
-// PRESERVED FOR BACKWARD COMPATIBILITY:
-//   ListVM / GeneratorVM / ShowList / ShowGenerator are kept so existing
-//   XAML bindings and tests compile; they delegate to the Statement
-//   modules owned by the hub.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Reporting;
-using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.ViewModels.Reports.CompanyReport;
 using ProGlassAutomation.ViewModels.Reports.DeliveryReport;
 using ProGlassAutomation.ViewModels.Reports.GlassSpecReport;
@@ -32,8 +28,6 @@ using ProGlassAutomation.ViewModels.Reports.PiReport;
 using ProGlassAutomation.ViewModels.Reports.ProfitabilityReport;
 using ProGlassAutomation.ViewModels.Reports.ProjectReport;
 using ProGlassAutomation.ViewModels.Reports.SalesmanReport;
-using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
-using ProGlassAutomation.ViewModels.Reports.StatementList;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
 using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
 using System;
@@ -57,16 +51,6 @@ namespace ProGlassAutomation.ViewModels.Reports
         public GlassSpecReportViewModel GlassReport { get; }
         public StatementReportViewModel StatementReport { get; }
         public ProfitabilityReportViewModel ProfitabilityReport { get; }
-
-        // ── Legacy Statement List↔Generator (Chat 16) ─────────────────────
-        public StatementListViewModel ListVM { get; }
-        public StatementGeneratorViewModel GeneratorVM { get; }
-
-        private bool _showList = true;
-        public bool ShowList { get => _showList; set { if (_showList == value) return; _showList = value; OnPropertyChanged(); OnPropertyChanged(nameof(ShowGenerator)); } }
-        public bool ShowGenerator => !_showList;
-        public ICommand NewStatementCommand { get; }
-        public ICommand BackToListCommand { get; }
 
         // ── Hub navigation ────────────────────────────────────────────────
         public class ReportNavItem
@@ -172,35 +156,6 @@ namespace ProGlassAutomation.ViewModels.Reports
             JoReport.OpenDocumentRequested = id => OnOpenJobOrder?.Invoke(id);
             TaxInvoiceReport.OpenDocumentRequested = id => OnOpenTaxInvoice?.Invoke(id);
 
-            var repo = new StatementRepository();
-            ListVM = new StatementListViewModel(repo);
-            GeneratorVM = new StatementGeneratorViewModel(repo);
-
-            ListVM.OnRequestNewStatement = () =>
-            {
-                GeneratorVM.PrepareNew();
-                ShowList = false;
-            };
-            ListVM.OnRequestEditStatement = item =>
-            {
-                GeneratorVM.PrepareEdit(item);
-                ShowList = false;
-            };
-            GeneratorVM.OnStatementSaved = async () =>
-            {
-                ShowList = true;
-                await ListVM.LoadAsync();
-                await StatementReport.LoadAsync();
-            };
-            GeneratorVM.OnCancelled = () => ShowList = true;
-
-            NewStatementCommand = new RelayCommand(_ =>
-            {
-                GeneratorVM.PrepareNew();
-                ShowList = false;
-            });
-            BackToListCommand = new RelayCommand(_ => ShowList = true);
-
             NavigateReportCommand = new RelayCommand(p =>
             {
                 if (p is string key && !string.IsNullOrWhiteSpace(key))
@@ -210,7 +165,7 @@ namespace ProGlassAutomation.ViewModels.Reports
                 }
             });
 
-            _ = ListVM.LoadAsync();
+            _ = StatementReport.LoadAsync();
         }
     }
 }

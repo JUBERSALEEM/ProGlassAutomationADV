@@ -20,7 +20,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public async Task<IReadOnlyList<VerifiedEvent>> RunAsync(CancellationToken ct)
         {
             var events = new List<VerifiedEvent>();
-            if (!DemoWalk.Navigate("SalesReport")) return events;
+            if (!DemoWalk.Navigate("StatementGenerator")) return events;
 
             await WpfUiDriver.WaitReadyAsync(500, ct).ConfigureAwait(false);
             var sales = await ResolveAsync(ct).ConfigureAwait(false);
@@ -102,12 +102,12 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             return events;
         }
 
-        private static Task<SalesReportViewModel?> ResolveAsync(CancellationToken ct) =>
+        private static Task<StatementModuleViewModel?> ResolveAsync(CancellationToken ct) =>
             WpfUiDriver.OnUiAsync(() =>
             {
                 var main = System.Windows.Application.Current?.MainWindow?.DataContext
                     as ViewModels.MainViewModel;
-                return main?.SalesReportVM;
+                return main?.StatementModuleVM;
             }, ct);
     }
 }

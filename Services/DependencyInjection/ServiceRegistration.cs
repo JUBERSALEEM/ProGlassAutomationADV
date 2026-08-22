@@ -177,6 +177,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // ── Reporting Hub — Transient (new instance per navigation) ──
             services.AddTransient<ViewModels.Reports.SalesReportViewModel>();
+            services.AddTransient<ViewModels.Reports.StatementModuleViewModel>();
             services.AddTransient<ViewModels.Reports.PiReport.PiReportViewModel>();
             services.AddTransient<ViewModels.Reports.JoReport.JoReportViewModel>();
             services.AddTransient<ViewModels.Reports.DeliveryReport.DeliveryReportViewModel>();

@@ -62,6 +62,7 @@
         xmlns:viewsDelivery="clr-namespace:ProGlassAutomation.Views.DeliveryNote"
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
+        xmlns:viewsStatementModule="clr-namespace:ProGlassAutomation.Views.Reports.StatementModule"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
         xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
         xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
@@ -217,6 +218,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
             <viewsReports:SalesReportView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmReports:StatementModuleViewModel}">
+            <viewsStatementModule:StatementModuleView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
             <viewsSystem:SystemCenterView/>
@@ -1232,6 +1236,10 @@
                                                 Content="Tax Invoice"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="TaxInvoice"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Statement Generator"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="StatementGenerator"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>

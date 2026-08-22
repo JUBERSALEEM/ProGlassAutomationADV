@@ -27,8 +27,6 @@
     xmlns:vmGlass="clr-namespace:ProGlassAutomation.ViewModels.Reports.GlassSpecReport"
     xmlns:vmStRep="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementReport"
     xmlns:vmProf="clr-namespace:ProGlassAutomation.ViewModels.Reports.ProfitabilityReport"
-    xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"
-    xmlns:vmGen="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
     xmlns:vPi="clr-namespace:ProGlassAutomation.Views.Reports.PiReport"
     xmlns:vJo="clr-namespace:ProGlassAutomation.Views.Reports.JoReport"
     xmlns:vDn="clr-namespace:ProGlassAutomation.Views.Reports.DeliveryReport"
@@ -39,8 +37,6 @@
     xmlns:vGlass="clr-namespace:ProGlassAutomation.Views.Reports.GlassSpecReport"
     xmlns:vStRep="clr-namespace:ProGlassAutomation.Views.Reports.StatementReport"
     xmlns:vProf="clr-namespace:ProGlassAutomation.Views.Reports.ProfitabilityReport"
-    xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
-    xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Shell"
     FontFamily="{DynamicResource AppFontFamily}"
     TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
@@ -60,8 +56,6 @@
         <DataTemplate DataType="{x:Type vmGlass:GlassSpecReportViewModel}"><vGlass:GlassSpecReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmStRep:StatementReportViewModel}"><vStRep:StatementReportView/></DataTemplate>
         <DataTemplate DataType="{x:Type vmProf:ProfitabilityReportViewModel}"><vProf:ProfitabilityReportView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmList:StatementListViewModel}"><vList:StatementListView/></DataTemplate>
-        <DataTemplate DataType="{x:Type vmGen:StatementGeneratorViewModel}"><vGen:StatementGeneratorView/></DataTemplate>
 
         <!-- Report Navigation Button Style -->
         <Style x:Key="ReportNavButtonStyle" TargetType="Button">
@@ -452,7 +446,7 @@
                         </Button>
 
                         <!-- Statement -->
-                        <Button Tag="Statement" Click="Nav_Click" ToolTip="Customer statements, aging analysis, and statement generator wizard">
+                        <Button Tag="Statement" Click="Nav_Click" ToolTip="Customer statements and aging analysis (read-only report)">
                             <Button.Style>
                                 <Style TargetType="Button" BasedOn="{StaticResource ReportNavButtonStyle}">
                                     <Style.Triggers>
@@ -720,42 +714,8 @@
                     </Style>
                 </Grid.Style>
 
-                <!-- Statement Generator Overlay -->
-                <Grid>
-                    <Grid.Style>
-                        <Style TargetType="Grid">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding ActiveKey}" Value="Statement"/>
-                                        <Condition Binding="{Binding ShowGenerator}" Value="True"/>
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Grid.Style>
-                    <ContentControl Content="{Binding GeneratorVM}"/>
-                </Grid>
-
                 <!-- Regular Report Host -->
-                <ContentControl Content="{Binding ActiveViewModel}">
-                    <ContentControl.Style>
-                        <Style TargetType="ContentControl">
-                            <Setter Property="Visibility" Value="Visible"/>
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding ActiveKey}" Value="Statement"/>
-                                        <Condition Binding="{Binding ShowGenerator}" Value="True"/>
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ContentControl.Style>
-                </ContentControl>
+                <ContentControl Content="{Binding ActiveViewModel}"/>
 
             </Grid>
             </Grid>

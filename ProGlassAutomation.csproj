@@ -154,6 +154,15 @@
 			<SubType>Code</SubType>
 		</Compile>
 
+		<Page Update="Views\Reports\StatementModule\StatementModuleView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementModule\StatementModuleView.xaml.cs">
+			<DependentUpon>StatementModuleView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
 		<Page Update="Views\Dashboard\Statement\StDashboardView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>

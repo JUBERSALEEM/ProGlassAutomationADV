@@ -73,9 +73,11 @@ namespace ProGlassAutomation.Views.Reports
                 if (DataContext is ViewModels.Reports.SalesReportViewModel vm)
                 {
                     vm.ActiveKey = key;
-                    // Sync statement legacy view
+                    // Statements can be generated in the Dispatch section now;
+                    // refresh the read-only Statement report when it opens so it
+                    // reflects the latest generated statements.
                     if (key == "Statement")
-                        vm.ShowList = true;
+                        _ = vm.StatementReport.LoadAsync();
                 }
             }
         }

@@ -46,7 +46,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="SALES REPORT"
+                        <TextBlock Text="STATEMENT GENERATOR"
                                    FontSize="10"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"

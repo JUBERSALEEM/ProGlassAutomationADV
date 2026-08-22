@@ -88,6 +88,7 @@ namespace ProGlassAutomation.ViewModels
         public DeliveryNoteViewModel DeliveryNoteVM { get; }
         public TaxInvoiceViewModel TaxInvoiceVM { get; }
         public SalesReportViewModel SalesReportVM { get; }
+        public StatementModuleViewModel StatementModuleVM { get; }
         public JobProfitabilityViewModel JobProfitabilityVM { get; }
         public CompanyCenterViewModel CompanyCenterVM { get; }
         public UserCenterViewModel UserCenterVM { get; }
@@ -416,6 +417,7 @@ namespace ProGlassAutomation.ViewModels
             DeliveryNoteVM = ResolveOrNew<DeliveryNoteViewModel>();
             TaxInvoiceVM = ResolveOrNew<TaxInvoiceViewModel>();
             SalesReportVM = ResolveOrNew<SalesReportViewModel>();
+            StatementModuleVM = ResolveOrNew<StatementModuleViewModel>();
             JobProfitabilityVM = ResolveOrNew<JobProfitabilityViewModel>();
             CompanyCenterVM = ResolveOrNew<CompanyCenterViewModel>();
             UserCenterVM = ResolveOrNew<UserCenterViewModel>();
@@ -621,7 +623,8 @@ namespace ProGlassAutomation.ViewModels
                 case "SalesmanReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Salesman"; break;
                 case "ProjectReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Project"; break;
                 case "GlassReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Glass"; break;
-                case "StatementReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Statement"; break;
+                case "StatementReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Statement"; _ = SalesReportVM.StatementReport.LoadAsync(); break;
+                case "StatementGenerator": CurrentViewModel = StatementModuleVM; break;
                 case "ProfitabilityReport": CurrentViewModel = SalesReportVM; SalesReportVM.ActiveKey = "Profitability"; break;
                 case "About": CurrentViewModel = AboutVM; break;
                 case "Settings": CurrentViewModel = SettingsVM; break;
@@ -655,6 +658,7 @@ namespace ProGlassAutomation.ViewModels
                 "DeliveryNote" => ProGlassAutomation.Services.Theme.WallpaperModules.DeliveryNote,
                 "TaxInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
                 "SalesReport" => ProGlassAutomation.Services.Theme.WallpaperModules.SalesReport,
+                "StatementGenerator" => ProGlassAutomation.Services.Theme.WallpaperModules.StatementGenerator,
                 "Optimization" or "Cutting" or "HolesCutouts" or "Polish" or "EdgeDeletion" or "Mitring" or "Tempering" or "Pairing" or "DoublingLamination" => ProGlassAutomation.Services.Theme.WallpaperModules.Optimization,
                 "Diagnostics" => ProGlassAutomation.Services.Theme.WallpaperModules.Logs,
                 "SystemCenter" => ProGlassAutomation.Services.Theme.WallpaperModules.SystemCenter,
