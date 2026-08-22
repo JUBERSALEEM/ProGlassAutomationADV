@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Workflow/PdfSection.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Statement Generator Redesign
@@ -15,7 +15,7 @@
 //   PDF generation completes. Never modified after construction.
 //   All computed properties are pure and side-effect-free.
 //
-//   StatusLabel/StatusColorHex drive a small colored badge on the
+//   StatusLabel/StatusBrushKey drive a small colored badge on the
 //   right side of each row (e.g. "PLACEHOLDER", "CONVERTED").
 //   HasStatus controls badge visibility via BoolToVisibilityConverter.
 //
@@ -37,16 +37,17 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         // ── Identity ──────────────────────────────────────────────────────
 
         /// <summary>
-        /// Emoji icon displayed in the section list.
+        /// Icon displayed in the section list.
         /// Example: "📄" for statement pages, "🧾" for invoice PDFs.
         /// </summary>
         public string Icon { get; init; } = "📄";
 
         /// <summary>
-        /// Hex color for the icon badge background circle.
-        /// Example: "#4338CA" for indigo, "#047857" for green.
+        /// Theme brush key for the icon badge background (resolved via
+        /// BrushKeyConverter). Replaces the old hardcoded IconColorHex so the
+        /// tiles follow Light/Dark + accent presets.
         /// </summary>
-        public string IconColorHex { get; init; } = "#4338CA";
+        public string IconBrushKey { get; init; } = "TintIndigoBrush";
 
         /// <summary>
         /// Section title displayed in the browser list.
@@ -80,22 +81,27 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         };
 
         /// <summary>
-        /// Badge background color hex.
-        /// Only visible when HasStatus is true.
+        /// Badge background — theme tint brush key (resolved via BrushKeyConverter).
         /// </summary>
-        public string StatusColorHex => Status switch
+        public string StatusBrushKey => Status switch
         {
-            PdfSectionStatus.Placeholder => "#B45309",  // amber
-            PdfSectionStatus.Converted => "#3B82F6",  // blue
-            PdfSectionStatus.Warning => "#B45309",  // amber
-            _ => "#94A3B8"   // slate (unused)
+            PdfSectionStatus.Placeholder => "TintAmberBrush",
+            PdfSectionStatus.Converted => "TintBlueBrush",
+            PdfSectionStatus.Warning => "TintAmberBrush",
+            _ => "TintGrayBrush"
         };
 
         /// <summary>
-        /// Badge foreground color hex (text on badge).
-        /// Always white for all status types.
+        /// Badge foreground — semantic brush key (readable on the tint in both
+        /// themes; no more hardcoded white-on-amber).
         /// </summary>
-        public string StatusForegroundHex => "#FFFFFF";
+        public string StatusForegroundBrushKey => Status switch
+        {
+            PdfSectionStatus.Placeholder => "WarningBrush",
+            PdfSectionStatus.Converted => "AccentBrush",
+            PdfSectionStatus.Warning => "WarningBrush",
+            _ => "MutedForegroundBrush"
+        };
 
         /// <summary>
         /// True when a status badge should be displayed.

@@ -81,10 +81,11 @@
             <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
             <Border Grid.Row="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="24,20">
+                    Padding="24,20"
+                    BorderThickness="{DynamicResource CardBorderThickness}">
                 <Border.Style>
                     <Style TargetType="Border">
-                        <!-- Default = success green -->
+                        <!-- Default = clean success (accent gradient) -->
                         <Setter Property="Background">
                             <Setter.Value>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -93,6 +94,7 @@
                                 </LinearGradientBrush>
                             </Setter.Value>
                         </Setter>
+                        <Setter Property="BorderBrush" Value="Transparent"/>
                         <Setter Property="Effect">
                             <Setter.Value>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4"
@@ -100,20 +102,16 @@
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
-                            <!-- Amber gradient if completed with warnings -->
-                            <DataTrigger Binding="{Binding IsLastWorkflowComplete}" Value="False">
-                                <Setter Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="0"/>
-                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
+                            <!-- Warning state: subtle amber tint (not a solid
+                                 amber fill) with a warning border, so text and
+                                 icons stay readable in both themes. -->
+                            <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
                                 <Setter Property="Effect">
                                     <Setter.Value>
                                         <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                                          Opacity="0.15" Color="{DynamicResource WarningColor}"/>
+                                                          Opacity="0.12" Color="{DynamicResource WarningColor}"/>
                                     </Setter.Value>
                                 </Setter>
                             </DataTrigger>
@@ -132,19 +130,29 @@
                     <!-- Big success/warning icon -->
                     <Border Grid.Column="0"
                             Width="64" Height="64"
-                            Background="#FFFFFF33"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#33FFFFFF"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
                         <TextBlock FontSize="32" FontWeight="Bold"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Text" Value="✓"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsLastWorkflowComplete}" Value="False">
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
                                             <Setter Property="Text" Value="⚠"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -155,29 +163,53 @@
                     <!-- Status text -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <TextBlock Text="{Binding LastWorkflowStatusText}"
-                                   FontSize="22" FontWeight="Bold"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                   FontSize="22" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                         <TextBlock Text="{Binding LastPdfGenerationDisplay}"
                                    FontSize="13"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"
-                                   Margin="0,4,0,0"/>
+                                   Margin="0,4,0,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Setter Property="Opacity" Value="0.85"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasWarnings}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Setter Property="Opacity" Value="1"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
                     </StackPanel>
 
                     <!-- Warning count badge (only if warnings exist) -->
                     <Border Grid.Column="3"
-                            Background="#FFFFFF33"
+                            Background="{DynamicResource ModuleBackgroundBrush}"
+                            BorderBrush="{DynamicResource WarningBrush}"
+                            BorderThickness="1"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,8"
                             VerticalAlignment="Center"
-                            Visibility="{Binding IsLastWorkflowComplete,
-                                Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            Visibility="{Binding HasWarnings,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
                         <StackPanel>
                             <TextBlock Text="WARNINGS"
                                        FontSize="10" FontWeight="Bold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.85"/>
+                                       Foreground="{DynamicResource WarningBrush}"/>
                             <TextBlock Text="{Binding WarningSummaryDisplay}"
                                        FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        Margin="0,3,0,0"/>
                         </StackPanel>
                     </Border>
@@ -218,10 +250,11 @@
                                 <Border Width="40" Height="40"
                                         Background="#FFFFFF33"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Margin="0,0,14,0">
+                                        Margin="0,0,16,0">
                                     <TextBlock Text="&#xE8A5;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="20"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                 </Border>
@@ -258,7 +291,7 @@
                                 <Grid>
                                     <TextBlock Text="PDF"
                                                FontSize="24" FontWeight="Black"
-                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               Foreground="White"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                     <Border Width="24" Height="24"
@@ -269,6 +302,7 @@
                                         <TextBlock Text="&#xE723;"
                                                    FontFamily="Segoe MDL2 Assets"
                                                    FontSize="12"
+                                                   Foreground="{DynamicResource DangerBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
@@ -403,10 +437,11 @@
                                 <Border Width="36" Height="36"
                                         Background="#FFFFFF33"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Margin="0,0,14,0">
+                                        Margin="0,0,16,0">
                                     <TextBlock Text="&#xE8F1;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="17"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center"/>
                                 </Border>
@@ -469,7 +504,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                         <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/>
-                                                        <Run Text=" Merged  "/>
+                                                        <Run Text="  Merged  "/>
                                                     </TextBlock>
                                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
                                                             VerticalAlignment="Center">
@@ -531,7 +566,7 @@
                                                     </Style>
                                                 </Border.Style>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="⚖ Balance  " FontSize="12" FontWeight="Bold"
+                                                    <TextBlock Text="⚖  Balance  " FontSize="12" FontWeight="Bold"
                                                                VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
@@ -605,7 +640,7 @@
                                                     </Style>
                                                 </Border.Style>
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="⚠ Alerts  " FontSize="12" FontWeight="Bold"
+                                                    <TextBlock Text="⚠  Alerts  " FontSize="12" FontWeight="Bold"
                                                                VerticalAlignment="Center">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
@@ -684,10 +719,10 @@
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Margin="0,0,12,0"
+                                                            Margin="0,0,14,0"
                                                             VerticalAlignment="Center"
-                                                            Background="{Binding IconColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding Icon}" FontSize="15"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
@@ -706,11 +741,12 @@
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                                                            Background="{Binding StatusColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
                                                                    FontSize="10" FontWeight="Bold"
-                                                                   Foreground="White"/>
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>
@@ -739,10 +775,10 @@
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Margin="0,0,12,0"
+                                                            Margin="0,0,14,0"
                                                             VerticalAlignment="Center"
-                                                            Background="{Binding IconColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding Icon}" FontSize="15"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
@@ -761,11 +797,12 @@
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                                                            Background="{Binding StatusColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
                                                                    FontSize="10" FontWeight="Bold"
-                                                                   Foreground="White"/>
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>
@@ -794,10 +831,10 @@
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Margin="0,0,12,0"
+                                                            Margin="0,0,14,0"
                                                             VerticalAlignment="Center"
-                                                            Background="{Binding IconColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding IconBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding Icon}" FontSize="15"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
@@ -816,11 +853,12 @@
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                                                            Background="{Binding StatusColorHex,
-                                                                Converter={StaticResource ColorStringConverter}}">
+                                                            Background="{Binding StatusBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding StatusLabel}"
                                                                    FontSize="10" FontWeight="Bold"
-                                                                   Foreground="White"/>
+                                                                   Foreground="{Binding StatusForegroundBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
                                                     </Border>
                                                 </Grid>
                                             </Border>

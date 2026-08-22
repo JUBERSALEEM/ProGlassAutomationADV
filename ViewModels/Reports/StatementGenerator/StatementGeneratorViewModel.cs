@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 22 v3 — Jump Navigation)
@@ -129,6 +129,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 if (_filterCustomer == value) return;
                 _filterCustomer = value;
                 OnPropertyChanged();
+                // The project dropdown must reflect the chosen customer.
+                RefreshProjectsForCustomer();
                 NotifyFilterDependents();
                 SchedulePreview();
             }
@@ -275,6 +277,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         // dropdown can be filtered to only the customers of the selected
         // salesman. Loaded once in LoadMasterDataAsync.
         private List<SavedClient> _allClients = new();
+
+        // Full project list (name + owning customer) kept so the Project
+        // dropdown can be filtered to only the projects of the selected
+        // customer. Loaded once in LoadMasterDataAsync.
+        private List<SavedProject> _allProjects = new();
 
         // ═════════════════════════════════════════════════════════════════
         //  CORE STATE
@@ -467,21 +474,21 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public int WarningCount
         {
             get => _warningCount;
-            private set { if (_warningCount == value) return; _warningCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); }
+            private set { if (_warningCount == value) return; _warningCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); OnPropertyChanged(nameof(HasWarnings)); }
         }
 
         private int _errorCount;
         public int ErrorCount
         {
             get => _errorCount;
-            private set { if (_errorCount == value) return; _errorCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); }
+            private set { if (_errorCount == value) return; _errorCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); OnPropertyChanged(nameof(HasWarnings)); }
         }
 
         private int _infoCount;
         public int InfoCount
         {
             get => _infoCount;
-            private set { if (_infoCount == value) return; _infoCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); }
+            private set { if (_infoCount == value) return; _infoCount = value; OnPropertyChanged(); OnPropertyChanged(nameof(WarningSummaryDisplay)); OnPropertyChanged(nameof(HasWarnings)); }
         }
 
         public string WarningSummaryDisplay
@@ -495,6 +502,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 return parts.Count == 0 ? "No warnings" : string.Join(" · ", parts);
             }
         }
+
+        /// <summary>True when the last run produced warnings or errors — drives
+        /// the Review step's banner (warning state vs clean success).</summary>
+        public bool HasWarnings => _warningCount > 0 || _errorCount > 0;
 
         // ── Last PDF metadata ────────────────────────────────────────────
 
@@ -1078,13 +1089,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     // be scoped to the selected salesman.
                     _allClients = clients ?? new List<SavedClient>();
 
-                    Projects.Clear();
-                    foreach (var p in projects
-                        .Select(p => !string.IsNullOrWhiteSpace(p.ProjectContractNo)
-                            ? p.ProjectContractNo.Trim()
-                            : (p.ProjectIdentifierName?.Trim() ?? ""))
-                        .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
-                        Projects.Add(p);
+                    // Keep the full project list so the Project dropdown can
+                    // be scoped to the selected customer.
+                    _allProjects = projects ?? new List<SavedProject>();
 
                     Salesmen.Clear();
                     foreach (var s in salesmen.Select(s => s.Name)
@@ -1092,8 +1099,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         Salesmen.Add(s);
 
                     // Repopulate Customers scoped to the currently selected
-                    // salesman (all when none is selected).
+                    // salesman (all when none is selected), then Projects
+                    // scoped to the currently selected customer.
                     RefreshCustomersForSalesman();
+                    RefreshProjectsForCustomer();
                 });
             }
             catch (Exception ex)
@@ -1159,6 +1168,64 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
             }
         }
+
+        /// <summary>
+        /// Repopulates the Project dropdown scoped to the selected customer.
+        /// When no customer is selected, all projects are shown. When one is
+        /// selected, only projects whose CustomerName matches it appear, so
+        /// the operator can't pick a project that belongs to another client.
+        /// </summary>
+        private void RefreshProjectsForCustomer()
+        {
+            string customer = _filterCustomer?.Trim() ?? "";
+
+            IEnumerable<string> names = _allProjects
+                .Select(ProjectDisplayName)
+                .Where(n => !string.IsNullOrWhiteSpace(n));
+
+            if (customer.Length > 0)
+            {
+                names = _allProjects
+                    .Where(p => string.Equals(
+                        p.CustomerName?.Trim() ?? "",
+                        customer,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(ProjectDisplayName)
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
+            }
+
+            var ordered = names
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Projects.Clear();
+            foreach (var n in ordered)
+                Projects.Add(n);
+
+            // Clear a stale project selection that no longer belongs to the
+            // chosen customer.
+            if (customer.Length > 0 && !string.IsNullOrWhiteSpace(_filterProject))
+            {
+                string sel = _filterProject.Trim();
+                bool stillValid = _allProjects.Any(p =>
+                    string.Equals(ProjectDisplayName(p), sel,
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(p.CustomerName?.Trim() ?? "", customer,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (!stillValid)
+                {
+                    _filterProject = "";
+                    OnPropertyChanged(nameof(FilterProject));
+                }
+            }
+        }
+
+        private static string ProjectDisplayName(SavedProject p) =>
+            !string.IsNullOrWhiteSpace(p.ProjectContractNo)
+                ? p.ProjectContractNo.Trim()
+                : (p.ProjectIdentifierName?.Trim() ?? "");
 
         // ═════════════════════════════════════════════════════════════════
         //  PREVIEW
@@ -1794,10 +1861,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             if (wf.Snapshot == null) return;
 
             MergedPdfSections.Add(new PdfSection
-            { Icon = "📄", IconColorHex = "#4338CA", Title = "Statement Cover Page", PageInfo = "1 page" });
+            { Icon = "📄", IconBrushKey = "TintIndigoBrush", Title = "Statement Cover Page", PageInfo = "1 page" });
 
             MergedPdfSections.Add(new PdfSection
-            { Icon = "💰", IconColorHex = "#8B5CF6", Title = "Financial Summary", PageInfo = "1 page" });
+            { Icon = "💰", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
 
             int invoiceCount = wf.Snapshot.InvoiceRows.Count;
             if (invoiceCount > 0)
@@ -1806,7 +1873,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 MergedPdfSections.Add(new PdfSection
                 {
                     Icon = "📊",
-                    IconColorHex = "#3B82F6",
+                    IconBrushKey = "TintBlueBrush",
                     Title = "Invoice Detail Table",
                     PageInfo = $"{detailPages:N0} page{(detailPages == 1 ? "" : "s")}"
                 });
@@ -1814,11 +1881,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             if (_includeAgingChart && wf.Snapshot.Aging.Total > 0)
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "📈", IconColorHex = "#F59E0B", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "📈", IconBrushKey = "TintAmberBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             if (_includeBalanceAnalysis)
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "⚖", IconColorHex = "#10B981", Title = "Balance Comparison", PageInfo = "1 page" });
+                { Icon = "⚖", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
 
             if (wf.SignedProformaInvoiceBytes != null && wf.SignedProformaInvoiceBytes.Length > 0)
             {
@@ -1827,7 +1894,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     : wf.SignedProformaInvoiceFileName;
 
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "📎", IconColorHex = "#6366F1", Title = piName, PageInfo = "1 page" });
+                { Icon = "📎", IconBrushKey = "TintIndigoBrush", Title = piName, PageInfo = "1 page" });
             }
 
             foreach (var invPdf in wf.TaxInvoicePdfs)
@@ -1837,7 +1904,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "🧾",
-                        IconColorHex = "#4338CA",
+                        IconBrushKey = "TintIndigoBrush",
                         Title = $"{invPdf.InvoiceNumber}.pdf",
                         PageInfo = "Auto",
                         Status = PdfSectionStatus.Normal
@@ -1848,7 +1915,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "⚠",
-                        IconColorHex = "#B45309",
+                        IconBrushKey = "TintAmberBrush",
                         Title = $"{invPdf.InvoiceNumber}.pdf",
                         PageInfo = "1 page",
                         Status = PdfSectionStatus.Placeholder
@@ -1861,7 +1928,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "📎",
-                        IconColorHex = "#6366F1",
+                        IconBrushKey = "TintIndigoBrush",
                         Title = fileName,
                         PageInfo = "1 page",
                         Status = isImage ? PdfSectionStatus.Converted : PdfSectionStatus.Normal
@@ -1879,7 +1946,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "🚚",
-                        IconColorHex = "#EC4899",
+                        IconBrushKey = "TintPurpleBrush",
                         Title = fileName,
                         PageInfo = "1 page",
                         Status = isImage ? PdfSectionStatus.Converted : PdfSectionStatus.Normal
@@ -1888,26 +1955,26 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "💰", IconColorHex = "#8B5CF6", Title = "Financial Summary", PageInfo = "1 page" });
+            { Icon = "💰", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
 
             if (wf.Snapshot.Aging.Total > 0)
                 BalancePdfSections.Add(new PdfSection
-                { Icon = "📈", IconColorHex = "#F59E0B", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "📈", IconBrushKey = "TintAmberBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "⚖", IconColorHex = "#10B981", Title = "Balance Comparison", PageInfo = "1 page" });
+            { Icon = "⚖", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "📊", IconColorHex = "#3B82F6", Title = "Outstanding Breakdown", PageInfo = "1 page" });
+            { Icon = "📊", IconBrushKey = "TintBlueBrush", Title = "Outstanding Breakdown", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "💵", IconColorHex = "#047857", Title = "Payment History", PageInfo = "1 page" });
+            { Icon = "💵", IconBrushKey = "TintGreenBrush", Title = "Payment History", PageInfo = "1 page" });
 
             if (WorkflowWarnings.Count > 0)
                 AlertsPdfSections.Add(new PdfSection
                 {
                     Icon = "⚠",
-                    IconColorHex = "#B45309",
+                    IconBrushKey = "TintAmberBrush",
                     Title = "Warnings Summary",
                     PageInfo = $"{Math.Max(1, (WorkflowWarnings.Count + 4) / 5)} page(s)",
                     Status = PdfSectionStatus.Warning
@@ -1917,7 +1984,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 AlertsPdfSections.Add(new PdfSection
                 {
                     Icon = "🔴",
-                    IconColorHex = "#B91C1C",
+                    IconBrushKey = "TintRedBrush",
                     Title = "Overdue Invoices",
                     PageInfo = $"{ErrorCount:N0} entries",
                     Status = PdfSectionStatus.Warning
@@ -1927,7 +1994,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 AlertsPdfSections.Add(new PdfSection
                 {
                     Icon = "🟡",
-                    IconColorHex = "#B45309",
+                    IconBrushKey = "TintAmberBrush",
                     Title = "Uninvoiced Deliveries",
                     PageInfo = $"{wf.UninvoicedDeliveryNotes.Count:N0} entries",
                     Status = PdfSectionStatus.Warning
@@ -1936,7 +2003,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             AlertsPdfSections.Add(new PdfSection
             {
                 Icon = "📋",
-                IconColorHex = "#6366F1",
+                IconBrushKey = "TintIndigoBrush",
                 Title = "Workflow Audit Trail",
                 PageInfo = $"{wf.Steps.Count:N0} steps"
             });
