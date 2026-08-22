@@ -104,8 +104,20 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public Action<string>? OnCreateInvoiceFromDeliveryNote { get; set; }
         public Action<string>? OnOpenProformaByNumber { get; set; }
 
+        // ── Review-step balance actions (wired by MainViewModel) ─────────
+        // "View Job Order" opens the JO for the related PI; "Prepare Delivery
+        // Note" navigates to the JO and starts a balance-only DN.
+        public Action<string>? OnOpenJobOrderByNumber { get; set; }
+        public Action<string>? OnPrepareDeliveryNote { get; set; }
+
         /// <summary>Routes a warning card's action button to the right callback.</summary>
         public ICommand OpenWarningActionCommand { get; private set; } = null!;
+
+        /// <summary>Opens the Job Order referenced by a reconciliation summary.</summary>
+        public ICommand OpenJobOrderCommand { get; private set; } = null!;
+
+        /// <summary>Starts a balance-only Delivery Note for a Job Order.</summary>
+        public ICommand PrepareDeliveryNoteCommand { get; private set; } = null!;
 
         // ── Edit mode ────────────────────────────────────────────────────
         private int _editId = 0;
@@ -640,6 +652,47 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public bool LastHasReconciliationIssue =>
             LastReconciliationSummaries.Any(s => s.HasDiscrepancies);
 
+        /// <summary>First Job Order id referenced by the reconciliation (for the
+        /// "View Job Order / Prepare Delivery Note" actions).</summary>
+        public string FirstReconciliationJobOrderId
+        {
+            get
+            {
+                foreach (var s in LastReconciliationSummaries)
+                {
+                    var ids = (s.JobOrderIds ?? "")
+                        .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    foreach (var id in ids)
+                    {
+                        var t = id.Trim();
+                        if (!string.IsNullOrWhiteSpace(t)) return t;
+                    }
+                }
+                return "";
+            }
+        }
+
+        public bool HasReconciliationJobOrder =>
+            !string.IsNullOrWhiteSpace(FirstReconciliationJobOrderId);
+
+        // ── Reconciliation tab state (Included vs Due) ───────────────────
+        private string _activeReconciliationTab = "Included";
+        public string ActiveReconciliationTab
+        {
+            get => _activeReconciliationTab;
+            set
+            {
+                if (_activeReconciliationTab == value) return;
+                _activeReconciliationTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ShowIncludedReconciliation));
+                OnPropertyChanged(nameof(ShowDueReconciliation));
+            }
+        }
+        public bool ShowIncludedReconciliation => _activeReconciliationTab == "Included";
+        public bool ShowDueReconciliation => _activeReconciliationTab == "Due";
+        public ICommand SelectReconciliationTabCommand { get; private set; } = null!;
+
         private string _activePdfTab = "Merged";
         public string ActivePdfTab
         {
@@ -872,6 +925,28 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
             });
 
+            // ── Reconciliation tab switching ─────────────────────────────
+            SelectReconciliationTabCommand = new RelayCommand(param =>
+            {
+                if (param is string tab && tab.Length > 0)
+                    ActiveReconciliationTab = tab;
+            });
+
+            // ── Balance actions (View Job Order / Prepare Delivery Note) ──
+            OpenJobOrderCommand = new RelayCommand(param =>
+            {
+                string id = param as string ?? FirstReconciliationJobOrderId;
+                if (!string.IsNullOrWhiteSpace(id))
+                    OnOpenJobOrderByNumber?.Invoke(id);
+            });
+
+            PrepareDeliveryNoteCommand = new RelayCommand(param =>
+            {
+                string id = param as string ?? FirstReconciliationJobOrderId;
+                if (!string.IsNullOrWhiteSpace(id))
+                    OnPrepareDeliveryNote?.Invoke(id);
+            });
+
             // ── Wizard navigation commands ──────────────────────────────
             NextStepCommand = new RelayCommand(_ =>
             {
@@ -1087,6 +1162,17 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 LastPdfGenerationSec = 0;
 
                 ActivePdfTab = "Merged";
+
+                // Reset deep-detail result data too.
+                LastSnapshot = null;
+                LastReconciliationSummaries.Clear();
+                LastIncludedLines.Clear();
+                LastDueLines.Clear();
+                ActiveReconciliationTab = "Included";
+                OnPropertyChanged(nameof(LastIncludedLines));
+                OnPropertyChanged(nameof(LastDueLines));
+                OnPropertyChanged(nameof(LastHasReconciliationIssue));
+                OnPropertyChanged(nameof(HasReconciliationJobOrder));
 
                 OnPropertyChanged(nameof(HasLastPdf));
                 OnPropertyChanged(nameof(MergedSectionCount));
@@ -2032,13 +2118,34 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
             }
 
-            // ── Informational entries (always added so the feed shows more
-            //    than warnings/errors, and the badge's "info" count matches
-            //    what is actually visible). ─────────────────────────────────
+            // ── Informational entries — every included invoice + a summary,
+            //    so the feed shows the FULL list of what ran, not a single
+            //    collapsed line. ────────────────────────────────────────────
             int infoCount = 0;
 
             if (wf.Snapshot != null)
             {
+                // One info card per included invoice (the "many infos" that
+                // previously collapsed into a single summary).
+                foreach (var row in wf.Snapshot.InvoiceRows)
+                {
+                    WorkflowWarnings.Add(new WorkflowWarningItem
+                    {
+                        Severity = LogSeverity.Info,
+                        Icon = "ℹ",
+                        Title = row.InvoiceNumber ?? "Invoice",
+                        Detail = $"{row.InvoiceType} · {row.TotalQty} pcs · " +
+                                 $"AED {row.GrandTotal:N2} · {row.Status}",
+                        AmountDisplay = row.Balance > 0 ? $"AED {row.Balance:N2} outstanding" : "Paid",
+                        ActionLabel = "→ Open invoice",
+                        ActionKind = WarningActionKind.OpenInvoice,
+                        TargetId = row.InvoiceNumber ?? "",
+                        StepLabel = "Included in Statement",
+                        HasQuantities = false
+                    });
+                    infoCount++;
+                }
+
                 WorkflowWarnings.Add(new WorkflowWarningItem
                 {
                     Severity = LogSeverity.Info,

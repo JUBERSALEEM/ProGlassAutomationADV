@@ -64,6 +64,18 @@ namespace ProGlassAutomation.ViewModels.Reports
             set => GeneratorVM.OnOpenProformaByNumber = value;
         }
 
+        public Action<string>? OnOpenJobOrderByNumber
+        {
+            get => GeneratorVM.OnOpenJobOrderByNumber;
+            set => GeneratorVM.OnOpenJobOrderByNumber = value;
+        }
+
+        public Action<string>? OnPrepareDeliveryNote
+        {
+            get => GeneratorVM.OnPrepareDeliveryNote;
+            set => GeneratorVM.OnPrepareDeliveryNote = value;
+        }
+
         public StatementModuleViewModel()
         {
             var repo = new StatementRepository();

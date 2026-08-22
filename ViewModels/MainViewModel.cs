@@ -518,6 +518,25 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
                 await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
             };
+            StatementModuleVM.OnOpenJobOrderByNumber = async jobOrderId =>
+            {
+                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
+                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (jo == null) return;
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(jo.Id);
+            };
+            StatementModuleVM.OnPrepareDeliveryNote = async jobOrderId =>
+            {
+                if (string.IsNullOrWhiteSpace(jobOrderId) || App.Jobs == null) return;
+                var jo = await App.Jobs.GetByJobOrderIdAsync(jobOrderId);
+                if (jo == null) return;
+                Navigate("JobOrder");
+                await JobOrderVM.OpenJobOrderAsync(jo.Id);
+                // Start a balance-only Delivery Note for this JO.
+                if (JobOrderVM.DetailVM?.CreateDeliveryNoteCommand?.CanExecute(null) == true)
+                    JobOrderVM.DetailVM.CreateDeliveryNoteCommand.Execute(null);
+            };
 
             ToggleMenuCommand = new RelayCommand(_ => IsMenuOpen = !IsMenuOpen);
             NavigateCommand = new RelayCommand(Navigate);
