@@ -39,12 +39,15 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 PiFilter = AllFilter;
                 SpecificationFilter = AllFilter;
                 GlassRefFilter = AllFilter;
+                GlassTypeFilter = AllFilter;
                 SalesmanFilter = AllFilter;
                 ProjectFilter = AllFilter;
                 CustomerFilter = AllFilter;
                 SelectedStatus = AllStatusesOption;
                 ClearFilters(); // resets dates/search and triggers a reload
             });
+
+            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
 
             _ = LoadDeliveryFilterOptionsAsync();
             _ = LoadAsync();
@@ -94,6 +97,13 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             set { if (_customerFilter == value) return; _customerFilter = value ?? AllFilter; OnPropertyChanged(); }
         }
 
+        private string _glassTypeFilter = AllFilter;
+        public string GlassTypeFilter
+        {
+            get => _glassTypeFilter;
+            set { if (_glassTypeFilter == value) return; _glassTypeFilter = value ?? AllFilter; OnPropertyChanged(); }
+        }
+
         // ── Option lists (distinct stored values, "All" first) ──────────
 
         private List<string> _piOptions = new() { AllFilter };
@@ -114,6 +124,9 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         private List<string> _customerOptions = new() { AllFilter };
         public List<string> DeliveryCustomerOptions { get => _customerOptions; private set { _customerOptions = value; OnPropertyChanged(); } }
 
+        private List<string> _glassTypeOptions = new() { AllFilter };
+        public List<string> GlassTypeOptions { get => _glassTypeOptions; private set { _glassTypeOptions = value; OnPropertyChanged(); } }
+
         /// <summary>Prepend the "All" sentinel to a distinct-value list.</summary>
         private static List<string> WithAll(IEnumerable<string> distinct)
         {
@@ -132,6 +145,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 DeliverySalesmanOptions = WithAll(await _service.GetDeliverySalesmanOptionsAsync());
                 DeliveryProjectOptions = WithAll(await _service.GetDeliveryProjectOptionsAsync());
                 DeliveryCustomerOptions = WithAll(await _service.GetCustomerOptionsAsync());
+                GlassTypeOptions = WithAll(await _service.GetGlassTypeOptionsAsync());
             }
             catch (Exception ex)
             {
@@ -149,6 +163,7 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 ProformaId = NotAll(PiFilter),
                 Specification = NotAll(SpecificationFilter),
                 GlassRef = NotAll(GlassRefFilter),
+                GlassType = NotAll(GlassTypeFilter),
                 Salesman = NotAll(SalesmanFilter),
                 Project = NotAll(ProjectFilter),
                 Customer = NotAll(CustomerFilter),
@@ -185,10 +200,35 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         private ObservableCollection<DeliveryReportRow> _rows = new();
         public ObservableCollection<DeliveryReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
 
+        // ── Row selection → right slide-in panel (Sheet Store pattern) ───
+        private DeliveryReportRow? _selectedRow;
+        public DeliveryReportRow? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (ReferenceEquals(_selectedRow, value)) return;
+                _selectedRow = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasSelectedRow));
+                OnPropertyChanged(nameof(SidebarSubtitle));
+                if (value != null)
+                    _ = LoadRowDeliveriesAsync(value);
+            }
+        }
+        public bool HasSelectedRow => SelectedRow != null;
+        public string SidebarSubtitle => SelectedRow == null
+            ? ""
+            : string.IsNullOrWhiteSpace(SelectedRow.GlassRef)
+                ? $"Sr {SelectedRow.SerialNumber}"
+                : $"{SelectedRow.GlassRef} · Sr {SelectedRow.SerialNumber}";
+
+        public ICommand CloseDetailCommand { get; private set; } = null!;
+
         /// <summary>
         /// Lazy-loads the related Delivery Notes for one row and fills the
-        /// inline ObservableCollection in place (so the expanded list
-        /// refreshes without re-creating the row).
+        /// ObservableCollection in place (so the side panel refreshes without
+        /// re-creating the row).
         /// </summary>
         public async Task LoadRowDeliveriesAsync(DeliveryReportRow row)
         {

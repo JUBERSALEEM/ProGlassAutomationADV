@@ -100,6 +100,7 @@ namespace ProGlassAutomation.Services.Reporting
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
         public string Salesman { get; set; } = "";
+        public string GlassType { get; set; } = "";
         public string GlassRef { get; set; } = "";
         public int W1 { get; set; }
         public int H1 { get; set; }

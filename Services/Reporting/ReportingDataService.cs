@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Reporting/ReportingDataService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Central Reporting — Data Intelligence Layer (HIGH PERFORMANCE CORE)
@@ -587,7 +587,8 @@ namespace ProGlassAutomation.Services.Reporting
 
             using var db = new DeliveryNotesDbContext();
             var salesmanJobIds = await ResolveSalesmanJobOrderIdsAsync(filter.Salesman, ct);
-            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds);
+            var glassTypeKeys = await ResolveGlassTypeKeysAsync(filter.GlassType, ct);
+            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds, glassTypeKeys);
 
             summary.TotalRows = await query.CountAsync(ct);
             if (summary.TotalRows == 0) return summary;
@@ -621,7 +622,8 @@ namespace ProGlassAutomation.Services.Reporting
 
             using var db = new DeliveryNotesDbContext();
             var salesmanJobIds = await ResolveSalesmanJobOrderIdsAsync(filter.Salesman, ct);
-            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds);
+            var glassTypeKeys = await ResolveGlassTypeKeysAsync(filter.GlassType, ct);
+            var query = BuildDeliveryRowQuery(db, filter, salesmanJobIds, glassTypeKeys);
 
             var totalCount = await query.CountAsync(ct);
             if (totalCount == 0)
@@ -770,7 +772,8 @@ namespace ProGlassAutomation.Services.Reporting
         /// </summary>
         private static IQueryable<DeliveryRowAgg> BuildDeliveryRowQuery(
             DeliveryNotesDbContext db, ReportingFilter filter,
-            HashSet<string>? salesmanJobOrderIds = null)
+            HashSet<string>? salesmanJobOrderIds = null,
+            HashSet<string>? glassTypeKeys = null)
         {
             IQueryable<DeliveryNoteItem> items = db.DeliveryNoteItems
                 .AsNoTracking()
@@ -815,6 +818,13 @@ namespace ProGlassAutomation.Services.Reporting
             // it is resolved to a set of JobOrderIds before the query runs.
             if (salesmanJobOrderIds != null)
                 items = items.Where(i => salesmanJobOrderIds.Contains(i.JobOrderId));
+
+            // Glass type also lives only in the JO snapshot JSON; it is
+            // resolved to a set of "JobOrderId|SpecGroupNumber" keys so the
+            // filter stays exact per spec group (never merges SGU and DGU).
+            if (glassTypeKeys != null)
+                items = items.Where(i => glassTypeKeys.Contains(
+                    i.JobOrderId + "|" + i.SpecGroupNumber.ToString()));
 
             if (filter.HasSearch)
             {
@@ -882,6 +892,13 @@ namespace ProGlassAutomation.Services.Reporting
                     string company = snap.EmbeddedInvoice.Company?.CompanyName ?? "";
                     string salesman = snap.EmbeddedInvoice.Client?.SalesRepresentative ?? "";
 
+                    // Glass type per spec group (SGU / DGU / LAM / DGU+LAM).
+                    var glassTypeByGroup = new Dictionary<int, string>();
+                    if (snap.EmbeddedInvoice.SpecGroups != null)
+                        foreach (var g in snap.EmbeddedInvoice.SpecGroups)
+                            if (g != null && !string.IsNullOrWhiteSpace(g.SelectedGlassType))
+                                glassTypeByGroup[g.GroupNumber] = g.SelectedGlassType;
+
                     foreach (var r in rows)
                     {
                         if (!string.Equals(r.JobOrderId, s.JobOrderId, StringComparison.OrdinalIgnoreCase))
@@ -890,6 +907,9 @@ namespace ProGlassAutomation.Services.Reporting
                             r.CompanyName = company;
                         if (string.IsNullOrWhiteSpace(r.Salesman))
                             r.Salesman = salesman;
+                        if (string.IsNullOrWhiteSpace(r.GlassType) &&
+                            glassTypeByGroup.TryGetValue(r.SpecGroupNumber, out var gt))
+                            r.GlassType = gt;
                     }
                 }
             }
@@ -937,6 +957,51 @@ namespace ProGlassAutomation.Services.Reporting
                 AppLogService.Warning($"Salesman resolution failed: {ex.Message}");
             }
             return ids;
+        }
+
+        /// <summary>
+        /// Resolves a glass type (SGU / DGU / LAM / DGU+LAM) to the set of
+        /// "JobOrderId|SpecGroupNumber" keys whose JO snapshot spec group
+        /// carries that glass type. Glass type is not a column on
+        /// DeliveryNoteItems — it lives only in the JO JSON. Returns null
+        /// when no glass-type filter is requested (no filtering).
+        /// </summary>
+        private static async Task<HashSet<string>?> ResolveGlassTypeKeysAsync(
+            string? glassType, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(glassType)) return null;
+
+            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                using var joDb = new JobOrdersDbContext();
+                var snapshots = await joDb.JobOrders.AsNoTracking()
+                    .Select(j => new { j.JobOrderId, j.FullSnapshotJson })
+                    .ToListAsync(ct);
+
+                foreach (var s in snapshots)
+                {
+                    var snap = JobOrderMapper.DeserializeSnapshot(
+                        new SavedJobOrder
+                        {
+                            JobOrderId = s.JobOrderId,
+                            FullSnapshotJson = s.FullSnapshotJson
+                        });
+                    if (snap?.EmbeddedInvoice?.SpecGroups == null) continue;
+
+                    foreach (var g in snap.EmbeddedInvoice.SpecGroups)
+                    {
+                        if (g == null) continue;
+                        if (string.Equals(g.SelectedGlassType, glassType, StringComparison.OrdinalIgnoreCase))
+                            keys.Add($"{s.JobOrderId}|{g.GroupNumber}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Glass type resolution failed: {ex.Message}");
+            }
+            return keys;
         }
 
         // ════════════════════════════════════════════════════════════════
