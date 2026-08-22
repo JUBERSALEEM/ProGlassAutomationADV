@@ -439,7 +439,7 @@
 
                                         <Border Style="{StaticResource ErrBubble}">
                                             <TextBlock Text="{Binding Text}"
-                                                       Foreground="#991B1B"
+                                                       Foreground="{DynamicResource DangerBrush}"
                                                        FontSize="12"
                                                        TextWrapping="Wrap"/>
                                         </Border>

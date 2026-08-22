@@ -179,7 +179,7 @@
         <Setter Property="Height"              Value="28"/>
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="BorderThickness"     Value="0"/>
-        <Setter Property="Background"          Value="#CBD5E1"/>
+        <Setter Property="Background"          Value="{DynamicResource BorderBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="Template">
@@ -240,7 +240,7 @@
                                         <ColorAnimation
                                             Storyboard.TargetName="Track"
                                             Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="#1D4ED8" Duration="0:0:0.2"/>
+                                            To="{DynamicResource AccentColor}" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
@@ -266,7 +266,7 @@
                                         <ColorAnimation
                                             Storyboard.TargetName="Track"
                                             Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="#CBD5E1" Duration="0:0:0.2"/>
+                                            To="{DynamicResource BorderColor}" Duration="0:0:0.2"/>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>

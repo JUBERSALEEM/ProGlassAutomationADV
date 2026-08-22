@@ -138,3 +138,51 @@ Committed as **"Phase-3 consistency pass (Views)"** on `arena/01a02595-proglassa
   positive** — the file already uses the fully-qualified
   `System.Windows.Media.Animation.EasingMode.EaseOut`, so no `using` is required. It fails
   identically at HEAD (pre-existing), unrelated to these changes.
+
+---
+
+## Phase 4 — contrast/theme pass (DONE)
+
+Scope from §6: move remaining hardcoded hex into theme brushes (except fixed dark
+stages + print paper) and theme-tint `ComingSoonView`. Applied to the four files
+where hardcoded hex actually caused theme breaks or contrast regressions.
+
+### C5 — ComingSoonView theme-tinted ✅
+- `Views/Shared/ComingSoonView.xaml`: the hardcoded blue gradient `#1E88E5 → #1565C0`
+  (9 placeholder modules) now resolves through `AccentColor → AccentDarkColor`, so every
+  placeholder tile follows the active accent preset and Light/Dark swap.
+- C4 also applied here: the glyph and `COMING SOON` pill now use
+  `OnAccentForegroundBrush` instead of `Foreground="White"` (was white-on-accent).
+
+### C1 — hardcoded hex → theme brushes (contrast fixes) ✅
+- **Statement Generator `PreviewStep.xaml`:**
+  - KPI / reconciliation value text was hardcoded dark hues — `#3B0764` (VAT), `#052E16`
+    (PAID/Delivered), `#451A03` (Outstanding/Balance), `#450A0A` (Overdue). On dark theme
+    these nearly-vanished against the dark tint cards. Now `PrimaryForegroundBrush`,
+    matching the INVOICED card which already used it.
+  - `#B91C1C` (Deselect hover border) → `DangerBrush`.
+  - `#D1D5DB` (diff-pill border) → `BorderBrush`.
+- **`AiChatView.xaml`:** error-bubble text `#991B1B` → `DangerBrush` (dark theme: dark-red
+  on `TintRedBrush` was unreadable; `DangerBrush` lifts to `#F87171`).
+- **`SettingsSectionStyles.xaml`:** `ModernToggleSwitch` no longer animates to fixed
+  `#1D4ED8` / `#CBD5E1` — the ON track now animates to `AccentColor` (follows the accent
+  preset) and the OFF track uses the neutral `BorderBrush`/`BorderColor` (follows theme).
+
+### Intentional exceptions left hardcoded (NOT migrated)
+- **Fixed dark stages** (per §6 carve-out): `SplashView`, `Login/*`, `About/*` — internally
+  consistent dark stages with frozen brushes; not re-themed.
+- **Dark hero/brand headers inside themed views**: the dark gradient heroes in
+  `DeliveryNoteDetailView` / `TaxInvoiceDetailView` / `DnSectionStyles` / `TiFamilySection`
+  and the `SalesReportView` brand header use white-alpha text (`#CCFFFFFF`, `#E0E7FF`, …)
+  that is correct *on* the fixed dark surface — not a Light-theme issue.
+- **Print paper**: `PrintableInvoiceView`, `PrintPreviewView` — fixed white paper + print
+  inks by design.
+- **Statement Generator violet brand**: the violet/pink wizard gradient
+  (`#8B5CF6`/`#7C3AED`/`#EC4899`/`#06B6D4`), glass white-alphas (`#FFFFFF33`…) and the
+  violet selected-chip (`#FAF5FF`/`#DDD6FE`) are the wizard's identity — deferred to the
+  §6 module redesign (phase 5), not a contrast fix.
+- **Literal palettes / brand marks**: the accent-picker swatches in
+  `SettingsAppearanceSection`, provider logo dots (`#4285F4` Google / `#8B5CF6`),
+  the always-dark `RecordOverlayWindow` HUD, and `Color="#000000"` drop-shadows.
+- **AiChat dark header** (`#E0E0FF` subtitle, `#33FFFFFF` icon bg, `#FFFFFFAA` timestamp)
+  — white-alpha on the fixed dark chat header, correct as-is.

@@ -150,7 +150,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="BorderBrush" Value="#B91C1C"/>
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -201,7 +201,7 @@
                                    Foreground="{DynamicResource AccentDarkBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="#3B0764"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -216,7 +216,7 @@
                                    Foreground="{DynamicResource SuccessBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="#052E16"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -231,7 +231,7 @@
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="#451A03"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -246,7 +246,7 @@
                                    Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="#450A0A"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
@@ -746,7 +746,7 @@
                                                                    Foreground="{DynamicResource SuccessBrush}"/>
                                                         <TextBlock Text="{Binding TotalDeliveredQty}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#052E16"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
@@ -764,7 +764,7 @@
                                                                    Foreground="{DynamicResource WarningBrush}"/>
                                                         <TextBlock Text="{Binding TotalBalanceQty}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#451A03"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
@@ -782,7 +782,7 @@
                                                                    Foreground="{DynamicResource AccentDarkBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoicedQty}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#3B0764"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
@@ -795,7 +795,7 @@
                                                     <Border.Style>
                                                         <Style TargetType="Border">
                                                             <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-                                                            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
                                                                     <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
