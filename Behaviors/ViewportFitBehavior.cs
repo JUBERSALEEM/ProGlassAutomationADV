@@ -192,14 +192,65 @@ namespace ProGlassAutomation.Behaviors
                 fe.ClearValue(FrameworkElement.WidthProperty);
                 fe.ClearValue(FrameworkElement.HeightProperty);
                 fe.LayoutTransform = Transform.Identity;
+                RestoreNativeCrispness(fe);
                 return;
             }
 
             // Zoom out (0.85) → content is measured larger, then drawn
             // smaller, so more of the UI fits. Zoom in is the reverse.
-            fe.Width = availW / scale;
-            fe.Height = availH / scale;
-            fe.LayoutTransform = new ScaleTransform(scale, scale);
+            //
+            // Crispness / HD-clarity fixes (root cause of the "blurry
+            // zoom in / zoom out" report):
+            //   1. The old code assigned a FRACTIONAL size
+            //      (availW / scale → e.g. 1920 / 0.85 = 2258.82). Every
+            //      glyph, hairline and border then lands on sub-pixel
+            //      positions and WPF anti-aliases BOTH edges — soft,
+            //      grey text. Rounding to a whole pixel lets layout snap
+            //      back onto the pixel grid.
+            //   2. The scale was used raw (floating drift across ticks).
+            //      Snap it to a stable 2-decimal value so the transform
+            //      never jitters between wheel notches.
+            //   3. A scale transform makes WPF fall back from ClearType
+            //      sub-pixel text to grey-scale AA. Re-assert HD render
+            //      options on the scaled element (HighQuality bitmap
+            //      sampling + Display/ClearType text + hinting off, so
+            //      glyphs are not hinted for the *unscaled* grid and then
+            //      distorted by the transform).
+            double crispScale = Math.Round(scale, 2);
+            fe.Width = Math.Round(availW / crispScale);
+            fe.Height = Math.Round(availH / crispScale);
+            fe.LayoutTransform = new ScaleTransform(crispScale, crispScale);
+            ApplyScaledCrispness(fe);
+        }
+
+        /// <summary>
+        /// Re-asserts HD rendering on the scaled root content. Without
+        /// this, a LayoutTransform/ScaleTransform disables ClearType
+        /// sub-pixel text (grey-scale AA) and can sample bitmaps with the
+        /// lower-quality default filter.
+        /// </summary>
+        private static void ApplyScaledCrispness(FrameworkElement fe)
+        {
+            RenderOptions.SetBitmapScalingMode(fe, BitmapScalingMode.HighQuality);
+            TextOptions.SetTextFormattingMode(fe, TextFormattingMode.Display);
+            TextOptions.SetTextRenderingMode(fe, TextRenderingMode.ClearType);
+            // "Animated" = no per-glyph pixel-grid hinting. Hinting is
+            // computed against the unscaled grid, so it would distort
+            // glyphs once the scale transform is applied on top of it.
+            TextOptions.SetTextHintingMode(fe, TextHintingMode.Animated);
+        }
+
+        /// <summary>
+        /// At 100% zoom there is no transform, so the element should fall
+        /// back to the native render options declared on the Window XAML
+        /// (HighQuality / ClearType / Display / Fixed).
+        /// </summary>
+        private static void RestoreNativeCrispness(FrameworkElement fe)
+        {
+            fe.ClearValue(RenderOptions.BitmapScalingModeProperty);
+            fe.ClearValue(TextOptions.TextFormattingModeProperty);
+            fe.ClearValue(TextOptions.TextRenderingModeProperty);
+            fe.ClearValue(TextOptions.TextHintingModeProperty);
         }
 
         private static void OnPreviewMouseWheel(object sender, MouseWheelEventArgs e)
