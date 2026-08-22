@@ -411,3 +411,27 @@ recording. Fixed:
 - `StatementWorkflow` now waits for the pipeline to finish, presents the **Execute**
   step, then presents **Review** (auto-advances on completion), and adds
   `execute`/`review` to `DeepEvidenceIds`.
+
+### 5.13 — Statement Generator: flatten the frosted-glass (step 1) ✅
+The Filter step was still a light-theme-first **neo-glassmorphism** surface —
+translucent white cards, an ambient gradient + radial blobs backdrop, heavy 32px
+card shadows, and hardcoded `White`/`CornerRadius="14"` values. Flattened to match
+the app's flat theme-correct design system (`FilterStep.xaml` + one `PreviewStep`
+remnant):
+- **Backdrop**: ambient `LinearGradientBrush` + violet/cyan radial blobs removed →
+  solid `WindowBackgroundBrush`.
+- **Surfaces**: translucent glass brushes (`GlassCardBg`/`GlassInnerBg`/`ChipBg`/
+  `ClearBtnBg`…) removed; inputs (ComboBox/DatePicker + popup), status chips, PDF
+  option cards, and the clear button now use `ModuleBackgroundBrush` (opaque),
+  hover states use `MenuHoverBrush`.
+- **Heavy shadows**: `CardShadow` (BlurRadius 32) removed from the two big cards
+  (now flat like `ModuleSectionCardStyle`); subtle icon/input/popup shadows kept.
+- **Tokens**: `PdfOptionCardStyle` `CornerRadius="14"`→`CardCornerRadius`,
+  `BorderThickness="1.5"`→`CardBorderThickness`.
+- **C4**: white-on-accent (chip tick glyph, count badge, header icons) →
+  `OnAccentForegroundBrush`.
+- **`PreviewStep`**: the reconciliation line-item table's translucent
+  `Background="#FFFFFF88"` (a glass patch on a `ModuleBackgroundBrush` card,
+  bright in dark theme) → `TintGrayBrush`.
+- **Left as fixed dark stages**: the tooltip (`WizardToolTipStyle` `#1E293B`) and
+  white-alpha icon chips/text on the dark semantic reconciliation header.

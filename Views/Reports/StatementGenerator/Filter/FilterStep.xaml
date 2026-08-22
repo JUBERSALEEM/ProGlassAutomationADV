@@ -39,12 +39,6 @@
         <!-- ══════════════════════════════════════════════════════════
              FROZEN BRUSHES
         ══════════════════════════════════════════════════════════ -->
-        <SolidColorBrush x:Key="GlassCardBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.72"/>
-        <SolidColorBrush x:Key="GlassCardBorder" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.8"/>
-        <SolidColorBrush x:Key="GlassInnerBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.6"/>
-        <SolidColorBrush x:Key="ChipBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.69"/>
-        <SolidColorBrush x:Key="ClearBtnBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.67"/>
-
         <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoLight" Color="{DynamicResource TintIndigoColor}"/>
@@ -69,12 +63,6 @@
         <!-- ══════════════════════════════════════════════════════════
              FROZEN GRADIENTS
         ══════════════════════════════════════════════════════════ -->
-        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
-            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
-        </LinearGradientBrush>
-
         <LinearGradientBrush x:Key="IndigoIconGradient" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
@@ -95,16 +83,6 @@
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="VioletBlob">
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="Transparent" Offset="1"/>
-        </RadialGradientBrush>
-
-        <RadialGradientBrush x:Key="CyanBlob">
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
-            <GradientStop Color="Transparent" Offset="1"/>
-        </RadialGradientBrush>
-
         <RadialGradientBrush x:Key="GreenLed">
             <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
@@ -113,11 +91,6 @@
         <!-- ══════════════════════════════════════════════════════════
              FROZEN EFFECTS
         ══════════════════════════════════════════════════════════ -->
-        <DropShadowEffect x:Key="CardShadow"
-                          BlurRadius="32" ShadowDepth="8"
-                          Opacity="0.08" Color="Black"
-                          po:Freeze="True"/>
-
         <DropShadowEffect x:Key="MatchCountShadow"
                           BlurRadius="24" ShadowDepth="4"
                           Opacity="0.08" Color="{DynamicResource AccentColor}"/>
@@ -179,7 +152,7 @@
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="Padding" Value="14,0"/>
@@ -192,7 +165,7 @@
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
                             <Border x:Name="rootBorder"
-                                    Background="White"
+                                    Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -235,7 +208,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    VerticalOffset="4">
-                                <Border Background="White"
+                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -308,7 +281,7 @@
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
-            <Setter Property="Background" Value="White"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="14,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -318,7 +291,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="DatePicker">
                         <Border x:Name="rootBorder"
-                                Background="White"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -408,15 +381,15 @@
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="PdfOptionCardStyle" TargetType="Border">
             <Setter Property="Margin" Value="8"/>
-            <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="Background" Value="{StaticResource GlassInnerBg}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="White"/>
+                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                     <Setter Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
                     <Setter Property="Effect" Value="{StaticResource OptionCardHoverShadow}"/>
                 </Trigger>
@@ -431,7 +404,7 @@
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,8"
-                    Background="{StaticResource ChipBg}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal"
@@ -447,7 +420,7 @@
                             SnapsToDevicePixels="True">
                         <Path x:Name="tickGlyph"
                               Data="M9,20.42L2.79,14.21L5.62,11.38L9,14.77L18.88,4.88L21.71,7.71L9,20.42Z"
-                              Fill="White"
+                              Fill="{DynamicResource OnAccentForegroundBrush}"
                               Stretch="Uniform"
                               Width="11" Height="11"
                               HorizontalAlignment="Center"
@@ -488,7 +461,7 @@
                     <Setter TargetName="tick" Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
                     <Setter TargetName="tickGlyph" Property="Visibility" Value="Visible"/>
                     <Setter TargetName="countBadge" Property="Background" Value="{StaticResource IndigoPrimary}"/>
-                    <Setter TargetName="countText" Property="Foreground" Value="White"/>
+                    <Setter TargetName="countText" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                 </Trigger>
                 <MultiTrigger>
                     <MultiTrigger.Conditions>
@@ -496,7 +469,7 @@
                         <Condition Property="IsChecked" Value="False"/>
                     </MultiTrigger.Conditions>
                     <Setter TargetName="chipRoot" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-                    <Setter TargetName="chipRoot" Property="Background" Value="White"/>
+                    <Setter TargetName="chipRoot" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                 </MultiTrigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -506,22 +479,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{StaticResource AmbientBg}">
-
-        <!-- Ambient blobs — ZIndex -1 keeps them behind, BitmapCache renders once -->
-        <Canvas Panel.ZIndex="-1"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache"
-                ClipToBounds="True">
-            <Ellipse Canvas.Left="-100" Canvas.Top="-100"
-                     Width="500" Height="500"
-                     Opacity="0.35"
-                     Fill="{StaticResource VioletBlob}"/>
-            <Ellipse Canvas.Right="-150" Canvas.Top="200"
-                     Width="600" Height="600"
-                     Opacity="0.25"
-                     Fill="{StaticResource CyanBlob}"/>
-        </Canvas>
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
 
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
@@ -615,7 +573,6 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
-                        Effect="{StaticResource CardShadow}"
                         CacheMode="BitmapCache"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -641,7 +598,7 @@
                                     Effect="{StaticResource IndigoIconShadow}"
                                     SnapsToDevicePixels="True">
                                 <Path Data="M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14Z"
-                                      Fill="White"
+                                      Fill="{DynamicResource OnAccentForegroundBrush}"
                                       Stretch="Uniform"
                                       Width="22" Height="22"
                                       HorizontalAlignment="Center"
@@ -672,7 +629,7 @@
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
-                                                Background="{StaticResource ClearBtnBg}"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -866,7 +823,6 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
-                        Effect="{StaticResource CardShadow}"
                         CacheMode="BitmapCache"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -885,7 +841,7 @@
                                     Effect="{StaticResource VioletIconShadow}"
                                     SnapsToDevicePixels="True">
                                 <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
-                                      Fill="White"
+                                      Fill="{DynamicResource OnAccentForegroundBrush}"
                                       Stretch="Uniform"
                                       Width="22" Height="22"
                                       HorizontalAlignment="Center"

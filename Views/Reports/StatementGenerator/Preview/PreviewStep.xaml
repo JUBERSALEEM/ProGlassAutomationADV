@@ -823,7 +823,7 @@
 
                                         <!-- ══ Line-Item Detail Table ══ -->
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
-                                                Background="#FFFFFF88"
+                                                Background="{DynamicResource TintGrayBrush}"
                                                 BorderThickness="0,1,0,0"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 Padding="16,10,16,14">
