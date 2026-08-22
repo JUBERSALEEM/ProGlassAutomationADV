@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Reconciliation/ReconciliationModels.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Order Fulfillment Reconciliation (Chat 22 — Phase 1 Backend)
@@ -31,6 +31,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ProGlassAutomation.Utilities;
 
 namespace ProGlassAutomation.Models.Statement.Reconciliation
 {
@@ -174,6 +175,38 @@ namespace ProGlassAutomation.Models.Statement.Reconciliation
         /// <summary>Panel dimensions for display (e.g. "2400 × 1200 mm").</summary>
         public string DimensionDisplay { get; set; } = "";
 
+        // ── Raw dimensions + area (for the full spec / row view) ──────────
+
+        /// <summary>Width of the primary panel (mm).</summary>
+        public int W1 { get; set; }
+
+        /// <summary>Height of the primary panel (mm).</summary>
+        public int H1 { get; set; }
+
+        /// <summary>Width of the secondary panel (mm) — 0 for rectangles.</summary>
+        public int W2 { get; set; }
+
+        /// <summary>Height of the secondary panel (mm) — 0 for rectangles.</summary>
+        public int H2 { get; set; }
+
+        /// <summary>Unit panel area (m²) — SqmCalculator, min 0.5 m² rule.</summary>
+        public decimal UnitSqm => SqmCalculator.CalculatePanel(W1, H1);
+
+        /// <summary>Total area for this line (unit sqm × ordered qty).</summary>
+        public decimal TotalSqm => SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
+
+        /// <summary>Compact raw dimensions "W1×H1" or "W1×H1 / W2×H2".</summary>
+        public string RawDimsDisplay
+        {
+            get
+            {
+                if (W1 <= 0 && H1 <= 0) return "—";
+                if ((W2 <= 0 || W2 == W1) && (H2 <= 0 || H2 == H1))
+                    return $"{W1}×{H1}";
+                return $"{W1}×{H1} / {W2}×{H2}";
+            }
+        }
+
         // ── The 5 quantities (the core of reconciliation) ────────────────
 
         /// <summary>
@@ -313,6 +346,9 @@ namespace ProGlassAutomation.Models.Statement.Reconciliation
         /// <summary>Net difference: total invoiced minus total delivered.</summary>
         public int TotalInvoiceVsDeliveryDiff =>
             TotalInvoicedQty - TotalDeliveredQty;
+
+        /// <summary>Total area across all rows (m²).</summary>
+        public decimal TotalSqm => Rows.Sum(r => r.TotalSqm);
 
         // ── Status rollup flags ──────────────────────────────────────────
 

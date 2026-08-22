@@ -520,80 +520,165 @@
                             </Button>
                         </StackPanel>
 
-                        <!-- Included tab content -->
-                        <ItemsControl ItemsSource="{Binding LastIncludedLines}"
-                                      Visibility="{Binding ShowIncludedReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,6" Margin="0,0,0,4" BorderThickness="1" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource DividerBrush}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <StackPanel Grid.Column="1">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="10" Foreground="{DynamicResource AccentBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}">
-                                                    <Run Text="{Binding ProformaId, Mode=OneWay}"/>
-                                                    <Run Text="  ·  "/>
-                                                    <Run Text="{Binding DimensionDisplay, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                    <Run Text="O:"/><Run Text="{Binding OrderedQty, Mode=OneWay}"/>
-                                                    <Run Text="  D:"/><Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
-                                                    <Run Text="  I:"/><Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding StatusLabel}" FontSize="10" FontWeight="Bold" Margin="10,0,0,0" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                        <!-- Included tab content — spec group → rows → summary -->
+                        <StackPanel Visibility="{Binding ShowIncludedReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!-- Column header -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="REF" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="1" Text="PI NUMBER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="2" Text="DIMENSIONS (W1×H1 / W2×H2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="3" Text="ORDERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="DELIVERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="5" Text="INVOICED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="STATUS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </Grid>
 
-                        <!-- Due tab content -->
-                        <ItemsControl ItemsSource="{Binding LastDueLines}"
-                                      Visibility="{Binding ShowDueReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,6" Margin="0,0,0,4" BorderThickness="1" Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource DividerBrush}">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto"/>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="11" Foreground="{DynamicResource WarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                                            <StackPanel Grid.Column="1">
+                            <ItemsControl ItemsSource="{Binding IncludedGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,6">
+                                            <!-- Specification header -->
+                                            <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" Margin="0,0,0,4">
                                                 <StackPanel Orientation="Horizontal">
-                                                    <TextBlock Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="10" Foreground="{DynamicResource AccentBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TotalSqm, StringFormat=  ·  {0:N3} m²}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
                                                 </StackPanel>
-                                                <TextBlock FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}">
-                                                    <Run Text="{Binding ProformaId, Mode=OneWay}"/>
-                                                    <Run Text="  ·  "/>
-                                                    <Run Text="{Binding DimensionDisplay, Mode=OneWay}"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                <TextBlock FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                    <Run Text="Ordered:"/><Run Text="{Binding OrderedQty, Mode=OneWay}"/>
-                                                    <Run Text="  Balance:"/><Run Text="{Binding BalanceQty, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding StatusLabel}" FontSize="10" FontWeight="Bold" Margin="10,0,0,0" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}"/>
-                                            </StackPanel>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                                            </Border>
+
+                                            <!-- Row data (single line each) -->
+                                            <ItemsControl ItemsSource="{Binding Rows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="130"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="5" Text="{Binding InvoicedQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="6" Text="{Binding StatusLabel}" FontSize="10" FontWeight="Bold" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Summary footer -->
+                            <Border Background="{DynamicResource TintGreenBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6" Margin="0,4,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
+                                        <Run Text="Qty "/><Run Text="{Binding IncludedTotalQty, Mode=OneWay}"/>
+                                        <Run Text=" pcs   ·   Sqm "/><Run Text="{Binding IncludedTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}"/>
+                                        <Run Text=" m²"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- Due tab content — spec group → rows → summary -->
+                        <StackPanel Visibility="{Binding ShowDueReconciliation, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <!-- Column header -->
+                            <Grid Margin="0,0,0,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="120"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="REF" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="1" Text="PI NUMBER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="2" Text="DIMENSIONS (W1×H1 / W2×H2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Grid.Column="3" Text="ORDERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="4" Text="DELIVERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="5" Text="BALANCE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="STATUS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding DueGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,6">
+                                            <!-- Specification header -->
+                                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" Margin="0,0,0,4">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource WarningBrush}" Margin="0,0,8,0" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding SpecGroupName}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding TotalSqm, StringFormat=  ·  {0:N3} m²}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <!-- Row data (single line each) -->
+                                            <ItemsControl ItemsSource="{Binding Rows}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="10,5" Margin="0,0,0,2" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource DividerBrush}">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="80"/>
+                                                                    <ColumnDefinition Width="130"/>
+                                                                    <ColumnDefinition Width="*"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="84"/>
+                                                                    <ColumnDefinition Width="120"/>
+                                                                </Grid.ColumnDefinitions>
+                                                                <TextBlock Grid.Column="0" Text="{Binding GlassRef}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="2" Text="{Binding RawDimsDisplay}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="3" Text="{Binding OrderedQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="4" Text="{Binding DeliveredQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="5" Text="{Binding BalanceQty}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                                                <TextBlock Grid.Column="6" Text="{Binding StatusLabel}" FontSize="10" FontWeight="Bold" Foreground="{Binding StatusColorHex, Converter={StaticResource ColorStringConverter}}" VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- Summary footer -->
+                            <Border Background="{DynamicResource TintAmberBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,6" Margin="0,4,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="TOTAL" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center">
+                                        <Run Text="Qty "/><Run Text="{Binding DueTotalQty, Mode=OneWay}"/>
+                                        <Run Text=" pcs   ·   Sqm "/><Run Text="{Binding DueTotalSqm, Mode=OneWay, StringFormat={}{0:N3}}"/>
+                                        <Run Text=" m²"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </Grid>

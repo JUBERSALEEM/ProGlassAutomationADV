@@ -26,6 +26,7 @@ using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Reconciliation;
 using ProGlassAutomation.Services.TaxInvoice.Pdf;
@@ -41,6 +42,23 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 {
     public delegate Task<UserWarningDecision> ResolveMissingInvoicesCallback(
         WorkflowResult partialResult);
+
+    /// <summary>
+    /// Summary of which required attachments are missing, shown to the user
+    /// before a statement is finalized so they can attach the missing signed
+    /// documents (or abort the statement).
+    /// </summary>
+    public sealed class MissingAttachmentSummary
+    {
+        /// <summary>True when the Proforma Invoice has no signed attachment in Step 8.</summary>
+        public bool ProformaMissing { get; init; }
+
+        /// <summary>Delivery-note ids that have no signed attachment on disk.</summary>
+        public List<string> MissingDeliveryNoteIds { get; init; } = new();
+    }
+
+    public delegate Task<UserWarningDecision> ResolveMissingAttachmentsCallback(
+        MissingAttachmentSummary summary);
 
     public class StatementWorkflowEngine
     {
@@ -108,7 +126,8 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         public async Task<WorkflowResult> RunAsync(
             StatementFilter filter,
             string statementNumber,
-            ResolveMissingInvoicesCallback? resolveMissingInvoices = null)
+            ResolveMissingInvoicesCallback? resolveMissingInvoices = null,
+            ResolveMissingAttachmentsCallback? resolveMissingAttachments = null)
         {
             var result = new WorkflowResult { Steps = Steps };
 
@@ -122,6 +141,18 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
                 await Step3_ReadDeliveryNotes(filter, result);
                 await Task.Delay(130);
+
+                // ── Missing signed-attachment gate ──────────────────────────
+                // Require a signed PI + signed DNs before continuing; prompt the
+                // user to attach what is missing (or abort the statement).
+                var missingAttachments = BuildMissingAttachmentSummary(result);
+                if (missingAttachments != null && resolveMissingAttachments != null)
+                {
+                    var attDecision = await resolveMissingAttachments(missingAttachments);
+                    if (attDecision == UserWarningDecision.Abort)
+                        return FinalizeCancelled(result,
+                            "Statement aborted — required signed attachments are missing.");
+                }
 
                 await Step4_ValidateQuantities(result);
                 await Task.Delay(130);
@@ -234,7 +265,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"📋 PI status: {piStatus}");
             await Task.Delay(70);
 
-            // Load signed PI attachment
+            // Load signed PI attachment (from Tax Invoice "SignedPI" record)
             bool hasSignedPi = false;
             try
             {
@@ -255,13 +286,64 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 }
                 else
                 {
-                    step.AddDetail("📎 Signed PI: not found");
+                    step.AddDetail("📎 Signed PI: not found in Tax Invoice");
                 }
             }
             catch (Exception ex)
             {
                 step.AddDetail(
                     $"📎 Signed PI: lookup failed ({ex.Message})");
+            }
+
+            // ── Load Proforma Invoice Step 8 attachments (JPG + PDF) ───────
+            // The PI Step 8 attachments live in a separate manifest (not the
+            // Tax Invoice attachment table). Read every image + PDF so they
+            // are merged into the statement, not dropped.
+            try
+            {
+                var piAttachmentService = new ProformaAttachmentService();
+                var manifest = await piAttachmentService
+                    .LoadManifestAsync(proformaId);
+
+                result.ProformaAttachments.Clear();
+                int loaded = 0;
+                foreach (var record in manifest)
+                {
+                    if (string.IsNullOrWhiteSpace(record.FilePath) ||
+                        !File.Exists(record.FilePath))
+                        continue;
+
+                    try
+                    {
+                        var bytes = await File.ReadAllBytesAsync(record.FilePath);
+                        if (bytes.Length == 0) continue;
+
+                        result.ProformaAttachments.Add(
+                            (bytes, record.FileName ?? ""));
+                        loaded++;
+                    }
+                    catch (Exception fileEx)
+                    {
+                        step.AddWarning(
+                            $"PI attachment '{record.FileName}' read failed: {fileEx.Message}");
+                    }
+                }
+
+                if (loaded > 0)
+                {
+                    hasSignedPi = true;   // PI has at least one Step 8 file
+                    step.AddDetail(
+                        $"📎 PI Step 8: {loaded} attachment(s) loaded");
+                }
+                else
+                {
+                    step.AddDetail("📎 PI Step 8: no attachments");
+                }
+            }
+            catch (Exception ex)
+            {
+                step.AddDetail(
+                    $"📎 PI Step 8: load failed ({ex.Message})");
             }
 
             await Task.Delay(70);
@@ -1696,6 +1778,33 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         //  HELPERS
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Builds a summary of missing signed attachments (PI + DNs), or null
+        /// when everything required is present. Used by the missing-attachment
+        /// gate in RunAsync so the user can attach documents or abort.
+        /// </summary>
+        private static MissingAttachmentSummary? BuildMissingAttachmentSummary(
+            WorkflowResult result)
+        {
+            bool proformaMissing =
+                result.SignedProformaInvoiceBytes == null ||
+                result.SignedProformaInvoiceBytes.Length == 0;
+
+            var missingDns = result.SignedDeliveryNotes
+                .Where(d => d.AttachmentBytes.Count == 0)
+                .Select(d => d.DeliveryNoteId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .ToList();
+
+            if (!proformaMissing && missingDns.Count == 0)
+                return null;
+
+            return new MissingAttachmentSummary
+            {
+                ProformaMissing = proformaMissing,
+                MissingDeliveryNoteIds = missingDns
+            };
+        }
 
     }
 }

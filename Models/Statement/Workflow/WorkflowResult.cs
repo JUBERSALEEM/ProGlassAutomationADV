@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Workflow/WorkflowResult.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine
@@ -86,6 +86,16 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         /// Empty when no signed PI exists.
         /// </summary>
         public string SignedProformaInvoiceFileName { get; set; } = "";
+
+        /// <summary>
+        /// ALL Proforma Invoice Step 8 attachments (signed image + PDF),
+        /// loaded from the PI attachment manifest. Unlike
+        /// SignedProformaInvoiceBytes (a single SignedPI record from the Tax
+        /// Invoice table), this holds every JPG/PDF attached to the PI in
+        /// Step 8, in manifest order. Merged into the statement PDF after the
+        /// signed PI page.
+        /// </summary>
+        public List<(byte[] FileBytes, string FileName)> ProformaAttachments { get; set; } = new();
 
         /// <summary>
         /// Signed Delivery Note attachments in delivery order.

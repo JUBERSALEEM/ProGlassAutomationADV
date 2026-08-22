@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Reconciliation/OrderReconciliationService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Order Fulfillment Reconciliation (Chat 22 — Phase 1 Backend)
@@ -162,6 +162,10 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                         SerialNumber = piLine.SerialNumber,
                         GlassRef = piLine.GlassRef,
                         DimensionDisplay = piLine.DimensionDisplay,
+                        W1 = piLine.W1,
+                        H1 = piLine.H1,
+                        W2 = piLine.W2,
+                        H2 = piLine.H2,
                         OrderedQty = piLine.OrderedQty,
                         DeliveredQty = delivered,
                         BalanceQty = balance,
@@ -290,6 +294,10 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
                             SpecGroupName = spec.GroupName ?? "",
                             SerialNumber = row.SerialNumber,
                             GlassRef = row.GlassRef ?? "",
+                            W1 = row.W1,
+                            H1 = row.H1,
+                            W2 = row.W2,
+                            H2 = row.H2,
                             OrderedQty = row.Qty,
                             DimensionDisplay = FormatDimensions(
                                 row.W1, row.H1, row.W2, row.H2),
@@ -470,6 +478,10 @@ namespace ProGlassAutomation.Services.Statement.Reconciliation
             public string SpecGroupName { get; init; } = "";
             public int SerialNumber { get; init; }
             public string GlassRef { get; init; } = "";
+            public int W1 { get; init; }
+            public int H1 { get; init; }
+            public int W2 { get; init; }
+            public int H2 { get; init; }
             public int OrderedQty { get; init; }
             public string DimensionDisplay { get; init; } = "";
             public string CompositeKey { get; init; } = "";

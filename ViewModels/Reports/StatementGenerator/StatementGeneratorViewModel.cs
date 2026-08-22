@@ -648,6 +648,17 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         /// tax-invoiced (Balance). These are NOT in the statement yet.</summary>
         public ObservableCollection<OrderReconciliationRow> LastDueLines { get; } = new();
 
+        /// <summary>Grouped "included" lines by specification (spec header → rows).</summary>
+        public ObservableCollection<ReconciliationSpecGroup> IncludedGroups { get; } = new();
+
+        /// <summary>Grouped "due" lines by specification (spec header → rows).</summary>
+        public ObservableCollection<ReconciliationSpecGroup> DueGroups { get; } = new();
+
+        public int IncludedTotalQty => IncludedGroups.Sum(g => g.TotalOrderedQty);
+        public decimal IncludedTotalSqm => IncludedGroups.Sum(g => g.TotalSqm);
+        public int DueTotalQty => DueGroups.Sum(g => g.TotalOrderedQty);
+        public decimal DueTotalSqm => DueGroups.Sum(g => g.TotalSqm);
+
         /// <summary>True when at least one PI has a billing discrepancy.</summary>
         public bool LastHasReconciliationIssue =>
             LastReconciliationSummaries.Any(s => s.HasDiscrepancies);
@@ -1168,9 +1179,17 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 LastReconciliationSummaries.Clear();
                 LastIncludedLines.Clear();
                 LastDueLines.Clear();
+                IncludedGroups.Clear();
+                DueGroups.Clear();
                 ActiveReconciliationTab = "Included";
                 OnPropertyChanged(nameof(LastIncludedLines));
                 OnPropertyChanged(nameof(LastDueLines));
+                OnPropertyChanged(nameof(IncludedGroups));
+                OnPropertyChanged(nameof(DueGroups));
+                OnPropertyChanged(nameof(IncludedTotalQty));
+                OnPropertyChanged(nameof(IncludedTotalSqm));
+                OnPropertyChanged(nameof(DueTotalQty));
+                OnPropertyChanged(nameof(DueTotalSqm));
                 OnPropertyChanged(nameof(LastHasReconciliationIssue));
                 OnPropertyChanged(nameof(HasReconciliationJobOrder));
 
@@ -1422,7 +1441,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             try
             {
                 var filter = BuildFilter();
-                var number = await Task.Run(() => _repo.GetNextStatementNumberAsync(), token);
+                var number = BuildStatementNumber(filter);
 
                 if (token.IsCancellationRequested) return;
 
@@ -1535,14 +1554,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     IsGenerating = true;
                 }
 
-                var number = await Task.Run(() => _repo.GetNextStatementNumberAsync());
+                var number = BuildStatementNumber(filter);
 
                 LiveAddLogEntry(LogSeverity.Info, $"› Statement number: {number}");
 
                 wfResult = await engine.RunAsync(
                     filter,
                     number,
-                    ShowMissingInvoicesDialogAsync);
+                    ShowMissingInvoicesDialogAsync,
+                    ShowMissingAttachmentsDialogAsync);
 
                 if (wfResult == null)
                 {
@@ -1689,7 +1709,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                                 if (retryCount >= maxRetries) throw;
 
-                                string newNumber = await Task.Run(() => _repo.GetNextStatementNumberAsync());
+                                string newNumber = BuildStatementNumber(filter);
                                 entity.StatementNumber = newNumber;
                                 wfResult.Snapshot.Header.StatementNumber = newNumber;
                             }
@@ -1787,6 +1807,57 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     AppLogService.Debug($"[StatementGenerator] Warning dialog error: {ex}");
                     return UserWarningDecision.Abort;
                 }
+            });
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  MISSING ATTACHMENTS DIALOG
+        // ═════════════════════════════════════════════════════════════════
+
+        private async Task<UserWarningDecision> ShowMissingAttachmentsDialogAsync(
+            MissingAttachmentSummary summary)
+        {
+            LiveAddLogEntry(LogSeverity.Warning,
+                "› ⚠ Missing signed attachments detected — awaiting user decision");
+
+            // Demo recordings run unattended.
+            if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+            {
+                LiveAddLogEntry(LogSeverity.Info,
+                    "› Demo mode — auto-continuing past missing attachments");
+                return UserWarningDecision.SkipAndContinue;
+            }
+
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null)
+                return UserWarningDecision.Abort;
+
+            return await dispatcher.InvokeAsync(() =>
+            {
+                var missing = new List<string>();
+                if (summary.ProformaMissing)
+                    missing.Add("•  Signed Proforma Invoice (attach it in Proforma Invoice → Step 8).");
+                foreach (var dn in summary.MissingDeliveryNoteIds)
+                    missing.Add($"•  Signed Delivery Note {dn} (attach the signed copy in the Delivery Note module).");
+
+                var guide =
+                    "\n\nHOW TO COMPLETE THE STATEMENT:\n" +
+                    "  1. In Proforma Invoice → Step 8, attach the signed PI (JPG or PDF).\n" +
+                    "  2. In Delivery Note, open the dispatched DN and attach the signed copy.\n" +
+                    "  3. Return to Statement Generator and run the pipeline again.\n\n" +
+                    "Continue generating without these signed attachments?";
+
+                var result = System.Windows.MessageBox.Show(
+                    "The following required signed attachments are missing:\n\n" +
+                    string.Join("\n", missing) + guide,
+                    "Missing Signed Attachments",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning,
+                    System.Windows.MessageBoxResult.No);
+
+                return result == System.Windows.MessageBoxResult.Yes
+                    ? UserWarningDecision.SkipAndContinue
+                    : UserWarningDecision.Abort;
             });
         }
 
@@ -1962,6 +2033,21 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
                 OnPropertyChanged(nameof(LastIncludedLines));
                 OnPropertyChanged(nameof(LastDueLines));
+
+                // Group the flattened lines by specification for the
+                // DataGrid-like view (spec header → rows → summary).
+                IncludedGroups.Clear();
+                foreach (var g in ReconciliationSpecGroup.Build(LastIncludedLines))
+                    IncludedGroups.Add(g);
+                DueGroups.Clear();
+                foreach (var g in ReconciliationSpecGroup.Build(LastDueLines))
+                    DueGroups.Add(g);
+                OnPropertyChanged(nameof(IncludedGroups));
+                OnPropertyChanged(nameof(DueGroups));
+                OnPropertyChanged(nameof(IncludedTotalQty));
+                OnPropertyChanged(nameof(IncludedTotalSqm));
+                OnPropertyChanged(nameof(DueTotalQty));
+                OnPropertyChanged(nameof(DueTotalSqm));
 
                 OnPropertyChanged(nameof(LastHasReconciliationIssue));
 
@@ -2386,6 +2472,35 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             IncludeAttachments = _includeAttachments,
             IncludeDnDetails = _includeDnDetails
         };
+
+        /// <summary>
+        /// Builds the statement number as "SOA-CustomerName-dd-MM-yy-hh-mm-tt"
+        /// (12-hour clock). Falls back to company, then "All" when no customer
+        /// is selected. The name is filename-safe and time-stamped so it is
+        /// unique per minute.
+        /// </summary>
+        private static string BuildStatementNumber(StatementFilter filter)
+        {
+            string customer = (filter.CustomerName ?? "").Trim();
+            if (customer.Length == 0)
+                customer = (filter.CompanyName ?? "").Trim();
+            if (customer.Length == 0)
+                customer = "All";
+
+            // Filename-safe: keep letters/digits, replace everything else
+            // (spaces, punctuation) with a dash.
+            var safe = new string(customer
+                .Select(c => char.IsLetterOrDigit(c) ? c : '-')
+                .ToArray())
+                .Trim('-');
+            if (string.IsNullOrWhiteSpace(safe)) safe = "All";
+            if (safe.Length > 40) safe = safe.Substring(0, 40);
+
+            var now = DateTime.Now;
+            string date = now.ToString("dd-MM-yy");
+            string time = now.ToString("hh-mm-tt");
+            return $"SOA-{safe}-{date}-{time}";
+        }
 
         /// <summary>
         /// Finds an existing saved statement that was generated with the same

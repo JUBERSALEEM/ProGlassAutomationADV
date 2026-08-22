@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Pdf/StatementPdfExporter.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report
@@ -134,6 +134,30 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 }
             }
 
+            // ── Step 2b: Proforma Invoice Step 8 attachments (JPG + PDF) ──
+            // These are the files attached in the PI wizard Step 8 — separate
+            // from the single SignedPI record. Merge them all after the signed
+            // PI page so no image or PDF is dropped.
+            if (workflowResult.ProformaAttachments.Count > 0)
+            {
+                progress?.Report("Adding proforma invoice attachments...");
+                int piAttIndex = 0;
+                foreach (var (fileBytes, fileName) in workflowResult.ProformaAttachments)
+                {
+                    piAttIndex++;
+                    if (fileBytes == null || fileBytes.Length == 0) continue;
+
+                    byte[]? attPdf = ConvertToRawPdfBytes(fileBytes, fileName);
+                    if (attPdf != null)
+                    {
+                        pdfChunks.Add(attPdf);
+                        AppLogService.Debug(
+                            $"[Exporter] PI att[{piAttIndex}] {fileName}: " +
+                            $"{attPdf.Length:N0} bytes");
+                    }
+                }
+            }
+
             // ── Step 3: Signed Delivery Note attachments ──────────────────
             int dnIndex = 0;
             foreach (var dn in workflowResult.SignedDeliveryNotes)
@@ -240,6 +264,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
             bool hasExtras =
                 workflowResult.SignedProformaInvoiceBytes != null
+                || workflowResult.ProformaAttachments.Count > 0
                 || workflowResult.SignedDeliveryNotes
                        .Any(d => d.AttachmentBytes.Count > 0)
                 || workflowResult.TaxInvoicePdfs.Count > 0;
