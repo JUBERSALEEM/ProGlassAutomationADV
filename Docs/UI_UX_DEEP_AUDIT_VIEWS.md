@@ -371,3 +371,43 @@ real content requires per-module product decisions (fields, columns, actions,
 data model) — not a UI-sweep task. Remaining low-value global items (B3 hinting,
 B4 shadow trim, D6 type-scale consolidation) are intentionally not applied blind
 without a build/visual QA loop.
+
+---
+
+## Phase 5.12 — Statement Generator: de-card the pipeline + demo coverage ✅
+
+Deep senior pass over the (newly-standalone) Statement Generator module.
+
+### UI — ExecuteStep (step 3) flattened ✅
+The pipeline steps and warnings/alert columns were each a big outlined card with
+their **own nested ScrollViewer** — content was cramped under an inner scrollbar
+inside an outline card. Reworked `Pipeline/ExecuteStep.xaml`:
+- Single page-level ScrollViewer; removed the two nested ScrollViewers.
+- **Pipeline steps** and **warnings/alerts** are now flat rows (tinted background,
+  **no border/outline, no outer card wrapper**) — fully expanded, no inner scroll.
+- Kept cards only where they genuinely belong: the progress strip (status), the
+  dark terminal (intentional), and the 4-up KPI tiles (compact, MinHeight 72).
+- Fixed hardcoded colors/shapes: `#34D399`→`SuccessColor`, `#F0F9FF`→`TintIndigoColor`,
+  `#1E1B4B` shadow→`Black`, step-status borders (`#BBF7D0`/`#FDE68A`/`#FECACA`)
+  removed with the outlines, badge `Foreground=White`→`OnAccentForegroundBrush`,
+  `CornerRadius` 10/14 → tokens, `BorderThickness` 1/1.5 → `CardBorderThickness`.
+
+### UI — ReviewStep (step 4) + FilterStep + WizardStyles ✅
+- `ReviewStep`: white-on-accent (success banner, PDF card header, section-browser
+  header, download button, tab active-states) → `OnAccentForegroundBrush`; fixed a
+  **real bug** — `Foreground="{DynamicResource TintIndigoBrush}"` (a *background*
+  tint used as *text* on the dark header, invisible in dark theme) → accent-aware text.
+- `FilterStep`: white glass surfaces (`#FFFFFF` ×5) → `ModuleBackgroundColor` (now
+  dark-theme safe); `#CBD5E1` hover border → `BorderColor`; `#34D399`→`SuccessColor`.
+- `WizardStyles`: `WizardCardStyle` radius/thickness → `CardCornerRadius`/
+  `CardBorderThickness` tokens.
+
+### Demo recording — steps 3 & 4 now captured ✅
+The demo was skipping Execute + Review because the pipeline's **uninvoiced-delivery
+decision opens a modal `WorkflowWarningDialog`**, which blocks an unattended
+recording. Fixed:
+- `StatementGeneratorViewModel.ShowMissingInvoicesDialogAsync` auto-resolves
+  (`SkipAndContinue`) when `AppDataRoot.IsDemo`.
+- `StatementWorkflow` now waits for the pipeline to finish, presents the **Execute**
+  step, then presents **Review** (auto-advances on completion), and adds
+  `execute`/`review` to `DeepEvidenceIds`.

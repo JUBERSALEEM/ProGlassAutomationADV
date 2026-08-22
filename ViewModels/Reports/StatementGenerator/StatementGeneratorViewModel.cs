@@ -1417,6 +1417,16 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             LiveAddLogEntry(LogSeverity.Warning,
                 $"› ⚠ Uninvoiced deliveries detected — awaiting user decision");
 
+            // Demo recordings run unattended. Auto-resolve the decision so the
+            // pipeline never blocks on the modal WorkflowWarningDialog and the
+            // demo can capture Execute (step 3) and Review (step 4).
+            if (ProGlassAutomation.Services.Database.AppDataRoot.IsDemo)
+            {
+                LiveAddLogEntry(LogSeverity.Info,
+                    "› Demo mode — auto-continuing past uninvoiced deliveries");
+                return UserWarningDecision.SkipAndContinue;
+            }
+
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher == null)
                 return UserWarningDecision.Abort;

@@ -39,11 +39,11 @@
         <!-- ══════════════════════════════════════════════════════════
              FROZEN BRUSHES
         ══════════════════════════════════════════════════════════ -->
-        <SolidColorBrush x:Key="GlassCardBg" Color="#FFFFFF" Opacity="0.72" po:Freeze="True"/>
-        <SolidColorBrush x:Key="GlassCardBorder" Color="#FFFFFF" Opacity="0.8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="GlassInnerBg" Color="#FFFFFF" Opacity="0.6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ChipBg" Color="#FFFFFF" Opacity="0.69" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ClearBtnBg" Color="#FFFFFF" Opacity="0.67" po:Freeze="True"/>
+        <SolidColorBrush x:Key="GlassCardBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.72"/>
+        <SolidColorBrush x:Key="GlassCardBorder" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.8"/>
+        <SolidColorBrush x:Key="GlassInnerBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.6"/>
+        <SolidColorBrush x:Key="ChipBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.69"/>
+        <SolidColorBrush x:Key="ClearBtnBg" Color="{DynamicResource ModuleBackgroundColor}" Opacity="0.67"/>
 
         <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
@@ -56,7 +56,7 @@
         <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
         <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
         <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}"/>
-        <SolidColorBrush x:Key="BorderHover" Color="#CBD5E1" po:Freeze="True"/>
+        <SolidColorBrush x:Key="BorderHover" Color="{DynamicResource BorderColor}"/>
         <SolidColorBrush x:Key="ChevronBrush" Color="{DynamicResource MutedForegroundColor}"/>
         <SolidColorBrush x:Key="CountBadgeBg" Color="{DynamicResource TintGrayColor}"/>
         <SolidColorBrush x:Key="CountBadgeText" Color="{DynamicResource SecondaryForegroundColor}"/>
@@ -72,7 +72,7 @@
         <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
-            <GradientStop Color="#F0F9FF" Offset="1"/>
+            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="IndigoIconGradient" StartPoint="0,0" EndPoint="1,1">
@@ -106,7 +106,7 @@
         </RadialGradientBrush>
 
         <RadialGradientBrush x:Key="GreenLed">
-            <GradientStop Color="#34D399" Offset="0"/>
+            <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </RadialGradientBrush>
 
@@ -115,7 +115,7 @@
         ══════════════════════════════════════════════════════════ -->
         <DropShadowEffect x:Key="CardShadow"
                           BlurRadius="32" ShadowDepth="8"
-                          Opacity="0.08" Color="#1E1B4B"
+                          Opacity="0.08" Color="Black"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="MatchCountShadow"

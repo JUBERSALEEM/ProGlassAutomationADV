@@ -372,8 +372,8 @@
     <Style x:Key="WizardCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1.5"/>
-        <Setter Property="CornerRadius"         Value="12"/>
+        <Setter Property="BorderThickness"      Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius"         Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"              Value="20"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
         <Setter Property="UseLayoutRounding"    Value="True"/>
@@ -381,7 +381,7 @@
     </Style>
 
     <Style x:Key="WizardCardHeaderStyle" TargetType="Border">
-        <Setter Property="Padding"              Value="18,12"/>
+        <Setter Property="Padding"              Value="16,12"/>
         <Setter Property="CornerRadius"         Value="12,12,0,0"/>
         <Setter Property="Background"           Value="{StaticResource CardHeaderGradient}"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
