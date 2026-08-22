@@ -77,49 +77,49 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         public DateTime? DateFrom
         {
             get => _dateFrom;
-            set { if (_dateFrom == value) return; _dateFrom = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_dateFrom == value) return; _dateFrom = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private DateTime? _dateTo;
         public DateTime? DateTo
         {
             get => _dateTo;
-            set { if (_dateTo == value) return; _dateTo = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_dateTo == value) return; _dateTo = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private string _selectedCompany = "";
         public string SelectedCompany
         {
             get => _selectedCompany;
-            set { if (_selectedCompany == value) return; _selectedCompany = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_selectedCompany == value) return; _selectedCompany = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private string _selectedCustomer = "";
         public string SelectedCustomer
         {
             get => _selectedCustomer;
-            set { if (_selectedCustomer == value) return; _selectedCustomer = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_selectedCustomer == value) return; _selectedCustomer = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private string _selectedProject = "";
         public string SelectedProject
         {
             get => _selectedProject;
-            set { if (_selectedProject == value) return; _selectedProject = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_selectedProject == value) return; _selectedProject = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private string _selectedSalesman = "";
         public string SelectedSalesman
         {
             get => _selectedSalesman;
-            set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         private string _selectedStatus = "";
         public string SelectedStatus
         {
             get => _selectedStatus;
-            set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); _ = DebouncedReloadAsync(); }
+            set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); ReloadNow(); }
         }
 
         // ── Pagination ────────────────────────────────────────────────────
@@ -203,6 +203,19 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
                 Page = Page,
                 PageSize = PageSize
             };
+        }
+
+        /// <summary>
+        /// Reloads IMMEDIATELY (no debounce) for dropdown and date changes —
+        /// these fire once per user action, so there is no need to wait. Only
+        /// free-text search is debounced (it fires per keystroke). Cancels any
+        /// pending debounce so a stale reload never lands after this one.
+        /// </summary>
+        protected void ReloadNow()
+        {
+            _debounceCts?.Cancel();
+            Page = 1;
+            _ = LoadAsync();
         }
 
         protected async Task DebouncedReloadAsync()

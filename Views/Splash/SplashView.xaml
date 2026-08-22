@@ -164,17 +164,17 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ═══ MODULE CHIP (feature strip) — industrial frosted pill ═══
-             Each module renders as a single-line frosted glass chip: a tinted
-             glyph inside a small rounded tile, followed by the module name on
-             ONE line (no wrapping). Auto-width so labels never break across
-             two lines; the strip wraps as a centred, evenly-spaced grid. The
-             per-item tint is bound from FeatureItem.BorderBrush. -->
+        <!-- ═══ MODULE CHIP (feature strip) — industrial single-line grid ═══
+             Each module renders as one compact industrial cell: a tinted glyph
+             beside a single-line label (no wrapping). The strip is laid out by
+             a UniformGrid (see FeaturePanel below) so every chip is the SAME
+             width and sits on ONE clean row — no ragged two-row wrap. -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <Border Height="42"
-                    Margin="7,8"
-                    Padding="16,0"
-                    CornerRadius="21"
+            <Border Height="40"
+                    Margin="6,4"
+                    Padding="12,0"
+                    CornerRadius="8"
+                    HorizontalAlignment="Stretch"
                     BorderBrush="#2EFFFFFF"
                     BorderThickness="1"
                     SnapsToDevicePixels="True"
@@ -186,24 +186,27 @@
                         <GradientStop Color="#08FFFFFF" Offset="1.0"/>
                     </LinearGradientBrush>
                 </Border.Background>
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="26" Height="26" CornerRadius="13"
-                            Background="#1FFFFFFF"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="13"
-                                   Foreground="{Binding BorderBrush}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
-                    <TextBlock Text="{Binding Label}"
-                               FontSize="12.5"
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Icon}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="13"
+                               Foreground="{Binding BorderBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding Label}"
+                               FontSize="11.5"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource Frost}"
                                VerticalAlignment="Center"
-                               Margin="10,0,0,0"/>
-                </StackPanel>
+                               TextTrimming="CharacterEllipsis"
+                               TextWrapping="NoWrap"/>
+                </Grid>
             </Border>
         </DataTemplate>
 
@@ -394,18 +397,17 @@
                            Foreground="{StaticResource Cerulean}"
                            Opacity="0"/>
 
-                <!-- Module orbs — circular glass tiles, one uniform fade -->
+                <!-- Module chips — one clean industrial row, uniform widths -->
                 <ItemsControl x:Name="FeaturePanel"
                               ItemTemplate="{StaticResource FeatureBadgeTemplate}"
-                              HorizontalAlignment="Center"
-                              MaxWidth="960"
-                              Margin="0,18,0,0"
+                              HorizontalAlignment="Stretch"
+                              MaxWidth="1160"
+                              Margin="0,20,0,0"
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal"
-                                       HorizontalAlignment="Center"
-                                       ItemWidth="Auto"/>
+                            <UniformGrid Columns="9"
+                                         HorizontalAlignment="Center"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
