@@ -143,7 +143,13 @@
                 </StackPanel>
             </Grid>
         </Border>
-        <Border Grid.Row="1"
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition x:Name="DetailColumn" Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
@@ -509,11 +515,21 @@
                                                         <DataTemplate>
                                                             <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                                                     BorderThickness="0,0,0,1"
-                                                                    Padding="0,2">
+                                                                    Padding="0,2"
+                                                                    Cursor="Hand"
+                                                                    MouseLeftButtonDown="Row_Click"
+                                                                    Tag="{Binding}">
                                                                 <Border.Style>
                                                                     <Style TargetType="Border">
                                                                         <Setter Property="Background" Value="Transparent"/>
                                                                         <Style.Triggers>
+                                                                            <DataTrigger Binding="{Binding IsSelected}"
+                                                                                         Value="True">
+                                                                                <Setter Property="Background"
+                                                                                        Value="{DynamicResource TintBlueBrush}"/>
+                                                                                <Setter Property="BorderBrush"
+                                                                                        Value="{DynamicResource AccentBrush}"/>
+                                                                            </DataTrigger>
                                                                             <DataTrigger Binding="{Binding HasBalance}"
                                                                                          Value="True">
                                                                                 <Setter Property="Background"
@@ -658,5 +674,152 @@
                     </Grid>
                 </Grid>
             </Border>
+
+            <!-- ══ RIGHT SLIDE-IN ROW STATS PANEL (Sheet Store pattern) ══
+                 Collapsed by default so the items grid is full-width. Slides
+                 in when a row is clicked; shows THAT row's stats. When no
+                 row is selected the top KPI strip keeps showing totals. -->
+            <Grid x:Name="DetailPanel" Grid.Column="1" Margin="10,0,0,0"
+                  Visibility="Collapsed">
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="PanelSlide" X="0"/>
+                </Grid.RenderTransform>
+
+                <Border Width="360"
+                        VerticalAlignment="Stretch"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Padding="20"
+                        SnapsToDevicePixels="True">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <!-- Panel header + close -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Width="40" Height="40"
+                                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                                        Grid.Column="0"
+                                        Background="{DynamicResource AccentBrush}">
+                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="17" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="12,0,10,0">
+                                    <TextBlock Text="ROW DETAILS"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="{Binding SelectionLabel}"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="2"
+                                        Style="{StaticResource RowOutlinedButton}"
+                                        Tag="&#xE711;" Content=""
+                                        VerticalAlignment="Top"
+                                        ToolTip="Close (click the row again)"
+                                        Command="{Binding ClearSelectionCommand}"/>
+                            </Grid>
+
+                            <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
+
+                            <!-- Selected row identity -->
+                            <TextBlock Text="SPECIFICATION"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="4,0,0,8"/>
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="12,10"
+                                    Margin="0,0,0,12"
+                                    Background="{DynamicResource TintBlueBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
+                                    BorderThickness="1">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding SelectedItemRow.SpecGroupName}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextWrapping="Wrap"/>
+                                    <TextBlock FontSize="11"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,4,0,0">
+                                        <Run Text="Glass ref: "/><Run Text="{Binding SelectedItemRow.GlassRef, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="11"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,2,0,0">
+                                        <Run Text="Dimensions: "/><Run Text="{Binding SelectedItemRow.DimensionDisplay, Mode=OneWay}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="11"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               Margin="0,2,0,0">
+                                        <Run Text="SQM: "/><Run Text="{Binding SelectedItemRow.Sqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"/>
+                                        <Run Text="  ·  T.SQM: "/><Run Text="{Binding SelectedItemRow.TotalSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Selected row quantities -->
+                            <TextBlock Text="QUANTITIES"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="4,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Column="0" Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="0,0,4,10"
+                                        Background="{DynamicResource TintBlueBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="ORDERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="{Binding SelectedItemRow.OrderedQty}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Grid.Row="0" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="4,0,0,10"
+                                        Background="{DynamicResource TintIndigoBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="PREV DELIVERED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="{Binding SelectedItemRow.PreviouslyDeliveredQty}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="0" Grid.Row="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="0,0,4,10"
+                                        Background="{DynamicResource TintGreenBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="THIS DN" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{Binding SelectedItemRow.DeliveredQty}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="1" Grid.Row="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
+                                        Margin="4,0,0,10"
+                                        Background="{DynamicResource TintAmberBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="BALANCE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Text="{Binding SelectedItemRow.BalanceQty}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Grid>
     </Grid>
 </UserControl>

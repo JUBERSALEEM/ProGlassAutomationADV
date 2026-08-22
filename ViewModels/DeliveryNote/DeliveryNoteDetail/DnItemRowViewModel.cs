@@ -69,6 +69,19 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool HasBalance => BalanceQty > 0;
         public bool IsFullyDeliveredLine =>
             BalanceQty <= 0 && PreviouslyDeliveredQty > 0;
+
+        private bool _isSelected;
+        /// <summary>True while this row is selected in the slide-in panel.</summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
         public decimal Sqm => SqmCalculator.CalculatePanel(W1, H1);
         public decimal TotalSqm =>
             SqmCalculator.CalculateTotal(W1, H1, OrderedQty);

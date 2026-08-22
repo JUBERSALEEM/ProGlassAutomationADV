@@ -508,6 +508,43 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        // ── Row selection (Sheet Store pattern) ────────────────────────────
+        // Click a glass row → the side panel shows THAT row's stats; click
+        // again (or the close button) → back to the totals in the top strip.
+
+        private DnItemRowViewModel? _selectedItemRow;
+        public DnItemRowViewModel? SelectedItemRow
+        {
+            get => _selectedItemRow;
+            set
+            {
+                if (ReferenceEquals(_selectedItemRow, value)) return;
+
+                if (_selectedItemRow != null)
+                    _selectedItemRow.IsSelected = false;
+
+                _selectedItemRow = value;
+
+                if (_selectedItemRow != null)
+                    _selectedItemRow.IsSelected = true;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsRowSelected));
+                OnPropertyChanged(nameof(SelectionLabel));
+            }
+        }
+
+        public bool IsRowSelected => SelectedItemRow != null;
+
+        /// <summary>Header label for the slide-in panel (glass ref + serial).</summary>
+        public string SelectionLabel => SelectedItemRow == null
+            ? ""
+            : string.IsNullOrWhiteSpace(SelectedItemRow.GlassRef)
+                ? $"Sr {SelectedItemRow.SerialNumber}"
+                : $"{SelectedItemRow.GlassRef} · Sr {SelectedItemRow.SerialNumber}";
+
+        public ICommand ClearSelectionCommand { get; }
+
         private static bool IsOpenForDispatch(string? status) =>
             string.Equals(status, "Dispatching", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(status, "Draft", StringComparison.OrdinalIgnoreCase);
@@ -917,6 +954,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _ => !IsMasterDn &&
                      !IsLoading &&
                      !string.IsNullOrWhiteSpace(JobOrderId));
+
+            // Sheet Store pattern — clear the selected row so the top strip
+            // returns to totals.
+            ClearSelectionCommand = new RelayCommand(_ => SelectedItemRow = null);
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -1138,6 +1179,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
                 // RebuildGroupedView called by ItemRows setter
                 // Filter applied based on IsMasterDn flag already set above
+
+                // A freshly loaded DN has no selected row — the top strip
+                // shows totals until the user clicks a row.
+                SelectedItemRow = null;
 
                 foreach (var row in ItemRows)
                     row.DeliveredQtyChanged += OnItemDeliveredQtyChanged;
