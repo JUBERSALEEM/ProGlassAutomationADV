@@ -81,8 +81,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 IoStatus = "Import failed.";
                 MessageBox.Show(
                     "Could not read the cut list.\n\n" + ex.Message +
-                    "\n\nMake sure the file is a valid Excel / CSV / TXT file " +
-                    "and is not open in another program.",
+                    "\n\nMake sure the file is a valid Excel (.xlsx), CSV or TXT file.",
                     "Import cut list", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
@@ -129,6 +128,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (target == null)
                     target = AddNewSpecGroup(g.Key);
 
+                ApplyGlassType(target, g);
                 added += target.ApplyImportedRows(g.ToList());
             }
 
@@ -138,10 +138,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 var group = SelectedSpecGroup;
                 if (group == null)
                     group = AddNewSpecGroup();
+                ApplyGlassType(group!, unnamed);
                 added += group!.ApplyImportedRows(unnamed);
             }
 
             return added;
+        }
+
+        /// <summary>
+        /// If any imported row carries a Glass Type, adopt it on the target
+        /// group before the rows are applied — so perimeter factors (LAM = 4
+        /// vs 2) and the GLASS TYPE dropdown both reflect the file. Values are
+        /// normalised to the app's SGU / DGU / LAM / DGU+LAM set.
+        /// </summary>
+        private static void ApplyGlassType(
+            SpecGroup group, IEnumerable<Services.ProformaInvoice.Step5Grid.CutListImportRow> rows)
+        {
+            var type = rows
+                .Select(r => NormalizeGlassType(r.GlassType))
+                .FirstOrDefault(t => t != null);
+
+            if (type != null &&
+                !string.Equals(group.SelectedGlassType, type, StringComparison.OrdinalIgnoreCase))
+                group.SelectedGlassType = type;
+        }
+
+        private static string? NormalizeGlassType(string? raw)
+        {
+            if (string.IsNullOrWhiteSpace(raw)) return null;
+            string n = raw.Trim().ToUpperInvariant()
+                .Replace(" ", "").Replace("_", "").Replace("-", "").Replace("+", "");
+            return n switch
+            {
+                "SGU" or "SINGLE" => "SGU",
+                "DGU" or "DOUBLE" => "DGU",
+                "LAM" or "LAMINATED" => "LAM",
+                "DGULAM" or "DGULAMINATED" or "LAMINATEDDGU" => "DGU+LAM",
+                _ => null
+            };
         }
     }
 }

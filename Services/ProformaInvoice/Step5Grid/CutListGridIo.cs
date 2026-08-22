@@ -48,17 +48,42 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             {
                 ".xlsx" => ReadExcel(path),
                 ".csv" or ".txt" => CutListImportParser.ParseDelimitedText(
-                    await File.ReadAllTextAsync(path)),
+                    await ReadAllTextSharedAsync(path)),
                 ".pdf" or ".png" or ".jpg" or ".jpeg" or ".webp" =>
                     await ScanDocumentAsync(path, ext),
                 _ => CutListImportParser.ParseDelimitedText(
-                    await File.ReadAllTextAsync(path))
+                    await ReadAllTextSharedAsync(path))
             };
+        }
+
+        /// <summary>
+        /// Reads a whole file even while it is open in Excel. Excel holds a
+        /// write-lock on open workbooks, so the default FileStream/File.Read*
+        /// (FileShare.Read) throws IOException. Opening with FileShare.ReadWrite
+        /// lets us read the last-saved bytes without asking the user to close it.
+        /// </summary>
+        private static byte[] ReadAllBytesShared(string path)
+        {
+            using var fs = new FileStream(
+                path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var ms = new MemoryStream();
+            fs.CopyTo(ms);
+            return ms.ToArray();
+        }
+
+        private static async Task<string> ReadAllTextSharedAsync(string path)
+        {
+            using var fs = new FileStream(
+                path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var sr = new StreamReader(fs);
+            return await sr.ReadToEndAsync().ConfigureAwait(false);
         }
 
         public static CutListImportResult ReadExcel(string path)
         {
-            using var wb = new XLWorkbook(path);
+            // Open from memory so a workbook that is open in Excel can still
+            // be imported (we read its last-saved bytes with FileShare.ReadWrite).
+            using var wb = new XLWorkbook(new MemoryStream(ReadAllBytesShared(path)));
             var ws = wb.Worksheets.First();
             var used = ws.RangeUsed();
             if (used == null)
@@ -123,7 +148,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 };
             }
 
-            byte[] bytes = await File.ReadAllBytesAsync(path);
+            byte[] bytes = ReadAllBytesShared(path);
             string mime = ext switch
             {
                 ".pdf" => "application/pdf",

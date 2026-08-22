@@ -38,7 +38,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             var ws = workbook.Worksheets.Add("Cut list");
             string[] headers =
             {
-                "Spec #", "Spec Name", "Glass Ref",
+                "Spec #", "Spec Name", "Glass Type", "Glass Ref",
                 "W1", "H1", "W2", "H2", "Qty"
             };
             for (int c = 0; c < headers.Length; c++)
@@ -51,16 +51,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
                     ? group.GroupName
                     : group.SelectedSpecName;
+                string glassType = group.SelectedGlassType ?? "";
                 foreach (var row in group.ItemRows)
                 {
                     ws.Cell(r, 1).Value = group.GroupNumber;
                     ws.Cell(r, 2).Value = spec ?? "";
-                    ws.Cell(r, 3).Value = row.GlassRef ?? "";
-                    ws.Cell(r, 4).Value = row.W1;
-                    ws.Cell(r, 5).Value = row.H1;
-                    ws.Cell(r, 6).Value = row.W2;
-                    ws.Cell(r, 7).Value = row.H2;
-                    ws.Cell(r, 8).Value = row.Qty;
+                    ws.Cell(r, 3).Value = glassType;
+                    ws.Cell(r, 4).Value = row.GlassRef ?? "";
+                    ws.Cell(r, 5).Value = row.W1;
+                    ws.Cell(r, 6).Value = row.H1;
+                    ws.Cell(r, 7).Value = row.W2;
+                    ws.Cell(r, 8).Value = row.H2;
+                    ws.Cell(r, 9).Value = row.Qty;
                     r++;
                 }
             }
@@ -78,6 +80,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
         {
             writer.WriteField("Spec #");
             writer.WriteField("Spec Name");
+            writer.WriteField("Glass Type");
             writer.WriteField("Glass Ref");
             writer.WriteField("W1");
             writer.WriteField("H1");
@@ -91,10 +94,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
                     ? group.GroupName
                     : group.SelectedSpecName;
+                string glassType = group.SelectedGlassType ?? "";
                 foreach (var row in group.ItemRows)
                 {
                     writer.WriteField(group.GroupNumber);
                     writer.WriteField(spec ?? "");
+                    writer.WriteField(glassType);
                     writer.WriteField(row.GlassRef ?? "");
                     writer.WriteField(row.W1);
                     writer.WriteField(row.H1);
@@ -128,9 +133,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 string spec = string.IsNullOrWhiteSpace(group.SelectedSpecName)
                     ? group.GroupName
                     : group.SelectedSpecName;
+                string glassType = group.SelectedGlassType ?? "";
 
                 content.Item().Element(c =>
-                    PdfChrome.GroupBanner(c, $"Spec {group.GroupNumber}: {spec}"));
+                    PdfChrome.GroupBanner(c,
+                        $"Spec {group.GroupNumber}: {spec}" +
+                        (string.IsNullOrWhiteSpace(glassType) ? "" : $"  ·  {glassType}")));
 
                 content.Item().Table(table =>
                 {

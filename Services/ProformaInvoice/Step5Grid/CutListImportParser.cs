@@ -16,6 +16,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
     {
         public string GlassRef { get; init; } = "";
         public string SpecName { get; init; } = "";
+        public string GlassType { get; init; } = "";
         public int W1 { get; init; }
         public int H1 { get; init; }
         public int W2 { get; init; }
@@ -140,6 +141,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
 
                     string glassRef = ReadString(el, "ref", "glassRef", "mark", "code");
                     string specName = ReadString(el, "spec", "specName", "specification");
+                    string glassType = ReadString(el, "glassType", "glasstype", "type", "glass");
                     int w1 = ReadInt(el, "w1", "width", "w");
                     int h1 = ReadInt(el, "h1", "height", "h");
                     int w2 = ReadInt(el, "w2");
@@ -157,6 +159,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     {
                         GlassRef = glassRef,
                         SpecName = specName,
+                        GlassType = glassType,
                         W1 = w1,
                         H1 = h1,
                         W2 = w2,
@@ -241,7 +244,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             {
                 string key = NormalizeHeader(row[i]);
                 if (key.Length == 0) continue;
-                if (key is "ref" or "w1" or "h1" or "w2" or "h2" or "qty" or "dim" or "spec")
+                if (key is "ref" or "w1" or "h1" or "w2" or "h2" or "qty" or "dim" or "spec" or "glasstype")
                 {
                     map[key] = i;
                     any = true;
@@ -264,6 +267,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 "h2" or "height2" => "h2",
                 "qty" or "quantity" or "pcs" or "qty." or "nos" or "no" or "count" => "qty",
                 "spec" or "specname" or "specification" or "glassspec" => "spec",
+                "type" or "glasstype" or "glass" or "paneltype" => "glasstype",
                 "size" or "dim" or "dimension" or "wxh" or "sizewh" => "dim",
                 _ => ""
             };
@@ -274,6 +278,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
         {
             string glassRef = Cell(cells, map, "ref");
             string specName = Cell(cells, map, "spec");
+            string glassType = Cell(cells, map, "glasstype");
             int w1 = ParseMm(Cell(cells, map, "w1"));
             int h1 = ParseMm(Cell(cells, map, "h1"));
             int w2 = ParseMm(Cell(cells, map, "w2"));
@@ -301,6 +306,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             {
                 GlassRef = glassRef,
                 SpecName = specName,
+                GlassType = glassType,
                 W1 = w1,
                 H1 = h1,
                 W2 = w2,
