@@ -145,9 +145,7 @@
                             <!-- Status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="115" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by invoice status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Sent"/><ComboBoxItem Content="Approved"/><ComboBoxItem Content="Rejected"/>
-                                </ComboBox>
+                                <ComboBox Width="115" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}" ToolTip="Filter by invoice status"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->

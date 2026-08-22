@@ -110,6 +110,11 @@ namespace ProGlassAutomation.Services.Reporting
         Task<List<string>> GetSalesmanOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetProjectOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetGlassTypeOptionsAsync(CancellationToken ct = default);
+
+        // ── Status lookups (distinct statuses actually stored) ────────
+        Task<List<string>> GetPiStatusOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetJoStatusOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetTiStatusOptionsAsync(CancellationToken ct = default);
     }
 
     public sealed class ReportingDataService : IReportingDataService
@@ -1887,6 +1892,54 @@ namespace ProGlassAutomation.Services.Reporting
         public async Task<List<string>> GetGlassTypeOptionsAsync(CancellationToken ct = default)
         {
             return new List<string> { "SGU", "DGU", "LAM", "DGU+LAM" };
+        }
+
+        public async Task<List<string>> GetPiStatusOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new ProformaInvoicesDbContext();
+                var list = await db.ProformaInvoices.AsNoTracking().Select(p => p.Status).Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).Select(s => s!.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetJoStatusOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new JobOrdersDbContext();
+                var list = await db.JobOrders.AsNoTracking().Select(j => j.Status).Distinct().ToListAsync(ct);
+                // Normalise the legacy "InProduction" ↔ "In Production" split
+                // to a single human label so the dropdown reflects real data.
+                var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x)))
+                {
+                    var v = s!.Trim();
+                    set.Add(Eq(v, "InProduction") ? "In Production" : v);
+                }
+                return set.OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetTiStatusOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new TaxInvoiceDbContext();
+                var list = await db.TaxInvoices.AsNoTracking().Select(t => t.Status).Distinct().ToListAsync(ct);
+                // Normalise "PartiallyPaid" ↔ "Partially Paid" to one label.
+                var set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var s in list.Where(x => !string.IsNullOrWhiteSpace(x)))
+                {
+                    var v = s!.Trim();
+                    set.Add(Eq(v, "PartiallyPaid") ? "Partially Paid" : v);
+                }
+                return set.OrderBy(s => s).ToList();
+            }
+            catch { return new List<string>(); }
         }
     }
 }

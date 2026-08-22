@@ -28,8 +28,27 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         public PiReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
+            SelectedStatus = AllStatusesOption;
             _ = LoadFilterOptionsAsync();
+            _ = LoadStatusOptionsAsync();
             _ = LoadAsync();
+        }
+
+        /// <summary>Populates the status dropdown from DISTINCT statuses
+        /// actually stored (never a hardcoded list that drifts).</summary>
+        private async Task LoadStatusOptionsAsync()
+        {
+            try { SetStatusOptions(await _service.GetPiStatusOptionsAsync()); }
+            catch (System.Exception ex) { AppLogService.Warning($"PI status options warning: {ex.Message}"); }
+        }
+
+        /// <summary>Maps the "All" sentinel back to no status filter.</summary>
+        protected override ReportingFilter BuildFilter()
+        {
+            var filter = base.BuildFilter();
+            if (string.Equals(filter.Status, AllStatusesOption, StringComparison.OrdinalIgnoreCase))
+                filter.Status = null;
+            return filter;
         }
 
         // ── Summary KPIs ──────────────────────────────────────────────────
@@ -85,6 +104,11 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         protected override void InitCommands()
         {
             base.InitCommands();
+            ClearFilterCommand = new RelayCommand(_ =>
+            {
+                ClearFilters();
+                SelectedStatus = AllStatusesOption;
+            });
             DrillDownCommand = new RelayCommand(p =>
             {
                 if (p is PiReportRow r) SelectedRow = r;

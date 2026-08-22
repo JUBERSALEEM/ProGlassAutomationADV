@@ -16,8 +16,27 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         public JoReportViewModel(IReportingDataService? service = null) : base(service ?? new ReportingDataService())
         {
             InitCommands();
+            SelectedStatus = AllStatusesOption;
             _ = LoadFilterOptionsAsync();
+            _ = LoadStatusOptionsAsync();
             _ = LoadAsync();
+        }
+
+        /// <summary>Populates the status dropdown from DISTINCT statuses
+        /// actually stored (never a hardcoded list that drifts).</summary>
+        private async Task LoadStatusOptionsAsync()
+        {
+            try { SetStatusOptions(await _service.GetJoStatusOptionsAsync()); }
+            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"JO status options warning: {ex.Message}"); }
+        }
+
+        /// <summary>Maps the "All" sentinel back to no status filter.</summary>
+        protected override ReportingFilter BuildFilter()
+        {
+            var filter = base.BuildFilter();
+            if (string.Equals(filter.Status, AllStatusesOption, StringComparison.OrdinalIgnoreCase))
+                filter.Status = null;
+            return filter;
         }
 
         private JoReportSummary _summary = new();
@@ -70,6 +89,11 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         protected override void InitCommands()
         {
             base.InitCommands();
+            ClearFilterCommand = new RelayCommand(_ =>
+            {
+                ClearFilters();
+                SelectedStatus = AllStatusesOption;
+            });
             CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
             OpenDocumentCommand = new RelayCommand(_ =>
             {

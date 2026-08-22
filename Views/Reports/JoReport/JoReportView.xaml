@@ -139,9 +139,7 @@
                             <!-- Status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by production status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Released"/><ComboBoxItem Content="In Production"/><ComboBoxItem Content="Completed"/><ComboBoxItem Content="Delivered"/>
-                                </ComboBox>
+                                <ComboBox Width="120" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}" ToolTip="Filter by production status"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->

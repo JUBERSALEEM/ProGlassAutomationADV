@@ -158,9 +158,7 @@
                             <!-- Status -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="STATUS" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedStatus, UpdateSourceTrigger=PropertyChanged}" ToolTip="Filter by payment status">
-                                    <ComboBoxItem Content="Draft"/><ComboBoxItem Content="Issued"/><ComboBoxItem Content="Paid"/><ComboBoxItem Content="Partially Paid"/><ComboBoxItem Content="Overdue"/>
-                                </ComboBox>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding SelectedStatus}" ToolTip="Filter by payment status"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->

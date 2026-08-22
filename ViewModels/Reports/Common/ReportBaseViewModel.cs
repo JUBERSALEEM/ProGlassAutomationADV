@@ -251,6 +251,23 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
         private List<string> _salesmanOptions = new();
         public List<string> SalesmanOptions { get => _salesmanOptions; protected set { _salesmanOptions = value; OnPropertyChanged(); } }
 
+        // ── Data-driven status filter ─────────────────────────────────────
+        // Populated from DISTINCT statuses actually stored in the DB (never
+        // a hardcoded list that drifts from real data). "All" is a sentinel
+        // the concrete BuildFilter maps back to null (no status filter).
+        public const string AllStatusesOption = "All";
+
+        private List<string> _statusOptions = new();
+        public List<string> StatusOptions { get => _statusOptions; protected set { _statusOptions = value; OnPropertyChanged(); } }
+
+        /// <summary>Prepends the "All" sentinel and assigns the options.</summary>
+        protected void SetStatusOptions(IEnumerable<string> distinctStatuses)
+        {
+            var list = new List<string> { AllStatusesOption };
+            list.AddRange(distinctStatuses ?? Enumerable.Empty<string>());
+            StatusOptions = list;
+        }
+
         protected async Task LoadFilterOptionsAsync()
         {
             try
