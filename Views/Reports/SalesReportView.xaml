@@ -352,7 +352,7 @@
                             <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="Central Data Layer" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Shared intelligence across PI → JO → Delivery → Tax Invoice → P&amp;L." FontSize="11.5" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="Live totals across PI → JO → Delivery → Tax Invoice → Statement." FontSize="11.5" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -447,12 +447,12 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="REPORTS OVERVIEW" FontSize="11" FontWeight="Bold" Foreground="#DBEAFE"/>
-                                <TextBlock Text="Module-Based ERP Intelligence" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
-                                <TextBlock Text="Every report uses one centralized data layer and your live database. Drill down from any aggregate to exact specification rows and document lifecycles." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="Documents &amp; Fulfillment" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
+                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="ROW-LEVEL TRACEABILITY" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6" Margin="0,0,8,0"><TextBlock Text="EXACT SPEC MATCHING" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
-                                    <Border CornerRadius="20" Background="White" Opacity="0.92" Padding="12,6"><TextBlock Text="QTY RECONCILIATION" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/></Border>
+                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
+                                        <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="DELIVERY"/><Run Text="  →  "/><Run Text="TAX INVOICE"/><Run Text="  →  "/><Run Text="STATEMENT"/>
+                                    </TextBlock>
                                 </StackPanel>
                             </StackPanel>
                             <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="White" Opacity="0.10" VerticalAlignment="Center" Margin="16,0,0,0">
@@ -506,19 +506,88 @@
                         </Border>
                     </Grid>
 
-                    <!-- Workflow Guidance Banner -->
+                    <!-- Workflow chain — the real document flow with live counts -->
                     <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="0,0,0,14">
                         <StackPanel>
-                            <TextBlock Text="TRACE ANY GLASS ROW" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="PI → Row → Job Order → Delivery → Tax Invoice → Profitability — every aggregate is explainable and verifiable." FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,6,0,0" TextWrapping="Wrap"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                <Button Content="Open PI Report" Tag="Pi" Click="Nav_Click" Style="{StaticResource PrimaryPillButton}" Height="32" Margin="0,0,8,0" ToolTip="Switch to Proforma Invoice report"/>
-                                <Button Content="Open Delivery Report" Tag="Delivery" Click="Nav_Click" Style="{StaticResource RowOutlinedButton}" Height="32" ToolTip="Switch to the Delivery Note report"/>
-                            </StackPanel>
+                            <TextBlock Text="DOCUMENT FLOW" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- PI -->
+                                <Button Grid.Column="0" Tag="Pi" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Proforma Invoice report">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12,10">
+                                                <StackPanel>
+                                                    <TextBlock Text="PROFORMA" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="quotes" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBlock Grid.Column="1" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="8,0"/>
+
+                                <!-- JO -->
+                                <Button Grid.Column="2" Tag="Jo" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Job Order report">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource TintAmberBrush}" BorderBrush="{DynamicResource WarningBrush}" BorderThickness="1" CornerRadius="10" Padding="12,10">
+                                                <StackPanel>
+                                                    <TextBlock Text="JOB ORDER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                                    <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding JoReport.Summary.AwaitingJo, StringFormat={}{0} awaiting}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBlock Grid.Column="3" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="8,0"/>
+
+                                <!-- DN -->
+                                <Button Grid.Column="4" Tag="Delivery" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Delivery report">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="1" CornerRadius="10" Padding="12,10">
+                                                <StackPanel>
+                                                    <TextBlock Text="DELIVERY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                                    <TextBlock Text="{Binding DeliveryReport.Summary.TotalRows}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding DeliveryReport.Summary.CompletionPct, StringFormat={}{0:0.#}% delivered}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBlock Grid.Column="5" Text="&#xE76C;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="8,0"/>
+
+                                <!-- TI -->
+                                <Button Grid.Column="6" Tag="TaxInvoice" Click="Nav_Click" Background="Transparent" BorderThickness="0" Cursor="Hand" HorizontalContentAlignment="Stretch" ToolTip="Open Tax Invoice report">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1" CornerRadius="10" Padding="12,10">
+                                                <StackPanel>
+                                                    <TextBlock Text="TAX INVOICE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                    <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2,0,0"/>
+                                                    <TextBlock Text="{Binding TaxInvoiceReport.Summary.Outstanding, StringFormat=AED {0:N0} out.}" FontSize="10" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- Shortcuts Grid -->
+                    <!-- Statement + guidance -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -528,16 +597,16 @@
 
                         <Border Grid.Column="0" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="PRODUCTION TRACKING" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Open the Job Order report to follow production stages and delivered balance for every factory job." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
-                                <Button Content="Open →" Tag="Jo" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Job Order Report"/>
+                                <TextBlock Text="STATEMENTS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Customer statements and the financial ledger (Debit / Credit / Balance) for every generated statement." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <Button Content="Open →" Tag="Statement" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Statement Report"/>
                             </StackPanel>
                         </Border>
 
                         <Border Grid.Column="2" Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="14">
                             <StackPanel>
-                                <TextBlock Text="DELIVERY FULFILLMENT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Open the Delivery report for a single unified grid of every PI specification row with Total / Delivered / Balance reconciled from the stored Delivery Notes." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
+                                <TextBlock Text="ROW-LEVEL TRACE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Every PI specification row flows through Job Order and Delivery with Total / Delivered / Balance reconciled from the stored Delivery Notes." FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,6,0,0"/>
                                 <Button Content="Open →" Tag="Delivery" Click="Nav_Click" Style="{StaticResource RowPrimaryButton}" Height="32" Margin="0,12,0,0" HorizontalAlignment="Left" ToolTip="Open Delivery Report"/>
                             </StackPanel>
                         </Border>
