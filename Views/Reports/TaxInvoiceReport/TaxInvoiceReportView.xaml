@@ -148,10 +148,16 @@
                                 <DatePicker Width="135" Style="{StaticResource ModuleListFilterDatePickerStyle}" SelectedDate="{Binding DateTo}" ToolTip="Filter by end issue date"/>
                             </StackPanel>
 
+                            <!-- PI number -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="PI NUMBER" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding PiOptions}" SelectedItem="{Binding PiFilter}" ToolTip="Filter by Proforma Invoice"/>
+                            </StackPanel>
+
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="Filter by customer"/>
                             </StackPanel>
 
                             <!-- Status -->

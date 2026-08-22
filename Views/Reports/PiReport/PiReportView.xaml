@@ -132,13 +132,19 @@
                             <!-- Company -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCompany, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CompanyOptions}" ToolTip="Filter by company"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CompanyOptions}" SelectedItem="{Binding SelectedCompany}" ToolTip="Filter by company"/>
                             </StackPanel>
 
                             <!-- Customer -->
                             <StackPanel Margin="0,0,8,6">
                                 <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" IsEditable="True" Text="{Binding SelectedCustomer, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding CustomerOptions}" ToolTip="Filter by customer"/>
+                                <ComboBox Width="130" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding CustomerOptions}" SelectedItem="{Binding SelectedCustomer}" ToolTip="Filter by customer"/>
+                            </StackPanel>
+
+                            <!-- Project -->
+                            <StackPanel Margin="0,0,8,6">
+                                <TextBlock Text="PROJECT" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <ComboBox Width="140" Style="{StaticResource ModuleListFilterComboStyle}" ItemsSource="{Binding ProjectOptions}" SelectedItem="{Binding SelectedProject}" ToolTip="Filter by project"/>
                             </StackPanel>
 
                             <!-- Status -->

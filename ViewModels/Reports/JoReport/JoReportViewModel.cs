@@ -17,9 +17,35 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
         {
             InitCommands();
             SelectedStatus = AllStatusesOption;
+            SourcePiFilter = AllFilter;
             _ = LoadFilterOptionsAsync();
             _ = LoadStatusOptionsAsync();
+            _ = LoadSourcePiOptionsAsync();
             _ = LoadAsync();
+        }
+
+        /// <summary>Sentinel shown at the top of the source-PI dropdown.</summary>
+        public const string AllFilter = "All";
+
+        private string _sourcePiFilter = AllFilter;
+        public string SourcePiFilter
+        {
+            get => _sourcePiFilter;
+            set { if (_sourcePiFilter == value) return; _sourcePiFilter = value ?? AllFilter; OnPropertyChanged(); }
+        }
+
+        private List<string> _sourcePiOptions = new() { AllFilter };
+        public List<string> SourcePiOptions { get => _sourcePiOptions; private set { _sourcePiOptions = value; OnPropertyChanged(); } }
+
+        private async Task LoadSourcePiOptionsAsync()
+        {
+            try
+            {
+                var list = new List<string> { AllFilter };
+                list.AddRange(await _service.GetJoSourcePiOptionsAsync());
+                SourcePiOptions = list;
+            }
+            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"JO source-PI options warning: {ex.Message}"); }
         }
 
         /// <summary>Populates the status dropdown from DISTINCT statuses
@@ -30,12 +56,14 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
             catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"JO status options warning: {ex.Message}"); }
         }
 
-        /// <summary>Maps the "All" sentinel back to no status filter.</summary>
+        /// <summary>Maps the "All" sentinel back to no filter.</summary>
         protected override ReportingFilter BuildFilter()
         {
             var filter = base.BuildFilter();
             if (string.Equals(filter.Status, AllStatusesOption, StringComparison.OrdinalIgnoreCase))
                 filter.Status = null;
+            filter.ProformaId = string.IsNullOrWhiteSpace(SourcePiFilter) || string.Equals(SourcePiFilter, AllFilter, StringComparison.OrdinalIgnoreCase)
+                ? null : SourcePiFilter.Trim();
             return filter;
         }
 
@@ -74,6 +102,7 @@ namespace ProGlassAutomation.ViewModels.Reports.JoReport
             base.InitCommands();
             ClearFilterCommand = new RelayCommand(_ =>
             {
+                SourcePiFilter = AllFilter;
                 ClearFilters();
                 SelectedStatus = AllStatusesOption;
             });

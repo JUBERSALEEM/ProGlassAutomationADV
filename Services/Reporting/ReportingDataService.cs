@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Reporting/ReportingDataService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Central Reporting — Data Intelligence Layer (HIGH PERFORMANCE CORE)
@@ -75,6 +75,10 @@ namespace ProGlassAutomation.Services.Reporting
         Task<List<string>> GetDeliveryGlassRefOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetDeliveryProjectOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetDeliverySalesmanOptionsAsync(CancellationToken ct = default);
+
+        // ── Module-specific filter lookups (each document's own dimension) ──
+        Task<List<string>> GetJoSourcePiOptionsAsync(CancellationToken ct = default);
+        Task<List<string>> GetTiProformaOptionsAsync(CancellationToken ct = default);
 
         // ── Tax Invoice Report ───────────────────────────────────────
         Task<TaxInvoiceReportSummary> GetTaxInvoiceSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
@@ -199,6 +203,8 @@ namespace ProGlassAutomation.Services.Reporting
                 query = query.Where(i => i.ProformaId == filter.ProformaId);
             if (!string.IsNullOrWhiteSpace(filter.Status))
                 query = query.Where(i => i.Status == filter.Status);
+            if (!string.IsNullOrWhiteSpace(filter.Project))
+                query = query.Where(i => i.ProjectName == filter.Project);
             if (filter.DateFrom.HasValue)
                 query = query.Where(i => i.IssueDate >= filter.DateFrom.Value || (i.IssueDate == default && i.CreatedAt >= filter.DateFrom.Value));
             if (filter.DateTo.HasValue)
@@ -268,6 +274,8 @@ namespace ProGlassAutomation.Services.Reporting
                 query = query.Where(i => i.ProformaId == filter.ProformaId);
             if (!string.IsNullOrWhiteSpace(filter.Status))
                 query = query.Where(i => i.Status == filter.Status);
+            if (!string.IsNullOrWhiteSpace(filter.Project))
+                query = query.Where(i => i.ProjectName == filter.Project);
             if (filter.DateFrom.HasValue)
                 query = query.Where(i => i.IssueDate >= filter.DateFrom.Value || (i.IssueDate == default && i.CreatedAt >= filter.DateFrom.Value));
             if (filter.DateTo.HasValue)
@@ -1675,8 +1683,11 @@ namespace ProGlassAutomation.Services.Reporting
             summary.TotalCount = await query.CountAsync(ct);
             if (summary.TotalCount == 0) return summary;
 
-            summary.TotalDebit = await query.SumAsync(x => x.Debit, ct);
-            summary.TotalCredit = await query.SumAsync(x => x.Credit, ct);
+            // SQLite cannot aggregate decimal server-side (no native decimal
+            // type), so materialize the Debit/Credit values and sum in memory.
+            var amounts = await query.Select(x => new { x.Debit, x.Credit }).ToListAsync(ct);
+            summary.TotalDebit = amounts.Sum(x => x.Debit);
+            summary.TotalCredit = amounts.Sum(x => x.Credit);
             summary.ClosingBalance = summary.TotalDebit - summary.TotalCredit;
 
             // Opening balance = outstanding (Debit − Credit) of documents
@@ -1693,8 +1704,11 @@ namespace ProGlassAutomation.Services.Reporting
                     DateTo = filter.DateFrom.Value.AddDays(-1)
                 };
                 var openingQuery = BuildStatementLineQuery(db, openingFilter);
+                var openingAmounts = await openingQuery
+                    .Select(x => new { x.Debit, x.Credit })
+                    .ToListAsync(ct);
                 summary.OpeningBalance = Math.Max(0,
-                    await openingQuery.SumAsync(x => x.Debit - x.Credit, ct));
+                    openingAmounts.Sum(x => x.Debit - x.Credit));
             }
 
             return summary;
@@ -2024,6 +2038,34 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex) { AppLogService.Warning($"Delivery salesman options warning: {ex.Message}"); }
             return new List<string>();
+        }
+
+        public async Task<List<string>> GetJoSourcePiOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new JobOrdersDbContext();
+                var list = await db.JobOrders.AsNoTracking()
+                    .Where(j => !string.IsNullOrWhiteSpace(j.SourceProformaId))
+                    .Select(j => j.SourceProformaId)
+                    .Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
+            }
+            catch { return new List<string>(); }
+        }
+
+        public async Task<List<string>> GetTiProformaOptionsAsync(CancellationToken ct = default)
+        {
+            try
+            {
+                using var db = new TaxInvoiceDbContext();
+                var list = await db.TaxInvoices.AsNoTracking()
+                    .Where(t => !string.IsNullOrWhiteSpace(t.ProformaId))
+                    .Select(t => t.ProformaId)
+                    .Distinct().ToListAsync(ct);
+                return list.Where(s => !string.IsNullOrWhiteSpace(s)).OrderBy(s => s).ToList()!;
+            }
+            catch { return new List<string>(); }
         }
 
         public async Task<List<string>> GetPiStatusOptionsAsync(CancellationToken ct = default)

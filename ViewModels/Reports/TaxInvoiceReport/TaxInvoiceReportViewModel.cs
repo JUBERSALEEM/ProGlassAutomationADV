@@ -17,9 +17,35 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
         {
             InitCommands();
             SelectedStatus = AllStatusesOption;
+            PiFilter = AllFilter;
             _ = LoadFilterOptionsAsync();
             _ = LoadStatusOptionsAsync();
+            _ = LoadPiOptionsAsync();
             _ = LoadAsync();
+        }
+
+        /// <summary>Sentinel shown at the top of the PI dropdown.</summary>
+        public const string AllFilter = "All";
+
+        private string _piFilter = AllFilter;
+        public string PiFilter
+        {
+            get => _piFilter;
+            set { if (_piFilter == value) return; _piFilter = value ?? AllFilter; OnPropertyChanged(); }
+        }
+
+        private List<string> _piOptions = new() { AllFilter };
+        public List<string> PiOptions { get => _piOptions; private set { _piOptions = value; OnPropertyChanged(); } }
+
+        private async Task LoadPiOptionsAsync()
+        {
+            try
+            {
+                var list = new List<string> { AllFilter };
+                list.AddRange(await _service.GetTiProformaOptionsAsync());
+                PiOptions = list;
+            }
+            catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI PI options warning: {ex.Message}"); }
         }
 
         /// <summary>Populates the status dropdown from DISTINCT statuses
@@ -30,12 +56,14 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
             catch (System.Exception ex) { Services.Logging.AppLogService.Warning($"TI status options warning: {ex.Message}"); }
         }
 
-        /// <summary>Maps the "All" sentinel back to no status filter.</summary>
+        /// <summary>Maps the "All" sentinel back to no filter.</summary>
         protected override ReportingFilter BuildFilter()
         {
             var filter = base.BuildFilter();
             if (string.Equals(filter.Status, AllStatusesOption, StringComparison.OrdinalIgnoreCase))
                 filter.Status = null;
+            filter.ProformaId = string.IsNullOrWhiteSpace(PiFilter) || string.Equals(PiFilter, AllFilter, StringComparison.OrdinalIgnoreCase)
+                ? null : PiFilter.Trim();
             return filter;
         }
 
@@ -63,6 +91,7 @@ namespace ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport
             base.InitCommands();
             ClearFilterCommand = new RelayCommand(_ =>
             {
+                PiFilter = AllFilter;
                 ClearFilters();
                 SelectedStatus = AllStatusesOption;
             });
