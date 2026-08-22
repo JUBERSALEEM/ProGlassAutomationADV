@@ -20,8 +20,8 @@ namespace ProGlassAutomation.Tests.Agent
         [Theory]
         [InlineData(ScreenRecordQuality.Hd720, 94, 16)]
         [InlineData(ScreenRecordQuality.FullHd, 96, 15)]
-        [InlineData(ScreenRecordQuality.Qhd2K, 96, 14)]
-        [InlineData(ScreenRecordQuality.Uhd4K, 97, 13)]
+        [InlineData(ScreenRecordQuality.Qhd2K, 97, 14)]
+        [InlineData(ScreenRecordQuality.Uhd4K, 98, 12)]
         public void Quality_uses_crisp_jpeg_and_crf(
             ScreenRecordQuality quality, int jpeg, int crf)
         {

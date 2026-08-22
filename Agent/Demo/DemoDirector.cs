@@ -106,9 +106,24 @@ namespace ProGlassAutomation.Agent.Demo
                     return Status;
                 }
 
-                string folder = NewJobFolder(module);
-                LastOutputFolder = folder;
-                log.AppendLine("Output: " + folder);
+                // Fail before capture, not after leaving thousands of JPEGs.
+                // Manual recording already had this preflight; Demo recording
+                // did not, which was the main reason users received a frames/
+                // live.wav package instead of one MP4 when ffmpeg was absent.
+                FfmpegMp4Composer.InvalidateCache();
+                if (FfmpegMp4Composer.Find() == null)
+                {
+                    Fail(module,
+                        "ffmpeg is not installed, so a single MP4 cannot be packed. Install it from Settings → Demo Center and press Recheck.",
+                        log, folder: null);
+                    return Status;
+                }
+
+                string folder = NewJobFolder(module); // private working area
+                string outputFolder = GetOutputFolder(module);
+                LastOutputFolder = outputFolder;
+                log.AppendLine("Working area: " + folder);
+                log.AppendLine("MP4 output: " + outputFolder);
 
                 var rec = (RecordSettings ?? new ScreenRecordSettings()).Clone().Clamp();
                 Set(DemoJobState.Recording,
@@ -279,8 +294,9 @@ namespace ProGlassAutomation.Agent.Demo
                 CaptionWriter.Write(folder, beats);
 
                 var (outW, outH) = rec.OutputSize;
-                string mp4Name = runner.OutputFileName;
-                string mp4 = Path.Combine(folder, mp4Name);
+                string baseName = Path.GetFileNameWithoutExtension(runner.OutputFileName);
+                string mp4Name = baseName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".mp4";
+                string mp4 = Path.Combine(outputFolder, mp4Name);
                 string audioForMux = liveOk ? liveMix! : narrationWav!;
                 string? produced = null;
 
@@ -348,7 +364,7 @@ namespace ProGlassAutomation.Agent.Demo
                     State = nameof(DemoJobState.Completed),
                     Status = $"Wrote {mp4Name} ({info.Length} bytes). {durationNote}.",
                     Mp4Path = mp4,
-                    Folder = folder,
+                    Folder = outputFolder,
                     VerifiedEvents = events.Count
                 });
 
@@ -366,6 +382,10 @@ namespace ProGlassAutomation.Agent.Demo
                 // needed. Reuses the shared cleanup helper from UserScreenRecordService.
                 Services.Recording.UserScreenRecordService
                     .CleanupFolderForDemo(folder);
+                // Demo working files are never part of the deliverable. The
+                // public DemoVideos folder contains only the packed MP4.
+                try { Directory.Delete(folder, recursive: true); }
+                catch (Exception ex) { AppLogService.Warning("Demo work cleanup: " + ex.Message); }
                 return Status;
             }
             catch (OperationCanceledException)
@@ -383,7 +403,9 @@ namespace ProGlassAutomation.Agent.Demo
             catch (Exception ex)
             {
                 AppLogService.Debug($"[DemoDirector] {ex}");
-                Fail(LastArgument ?? "", "Demo stopped: " + ex.Message, log, LastOutputFolder);
+                // Public DemoVideos is MP4-only. Diagnostics belong to the
+                // private work area/log, never beside deliverables.
+                Fail(LastArgument ?? "", "Demo stopped: " + ex.Message, log, folder: null);
                 return Status;
             }
         }
@@ -450,8 +472,20 @@ namespace ProGlassAutomation.Agent.Demo
                 char.IsLetterOrDigit(ch) || ch is '-' or '_'));
             if (safe.Length == 0) safe = "Demo";
             string root = Path.Combine(
-                Services.Database.AppDataRoot.DemoFolder, "DemoVideos");
-            string dir = Path.Combine(root, safe, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+                Services.Database.AppDataRoot.DemoFolder, ".recording-work");
+            string dir = Path.Combine(root, safe + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_fff"));
+            Directory.CreateDirectory(dir);
+            try { new DirectoryInfo(root).Attributes |= FileAttributes.Hidden; } catch { }
+            return dir;
+        }
+
+        private static string GetOutputFolder(string module)
+        {
+            string safe = string.Concat((module ?? "Demo").Where(ch =>
+                char.IsLetterOrDigit(ch) || ch is '-' or '_'));
+            if (safe.Length == 0) safe = "Demo";
+            string dir = Path.Combine(
+                Services.Database.AppDataRoot.DemoFolder, "DemoVideos", safe);
             Directory.CreateDirectory(dir);
             return dir;
         }

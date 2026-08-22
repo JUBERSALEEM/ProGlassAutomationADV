@@ -56,7 +56,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         public int Fps { get; set; } = 30;
         public bool CaptureLiveAudio { get; set; } = true;
         public bool CaptureMicrophone { get; set; } = true;
-        public int JpegQuality { get; set; } = 96;
+        public int JpegQuality { get; set; } = 98;
 
         /// <summary>
         /// When true, frames are captured at a supersampled size and
@@ -108,8 +108,8 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         {
             ScreenRecordQuality.Hd720 => 94,
             ScreenRecordQuality.FullHd => 96,
-            ScreenRecordQuality.Qhd2K => 96,
-            ScreenRecordQuality.Uhd4K => 97,
+            ScreenRecordQuality.Qhd2K => 97,
+            ScreenRecordQuality.Uhd4K => 98,
             _ => 96
         };
 
@@ -122,7 +122,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             ScreenRecordQuality.Hd720 => 16,
             ScreenRecordQuality.FullHd => 15,
             ScreenRecordQuality.Qhd2K => 14,
-            ScreenRecordQuality.Uhd4K => 13,
+            ScreenRecordQuality.Uhd4K => 12,
             _ => 15
         };
 
@@ -164,7 +164,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     : 60;
             }
 
-            JpegQuality = Math.Clamp(JpegQuality, 50, 96);
+            JpegQuality = Math.Clamp(JpegQuality, 50, 100);
             return this;
         }
     }
