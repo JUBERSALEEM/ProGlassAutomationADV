@@ -734,12 +734,12 @@ namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 
         public static void LabelValue(ColumnDescriptor col, string label, string? value)
         {
-            col.Item().PaddingTop(1).Row(r =>
+            col.Item().PaddingTop(3).Row(r =>
             {
                 r.AutoItem()
-                    .Text($"{label} ")
+                    .Text($"{label}")
                     .FontSize(8).FontColor(T.Muted);
-                r.RelativeItem()
+                r.RelativeItem().PaddingLeft(6)
                     .Text(string.IsNullOrWhiteSpace(value) ? "—" : value)
                     .FontSize(8).SemiBold().FontColor(T.Text);
             });

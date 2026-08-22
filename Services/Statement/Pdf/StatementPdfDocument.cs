@@ -104,6 +104,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             {
                 col.Item().Element(RenderCustomerBlock);
 
+                col.Item().PaddingTop(8).Element(RenderAppliedFilters);
+
                 col.Item().PaddingTop(10).PaddingBottom(6)
                    .LineHorizontal(1).LineColor(LINE);
 
@@ -171,8 +173,11 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         col.Item().Text(_snap.CustomerInfo.CompanyName ?? "")
                             .FontSize(11).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.SalesmanName))
+                        {
+                            col.Item().PaddingTop(4);
                             PdfChrome.LabelValue(col, "Salesman",
                                 _snap.CustomerInfo.SalesmanName);
+                        }
                     }));
                 row.ConstantItem(12);
                 row.RelativeItem().Element(c =>
@@ -181,10 +186,67 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         col.Item().Text(_snap.CustomerInfo.CustomerName ?? "")
                             .FontSize(11).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.ProjectName))
+                        {
+                            col.Item().PaddingTop(4);
                             PdfChrome.LabelValue(col, "Project",
                                 _snap.CustomerInfo.ProjectName);
+                        }
                     }));
             });
+        }
+
+        /// <summary>
+        /// Renders a dedicated "Applied filters" block so the statement always
+        /// shows exactly which filters were used (customer / project / company /
+        /// salesman / period / status) — not just crammed into the header meta.
+        /// </summary>
+        private void RenderAppliedFilters(IContainer container)
+        {
+            var raw = _snap.Header.FilterSummary ?? "";
+            if (string.IsNullOrWhiteSpace(raw)) return;
+
+            var filters = raw.Split(
+                new[] { "  |  ", " | ", " |", "| " },
+                StringSplitOptions.RemoveEmptyEntries)
+                .Select(f => f.Trim())
+                .Where(f => f.Length > 0)
+                .ToList();
+
+            if (filters.Count == 0) return;
+
+            container.Background(LIGHT_BG)
+                .Border(0.6f).BorderColor(LINE)
+                .Padding(10)
+                .Column(col =>
+                {
+                    col.Item().Text("APPLIED FILTERS")
+                        .FontSize(8).Bold().FontColor(ACCENT);
+                    col.Item().PaddingTop(6);
+
+                    foreach (var f in filters)
+                    {
+                        var idx = f.IndexOf(':');
+                        if (idx > 0)
+                        {
+                            var label = f.Substring(0, idx).Trim();
+                            var value = f.Substring(idx + 1).Trim();
+                            col.Item().PaddingTop(2).Row(r =>
+                            {
+                                r.ConstantItem(70)
+                                    .Text(label.ToUpperInvariant())
+                                    .FontSize(7.5f).FontColor(MUTED);
+                                r.RelativeItem().PaddingLeft(4)
+                                    .Text(value)
+                                    .FontSize(8.5f).SemiBold().FontColor(DARK);
+                            });
+                        }
+                        else
+                        {
+                            col.Item().PaddingTop(2).Text(f)
+                                .FontSize(8.5f).SemiBold().FontColor(DARK);
+                        }
+                    }
+                });
         }
 
         private void RenderInvoiceTable(IContainer container)

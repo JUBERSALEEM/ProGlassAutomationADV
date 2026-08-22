@@ -626,6 +626,16 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         /// <summary>Per-PI line-item reconciliation (real, computed in Step 6).</summary>
         public ObservableCollection<OrderReconciliationSummary> LastReconciliationSummaries { get; } = new();
 
+        /// <summary>
+        /// Flattened line items that ARE part of the statement — delivered and/or
+        /// invoiced (Included in Statement).</summary>
+        public ObservableCollection<OrderReconciliationRow> LastIncludedLines { get; } = new();
+
+        /// <summary>
+        /// Flattened line items still DUE — not yet delivered and not yet
+        /// tax-invoiced (Balance). These are NOT in the statement yet.</summary>
+        public ObservableCollection<OrderReconciliationRow> LastDueLines { get; } = new();
+
         /// <summary>True when at least one PI has a billing discrepancy.</summary>
         public bool LastHasReconciliationIssue =>
             LastReconciliationSummaries.Any(s => s.HasDiscrepancies);
@@ -1411,6 +1421,34 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             try
             {
                 var filter = BuildFilter();
+
+                // ── Duplicate guard ─────────────────────────────────────────
+                // If a statement with the same filters already exists, ask the
+                // user before producing another identical one (prevents the
+                // "4 statements, same filters" pile-up).
+                var duplicate = await FindDuplicateStatementAsync(filter);
+                if (duplicate != null && !IsEditMode)
+                {
+                    IsGenerating = false;
+                    LastWorkflowStatusText = "Duplicate detected";
+                    LiveAddLogEntry(LogSeverity.Warning,
+                        $"› ⚠ A statement with these filters already exists: {duplicate.StatementNumber}");
+                    var confirm = System.Windows.MessageBox.Show(
+                        $"A statement with the same filters already exists:\n\n" +
+                        $"  {duplicate.StatementNumber} — {duplicate.SubTitle}\n\n" +
+                        $"Do you want to generate another copy anyway?",
+                        "Duplicate Statement",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Warning,
+                        System.Windows.MessageBoxResult.No);
+                    if (confirm != System.Windows.MessageBoxResult.Yes)
+                    {
+                        StatusMessage = "Generation cancelled — duplicate statement exists.";
+                        return;
+                    }
+                    IsGenerating = true;
+                }
+
                 var number = await Task.Run(() => _repo.GetNextStatementNumberAsync());
 
                 LiveAddLogEntry(LogSeverity.Info, $"› Statement number: {number}");
@@ -1820,6 +1858,25 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 foreach (var s in wf.ReconciliationSummaries)
                     LastReconciliationSummaries.Add(s);
 
+                // Split the flattened line items into "Included in statement"
+                // (delivered and/or invoiced) vs "Due / Balance" (not yet
+                // delivered AND not yet invoiced), so the Review step can show
+                // exactly which lines are in the statement and which are pending.
+                LastIncludedLines.Clear();
+                LastDueLines.Clear();
+                foreach (var summary in wf.ReconciliationSummaries)
+                {
+                    foreach (var row in summary.Rows)
+                    {
+                        if (row.DeliveredQty > 0 || row.InvoicedQty > 0)
+                            LastIncludedLines.Add(row);
+                        else
+                            LastDueLines.Add(row);
+                    }
+                }
+                OnPropertyChanged(nameof(LastIncludedLines));
+                OnPropertyChanged(nameof(LastDueLines));
+
                 OnPropertyChanged(nameof(LastHasReconciliationIssue));
 
                 BuildWorkflowWarnings(wf);
@@ -2222,6 +2279,50 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             IncludeAttachments = _includeAttachments,
             IncludeDnDetails = _includeDnDetails
         };
+
+        /// <summary>
+        /// Finds an existing saved statement that was generated with the same
+        /// primary filters (company / customer / project / salesman / date
+        /// range). Returns null when no duplicate exists, so the generator can
+        /// warn the user instead of silently piling up identical statements.
+        /// </summary>
+        private async Task<StatementListItem?> FindDuplicateStatementAsync(StatementFilter filter)
+        {
+            try
+            {
+                var existing = await _repo.GetAllAsync();
+
+                foreach (var item in existing)
+                {
+                    if (!SameText(item.FilterCompany, filter.CompanyName)) continue;
+                    if (!SameText(item.FilterCustomer, filter.CustomerName)) continue;
+                    if (!SameText(item.FilterProject, filter.ProjectName)) continue;
+                    if (!SameText(item.FilterSalesman, filter.SalesmanName)) continue;
+                    if (!SameDate(item.FilterDateFrom, filter.DateFrom)) continue;
+                    if (!SameDate(item.FilterDateTo, filter.DateTo)) continue;
+
+                    return item;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Duplicate detection is best-effort — never block generation
+                // on a DB read failure.
+                AppLogService.Debug($"[StatementGenerator] Duplicate check failed: {ex.Message}");
+            }
+
+            return null;
+        }
+
+        private static bool SameText(string? a, string? b) =>
+            string.Equals((a ?? "").Trim(), (b ?? "").Trim(), StringComparison.OrdinalIgnoreCase);
+
+        private static bool SameDate(DateTime? a, DateTime? b)
+        {
+            if (a.HasValue != b.HasValue) return false;
+            if (!a.HasValue) return true;
+            return a.Value.Date == b.Value.Date;
+        }
 
         private void ClearFilters()
         {
