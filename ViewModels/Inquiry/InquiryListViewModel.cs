@@ -48,6 +48,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public string SelectedStatus { get; set; } = "All statuses";
         public string SelectedSalesman { get; set; } = "All salesmen";
         public string SelectedPriority { get; set; } = "All priorities";
+        public bool HasAttachmentsOnly { get; set; }
 
         public ICommand NewInquiryCommand { get; }
         public ICommand ExportCommand { get; }
@@ -83,9 +84,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             SearchText = ""; SelectedDateRange = "Today"; SelectedStatus = "All statuses";
             SelectedSalesman = "All salesmen"; SelectedPriority = "All priorities";
+            HasAttachmentsOnly = false;
             OnPropertyChanged(nameof(SearchText)); OnPropertyChanged(nameof(SelectedDateRange));
             OnPropertyChanged(nameof(SelectedStatus)); OnPropertyChanged(nameof(SelectedSalesman));
-            OnPropertyChanged(nameof(SelectedPriority));
+            OnPropertyChanged(nameof(SelectedPriority)); OnPropertyChanged(nameof(HasAttachmentsOnly));
         }
     }
 
@@ -105,6 +107,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public string DownstreamStatus { get; set; } = "Not started";
         public string UpdatedBy { get; set; } = "";
         public string ContactSummary { get; set; } = "";
+        public string NotesPreview { get; set; } = "";
         public string DocumentChainText { get; set; } = "Inquiry → PI not created";
         public ObservableCollection<InquiryAttachmentPreview> Attachments { get; } = new();
         public ObservableCollection<string> RecentActivity { get; } = new();
