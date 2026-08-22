@@ -194,7 +194,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding LevelDisplay}"
-                                                               FontSize="9" FontWeight="Bold">
+                                                               FontSize="10" FontWeight="Bold">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">
                                                                 <Setter Property="Foreground"

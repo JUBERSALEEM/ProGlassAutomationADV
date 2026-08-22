@@ -72,7 +72,7 @@
                                                     VerticalAlignment="Center"
                                                     Background="{DynamicResource TintBlueBrush}">
                                                 <TextBlock Text="{Binding Kind}"
-                                                           FontSize="9" FontWeight="Bold"
+                                                           FontSize="10" FontWeight="Bold"
                                                            Foreground="{DynamicResource InfoBrush}"/>
                                             </Border>
                                         </StackPanel>

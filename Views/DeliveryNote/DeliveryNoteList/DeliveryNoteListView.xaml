@@ -149,7 +149,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
-                                <TextBlock Text="{Binding StatusLabel}" FontSize="9" FontWeight="Bold">
+                                <TextBlock Text="{Binding StatusLabel}" FontSize="10" FontWeight="Bold">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
@@ -165,7 +165,7 @@
                             <Border Background="{DynamicResource TintIndigoBrush}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="7,2">
-                                <TextBlock FontSize="9" FontWeight="Bold"
+                                <TextBlock FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding DnCount, Mode=OneWay}"/><Run Text=" DNs"/>
                                 </TextBlock>
@@ -177,7 +177,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasFoc,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="FOC" FontSize="9" FontWeight="Bold"
+                                <TextBlock Text="FOC" FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
                             <Border Background="{DynamicResource TintAmberBrush}"
@@ -185,7 +185,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasRework,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="REWORK" FontSize="9" FontWeight="Bold"
+                                <TextBlock Text="REWORK" FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
                             <Border Background="{DynamicResource TintRedBrush}"
@@ -193,7 +193,7 @@
                                     Padding="7,2" Margin="0,0,4,2"
                                     Visibility="{Binding HasReturn,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="RETURN" FontSize="9" FontWeight="Bold"
+                                <TextBlock Text="RETURN" FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Border>
                         </WrapPanel>

@@ -352,7 +352,7 @@
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="TRY ASKING"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -409,7 +409,7 @@
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
                                                            Foreground="#FFFFFFAA"
-                                                           FontSize="9"
+                                                           FontSize="10"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,4,0,0"
                                                            IsHitTestVisible="False"/>
@@ -424,7 +424,7 @@
                                                            TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,6,0,0">
-                                                    <TextBlock FontSize="9"
+                                                    <TextBlock FontSize="10"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>

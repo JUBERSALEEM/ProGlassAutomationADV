@@ -119,7 +119,7 @@
                                                                     Margin="5,0,0,0"
                                                                     Background="{DynamicResource MenuHoverBrush}"
                                                                     VerticalAlignment="Center">
-                                                                <TextBlock FontSize="9" FontWeight="Bold"
+                                                                <TextBlock FontSize="10" FontWeight="Bold"
                                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                                     <Run Text="#"/>
                                                                     <Run Text="{Binding SequenceNumber, Mode=OneWay}"/>
@@ -140,7 +140,7 @@
         VerticalAlignment="Center"
         Visibility="{Binding HasAttachments,
             Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock FontSize="9" FontWeight="Bold"
+                                                                <TextBlock FontSize="10" FontWeight="Bold"
                Foreground="{DynamicResource PrimaryForegroundBrush}">
         <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
         <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
@@ -157,7 +157,7 @@
         Visibility="{Binding IsInvoiced,
             Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="{Binding InvoicedBadgeText, Mode=OneWay}"
-               FontSize="9" FontWeight="Bold"
+               FontSize="10" FontWeight="Bold"
                Foreground="{DynamicResource SuccessBrush}"/>
                                                             </Border>
                                                         </StackPanel>
@@ -193,7 +193,7 @@
                                                                 Background="{Binding StatusBrushKey,
                                                                              Converter={StaticResource BrushKeyConverter}}">
                                                             <TextBlock Text="{Binding Status}"
-                                                                       FontSize="9" FontWeight="Bold"
+                                                                       FontSize="10" FontWeight="Bold"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         </Border>
                                                         <!-- CHAT 19 INVOICED:

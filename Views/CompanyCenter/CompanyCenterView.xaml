@@ -144,7 +144,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="DEFAULT" FontSize="9"
+                                            <TextBlock Text="DEFAULT" FontSize="10"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>

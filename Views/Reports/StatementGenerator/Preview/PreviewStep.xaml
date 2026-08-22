@@ -724,7 +724,7 @@
                                                         ToolTip="Total ordered on Proforma Invoice">
                                                     <StackPanel>
                                                         <TextBlock Text="ORDERED"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                         <TextBlock Text="{Binding TotalOrderedQty}"
                                                                    FontSize="13" FontWeight="Bold"
@@ -742,7 +742,7 @@
                                                         ToolTip="Total delivered across all Delivery Notes">
                                                     <StackPanel>
                                                         <TextBlock Text="DELIVERED"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource SuccessBrush}"/>
                                                         <TextBlock Text="{Binding TotalDeliveredQty}"
                                                                    FontSize="13" FontWeight="Bold"
@@ -760,7 +760,7 @@
                                                         ToolTip="Balance pending delivery">
                                                     <StackPanel>
                                                         <TextBlock Text="BALANCE"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource WarningBrush}"/>
                                                         <TextBlock Text="{Binding TotalBalanceQty}"
                                                                    FontSize="13" FontWeight="Bold"
@@ -778,7 +778,7 @@
                                                         ToolTip="Total invoiced across all Tax Invoices">
                                                     <StackPanel>
                                                         <TextBlock Text="INVOICED"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource AccentDarkBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoicedQty}"
                                                                    FontSize="13" FontWeight="Bold"
@@ -810,7 +810,7 @@
                                                     </Border.Style>
                                                     <StackPanel>
                                                         <TextBlock Text="DIFF"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoiceVsDeliveryDiff}"
                                                                    FontSize="13" FontWeight="Bold"

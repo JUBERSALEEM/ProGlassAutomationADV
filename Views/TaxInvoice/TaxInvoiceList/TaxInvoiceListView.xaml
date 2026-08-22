@@ -166,7 +166,7 @@
                                 Background="{Binding FamilyStatusBrushKey,
                                              Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding FamilyStatus}"
-                                       FontSize="9" FontWeight="Bold"
+                                       FontSize="10" FontWeight="Bold"
                                        Foreground="White"
                                        HorizontalAlignment="Center"/>
                         </Border>
@@ -176,7 +176,7 @@
                                 HorizontalAlignment="Center"
                                 Visibility="{Binding AnyOverdue,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                            <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
+                            <TextBlock Text="OVERDUE" FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource DangerBrush}"/>
                         </Border>
                     </StackPanel>

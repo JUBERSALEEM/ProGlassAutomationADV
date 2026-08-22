@@ -464,7 +464,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="ACTIVE NOW"
-                                                               FontSize="9" FontWeight="Bold"
+                                                               FontSize="10" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
                                             </StackPanel>

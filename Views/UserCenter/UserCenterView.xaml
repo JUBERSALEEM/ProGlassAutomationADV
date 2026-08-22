@@ -175,7 +175,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="SIGNED IN" FontSize="9"
+                                            <TextBlock Text="SIGNED IN" FontSize="10"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>

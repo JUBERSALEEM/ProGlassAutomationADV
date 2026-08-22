@@ -105,7 +105,7 @@
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding IsCurrentInvoice,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                                            <TextBlock FontSize="9" FontWeight="Bold"
+                                                            <TextBlock FontSize="10" FontWeight="Bold"
                                                                        Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="  EDITING"/></TextBlock>
                                                         </Border>
 
@@ -116,7 +116,7 @@
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding HasAttachments,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                                            <TextBlock FontSize="9" FontWeight="Bold"
+                                                            <TextBlock FontSize="10" FontWeight="Bold"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}">
                                                                 <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
                                                                 <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
@@ -133,7 +133,7 @@
                                                                      Converter="{StaticResource BrushKeyConverter}"/>
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding StatusLabel}"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     </Border>
                                                 </Grid>
@@ -147,7 +147,7 @@
                                                                      Converter="{StaticResource BrushKeyConverter}"/>
                                                         </Border.Background>
                                                         <TextBlock Text="{Binding InvoiceTypeLabel}"
-                                                                   FontSize="9" FontWeight="Bold"
+                                                                   FontSize="10" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     </Border>
 

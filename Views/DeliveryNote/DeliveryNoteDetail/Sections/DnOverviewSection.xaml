@@ -113,7 +113,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="PROGRESS"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    VerticalAlignment="Center"/>
                         <TextBlock Grid.Column="1"

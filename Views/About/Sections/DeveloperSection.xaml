@@ -50,7 +50,8 @@
                                 ClipToBounds="True">
                             <Border.Background>
                                 <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
-                                            Stretch="UniformToFill"/>
+                                            Stretch="UniformToFill"
+                                            RenderOptions.BitmapScalingMode="HighQuality"/>
                             </Border.Background>
                         </Border>
                     </Border>

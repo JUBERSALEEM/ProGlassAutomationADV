@@ -178,7 +178,7 @@
                            Foreground="{StaticResource GlassSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Label}"
-                           FontSize="9" FontWeight="Bold"
+                           FontSize="10" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,2,0,0"
                            Foreground="{StaticResource GlassAccent}"
@@ -228,7 +228,7 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                         VerticalAlignment="Center"
                         SnapsToDevicePixels="True">
-                    <TextBlock Text="ACTIVE" FontSize="9" FontWeight="Bold"
+                    <TextBlock Text="ACTIVE" FontSize="10" FontWeight="Bold"
                                Foreground="{StaticResource GlassAccent}"
                                IsHitTestVisible="False"/>
                 </Border>

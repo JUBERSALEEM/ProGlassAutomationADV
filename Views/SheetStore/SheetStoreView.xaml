@@ -675,7 +675,7 @@
                                         BorderBrush="{DynamicResource SuccessBrush}"
                                         BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="STOCK" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding DisplayStock}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -685,7 +685,7 @@
                                         BorderBrush="{DynamicResource DangerBrush}"
                                         BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="USED" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
+                                        <TextBlock Text="USED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding DisplayUsed}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
@@ -695,7 +695,7 @@
                                         BorderBrush="{DynamicResource WarningBrush}"
                                         BorderThickness="1">
                                     <StackPanel>
-                                        <TextBlock Text="BALANCE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Text="BALANCE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                         <TextBlock Text="{Binding DisplayBalance}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>

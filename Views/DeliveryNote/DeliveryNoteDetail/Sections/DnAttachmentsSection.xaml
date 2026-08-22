@@ -86,7 +86,8 @@
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
-                                               HorizontalAlignment="Center" Opacity="0.4"/>
+                                               HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="No attachments yet"
                                                FontSize="13" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"

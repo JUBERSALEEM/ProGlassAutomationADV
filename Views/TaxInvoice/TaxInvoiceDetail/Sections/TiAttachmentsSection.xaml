@@ -106,7 +106,7 @@
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
                                                HorizontalAlignment="Center"
-                                               Opacity="0.4"/>
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="No attachments yet"
                                                FontSize="13" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"

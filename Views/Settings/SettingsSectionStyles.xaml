@@ -192,14 +192,14 @@
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True"/>
                         <TextBlock x:Name="OffLabel" Text="OFF"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="White"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    Margin="0,0,9,0"
                                    IsHitTestVisible="False"/>
                         <TextBlock x:Name="OnLabel" Text="ON"
-                                   FontSize="9" FontWeight="Bold"
+                                   FontSize="10" FontWeight="Bold"
                                    Foreground="White"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"

@@ -370,7 +370,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="Production status">
                                                 <TextBlock Text="{Binding StatusLabel}"
-                                                           FontSize="9" FontWeight="Bold"
+                                                           FontSize="10" FontWeight="Bold"
                                                            Foreground="White"/>
                                             </Border>
                                             <Border Margin="0,2,0,0"
@@ -381,7 +381,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="Delivery status">
                                                 <TextBlock Text="{Binding DisplayStatus}"
-                                                           FontSize="9" FontWeight="Bold"
+                                                           FontSize="10" FontWeight="Bold"
                                                            Foreground="White"/>
                                             </Border>
                                         </StackPanel>

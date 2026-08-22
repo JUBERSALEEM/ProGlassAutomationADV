@@ -220,6 +220,26 @@ per-module product decisions on real fields/columns, a separate effort).
   | Polish (✨) | `E895` | Doubling/Lamination (📚) | `E81C` |
   | Edge Deletion (📐) | `E774` | | |
 
-### 5.2–5.6 — remaining (not started)
+### 5.2 — remaining visibility/quality findings (R3, R4, C2) ✅
+Folded the last open global polish items into the module pass (they were deferred
+by the earlier sharpness/visibility sweeps but are concrete and low-risk):
+
+- **R3 — HighQuality image scaling** ✅
+  `RenderOptions.BitmapScalingMode="HighQuality"` added to the app-icon `ImageBrush`
+  in `AboutView.xaml` + `About/Sections/DeveloperSection.xaml` (was soft at
+  non-integer sizes).
+- **R4 — low-opacity empty-state glyphs → muted brush** ✅
+  `DnAttachmentsSection.xaml` + `TiAttachmentsSection.xaml` "No attachments yet"
+  glyphs: `Opacity="0.4"` (nearly vanished on light theme) → `Foreground=
+  {DynamicResource MutedForegroundBrush}`.
+- **C2 — micro-text floor at 10px** ✅
+  Bumped `FontSize="9"` → `10` on **43 elements / 19 files** (non-print views):
+  AiChat (TRY ASKING, timestamps, provider line), DN/TI status badges + history +
+  family chips, SheetStore STOCK/USED/BALANCE, Settings toggles, ChangesDialog,
+  Diagnostics, UserCenter "SIGNED IN", CompanyCenter "DEFAULT", etc.
+  **Kept at 9px:** the two MDL2 *icon* glyphs (AiChat stop-button `E711`,
+  `OtherChargesView` chevron `E70D`) — those size an icon, not text.
+
+### 5.3–5.6 — remaining (not started)
 PI wizard steps, DN/JO/TI detail polish, SheetStore, Reports, Settings — and the
 "module shells vs. real content" decision for the 9 placeholder modules.

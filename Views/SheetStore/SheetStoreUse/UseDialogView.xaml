@@ -84,7 +84,7 @@
                              BorderBrush="{DynamicResource MenuHoverBrush}"
                              ToolTip="e.g., JO-2025-001 or customer name"/>
                     <TextBlock Text="Track which job order or customer is consuming these sheets"
-                               FontSize="9" FontStyle="Italic" Margin="4,4,0,0"
+                               FontSize="10" FontStyle="Italic" Margin="4,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
             </Border>
