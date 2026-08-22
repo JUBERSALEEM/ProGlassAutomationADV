@@ -6,6 +6,6 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override string ModuleName => "Polish";
         public override string Description => "Track polishing operations for edges and surfaces.";
-        public override string Icon => "\u2728"; // ✨
+        public override string Icon => "\uE895"; // ✨ → Segoe MDL2 (matches AboutView Polish stage)
     }
 }

@@ -1,10 +1,50 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Shared.ComingSoonView"
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/ComingSoonView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — placeholder hero for not-yet-built modules
+
+     Rendered by the 9 placeholder modules (Optimization + 8 Production
+     stages). A full-page hero — not a bounding card — so it reads as a
+     deliberate "under construction" landing rather than an empty list.
+
+     Phase 5 upgrades:
+       • R2  — SnapsToDevicePixels / UseLayoutRounding / ClearType +
+               Fixed hinting added (was soft/blurry).
+       • D3  — icon now Segoe MDL2 Assets (ViewModels return the
+               canonical glyphs matching AboutView's production stages).
+       • C4  — glyph/pill text use OnAccentForegroundBrush, not white.
+       • C5  — accent gradient tile follows AccentColor/AccentDarkColor.
+     Theme-correct throughout: no hardcoded colours.
+═══════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.Shared.ComingSoonView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             FontFamily="{DynamicResource AppFontFamily}">
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
-            <Border Width="110" Height="110" CornerRadius="{DynamicResource CardCornerRadius}" HorizontalAlignment="Center">
+
+        <!-- Ambient accent wash behind the hero, so the placeholder sits
+             on the same soft tinted stage as the dashboards (theme-aware). -->
+        <Border Background="{DynamicResource DashAmbientBrush}"
+                Opacity="0.5"
+                IsHitTestVisible="False"/>
+
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MaxWidth="560"
+                    SnapsToDevicePixels="True">
+
+            <!-- ══ Accent icon badge ═════════════════════════════════ -->
+            <Border Width="96" Height="96"
+                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                    HorizontalAlignment="Center"
+                    SnapsToDevicePixels="True">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
@@ -12,24 +52,73 @@
                     </LinearGradientBrush>
                 </Border.Background>
                 <Border.Effect>
-                    <DropShadowEffect BlurRadius="25" ShadowDepth="4" Opacity="0.35" Color="Black"/>
+                    <DropShadowEffect BlurRadius="30"
+                                      ShadowDepth="5"
+                                      Opacity="0.30"
+                                      Color="Black"/>
                 </Border.Effect>
-                <TextBlock Text="{Binding Icon}" FontSize="52"
+                <TextBlock Text="{Binding Icon}"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="46"
                            Foreground="{DynamicResource OnAccentForegroundBrush}"
-                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"/>
             </Border>
-            <TextBlock Text="{Binding ModuleName}" FontSize="38" FontWeight="Bold"
-                       HorizontalAlignment="Center" Margin="0,26,0,0"
+
+            <!-- ══ Status chip (badge above the heading) ══════════════ -->
+            <Border Background="{DynamicResource TintIndigoBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                    Padding="14,6"
+                    HorizontalAlignment="Center"
+                    Margin="0,24,0,0"
+                    SnapsToDevicePixels="True">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="7" Height="7"
+                             Fill="{DynamicResource AccentBrush}"
+                             VerticalAlignment="Center"
+                             IsHitTestVisible="False"/>
+                    <TextBlock Text="COMING SOON"
+                               FontSize="10"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}"
+                               Margin="8,0,0,0"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ══ Module name ════════════════════════════════════════ -->
+            <TextBlock Text="{Binding ModuleName}"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       Margin="0,18,0,0"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-            <TextBlock Text="{Binding Description}" FontSize="15"
-                       HorizontalAlignment="Center" TextAlignment="Center"
-                       Margin="0,10,0,0" TextWrapping="Wrap"
+
+            <!-- ══ Description ════════════════════════════════════════ -->
+            <TextBlock Text="{Binding Description}"
+                       FontSize="13"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       LineHeight="20"
+                       MaxWidth="460"
+                       Margin="0,10,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            <Border Background="{DynamicResource AccentBrush}" CornerRadius="{DynamicResource CardCornerRadius}"
-                    Padding="18,6" HorizontalAlignment="Center" Margin="0,20,0,0">
-                <TextBlock Text="COMING SOON" FontSize="12" FontWeight="Bold"
-                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-            </Border>
+
+            <!-- ══ Roadmap hint ═══════════════════════════════════════ -->
+            <TextBlock Text="This module is in development and will be available in an upcoming release."
+                       FontSize="11"
+                       FontStyle="Italic"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       Margin="0,24,0,0"
+                       Foreground="{DynamicResource MutedForegroundBrush}"/>
         </StackPanel>
     </Grid>
 </UserControl>

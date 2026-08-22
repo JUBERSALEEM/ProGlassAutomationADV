@@ -186,3 +186,40 @@ where hardcoded hex actually caused theme breaks or contrast regressions.
   the always-dark `RecordOverlayWindow` HUD, and `Color="#000000"` drop-shadows.
 - **AiChat dark header** (`#E0E0FF` subtitle, `#33FFFFFF` icon bg, `#FFFFFFAA` timestamp)
   — white-alpha on the fixed dark chat header, correct as-is.
+
+---
+
+## Phase 5 — module-by-module redesign (IN PROGRESS)
+
+§6 item 5: "Placeholders → real ComingSoon (better visual) or module shells; then
+PI wizard steps, DN/JO/TI details, SheetStore, Reports, Settings."
+
+### 5.1 — Placeholders → better ComingSoon ✅
+Chose the **"better visual ComingSoon"** route (not module shells yet — those need
+per-module product decisions on real fields/columns, a separate effort).
+
+- **`Views/Shared/ComingSoonView.xaml` rebuilt** from a bare centered stack into a
+  full-page hero:
+  - **R2 fixed** — `SnapsToDevicePixels` / `UseLayoutRounding` / `TextRenderingMode=
+    ClearType` / `TextHintingMode=Fixed` added (the glyph + title were soft).
+  - `TextFormattingMode=Ideal` (B1) with `ClearType` on the body/description.
+  - Layout: accent-gradient icon badge (96px, soft shadow) → tinted "COMING SOON"
+    status chip → 28px module title → wrapped description → muted roadmap hint.
+  - Ambient `DashAmbientBrush` wash behind the hero so placeholders sit on the same
+    soft tinted stage as the dashboards.
+  - Fully theme-correct (tokens only); C4/C5 carried over from Phase 4.
+- **D3 — placeholder icons emoji → Segoe MDL2** across the 9 `ComingSoonViewModelBase`
+  subclasses. Glyphs match the canonical set already used by `AboutViewModel`'s
+  production stages (single source of truth), so nav → About → placeholder are
+  glyph-consistent:
+  | Module | Glyph | Module | Glyph |
+  |---|---|---|---|
+  | Optimization (⚙) | `E713` | Mitring (🔺) | `E7E8` |
+  | Cutting (✂) | `E8C6` | Tempering (🔥) | `E728` |
+  | Holes & Cutouts (🕳) | `E71D` | Pairing (🔗) | `E71B` |
+  | Polish (✨) | `E895` | Doubling/Lamination (📚) | `E81C` |
+  | Edge Deletion (📐) | `E774` | | |
+
+### 5.2–5.6 — remaining (not started)
+PI wizard steps, DN/JO/TI detail polish, SheetStore, Reports, Settings — and the
+"module shells vs. real content" decision for the 9 placeholder modules.

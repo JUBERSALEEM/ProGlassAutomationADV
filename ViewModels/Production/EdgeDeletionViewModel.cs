@@ -6,6 +6,6 @@ namespace ProGlassAutomation.ViewModels.Production
     {
         public override string ModuleName => "Edge Deletion";
         public override string Description => "Manage edge deletion process for coated glass sheets.";
-        public override string Icon => "\uD83D\uDCD0"; // 📐
+        public override string Icon => "\uE774"; // 📐 → Segoe MDL2 (matches AboutView Edge Deletion stage)
     }
 }

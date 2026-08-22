@@ -6,6 +6,6 @@ namespace ProGlassAutomation.ViewModels.Optimization
     {
         public override string ModuleName => "Optimization";
         public override string Description => "Cutting optimization engine to minimize waste and maximize sheet utilization.";
-        public override string Icon => "\u2699";
+        public override string Icon => "\uE713"; // ⚙ → Segoe MDL2 (matches AboutView settings/workflow glyph)
     }
 }
