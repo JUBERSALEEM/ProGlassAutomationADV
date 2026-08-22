@@ -115,22 +115,22 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             try
             {
                 await Step1_ReadProformaInvoice(filter, result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step2_ReadJobOrder(filter, result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step3_ReadDeliveryNotes(filter, result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step4_ValidateQuantities(result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step5_ReadTaxInvoices(filter, statementNumber, result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step6_CrossMatchCoverage(result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 // User decision point for uninvoiced DNs
                 if (result.UninvoicedDeliveryNotes.Count > 0 &&
@@ -157,7 +157,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 }
 
                 await Step7_RegenerateTaxInvoicePdfs(result);
-                await Task.Delay(300);
+                await Task.Delay(130);
 
                 await Step8_PrepareMerge(result);
 
@@ -189,7 +189,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[0];
             step.MarkRunning("Searching for proforma invoice...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             var allInvoices = await App.TaxInvoices.GetAllAsync();
             if (allInvoices == null || allInvoices.Count == 0)
@@ -211,7 +211,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             string proformaId = matching.ProformaId ?? "";
             step.AddDetail($"🔍 Found PI reference: {proformaId}");
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             if (string.IsNullOrWhiteSpace(proformaId))
             {
@@ -232,7 +232,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 StringComparison.OrdinalIgnoreCase);
 
             step.AddDetail($"📋 PI status: {piStatus}");
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             // Load signed PI attachment
             bool hasSignedPi = false;
@@ -264,7 +264,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     $"📎 Signed PI: lookup failed ({ex.Message})");
             }
 
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             if (isDraft)
             {
@@ -295,7 +295,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[1];
             step.MarkRunning("Searching for job order...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             var allInvoices = await App.TaxInvoices.GetAllAsync();
             var firstMatching = allInvoices?
@@ -329,7 +329,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"🔍 Found JO: {jo.JobOrderId}");
             step.AddDetail($"📋 Status:   {jo.Status}");
             step.AddDetail($"⚡ Priority: {jo.Priority}");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             var releasedStatuses = new[]
             {
@@ -379,7 +379,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[2];
             step.MarkRunning("Loading delivery notes...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             var allInvoices = await App.TaxInvoices.GetAllAsync();
             var firstMatching = allInvoices?
@@ -414,7 +414,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             step.AddDetail($"🔍 Found {dnList.Count} total delivery note(s)");
             step.AddDetail($"📁 Attachment root: {DnAttachmentRoot}");
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             // ── CHAT 22 v3 — Pre-load PI line-item data + TI invoiced map ─
             // Load ONCE, reuse for every DN in this JO. Massive perf win
@@ -432,7 +432,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     $"📊 Reconciliation data loaded: " +
                     $"{piLineMap!.Count} PI line(s), " +
                     $"{invoicedMap.Count} invoiced entry(s)");
-                await Task.Delay(100);
+                await Task.Delay(45);
             }
 
             int totalDelivered = 0;
@@ -457,7 +457,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     step.AddDetail(
                         $"  ⏭ {dn.DeliveryNoteId}: " +
                         $"{dn.TotalDeliveredQty} pcs · {dnType} · SKIPPED");
-                    await Task.Delay(80);
+                    await Task.Delay(35);
                     continue;
                 }
 
@@ -613,7 +613,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 }
 
                 result.SignedDeliveryNotes.Add(dnAtt);
-                await Task.Delay(100);
+                await Task.Delay(45);
             }
 
             result.DeliveredQty = totalDelivered;
@@ -882,7 +882,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     step.AddDetail(
                         $"        💡 Status:            {statusIcon}");
 
-                    await Task.Delay(50);
+                    await Task.Delay(22);
 
                     // Update running delivered map for next DN's calculation
                     runningDeliveredMap[key] = cumulativeDelivered;
@@ -1028,7 +1028,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[3];
             step.MarkRunning("Comparing quantities...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             int ordered = result.OrderedQty;
             int delivered = result.DeliveredQty;
@@ -1040,7 +1040,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"📊 Balance to Deliver:  {balance} pcs");
             step.AddDetail($"⏳ Pending Production:  {pending} pcs");
 
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             if (ordered > 0)
             {
@@ -1050,7 +1050,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     $"({delivered} of {ordered})");
             }
 
-            await Task.Delay(100);
+            await Task.Delay(45);
 
             if (delivered > ordered && ordered > 0)
             {
@@ -1106,7 +1106,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[4];
             step.MarkRunning("Loading tax invoices...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             try
             {
@@ -1137,7 +1137,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     $"   Total value: AED " +
                     $"{snapshot.Financial.TotalInvoiced:N2}");
 
-                await Task.Delay(150);
+                await Task.Delay(70);
 
                 foreach (var row in snapshot.InvoiceRows)
                 {
@@ -1145,7 +1145,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                         $"  🧾 {row.InvoiceNumber} · {row.InvoiceType} · " +
                         $"{row.TotalQty} pcs · " +
                         $"AED {row.GrandTotal:N2} · {row.Status}");
-                    await Task.Delay(80);
+                    await Task.Delay(35);
                 }
 
                 step.MarkSuccess(
@@ -1176,7 +1176,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[5];
             step.MarkRunning("Checking invoice coverage...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             if (result.Snapshot == null)
             {
@@ -1191,7 +1191,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"🚚 Delivered:  {delivered} pcs");
             step.AddDetail($"🧾 Invoiced:   {invoiced} pcs");
             step.AddDetail($"❓ Uninvoiced: {uninvoiced} pcs");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             // ── PART A: DN-level coverage check (existing) ────────────────
 
@@ -1232,14 +1232,14 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     step.AddDetail(
                         $"  ❌ {dnAtt.DeliveryNoteId}: " +
                         $"{dnAtt.DeliveredQty} pcs — NO INVOICE");
-                    await Task.Delay(100);
+                    await Task.Delay(45);
                 }
                 else
                 {
                     step.AddDetail(
                         $"  ✅ {dnAtt.DeliveryNoteId}: " +
                         $"{dnAtt.DeliveredQty} pcs — invoiced");
-                    await Task.Delay(80);
+                    await Task.Delay(35);
                 }
             }
 
@@ -1251,7 +1251,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             step.AddDetail("");
             step.AddDetail("── Line-Item Reconciliation ──");
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             // Extract unique Proforma IDs from the snapshot
             var uniqueProformas = result.Snapshot.InvoiceRows
@@ -1268,7 +1268,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             {
                 step.AddDetail(
                     $"  🔍 Reconciling {uniqueProformas.Count} PI family(s)...");
-                await Task.Delay(150);
+                await Task.Delay(70);
 
                 int totalOverInvoicedLines = 0;
                 int totalUnderInvoicedLines = 0;
@@ -1333,7 +1333,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                             $"Delivered={row.DeliveredQty}, " +
                             $"Invoiced={row.InvoicedQty} " +
                             $"→ {row.StatusLabel} ({diffText})");
-                        await Task.Delay(60);
+                        await Task.Delay(28);
                     }
 
                     // Add step-level warnings for over-invoiced items
@@ -1351,7 +1351,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                             $"line(s) under-invoiced — revenue leakage risk");
                     }
 
-                    await Task.Delay(100);
+                    await Task.Delay(45);
                 }
 
                 // ── Final reconciliation summary line ──────────────────────
@@ -1374,7 +1374,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                         : "no data"));
             }
 
-            await Task.Delay(150);
+            await Task.Delay(70);
 
             // ═══════════════════════════════════════════════════════════════
             //  FINAL STEP OUTCOME
@@ -1430,7 +1430,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[6];
             step.MarkRunning("Regenerating tax invoice PDFs...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             if (result.Snapshot == null)
             {
@@ -1552,7 +1552,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 }
 
                 result.TaxInvoicePdfs.Add(invoicePdf);
-                await Task.Delay(150);
+                await Task.Delay(70);
             }
 
             if (failCount > 0)
@@ -1574,7 +1574,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         {
             var step = Steps[7];
             step.MarkRunning("Preparing final PDF merge...");
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             int sections = 1; // Statement summary always present
 
@@ -1616,7 +1616,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 $"📎 TI attachments: {tiAttCount} file(s) " +
                 $"(across {result.TaxInvoicePdfs.Count} invoice(s))");
 
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             step.AddDetail($"📄 Total sections: {sections}");
             step.AddDetail("");
@@ -1628,7 +1628,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 $" + {tiAttCount} TI att(s)" +
                 $" = {sections} total");
 
-            await Task.Delay(200);
+            await Task.Delay(90);
 
             step.MarkSuccess(
                 $"Ready to merge {sections} sections into final PDF ✓");

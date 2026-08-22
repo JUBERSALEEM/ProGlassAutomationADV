@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 22 v3 — Jump Navigation)
@@ -1844,8 +1844,47 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 }
             }
 
+            // ── Informational entries (always added so the feed shows more
+            //    than warnings/errors, and the badge's "info" count matches
+            //    what is actually visible). ─────────────────────────────────
+            int infoCount = 0;
+
+            if (wf.Snapshot != null)
+            {
+                WorkflowWarnings.Add(new WorkflowWarningItem
+                {
+                    Severity = LogSeverity.Info,
+                    Icon = "ℹ",
+                    Title = "Statement Generated",
+                    Detail = $"{wf.Snapshot.Financial.TotalInvoiceCount} invoice(s) included · " +
+                             $"AED {wf.Snapshot.Financial.TotalInvoiced:N2}",
+                    AmountDisplay = "",
+                    ActionLabel = "→ View PDF",
+                    StepLabel = "Pipeline Complete",
+                    HasQuantities = false
+                });
+                infoCount++;
+            }
+
+            if (errCount == 0 && warnCount == 0)
+            {
+                WorkflowWarnings.Add(new WorkflowWarningItem
+                {
+                    Severity = LogSeverity.Info,
+                    Icon = "ℹ",
+                    Title = "All Clear",
+                    Detail = "No warnings or errors — every invoice was issued and matched to a real delivery.",
+                    AmountDisplay = "",
+                    ActionLabel = "",
+                    StepLabel = "Pipeline Complete",
+                    HasQuantities = false
+                });
+                infoCount++;
+            }
+
             ErrorCount = errCount;
             WarningCount = warnCount;
+            InfoCount = infoCount;
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -1881,7 +1920,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             if (_includeAgingChart && wf.Snapshot.Aging.Total > 0)
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "📈", IconBrushKey = "TintAmberBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "📈", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             if (_includeBalanceAnalysis)
                 MergedPdfSections.Add(new PdfSection
@@ -1915,7 +1954,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     MergedPdfSections.Add(new PdfSection
                     {
                         Icon = "⚠",
-                        IconBrushKey = "TintAmberBrush",
+                        IconBrushKey = "TintRedBrush",
                         Title = $"{invPdf.InvoiceNumber}.pdf",
                         PageInfo = "1 page",
                         Status = PdfSectionStatus.Placeholder
@@ -1959,7 +1998,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             if (wf.Snapshot.Aging.Total > 0)
                 BalancePdfSections.Add(new PdfSection
-                { Icon = "📈", IconBrushKey = "TintAmberBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "📈", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
             { Icon = "⚖", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
@@ -1974,7 +2013,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 AlertsPdfSections.Add(new PdfSection
                 {
                     Icon = "⚠",
-                    IconBrushKey = "TintAmberBrush",
+                    IconBrushKey = "TintRedBrush",
                     Title = "Warnings Summary",
                     PageInfo = $"{Math.Max(1, (WorkflowWarnings.Count + 4) / 5)} page(s)",
                     Status = PdfSectionStatus.Warning
@@ -1994,7 +2033,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 AlertsPdfSections.Add(new PdfSection
                 {
                     Icon = "🟡",
-                    IconBrushKey = "TintAmberBrush",
+                    IconBrushKey = "TintRedBrush",
                     Title = "Uninvoiced Deliveries",
                     PageInfo = $"{wf.UninvoicedDeliveryNotes.Count:N0} entries",
                     Status = PdfSectionStatus.Warning

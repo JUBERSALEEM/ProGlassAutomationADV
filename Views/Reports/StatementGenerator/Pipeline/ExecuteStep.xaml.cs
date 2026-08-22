@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Reports/StatementGenerator/Pipeline/ExecuteStep.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Statement Generator — Wizard Step 3: EXECUTE (Chat 21 v3)
@@ -35,6 +35,11 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline
     public partial class ExecuteStep : UserControl
     {
         private ObservableCollection<ProGlassAutomation.Models.Statement.Workflow.LogEntry>? _subscribedLog;
+
+        // Coalesce bursts of log adds into a single scroll-to-end per dispatch
+        // cycle — avoids queuing one ScrollToEnd() per line when the pipeline
+        // streams many entries rapidly (smoother, less layout churn).
+        private bool _scrollPending;
 
         public ExecuteStep()
         {
@@ -97,10 +102,15 @@ namespace ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline
         {
             if (e.Action != NotifyCollectionChangedAction.Add) return;
 
+            // Coalesce: one pending scroll per dispatch cycle, not one per line.
+            if (_scrollPending) return;
+            _scrollPending = true;
+
             // Defer to Background priority so the new item is rendered
             // before we scroll — otherwise we scroll to a stale extent.
             Dispatcher.BeginInvoke(new Action(() =>
             {
+                _scrollPending = false;
                 try
                 {
                     TerminalLogScroller?.ScrollToEnd();

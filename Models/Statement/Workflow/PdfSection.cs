@@ -82,24 +82,25 @@ namespace ProGlassAutomation.Models.Statement.Workflow
 
         /// <summary>
         /// Badge background — theme tint brush key (resolved via BrushKeyConverter).
+        /// Neutral/semantic tints; amber is avoided so badges never look yellow.
         /// </summary>
         public string StatusBrushKey => Status switch
         {
-            PdfSectionStatus.Placeholder => "TintAmberBrush",
+            PdfSectionStatus.Placeholder => "TintGrayBrush",
             PdfSectionStatus.Converted => "TintBlueBrush",
-            PdfSectionStatus.Warning => "TintAmberBrush",
+            PdfSectionStatus.Warning => "TintRedBrush",
             _ => "TintGrayBrush"
         };
 
         /// <summary>
         /// Badge foreground — semantic brush key (readable on the tint in both
-        /// themes; no more hardcoded white-on-amber).
+        /// themes; no hardcoded white-on-amber).
         /// </summary>
         public string StatusForegroundBrushKey => Status switch
         {
-            PdfSectionStatus.Placeholder => "WarningBrush",
+            PdfSectionStatus.Placeholder => "MutedForegroundBrush",
             PdfSectionStatus.Converted => "AccentBrush",
-            PdfSectionStatus.Warning => "WarningBrush",
+            PdfSectionStatus.Warning => "DangerBrush",
             _ => "MutedForegroundBrush"
         };
 
