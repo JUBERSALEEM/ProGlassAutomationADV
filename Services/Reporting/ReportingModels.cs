@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProGlassAutomation.Services.Reporting
 {
@@ -99,11 +100,27 @@ namespace ProGlassAutomation.Services.Reporting
         public string DeliveryStatus { get; set; } = "";
         public string DeliveryStatusBrushKey { get; set; } = "NeutralBrush";
 
-        /// <summary>Complete glass description for the detail panel.</summary>
+        /// <summary>Complete glass description for the inline detail.</summary>
         public string GlassDetails => BuildGlassDetails();
 
-        /// <summary>Related delivery notes — populated on selection (detail panel).</summary>
-        public List<DeliveryNoteDelivery> Deliveries { get; set; } = new();
+        /// <summary>
+        /// Inline expander state — the row is a single vertical grid; the
+        /// delivery history is revealed inline (no side panel).
+        /// </summary>
+        public bool IsExpanded { get; set; }
+
+        /// <summary>
+        /// True once the related delivery notes have been loaded (loaded
+        /// lazily on first expand).
+        /// </summary>
+        public bool HasLoadedDeliveries { get; set; }
+
+        /// <summary>
+        /// Related delivery notes — populated lazily on first expand. An
+        /// ObservableCollection so the inline list refreshes in place when
+        /// the async load completes.
+        /// </summary>
+        public ObservableCollection<DeliveryNoteDelivery> Deliveries { get; set; } = new();
 
         private string BuildGlassDetails()
         {

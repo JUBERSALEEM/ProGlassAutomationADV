@@ -14,11 +14,11 @@ using System.Windows.Input;
 namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
 {
     /// <summary>
-    /// ROW-LEVEL Delivery Note report. One row per exact PI specification row
-    /// (PI → Specification → Sr No) with Total / Delivered / Balance
-    /// quantities reconciled per row from the DeliveryNoteItems table.
-    /// Selecting a row loads its related Delivery Notes into the right-side
-    /// detail panel.
+    /// ROW-LEVEL Delivery Note report — SINGLE unified grid. One row per
+    /// exact PI specification row (PI → Specification → Sr No) with Total /
+    /// Delivered / Balance quantities reconciled per row from the
+    /// DeliveryNoteItems table. The related Delivery Notes are revealed
+    /// INLINE (expander) inside each row — no split list + side panel.
     /// </summary>
     public class DeliveryReportViewModel : ReportBaseViewModel
     {
@@ -35,13 +35,9 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
                 SelectedStatus = "All Statuses";
             });
 
-            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
-
             _ = LoadFilterOptionsAsync();
             _ = LoadAsync();
         }
-
-        public ICommand CloseDetailCommand { get; private set; } = null!;
 
         private DeliveryReportSummary _summary = new();
         public DeliveryReportSummary Summary
@@ -64,24 +60,6 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         private ObservableCollection<DeliveryReportRow> _rows = new();
         public ObservableCollection<DeliveryReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
 
-        // ── Row selection → right-side detail panel ────────────────────
-        private DeliveryReportRow? _selectedRow;
-        public DeliveryReportRow? SelectedRow
-        {
-            get => _selectedRow;
-            set
-            {
-                if (ReferenceEquals(_selectedRow, value)) return;
-                _selectedRow = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasSelectedRow));
-                OnPropertyChanged(nameof(SidebarSubtitle));
-                _ = LoadRowDeliveriesAsync();
-            }
-        }
-        public bool HasSelectedRow => _selectedRow != null;
-        public string SidebarSubtitle => SelectedRow?.GlassDetails ?? "";
-
         // ── Row-level status filter options ────────────────────────────
         public List<string> StatusFilterOptions { get; } = new()
         {
@@ -100,22 +78,29 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
             return filter;
         }
 
-        private async Task LoadRowDeliveriesAsync()
+        /// <summary>
+        /// Lazy-loads the related Delivery Notes for one row and fills the
+        /// inline ObservableCollection in place (so the expanded list
+        /// refreshes without re-creating the row).
+        /// </summary>
+        public async Task LoadRowDeliveriesAsync(DeliveryReportRow row)
         {
-            var row = SelectedRow;
-            if (row == null) return;
+            if (row == null || row.HasLoadedDeliveries) return;
 
             try
             {
                 var deliveries = await _service.GetRowDeliveriesAsync(
                     row.JobOrderId, row.SpecGroupNumber, row.SerialNumber);
-                row.Deliveries = deliveries ?? new List<DeliveryNoteDelivery>();
-                OnPropertyChanged(nameof(SelectedRow));
-                OnPropertyChanged(nameof(HasSelectedRow));
+
+                row.Deliveries.Clear();
+                foreach (var d in deliveries ?? new List<DeliveryNoteDelivery>())
+                    row.Deliveries.Add(d);
+                row.HasLoadedDeliveries = true;
             }
             catch (System.Exception ex)
             {
-                row.Deliveries = new List<DeliveryNoteDelivery>();
+                row.Deliveries.Clear();
+                row.HasLoadedDeliveries = true;
                 Services.Logging.AppLogService.Warning(
                     $"Could not load delivery history: {ex.Message}");
             }
