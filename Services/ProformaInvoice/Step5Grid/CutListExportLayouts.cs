@@ -38,8 +38,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             var ws = workbook.Worksheets.Add("Cut list");
             string[] headers =
             {
-                "Spec #", "Spec Name", "#", "Glass Ref",
-                "W1", "H1", "W2", "H2", "Qty", "SQM", "TOTAL SQM", "Rate", "Value"
+                "Spec #", "Spec Name", "Glass Ref",
+                "W1", "H1", "W2", "H2", "Qty"
             };
             for (int c = 0; c < headers.Length; c++)
                 ws.Cell(1, c + 1).Value = headers[c];
@@ -55,17 +55,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 {
                     ws.Cell(r, 1).Value = group.GroupNumber;
                     ws.Cell(r, 2).Value = spec ?? "";
-                    ws.Cell(r, 3).Value = row.SerialNumber;
-                    ws.Cell(r, 4).Value = row.GlassRef ?? "";
-                    ws.Cell(r, 5).Value = row.W1;
-                    ws.Cell(r, 6).Value = row.H1;
-                    ws.Cell(r, 7).Value = row.W2;
-                    ws.Cell(r, 8).Value = row.H2;
-                    ws.Cell(r, 9).Value = row.Qty;
-                    ws.Cell(r, 10).Value = row.Sqm1;
-                    ws.Cell(r, 11).Value = row.TotalSqm;
-                    ws.Cell(r, 12).Value = row.Rate;
-                    ws.Cell(r, 13).Value = row.Value;
+                    ws.Cell(r, 3).Value = row.GlassRef ?? "";
+                    ws.Cell(r, 4).Value = row.W1;
+                    ws.Cell(r, 5).Value = row.H1;
+                    ws.Cell(r, 6).Value = row.W2;
+                    ws.Cell(r, 7).Value = row.H2;
+                    ws.Cell(r, 8).Value = row.Qty;
                     r++;
                 }
             }
@@ -83,17 +78,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
         {
             writer.WriteField("Spec #");
             writer.WriteField("Spec Name");
-            writer.WriteField("#");
             writer.WriteField("Glass Ref");
             writer.WriteField("W1");
             writer.WriteField("H1");
             writer.WriteField("W2");
             writer.WriteField("H2");
             writer.WriteField("Qty");
-            writer.WriteField("SQM");
-            writer.WriteField("TOTAL SQM");
-            writer.WriteField("Rate");
-            writer.WriteField("Value");
             writer.NextRecord();
 
             foreach (var group in _groups)
@@ -105,17 +95,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 {
                     writer.WriteField(group.GroupNumber);
                     writer.WriteField(spec ?? "");
-                    writer.WriteField(row.SerialNumber);
                     writer.WriteField(row.GlassRef ?? "");
                     writer.WriteField(row.W1);
                     writer.WriteField(row.H1);
                     writer.WriteField(row.W2);
                     writer.WriteField(row.H2);
                     writer.WriteField(row.Qty);
-                    writer.WriteField(row.Sqm1.ToString("0.000"));
-                    writer.WriteField(row.TotalSqm.ToString("0.000"));
-                    writer.WriteField(row.Rate.ToString("N2"));
-                    writer.WriteField(row.Value.ToString("N2"));
                     writer.NextRecord();
                 }
             }
@@ -153,23 +138,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     {
                         cols.ConstantColumn(22);
                         cols.RelativeColumn(1.6f);
+                        cols.ConstantColumn(40);
+                        cols.ConstantColumn(40);
+                        cols.ConstantColumn(40);
+                        cols.ConstantColumn(40);
                         cols.ConstantColumn(36);
-                        cols.ConstantColumn(36);
-                        cols.ConstantColumn(36);
-                        cols.ConstantColumn(36);
-                        cols.ConstantColumn(32);
-                        cols.RelativeColumn(0.7f);
-                        cols.RelativeColumn(0.8f);
-                        cols.RelativeColumn(0.7f);
-                        cols.RelativeColumn(0.85f);
                     });
 
                     table.Header(h =>
                     {
                         string[] headers =
                         {
-                            "#", "GLASS REF", "W1", "H1", "W2", "H2",
-                            "QTY", "SQM", "TOTAL SQM", "RATE", "VALUE"
+                            "#", "GLASS REF", "W1", "H1", "W2", "H2", "QTY"
                         };
                         for (int i = 0; i < headers.Length; i++)
                             PdfChrome.HeaderCell(h.Cell(), headers[i],
@@ -187,10 +167,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                         PdfChrome.DataCell(table.Cell(), row.W2.ToString(), alt, right: true);
                         PdfChrome.DataCell(table.Cell(), row.H2.ToString(), alt, right: true);
                         PdfChrome.DataCell(table.Cell(), row.Qty.ToString(), alt, center: true);
-                        PdfChrome.DataCell(table.Cell(), row.Sqm1.ToString("0.000"), alt, right: true);
-                        PdfChrome.DataCell(table.Cell(), row.TotalSqm.ToString("0.000"), alt, right: true);
-                        PdfChrome.DataCell(table.Cell(), row.Rate.ToString("N2"), alt, right: true);
-                        PdfChrome.DataCell(table.Cell(), row.Value.ToString("N2"), alt, right: true, bold: true);
                         alt = !alt;
                     }
                 });

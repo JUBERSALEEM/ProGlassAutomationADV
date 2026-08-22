@@ -15,6 +15,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
     public sealed class CutListImportRow
     {
         public string GlassRef { get; init; } = "";
+        public string SpecName { get; init; } = "";
         public int W1 { get; init; }
         public int H1 { get; init; }
         public int W2 { get; init; }
@@ -138,6 +139,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     }
 
                     string glassRef = ReadString(el, "ref", "glassRef", "mark", "code");
+                    string specName = ReadString(el, "spec", "specName", "specification");
                     int w1 = ReadInt(el, "w1", "width", "w");
                     int h1 = ReadInt(el, "h1", "height", "h");
                     int w2 = ReadInt(el, "w2");
@@ -154,6 +156,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                     result.Rows.Add(new CutListImportRow
                     {
                         GlassRef = glassRef,
+                        SpecName = specName,
                         W1 = w1,
                         H1 = h1,
                         W2 = w2,
@@ -238,7 +241,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             {
                 string key = NormalizeHeader(row[i]);
                 if (key.Length == 0) continue;
-                if (key is "ref" or "w1" or "h1" or "w2" or "h2" or "qty" or "dim")
+                if (key is "ref" or "w1" or "h1" or "w2" or "h2" or "qty" or "dim" or "spec")
                 {
                     map[key] = i;
                     any = true;
@@ -260,6 +263,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
                 "w2" or "width2" => "w2",
                 "h2" or "height2" => "h2",
                 "qty" or "quantity" or "pcs" or "qty." or "nos" or "no" or "count" => "qty",
+                "spec" or "specname" or "specification" or "glassspec" => "spec",
                 "size" or "dim" or "dimension" or "wxh" or "sizewh" => "dim",
                 _ => ""
             };
@@ -269,6 +273,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             IReadOnlyList<string> cells, Dictionary<string, int> map)
         {
             string glassRef = Cell(cells, map, "ref");
+            string specName = Cell(cells, map, "spec");
             int w1 = ParseMm(Cell(cells, map, "w1"));
             int h1 = ParseMm(Cell(cells, map, "h1"));
             int w2 = ParseMm(Cell(cells, map, "w2"));
@@ -295,6 +300,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Step5Grid
             return new CutListImportRow
             {
                 GlassRef = glassRef,
+                SpecName = specName,
                 W1 = w1,
                 H1 = h1,
                 W2 = w2,

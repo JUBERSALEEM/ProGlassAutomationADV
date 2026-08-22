@@ -3,6 +3,8 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.ProformaInvoice.Step5Grid;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -73,16 +75,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             }
 
-            var group = SelectedSpecGroup;
-            if (group == null)
-            {
-                AddNewSpecGroup();
-                group = SelectedSpecGroup;
-            }
-
-            int added = group!.ApplyImportedRows(parsed.Rows);
+            int added = ApplyImportedRowsBySpec(parsed.Rows);
             string extra = parsed.Skipped > 0 ? $"  ·  skipped {parsed.Skipped}" : "";
             IoStatus = $"Imported {added} row(s){extra}.";
+        }
+
+        /// <summary>
+        /// Splits an imported cut list by its "Spec Name" column (when
+        /// present) so a cut list with two specs lands in the matching two
+        /// spec groups instead of collapsing into one. Rows without a spec
+        /// name fall back to the currently selected group.
+        /// </summary>
+        private int ApplyImportedRowsBySpec(
+            IReadOnlyList<Services.ProformaInvoice.Step5Grid.CutListImportRow> rows)
+        {
+            if (rows == null || rows.Count == 0) return 0;
+
+            int added = 0;
+
+            var named = rows
+                .Where(r => !string.IsNullOrWhiteSpace(r.SpecName))
+                .GroupBy(r => r.SpecName.Trim(), StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            foreach (var g in named)
+            {
+                var target = SpecGroups.FirstOrDefault(sg =>
+                    string.Equals(sg.SelectedSpecName, g.Key, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(sg.GroupName, g.Key, StringComparison.OrdinalIgnoreCase));
+
+                if (target == null)
+                    target = AddNewSpecGroup(g.Key);
+
+                added += target.ApplyImportedRows(g.ToList());
+            }
+
+            var unnamed = rows.Where(r => string.IsNullOrWhiteSpace(r.SpecName)).ToList();
+            if (unnamed.Count > 0)
+            {
+                var group = SelectedSpecGroup;
+                if (group == null)
+                    group = AddNewSpecGroup();
+                added += group!.ApplyImportedRows(unnamed);
+            }
+
+            return added;
         }
     }
 }

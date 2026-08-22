@@ -178,22 +178,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// the spec's PricePerSqm sets both (ImportedPrice preserved thereafter
         /// even if user manually edits BaseRate).
         /// </summary>
-        private void AddNewSpecGroup()
+        private SpecGroup AddNewSpecGroup(string? specName = null)
         {
             int number = SpecGroups.Count + 1;
             var group = new SpecGroup
             {
                 GroupNumber = number,
-                GroupName = $"Spec {number}",
+                GroupName = string.IsNullOrWhiteSpace(specName) ? $"Spec {number}" : specName,
                 ImportedPrice = 0m,
                 BaseRate = 0m,
                 SurchargePercent = 0m,
                 SelectedGlassType = "SGU"
             };
 
+            if (!string.IsNullOrWhiteSpace(specName))
+                group.SelectedSpecName = specName;
+
             group.AddRowCommand.Execute(null);
             SpecGroups.Add(group);
             SelectedSpecGroup = group;
+            return group;
         }
 
         private void EnsureSelection()
