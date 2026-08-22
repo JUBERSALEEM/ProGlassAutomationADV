@@ -72,10 +72,10 @@
     <Style x:Key="LineItemsIntCellStyle" TargetType="TextBox">
         <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
         <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="6,0"/>
