@@ -723,7 +723,10 @@
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconBrushKey,
                                                                 Converter={StaticResource BrushKeyConverter}}">
-                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="15"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>
@@ -779,7 +782,10 @@
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconBrushKey,
                                                                 Converter={StaticResource BrushKeyConverter}}">
-                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="15"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>
@@ -835,7 +841,10 @@
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconBrushKey,
                                                                 Converter={StaticResource BrushKeyConverter}}">
-                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                        <TextBlock Text="{Binding Icon}"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="15"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>

@@ -1791,7 +1791,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     WorkflowWarnings.Add(new WorkflowWarningItem
                     {
                         Severity = LogSeverity.Error,
-                        Icon = "🔴",
+                        Icon = "\uE7BA",
                         Title = "Overdue Invoice",
                         Detail = $"{row.InvoiceNumber} is overdue by " +
                                  $"{row.DaysOverdue} days " +
@@ -1810,7 +1810,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 WorkflowWarnings.Add(new WorkflowWarningItem
                 {
                     Severity = LogSeverity.Warning,
-                    Icon = "🟡",
+                    Icon = "\uE7BA",
                     Title = "Uninvoiced Delivery",
                     Detail = $"{udn.DeliveryNoteId} delivered {udn.DeliveredQty} units " +
                              $"on {udn.DeliveryDate:MMM d, yyyy} — no invoice yet",
@@ -1832,7 +1832,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     WorkflowWarnings.Add(new WorkflowWarningItem
                     {
                         Severity = LogSeverity.Warning,
-                        Icon = "⚠",
+                        Icon = "\uE7BA",
                         Title = "Workflow Warning",
                         Detail = w,
                         AmountDisplay = "",
@@ -1900,10 +1900,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             if (wf.Snapshot == null) return;
 
             MergedPdfSections.Add(new PdfSection
-            { Icon = "📄", IconBrushKey = "TintIndigoBrush", Title = "Statement Cover Page", PageInfo = "1 page" });
+            { Icon = "\uE9F7", IconBrushKey = "TintIndigoBrush", Title = "Statement Cover Page", PageInfo = "1 page" });
 
             MergedPdfSections.Add(new PdfSection
-            { Icon = "💰", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
+            { Icon = "\uE8C7", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
 
             int invoiceCount = wf.Snapshot.InvoiceRows.Count;
             if (invoiceCount > 0)
@@ -1911,7 +1911,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 int detailPages = Math.Max(1, (invoiceCount + 9) / 10);
                 MergedPdfSections.Add(new PdfSection
                 {
-                    Icon = "📊",
+                    Icon = "\uE9F9",
                     IconBrushKey = "TintBlueBrush",
                     Title = "Invoice Detail Table",
                     PageInfo = $"{detailPages:N0} page{(detailPages == 1 ? "" : "s")}"
@@ -1920,11 +1920,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             if (_includeAgingChart && wf.Snapshot.Aging.Total > 0)
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "📈", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "\uE9D9", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             if (_includeBalanceAnalysis)
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "⚖", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
+                { Icon = "\uE9D2", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
 
             if (wf.SignedProformaInvoiceBytes != null && wf.SignedProformaInvoiceBytes.Length > 0)
             {
@@ -1933,7 +1933,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     : wf.SignedProformaInvoiceFileName;
 
                 MergedPdfSections.Add(new PdfSection
-                { Icon = "📎", IconBrushKey = "TintIndigoBrush", Title = piName, PageInfo = "1 page" });
+                { Icon = "\uE723", IconBrushKey = "TintIndigoBrush", Title = piName, PageInfo = "1 page" });
             }
 
             foreach (var invPdf in wf.TaxInvoicePdfs)
@@ -1942,7 +1942,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 {
                     MergedPdfSections.Add(new PdfSection
                     {
-                        Icon = "🧾",
+                        Icon = "\uE8A5",
                         IconBrushKey = "TintIndigoBrush",
                         Title = $"{invPdf.InvoiceNumber}.pdf",
                         PageInfo = "Auto",
@@ -1953,7 +1953,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 {
                     MergedPdfSections.Add(new PdfSection
                     {
-                        Icon = "⚠",
+                        Icon = "\uE7BA",
                         IconBrushKey = "TintRedBrush",
                         Title = $"{invPdf.InvoiceNumber}.pdf",
                         PageInfo = "1 page",
@@ -1966,7 +1966,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     bool isImage = StatementLogHelper.IsImageFileName(fileName);
                     MergedPdfSections.Add(new PdfSection
                     {
-                        Icon = "📎",
+                        Icon = "\uE723",
                         IconBrushKey = "TintIndigoBrush",
                         Title = fileName,
                         PageInfo = "1 page",
@@ -1984,7 +1984,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                     MergedPdfSections.Add(new PdfSection
                     {
-                        Icon = "🚚",
+                        Icon = "\uE7F4",
                         IconBrushKey = "TintPurpleBrush",
                         Title = fileName,
                         PageInfo = "1 page",
@@ -1994,25 +1994,25 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "💰", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
+            { Icon = "\uE8C7", IconBrushKey = "TintPurpleBrush", Title = "Financial Summary", PageInfo = "1 page" });
 
             if (wf.Snapshot.Aging.Total > 0)
                 BalancePdfSections.Add(new PdfSection
-                { Icon = "📈", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
+                { Icon = "\uE9D9", IconBrushKey = "TintBlueBrush", Title = "Aging Analysis Chart", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "⚖", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
+            { Icon = "\uE9D2", IconBrushKey = "TintGreenBrush", Title = "Balance Comparison", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "📊", IconBrushKey = "TintBlueBrush", Title = "Outstanding Breakdown", PageInfo = "1 page" });
+            { Icon = "\uE9F9", IconBrushKey = "TintBlueBrush", Title = "Outstanding Breakdown", PageInfo = "1 page" });
 
             BalancePdfSections.Add(new PdfSection
-            { Icon = "💵", IconBrushKey = "TintGreenBrush", Title = "Payment History", PageInfo = "1 page" });
+            { Icon = "\uE8EF", IconBrushKey = "TintGreenBrush", Title = "Payment History", PageInfo = "1 page" });
 
             if (WorkflowWarnings.Count > 0)
                 AlertsPdfSections.Add(new PdfSection
                 {
-                    Icon = "⚠",
+                    Icon = "\uE7BA",
                     IconBrushKey = "TintRedBrush",
                     Title = "Warnings Summary",
                     PageInfo = $"{Math.Max(1, (WorkflowWarnings.Count + 4) / 5)} page(s)",
@@ -2022,7 +2022,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             if (ErrorCount > 0)
                 AlertsPdfSections.Add(new PdfSection
                 {
-                    Icon = "🔴",
+                    Icon = "\uE7BA",
                     IconBrushKey = "TintRedBrush",
                     Title = "Overdue Invoices",
                     PageInfo = $"{ErrorCount:N0} entries",
@@ -2032,7 +2032,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             if (wf.UninvoicedDeliveryNotes.Count > 0)
                 AlertsPdfSections.Add(new PdfSection
                 {
-                    Icon = "🟡",
+                    Icon = "\uE7BA",
                     IconBrushKey = "TintRedBrush",
                     Title = "Uninvoiced Deliveries",
                     PageInfo = $"{wf.UninvoicedDeliveryNotes.Count:N0} entries",
@@ -2041,7 +2041,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             AlertsPdfSections.Add(new PdfSection
             {
-                Icon = "📋",
+                Icon = "\uE8C8",
                 IconBrushKey = "TintIndigoBrush",
                 Title = "Workflow Audit Trail",
                 PageInfo = $"{wf.Steps.Count:N0} steps"
