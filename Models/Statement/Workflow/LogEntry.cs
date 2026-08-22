@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Workflow/LogEntry.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Statement Generator Redesign
@@ -47,18 +47,18 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         // ── Computed display properties (all pure, no side effects) ───────
 
         /// <summary>
-        /// Hex color for XAML Foreground binding via ColorStringConverter.
-        /// Terminal-optimized: high contrast on dark background (#0F172A).
-        /// Same in both Light and Dark themes (terminal is always dark).
+        /// Theme brush key for XAML Foreground binding via BrushKeyConverter.
+        /// Maps severity to the app's semantic brushes so the log is readable
+        /// on both the light and dark terminal surfaces (no hardcoded hex).
         /// </summary>
         public string SeverityColor => Severity switch
         {
-            LogSeverity.Info => "#60A5FA",  // blue-400
-            LogSeverity.Success => "#34D399",  // green-400
-            LogSeverity.Warning => "#FBBF24",  // amber-400
-            LogSeverity.Error => "#F87171",  // red-400
-            LogSeverity.Section => "#A78BFA",  // purple-400
-            _ => "#94A3B8"   // slate-400 fallback
+            LogSeverity.Info => "AccentBrush",
+            LogSeverity.Success => "SuccessBrush",
+            LogSeverity.Warning => "WarningBrush",
+            LogSeverity.Error => "DangerBrush",
+            LogSeverity.Section => "AccentDarkBrush",
+            _ => "MutedForegroundBrush"
         };
 
         /// <summary>

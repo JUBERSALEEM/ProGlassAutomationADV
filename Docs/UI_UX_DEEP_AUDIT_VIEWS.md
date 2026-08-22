@@ -412,6 +412,42 @@ recording. Fixed:
   step, then presents **Review** (auto-advances on completion), and adds
   `execute`/`review` to `DeepEvidenceIds`.
 
+### 5.14 — Statement Generator: hardcoded colours, borders, adaptive log, 3 sections ✅
+Follow-up senior pass addressing the remaining feedback:
+
+- **Hardcoded colours → theme semantic brushes** (removes the yellow/amber hex and
+  friends that showed up in both themes):
+  - `LogEntry.SeverityColor` (processing-log severity) → `AccentBrush`/`SuccessBrush`/
+    `WarningBrush`/`DangerBrush`/`AccentDarkBrush`/`MutedForegroundBrush` (was
+    `#60A5FA`/`#34D399`/`#FBBF24`/`#F87171`/`#A78BFA`/`#94A3B8`).
+  - `WorkflowStepState` → new `StatusBrushKey` (semantic) alongside the legacy hex
+    `StatusColor` (still used by `WorkflowProgressDialog`).
+  - `WorkflowWarningItem` → `TitleBrushKey`/`AmountBrushKey`/`ActionBrushKey`
+    (replacing `TitleColorHex`/`AmountColorHex`/`ActionColorHex`).
+  All bound via `BrushKeyConverter` in `ExecuteStep.xaml`.
+- **Border lines restored on rows**: the pipeline-step and warning rows now keep a
+  thin 1px outline (status-tinted) — the *outer* card is gone, but the per-row
+  border line is back (previously removed entirely).
+- **Adaptive processing log**: `TerminalBg` now `ModuleBackgroundColor` (light
+  surface in Light, dark surface in Dark) — fixes the inverted "white terminal in
+  dark mode" bug; severity text stays readable via the semantic brushes above.
+- **3 sections restored** in Step 3 (Execute): Pipeline Steps · Processing Log +
+  Metrics · Warnings & Alerts (three columns), with the steps/warnings fully
+  expanded and only the streaming log scrolling.
+
+### 5.15 — Statement Generator business rules ✅
+- **Customer dropdown scoped to salesman**: `StatementGeneratorViewModel` now keeps
+  the full `SavedClient` list and repopulates `Customers` from
+  `client.SalesRepresentative` when `FilterSalesman` changes — a customer that
+  doesn't belong to the selected salesman can no longer be picked (and a stale
+  selection is cleared).
+- **Issued + real-delivery only**: `StatementAggregator` now applies a hard
+  validity filter before the operator's filters — only invoices with status
+  Issued/Paid/PartiallyPaid/Overdue **and** a reference to a real (non-master,
+  non-"Dummy") delivery note are included in the statement (both preview and
+  generation paths). Delivery-note load failure falls back to status-only rather
+  than silently dropping everything.
+
 ### 5.13 — Statement Generator: flatten the frosted-glass (step 1) ✅
 The Filter step was still a light-theme-first **neo-glassmorphism** surface —
 translucent white cards, an ambient gradient + radial blobs backdrop, heavy 32px

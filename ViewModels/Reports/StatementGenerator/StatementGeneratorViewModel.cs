@@ -41,6 +41,7 @@ using PdfSharp.Pdf;
 using ProGlassAutomation.Services.Logging;
 using PdfSharp.Pdf.IO;
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Audit;
@@ -156,6 +157,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 if (_filterSalesman == value) return;
                 _filterSalesman = value;
                 OnPropertyChanged();
+                // The customer dropdown must reflect the chosen salesman.
+                RefreshCustomersForSalesman();
                 NotifyFilterDependents();
                 SchedulePreview();
             }
@@ -267,6 +270,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public ObservableCollection<string> Customers { get; } = new();
         public ObservableCollection<string> Projects { get; } = new();
         public ObservableCollection<string> Salesmen { get; } = new();
+
+        // Full client list (name + assigned salesman) kept so the Customer
+        // dropdown can be filtered to only the customers of the selected
+        // salesman. Loaded once in LoadMasterDataAsync.
+        private List<SavedClient> _allClients = new();
 
         // ═════════════════════════════════════════════════════════════════
         //  CORE STATE
@@ -1066,10 +1074,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
                         Companies.Add(c);
 
-                    Customers.Clear();
-                    foreach (var c in clients.Select(c => c.CustomerName)
-                        .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
-                        Customers.Add(c);
+                    // Keep the full client list so the Customer dropdown can
+                    // be scoped to the selected salesman.
+                    _allClients = clients ?? new List<SavedClient>();
 
                     Projects.Clear();
                     foreach (var p in projects
@@ -1083,6 +1090,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     foreach (var s in salesmen.Select(s => s.Name)
                         .Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().OrderBy(n => n))
                         Salesmen.Add(s);
+
+                    // Repopulate Customers scoped to the currently selected
+                    // salesman (all when none is selected).
+                    RefreshCustomersForSalesman();
                 });
             }
             catch (Exception ex)
@@ -1092,6 +1103,60 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                 // with an imported Logging.LogEntry if we used a using directive.
                 ProGlassAutomation.Services.Logging.AppLogService.Error(
                     "[StatementGenerator] Master data load failed", ex);
+            }
+        }
+
+        /// <summary>
+        /// Repopulates the Customer dropdown scoped to the selected salesman.
+        /// When no salesman is selected, all customers are shown. When one is
+        /// selected, only clients whose SalesRepresentative matches it appear,
+        /// so the operator can't pick a customer that doesn't belong to that
+        /// salesman.
+        /// </summary>
+        private void RefreshCustomersForSalesman()
+        {
+            string salesman = _filterSalesman?.Trim() ?? "";
+
+            IEnumerable<string> names = _allClients
+                .Select(c => c.CustomerName ?? "")
+                .Where(n => !string.IsNullOrWhiteSpace(n));
+
+            if (salesman.Length > 0)
+            {
+                names = _allClients
+                    .Where(c => string.Equals(
+                        c.SalesRepresentative?.Trim() ?? "",
+                        salesman,
+                        StringComparison.OrdinalIgnoreCase))
+                    .Select(c => c.CustomerName ?? "")
+                    .Where(n => !string.IsNullOrWhiteSpace(n));
+            }
+
+            var ordered = names
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(n => n, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            Customers.Clear();
+            foreach (var n in ordered)
+                Customers.Add(n);
+
+            // If the currently selected customer no longer belongs to the
+            // chosen salesman, clear it so a stale (invalid) value can't be
+            // carried into the preview/generation.
+            if (salesman.Length > 0 && !string.IsNullOrWhiteSpace(_filterCustomer))
+            {
+                bool stillValid = _allClients.Any(c =>
+                    string.Equals(c.CustomerName?.Trim() ?? "", _filterCustomer.Trim(),
+                        StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(c.SalesRepresentative?.Trim() ?? "", salesman,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (!stillValid)
+                {
+                    _filterCustomer = "";
+                    OnPropertyChanged(nameof(FilterCustomer));
+                }
             }
         }
 

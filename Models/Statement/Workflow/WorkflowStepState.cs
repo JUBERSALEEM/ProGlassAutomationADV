@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Workflow/WorkflowStepState.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine
@@ -59,6 +59,7 @@ namespace ProGlassAutomation.Models.Statement.Workflow
                     OnPropertyChanged(nameof(Status));
                     OnPropertyChanged(nameof(StatusIcon));
                     OnPropertyChanged(nameof(StatusColor));
+                    OnPropertyChanged(nameof(StatusBrushKey));
                     OnPropertyChanged(nameof(IsPending));
                     OnPropertyChanged(nameof(IsRunning));
                     OnPropertyChanged(nameof(IsSuccess));
@@ -133,6 +134,22 @@ namespace ProGlassAutomation.Models.Statement.Workflow
             StepStatus.Blocked => "#B91C1C",
             StepStatus.Skipped => "#94A3B8",
             _ => "#0F172A"
+        };
+
+        /// <summary>
+        /// Theme brush key for XAML Foreground binding via BrushKeyConverter.
+        /// Semantic, theme-aware replacement for the hardcoded StatusColor
+        /// hex used on the flat pipeline-step rows (readable in both themes).
+        /// </summary>
+        public string StatusBrushKey => Status switch
+        {
+            StepStatus.Pending => "MutedForegroundBrush",
+            StepStatus.Running => "AccentBrush",
+            StepStatus.Success => "SuccessBrush",
+            StepStatus.Warning => "WarningBrush",
+            StepStatus.Blocked => "DangerBrush",
+            StepStatus.Skipped => "MutedForegroundBrush",
+            _ => "PrimaryForegroundBrush"
         };
 
         // ── Constructor ───────────────────────────────────────────────────

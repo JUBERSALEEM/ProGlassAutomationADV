@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/Statement/Workflow/WorkflowWarningItem.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Statement Generator Redesign
@@ -112,38 +112,39 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         };
 
         /// <summary>
-        /// Title text color — fixed hex, high contrast on tinted surfaces.
-        /// Works on both Light and Dark theme tinted backgrounds.
+        /// Title text color — theme brush key resolved via BrushKeyConverter.
+        /// Semantic + theme-aware (readable on the light/dark tinted surfaces).
         /// </summary>
-        public string TitleColorHex => Severity switch
+        public string TitleBrushKey => Severity switch
         {
-            LogSeverity.Error => "#B91C1C",  // red-800
-            LogSeverity.Warning => "#B45309",  // amber-700
-            LogSeverity.Info => "#1D4ED8",  // blue-700
-            _ => "#475569"   // slate-600
+            LogSeverity.Error => "DangerBrush",
+            LogSeverity.Warning => "WarningBrush",
+            LogSeverity.Info => "AccentBrush",
+            _ => "MutedForegroundBrush"
         };
 
         /// <summary>
-        /// Amount text color — matches title for visual consistency.
+        /// Amount text color — theme brush key (matches title semantics).
         /// Bold weight applied in XAML for emphasis.
         /// </summary>
-        public string AmountColorHex => Severity switch
+        public string AmountBrushKey => Severity switch
         {
-            LogSeverity.Error => "#B91C1C",
-            LogSeverity.Warning => "#92400E",  // amber-800 (darker for readability)
-            LogSeverity.Info => "#1E40AF",  // blue-800
-            _ => "#334155"   // slate-700
+            LogSeverity.Error => "DangerBrush",
+            LogSeverity.Warning => "WarningBrush",
+            LogSeverity.Info => "AccentBrush",
+            _ => "MutedForegroundBrush"
         };
 
         /// <summary>
-        /// Action link color — green for actionable, muted for informational.
+        /// Action link color — theme brush key.
+        /// Green follow-up for warnings, danger for errors.
         /// </summary>
-        public string ActionColorHex => Severity switch
+        public string ActionBrushKey => Severity switch
         {
-            LogSeverity.Error => "#B91C1C",  // red — urgent action
-            LogSeverity.Warning => "#047857",  // green — follow-up action
-            LogSeverity.Info => "#4338CA",  // indigo — informational
-            _ => "#475569"   // slate
+            LogSeverity.Error => "DangerBrush",
+            LogSeverity.Warning => "SuccessBrush",
+            LogSeverity.Info => "AccentDarkBrush",
+            _ => "MutedForegroundBrush"
         };
 
         /// <summary>

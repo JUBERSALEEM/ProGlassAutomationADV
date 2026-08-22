@@ -3,20 +3,22 @@
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Wizard Step 3: EXECUTE
 
-     LAYOUT (senior pass):
-       • Single scrolling page — no nested ScrollViewers inside cards.
-       • Pipeline steps + warnings are FLAT rows (tinted, no outline card
-         wrapper) so every step/alert is visible without inner scrollbars.
-       • The terminal (dark, intentional) and the KPI tiles keep their card
-         shape — those are the surfaces that genuinely need one.
-       • Theme-correct: no hardcoded hex colours / radii / thicknesses.
+     LAYOUT (senior pass — 3 sections restored):
+       • THREE columns, as before: Pipeline Steps · Processing Log + Metrics ·
+         Warnings & Alerts.
+       • Pipeline steps and warnings are FLAT rows — no big outer card — but
+         each row keeps a thin BORDER LINE (outline) so they read as distinct
+         items. No nested ScrollViewers on those two columns.
+       • Processing log uses a THEME-ADAPTIVE surface (light in Light mode,
+         dark in Dark mode) with theme-aware severity colours — no hardcoded
+         hex, no inverted white terminal.
 
      PRESERVED (verified):
        • x:Name="TerminalLogScroller" + "TerminalLogItems" (code-behind auto-scroll)
        • All bindings: LastWorkflowStatusText / LastWorkflowProgressDisplay /
          LastWorkflowProgressPercent / LastWorkflowSteps / ProcessingLog /
          WorkflowWarnings / Ordered/Delivered/Balance/Rate displays.
-═══════════════════════════════════════════════════════════ -->
+═══════════════════════════════════════════════════════════════ -->
 <UserControl
     x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline.ExecuteStep"
              TextOptions.TextHintingMode="Fixed"
@@ -52,8 +54,10 @@
         <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
         <SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}"/>
 
-        <!-- Terminal palette (stays dark) -->
-        <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource PrimaryForegroundColor}"/>
+        <!-- Processing log surface — theme-adaptive (light in Light, dark in
+             Dark). Replaces the old inverted "terminal" (was near-black in
+             Light and near-white in Dark). -->
+        <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource ModuleBackgroundColor}"/>
         <SolidColorBrush x:Key="TerminalTitle" Color="{DynamicResource MutedForegroundColor}"/>
 
         <!-- Step status tint backgrounds -->
@@ -72,42 +76,16 @@
 
         <SolidColorBrush x:Key="WarnBadgeBg" Color="{DynamicResource WarningColor}"/>
 
-        <!-- ══════════════════════════════════════════════════════════
-             GRADIENTS (theme-aware)
-        ══════════════════════════════════════════════════════════ -->
-        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
-            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
-        </LinearGradientBrush>
-
+        <!-- Progress gradient (theme-aware) -->
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="VioletBlob">
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="Transparent" Offset="1"/>
-        </RadialGradientBrush>
-
-        <RadialGradientBrush x:Key="CyanBlob">
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
-            <GradientStop Color="Transparent" Offset="1"/>
-        </RadialGradientBrush>
-
         <RadialGradientBrush x:Key="GreenLed">
             <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </RadialGradientBrush>
-
-        <!-- ══════════════════════════════════════════════════════════
-             EFFECTS
-        ══════════════════════════════════════════════════════════ -->
-        <DropShadowEffect x:Key="CardShadow"
-                          BlurRadius="24" ShadowDepth="6"
-                          Opacity="0.10" Color="Black"
-                          po:Freeze="True"/>
 
         <DropShadowEffect x:Key="ProgressCardShadow"
                           BlurRadius="18" ShadowDepth="3"
@@ -118,32 +96,38 @@
                           Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
-             FLAT PIPELINE STEP STYLE (no outline card)
+             FLAT PIPELINE STEP ROW — tinted + thin border line
+             (no outer card, but keeps its outline so rows read distinct)
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="PipelineStepStyle" TargetType="Border">
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
             <Setter Property="Background" Value="{StaticResource StepIdleBg}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSuccess}" Value="True">
                     <Setter Property="Background" Value="{StaticResource StepSuccessBg}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsWarning}" Value="True">
                     <Setter Property="Background" Value="{StaticResource StepWarningBg}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsBlocked}" Value="True">
                     <Setter Property="Background" Value="{StaticResource StepBlockedBg}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsRunning}" Value="True">
                     <Setter Property="Background" Value="{StaticResource StepRunningBg}"/>
+                    <Setter Property="BorderBrush" Value="{StaticResource VioletAccent}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Shared step badge style (circular status dot) -->
+        <!-- Circular step status badge -->
         <Style x:Key="PipelineStepBadgeStyle" TargetType="Border">
             <Setter Property="Width" Value="28"/>
             <Setter Property="Height" Value="28"/>
@@ -174,34 +158,20 @@
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
             <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
-            <Setter Property="Padding" Value="14,12"/>
-            <Setter Property="MinHeight" Value="72"/>
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="MinHeight" Value="64"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         ROOT — glass background with ambient blobs
+         ROOT
     ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{StaticResource AmbientBg}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
 
-        <!-- Ambient blobs (cached, behind everything) -->
-        <Canvas Panel.ZIndex="-1"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache"
-                ClipToBounds="True">
-            <Ellipse Canvas.Left="-100" Canvas.Top="-100"
-                     Width="500" Height="500"
-                     Opacity="0.35"
-                     Fill="{StaticResource VioletBlob}"/>
-            <Ellipse Canvas.Right="-150" Canvas.Top="250"
-                     Width="600" Height="600"
-                     Opacity="0.25"
-                     Fill="{StaticResource CyanBlob}"/>
-        </Canvas>
-
-        <!-- Single scrolling page (no nested scrollbars) -->
+        <!-- Single page scroll; the pipeline and warning columns are fully
+             expanded (no inner scrollbars) — only the streaming log scrolls. -->
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       IsDeferredScrollingEnabled="False"
@@ -301,16 +271,18 @@
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════
-                     PIPELINE STEPS + WARNINGS (flat, no card wrapper)
+                     3 SECTIONS (restored): steps · log+metrics · warnings
                 ═══════════════════════════════════════════════════ -->
                 <Grid Margin="0,24,0,0">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.1*"/>
+                        <ColumnDefinition Width="1.05*"/>
                         <ColumnDefinition Width="20"/>
-                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1.25*"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="0.95*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- ═══ COLUMN 1: PIPELINE STEPS (flat) ═══ -->
+                    <!-- ═══ SECTION 1: PIPELINE STEPS (flat rows) ═══ -->
                     <StackPanel Grid.Column="0">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <Border Width="4" Height="16"
@@ -356,8 +328,8 @@
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis"
                                                            Margin="0,3,0,0"
-                                                           Foreground="{Binding StatusColor,
-                                                               Converter={StaticResource ColorStringConverter}}"/>
+                                                           Foreground="{Binding StatusBrushKey,
+                                                               Converter={StaticResource BrushKeyConverter}}"/>
                                             </StackPanel>
                                         </Grid>
                                     </Border>
@@ -366,8 +338,142 @@
                         </ItemsControl>
                     </StackPanel>
 
-                    <!-- ═══ COLUMN 2: WARNINGS & ALERTS (flat) ═══ -->
+                    <!-- ═══ SECTION 2: PROCESSING LOG + METRICS ═══ -->
                     <StackPanel Grid.Column="2">
+                        <!-- Processing log — theme-adaptive surface -->
+                        <Border Background="{StaticResource TerminalBg}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="18,14"
+                                MinHeight="280"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+
+                                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                                    <Ellipse Width="9" Height="9" Fill="{DynamicResource DangerBrush}"
+                                             VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <Ellipse Width="9" Height="9" Fill="{DynamicResource WarningBrush}"
+                                             VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                    <Ellipse Width="9" Height="9" Fill="{DynamicResource SuccessBrush}"
+                                             VerticalAlignment="Center" Margin="0,0,14,0"/>
+                                    <TextBlock Text="PROCESSING LOG"
+                                               FontSize="10" FontWeight="Bold"
+                                               Foreground="{StaticResource TerminalTitle}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- CRITICAL: x:Name preserved for code-behind auto-scroll -->
+                                <ScrollViewer x:Name="TerminalLogScroller"
+                                              Grid.Row="1"
+                                              MaxHeight="380"
+                                              VerticalScrollBarVisibility="Auto"
+                                              HorizontalScrollBarVisibility="Disabled"
+                                              IsDeferredScrollingEnabled="False"
+                                              behaviors:SmoothScrollBehavior.IsEnabled="True">
+                                    <ItemsControl x:Name="TerminalLogItems"
+                                                  ItemsSource="{Binding ProcessingLog}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Text}"
+                                                           FontFamily="Consolas"
+                                                           FontSize="12"
+                                                           Margin="0,1"
+                                                           TextWrapping="Wrap"
+                                                           Foreground="{Binding SeverityColor,
+                                                               Converter={StaticResource BrushKeyConverter}}">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="FontWeight" Value="Normal"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding FontWeightDisplay}" Value="Bold">
+                                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </Border>
+
+                        <!-- Metrics 2×2 -->
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="12"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource MetricTileStyle}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding OrderedQtyDisplay}"
+                                               FontSize="22" FontWeight="Bold"
+                                               Foreground="{StaticResource MetricOrdered}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Ordered"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="0" Grid.Column="2" Style="{StaticResource MetricTileStyle}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding DeliveredQtyDisplay}"
+                                               FontSize="22" FontWeight="Bold"
+                                               Foreground="{StaticResource MetricDelivered}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Delivered"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="0" Style="{StaticResource MetricTileStyle}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding BalanceQtyDisplay}"
+                                               FontSize="22" FontWeight="Bold"
+                                               Foreground="{StaticResource MetricBalance}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Balance"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource MetricTileStyle}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding DeliveryRateDisplay}"
+                                               FontSize="22" FontWeight="Bold"
+                                               Foreground="{StaticResource MetricRate}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Text="Rate"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{StaticResource TextSecondary}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </StackPanel>
+
+                    <!-- ═══ SECTION 3: WARNINGS & ALERTS (flat rows) ═══ -->
+                    <StackPanel Grid.Column="4">
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -403,7 +509,9 @@
                                     <Border CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10"
                                             Margin="0,0,0,8"
-                                            BorderThickness="0"
+                                            BorderThickness="1"
+                                            BorderBrush="{Binding TitleBrushKey,
+                                                Converter={StaticResource BrushKeyConverter}}"
                                             Background="{Binding BackgroundBrushKey,
                                                 Converter={StaticResource BrushKeyConverter}}"
                                             SnapsToDevicePixels="True">
@@ -417,15 +525,15 @@
                                                      Width="10" Height="10"
                                                      Margin="0,4,10,0"
                                                      VerticalAlignment="Top"
-                                                     Fill="{Binding TitleColorHex,
-                                                         Converter={StaticResource ColorStringConverter}}"/>
+                                                     Fill="{Binding TitleBrushKey,
+                                                         Converter={StaticResource BrushKeyConverter}}"/>
 
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding Title}"
                                                            FontSize="13" FontWeight="Bold"
                                                            Margin="0,0,0,4"
-                                                           Foreground="{Binding TitleColorHex,
-                                                               Converter={StaticResource ColorStringConverter}}"/>
+                                                           Foreground="{Binding TitleBrushKey,
+                                                               Converter={StaticResource BrushKeyConverter}}"/>
 
                                                 <TextBlock Text="{Binding Detail}"
                                                            FontSize="11"
@@ -438,17 +546,19 @@
                                                                FontSize="12" FontWeight="Bold"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,10,0"
-                                                               Foreground="{Binding AmountColorHex,
-                                                                   Converter={StaticResource ColorStringConverter}}"/>
+                                                               Foreground="{Binding AmountBrushKey,
+                                                                   Converter={StaticResource BrushKeyConverter}}"/>
                                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3"
                                                             VerticalAlignment="Center"
-                                                            BorderThickness="0">
+                                                            BorderThickness="1"
+                                                            BorderBrush="{Binding ActionBrushKey,
+                                                                Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding ActionLabel}"
                                                                    FontSize="10" FontWeight="SemiBold"
-                                                                   Foreground="{Binding ActionColorHex,
-                                                                       Converter={StaticResource ColorStringConverter}}"/>
+                                                                   Foreground="{Binding ActionBrushKey,
+                                                                       Converter={StaticResource BrushKeyConverter}}"/>
                                                     </Border>
                                                 </StackPanel>
                                             </StackPanel>
@@ -458,143 +568,6 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
-                </Grid>
-
-                <!-- ═══════════════════════════════════════════════════
-                     TERMINAL (dark, intentional card)
-                ═══════════════════════════════════════════════════ -->
-                <Border Margin="0,16,0,0"
-                        Background="{StaticResource TerminalBg}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
-                        Padding="20,16"
-                        MinHeight="300"
-                        Effect="{StaticResource CardShadow}"
-                        SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
-                            <Ellipse Width="9" Height="9" Fill="{DynamicResource DangerBrush}"
-                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <Ellipse Width="9" Height="9" Fill="{DynamicResource WarningBrush}"
-                                     VerticalAlignment="Center" Margin="0,0,6,0"/>
-                            <Ellipse Width="9" Height="9" Fill="{DynamicResource SuccessBrush}"
-                                     VerticalAlignment="Center" Margin="0,0,14,0"/>
-                            <TextBlock Text="PROCESSING LOG"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="{StaticResource TerminalTitle}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-
-                        <!-- CRITICAL: x:Name preserved for code-behind auto-scroll -->
-                        <ScrollViewer x:Name="TerminalLogScroller"
-                                      Grid.Row="1"
-                                      MaxHeight="420"
-                                      VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      IsDeferredScrollingEnabled="False"
-                                      behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <ItemsControl x:Name="TerminalLogItems"
-                                          ItemsSource="{Binding ProcessingLog}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Text}"
-                                                   FontFamily="Consolas"
-                                                   FontSize="12"
-                                                   Margin="0,1"
-                                                   TextWrapping="Wrap"
-                                                   Foreground="{Binding SeverityColor,
-                                                       Converter={StaticResource ColorStringConverter}}">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="FontWeight" Value="Normal"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding FontWeightDisplay}" Value="Bold">
-                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════
-                     METRICS (compact 4-up KPI tiles)
-                ═══════════════════════════════════════════════════ -->
-                <Grid Margin="0,16,0,0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource MetricTileStyle}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding OrderedQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricOrdered}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Ordered"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource MetricTileStyle}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding DeliveredQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricDelivered}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Delivered"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="4" Style="{StaticResource MetricTileStyle}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding BalanceQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricBalance}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Balance"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="6" Style="{StaticResource MetricTileStyle}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding DeliveryRateDisplay}"
-                                       FontSize="24" FontWeight="Bold"
-                                       Foreground="{StaticResource MetricRate}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="Rate"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{StaticResource TextSecondary}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
                 </Grid>
 
             </StackPanel>

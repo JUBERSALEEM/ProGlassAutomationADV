@@ -34,6 +34,7 @@ using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Reconciliation;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -80,6 +81,19 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             if (allItems == null || allItems.Count == 0)
             {
                 AppLogService.Debug("[Aggregator] DB is empty");
+                return null;
+            }
+
+            // ── Step 1.5: HARD VALIDITY FILTER ────────────────────────────
+            // A statement may only include invoices that are actually issued
+            // AND generated against a real (non-master) delivery note. Draft /
+            // Cancelled / Void invoices and invoices without a real delivery
+            // are dropped here, before the operator's own filters run.
+            allItems = await FilterToValidStatementInvoicesAsync(allItems);
+
+            if (allItems.Count == 0)
+            {
+                AppLogService.Debug("[Aggregator] No issued invoices with a real delivery note");
                 return null;
             }
 
@@ -257,6 +271,84 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             AppLogService.Debug($"[Aggregator] Attached reconciliation to " +
                             $"{attachedCount}/{rows.Count} rows " +
                             $"({discrepancyCount} with discrepancies)");
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  HARD VALIDITY FILTER — issued + real delivery only
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Statuses that count as "issued" for a statement. A tax invoice can
+        /// only become Paid / PartiallyPaid / Overdue after it has been
+        /// issued, so those are included; Draft / Cancelled / Void are not.
+        /// </summary>
+        private static readonly string[] IssuedStatuses =
+        {
+            "Issued", "Paid", "PartiallyPaid", "Partially Paid", "Overdue"
+        };
+
+        /// <summary>
+        /// Drops invoices that are not issued, and invoices that do not
+        /// reference at least one real (non-master) delivery note. Master
+        /// ("Dummy") delivery notes are already excluded by
+        /// <c>DeliveryNotes.GetAllAsync()</c>, so the returned set is the
+        /// real deliveries an invoice may legitimately point at.
+        /// </summary>
+        private async Task<List<TaxInvoiceListItem>> FilterToValidStatementInvoicesAsync(
+            List<TaxInvoiceListItem> items)
+        {
+            // Load real delivery-note ids once (master DNs excluded by repo).
+            var realDnIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            bool dnLoadSucceeded = false;
+            try
+            {
+                var dns = App.DeliveryNotes == null
+                    ? null
+                    : await App.DeliveryNotes.GetAllAsync();
+                foreach (var dn in dns ?? new List<ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteListItem>())
+                {
+                    if (!string.IsNullOrWhiteSpace(dn.DeliveryNoteId))
+                        realDnIds.Add(dn.DeliveryNoteId.Trim());
+                }
+                dnLoadSucceeded = true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    "[Statement] Failed to load delivery notes for the validity filter.", ex,
+                    new LogContext
+                    {
+                        Module = "Statement",
+                        Class = nameof(StatementAggregator),
+                        Operation = "FilterToValidStatementInvoicesAsync"
+                    });
+            }
+
+            var valid = items.Where(i =>
+            {
+                // 1. Issued status only.
+                string status = i.Status?.Trim() ?? "";
+                if (!IssuedStatuses.Contains(status, StringComparer.OrdinalIgnoreCase))
+                    return false;
+
+                // 2. Must reference at least one real delivery note. If the
+                //    delivery-note set could not be loaded, fall back to the
+                //    status filter only (never silently drop everything).
+                if (!dnLoadSucceeded)
+                    return true;
+
+                var refs = TaxInvoiceDnReconciler.ParseDnRefs(i.DeliveryNoteReference);
+                if (refs.Count == 0)
+                    return false;
+                return refs.Any(r => realDnIds.Contains(r));
+            }).ToList();
+
+            int dropped = items.Count - valid.Count;
+            AppLogService.Debug(
+                $"[Aggregator] Validity filter: {items.Count} -> {valid.Count} " +
+                $"({dropped} dropped: non-issued or no real delivery)");
+
+            return valid;
         }
 
         // ═════════════════════════════════════════════════════════════════
