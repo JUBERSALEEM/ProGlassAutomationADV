@@ -17,6 +17,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.ViewModels.Reports.StatementGenerator;
 using ProGlassAutomation.ViewModels.Reports.StatementList;
+using System;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports
@@ -41,6 +42,27 @@ namespace ProGlassAutomation.ViewModels.Reports
 
         public ICommand NewStatementCommand { get; }
         public ICommand BackToListCommand { get; }
+
+        // ── Warning/alert action callbacks (delegate to GeneratorVM) ─────
+        // MainViewModel wires these to navigate + open/create the related
+        // document. Targets are document references (number / id).
+        public Action<string>? OnOpenTaxInvoiceByNumber
+        {
+            get => GeneratorVM.OnOpenTaxInvoiceByNumber;
+            set => GeneratorVM.OnOpenTaxInvoiceByNumber = value;
+        }
+
+        public Action<string>? OnCreateInvoiceFromDeliveryNote
+        {
+            get => GeneratorVM.OnCreateInvoiceFromDeliveryNote;
+            set => GeneratorVM.OnCreateInvoiceFromDeliveryNote = value;
+        }
+
+        public Action<string>? OnOpenProformaByNumber
+        {
+            get => GeneratorVM.OnOpenProformaByNumber;
+            set => GeneratorVM.OnOpenProformaByNumber = value;
+        }
 
         public StatementModuleViewModel()
         {
