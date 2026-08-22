@@ -66,7 +66,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             if (string.IsNullOrWhiteSpace(path)) return;
 
             IoStatus = "Importing…";
-            var parsed = await CutListGridIo.ImportFileAsync(path);
+
+            CutListImportResult parsed;
+            try
+            {
+                // Parse off the UI thread: ClosedXML and large CSV/TXT reads
+                // otherwise freeze the grid, which makes import look "stuck"
+                // at "Importing…" even when it is still running.
+                parsed = await Task.Run(() => CutListGridIo.ImportFileAsync(path))
+                    .ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                IoStatus = "Import failed.";
+                MessageBox.Show(
+                    "Could not read the cut list.\n\n" + ex.Message +
+                    "\n\nMake sure the file is a valid Excel / CSV / TXT file " +
+                    "and is not open in another program.",
+                    "Import cut list", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
             if (parsed.Rows.Count == 0)
             {
                 IoStatus = parsed.Warning ?? "No rows imported.";
@@ -77,7 +97,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             int added = ApplyImportedRowsBySpec(parsed.Rows);
             string extra = parsed.Skipped > 0 ? $"  ·  skipped {parsed.Skipped}" : "";
-            IoStatus = $"Imported {added} row(s){extra}.";
+            IoStatus = added > 0
+                ? $"Imported {added} row(s){extra}."
+                : parsed.Warning ?? "Nothing was imported.";
         }
 
         /// <summary>
