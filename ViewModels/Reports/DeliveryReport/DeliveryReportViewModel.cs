@@ -184,18 +184,40 @@ namespace ProGlassAutomation.ViewModels.Reports.DeliveryReport
         public DeliveryReportSummary Summary
         {
             get => _summary;
-            set { _summary = value; OnPropertyChanged(); OnPropertyChanged(nameof(SummaryCards)); OnPropertyChanged(nameof(CompletionText)); }
+            set
+            {
+                _summary = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SummaryCards));
+                OnPropertyChanged(nameof(CompletionText));
+                OnPropertyChanged(nameof(OrderedText));
+                OnPropertyChanged(nameof(DeliveredText));
+                OnPropertyChanged(nameof(BalanceText));
+            }
         }
 
         public string CompletionText =>
             $"{Summary.CompletionPct:0.0}% delivered ({Summary.TotalDeliveredQty:N0}/{Summary.TotalOrderedQty:N0} pcs)";
 
+        public string OrderedText => $"{Summary.TotalOrderedQty:N0} pieces ordered";
+
+        public string DeliveredText =>
+            $"{Summary.TotalDeliveredQty:N0} pieces · {Summary.CompletionPct:0.0}%";
+
+        public string BalanceText => $"{Summary.TotalRemainingQty:N0} pieces remaining";
+
+        /// <summary>
+        /// Quantity-based KPI cards — the top panel reflects TOTAL / DELIVERED
+        /// / BALANCE pieces (and completion %) for the CURRENT filter set, not
+        /// a count of rows. Every value is recomputed by GetDeliverySummaryAsync
+        /// from the filtered DeliveryNoteItems, so it updates with the filters.
+        /// </summary>
         public ObservableCollection<KpiItem> SummaryCards => new()
         {
-            new KpiItem("ROWS", Summary.TotalRows.ToString("N0"), CompletionText, "AccentBrush"),
-            new KpiItem("NOT DELIVERED", Summary.NotDelivered.ToString("N0"), "No delivery yet", "NeutralBrush"),
-            new KpiItem("PARTIAL", Summary.Partial.ToString("N0"), "In progress", "WarningBrush"),
-            new KpiItem("FULLY DELIVERED", Summary.FullyDelivered.ToString("N0"), "Balance = 0", "SuccessBrush"),
+            new KpiItem("TOTAL QTY", Summary.TotalOrderedQty.ToString("N0"), OrderedText, "AccentBrush"),
+            new KpiItem("DELIVERED", Summary.TotalDeliveredQty.ToString("N0"), DeliveredText, "SuccessBrush"),
+            new KpiItem("BALANCE", Summary.TotalRemainingQty.ToString("N0"), BalanceText, "WarningBrush"),
+            new KpiItem("COMPLETION", $"{Summary.CompletionPct:0.0}%", CompletionText, "InfoBrush"),
         };
 
         private ObservableCollection<DeliveryReportRow> _rows = new();

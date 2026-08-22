@@ -41,7 +41,8 @@
                 </Grid.RowDefinitions>
 
                 <!-- ══════════════════════════════════════════════════════════
-                     1. KPI STRIP — row-level buckets
+                     1. KPI STRIP — quantity stats (TOTAL / DELIVERED / BALANCE
+                        / COMPLETION), recomputed for the current filters.
                 ══════════════════════════════════════════════════════════════ -->
                 <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
@@ -52,57 +53,57 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Total rows -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total specification rows across all job orders">
+                        <!-- Total ordered qty -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total ordered pieces across the filtered rows">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="ROWS" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalRows}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding CompletionText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="TOTAL QTY" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalOrderedQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding OrderedText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Not delivered -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Rows with zero delivered quantity">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGrayBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <!-- Delivered qty -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total delivered pieces across the filtered rows">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="NOT DELIVERED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.NotDelivered}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="No delivery yet" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="DELIVERED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalDeliveredQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding DeliveredText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Partial -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Rows delivered in part with balance remaining">
+                        <!-- Balance qty -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Remaining pieces (Total − Delivered) across the filtered rows">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE9FA;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="PARTIAL" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.Partial}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="In progress" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="BALANCE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalRemainingQty}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding BalanceText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Fully delivered -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Rows with zero balance">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <!-- Completion % -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Delivered as a percentage of ordered pieces">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGrayBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="15" Foreground="{DynamicResource InfoBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="FULLY DELIVERED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.FullyDelivered}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Balance = 0" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="COMPLETION" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.CompletionPct, StringFormat={}{0:0.0}%}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding CompletionText}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>

@@ -505,20 +505,32 @@ namespace ProGlassAutomation.Services.Reporting
 
             var pageJoIds = page.Select(x => x.JobOrderId).ToList();
 
-            // Fetch Master DN delivery balances only for page
-            Dictionary<string, (int Ordered, int Delivered)> masterMap = new(StringComparer.OrdinalIgnoreCase);
+            // Delivered quantity comes straight from the DeliveryNoteItems
+            // table — the SUM of DeliveredQty across real (non-master) DNs.
+            // This is the SAME canonical source the Delivery report uses.
+            // Reading the Master DN's TotalDeliveredQty column was unreliable:
+            // it is 0 whenever no Master DN exists or it has not been refreshed
+            // after a dispatch, which made every JO show "delivered 0".
+            Dictionary<string, int> deliveredByJo = new(StringComparer.OrdinalIgnoreCase);
             try
             {
                 using var dnDb = new DeliveryNotesDbContext();
-                var masters = await dnDb.DeliveryNotes.AsNoTracking()
-                    .Where(d => d.IsMasterDn && pageJoIds.Contains(d.JobOrderId))
-                    .Select(d => new { d.JobOrderId, d.TotalOrderedQty, d.TotalDeliveredQty })
+                var realDnIds = await dnDb.DeliveryNotes.AsNoTracking()
+                    .Where(d => !d.IsMasterDn && pageJoIds.Contains(d.JobOrderId))
+                    .Select(d => d.DeliveryNoteId)
                     .ToListAsync(ct);
-                foreach (var m in masters)
-                    if (!string.IsNullOrWhiteSpace(m.JobOrderId))
-                        masterMap[m.JobOrderId!] = (m.TotalOrderedQty, m.TotalDeliveredQty);
+                var delivered = await dnDb.DeliveryNoteItems.AsNoTracking()
+                    .Where(i => pageJoIds.Contains(i.JobOrderId) && realDnIds.Contains(i.DeliveryNoteId))
+                    .Select(i => new { i.JobOrderId, i.DeliveredQty })
+                    .ToListAsync(ct);
+                foreach (var it in delivered)
+                {
+                    if (string.IsNullOrWhiteSpace(it.JobOrderId)) continue;
+                    deliveredByJo[it.JobOrderId] =
+                        deliveredByJo.TryGetValue(it.JobOrderId, out var n) ? n + it.DeliveredQty : it.DeliveredQty;
+                }
             }
-            catch (Exception ex) { AppLogService.Warning($"Master DN map warning: {ex.Message}"); }
+            catch (Exception ex) { AppLogService.Warning($"JO delivered-qty warning: {ex.Message}"); }
 
             var rows = new List<JoReportRow>();
             foreach (var r in page)
@@ -542,7 +554,7 @@ namespace ProGlassAutomation.Services.Reporting
                         }
                     }
                 }
-                masterMap.TryGetValue(r.JobOrderId, out var bal);
+                int deliveredQty = deliveredByJo.TryGetValue(r.JobOrderId, out var d) ? d : 0;
                 rows.Add(new JoReportRow
                 {
                     Id = r.Id,
@@ -559,8 +571,8 @@ namespace ProGlassAutomation.Services.Reporting
                     GrandTotal = r.GrandTotalVatInclusive,
                     TotalQty = totalQty,
                     TotalSqm = Math.Round(totalSqm, 3),
-                    DeliveredQty = bal.Delivered,
-                    BalanceQty = Math.Max(0, bal.Ordered - bal.Delivered),
+                    DeliveredQty = deliveredQty,
+                    BalanceQty = Math.Max(0, totalQty - deliveredQty),
                     CreatedAt = r.CreatedAt,
                     UpdatedAt = r.UpdatedAt
                 });
