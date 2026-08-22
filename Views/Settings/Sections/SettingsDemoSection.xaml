@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              FontFamily="{DynamicResource AppFontFamily}"
@@ -22,7 +22,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Each module records a live walk — Sheet Store, Proforma 1–9, Job Order, Delivery Note, Tax Invoice, Statements, Users, Company, Dashboard, Profitability — then a verified MP4. Activity is the real audit tab on JO / DN / TI."
+            <TextBlock Text="Each module records a live walk — production stages, Reports Hub and all five reports, Proforma 1–9, Job Order, Delivery Note, Tax Invoice, Statements, administration and profitability — then a verified MP4."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>

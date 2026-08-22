@@ -110,9 +110,19 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("UserCenter", expanded);
             Assert.Contains("Optimization", expanded);
             Assert.Contains("DoublingLamination", expanded);
+            Assert.Contains("ReportsHub", expanded);
             Assert.Contains("PiReport", expanded);
             Assert.Contains("TaxInvoiceReport", expanded);
             Assert.Contains("StatementReport", expanded);
+        }
+
+        [Fact]
+        public void Reports_hub_and_statement_generator_are_distinct_workflows()
+        {
+            Assert.Equal("ReportsHub", DemoWorkflowCatalog.Find("ReportsHub")?.Id);
+            Assert.Equal("SalesReport", DemoWorkflowCatalog.Find("SalesReport")?.Id);
+            Assert.IsType<ModuleTourWorkflow>(DemoDirector.CreateRunner("ReportsHub"));
+            Assert.IsType<StatementWorkflow>(DemoDirector.CreateRunner("SalesReport"));
         }
 
         [Fact]

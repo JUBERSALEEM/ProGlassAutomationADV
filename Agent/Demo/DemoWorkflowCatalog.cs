@@ -49,7 +49,11 @@ namespace ProGlassAutomation.Agent.Demo
                 "Open Tax Invoices.",
                 "A master invoice uses dispatched pieces only.",
                 "Rate and value stay as separate columns on the FTA layout."),
-            W("SalesReport", "Statements", "Account statement of invoiced and outstanding.",
+            W("ReportsHub", "Reports Hub", "Unified reporting overview and entry to every report.",
+                "SalesReport",
+                "Open the Reports Hub overview.",
+                "Use the report navigation to open proforma, job order, delivery, tax invoice and statement analysis."),
+            W("SalesReport", "Statement Generator", "Account statement of invoiced and outstanding.",
                 "StatementGenerator",
                 "Open the Statement Generator (Dispatch).",
                 "The generator filters live tax invoices, previews matches and selects them."),
@@ -83,11 +87,18 @@ namespace ProGlassAutomation.Agent.Demo
             W("About", "About", "Review platform capabilities and release information.", "About", "Open About."),
         };
 
-        public static DemoWorkflow? Find(string? id) =>
-            All.FirstOrDefault(w =>
-                string.Equals(w.Id, id, System.StringComparison.OrdinalIgnoreCase)
-                || string.Equals(w.NavigateTarget, id, System.StringComparison.OrdinalIgnoreCase)
+        public static DemoWorkflow? Find(string? id)
+        {
+            // Exact catalog IDs must win over navigation aliases. Reports Hub
+            // navigates to "SalesReport", while the statement workflow keeps
+            // the historical SalesReport ID; one OR predicate made the first
+            // entry shadow the statement generator.
+            var exact = All.FirstOrDefault(w =>
+                string.Equals(w.Id, id, System.StringComparison.OrdinalIgnoreCase));
+            return exact ?? All.FirstOrDefault(w =>
+                string.Equals(w.NavigateTarget, id, System.StringComparison.OrdinalIgnoreCase)
                 || string.Equals(w.Title, id, System.StringComparison.OrdinalIgnoreCase));
+        }
 
         public static IEnumerable<DemoWorkflow> Resolve(string? argument)
         {

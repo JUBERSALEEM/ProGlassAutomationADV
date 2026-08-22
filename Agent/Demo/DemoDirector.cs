@@ -457,6 +457,7 @@ namespace ProGlassAutomation.Agent.Demo
                 "JobOrder" => new JobOrderWorkflow(),
                 "DeliveryNote" => new DeliveryNoteWorkflow(),
                 "TaxInvoice" => new TaxInvoiceWorkflow(),
+                "ReportsHub" => Tour("ReportsHub", "SalesReport", "Reports Hub", "Open the unified reporting overview and access every operational and financial report."),
                 "SalesReport" => new StatementWorkflow(),
                 "UserCenter" => new UserCenterWorkflow(),
                 "CompanyCenter" => new CompanyCenterWorkflow(),
