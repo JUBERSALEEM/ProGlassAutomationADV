@@ -44,6 +44,7 @@ using ProGlassAutomation.ViewModels.CompanyCenter;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
+using ProGlassAutomation.ViewModels.Inquiry;
 using ProGlassAutomation.ViewModels.JobProfitability;
 using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
@@ -120,7 +121,8 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddTransient<ViewModels.Dashboard.SheetStoreDashboardViewModel>();
             services.AddTransient<ViewModels.Dashboard.PiDashboardViewModel>();
 
-            // Proforma Invoice + wizard steps
+            // Inquiry list shell + Proforma Invoice wizard
+            services.AddTransient<InquiryListViewModel>();
             services.AddTransient<ProformaInvoiceViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step1CompanySetup.CompanySetupViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step2ClientProfile.ClientProfileViewModel>();

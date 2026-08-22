@@ -37,6 +37,8 @@
         xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels"
         xmlns:vmDashboard="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
         xmlns:vmProforma="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
+        xmlns:vmInquiry="clr-namespace:ProGlassAutomation.ViewModels.Inquiry"
+        xmlns:viewsInquiry="clr-namespace:ProGlassAutomation.Views.Inquiry"
         xmlns:vmAbout="clr-namespace:ProGlassAutomation.ViewModels.About"
         xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
         xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
@@ -167,6 +169,9 @@
 
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
             <viewsDashboard:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmInquiry:InquiryListViewModel}">
+            <viewsInquiry:InquiryListView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmProforma:ProformaInvoiceViewModel}">
             <viewsProforma:ProformaInvoiceView/>
@@ -1141,6 +1146,10 @@
                                         Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Inquiry"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Inquiry"/>
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="Proforma Invoice"
                                                 Command="{Binding NavigateCommand}"

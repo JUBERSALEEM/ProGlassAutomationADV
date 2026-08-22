@@ -26,6 +26,7 @@ using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
+using ProGlassAutomation.ViewModels.Inquiry;
 using ProGlassAutomation.ViewModels.JobProfitability;
 using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
@@ -65,6 +66,7 @@ namespace ProGlassAutomation.ViewModels
 
         // ── modules — now resolved via DI (Phase 5) ───────────────────
         public DashboardViewModel DashboardVM { get; }
+        public InquiryListViewModel InquiryVM { get; }
         public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
         public AboutViewModel AboutVM { get; }
         public SettingsViewModel SettingsVM { get; }
@@ -398,6 +400,7 @@ namespace ProGlassAutomation.ViewModels
             // Resolve all module VMs via DI — Phase 5: no `new ViewModel()` 
             // Each GetService falls back to `new` if not registered (migration safety)
             DashboardVM = ResolveOrNew<DashboardViewModel>();
+            InquiryVM = ResolveOrNew<InquiryListViewModel>();
             ProformaInvoiceVM = ResolveOrNew<ProformaInvoiceViewModel>();
             AboutVM = ResolveOrNew<AboutViewModel>();
             SettingsVM = ResolveOrNew<SettingsViewModel>();
@@ -659,6 +662,7 @@ namespace ProGlassAutomation.ViewModels
             switch (parameter?.ToString())
             {
                 case "Dashboard": CurrentViewModel = DashboardVM; break;
+                case "Inquiry": CurrentViewModel = InquiryVM; break;
                 case "SheetStore": CurrentViewModel = SheetStoreVM; break;
                 case "ProformaInvoice": CurrentViewModel = ProformaInvoiceVM; break;
                 case "JobOrder": CurrentViewModel = JobOrderVM; break;
@@ -706,6 +710,7 @@ namespace ProGlassAutomation.ViewModels
             string moduleKey = navKey switch
             {
                 "Dashboard" => ProGlassAutomation.Services.Theme.WallpaperModules.Dashboard,
+                "Inquiry" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "SheetStore" => ProGlassAutomation.Services.Theme.WallpaperModules.SheetStore,
                 "ProformaInvoice" => ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
                 "JobOrder" => ProGlassAutomation.Services.Theme.WallpaperModules.JobOrder,
