@@ -495,6 +495,30 @@ namespace ProGlassAutomation.ViewModels
                 _ = TaxInvoiceVM.OpenInvoiceAsync(invoiceId);
             };
 
+            // Statement Generator warning/alert actions — navigate to the real
+            // related document instead of leaving dead "→ open" labels.
+            StatementModuleVM.OnOpenTaxInvoiceByNumber = async invoiceNumber =>
+            {
+                if (string.IsNullOrWhiteSpace(invoiceNumber) || App.TaxInvoices == null) return;
+                var inv = await App.TaxInvoices.GetByInvoiceNumberAsync(invoiceNumber);
+                if (inv == null) return;
+                Navigate("TaxInvoice");
+                await TaxInvoiceVM.OpenInvoiceAsync(inv.Id);
+            };
+            StatementModuleVM.OnCreateInvoiceFromDeliveryNote = deliveryNoteId =>
+            {
+                Navigate("TaxInvoice");
+                _ = TaxInvoiceVM.CreateFromDeliveryNoteAsync(deliveryNoteId);
+            };
+            StatementModuleVM.OnOpenProformaByNumber = async proformaId =>
+            {
+                if (string.IsNullOrWhiteSpace(proformaId) || App.Invoices == null) return;
+                var pi = await App.Invoices.GetByProformaIdAsync(proformaId);
+                if (pi == null) return;
+                Navigate("ProformaInvoice");
+                await ProformaInvoiceVM.OpenSavedInvoiceAsync(pi.Id);
+            };
+
             ToggleMenuCommand = new RelayCommand(_ => IsMenuOpen = !IsMenuOpen);
             NavigateCommand = new RelayCommand(Navigate);
             NewProformaInvoiceCommand = new RelayCommand(_ =>

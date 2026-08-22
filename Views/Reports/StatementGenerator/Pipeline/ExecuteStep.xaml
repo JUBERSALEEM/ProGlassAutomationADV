@@ -587,18 +587,51 @@
                                                                Margin="0,0,12,0"
                                                                Foreground="{Binding AmountBrushKey,
                                                                    Converter={StaticResource BrushKeyConverter}}"/>
-                                                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Padding="8,3"
-                                                            VerticalAlignment="Center"
+                                                    <!-- Actionable button — routes to the related document -->
+                                                    <Button Cursor="Hand"
+                                                            Padding="10,3"
                                                             BorderThickness="1"
-                                                            BorderBrush="{Binding ActionBrushKey,
-                                                                Converter={StaticResource BrushKeyConverter}}">
-                                                        <TextBlock Text="{Binding ActionLabel}"
-                                                                   FontSize="10" FontWeight="SemiBold"
-                                                                   Foreground="{Binding ActionBrushKey,
-                                                                       Converter={StaticResource BrushKeyConverter}}"/>
-                                                    </Border>
+                                                            Visibility="{Binding HasAction,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Command="{Binding DataContext.OpenWarningActionCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}">
+                                                        <Button.Template>
+                                                            <ControlTemplate TargetType="Button">
+                                                                <Border x:Name="bd"
+                                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                                        Padding="{TemplateBinding Padding}"
+                                                                        BorderThickness="1"
+                                                                        BorderBrush="{Binding ActionBrushKey,
+                                                                            Converter={StaticResource BrushKeyConverter}}"
+                                                                        SnapsToDevicePixels="True">
+                                                                    <StackPanel Orientation="Horizontal">
+                                                                        <TextBlock Text="&#xE76B;"
+                                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                                   FontSize="10"
+                                                                                   Foreground="{Binding ActionBrushKey,
+                                                                                       Converter={StaticResource BrushKeyConverter}}"
+                                                                                   Margin="0,0,6,0"
+                                                                                   VerticalAlignment="Center"/>
+                                                                        <TextBlock Text="{Binding ActionLabel}"
+                                                                                   FontSize="10" FontWeight="SemiBold"
+                                                                                   Foreground="{Binding ActionBrushKey,
+                                                                                       Converter={StaticResource BrushKeyConverter}}"
+                                                                                   VerticalAlignment="Center"/>
+                                                                    </StackPanel>
+                                                                </Border>
+                                                                <ControlTemplate.Triggers>
+                                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                                    </Trigger>
+                                                                    <Trigger Property="IsPressed" Value="True">
+                                                                        <Setter TargetName="bd" Property="Opacity" Value="0.75"/>
+                                                                    </Trigger>
+                                                                </ControlTemplate.Triggers>
+                                                            </ControlTemplate>
+                                                        </Button.Template>
+                                                    </Button>
                                                 </StackPanel>
                                             </StackPanel>
                                         </Grid>

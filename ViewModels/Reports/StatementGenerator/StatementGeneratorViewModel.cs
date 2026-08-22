@@ -43,6 +43,7 @@ using PdfSharp.Pdf.IO;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Statement.Aggregation;
@@ -93,6 +94,18 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         // ── Callbacks ────────────────────────────────────────────────────
         public Func<Task>? OnStatementSaved { get; set; }
         public Action? OnCancelled { get; set; }
+
+        // ── Warning/alert action callbacks (wired by MainViewModel) ─────
+        // These make the "→ Open invoice / Create invoice / Open PI" buttons
+        // actually navigate to the related document instead of being dead
+        // labels. Target values are document references (number / id), not
+        // database ids; MainViewModel resolves + navigates.
+        public Action<string>? OnOpenTaxInvoiceByNumber { get; set; }
+        public Action<string>? OnCreateInvoiceFromDeliveryNote { get; set; }
+        public Action<string>? OnOpenProformaByNumber { get; set; }
+
+        /// <summary>Routes a warning card's action button to the right callback.</summary>
+        public ICommand OpenWarningActionCommand { get; private set; } = null!;
 
         // ── Edit mode ────────────────────────────────────────────────────
         private int _editId = 0;
@@ -578,6 +591,45 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public int BalanceSectionCount => BalancePdfSections.Count;
         public int AlertsSectionCount => AlertsPdfSections.Count;
 
+        // ── Deep-detail result data (Review step) ─────────────────────────
+        // Populated in LiftWorkflowResultAfterCompletion so the Review step can
+        // show REAL computed output — financials, aging, per-invoice rows and
+        // per-PI line-item reconciliation — instead of static estimates.
+
+        /// <summary>The completed statement snapshot (financials, aging, rows).</summary>
+        private StatementSnapshot? _lastSnapshot;
+        public StatementSnapshot? LastSnapshot
+        {
+            get => _lastSnapshot;
+            private set
+            {
+                _lastSnapshot = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLastSnapshot));
+                OnPropertyChanged(nameof(LastFinancial));
+                OnPropertyChanged(nameof(LastAging));
+                OnPropertyChanged(nameof(LastCustomer));
+                OnPropertyChanged(nameof(LastHeader));
+            }
+        }
+
+        public bool HasLastSnapshot => _lastSnapshot != null;
+        public StatementFinancialSummary LastFinancial =>
+            _lastSnapshot?.Financial ?? new StatementFinancialSummary();
+        public StatementAgingBuckets LastAging =>
+            _lastSnapshot?.Aging ?? new StatementAgingBuckets();
+        public StatementCustomerInfo LastCustomer =>
+            _lastSnapshot?.CustomerInfo ?? new StatementCustomerInfo();
+        public StatementHeader LastHeader =>
+            _lastSnapshot?.Header ?? new StatementHeader();
+
+        /// <summary>Per-PI line-item reconciliation (real, computed in Step 6).</summary>
+        public ObservableCollection<OrderReconciliationSummary> LastReconciliationSummaries { get; } = new();
+
+        /// <summary>True when at least one PI has a billing discrepancy.</summary>
+        public bool LastHasReconciliationIssue =>
+            LastReconciliationSummaries.Any(s => s.HasDiscrepancies);
+
         private string _activePdfTab = "Merged";
         public string ActivePdfTab
         {
@@ -781,6 +833,34 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             SelectMergedTabCommand = new RelayCommand(_ => ActivePdfTab = "Merged");
             SelectBalanceTabCommand = new RelayCommand(_ => ActivePdfTab = "Balance");
             SelectAlertsTabCommand = new RelayCommand(_ => ActivePdfTab = "Alerts");
+
+            // ── Warning/alert action routing ──────────────────────────────
+            OpenWarningActionCommand = new RelayCommand(param =>
+            {
+                if (param is not WorkflowWarningItem item) return;
+
+                switch (item.ActionKind)
+                {
+                    case WarningActionKind.OpenInvoice:
+                        OnOpenTaxInvoiceByNumber?.Invoke(item.TargetId);
+                        break;
+                    case WarningActionKind.CreateInvoiceFromDn:
+                        OnCreateInvoiceFromDeliveryNote?.Invoke(item.TargetId);
+                        break;
+                    case WarningActionKind.OpenProforma:
+                        OnOpenProformaByNumber?.Invoke(item.TargetId);
+                        break;
+                    case WarningActionKind.OpenPdf:
+                        OpenLastPdf();
+                        break;
+                    case WarningActionKind.GoToReview:
+                        if (CurrentStep != 4) CurrentStep = 4;
+                        break;
+                    case WarningActionKind.None:
+                    default:
+                        break;
+                }
+            });
 
             // ── Wizard navigation commands ──────────────────────────────
             NextStepCommand = new RelayCommand(_ =>
@@ -1733,6 +1813,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     ? Math.Round((double)wf.DeliveredQty / wf.OrderedQty * 100.0, 1)
                     : 0;
 
+                // ── Deep-detail result data for the Review step ────────────
+                LastSnapshot = wf.Snapshot;
+
+                LastReconciliationSummaries.Clear();
+                foreach (var s in wf.ReconciliationSummaries)
+                    LastReconciliationSummaries.Add(s);
+
+                OnPropertyChanged(nameof(LastHasReconciliationIssue));
+
                 BuildWorkflowWarnings(wf);
 
                 LastPdfPath = pdfPath;
@@ -1797,7 +1886,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                                  $"{row.DaysOverdue} days " +
                                  $"(due: {row.DueDate:MMM d, yyyy})",
                         AmountDisplay = $"AED {row.Balance:N2}",
-                        ActionLabel = "→ Send reminder",
+                        ActionLabel = "→ Open invoice",
+                        ActionKind = WarningActionKind.OpenInvoice,
+                        TargetId = row.InvoiceNumber ?? "",
                         StepLabel = "Post-workflow · Overdue Check",
                         HasQuantities = false
                     });
@@ -1816,6 +1907,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                              $"on {udn.DeliveryDate:MMM d, yyyy} — no invoice yet",
                     AmountDisplay = "",
                     ActionLabel = "→ Create invoice",
+                    ActionKind = WarningActionKind.CreateInvoiceFromDn,
+                    TargetId = udn.DeliveryNoteId ?? "",
                     StepLabel = "Step 6 · Coverage Check",
                     HasQuantities = true,
                     OrderedText = wf.OrderedQty.ToString("N0"),
@@ -1823,6 +1916,43 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     DifferenceText = $"-{Math.Max(0, wf.OrderedQty - udn.DeliveredQty):N0}"
                 });
                 warnCount++;
+            }
+
+            // ── Line-item reconciliation issues (over/under-invoiced) ──────
+            // Each problematic line becomes an actionable alert that can jump
+            // to the related Proforma Invoice, so the real "deep detail" is
+            // one click away instead of buried in the terminal log.
+            foreach (var summary in wf.ReconciliationSummaries)
+            {
+                foreach (var line in summary.Rows.Where(r =>
+                    r.HasDiscrepancy))
+                {
+                    WorkflowWarnings.Add(new WorkflowWarningItem
+                    {
+                        Severity = line.Status == ReconciliationStatus.OverInvoiced
+                            ? LogSeverity.Error
+                            : LogSeverity.Warning,
+                        Icon = "\uE7BA",
+                        Title = line.Status == ReconciliationStatus.OverInvoiced
+                            ? "Over-Invoiced Line"
+                            : "Under-Invoiced Line",
+                        Detail = $"{line.GlassRef} ({line.DimensionDisplay}) — " +
+                                 $"ordered {line.OrderedQty}, delivered {line.DeliveredQty}, " +
+                                 $"invoiced {line.InvoicedQty}",
+                        AmountDisplay = $"Diff {line.InvoiceVsDeliveryDiff:+0;-#}",
+                        ActionLabel = "→ Open PI",
+                        ActionKind = WarningActionKind.OpenProforma,
+                        TargetId = summary.ProformaId ?? "",
+                        StepLabel = $"Step 6 · Reconciliation · {summary.ProformaId}",
+                        HasQuantities = true,
+                        OrderedText = line.OrderedQty.ToString("N0"),
+                        DeliveredText = line.DeliveredQty.ToString("N0"),
+                        DifferenceText = line.InvoiceVsDeliveryDiff.ToString("+0;-#")
+                    });
+
+                    if (line.Status == ReconciliationStatus.OverInvoiced) errCount++;
+                    else warnCount++;
+                }
             }
 
             foreach (var step in wf.Steps)
@@ -1837,6 +1967,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                         Detail = w,
                         AmountDisplay = "",
                         ActionLabel = "→ Review",
+                        ActionKind = WarningActionKind.GoToReview,
                         StepLabel = $"Step {(int)step.Step} · {step.Title}",
                         HasQuantities = false
                     });
@@ -1860,6 +1991,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                              $"AED {wf.Snapshot.Financial.TotalInvoiced:N2}",
                     AmountDisplay = "",
                     ActionLabel = "→ View PDF",
+                    ActionKind = WarningActionKind.OpenPdf,
                     StepLabel = "Pipeline Complete",
                     HasQuantities = false
                 });

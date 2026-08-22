@@ -31,6 +31,33 @@
 namespace ProGlassAutomation.Models.Statement.Workflow
 {
     /// <summary>
+    /// What the "action" button on a warning/alert card should do when
+    /// clicked. Resolved by StatementGeneratorViewModel.OpenWarningActionCommand
+    /// via callbacks wired by MainViewModel (navigate + open the related
+    /// document), so the action is real — not a dead label.
+    /// </summary>
+    public enum WarningActionKind
+    {
+        /// <summary>No action — hide the button.</summary>
+        None = 0,
+
+        /// <summary>Open the related Tax Invoice (target = invoice number).</summary>
+        OpenInvoice = 1,
+
+        /// <summary>Create a Tax Invoice from the related Delivery Note (target = DN id).</summary>
+        CreateInvoiceFromDn = 2,
+
+        /// <summary>Open the related Proforma Invoice (target = proforma id).</summary>
+        OpenProforma = 3,
+
+        /// <summary>Open the generated statement PDF.</summary>
+        OpenPdf = 4,
+
+        /// <summary>Jump to the Review step.</summary>
+        GoToReview = 5
+    }
+
+    /// <summary>
     /// One warning/alert card displayed in the processing results section.
     /// Immutable — built from WorkflowResult after workflow completes.
     /// </summary>
@@ -73,6 +100,23 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         /// Example: "→ Send reminder", "→ Follow up", "→ Upload DN"
         /// </summary>
         public string ActionLabel { get; init; } = "";
+
+        /// <summary>
+        /// What the action button does when clicked (see WarningActionKind).
+        /// Drives whether the action is rendered as a clickable button.
+        /// </summary>
+        public WarningActionKind ActionKind { get; init; } = WarningActionKind.None;
+
+        /// <summary>
+        /// Target identifier for the action — an invoice number, delivery-note
+        /// id, or proforma id depending on ActionKind. Empty when None.
+        /// </summary>
+        public string TargetId { get; init; } = "";
+
+        /// <summary>True when the card has a clickable action button.</summary>
+        public bool HasAction =>
+            ActionKind != WarningActionKind.None &&
+            !string.IsNullOrWhiteSpace(ActionLabel);
 
         /// <summary>
         /// Which workflow step generated this warning.
