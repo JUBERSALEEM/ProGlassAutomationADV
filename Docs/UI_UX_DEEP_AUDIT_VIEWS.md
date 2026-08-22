@@ -351,6 +351,23 @@ Files: `DnSectionStyles`, `DnOverviewSection`, `DnAttachmentsSection`,
 `DnHistorySection`, `DeliveryNoteDetailView`, `TiAttachmentsSection`,
 `TiFamilySection` (7 files, 29 changes).
 
-### 5.10 — remaining (not started)
-SheetStore, Settings — and the "module shells vs. real content" decision for the
-9 placeholder modules.
+### 5.10 — SheetStore + Settings audited: clean ✅ (+1 D1 radius)
+- **SheetStore** (list, buy/use dialogs, CSV, history): 0 emoji, 0 hardcoded
+  radius, 0 micro-text; only 2 `#000000` drop-shadows. No changes needed.
+- **Settings**: remaining literals are all intentional — the 7 accent-preset
+  swatches in `SettingsAppearanceSection` (selectable palette), provider brand
+  dots (`#4285F4` Google / `#8B5CF6`), and the `ModernToggleSwitch` animation
+  literals (`#CBD5E1`/`#1D4ED8`, required — see crash note). Radii r2/r4 are
+  size-proportional (thumb, small elements). No changes needed.
+- **`TiOverviewSection`**: one real D1 leftover fixed — the payment card used
+  hardcoded `CornerRadius="10"` → `CardCornerRadius` token. The rest of the
+  DN/TI/JO hardcoded radii verified as size-proportional (r2/r4/r6 chips, tracks,
+  header-strip tops `12,12,0,0`).
+
+### 5.11 — remaining (needs product decisions, not a mechanical pass)
+The 9 placeholder modules (Optimization + Cutting/Polish/Edge/Mitring/Tempering/
+Pairing/Doubling/Holes) still render the polished `ComingSoonView` hero. Building
+real content requires per-module product decisions (fields, columns, actions,
+data model) — not a UI-sweep task. Remaining low-value global items (B3 hinting,
+B4 shadow trim, D6 type-scale consolidation) are intentionally not applied blind
+without a build/visual QA loop.
