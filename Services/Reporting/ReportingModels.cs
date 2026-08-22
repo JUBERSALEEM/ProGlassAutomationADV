@@ -45,6 +45,18 @@ namespace ProGlassAutomation.Services.Reporting
         public bool HasTaxInvoice { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        // ── Inline expander state ─────────────────────────────────────
+        public bool IsExpanded { get; set; }
+
+        /// <summary>True once the spec-row drill-down has loaded (lazy).</summary>
+        public bool HasLoadedDetail { get; set; }
+
+        /// <summary>Itemized specification rows — loaded lazily on expand.</summary>
+        public ObservableCollection<GlassSpecReportRow> DetailRows { get; set; } = new();
+
+        /// <summary>Ordered / delivered / invoiced reconciliation for this PI.</summary>
+        public QuantityReconciliation? Reconciliation { get; set; }
     }
 
     public class JoReportRow
@@ -67,6 +79,9 @@ namespace ProGlassAutomation.Services.Reporting
         public int BalanceQty { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>Inline expander state (single grid — no side panel).</summary>
+        public bool IsExpanded { get; set; }
     }
 
     public class DeliveryReportRow
@@ -167,6 +182,9 @@ namespace ProGlassAutomation.Services.Reporting
         public int TotalQty { get; set; }
         public decimal TotalSqm { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        /// <summary>Inline expander state (single grid — no side panel).</summary>
+        public bool IsExpanded { get; set; }
     }
 
     public class StatementReportRow
@@ -467,6 +485,9 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal Debit { get; set; }        // amount billed
         public decimal Credit { get; set; }       // amount paid
         public decimal Balance { get; set; }      // Debit − Credit (outstanding)
+
+        /// <summary>Inline expander state (single grid — no side panel).</summary>
+        public bool IsExpanded { get; set; }
     }
 
     /// <summary>

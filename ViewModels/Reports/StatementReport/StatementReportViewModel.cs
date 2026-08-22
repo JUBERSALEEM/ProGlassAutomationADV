@@ -1,4 +1,3 @@
-using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Reporting;
 using ProGlassAutomation.ViewModels.Reports.Common;
@@ -7,7 +6,6 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementReport
 {
@@ -46,30 +44,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementReport
 
         private ObservableCollection<StatementLineRow> _rows = new();
         public ObservableCollection<StatementLineRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
-
-        private StatementLineRow? _selectedRow;
-        public StatementLineRow? SelectedRow
-        {
-            get => _selectedRow;
-            set
-            {
-                if (_selectedRow == value) return;
-                _selectedRow = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasSelectedRow));
-                OnPropertyChanged(nameof(SidebarSubtitle));
-            }
-        }
-        public bool HasSelectedRow => SelectedRow != null;
-        public string SidebarSubtitle => SelectedRow?.InvoiceNumber ?? "";
-
-        public ICommand CloseDetailCommand { get; private set; } = null!;
-
-        protected override void InitCommands()
-        {
-            base.InitCommands();
-            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
-        }
 
         public override async Task LoadAsync()
         {

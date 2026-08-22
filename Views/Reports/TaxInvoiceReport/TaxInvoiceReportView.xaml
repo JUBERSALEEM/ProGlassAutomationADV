@@ -4,7 +4,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
-             xmlns:sidebar="clr-namespace:ProGlassAutomation.Controls.ReportSidebar"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -179,156 +178,64 @@
                     </Grid>
                 </Border>
 
-                <!-- ══════════════════════════════════════════════════════════
-                     4. TABLE HEADER
-                ══════════════════════════════════════════════════════════════ -->
-                <sidebar:ReportSidebarHost Grid.Row="3"
-                                           IsOpen="{Binding HasSelectedRow}"
-                                           CloseCommand="{Binding CloseDetailCommand}"
-                                           Title="TAX INVOICE DETAILS"
-                                           Subtitle="{Binding SidebarSubtitle}"
-                                           Icon="&#xE8C7;"
-                                           SidebarContent="{Binding}">
-                    <sidebar:ReportSidebarHost.SidebarContentTemplate>
-                        <DataTemplate>
-                            <StackPanel>
+                                <!-- ══════════════════════════════════════════════════════════
+                     4. SINGLE TABLE (header + rows, inline invoice details)
+                ══════════════════════════════════════════════════════════ -->
+                <Grid Grid.Row="3">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                                <Button Content="Open Tax Invoice"
-                                        Command="{Binding DataContext.OpenDocumentCommand,
-                                                  RelativeSource={RelativeSource AncestorType=sidebar:ReportSidebarHost}}"
-                                        Style="{StaticResource PrimaryPillButton}"
-                                        Height="36" Margin="0,0,0,14"
-                                        ToolTip="Open the original Tax Invoice"/>
+                    <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="1.1*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="88"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="0.6*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="INVOICE # / DATE" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="5" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="6" Text="PREPARED BY" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="8" Text="AMOUNT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="9" Text="QTY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
 
-                                <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="108"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
+                    <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Tax Invoices…"/>
+                    <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Tax Invoices found" Message="No records match current filters." Icon="&#xE8C7;"/>
 
-                                        <TextBlock Grid.Row="0" Grid.Column="0" Text="INVOICE #" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.InvoiceNumber}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                    <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
+                            CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                            <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
+                            <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
+                        </StackPanel>
+                    </Border>
 
-                                        <TextBlock Grid.Row="1" Grid.Column="0" Text="PI NUMBER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedRow.ProformaId}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="2" Grid.Column="0" Text="JOB ORDER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedRow.JobOrderId}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="3" Grid.Column="0" Text="COMPANY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.CompanyName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
-
-                                        <TextBlock Grid.Row="4" Grid.Column="0" Text="CUSTOMER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.CustomerName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
-
-                                        <TextBlock Grid.Row="5" Grid.Column="0" Text="PROJECT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.ProjectName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
-
-                                        <TextBlock Grid.Row="6" Grid.Column="0" Text="SALESMAN" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding SelectedRow.Salesman}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="7" Grid.Column="0" Text="PREPARED BY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding SelectedRow.PreparedBy}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="8" Grid.Column="0" Text="STATUS" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding SelectedRow.Status}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="9" Grid.Column="0" Text="ISSUE DATE" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding SelectedRow.IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="10" Grid.Column="0" Text="DUE DATE" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding SelectedRow.DueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="11" Grid.Column="0" Text="VAT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding SelectedRow.VatAmount, StringFormat={}AED {0:N2}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
-
-                                        <TextBlock Grid.Row="12" Grid.Column="0" Text="AMOUNT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
-                                        <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding SelectedRow.GrandTotal, StringFormat={}AED {0:N2}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
-                                    </Grid>
-                                </Border>
-
-                                <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
-                                    <StackPanel>
-                                        <TextBlock Text="QUANTITY &amp; AREA" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
-                                        <TextBlock FontSize="11.5" Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run Text="{Binding SelectedRow.TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding SelectedRow.TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}"/>
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-                        </DataTemplate>
-                    </sidebar:ReportSidebarHost.SidebarContentTemplate>
-
-                    <!-- ── MAIN TABLE ─────────────────────────────────── -->
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <Border Grid.Row="0" Style="{StaticResource ReportTableHeaderStyle}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="0.9*"/>
-                                    <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="1*"/>
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <ColumnDefinition Width="1.1*"/>
-                                    <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="88"/>
-                                    <ColumnDefinition Width="0.8*"/>
-                                    <ColumnDefinition Width="0.6*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="INVOICE # / DATE" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="5" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="6" Text="PREPARED BY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="8" Text="AMOUNT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="9" Text="QTY" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </Border>
-
-                        <loading:LoadingStateControl Grid.Row="1" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" Message="Loading Tax Invoices…"/>
-                        <emptyState:EmptyStateControl Grid.Row="1" Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}" Title="No Tax Invoices found" Message="No records match current filters." Icon="&#xE8C7;"/>
-
-                        <Border Grid.Row="1" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"
-                                Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Margin="16" Padding="20">
-                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets" FontSize="28" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Center"/>
-                                <TextBlock Text="Unable to load records" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
-                                <TextBlock Text="{Binding ErrorMessage}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" HorizontalAlignment="Center" Margin="0,4,0,12" MaxWidth="500" TextAlignment="Center"/>
-                                <Button Content="Retry" Command="{Binding RefreshCommand}" Style="{StaticResource ReportRetryButton}" HorizontalAlignment="Center" ToolTip="Retry loading records"/>
-                            </StackPanel>
-                        </Border>
-
-                        <ListBox Grid.Row="1" ItemsSource="{Binding Rows}" SelectedItem="{Binding SelectedRow, Mode=TwoWay}"
-                                 Style="{StaticResource ModuleReportListBoxStyle}"
-                                 Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9" Cursor="Hand" ToolTip="Click to view full Tax Invoice details">
+                    <ListBox Grid.Row="1" ItemsSource="{Binding Rows}"
+                             Style="{StaticResource ModuleReportListBoxStyle}"
+                             Visibility="{Binding IsContentVisible, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <!-- Row -->
+                                    <Border Style="{StaticResource ModuleListRowStyle}" Padding="14,9">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>
@@ -392,11 +299,103 @@
                                             <TextBlock Grid.Column="9" Text="{Binding TotalQty, StringFormat={}{0:N0}}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                                         </Grid>
                                     </Border>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </Grid>
-                </sidebar:ReportSidebarHost>
+
+                                    <!-- Inline invoice details (single grid — no side panel) -->
+                                    <Expander IsExpanded="{Binding IsExpanded, Mode=TwoWay}" Margin="0,2,0,6">
+                                        <Expander.Header>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Tax Invoice details" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Expander.Header>
+                                        <StackPanel Margin="0,8,0,0">
+                                            <Button Content="Open Tax Invoice"
+                                                    Command="{Binding DataContext.OpenDocumentCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    CommandParameter="{Binding}"
+                                                    Style="{StaticResource PrimaryPillButton}"
+                                                    Height="36" Margin="0,0,0,10"
+                                                    HorizontalAlignment="Left"
+                                                    ToolTip="Open the original Tax Invoice"/>
+
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="108"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="Auto"/>
+                                                    </Grid.RowDefinitions>
+
+                                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="INVOICE #" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding InvoiceNumber}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="PI NUMBER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ProformaId}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="2" Grid.Column="0" Text="JOB ORDER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding JobOrderId}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="3" Grid.Column="0" Text="COMPANY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding CompanyName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="4" Grid.Column="0" Text="CUSTOMER" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding CustomerName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="5" Grid.Column="0" Text="PROJECT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding ProjectName}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2" TextWrapping="Wrap"/>
+
+                                                    <TextBlock Grid.Row="6" Grid.Column="0" Text="SALESMAN" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Salesman}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="7" Grid.Column="0" Text="PREPARED BY" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding PreparedBy}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="8" Grid.Column="0" Text="STATUS" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Status}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="9" Grid.Column="0" Text="ISSUE DATE" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding IssueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="10" Grid.Column="0" Text="DUE DATE" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding DueDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="11" Grid.Column="0" Text="VAT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding VatAmount, StringFormat={}AED {0:N2}}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,2"/>
+
+                                                    <TextBlock Grid.Row="12" Grid.Column="0" Text="AMOUNT" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2"/>
+                                                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding GrandTotal, StringFormat={}AED {0:N2}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="1" CornerRadius="8" Padding="12,10" Margin="0,8,0,0">
+                                                <StackPanel>
+                                                    <TextBlock Text="QUANTITY &amp; AREA" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,6"/>
+                                                    <TextBlock FontSize="11.5" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                        <Run Text="{Binding TotalQty, Mode=OneWay}"/><Run Text=" pcs · "/><Run Text="{Binding TotalSqm, Mode=OneWay, StringFormat={}{0:N2} SQM}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </Expander>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
+
 
                 <!-- ══════════════════════════════════════════════════════════
                      6. PAGINATION FOOTER

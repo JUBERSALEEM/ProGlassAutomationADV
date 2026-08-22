@@ -67,39 +67,10 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
         private ObservableCollection<PiReportRow> _rows = new();
         public ObservableCollection<PiReportRow> Rows { get => _rows; set { _rows = value; OnPropertyChanged(); } }
 
-        private PiReportRow? _selectedRow;
-        public PiReportRow? SelectedRow
-        {
-            get => _selectedRow;
-            set
-            {
-                if (_selectedRow == value) return;
-                _selectedRow = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasSelectedRow));
-                OnPropertyChanged(nameof(SidebarSubtitle));
-                if (value != null) _ = LoadDetailAsync(value.ProformaId);
-            }
-        }
-        public bool HasSelectedRow => SelectedRow != null;
-        public string SidebarSubtitle => SelectedRow?.ProformaId ?? "";
-
-        /// <summary>Raised with the selected PI's DB id when the user clicks
+        /// <summary>Raised with the PI's DB id when the user clicks
         /// "Open Proforma Invoice". Wired by the hub to MainViewModel.</summary>
         public Action<int>? OpenDocumentRequested { get; set; }
-        public ICommand CloseDetailCommand { get; private set; } = null!;
         public ICommand OpenDocumentCommand { get; private set; } = null!;
-
-        // ── Detail ────────────────────────────────────────────────────────
-        private ObservableCollection<GlassSpecReportRow> _detailRows = new();
-        public ObservableCollection<GlassSpecReportRow> DetailRows { get => _detailRows; set { _detailRows = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasDetail)); } }
-        public bool HasDetail => DetailRows.Count > 0;
-
-        private QuantityReconciliation? _reconciliation;
-        public QuantityReconciliation? Reconciliation { get => _reconciliation; set { _reconciliation = value; OnPropertyChanged(); } }
-
-        public ICommand DrillDownCommand { get; private set; } = null!;
-        public ICommand OpenDetailCommand { get; private set; } = null!;
 
         protected override void InitCommands()
         {
@@ -109,20 +80,37 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 ClearFilters();
                 SelectedStatus = AllStatusesOption;
             });
-            DrillDownCommand = new RelayCommand(p =>
+            OpenDocumentCommand = new RelayCommand(p =>
             {
-                if (p is PiReportRow r) SelectedRow = r;
+                if (p is PiReportRow r)
+                    OpenDocumentRequested?.Invoke(r.Id);
             });
-            OpenDetailCommand = new RelayCommand(async p =>
+        }
+
+        /// <summary>
+        /// Lazy-loads the itemized specification rows + quantity
+        /// reconciliation for one PI into the row (revealed inline on
+        /// expand — single grid, no side panel).
+        /// </summary>
+        public async Task LoadRowDetailAsync(PiReportRow row)
+        {
+            if (row == null || row.HasLoadedDetail) return;
+
+            try
             {
-                if (p is string piId) await LoadDetailAsync(piId);
-            });
-            CloseDetailCommand = new RelayCommand(_ => SelectedRow = null);
-            OpenDocumentCommand = new RelayCommand(_ =>
+                var rows = await _service.GetPiRowsDetailAsync(row.ProformaId);
+                row.DetailRows.Clear();
+                foreach (var d in rows ?? new System.Collections.Generic.List<GlassSpecReportRow>())
+                    row.DetailRows.Add(d);
+                row.Reconciliation = await _service.GetQuantityReconciliationAsync(row.ProformaId);
+                row.HasLoadedDetail = true;
+            }
+            catch (Exception ex)
             {
-                if (SelectedRow != null)
-                    OpenDocumentRequested?.Invoke(SelectedRow.Id);
-            }, _ => SelectedRow != null);
+                row.DetailRows.Clear();
+                row.HasLoadedDetail = true;
+                AppLogService.Warning($"Suppressed exception: {ex.Message}");
+            }
         }
 
         public override async Task LoadAsync()
@@ -149,17 +137,6 @@ namespace ProGlassAutomation.ViewModels.Reports.PiReport
                 AppLogService.Warning($"PiReport LoadAsync error: {ex.Message}");
             }
             finally { IsLoading = false; }
-        }
-
-        private async Task LoadDetailAsync(string proformaId)
-        {
-            try
-            {
-                var rows = await _service.GetPiRowsDetailAsync(proformaId);
-                DetailRows = new ObservableCollection<GlassSpecReportRow>(rows);
-                Reconciliation = await _service.GetQuantityReconciliationAsync(proformaId);
-            }
-            catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
         protected override async Task ExportAsync(ExportFormat format)
