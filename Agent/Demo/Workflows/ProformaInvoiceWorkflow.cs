@@ -34,7 +34,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
         public IReadOnlyList<string> DeepEvidenceIds { get; } =
         [
-            "new_invoice", "company", "sgu_calc", "dgu_calc",
+            "new_invoice", "company", "sgu_calc", "dgu_calc", "lam_calc", "dgu_lam_calc",
             "line", "preview", "step8", "step9", "saved"
         ];
 
@@ -127,6 +127,27 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     $"Double glazed unit calculator. Outer glass six millimetres, inner glass six millimetres, twelve millimetre aluminium spacer with argon gas fill. The DGU calculator combines both panes, the spacer and the gas fill into one all-in rate per square metre — no need to price each component separately.",
                     $"DGU {dgu.SpecName} @ {dgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
+            }
+
+            // Do not skip the two safety-glass configurators.  The old demo
+            // jumped directly from DGU to Step 5, so LAM and DGU+LAM were
+            // never painted (and therefore never reached the recording).
+            var lam = await ShowCalculatorAsync(pi, "LAM", ct).ConfigureAwait(false);
+            if (lam.Ok)
+            {
+                await PresentAsync(events, "lam_calc",
+                    "Laminated safety glass calculator",
+                    "The laminated calculator combines two panes with a PVB safety interlayer. It prices both glass sheets, processing, lamination material, yield and margin while keeping the full build-up visible for production.",
+                    $"LAM {lam.SpecName} @ {lam.Rate:0.00}", HoldMs, ct).ConfigureAwait(false);
+            }
+
+            var dguLam = await ShowCalculatorAsync(pi, "DGU+LAM", ct).ConfigureAwait(false);
+            if (dguLam.Ok)
+            {
+                await PresentAsync(events, "dgu_lam_calc",
+                    "DGU plus laminated hybrid calculator",
+                    "The hybrid calculator shows all three panes: the insulated outer pane, air spacer, and laminated safety pair. Every pane and interlayer is included so this high-performance unit is not under-priced.",
+                    $"DGU+LAM {dguLam.SpecName} @ {dguLam.Rate:0.00}", HoldMs, ct).ConfigureAwait(false);
             }
 
             await RestoreSguAsync(pi, ct).ConfigureAwait(false);
@@ -361,6 +382,36 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     Ok = step4.EstimatedRatePerSqm > 0m
                          && !string.IsNullOrWhiteSpace(dgu.GeneratedSpecName),
                     SpecName = dgu.GeneratedSpecName ?? "",
+                    Rate = step4.EstimatedRatePerSqm
+                };
+            }, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(HoldMs, ct).ConfigureAwait(false);
+            return result;
+        }
+
+        private static async Task<CalcResult> ShowCalculatorAsync(
+            ProformaInvoiceViewModel pi, string code, CancellationToken ct)
+        {
+            DemoStage.Now("Running the " + code + " spec calculator.");
+            var result = await WpfUiDriver.OnUiAsync(() =>
+            {
+                var step4 = pi.Step4VM;
+                var card = step4.GlassTypes.FirstOrDefault(g => g.Code == code);
+                if (card != null && step4.SelectGlassTypeCommand.CanExecute(card))
+                    step4.SelectGlassTypeCommand.Execute(card);
+
+                // Defaults are complete, production-valid examples. Refresh
+                // store-backed prices after selection and let WPF render the
+                // newly selected panel before its evidence beat is recorded.
+                step4.RefreshSheetStoreData();
+                string spec = code == "LAM"
+                    ? step4.LamVM.GeneratedSpecName ?? ""
+                    : step4.DguLamVM.GeneratedSpecName ?? "";
+                return new CalcResult
+                {
+                    Ok = card != null && step4.EstimatedRatePerSqm > 0m
+                         && !string.IsNullOrWhiteSpace(spec),
+                    SpecName = spec,
                     Rate = step4.EstimatedRatePerSqm
                 };
             }, ct).ConfigureAwait(false);

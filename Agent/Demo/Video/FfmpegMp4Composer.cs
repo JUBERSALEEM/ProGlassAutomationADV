@@ -143,15 +143,34 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 "unsharp=5:5:0.6:5:5:0.0,format=yuv420p";
 
             Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+
+            // Encode beside the destination and publish with one atomic move.
+            // A 4K encode can run for minutes; writing directly to the final
+            // name made Explorer show a half-built "video.mp4" next to raw
+            // frames, which looked like an unpacked recording and was unsafe
+            // to open/copy. Only a completely validated ISO-BMFF is exposed.
+            string packingPath = mp4Path + ".packing.mp4";
+            try { if (File.Exists(packingPath)) File.Delete(packingPath); } catch { }
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
-                  $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{mp4Path}\""
+                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{packingPath}\""
                 : $"-y -framerate {fps} -i \"{input}\" " +
-                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high " +
-                  $"-movflags +faststart \"{mp4Path}\"";
+                  $"-vf \"{vf}\" -c:v libx264 -preset medium -crf {crf} -profile:v high -level:v 5.2 " +
+                  $"-movflags +faststart \"{packingPath}\"";
 
-            return await RunComposeAsync(ffmpeg, args, mp4Path, ct).ConfigureAwait(false);
+            string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct).ConfigureAwait(false);
+            if (packed == null) return null;
+            try
+            {
+                File.Move(packingPath, mp4Path, overwrite: true);
+                return IsValidMp4(mp4Path) ? mp4Path : null;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[ffmpeg publish] " + ex.Message);
+                return null;
+            }
         }
 
         /// <summary>
