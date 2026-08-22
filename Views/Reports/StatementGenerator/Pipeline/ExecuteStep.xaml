@@ -63,45 +63,45 @@
         <SolidColorBrush x:Key="GlassCardBg" Color="#FFFFFF" Opacity="0.72" po:Freeze="True"/>
         <SolidColorBrush x:Key="GlassCardBorder" Color="#FFFFFF" Opacity="0.8" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="VioletAccent" Color="#8B5CF6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="AmberAccent" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="RedAccent" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="VioletAccent" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="AmberAccent" Color="{DynamicResource WarningColor}"/>
+        <SolidColorBrush x:Key="RedAccent" Color="{DynamicResource DangerColor}"/>
 
-        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
+        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}"/>
+        <SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}"/>
 
         <!-- Terminal palette (stays dark) -->
-        <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource PrimaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TerminalTitle" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource PrimaryForegroundColor}"/>
+        <SolidColorBrush x:Key="TerminalTitle" Color="{DynamicResource MutedForegroundColor}"/>
 
         <!-- Step status backgrounds -->
-        <SolidColorBrush x:Key="StepIdleBg" Color="{DynamicResource TintGrayColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepSuccessBg" Color="{DynamicResource TintGreenColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepIdleBg" Color="{DynamicResource TintGrayColor}"/>
+        <SolidColorBrush x:Key="StepSuccessBg" Color="{DynamicResource TintGreenColor}"/>
         <SolidColorBrush x:Key="StepSuccessBorder" Color="#BBF7D0" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepWarningBg" Color="{DynamicResource TintAmberColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepWarningBg" Color="{DynamicResource TintAmberColor}"/>
         <SolidColorBrush x:Key="StepWarningBorder" Color="#FDE68A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepBlockedBg" Color="{DynamicResource TintRedColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepBlockedBg" Color="{DynamicResource TintRedColor}"/>
         <SolidColorBrush x:Key="StepBlockedBorder" Color="#FECACA" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepRunningBg" Color="{DynamicResource TintPurpleColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepBadgeIdle" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepRunningBg" Color="{DynamicResource TintPurpleColor}"/>
+        <SolidColorBrush x:Key="StepBadgeIdle" Color="{DynamicResource MutedForegroundColor}"/>
 
         <!-- Metric accents -->
         <SolidColorBrush x:Key="MetricOrdered" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="MetricDelivered" Color="{DynamicResource AccentColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="MetricBalance" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="MetricRate" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="MetricDelivered" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="MetricBalance" Color="{DynamicResource DangerColor}"/>
+        <SolidColorBrush x:Key="MetricRate" Color="{DynamicResource WarningColor}"/>
 
-        <SolidColorBrush x:Key="WarnBadgeBg" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="WarnBadgeBg" Color="{DynamicResource WarningColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
              FROZEN GRADIENTS
         ══════════════════════════════════════════════════════════ -->
-        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
             <GradientStop Color="#F0F9FF" Offset="1"/>
@@ -109,21 +109,21 @@
 
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="#8B5CF6" Offset="0.5"/>
-            <GradientStop Color="#EC4899" Offset="1"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.5"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="VioletBlob" po:Freeze="True">
-            <GradientStop Color="#8B5CF6" Offset="0"/>
+        <RadialGradientBrush x:Key="VioletBlob">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="Transparent" Offset="1"/>
         </RadialGradientBrush>
 
-        <RadialGradientBrush x:Key="CyanBlob" po:Freeze="True">
-            <GradientStop Color="#06B6D4" Offset="0"/>
+        <RadialGradientBrush x:Key="CyanBlob">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
             <GradientStop Color="Transparent" Offset="1"/>
         </RadialGradientBrush>
 
-        <RadialGradientBrush x:Key="GreenLed" po:Freeze="True">
+        <RadialGradientBrush x:Key="GreenLed">
             <GradientStop Color="#34D399" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </RadialGradientBrush>
@@ -138,18 +138,15 @@
 
         <DropShadowEffect x:Key="ProgressCardShadow"
                           BlurRadius="24" ShadowDepth="4"
-                          Opacity="0.08" Color="{DynamicResource AccentColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.08" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="GreenLedGlow"
                           BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
 
         <DropShadowEffect x:Key="RunningStepGlow"
                           BlurRadius="10" ShadowDepth="0"
-                          Opacity="0.3" Color="#8B5CF6"
-                          po:Freeze="True"/>
+                          Opacity="0.3" Color="{DynamicResource AccentColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
              SHARED PIPELINE STEP STYLE (was inline × 8)

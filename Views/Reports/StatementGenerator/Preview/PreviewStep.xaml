@@ -107,8 +107,8 @@
                                         Padding="{TemplateBinding Padding}">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#8B5CF6" Offset="0"/>
-                                            <GradientStop Color="#EC4899" Offset="1"/>
+                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Border.Background>
                                     <StackPanel Orientation="Horizontal">
@@ -374,8 +374,8 @@
                                                     <Setter Property="Opacity" Value="0.45"/>
                                                 </MultiDataTrigger>
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="Background" Value="#FAF5FF"/>
-                                                    <Setter Property="BorderBrush" Value="#DDD6FE"/>
+                                                    <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 </DataTrigger>
                                                 <!-- CHAT 22 v3: OVER-INVOICED alert border -->
                                                 <DataTrigger Binding="{Binding IsOverInvoiced}" Value="True">

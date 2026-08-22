@@ -45,67 +45,67 @@
         <SolidColorBrush x:Key="ChipBg" Color="#FFFFFF" Opacity="0.69" po:Freeze="True"/>
         <SolidColorBrush x:Key="ClearBtnBg" Color="#FFFFFF" Opacity="0.67" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="IndigoLight" Color="{DynamicResource TintIndigoColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="VioletAccent" Color="#8B5CF6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="CyanAccent" Color="#06B6D4" po:Freeze="True"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="IndigoLight" Color="{DynamicResource TintIndigoColor}"/>
+        <SolidColorBrush x:Key="VioletAccent" Color="{DynamicResource AccentColor}"/>
+        <SolidColorBrush x:Key="CyanAccent" Color="{DynamicResource AccentLightColor}"/>
+        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}"/>
 
-        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
+        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}"/>
         <SolidColorBrush x:Key="BorderHover" Color="#CBD5E1" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ChevronBrush" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="CountBadgeBg" Color="{DynamicResource TintGrayColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="CountBadgeText" Color="{DynamicResource SecondaryForegroundColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="HoverFillLight" Color="{DynamicResource TintGrayColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ChipCheckedBg" Color="{DynamicResource TintIndigoColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ClearHoverBg" Color="{DynamicResource TintRedColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ClearHoverBorder" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ClearHoverText" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ChevronBrush" Color="{DynamicResource MutedForegroundColor}"/>
+        <SolidColorBrush x:Key="CountBadgeBg" Color="{DynamicResource TintGrayColor}"/>
+        <SolidColorBrush x:Key="CountBadgeText" Color="{DynamicResource SecondaryForegroundColor}"/>
+        <SolidColorBrush x:Key="HoverFillLight" Color="{DynamicResource TintGrayColor}"/>
+        <SolidColorBrush x:Key="ChipCheckedBg" Color="{DynamicResource TintIndigoColor}"/>
+        <SolidColorBrush x:Key="ClearHoverBg" Color="{DynamicResource TintRedColor}"/>
+        <SolidColorBrush x:Key="ClearHoverBorder" Color="{DynamicResource DangerColor}"/>
+        <SolidColorBrush x:Key="ClearHoverText" Color="{DynamicResource DangerColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
              FROZEN GRADIENTS
         ══════════════════════════════════════════════════════════ -->
-        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
             <GradientStop Color="#F0F9FF" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="IndigoIconGradient" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <LinearGradientBrush x:Key="IndigoIconGradient" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="#7C3AED" Offset="1"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="VioletPinkGradient" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-            <GradientStop Color="#8B5CF6" Offset="0"/>
-            <GradientStop Color="#EC4899" Offset="1"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="IndigoAccentBar" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <LinearGradientBrush x:Key="VioletPinkGradient" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-            <GradientStop Color="#7C3AED" Offset="1"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="CyanAccentBar" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-            <GradientStop Color="#06B6D4" Offset="0"/>
-            <GradientStop Color="#0891B2" Offset="1"/>
+        <LinearGradientBrush x:Key="IndigoAccentBar" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="VioletBlob" po:Freeze="True">
-            <GradientStop Color="#8B5CF6" Offset="0"/>
+        <LinearGradientBrush x:Key="CyanAccentBar" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <RadialGradientBrush x:Key="VioletBlob">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="Transparent" Offset="1"/>
         </RadialGradientBrush>
 
-        <RadialGradientBrush x:Key="CyanBlob" po:Freeze="True">
-            <GradientStop Color="#06B6D4" Offset="0"/>
+        <RadialGradientBrush x:Key="CyanBlob">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
             <GradientStop Color="Transparent" Offset="1"/>
         </RadialGradientBrush>
 
-        <RadialGradientBrush x:Key="GreenLed" po:Freeze="True">
+        <RadialGradientBrush x:Key="GreenLed">
             <GradientStop Color="#34D399" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </RadialGradientBrush>
@@ -120,18 +120,15 @@
 
         <DropShadowEffect x:Key="MatchCountShadow"
                           BlurRadius="24" ShadowDepth="4"
-                          Opacity="0.08" Color="{DynamicResource AccentColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.08" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="IndigoIconShadow"
                           BlurRadius="12" ShadowDepth="4"
-                          Opacity="0.35" Color="{DynamicResource AccentColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.35" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="VioletIconShadow"
                           BlurRadius="12" ShadowDepth="4"
-                          Opacity="0.35" Color="#8B5CF6"
-                          po:Freeze="True"/>
+                          Opacity="0.35" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="InputShadow"
                           BlurRadius="4" ShadowDepth="1"
@@ -145,13 +142,11 @@
 
         <DropShadowEffect x:Key="GreenLedGlow"
                           BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
 
         <DropShadowEffect x:Key="OptionCardHoverShadow"
                           BlurRadius="16" ShadowDepth="4"
-                          Opacity="0.1" Color="{DynamicResource AccentColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.1" Color="{DynamicResource AccentColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
              MODERN COMBOBOX TOGGLE TEMPLATE

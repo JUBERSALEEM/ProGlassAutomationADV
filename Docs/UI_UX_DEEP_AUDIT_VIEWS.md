@@ -299,7 +299,39 @@ composition" passes brought it there:
   a `1` hairline on spec-group chips — all intentional size-proportional exceptions.
 No changes made (forcing a redesign would be make-work + regression risk).
 
-### 5.8 — remaining (not started)
-Reports (incl. StatementGenerator violet-brand re-theme — the largest remaining
-visual outlier), DN/JO/TI detail polish, SheetStore, Settings — and the "module
-shells vs. real content" decision for the 9 placeholder modules.
+### 5.8 — StatementGenerator re-theme: violet brand → accent tokens ✅
+The wizard's hardcoded violet/pink/cyan brand was the last visual outlier — a
+multi-hue gradient that clashed with the steel-cyan design system and ignored
+the accent preset. Re-themed across 5 files (`Filter/FilterStep.xaml`,
+`Pipeline/ExecuteStep.xaml`, `Preview/PreviewStep.xaml`, `Review/ReviewStep.xaml`,
+`Styles/WizardStyles.xaml`):
+- `#8B5CF6` (violet) → `AccentColor` · `#7C3AED` (deep violet) → `AccentDarkColor`
+- `#EC4899` (pink) → `AccentLightColor` · `#06B6D4` (cyan) → `AccentLightColor`
+- `#0891B2` (deep cyan) → `AccentDarkColor`
+- Selected-chip violet tint `#FAF5FF`/`#DDD6FE` → `TintIndigoBrush`/`AccentBrush`;
+  `ReviewStep` hover border → `AccentBrush`.
+Now every gradient/blob/glow/shadow in the wizard follows the accent preset and
+Light/Dark swap, matching the dashboards and the rest of the app.
+
+**Freeze-safety fix (same pass):** removed `po:Freeze="True"` from every brush/
+effect that holds a `{DynamicResource}` (a Freezable referencing a deferred
+resource cannot actually be frozen — see the crash note below). Applied to the
+Statement Generator + `AiChatView` (`ChatBrand`, `BtnShadow`) + `SettingsSectionStyles`
+(`ProviderDotAmber`). 0 instances of `po:Freeze`+`DynamicResource` remain repo-wide.
+Deferred (not brand): `#34D399` emerald LED and the step-status borders
+(`#BBF7D0`/`#FDE68A`/`#FECACA`) — semantic colors, not the violet brand.
+
+### ⚠️ Runtime crash fixed (ERR-673BF4) — DynamicResource in a Storyboard
+Phase 4 changed the `ModernToggleSwitch` `ColorAnimation` `To=` values to
+`{DynamicResource AccentColor/BorderColor}`. **A Storyboard that references a
+DynamicResource (or animates a shared frozen brush) cannot be frozen when its
+containing Style is sealed** — it throws `InvalidOperationException: Cannot
+freeze this Storyboard timeline tree for use across threads` at `Style.Seal()`
+during layout. Reverted to the original literal colors (`#1D4ED8` on / `#CBD5E1`
+off) with a guard comment. **Rule for future passes: never put `{DynamicResource}`
+(or any deferred reference) inside an animation `To`/`From`/`By` in a sealed
+Style/Template Storyboard — use literals (or a StaticResource) instead.**
+
+### 5.9 — remaining (not started)
+DN/JO/TI detail polish, SheetStore, Settings — and the "module shells vs. real
+content" decision for the 9 placeholder modules.

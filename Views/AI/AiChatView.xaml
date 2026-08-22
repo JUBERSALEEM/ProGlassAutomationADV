@@ -29,8 +29,7 @@
     <UserControl.Resources>
 
         <LinearGradientBrush x:Key="ChatBrand"
-                             StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
         </LinearGradientBrush>
@@ -42,8 +41,7 @@
 
         <DropShadowEffect x:Key="BtnShadow"
                           BlurRadius="20" ShadowDepth="4"
-                          Color="{DynamicResource AccentColor}" Opacity="0.5"
-                          po:Freeze="True"/>
+                          Color="{DynamicResource AccentColor}" Opacity="0.5"/>
 
         <Style x:Key="ChatIconBtn" TargetType="Button">
             <Setter Property="FontFamily"      Value="Segoe MDL2 Assets"/>
