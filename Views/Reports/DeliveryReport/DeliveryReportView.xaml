@@ -243,32 +243,36 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="44"/>
-                                <ColumnDefinition Width="0.9*"/>
-                                <ColumnDefinition Width="1.6*"/>
-                                <ColumnDefinition Width="84"/>
-                                <ColumnDefinition Width="1.1*"/>
                                 <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="1.4*"/>
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="0.7*"/>
+                                <ColumnDefinition Width="0.9*"/>
+                                <ColumnDefinition Width="0.8*"/>
+                                <ColumnDefinition Width="0.9*"/>
                                 <ColumnDefinition Width="44"/>
                                 <ColumnDefinition Width="44"/>
                                 <ColumnDefinition Width="44"/>
                                 <ColumnDefinition Width="44"/>
-                                <ColumnDefinition Width="54"/>
+                                <ColumnDefinition Width="52"/>
+                                <ColumnDefinition Width="56"/>
                                 <ColumnDefinition Width="58"/>
-                                <ColumnDefinition Width="60"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="SR NO" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="1" Text="PI #" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="2" Text="SPECIFICATION" Style="{StaticResource ReportHeaderTextStyle}"/>
                             <TextBlock Grid.Column="3" Text="GLASS TYPE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="4" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                            <TextBlock Grid.Column="5" Text="GLASS REF" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="6" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="7" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="8" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="9" Text="H2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                            <TextBlock Grid.Column="10" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="11" Text="DELIV." Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="12" Text="BALANCE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text="GLASS REF" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="6" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="7" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
+                            <TextBlock Grid.Column="8" Text="W1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="9" Text="H1" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="10" Text="W2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="11" Text="H2" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="12" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="13" Text="DELIV." Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="14" Text="BALANCE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
@@ -311,33 +315,37 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="44"/>
-                                            <ColumnDefinition Width="0.9*"/>
-                                            <ColumnDefinition Width="1.6*"/>
-                                            <ColumnDefinition Width="84"/>
-                                            <ColumnDefinition Width="1.1*"/>
                                             <ColumnDefinition Width="0.8*"/>
+                                            <ColumnDefinition Width="1.4*"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="0.7*"/>
+                                            <ColumnDefinition Width="0.9*"/>
+                                            <ColumnDefinition Width="0.8*"/>
+                                            <ColumnDefinition Width="0.9*"/>
                                             <ColumnDefinition Width="44"/>
                                             <ColumnDefinition Width="44"/>
                                             <ColumnDefinition Width="44"/>
                                             <ColumnDefinition Width="44"/>
-                                            <ColumnDefinition Width="54"/>
+                                            <ColumnDefinition Width="52"/>
+                                            <ColumnDefinition Width="56"/>
                                             <ColumnDefinition Width="58"/>
-                                            <ColumnDefinition Width="60"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="12" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         <TextBlock Grid.Column="1" Text="{Binding ProformaId}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                         <TextBlock Grid.Column="2" Text="{Binding Specification}" FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding Specification}"/>
                                         <TextBlock Grid.Column="3" Text="{Binding GlassType}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                        <TextBlock Grid.Column="4" Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
-                                        <TextBlock Grid.Column="5" Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
-                                        <TextBlock Grid.Column="6" Text="{Binding W1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="7" Text="{Binding H1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="8" Text="{Binding W2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="9" Text="{Binding H2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="10" Text="{Binding TotalQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Grid.Column="11" Text="{Binding DeliveredQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Grid.Column="12" Text="{Binding BalanceQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Grid.Column="4" Text="{Binding GlassRef}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                        <TextBlock Grid.Column="5" Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="6" Text="{Binding Salesman}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="7" Text="{Binding ProjectName}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,8,0"/>
+                                        <TextBlock Grid.Column="8" Text="{Binding W1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="9" Text="{Binding H1}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="10" Text="{Binding W2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="11" Text="{Binding H2}" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="12" Text="{Binding TotalQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Grid.Column="13" Text="{Binding DeliveredQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Grid.Column="14" Text="{Binding BalanceQty}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="{DynamicResource WarningBrush}"/>
                                     </Grid>
                                 </Border>
                             </DataTemplate>
