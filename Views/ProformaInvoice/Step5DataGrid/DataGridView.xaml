@@ -404,37 +404,62 @@
                                     </ListView.ItemTemplate>
                                 </ListView>
 
-                                <Grid Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource GridCellStyle}"
-                                                 ToolTip="Number of rows to generate (max 10,000)"/>
-                                        <Button Command="{Binding GenerateRowsCommand}"
-                                                Style="{StaticResource PiGhostChipButton}"
-                                                Margin="6,0,8,0"
-                                                Height="24"
-                                                Content="GENERATE"/>
-                                        <Button Command="{Binding AddRowCommand}"
-                                                Style="{StaticResource PiGhostChipButton}"
-                                                Height="24"
-                                                Content="+ ADD ROW"/>
-                                    </StackPanel>
-                                    <TextBlock Grid.Column="2"
-                                               FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                               VerticalAlignment="Center">
-                                        <Run Text="{Binding FooterTotalQty, Mode=OneWay}"/>
-                                        <Run Text=" pcs  ·  "/>
-                                        <Run Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"/>
-                                        <Run Text=" SQM  ·  AED "/>
-                                        <Run Text="{Binding FooterTotalValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
-                                    </TextBlock>
-                                </Grid>
+                                <Border BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,1,0,0" Margin="0,8,0,0" Padding="0,8,0,0" SnapsToDevicePixels="True">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="28"/>
+                                            <ColumnDefinition Width="1.6*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.65*"/>
+                                            <ColumnDefinition Width="0.85*"/>
+                                            <ColumnDefinition Width="0.75*"/>
+                                            <ColumnDefinition Width="0.8*"/>
+                                            <ColumnDefinition Width="1.2*"/>
+                                            <ColumnDefinition Width="26"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <TextBox Width="64" Text="{Binding BulkRowCountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                     Style="{StaticResource GridCellStyle}"
+                                                     ToolTip="Number of rows to generate (max 10,000)"/>
+                                            <Button Command="{Binding GenerateRowsCommand}"
+                                                    Style="{StaticResource PiGhostChipButton}"
+                                                    Margin="6,0,8,0"
+                                                    Height="24"
+                                                    Content="GENERATE"/>
+                                            <Button Command="{Binding AddRowCommand}"
+                                                    Style="{StaticResource PiGhostChipButton}"
+                                                    Height="24"
+                                                    Content="+ ADD ROW"/>
+                                        </StackPanel>
+
+                                        <!-- Total QTY under QTY column -->
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding FooterTotalQty, Mode=OneWay}"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                        <!-- Total SQM under TOTAL SQM column -->
+                                        <TextBlock Grid.Column="8"
+                                                   Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+                                        <!-- Total value under VALUE column -->
+                                        <TextBlock Grid.Column="10"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource SuccessBrush}"
+                                                   HorizontalAlignment="Right" VerticalAlignment="Center"
+                                                   Margin="0,0,4,0">
+                                            <Run Text="AED "/><Run Text="{Binding FooterTotalValue, StringFormat={}{0:N2}, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
