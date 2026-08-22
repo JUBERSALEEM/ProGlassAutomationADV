@@ -4,7 +4,7 @@
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">

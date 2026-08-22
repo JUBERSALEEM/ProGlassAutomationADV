@@ -3,7 +3,7 @@
     TYPE | NAME | SIZE | ADDED | ACTIONS. + IMAGE + PDF.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step8Attachments.AttachmentsStepView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

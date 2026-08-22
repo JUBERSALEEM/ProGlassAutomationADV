@@ -3,7 +3,7 @@
     Bindings unchanged.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.InvoiceMainSummaryView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              SnapsToDevicePixels="True"

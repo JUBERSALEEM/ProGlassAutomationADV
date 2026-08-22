@@ -1,5 +1,5 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters.SguParametersView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

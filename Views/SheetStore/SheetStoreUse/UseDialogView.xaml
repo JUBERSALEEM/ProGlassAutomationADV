@@ -10,7 +10,7 @@
      Commands/bindings preserved; no ViewModel changes.
 ═══════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreUse.UseDialogView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              SnapsToDevicePixels="True"

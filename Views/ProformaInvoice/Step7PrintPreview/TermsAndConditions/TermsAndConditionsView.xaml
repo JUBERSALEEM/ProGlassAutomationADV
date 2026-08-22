@@ -3,7 +3,7 @@
     All edit / reorder / payment-subline bindings kept.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermsAndConditionsView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

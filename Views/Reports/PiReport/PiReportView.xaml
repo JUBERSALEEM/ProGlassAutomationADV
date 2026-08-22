@@ -6,7 +6,7 @@
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:sidebar="clr-namespace:ProGlassAutomation.Controls.ReportSidebar"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">

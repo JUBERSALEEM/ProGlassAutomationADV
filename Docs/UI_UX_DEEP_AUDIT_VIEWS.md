@@ -267,7 +267,24 @@ ancestor scan (not a naive grep), so only genuine accent-surface text changed:
   A future `OnSuccessForeground`/`OnWarningForeground` token pass could address
   the low-contrast amber case specifically.
 
-### 5.5 — remaining (not started)
-B1 (TextFormattingMode Display→Ideal sweep, needs build/visual QA), R5 (fixed
-130/150/170px row widths), PI wizard steps, DN/JO/TI detail polish, SheetStore,
-Reports, Settings — and the "module shells vs. real content" decision.
+### 5.5 — B1: TextFormattingMode Display→Ideal on body-text views ✅
+Flipped `TextOptions.TextFormattingMode="Display"` → `"Ideal"` (WPF's default,
+correct metrics for body/cell/9–12px text) on the **98** body-text views —
+wizards, lists, details, tables, reports, dialogs, settings, sheet store,
+centers, AI chat. Kept `Display` on the **17** hero-centric surfaces
+(Dashboards ×8, Login ×4, About ×4, Splash ×1) where the display-optimized
+metrics suit large headings/KPI figures. One root-level occurrence per file
+(no per-element overrides), so the classification is clean.
+
+### 5.6 — R5: fixed row widths — assessed, largely mitigated ✅ (no change)
+The audit's "130/150/170px fixed widths clip driver/vehicle/project text" does
+not reproduce: those fixed columns (`DeliveryNoteListView` etc.) hold short
+values (PROGRESS / QTY / SQM / STATUS), while the long text (job order, customer,
+project, driver, vehicle) already sits in star-sized (`1.5*`/`1.4*`) columns with
+`TextTrimming="CharacterEllipsis"`. Driver/vehicle fields in `DnOverviewSection`
+are stretch TextBoxes, not fixed-width. Leaving the column widths alone to avoid
+regressing the 1366px grid budget for zero measured benefit.
+
+### 5.7 — remaining (not started)
+PI wizard step polish, DN/JO/TI detail polish, SheetStore, Reports, Settings —
+and the "module shells vs. real content" decision for the 9 placeholder modules.

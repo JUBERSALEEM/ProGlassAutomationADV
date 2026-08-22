@@ -42,7 +42,7 @@
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.JobOrder.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">

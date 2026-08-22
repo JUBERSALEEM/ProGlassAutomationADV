@@ -14,7 +14,7 @@
     Background="Transparent"
     AllowsTransparency="True"
     FontFamily="{DynamicResource AppFontFamily}"
-    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True"

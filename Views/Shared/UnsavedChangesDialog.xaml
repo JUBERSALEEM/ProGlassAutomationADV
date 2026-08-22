@@ -5,7 +5,7 @@
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <Window x:Class="ProGlassAutomation.Views.Shared.UnsavedChangesDialog"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

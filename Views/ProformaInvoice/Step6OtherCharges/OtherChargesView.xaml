@@ -16,7 +16,7 @@
              d:DesignHeight="1200"
              d:DesignWidth="1200"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">

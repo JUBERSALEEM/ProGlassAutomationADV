@@ -13,7 +13,7 @@
              mc:Ignorable="d"
              d:DesignHeight="760" d:DesignWidth="1100"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">

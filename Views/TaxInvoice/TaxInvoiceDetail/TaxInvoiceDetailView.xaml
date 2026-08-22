@@ -5,7 +5,7 @@
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"

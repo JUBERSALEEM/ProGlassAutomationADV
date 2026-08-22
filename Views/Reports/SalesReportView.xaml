@@ -42,7 +42,7 @@
     xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
     xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Shell"
     FontFamily="{DynamicResource AppFontFamily}"
-    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">

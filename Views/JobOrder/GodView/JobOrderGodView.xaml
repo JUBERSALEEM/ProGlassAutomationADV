@@ -17,7 +17,7 @@
      Commands/bindings/code-behind preserved; no VM changes.
 ═══════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.GodView.JobOrderGodView"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"

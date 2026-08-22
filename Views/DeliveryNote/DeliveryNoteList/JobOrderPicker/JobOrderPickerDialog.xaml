@@ -1,5 +1,5 @@
 ﻿<Window x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker.JobOrderPickerDialog"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              SnapsToDevicePixels="True"

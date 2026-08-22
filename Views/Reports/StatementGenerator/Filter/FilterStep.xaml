@@ -28,7 +28,7 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
     FontFamily="{DynamicResource AppFontFamily}"
-    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     RenderOptions.BitmapScalingMode="HighQuality"
     UseLayoutRounding="True"

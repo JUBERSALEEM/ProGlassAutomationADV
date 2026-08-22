@@ -44,7 +44,7 @@
     mc:Ignorable="d"
     d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
     FontFamily="{DynamicResource AppFontFamily}"
-    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextFormattingMode="Ideal"
     TextOptions.TextRenderingMode="ClearType"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">

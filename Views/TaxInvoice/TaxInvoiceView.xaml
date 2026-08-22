@@ -42,7 +42,7 @@
              xmlns:godview="clr-namespace:ProGlassAutomation.Views.TaxInvoice.GodView"
              xmlns:sharedViews="clr-namespace:ProGlassAutomation.Views.Shared"
              FontFamily="{DynamicResource AppFontFamily}"
-             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"

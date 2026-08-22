@@ -19,7 +19,7 @@
         ResizeMode="NoResize"
         FontFamily="{DynamicResource AppFontFamily}"
         Background="{DynamicResource ModuleBackgroundBrush}"
-        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextFormattingMode="Ideal"
         TextOptions.TextRenderingMode="ClearType"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
