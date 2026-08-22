@@ -220,7 +220,7 @@
                 <Border Background="{DynamicResource TintGrayBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="12,10"
                         Margin="0,4,0,12">
                     <Grid>
