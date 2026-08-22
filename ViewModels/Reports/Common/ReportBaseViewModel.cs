@@ -212,7 +212,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             var token = _debounceCts.Token;
             try
             {
-                await Task.Delay(350, token);
+                await Task.Delay(120, token);
                 if (token.IsCancellationRequested) return;
                 Page = 1;
                 await LoadAsync();
@@ -234,7 +234,7 @@ namespace ProGlassAutomation.ViewModels.Reports.Common
             var token = _lifecycleCts.Token;
             try
             {
-                await Task.Delay(400, token);
+                await Task.Delay(200, token);
                 if (token.IsCancellationRequested) return;
                 await LoadAsync();
             }

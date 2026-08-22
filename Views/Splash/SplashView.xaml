@@ -164,68 +164,47 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ═══ MODULE ORB (feature strip) — circular glass tile ═══
-             Each module renders as a distinct circle: tinted glyph inside
-             a frosted glass disc, wrapped by a dashed tint ring and a soft
-             coloured halo, with the label centred underneath. The per-item
-             tint is bound from FeatureItem.BorderBrush. -->
+        <!-- ═══ MODULE CHIP (feature strip) — industrial frosted pill ═══
+             Each module renders as a single-line frosted glass chip: a tinted
+             glyph inside a small rounded tile, followed by the module name on
+             ONE line (no wrapping). Auto-width so labels never break across
+             two lines; the strip wraps as a centred, evenly-spaced grid. The
+             per-item tint is bound from FeatureItem.BorderBrush. -->
         <DataTemplate x:Key="FeatureBadgeTemplate">
-            <StackPanel Width="96" Margin="6,8"
-                        HorizontalAlignment="Center"
-                        SnapsToDevicePixels="True"
-                        UseLayoutRounding="True">
-
-                <Grid Width="72" Height="72" HorizontalAlignment="Center">
-
-                    <!-- Soft coloured halo behind the orb -->
-                    <Ellipse Width="72" Height="72"
-                             Fill="{Binding BorderBrush}"
-                             Opacity="0.14"
-                             IsHitTestVisible="False"/>
-
-                    <!-- Dashed tint ring -->
-                    <Ellipse Width="68" Height="68"
-                             Stroke="{Binding BorderBrush}"
-                             StrokeThickness="1.5"
-                             StrokeDashArray="2 3"
-                             Opacity="0.75"
-                             IsHitTestVisible="False"/>
-
-                    <!-- Frosted glass disc -->
-                    <Ellipse Width="56" Height="56">
-                        <Ellipse.Fill>
-                            <RadialGradientBrush Center="0.35,0.3"
-                                                 GradientOrigin="0.35,0.3"
-                                                 RadiusX="0.75" RadiusY="0.75">
-                                <GradientStop Color="#40FFFFFF" Offset="0.0"/>
-                                <GradientStop Color="#14FFFFFF" Offset="0.6"/>
-                                <GradientStop Color="#08FFFFFF" Offset="1.0"/>
-                            </RadialGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
-
-                    <!-- Module glyph -->
-                    <TextBlock Text="{Binding Icon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="22"
-                               Foreground="{Binding BorderBrush}"
-                               HorizontalAlignment="Center"
+            <Border Height="42"
+                    Margin="7,8"
+                    Padding="16,0"
+                    CornerRadius="21"
+                    BorderBrush="#2EFFFFFF"
+                    BorderThickness="1"
+                    SnapsToDevicePixels="True"
+                    UseLayoutRounding="True"
+                    IsHitTestVisible="False">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#1CFFFFFF" Offset="0.0"/>
+                        <GradientStop Color="#08FFFFFF" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Width="26" Height="26" CornerRadius="13"
+                            Background="#1FFFFFFF"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Icon}"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="13"
+                                   Foreground="{Binding BorderBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="12.5"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource Frost}"
                                VerticalAlignment="Center"
-                               IsHitTestVisible="False"/>
-                </Grid>
-
-                <!-- Label -->
-                <TextBlock Text="{Binding Label}"
-                           FontSize="11"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource Frost}"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="92"
-                           Margin="0,8,0,0"
-                           IsHitTestVisible="False"/>
-            </StackPanel>
+                               Margin="10,0,0,0"/>
+                </StackPanel>
+            </Border>
         </DataTemplate>
 
         <!-- ═══ TERMS — DECLINE (ghost) ═══ -->
