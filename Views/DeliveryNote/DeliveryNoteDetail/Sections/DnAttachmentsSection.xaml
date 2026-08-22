@@ -44,10 +44,10 @@
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="{Binding SelectedDnHeaderText}"
                                            FontSize="11" FontWeight="Bold"
-                                           Foreground="White"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="Photos + signed copies"
-                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
                             <Button Grid.Column="1"

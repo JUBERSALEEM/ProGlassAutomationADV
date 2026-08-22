@@ -182,7 +182,8 @@
         <Style x:Key="HeroStripLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#CCFFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Opacity" Value="0.80"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Text" Value="DELIVERY NOTE  ·  "/>
             <Style.Triggers>
@@ -341,13 +342,15 @@
             <Setter Property="Text" Value="  ·  "/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#77FFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Opacity" Value="0.47"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="MasterHeroMetaLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#CCFFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Opacity" Value="0.80"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,3,0"/>
         </Style>
@@ -364,7 +367,8 @@
         <Style x:Key="MasterHeroSubtitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#EAFFFFFF"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Opacity" Value="0.92"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="MasterHeroTitleStyle" TargetType="TextBlock">

@@ -46,9 +46,9 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock FontSize="11" FontWeight="Bold"
-                                           Foreground="White"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="  INVOICE FAMILY"/></TextBlock>
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="  INVOICE FAMILY"/></TextBlock>
                                 <TextBlock Text="Click any invoice to load it · Green = editing"
-                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -56,7 +56,7 @@
                                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                     Background="#22FFFFFF"
                                     VerticalAlignment="Center">
-                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="White">
+                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}">
                                     <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
                                     <Run Text=" invoice(s)"/>
                                 </TextBlock>

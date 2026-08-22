@@ -176,7 +176,7 @@
                                 <TextBlock Text="{Binding ProjectReference}"
                                            FontSize="11"
                                            FontWeight="SemiBold"
-                                           Foreground="#CCFFFFFF"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            TextTrimming="CharacterEllipsis"
                                            MaxWidth="500" Margin="0,2,0,0">
                                     <TextBlock.Style>
@@ -216,12 +216,12 @@
                                            HorizontalAlignment="Right"/>
                                 <TextBlock Text="{Binding DeliveryTime}"
                                            FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#EAFFFFFF"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.92"
                                            HorizontalAlignment="Right"
                                            Margin="0,2,0,0"/>
                                 <TextBlock Text="{Binding CompanyName}"
                                            FontSize="11" FontWeight="SemiBold"
-                                           Foreground="#CCFFFFFF"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            HorizontalAlignment="Right"
                                            Margin="0,4,0,0"
                                            TextTrimming="CharacterEllipsis"
@@ -424,11 +424,11 @@
                                                                 Margin="0,0,10,0"/>
                                                         <TextBlock Text="SPEC:  "
                                                                    FontSize="12" FontWeight="Bold"
-                                                                   Foreground="#CCFFFFFF"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBlock Text="{Binding SpecGroupName}"
                                                                    FontSize="14" FontWeight="Bold"
-                                                                   Foreground="White"
+                                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    VerticalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>

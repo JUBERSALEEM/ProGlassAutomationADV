@@ -44,10 +44,10 @@
                                 <!-- Chat 16: SelectedFamilyHeaderText updates when family entry clicked -->
                                 <TextBlock Text="{Binding SelectedFamilyHeaderText}"
                                            FontSize="11" FontWeight="Bold"
-                                           Foreground="White"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="Photos + signed docs · click family entry to switch view"
-                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>

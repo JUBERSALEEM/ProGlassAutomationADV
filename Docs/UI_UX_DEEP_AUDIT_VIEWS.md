@@ -332,6 +332,25 @@ off) with a guard comment. **Rule for future passes: never put `{DynamicResource
 (or any deferred reference) inside an animation `To`/`From`/`By` in a sealed
 Style/Template Storyboard — use literals (or a StaticResource) instead.**
 
-### 5.9 — remaining (not started)
-DN/JO/TI detail polish, SheetStore, Settings — and the "module shells vs. real
-content" decision for the 9 placeholder modules.
+### 5.9 — DN/TI detail: white-on-accent → OnAccentForegroundBrush ✅
+The DN/TI detail views lay white (and white-alpha) text on **theme-driven accent
+surfaces** (hero strip, master-DN banner, section headers, spec-group headers —
+all `AccentBrush` or `AccentColor→AccentHoverColor` gradients). White was fine on
+the default dark-blue accent but broke on light accent presets (Amber) and the
+dark theme's light-cyan accent. These were missed by the 5.4 ancestor scan because
+the backgrounds are accent *gradients*, not `Background="{...AccentBrush}"`.
+- White-alpha → `OnAccentForegroundBrush` + `Opacity` preserving hierarchy:
+  `#EAFFFFFF`→0.92 (hero subtitle), `#CCFFFFFF`→0.80 (strip/meta labels,
+  project-ref, company, spec label, section subtitles), `#77FFFFFF`→0.47 (divider).
+- Pure-white titles/values on accent → `OnAccentForegroundBrush` (hero title,
+  banner title, "MASTER DN — READ ONLY" badge, section header titles, count
+  badges, spec-group name, "% delivered").
+- **Left white on semantic colors** (static, not accent-driven): the "EDITING"
+  chips on `SuccessBrush` and list status badges.
+Files: `DnSectionStyles`, `DnOverviewSection`, `DnAttachmentsSection`,
+`DnHistorySection`, `DeliveryNoteDetailView`, `TiAttachmentsSection`,
+`TiFamilySection` (7 files, 29 changes).
+
+### 5.10 — remaining (not started)
+SheetStore, Settings — and the "module shells vs. real content" decision for the
+9 placeholder modules.
