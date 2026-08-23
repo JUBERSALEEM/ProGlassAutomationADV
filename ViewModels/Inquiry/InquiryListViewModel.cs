@@ -197,7 +197,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
             OpenWorkspaceCommand = new RelayCommand(async _ => { if (SelectedInquiry != null) await EditRowAsync(SelectedInquiry); }, _ => SelectedInquiry != null);
             ConvertToPiCommand = new RelayCommand(async _ => await ConvertToPiAsync(), _ => CanConvertSelected);
-            ChangeStatusCommand = new RelayCommand(async p => await ChangeSelectedStatusAsync(p as string), _ => SelectedInquiry != null && p is string);
+            ChangeStatusCommand = new RelayCommand(async p => await ChangeSelectedStatusAsync(p as string), p => SelectedInquiry != null && p is string);
             OpenAttachmentCommand = new RelayCommand(p =>
             {
                 if (p is InquiryAttachmentItem item)
