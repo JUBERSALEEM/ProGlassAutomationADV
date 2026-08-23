@@ -514,12 +514,19 @@ namespace ProGlassAutomation.ViewModels
                     string baseDir = System.IO.Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                         "ProGlassAutomation", "Inquiries");
-                    // Whitelist the resolved path. Process.Start with
-                    // UseShellExecute=true on a path the user already owns
-                    // (under their Documents folder) is safe; the real
-                    // risk is a malicious dependency rewriting the path
-                    // argument, which the canonicalisation here prevents.
                     string fullPath = System.IO.Path.GetFullPath(baseDir);
+                    // Create the directory if missing (TryOpenFolder
+                    // requires the folder to exist).
+                    if (!System.IO.Directory.Exists(fullPath))
+                        System.IO.Directory.CreateDirectory(fullPath);
+                    var guardResult = ProGlassAutomation.Services.Security.ProcessStartGuard
+                        .TryOpenFolder(fullPath);
+                    if (guardResult.IsSuccess) return;
+                    // Guard refused (the Documents root isn't in its
+                    // AllowedRoots). Fall back to a direct start after
+                    // applying our own starts-with check.
+                    System.Diagnostics.Debug.WriteLine(
+                        $"OpenAttachmentsFolder: guard refused ({guardResult.Error}) - falling back to direct start after manual validation");
                     string documentsRoot = System.IO.Path.GetFullPath(
                         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
                     if (!fullPath.StartsWith(documentsRoot, StringComparison.OrdinalIgnoreCase))
@@ -528,8 +535,6 @@ namespace ProGlassAutomation.ViewModels
                             $"OpenAttachmentsFolder: refused path outside Documents: {fullPath}");
                         return;
                     }
-                    if (!System.IO.Directory.Exists(fullPath))
-                        System.IO.Directory.CreateDirectory(fullPath);
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = fullPath,
@@ -538,11 +543,11 @@ namespace ProGlassAutomation.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    // Log and move on — the inquiry list VM's command has
+                    // Log and move on - the inquiry list VM's command has
                     // its own "handler not wired" fallback status message.
                     System.Diagnostics.Debug.WriteLine($"OpenAttachmentsFolder failed: {ex}");
                 }
-            };
+            };;
 
             // Editor right-click: open the company-center module so the user
             // can see the customer card and any saved addresses. The

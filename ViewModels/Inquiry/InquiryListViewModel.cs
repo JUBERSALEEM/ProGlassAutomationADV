@@ -33,6 +33,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         private readonly InquiryImportExportService _io;
         private CancellationTokenSource? _loadCts;
         private CancellationTokenSource? _debounceCts;
+        private CancellationTokenSource? _importCts;
         private int _reloadGeneration;
 
         public ObservableCollection<InquiryListRow> Inquiries { get; } = new();
@@ -708,9 +709,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             string? path = ImportPathRequested?.Invoke();
             if (string.IsNullOrWhiteSpace(path)) return;
+            // Cancel any in-flight import so a second click doesn't
+            // double-parse the same file. Old token is disposed.
+            _importCts?.Cancel();
+            _importCts?.Dispose();
+            _importCts = new CancellationTokenSource();
+            var ct = _importCts.Token;
             try
             {
-                var parse = await _io.ParseCsvAsync(path);
+                // Pass the token so ParseCsvAsync can short-circuit a
+                // huge / malicious file. (The service still falls back
+                // to File.ReadAllLinesAsync internally; for a full
+                // streaming fix see the audit notes. The token at least
+                // lets a second-click user cancel an in-flight parse.)
+                var parse = await _io.ParseCsvAsync(path, ct);
                 if (parse.Rows.Count == 0)
                 {
                     SetStatus(parse.SkippedInvalidRows > 0
@@ -722,6 +734,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 int created = 0, failed = 0;
                 foreach (var row in parse.Rows)
                 {
+                    if (ct.IsCancellationRequested) return;
                     try { await _workflow.CreateAsync(row); created++; }
                     catch (Services.Audit.PermissionDeniedException) { throw; }
                     catch (Exception) { failed++; }
@@ -733,6 +746,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 ResetAndReload();
             }
             catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.Message); }
+            catch (OperationCanceledException) { /* superseded import — user clicked again */ }
             catch (Exception ex) { SetStatus("Import failed: " + ExceptionMessages.Deep(ex)); }
         }
 

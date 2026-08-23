@@ -48,6 +48,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         // Tracks whether the user has manually edited SalesmanName so the
         // auto-suggest flow doesn't keep fighting the user's typing.
         private bool _salesmanManuallyEdited;
+        // Set by the window's OnEditorClosed when the editor is dismissed.
+        // The fire-and-forget LoadMastersAsync / LoadAttachmentsAsync tasks
+        // check this before mutating VM state, so they short-circuit when
+        // the window is gone. Without this, the Task's captured `this`
+        // keeps the VM alive past the window's lifetime (minor leak) and
+        // the tasks can land their results in a UI thread that's already
+        // torn down.
+        private bool _isDisposed;
 
         public InquiryRecord Record { get; }
         public bool IsNewRecord => Record.Id == 0;
@@ -332,16 +340,23 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         private async Task LoadMastersAsync()
         {
+            // Short-circuit if the editor was closed while we were
+            // pending in the DI queue. The captured `this` would
+            // otherwise keep the VM alive past the window's lifetime.
+            if (_isDisposed) return;
             if (_masterData == null) return;
             try
             {
                 // Pull the full client records (not just names) so we can
                 // auto-fill the location and upsert the client on save.
                 _savedClients = await _masterData.GetAllClientsAsync();
+                if (_isDisposed) return;
                 foreach (var x in _savedClients)
                     if (!string.IsNullOrWhiteSpace(x.CustomerName) && !Customers.Contains(x.CustomerName))
                         Customers.Add(x.CustomerName);
-                foreach (var x in await _masterData.GetAllSalesmenAsync())
+                var salesmen = await _masterData.GetAllSalesmenAsync();
+                if (_isDisposed) return;
+                foreach (var x in salesmen)
                     if (!string.IsNullOrWhiteSpace(x.Name) && !Salesmen.Contains(x.Name))
                         Salesmen.Add(x.Name);
                 // Populate the location dropdown with whatever we have for the
@@ -417,17 +432,36 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         private async Task LoadAttachmentsAsync()
         {
+            if (_isDisposed) return;
             if (Record.Id <= 0) return;
             try
             {
                 // Manifest-backed (PI Step 8 pattern) — no EF read, immune to
                 // legacy child-table drift; legacy rows migrate on first call.
                 var rows = await _attachments.GetAsync(Record.Id);
+                if (_isDisposed) return;
                 AttachmentItems.Clear();
                 foreach (var x in rows) AttachmentItems.Add(x);
                 OnPropertyChanged(nameof(HasAttachments));
             }
             catch (Exception ex) { SetMessage("Attachments unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
+        }
+
+        /// <summary>
+        /// Called by the window's OnEditorClosed. Marks the VM as disposed
+        /// so the fire-and-forget loaders short-circuit on their next
+        /// await, releases the loaded-clients cache (no other consumer),
+        /// and lets the GC collect the VM + the closures that captured
+        /// `this`. Without this, the loaders' captured `this` keeps the
+        /// VM alive for the full app lifetime.
+        /// </summary>
+        public void CancelLoaders()
+        {
+            _isDisposed = true;
+            // The Task closures may still complete and try to mutate
+            // ObservableCollections on the UI thread. The _isDisposed
+            // check inside each loader handles that; the assignment
+            // above is enough.
         }
 
         // ── Save ───────────────────────────────────────────────────────

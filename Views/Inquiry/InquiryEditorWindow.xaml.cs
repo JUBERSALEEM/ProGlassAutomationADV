@@ -66,9 +66,14 @@ namespace ProGlassAutomation.Views.Inquiry
             vm.PreviewRequested = Preview;
             DataContext = vm;
             // Put the caret where the story starts. Cached as a field so
-            // the Closed handler can unsubscribe it.
+            // the Closed handler can unsubscribe it. The null check on
+            // CustomerInput is defensive — the XAML reference always
+            // resolves at runtime, but a malformed XAML or a design-time
+            // host can leave the named element uninitialised, and the
+            // editor should not crash on those paths.
             _focusHandler = (_, __) =>
             {
+                if (CustomerInput is null) return;
                 CustomerInput.Focus();
                 Keyboard.Focus(CustomerInput);
             };
@@ -86,7 +91,14 @@ namespace ProGlassAutomation.Views.Inquiry
         {
             // Drop every callback we own so the VM doesn't keep the
             // window (or its captured state) alive past its lifetime.
-            if (_viewModel != null) _viewModel.CloseRequested -= _closeRequestedHandler;
+            if (_viewModel != null)
+            {
+                _viewModel.CloseRequested -= _closeRequestedHandler;
+                // Tell the VM to stop the fire-and-forget loaders.
+                // Without this, the loaders' captured `this` keeps the
+                // VM alive for the lifetime of the app.
+                _viewModel.CancelLoaders();
+            }
             Loaded -= _focusHandler;
             Closed -= OnEditorClosed;
         }
@@ -154,33 +166,54 @@ namespace ProGlassAutomation.Views.Inquiry
         private void OnValuePaste(object sender, DataObjectPastingEventArgs e)
         {
             if (sender is not TextBox tb) { e.CancelCommand(); return; }
-            // Read the raw text from the read-only SourceDataObject.
-            if (!e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true)) { e.CancelCommand(); return; }
-            string pasted = (string)e.SourceDataObject.GetData(DataFormats.UnicodeText);
-            char dec = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
-            char grp = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0];
-            var sb = new System.Text.StringBuilder(pasted.Length);
-            foreach (char c in pasted)
-                if (char.IsDigit(c) || c == dec || c == grp || c == ' ' || c == '\t')
-                    sb.Append(c);
-            string clean = sb.ToString();
-            if (clean.Length == 0) { e.CancelCommand(); return; }
-            // Reject the paste if the resulting text would not parse as a decimal
-            // in the current culture. (We can also rewrite the text, but if it's
-            // already numeric, no rewrite is needed — and rewriting can fight
-            // other handlers in the bubbling chain.)
-            string proposed = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
-                                   .Insert(tb.SelectionStart, clean);
-            if (!decimal.TryParse(proposed, NumberStyles.Number, CultureInfo.CurrentCulture, out _))
+            try
             {
-                e.CancelCommand();
-                return;
+                // Read the raw text from the read-only SourceDataObject.
+                // GetDataPresent is checked first to avoid the (rare)
+                // NRE when GetData returns null and we cast to string.
+                if (!e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true))
+                { e.CancelCommand(); return; }
+                object? raw = e.SourceDataObject.GetData(DataFormats.UnicodeText);
+                if (raw is not string pasted)
+                {
+                    // Non-string clipboard content (e.g. a file drop) —
+                    // we can't validate it as a decimal, so cancel.
+                    e.CancelCommand();
+                    return;
+                }
+                char dec = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
+                char grp = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator[0];
+                var sb = new System.Text.StringBuilder(pasted.Length);
+                foreach (char c in pasted)
+                    if (char.IsDigit(c) || c == dec || c == grp || c == ' ' || c == '\t')
+                        sb.Append(c);
+                string clean = sb.ToString();
+                if (clean.Length == 0) { e.CancelCommand(); return; }
+                // Reject the paste if the resulting text would not parse as a decimal
+                // in the current culture. (We can also rewrite the text, but if it's
+                // already numeric, no rewrite is needed — and rewriting can fight
+                // other handlers in the bubbling chain.)
+                string proposed = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
+                                       .Insert(tb.SelectionStart, clean);
+                if (!decimal.TryParse(proposed, NumberStyles.Number, CultureInfo.CurrentCulture, out _))
+                {
+                    e.CancelCommand();
+                    return;
+                }
+                // Mutate the (writable) DataObject in place so what actually lands
+                // in the TextBox is the sanitized string. SourceDataObject returns
+                // the same IDataObject instance as DataObject in WPF, but only
+                // DataObject is the concrete class exposing SetData.
+                e.DataObject.SetData(DataFormats.UnicodeText, clean);
             }
-            // Mutate the (writable) DataObject in place so what actually lands
-            // in the TextBox is the sanitized string. SourceDataObject returns
-            // the same IDataObject instance as DataObject in WPF, but only
-            // DataObject is the concrete class exposing SetData.
-            e.DataObject.SetData(DataFormats.UnicodeText, clean);
+            catch (Exception ex)
+            {
+                // Defensive: never crash the editor on a paste. Cancel
+                // the operation and log so the user can paste plain text
+                // into a different field instead.
+                e.CancelCommand();
+                System.Diagnostics.Debug.WriteLine($"OnValuePaste failed: {ex}");
+            }
         }
 
         private void OnDragOver(object sender, DragEventArgs e)
