@@ -115,22 +115,22 @@ namespace ProGlassAutomation.Services.Inquiry
                             result[id] = BuildSnapshot(id, pi!, jo, dn, ti);
                             continue;
                         }
-                        result[id] = BuildSnapshot(id, pi!, jo, dn, taxInvoice: null);
+                        result[id] = BuildSnapshot(id, pi!, jo, dn, ti: null);
                         continue;
                     }
                     if (!string.IsNullOrWhiteSpace(piNumber) &&
                         tiByPiNumber.TryGetValue(piNumber, out var ti2))
                     {
-                        result[id] = BuildSnapshot(id, pi!, jo, dn: null, ti2);
+                        result[id] = BuildSnapshot(id, pi!, jo, dn: null, ti: ti2);
                         continue;
                     }
-                    result[id] = BuildSnapshot(id, pi!, jo, dn: null, taxInvoice: null);
+                    result[id] = BuildSnapshot(id, pi!, jo, dn: null, ti: null);
                     continue;
                 }
                 if (!string.IsNullOrWhiteSpace(piNumber) &&
                     tiByPiNumber.TryGetValue(piNumber, out var ti3))
                 {
-                    result[id] = BuildSnapshot(id, pi!, jo: null, dn: null, ti3);
+                    result[id] = BuildSnapshot(id, pi!, jo: null, dn: null, ti: ti3);
                     continue;
                 }
                 result[id] = InquiryLifecycleSnapshot.Empty(id);
