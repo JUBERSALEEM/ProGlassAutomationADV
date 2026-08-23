@@ -12,7 +12,9 @@ namespace ProGlassAutomation.Services.Inquiry
         public string Search { get; init; } = "";
         public string Status { get; init; } = "All statuses";
         public int? SalesmanId { get; init; }
+        public string SalesmanName { get; init; } = "";
         public int? PreparedByUserId { get; init; }
+        public string PreparedByName { get; init; } = "";
         public DateTimeOffset? From { get; init; }
         public DateTimeOffset? ToExclusive { get; init; }
         public bool HasAttachmentsOnly { get; init; }
@@ -35,10 +37,12 @@ namespace ProGlassAutomation.Services.Inquiry
         public string PreparedByRole { get; init; } = "";
         public string Status { get; init; } = "";
         public string Priority { get; init; } = "";
+        public decimal InquiryValue { get; init; }
         public DateTimeOffset ReceivedAt { get; init; }
         public DateTimeOffset UpdatedAt { get; init; }
         public string UpdatedBy { get; init; } = "";
         public int AttachmentCount { get; init; }
+        public string AttachmentBadgeText { get; set; } = "";
         public int? ProformaInvoiceId { get; init; }
         public string ProformaNumber { get; init; } = "";
         public string JobOrderNumber { get; init; } = "";

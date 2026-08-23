@@ -31,7 +31,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 "Inquiry number" => source.OrderBy(x => x.InquiryNumber),
                 _ => source.OrderByDescending(x => x.UpdatedAt)
             };
-            return await GlobalQueryEngine.Instance.ExecutePagedQueryAsync(source,
+            var page = await GlobalQueryEngine.Instance.ExecutePagedQueryAsync(source,
                 x => new InquiryListProjection
                 {
                     Id = x.Id, InquiryNumber = x.InquiryNumber, InquiryReference = x.InquiryReference,
@@ -39,10 +39,28 @@ namespace ProGlassAutomation.Services.Inquiry
                     ProjectName = x.ProjectName, ProjectDescription = x.ProjectDescription,
                     SalesmanName = x.SalesmanName, PreparedByName = x.PreparedByName,
                     PreparedByRole = x.PreparedByRole, Status = x.Status, Priority = x.Priority,
-                    ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt, UpdatedBy = x.UpdatedBy,
+                    InquiryValue = x.InquiryValue, ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt, UpdatedBy = x.UpdatedBy,
                     AttachmentCount = x.Attachments.Count, ProformaInvoiceId = x.ProformaInvoiceId,
                     ProformaNumber = x.ProformaNumber, JobOrderNumber = x.JobOrderNumber
                 }, query.Page, Math.Clamp(query.PageSize, 10, 200), ct).ConfigureAwait(false);
+            var ids = page.Items.Select(x => x.Id).ToList();
+            if (ids.Count > 0)
+            {
+                var metadata = await db.Attachments.AsNoTracking()
+                    .Where(x => ids.Contains(x.InquiryId))
+                    .Select(x => new { x.InquiryId, x.Extension })
+                    .ToListAsync(ct).ConfigureAwait(false);
+                foreach (var row in page.Items)
+                {
+                    var types = metadata.Where(x => x.InquiryId == row.Id)
+                        .Select(x => (x.Extension ?? "").TrimStart('.').ToUpperInvariant())
+                        .Where(x => x.Length > 0).Distinct().Take(3).ToList();
+                    int extra = Math.Max(0, row.AttachmentCount - types.Count);
+                    row.AttachmentBadgeText = string.Join("  ", types)
+                        + (extra > 0 ? $"  +{extra}" : "");
+                }
+            }
+            return page;
         }
 
         public async Task<InquiryStatistics> GetStatisticsAsync(InquiryQuery query, CancellationToken ct = default)
@@ -92,7 +110,13 @@ namespace ProGlassAutomation.Services.Inquiry
                 && !query.Status.StartsWith("All", StringComparison.OrdinalIgnoreCase))
                 source = source.Where(x => x.Status == query.Status);
             if (query.SalesmanId.HasValue) source = source.Where(x => x.SalesmanId == query.SalesmanId);
+            else if (!string.IsNullOrWhiteSpace(query.SalesmanName)
+                && !query.SalesmanName.StartsWith("All", StringComparison.OrdinalIgnoreCase))
+                source = source.Where(x => x.SalesmanName == query.SalesmanName);
             if (query.PreparedByUserId.HasValue) source = source.Where(x => x.PreparedByUserId == query.PreparedByUserId);
+            else if (!string.IsNullOrWhiteSpace(query.PreparedByName)
+                && !query.PreparedByName.StartsWith("All", StringComparison.OrdinalIgnoreCase))
+                source = source.Where(x => x.PreparedByName == query.PreparedByName);
             if (query.From.HasValue) source = source.Where(x => x.ReceivedAt >= query.From.Value);
             if (query.ToExclusive.HasValue) source = source.Where(x => x.ReceivedAt < query.ToExclusive.Value);
             if (query.HasAttachmentsOnly) source = source.Where(x => x.Attachments.Any());

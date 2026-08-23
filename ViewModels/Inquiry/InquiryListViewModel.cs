@@ -1,5 +1,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Inquiry;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Common;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
@@ -18,11 +20,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     {
         private readonly IInquiryRepository _repository;
         private CancellationTokenSource? _loadCts;
+        private CancellationTokenSource? _debounceCts;
         public ObservableCollection<InquiryListRow> Inquiries { get; } = new();
         public ObservableCollection<string> DateRanges { get; } = new() { "Today", "Yesterday", "Last 7 Days", "Last 30 Days", "Custom" };
         public ObservableCollection<string> Statuses { get; } = new() { "All statuses", "Received", "In progress", "Sent", "Hold", "Confirmed", "Converted", "Cancelled" };
         public ObservableCollection<string> Salesmen { get; } = new() { "All salesmen" };
+        public ObservableCollection<string> PreparedByUsers { get; } = new() { "All prepared by" };
         public ObservableCollection<string> Priorities { get; } = new() { "All priorities", "Urgent", "High", "Normal", "Low" };
+        public ObservableCollection<string> SortOptions { get; } = new() { "Updated newest", "Received newest", "Received oldest", "Inquiry number" };
 
         private InquiryListRow? _selectedInquiry;
         public InquiryListRow? SelectedInquiry
@@ -36,12 +41,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasSelection));
                 OnPropertyChanged(nameof(SelectionText));
+                if (value != null)
+                    AsyncUtility.SafeFireAndForget(() => LoadSelectedDetailAsync(value), "Inquiry drawer detail");
             }
         }
 
         private bool _isDetailsDrawerOpen;
         public bool IsDetailsDrawerOpen { get => _isDetailsDrawerOpen; private set { _isDetailsDrawerOpen = value; OnPropertyChanged(); } }
         public bool HasSelection => SelectedInquiry != null;
+        public bool HasInquiries => Inquiries.Count > 0;
+        public bool HasNoInquiries => !HasInquiries;
         public string SelectionText => SelectedInquiry == null ? "" : "1 selected";
         private string _pageStatus = "No inquiries found";
         public string PageStatus { get => _pageStatus; private set { _pageStatus = value; OnPropertyChanged(); } }
@@ -53,14 +62,25 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public int HoldCount { get => _holdCount; private set { _holdCount = value; OnPropertyChanged(); } }
         public int CancelledCount { get => _cancelledCount; private set { _cancelledCount = value; OnPropertyChanged(); } }
 
-        public string SearchText { get; set; } = "";
-        public string SelectedDateRange { get; set; } = "Today";
-        public string SelectedStatus { get; set; } = "All statuses";
-        public string SelectedSalesman { get; set; } = "All salesmen";
-        public string SelectedPriority { get; set; } = "All priorities";
-        public bool HasAttachmentsOnly { get; set; }
+        private string _searchText = "";
+        public string SearchText { get => _searchText; set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); DebounceReload(); } }
+        private string _selectedDateRange = "Today";
+        public string SelectedDateRange { get => _selectedDateRange; set { if (_selectedDateRange == value) return; _selectedDateRange = value; OnPropertyChanged(); Reload(); } }
+        private string _selectedStatus = "All statuses";
+        public string SelectedStatus { get => _selectedStatus; set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); Reload(); } }
+        private string _selectedSalesman = "All salesmen";
+        public string SelectedSalesman { get => _selectedSalesman; set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); Reload(); } }
+        private string _selectedPreparedBy = "All prepared by";
+        public string SelectedPreparedBy { get => _selectedPreparedBy; set { if (_selectedPreparedBy == value) return; _selectedPreparedBy = value; OnPropertyChanged(); Reload(); } }
+        private string _selectedPriority = "All priorities";
+        public string SelectedPriority { get => _selectedPriority; set { if (_selectedPriority == value) return; _selectedPriority = value; OnPropertyChanged(); Reload(); } }
+        private string _selectedSort = "Updated newest";
+        public string SelectedSort { get => _selectedSort; set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); Reload(); } }
+        private bool _hasAttachmentsOnly;
+        public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); Reload(); } }
 
         public ICommand NewInquiryCommand { get; }
+        public ICommand FilterByStatisticCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand ResetFiltersCommand { get; }
         public ICommand RefreshCommand { get; }
@@ -68,6 +88,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand OpenWorkspaceCommand { get; }
         public ICommand ConvertToPiCommand { get; }
         public ICommand ShowHistoryCommand { get; }
+        public ICommand OpenAttachmentCommand { get; }
         public ICommand BulkChangeOwnerCommand { get; }
         public ICommand BulkChangeStatusCommand { get; }
         public ICommand ExportSelectedCommand { get; }
@@ -78,17 +99,59 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             NewInquiryCommand = new RelayCommand(_ => SetStatus("Inquiry editor is the next implementation phase."));
+            FilterByStatisticCommand = new RelayCommand(p =>
+            {
+                SelectedStatus = p as string ?? "All statuses";
+            });
             ExportCommand = new RelayCommand(_ => SetStatus("Export is the next implementation phase."));
             ResetFiltersCommand = new RelayCommand(_ => { ResetFilters(); Reload(); });
             RefreshCommand = new RelayCommand(_ => Reload());
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
             OpenWorkspaceCommand = new RelayCommand(_ => SetStatus("Select an Inquiry to open its workspace."));
             ConvertToPiCommand = new RelayCommand(_ => SetStatus("Inquiry conversion is not implemented yet."));
-            ShowHistoryCommand = new RelayCommand(_ => SetStatus("Inquiry history is not implemented yet."));
+            ShowHistoryCommand = new RelayCommand(_ => SetStatus("Inquiry history is shown in the detail panel."));
+            OpenAttachmentCommand = new RelayCommand(p =>
+            {
+                if (p is InquiryAttachmentPreview file)
+                {
+                    var result = ProcessStartGuard.TryOpenFile(file.StoragePath, CorrelationContext.NewId());
+                    if (!result.IsSuccess) SetStatus(result.Error ?? "Could not open attachment.");
+                }
+            });
             BulkChangeOwnerCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             BulkChangeStatusCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             ExportSelectedCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
+            AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();
+        }
+
+        private async Task LoadFilterSourcesAsync()
+        {
+            try
+            {
+                if (App.MasterData != null)
+                    foreach (var x in await App.MasterData.GetAllSalesmenAsync())
+                        if (!Salesmen.Contains(x.Name)) Salesmen.Add(x.Name);
+                foreach (var user in await Services.Audit.AuditService.GetUsersAsync())
+                {
+                    string name = string.IsNullOrWhiteSpace(user.DisplayName) ? user.Username : user.DisplayName;
+                    if (!PreparedByUsers.Contains(name)) PreparedByUsers.Add(name);
+                }
+            }
+            catch (Exception ex) { SetStatus("Filter sources unavailable: " + ex.Message); }
+        }
+
+        private void DebounceReload()
+        {
+            _debounceCts?.Cancel(); _debounceCts?.Dispose();
+            _debounceCts = new CancellationTokenSource();
+            var token = _debounceCts.Token;
+            AsyncUtility.SafeFireAndForget(async () =>
+            {
+                await Task.Delay(300, token);
+                token.ThrowIfCancellationRequested();
+                Reload();
+            }, "Inquiry search debounce");
         }
 
         private void Reload()
@@ -101,10 +164,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         private async Task LoadAsync(CancellationToken ct)
         {
             SetStatus("Loading inquiries…");
+            var range = DateRange(SelectedDateRange, DateTimeOffset.Now);
             var query = new InquiryQuery
             {
                 Search = SearchText, Status = SelectedStatus,
-                HasAttachmentsOnly = HasAttachmentsOnly, Page = 1, PageSize = 50
+                SalesmanName = SelectedSalesman, PreparedByName = SelectedPreparedBy,
+                From = range.From, ToExclusive = range.ToExclusive,
+                HasAttachmentsOnly = HasAttachmentsOnly, Sort = SelectedSort,
+                Page = 1, PageSize = 50
             };
             var page = await _repository.QueryAsync(query, ct);
             var stats = await _repository.GetStatisticsAsync(query, ct);
@@ -120,13 +187,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     CustomerLocation = x.CustomerLocation, Project = x.ProjectName,
                     Subject = x.ProjectDescription, Salesman = x.SalesmanName,
                     PreparedBy = x.PreparedByName, PreparedByRole = x.PreparedByRole,
-                    Priority = x.Priority, AttachmentCount = x.AttachmentCount,
-                    Status = x.Status, ProformaId = x.ProformaNumber,
+                    InquiryValue = x.InquiryValue, Priority = x.Priority, AttachmentCount = x.AttachmentCount,
+                    AttachmentBadgeText = x.AttachmentBadgeText, Status = x.Status, ProformaId = x.ProformaNumber,
                     DownstreamStatus = string.IsNullOrWhiteSpace(x.JobOrderNumber)
                         ? "Not released" : x.JobOrderNumber,
                     UpdatedBy = x.UpdatedBy
                 });
             }
+            OnPropertyChanged(nameof(HasInquiries)); OnPropertyChanged(nameof(HasNoInquiries));
             TotalCount = stats.All; ReceivedCount = stats.Received;
             SentCount = stats.Sent; ConfirmedCount = stats.Confirmed;
             HoldCount = stats.Hold; CancelledCount = stats.Cancelled;
@@ -135,17 +203,52 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             SetStatus(PageStatus);
         }
 
+        private async Task LoadSelectedDetailAsync(InquiryListRow row)
+        {
+            var attachments = await _repository.GetAttachmentsAsync(row.Id);
+            var communications = await _repository.GetCommunicationsAsync(row.Id);
+            if (!ReferenceEquals(SelectedInquiry, row)) return;
+            row.Attachments.Clear();
+            foreach (var x in attachments)
+                row.Attachments.Add(new InquiryAttachmentPreview
+                {
+                    Id = x.Id, FileName = x.FileName, Extension = x.Extension,
+                    FileSize = x.FileSize, StoragePath = x.StoragePath,
+                    ProcessingStatus = x.AttachmentType
+                });
+            row.RecentActivity.Clear();
+            foreach (var x in communications)
+                row.RecentActivity.Add($"{x.OccurredAt:dd MMM yyyy · hh:mm tt}  {x.Title}" +
+                    (string.IsNullOrWhiteSpace(x.Description) ? "" : " — " + x.Description));
+            OnPropertyChanged(nameof(SelectedInquiry));
+        }
+
+        private static (DateTimeOffset? From, DateTimeOffset? ToExclusive) DateRange(string value, DateTimeOffset now)
+        {
+            var today = new DateTimeOffset(now.Date, now.Offset);
+            return value switch
+            {
+                "Today" => (today, today.AddDays(1)),
+                "Yesterday" => (today.AddDays(-1), today),
+                "Last 7 Days" => (today.AddDays(-6), today.AddDays(1)),
+                "Last 30 Days" => (today.AddDays(-29), today.AddDays(1)),
+                _ => (null, null)
+            };
+        }
+
         private string _statusText = "Inquiry list ready.";
         public string StatusText { get => _statusText; private set { _statusText = value; OnPropertyChanged(); } }
         private void SetStatus(string value) => StatusText = value;
         private void ResetFilters()
         {
-            SearchText = ""; SelectedDateRange = "Today"; SelectedStatus = "All statuses";
-            SelectedSalesman = "All salesmen"; SelectedPriority = "All priorities";
-            HasAttachmentsOnly = false;
+            _searchText = ""; _selectedDateRange = "Today"; _selectedStatus = "All statuses";
+            _selectedSalesman = "All salesmen"; _selectedPreparedBy = "All prepared by";
+            _selectedPriority = "All priorities"; _selectedSort = "Updated newest";
+            _hasAttachmentsOnly = false;
             OnPropertyChanged(nameof(SearchText)); OnPropertyChanged(nameof(SelectedDateRange));
             OnPropertyChanged(nameof(SelectedStatus)); OnPropertyChanged(nameof(SelectedSalesman));
-            OnPropertyChanged(nameof(SelectedPriority)); OnPropertyChanged(nameof(HasAttachmentsOnly));
+            OnPropertyChanged(nameof(SelectedPreparedBy)); OnPropertyChanged(nameof(SelectedPriority));
+            OnPropertyChanged(nameof(SelectedSort)); OnPropertyChanged(nameof(HasAttachmentsOnly));
         }
     }
 
@@ -165,7 +268,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public string PreparedBy { get; set; } = "";
         public string PreparedByRole { get; set; } = "";
         public string Priority { get; set; } = "Normal";
+        public decimal InquiryValue { get; set; }
         public int AttachmentCount { get; set; }
+        public string AttachmentBadgeText { get; set; } = "";
         public string Status { get; set; } = "Received";
         public string ProformaId { get; set; } = "";
         public string DownstreamStatus { get; set; } = "Not started";
@@ -179,7 +284,13 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
     public sealed class InquiryAttachmentPreview
     {
+        public long Id { get; set; }
         public string FileName { get; set; } = "";
-        public string ProcessingStatus { get; set; } = "Not processed";
+        public string Extension { get; set; } = "";
+        public long FileSize { get; set; }
+        public string StoragePath { get; set; } = "";
+        public string ProcessingStatus { get; set; } = "Document";
+        public string FileSizeDisplay => FileSize < 1024 * 1024
+            ? $"{FileSize / 1024d:N0} KB" : $"{FileSize / (1024d * 1024d):N1} MB";
     }
 }
