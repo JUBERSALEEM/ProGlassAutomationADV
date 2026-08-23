@@ -44,6 +44,7 @@ using ProGlassAutomation.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels
