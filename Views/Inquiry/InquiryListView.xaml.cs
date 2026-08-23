@@ -262,6 +262,19 @@ namespace ProGlassAutomation.Views.Inquiry
                 $"Delete attachment '{file.FileName}'? The file is removed from disk as well.",
                 "Delete attachment",
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
+            // Destructive: ask twice. The first message names the inquiry
+            // and the action; the second message reminds the user that
+            // this cannot be undone. The default button is No so a stray
+            // Enter keypress can't drop the row.
+            vm.ConfirmDeleteInquiryRequested = row => MessageBox.Show(
+                $"Delete inquiry {row.InquiryNumber} ({row.CustomerName} / {row.Project})?\n\n" +
+                "This permanently removes the inquiry AND its attachments " +
+                "and communications. The action is logged and cannot be undone.\n\n" +
+                "Tip: if the inquiry has a Proforma Invoice, Job Order, " +
+                "Delivery Note, Tax Invoice or Statement, the delete will " +
+                "be refused — use 'Change status → Cancel' instead.",
+                "Delete inquiry",
+                MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
             vm.PreviewAttachmentRequested = file =>
             {
                 var service = App.ServiceProvider.GetService(typeof(InquiryAttachmentService))

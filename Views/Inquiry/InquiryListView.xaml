@@ -572,16 +572,21 @@
                                          row, not just the rail's selection. -->
                                     <Border.ContextMenu>
                                         <ContextMenu Style="{DynamicResource ModernContextMenuStyle}">
-                                            <MenuItem Header="Open workspace"
+                                            <!-- Edit / Convert / Change status — the
+                                                 three primary table actions. Edit
+                                                 opens the inquiry editor; Convert
+                                                 hands off to the Proforma Invoice
+                                                 module; Change status is a submenu
+                                                 gated by the workflow state machine. -->
+                                            <MenuItem Header="Edit inquiry…"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                      Command="{Binding ElementName=Root, Path=DataContext.EditInquiryRowCommand}"
                                                       CommandParameter="{Binding}"/>
                                             <MenuItem Header="Convert to Proforma Invoice"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Command="{Binding ElementName=Root, Path=DataContext.ConvertToPiRowCommand}"
                                                       CommandParameter="{Binding}"
                                                       IsEnabled="{Binding CanConvert}"/>
-                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                             <MenuItem Header="Change status"
                                                       Style="{DynamicResource ModernMenuItemStyle}">
                                                 <MenuItem Header="Prepare"
@@ -610,6 +615,41 @@
                                                           Command="{Binding ElementName=Root, Path=DataContext.CancelRowCommand}"
                                                           CommandParameter="{Binding}"/>
                                             </MenuItem>
+                                            <MenuItem Header="Change priority"
+                                                      Style="{DynamicResource ModernMenuItemStyle}">
+                                                <MenuItem Header="Urgent"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          Command="{Binding ElementName=Root, Path=DataContext.SetUrgentPriorityCommand}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="High"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          Command="{Binding ElementName=Root, Path=DataContext.SetHighPriorityCommand}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Normal"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          Command="{Binding ElementName=Root, Path=DataContext.SetNormalPriorityCommand}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Low"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          Command="{Binding ElementName=Root, Path=DataContext.SetLowPriorityCommand}"
+                                                          CommandParameter="{Binding}"/>
+                                            </MenuItem>
+                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                            <!-- Structural row actions. Duplicate is a
+                                                 non-destructive copy; Delete is
+                                                 destructive and the VM gates it
+                                                 with a confirmation dialog wired by
+                                                 the view plus the workflow service
+                                                 permission check. -->
+                                            <MenuItem Header="Duplicate inquiry"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Command="{Binding ElementName=Root, Path=DataContext.DuplicateInquiryRowCommand}"
+                                                      CommandParameter="{Binding}"/>
+                                            <MenuItem Header="Delete inquiry"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Foreground="{DynamicResource DangerBrush}"
+                                                      Command="{Binding ElementName=Root, Path=DataContext.DeleteInquiryRowCommand}"
+                                                      CommandParameter="{Binding}"/>
                                             <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                             <MenuItem Header="Copy inquiry number"
                                                       Style="{DynamicResource ModernMenuItemStyle}"

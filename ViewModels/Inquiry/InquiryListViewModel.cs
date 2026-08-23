@@ -162,6 +162,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public Func<InquiryListRow, Task>? OpenDeliveryNoteForRowRequested { get; set; }
         public Func<InquiryListRow, Task>? OpenTaxInvoiceForRowRequested { get; set; }
         public Func<InquiryListRow, Task>? OpenStatementForRowRequested { get; set; }
+        // Confirms a destructive delete. Returns true to proceed. The
+        // view wires this to a MessageBox so the VM stays UI-free.
+        // The parameter is the row that will be deleted; the message
+        // box should mention the inquiry number for clarity.
+        public Func<InquiryListRow, bool>? ConfirmDeleteInquiryRequested { get; set; }
 
         // ── Commands ───────────────────────────────────────────────────
 
@@ -211,6 +216,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand CopyJobOrderNumberCommand { get; }
         public ICommand CopyDeliveryNoteNumberCommand { get; }
         public ICommand CopyTaxInvoiceNumberCommand { get; }
+        // Destructive / structural row actions. Wired through the
+        // workflow service so they go through the same permission
+        // gate + audit + version-snapshot path as the existing
+        // operations.
+        public ICommand EditInquiryRowCommand { get; }
+        public ICommand DuplicateInquiryRowCommand { get; }
+        public ICommand DeleteInquiryRowCommand { get; }
+        // Change-priority submenu. Each item is a separate command
+        // because the XAML CommandParameter carries the priority
+        // value as a plain string.
+        public ICommand SetUrgentPriorityCommand { get; }
+        public ICommand SetHighPriorityCommand { get; }
+        public ICommand SetNormalPriorityCommand { get; }
+        public ICommand SetLowPriorityCommand { get; }
 
         public InquiryListViewModel() : this(
             App.Inquiries ?? new InquiryRepository(),
@@ -399,8 +418,103 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 p => CopyToClipboard(p, r => r.Lifecycle.LatestTaxInvoiceNumber, "TI"),
                 p => p is InquiryListRow r && r.Lifecycle.HasTaxInvoice);
 
+            // ── Right-click row actions: Edit / Duplicate / Delete ────
+            // Each promotes the row into the selection first so the
+            // rail, KPI strip and double-click handlers stay in sync.
+            EditInquiryRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row)
+                {
+                    SelectedInquiry = row;
+                    await EditRowAsync(row);
+                }
+            }, p => p is InquiryListRow);
+            DuplicateInquiryRowCommand = new RelayCommand(async p =>
+            {
+                if (p is not InquiryListRow row) return;
+                try
+                {
+                    var clone = await _workflow.DuplicateAsync(row.Id);
+                    SetStatus($"Duplicated {row.InquiryNumber} → {clone.InquiryNumber}.");
+                    Reload();
+                }
+                catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
+                catch (Exception ex) { SetStatus("Duplicate failed: " + ExceptionMessages.Deep(ex)); }
+            }, p => p is InquiryListRow);
+            DeleteInquiryRowCommand = new RelayCommand(async p =>
+            {
+                if (p is not InquiryListRow row) return;
+                // The confirmation dialog is wired by the view; default
+                // fallback refuses so a VM constructed without a view
+                // (e.g. a test harness) cannot accidentally delete rows.
+                bool proceed = ConfirmDeleteInquiryRequested?.Invoke(row) ?? false;
+                if (!proceed) return;
+                try
+                {
+                    var result = await _workflow.DeleteAsync(row.Id);
+                    if (result.IsSuccess)
+                    {
+                        SetStatus($"Deleted inquiry {row.InquiryNumber}.");
+                        // Clear selection if the deleted row was the
+                        // currently-selected one; the reload below will
+                        // refresh the register either way.
+                        if (ReferenceEquals(SelectedInquiry, row)) SelectedInquiry = null;
+                        Reload();
+                    }
+                    else if (result.Outcome == DeleteInquiryOutcome.NotFound)
+                    {
+                        SetStatus("This inquiry no longer exists — the register will refresh.");
+                        Reload();
+                    }
+                    else
+                    {
+                        // BlockedByDownstream: surface a precise message
+                        // naming every document that would have been
+                        // orphaned. The user can cancel the inquiry
+                        // (via Change status → Cancel) instead.
+                        string list = result.BlockingDocuments.Count == 0
+                            ? "downstream documents"
+                            : string.Join(", ", result.BlockingDocuments);
+                        SetStatus($"Cannot delete: {row.InquiryNumber} has {list}. " +
+                                  "Cancel the inquiry instead of deleting it.");
+                    }
+                }
+                catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
+                catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
+            }, p => p is InquiryListRow);
+
+            // ── Change-priority submenu ──────────────────────────────
+            // Each command applies a single fixed priority value to
+            // the parameter row. The XAML CommandParameter on each
+            // MenuItem would carry the same string, so we just bake
+            // the value into the command and skip CommandParameter.
+            SetUrgentPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Urgent"),
+                p => p is InquiryListRow);
+            SetHighPriorityCommand = new RelayCommand(p => ApplyPriority(p, "High"),
+                p => p is InquiryListRow);
+            SetNormalPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Normal"),
+                p => p is InquiryListRow);
+            SetLowPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Low"),
+                p => p is InquiryListRow);
+
             AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();
+        }
+
+        private async void ApplyPriority(object? parameter, string priority)
+        {
+            if (parameter is not InquiryListRow row) return;
+            try
+            {
+                bool ok = await _workflow.SetPriorityAsync(row.Id, priority);
+                if (ok)
+                {
+                    SetStatus($"{row.InquiryNumber} priority → {priority}.");
+                    Reload();
+                }
+            }
+            catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
+            catch (Exception ex) { SetStatus("Change priority failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         // ── Right-click helpers ──────────────────────────────────────────
