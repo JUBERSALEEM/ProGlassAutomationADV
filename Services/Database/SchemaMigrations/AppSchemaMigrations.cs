@@ -45,6 +45,10 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         public static IReadOnlyList<SchemaMigration> TaxInvoices { get; }
             = new List<SchemaMigration>();
 
+        // inquiries.db
+        public static IReadOnlyList<SchemaMigration> Inquiries { get; }
+            = new List<SchemaMigration>();
+
         // proformainvoices.db
         public static IReadOnlyList<SchemaMigration> ProformaInvoices { get; }
             = new List<SchemaMigration>();

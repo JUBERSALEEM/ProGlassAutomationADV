@@ -1,6 +1,11 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Inquiry;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Inquiry
@@ -11,6 +16,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     /// </summary>
     public sealed class InquiryListViewModel : ViewModelBase
     {
+        private readonly IInquiryRepository _repository;
+        private CancellationTokenSource? _loadCts;
         public ObservableCollection<InquiryListRow> Inquiries { get; } = new();
         public ObservableCollection<string> DateRanges { get; } = new() { "Today", "Yesterday", "Last 7 Days", "Last 30 Days", "Custom" };
         public ObservableCollection<string> Statuses { get; } = new() { "All statuses", "Received", "In progress", "Sent", "Hold", "Confirmed", "Converted", "Cancelled" };
@@ -36,12 +43,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool IsDetailsDrawerOpen { get => _isDetailsDrawerOpen; private set { _isDetailsDrawerOpen = value; OnPropertyChanged(); } }
         public bool HasSelection => SelectedInquiry != null;
         public string SelectionText => SelectedInquiry == null ? "" : "1 selected";
-        public string PageStatus => Inquiries.Count == 0 ? "No inquiries yet" : $"Showing 1–{Inquiries.Count} of {Inquiries.Count}";
-        public int TotalCount => Inquiries.Count;
-        public int OpenCount => 0;
-        public int ConfirmedCount => 0;
-        public int ConvertedCount => 0;
-        public int CancelledCount => 0;
+        private string _pageStatus = "No inquiries found";
+        public string PageStatus { get => _pageStatus; private set { _pageStatus = value; OnPropertyChanged(); } }
+        private int _totalCount, _receivedCount, _sentCount, _confirmedCount, _holdCount, _cancelledCount;
+        public int TotalCount { get => _totalCount; private set { _totalCount = value; OnPropertyChanged(); } }
+        public int ReceivedCount { get => _receivedCount; private set { _receivedCount = value; OnPropertyChanged(); } }
+        public int SentCount { get => _sentCount; private set { _sentCount = value; OnPropertyChanged(); } }
+        public int ConfirmedCount { get => _confirmedCount; private set { _confirmedCount = value; OnPropertyChanged(); } }
+        public int HoldCount { get => _holdCount; private set { _holdCount = value; OnPropertyChanged(); } }
+        public int CancelledCount { get => _cancelledCount; private set { _cancelledCount = value; OnPropertyChanged(); } }
 
         public string SearchText { get; set; } = "";
         public string SelectedDateRange { get; set; } = "Today";
@@ -62,12 +72,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand BulkChangeStatusCommand { get; }
         public ICommand ExportSelectedCommand { get; }
 
-        public InquiryListViewModel()
+        public InquiryListViewModel() : this(App.Inquiries ?? new InquiryRepository()) { }
+
+        public InquiryListViewModel(IInquiryRepository repository)
         {
-            NewInquiryCommand = new RelayCommand(_ => SetStatus("Inquiry details workflow is not implemented yet."));
-            ExportCommand = new RelayCommand(_ => SetStatus("Nothing to export."));
-            ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
-            RefreshCommand = new RelayCommand(_ => SetStatus("Inquiry list refreshed."));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            NewInquiryCommand = new RelayCommand(_ => SetStatus("Inquiry editor is the next implementation phase."));
+            ExportCommand = new RelayCommand(_ => SetStatus("Export is the next implementation phase."));
+            ResetFiltersCommand = new RelayCommand(_ => { ResetFilters(); Reload(); });
+            RefreshCommand = new RelayCommand(_ => Reload());
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
             OpenWorkspaceCommand = new RelayCommand(_ => SetStatus("Select an Inquiry to open its workspace."));
             ConvertToPiCommand = new RelayCommand(_ => SetStatus("Inquiry conversion is not implemented yet."));
@@ -75,6 +88,51 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             BulkChangeOwnerCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             BulkChangeStatusCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             ExportSelectedCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
+            Reload();
+        }
+
+        private void Reload()
+        {
+            _loadCts?.Cancel(); _loadCts?.Dispose();
+            _loadCts = new CancellationTokenSource();
+            AsyncUtility.SafeFireAndForget(() => LoadAsync(_loadCts.Token), "Inquiry list load");
+        }
+
+        private async Task LoadAsync(CancellationToken ct)
+        {
+            SetStatus("Loading inquiries…");
+            var query = new InquiryQuery
+            {
+                Search = SearchText, Status = SelectedStatus,
+                HasAttachmentsOnly = HasAttachmentsOnly, Page = 1, PageSize = 50
+            };
+            var page = await _repository.QueryAsync(query, ct);
+            var stats = await _repository.GetStatisticsAsync(query, ct);
+            ct.ThrowIfCancellationRequested();
+            Inquiries.Clear();
+            foreach (var x in page.Items)
+            {
+                Inquiries.Add(new InquiryListRow
+                {
+                    Id = x.Id, InquiryNumber = x.InquiryNumber,
+                    InquiryReference = x.InquiryReference, ReceivedAt = x.ReceivedAt,
+                    UpdatedAt = x.UpdatedAt, CustomerName = x.CustomerName,
+                    CustomerLocation = x.CustomerLocation, Project = x.ProjectName,
+                    Subject = x.ProjectDescription, Salesman = x.SalesmanName,
+                    PreparedBy = x.PreparedByName, PreparedByRole = x.PreparedByRole,
+                    Priority = x.Priority, AttachmentCount = x.AttachmentCount,
+                    Status = x.Status, ProformaId = x.ProformaNumber,
+                    DownstreamStatus = string.IsNullOrWhiteSpace(x.JobOrderNumber)
+                        ? "Not released" : x.JobOrderNumber,
+                    UpdatedBy = x.UpdatedBy
+                });
+            }
+            TotalCount = stats.All; ReceivedCount = stats.Received;
+            SentCount = stats.Sent; ConfirmedCount = stats.Confirmed;
+            HoldCount = stats.Hold; CancelledCount = stats.Cancelled;
+            PageStatus = page.TotalCount == 0 ? "No inquiries found"
+                : $"Showing {(page.Page - 1) * page.PageSize + 1}–{Math.Min(page.TotalCount, page.Page * page.PageSize)} of {page.TotalCount}";
+            SetStatus(PageStatus);
         }
 
         private string _statusText = "Inquiry list ready.";
@@ -93,13 +151,19 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
     public sealed class InquiryListRow
     {
+        public int Id { get; set; }
         public bool IsSelected { get; set; }
         public string InquiryNumber { get; set; } = "";
-        public DateTime ReceivedAt { get; set; }
+        public string InquiryReference { get; set; } = "";
+        public DateTimeOffset ReceivedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
         public string CustomerName { get; set; } = "";
+        public string CustomerLocation { get; set; } = "";
         public string Subject { get; set; } = "";
         public string Project { get; set; } = "";
         public string Salesman { get; set; } = "";
+        public string PreparedBy { get; set; } = "";
+        public string PreparedByRole { get; set; } = "";
         public string Priority { get; set; } = "Normal";
         public int AttachmentCount { get; set; }
         public string Status { get; set; } = "Received";

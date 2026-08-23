@@ -41,6 +41,7 @@ using ProGlassAutomation.Services.Performance;
 using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
@@ -95,6 +96,7 @@ namespace ProGlassAutomation
         public static ITextToSpeechService TextToSpeech { get; private set; }
 
         public static ISpecificationsRepository Specs { get; private set; }
+        public static IInquiryRepository Inquiries { get; private set; }
         public static IProformaInvoiceRepository Invoices { get; private set; }
         public static IJobOrderRepository Jobs { get; private set; }
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
@@ -422,6 +424,7 @@ namespace ProGlassAutomation
             {
                 ServiceProvider = Services.DependencyInjection.ServiceRegistration.BuildProGlassProvider();
                 Specs = ServiceProvider.GetRequiredService<ISpecificationsRepository>();
+                Inquiries = ServiceProvider.GetRequiredService<IInquiryRepository>();
                 Invoices = ServiceProvider.GetRequiredService<IProformaInvoiceRepository>();
                 Jobs = ServiceProvider.GetRequiredService<IJobOrderRepository>();
                 DeliveryNotes = ServiceProvider.GetRequiredService<IDeliveryNoteRepository>();
@@ -437,6 +440,7 @@ namespace ProGlassAutomation
                 AppLogService.Warning($"DI container build failed: {ex.Message}");
                 // Fallback to manual construction (never break startup)
                 Specs = new SpecificationsRepository();
+                Inquiries = new InquiryRepository();
                 Invoices = new ProformaInvoiceRepository();
                 Jobs = new JobOrderRepository();
                 DeliveryNotes = new DeliveryNoteRepository();
@@ -450,6 +454,7 @@ namespace ProGlassAutomation
 
             await Task.WhenAll(
                 Specs.InitializeAsync(),
+                Inquiries.InitializeAsync(),
                 Invoices.InitializeAsync(),
                 Jobs.InitializeAsync(),
                 DeliveryNotes.InitializeAsync(),

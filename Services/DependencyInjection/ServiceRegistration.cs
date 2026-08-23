@@ -32,6 +32,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
@@ -73,6 +74,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // ── Repositories (each owns its own SQLite file) ──────────
             // Singleton — one per app lifetime, owns DB file + connection pool
+            services.AddSingleton<IInquiryRepository, InquiryRepository>();
             services.AddSingleton<IProformaInvoiceRepository, ProformaInvoiceRepository>();
             services.AddSingleton<IJobOrderRepository, JobOrderRepository>();
             services.AddSingleton<IDeliveryNoteRepository, DeliveryNoteRepository>();
