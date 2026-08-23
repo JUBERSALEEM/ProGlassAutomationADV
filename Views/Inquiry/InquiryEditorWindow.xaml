@@ -63,7 +63,7 @@
                 <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
                 <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="CornerRadius" Value="{StaticResource InqRadiusSurface}"/>
+                <Setter Property="CornerRadius" Value="16"/>
                 <Setter Property="Padding" Value="16,13"/>
                 <Setter Property="Margin" Value="0,0,0,12"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -89,7 +89,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="40" Height="40" CornerRadius="{StaticResource InqRadiusControl}"
+                    <Border Width="40" Height="40" CornerRadius="10"
                             Background="{DynamicResource AccentBrush}">
                         <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -438,7 +438,7 @@
                             <ItemsControl ItemsSource="{Binding AttachmentItems}" Margin="0,6,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="{StaticResource InqRadiusControl}"
+                                        <Border CornerRadius="10"
                                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                                 Padding="10,8" Margin="0,0,0,7">

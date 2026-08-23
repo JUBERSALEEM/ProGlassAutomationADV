@@ -57,7 +57,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="42" Height="42" CornerRadius="{StaticResource InqRadiusControl}"
+                    <Border Width="42" Height="42" CornerRadius="10"
                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
                         <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -67,7 +67,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Inquiries" Style="{StaticResource InqDisplayStyle}"/>
                             <Border Margin="9,1,0,0" Padding="8,2.5" VerticalAlignment="Center"
-                                    CornerRadius="{StaticResource InqRadiusPill}"
+                                    CornerRadius="999"
                                     Background="{DynamicResource TintBlueBrush}">
                                 <TextBlock FontSize="10.5" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -83,7 +83,7 @@
 
                 <!-- Inline search in the deck -->
                 <Grid Grid.Column="1" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border CornerRadius="{StaticResource InqRadiusControl}"
+                    <Border CornerRadius="10"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1" Height="36">
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13"
@@ -260,7 +260,7 @@
                                   ToolTip="Only show inquiries with attachments">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="ToggleButton">
-                                <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusPill}"
+                                <Border x:Name="Bg" CornerRadius="999"
                                         Background="Transparent"
                                         BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1"
                                         Padding="11,6">
@@ -325,7 +325,7 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border x:Name="Card" CornerRadius="{StaticResource InqRadiusControl}"
+                            <Border x:Name="Card" CornerRadius="10"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                     Padding="12,10" Cursor="Hand" MinHeight="62"
@@ -468,7 +468,7 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <Border Width="62" Height="62" CornerRadius="{StaticResource InqRadiusSurface}"
+                        <Border Width="62" Height="62" CornerRadius="16"
                                 Background="{DynamicResource TintBlueBrush}" HorizontalAlignment="Center">
                             <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="26"
                                        Foreground="{DynamicResource AccentBrush}"
@@ -494,7 +494,7 @@
                     </StackPanel>
 
                     <Border MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"
-                            Padding="18,14" CornerRadius="{StaticResource InqRadiusControl}"
+                            Padding="18,14" CornerRadius="10"
                             Background="{DynamicResource TintRedBrush}"
                             BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                             Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}">
@@ -683,7 +683,7 @@
                                 <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border CornerRadius="{StaticResource InqRadiusControl}"
+                                            <Border CornerRadius="10"
                                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                                     Padding="10,8" Margin="0,0,0,7">
