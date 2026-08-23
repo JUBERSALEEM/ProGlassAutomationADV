@@ -18,6 +18,7 @@ namespace ProGlassAutomation.Services.Inquiry
         public DateTimeOffset? From { get; init; }
         public DateTimeOffset? ToExclusive { get; init; }
         public bool HasAttachmentsOnly { get; init; }
+        public string Priority { get; init; } = "";
         public string Sort { get; init; } = "Updated newest";
         public int Page { get; init; } = 1;
         public int PageSize { get; init; } = 50;
@@ -64,7 +65,12 @@ namespace ProGlassAutomation.Services.Inquiry
         Task<PagedResult<InquiryListProjection>> QueryAsync(InquiryQuery query, CancellationToken ct = default);
         Task<InquiryStatistics> GetStatisticsAsync(InquiryQuery query, CancellationToken ct = default);
         Task<InquiryRecord?> GetDetailAsync(int id, CancellationToken ct = default);
+        Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default);
+        Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default);
+        Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default);
         Task<IReadOnlyList<InquiryAttachment>> GetAttachmentsAsync(int inquiryId, CancellationToken ct = default);
+        Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default);
+        Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default);
         Task<IReadOnlyList<InquiryCommunication>> GetCommunicationsAsync(int inquiryId, CancellationToken ct = default);
     }
 }

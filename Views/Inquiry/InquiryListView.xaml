@@ -50,7 +50,7 @@
     <ComboBox Width="135" Margin="10,0,0,0" ItemsSource="{Binding PreparedByUsers}" SelectedItem="{Binding SelectedPreparedBy}" ToolTip="Prepared By"/>
     <CheckBox Content="Attachments" IsChecked="{Binding HasAttachmentsOnly}" VerticalAlignment="Center" Margin="14,0"/>
     <ComboBox Width="135" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" ToolTip="Sort"/>
-    <Button Content="MORE FILTERS" Margin="10,0,0,0" ToolTip="Status and priority are available from statistics and advanced filtering"/>
+    <Grid Margin="10,0,0,0"><Button x:Name="MoreFiltersButton" Content="MORE FILTERS" Command="{Binding ToggleMoreFiltersCommand}"/><Popup IsOpen="{Binding IsMoreFiltersOpen}" PlacementTarget="{Binding ElementName=MoreFiltersButton}" Placement="Bottom" StaysOpen="False"><Border Background="White" BorderBrush="#C7D1DD" BorderThickness="1" Padding="12" Width="210"><StackPanel><TextBlock Text="STATUS" FontSize="10" FontWeight="Bold"/><ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" Margin="0,4,0,10"/><TextBlock Text="PRIORITY" FontSize="10" FontWeight="Bold"/><ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding SelectedPriority}" Margin="0,4,0,0"/></StackPanel></Border></Popup></Grid>
     <Button Content="RESET" Command="{Binding ResetFiltersCommand}" Margin="8,0,0,0"/>
     <Button Content="↻  REFRESH" Command="{Binding RefreshCommand}" Style="{StaticResource BlueButton}" Margin="8,0,0,0"/>
    </StackPanel>
@@ -77,7 +77,7 @@
    </Grid>
   </Border>
 
-  <DockPanel Grid.Row="4" Margin="24,0"><TextBlock Text="{Binding PageStatus, FallbackValue=Showing 1–50 of 128}" Foreground="#667085" VerticalAlignment="Center"/><TextBlock DockPanel.Dock="Right" Text="Select a row to open quick details" Foreground="#98A2B3" VerticalAlignment="Center"/></DockPanel>
+  <DockPanel Grid.Row="4" Margin="24,0"><TextBlock Text="{Binding PageStatus}" Foreground="#667085" VerticalAlignment="Center"/><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="PREVIOUS" Command="{Binding PreviousPageCommand}" Height="30" Padding="10,3"/><TextBlock VerticalAlignment="Center" Margin="10,0"><Run Text="Page "/><Run Text="{Binding CurrentPage}"/><Run Text=" of "/><Run Text="{Binding TotalPages}"/></TextBlock><Button Content="NEXT" Command="{Binding NextPageCommand}" Height="30" Padding="10,3"/></StackPanel></DockPanel>
 
   <!-- Drawer overlays KPI/filter/table exactly like approved image -->
   <Border Grid.Row="1" Grid.RowSpan="4" Width="410" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,-16,8,8" Background="#FFFFFF" BorderBrush="#D6DEE7" BorderThickness="1" CornerRadius="8" Panel.ZIndex="20" Visibility="{Binding IsDetailsDrawerOpen, Converter={StaticResource BoolToVisibilityConverter}}">

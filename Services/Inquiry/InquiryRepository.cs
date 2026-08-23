@@ -84,11 +84,91 @@ namespace ProGlassAutomation.Services.Inquiry
             return await db.Inquiries.AsNoTracking().SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
         }
 
+        public async Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+        {
+            if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
+            await using var db = new InquiryDbContext();
+            if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber))
+            {
+                string prefix = $"INQ-{DateTime.Now:yyyy}-";
+                var ids = await db.Inquiries.AsNoTracking()
+                    .Where(x => x.InquiryNumber.StartsWith(prefix))
+                    .Select(x => x.InquiryNumber).ToListAsync(ct).ConfigureAwait(false);
+                int next = ids.Select(x => int.TryParse(x.Substring(prefix.Length), out int n) ? n : 0)
+                    .DefaultIfEmpty().Max() + 1;
+                inquiry.InquiryNumber = prefix + next.ToString("D4");
+            }
+            var now = DateTimeOffset.Now;
+            inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
+            inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
+            if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
+            db.Inquiries.Add(inquiry);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            return inquiry;
+        }
+
+        public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
+        {
+            if (inquiry == null || inquiry.Id <= 0) throw new ArgumentException("A saved Inquiry is required.", nameof(inquiry));
+            await using var db = new InquiryDbContext();
+            var stored = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == inquiry.Id, ct).ConfigureAwait(false)
+                ?? throw new InvalidOperationException("Inquiry no longer exists.");
+            stored.InquiryReference = inquiry.InquiryReference;
+            stored.CustomerId = inquiry.CustomerId; stored.CustomerName = inquiry.CustomerName;
+            stored.CustomerLocation = inquiry.CustomerLocation; stored.ProjectId = inquiry.ProjectId;
+            stored.ProjectName = inquiry.ProjectName; stored.ProjectDescription = inquiry.ProjectDescription;
+            stored.SalesmanId = inquiry.SalesmanId; stored.SalesmanName = inquiry.SalesmanName;
+            stored.PreparedByUserId = inquiry.PreparedByUserId; stored.PreparedByName = inquiry.PreparedByName;
+            stored.PreparedByRole = inquiry.PreparedByRole; stored.Priority = inquiry.Priority;
+            stored.InquiryValue = inquiry.InquiryValue; stored.Notes = inquiry.Notes;
+            stored.UpdatedAt = DateTimeOffset.Now; stored.UpdatedBy = inquiry.UpdatedBy;
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            return stored;
+        }
+
+        public async Task<bool> ChangeStatusAsync(int id, string status, string actor, CancellationToken ct = default)
+        {
+            await using var db = new InquiryDbContext();
+            var row = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+            if (row == null) return false;
+            string next = InquiryStatuses.Normalize(status);
+            row.Status = next; row.UpdatedAt = DateTimeOffset.Now; row.UpdatedBy = actor ?? "";
+            if (next == InquiryStatuses.Prepared) row.PreparedAt ??= row.UpdatedAt;
+            if (next == InquiryStatuses.Sent) row.SentAt ??= row.UpdatedAt;
+            if (next == InquiryStatuses.Confirmed) row.ConfirmedAt ??= row.UpdatedAt;
+            db.Communications.Add(new InquiryCommunication
+            {
+                InquiryId = id, EventType = next, Title = $"Inquiry {next}",
+                Description = $"Status changed to {next}.", OccurredAt = row.UpdatedAt,
+                ActorName = actor ?? ""
+            });
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            return true;
+        }
+
         public async Task<IReadOnlyList<InquiryAttachment>> GetAttachmentsAsync(int inquiryId, CancellationToken ct = default)
         {
             await using var db = new InquiryDbContext();
             return await db.Attachments.AsNoTracking().Where(x => x.InquiryId == inquiryId)
                 .OrderByDescending(x => x.UploadedAt).ToListAsync(ct).ConfigureAwait(false);
+        }
+
+        public async Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default)
+        {
+            await using var db = new InquiryDbContext();
+            db.Attachments.Add(attachment);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            return attachment;
+        }
+
+        public async Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default)
+        {
+            await using var db = new InquiryDbContext();
+            var row = await db.Attachments.SingleOrDefaultAsync(x => x.Id == attachmentId, ct).ConfigureAwait(false);
+            if (row == null) return false;
+            db.Attachments.Remove(row);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            return true;
         }
 
         public async Task<IReadOnlyList<InquiryCommunication>> GetCommunicationsAsync(int inquiryId, CancellationToken ct = default)
@@ -120,6 +200,9 @@ namespace ProGlassAutomation.Services.Inquiry
             if (query.From.HasValue) source = source.Where(x => x.ReceivedAt >= query.From.Value);
             if (query.ToExclusive.HasValue) source = source.Where(x => x.ReceivedAt < query.ToExclusive.Value);
             if (query.HasAttachmentsOnly) source = source.Where(x => x.Attachments.Any());
+            if (!string.IsNullOrWhiteSpace(query.Priority)
+                && !query.Priority.StartsWith("All", StringComparison.OrdinalIgnoreCase))
+                source = source.Where(x => x.Priority == query.Priority);
             return source;
         }
     }

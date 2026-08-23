@@ -46,6 +46,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             }
         }
 
+        private bool _isMoreFiltersOpen;
+        public bool IsMoreFiltersOpen { get => _isMoreFiltersOpen; set { _isMoreFiltersOpen = value; OnPropertyChanged(); } }
         private bool _isDetailsDrawerOpen;
         public bool IsDetailsDrawerOpen { get => _isDetailsDrawerOpen; private set { _isDetailsDrawerOpen = value; OnPropertyChanged(); } }
         public bool HasSelection => SelectedInquiry != null;
@@ -65,25 +67,28 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         private string _searchText = "";
         public string SearchText { get => _searchText; set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); DebounceReload(); } }
         private string _selectedDateRange = "Today";
-        public string SelectedDateRange { get => _selectedDateRange; set { if (_selectedDateRange == value) return; _selectedDateRange = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedDateRange { get => _selectedDateRange; set { if (_selectedDateRange == value) return; _selectedDateRange = value; OnPropertyChanged(); ResetAndReload(); } }
         private string _selectedStatus = "All statuses";
-        public string SelectedStatus { get => _selectedStatus; set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedStatus { get => _selectedStatus; set { if (_selectedStatus == value) return; _selectedStatus = value; OnPropertyChanged(); ResetAndReload(); } }
         private string _selectedSalesman = "All salesmen";
-        public string SelectedSalesman { get => _selectedSalesman; set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedSalesman { get => _selectedSalesman; set { if (_selectedSalesman == value) return; _selectedSalesman = value; OnPropertyChanged(); ResetAndReload(); } }
         private string _selectedPreparedBy = "All prepared by";
-        public string SelectedPreparedBy { get => _selectedPreparedBy; set { if (_selectedPreparedBy == value) return; _selectedPreparedBy = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedPreparedBy { get => _selectedPreparedBy; set { if (_selectedPreparedBy == value) return; _selectedPreparedBy = value; OnPropertyChanged(); ResetAndReload(); } }
         private string _selectedPriority = "All priorities";
-        public string SelectedPriority { get => _selectedPriority; set { if (_selectedPriority == value) return; _selectedPriority = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedPriority { get => _selectedPriority; set { if (_selectedPriority == value) return; _selectedPriority = value; OnPropertyChanged(); ResetAndReload(); } }
         private string _selectedSort = "Updated newest";
-        public string SelectedSort { get => _selectedSort; set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); Reload(); } }
+        public string SelectedSort { get => _selectedSort; set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); ResetAndReload(); } }
         private bool _hasAttachmentsOnly;
-        public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); Reload(); } }
+        public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); ResetAndReload(); } }
 
         public ICommand NewInquiryCommand { get; }
         public ICommand FilterByStatisticCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand ResetFiltersCommand { get; }
         public ICommand RefreshCommand { get; }
+        public ICommand ToggleMoreFiltersCommand { get; }
+        public ICommand PreviousPageCommand { get; }
+        public ICommand NextPageCommand { get; }
         public ICommand CloseDetailsCommand { get; }
         public ICommand OpenWorkspaceCommand { get; }
         public ICommand ConvertToPiCommand { get; }
@@ -104,8 +109,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 SelectedStatus = p as string ?? "All statuses";
             });
             ExportCommand = new RelayCommand(_ => SetStatus("Export is the next implementation phase."));
-            ResetFiltersCommand = new RelayCommand(_ => { ResetFilters(); Reload(); });
+            ResetFiltersCommand = new RelayCommand(_ => { ResetFilters(); ResetAndReload(); });
             RefreshCommand = new RelayCommand(_ => Reload());
+            ToggleMoreFiltersCommand = new RelayCommand(_ => IsMoreFiltersOpen = !IsMoreFiltersOpen);
+            PreviousPageCommand = new RelayCommand(_ => { if (CanGoPrevious) { CurrentPage--; Reload(); } }, _ => CanGoPrevious);
+            NextPageCommand = new RelayCommand(_ => { if (CanGoNext) { CurrentPage++; Reload(); } }, _ => CanGoNext);
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
             OpenWorkspaceCommand = new RelayCommand(_ => SetStatus("Select an Inquiry to open its workspace."));
             ConvertToPiCommand = new RelayCommand(_ => SetStatus("Inquiry conversion is not implemented yet."));
@@ -150,8 +158,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 await Task.Delay(300, token);
                 token.ThrowIfCancellationRequested();
-                Reload();
+                ResetAndReload();
             }, "Inquiry search debounce");
+        }
+
+        private void ResetAndReload()
+        {
+            CurrentPage = 1;
+            Reload();
         }
 
         private void Reload()
@@ -170,8 +184,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 Search = SearchText, Status = SelectedStatus,
                 SalesmanName = SelectedSalesman, PreparedByName = SelectedPreparedBy,
                 From = range.From, ToExclusive = range.ToExclusive,
-                HasAttachmentsOnly = HasAttachmentsOnly, Sort = SelectedSort,
-                Page = 1, PageSize = 50
+                HasAttachmentsOnly = HasAttachmentsOnly, Priority = SelectedPriority,
+                Sort = SelectedSort, Page = CurrentPage, PageSize = 50
             };
             var page = await _repository.QueryAsync(query, ct);
             var stats = await _repository.GetStatisticsAsync(query, ct);
@@ -198,6 +212,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             TotalCount = stats.All; ReceivedCount = stats.Received;
             SentCount = stats.Sent; ConfirmedCount = stats.Confirmed;
             HoldCount = stats.Hold; CancelledCount = stats.Cancelled;
+            TotalPages = page.TotalCount == 0 ? 0 : (int)Math.Ceiling(page.TotalCount / (double)page.PageSize);
             PageStatus = page.TotalCount == 0 ? "No inquiries found"
                 : $"Showing {(page.Page - 1) * page.PageSize + 1}–{Math.Min(page.TotalCount, page.Page * page.PageSize)} of {page.TotalCount}";
             SetStatus(PageStatus);
@@ -235,6 +250,13 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 _ => (null, null)
             };
         }
+
+        private int _currentPage = 1;
+        public int CurrentPage { get => _currentPage; private set { _currentPage = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanGoPrevious)); OnPropertyChanged(nameof(CanGoNext)); System.Windows.Input.CommandManager.InvalidateRequerySuggested(); } }
+        private int _totalPages;
+        public int TotalPages { get => _totalPages; private set { _totalPages = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanGoNext)); System.Windows.Input.CommandManager.InvalidateRequerySuggested(); } }
+        public bool CanGoPrevious => CurrentPage > 1;
+        public bool CanGoNext => CurrentPage < TotalPages;
 
         private string _statusText = "Inquiry list ready.";
         public string StatusText { get => _statusText; private set { _statusText = value; OnPropertyChanged(); } }
