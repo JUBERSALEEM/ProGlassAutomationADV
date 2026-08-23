@@ -93,6 +93,84 @@ namespace ProGlassAutomation.Utilities
         }
 
         /// <summary>
+        /// Safe fire-and-forget that flips an in-memory circuit-breaker on
+        /// the FIRST failure. The caller passes a stateful callback
+        /// (e.g. <c>() =&gt; _mirrorEnabled = false</c>) that runs once
+        /// when the awaited work throws. Subsequent calls still log
+        /// failures but skip the breaker callback after the first hit,
+        /// so a long-lived session does not flood the log if the
+        /// underlying defect is permanent.
+        ///
+        /// This is the third behaviour tier:
+        ///   1. <see cref="SafeFireAndForget"/>  — log only.
+        ///   2. <see cref="SafeFireAndForgetResult{T}"/>  — log + UI dialog.
+        ///   3. <see cref="TryAsyncFireAndForget"/>  — log + caller state.
+        ///
+        /// <paramref name="onFailure"/> is invoked on whatever thread the
+        /// exception surfaces on (typically the captured SynchronizationContext,
+        /// i.e. the UI thread for WPF work). The callback should be cheap and
+        /// idempotent — a guarded set-flag is the canonical use case.
+        /// </summary>
+        /// <param name="work">The async work to run. Must not be null.</param>
+        /// <param name="logMessage">
+        /// Human-readable label written to the log on failure. The exception
+        /// is also recorded with full stack trace.
+        /// </param>
+        /// <param name="onFailure">
+        /// Caller-owned callback invoked on the first exception. The
+        /// implementation is expected to flip a private flag (e.g.
+        /// <c>_mirrorEnabled = false</c>) so subsequent calls become
+        /// no-ops in the same session.
+        /// </param>
+        /// <param name="correlationId">
+        /// Optional correlation id for cross-module tracing. Auto-generated
+        /// when null.
+        /// </param>
+        public static async void TryAsyncFireAndForget(
+            Func<Task> work,
+            string? logMessage,
+            Action onFailure,
+            string? correlationId = null)
+        {
+            var corrId = correlationId ?? CorrelationContext.CurrentId ?? CorrelationContext.NewId();
+            using var scope = CorrelationContext.BeginScope(corrId);
+
+            try
+            {
+                if (work == null) return;
+                await work().ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                var ctx = new LogContext
+                {
+                    Operation = "TryAsyncFireAndForget",
+                    CorrelationId = corrId,
+                    Extra = logMessage ?? ""
+                };
+                AppLogService.Error(logMessage ?? "TryAsyncFireAndForget failed", ex, ctx);
+
+                // Caller state is the caller's problem. Run it on the
+                // same thread that observed the exception so a field
+                // write to a UI-bound object does not race with the
+                // dispatcher.
+                try { onFailure?.Invoke(); }
+                catch (Exception cbEx)
+                {
+                    // A throwing breaker callback is a programmer error,
+                    // but it must never mask the original exception.
+                    AppLogService.Warning(
+                        $"onFailure callback threw: {cbEx.Message}",
+                        new LogContext
+                        {
+                            Operation = "TryAsyncFireAndForget.OnFailure",
+                            CorrelationId = corrId
+                        });
+                }
+            }
+        }
+
+        /// <summary>
         /// Safe fire-and-forget for non-generic Result.
         /// </summary>
         public static async void SafeFireAndForgetResult(
