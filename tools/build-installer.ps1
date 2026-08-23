@@ -24,12 +24,16 @@
 #       artefact, so the operator can sanity-check before attaching
 #       to a GitHub Release.
 #
-# Usage (from the repo root, PowerShell 7+):
+# Usage (from the repo root, Windows PowerShell 5.1 OR PowerShell 7+):
 #
-#     pwsh ./tools/build-installer.ps1
-#     pwsh ./tools/build-installer.ps1 -Version 2.0.1
-#     pwsh ./tools/build-installer.ps1 -SkipTests       # for hot iteration
-#     pwsh ./tools/build-installer.ps1 -PackId ProGlassAutomation
+#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1
+#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -Version 2.0.1
+#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -SkipTests
+#     powershell -ExecutionPolicy Bypass -File .\tools\build-installer.ps1 -PackId ProGlassAutomation
+#
+# (Use `pwsh` instead of `powershell` if PowerShell 7+ is installed; the
+#  script is compatible with both — the only difference is the
+#  ExecutionPolicy flag, which is a Windows-PowerShell-5.1-only quirk.)
 #
 # Exit codes:
 #   0  success
@@ -138,7 +142,7 @@ Compress-Archive -Path (Join-Path $PublishDir "*") -DestinationPath $zipPath -Co
 # ── 7. Summary ────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Green
-Write-Host " Build complete. Artefacts in $ReleasesDir:" -ForegroundColor Green
+Write-Host (" Build complete. Artefacts in {0}:" -f $ReleasesDir) -ForegroundColor Green
 Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Green
 Get-ChildItem $ReleasesDir | ForEach-Object {
     $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash
