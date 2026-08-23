@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/Sections/AboutOverviewSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: About → "About" tab (overview + principles + compliance +
@@ -10,6 +10,7 @@
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutOverviewSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:aboutSections="clr-namespace:ProGlassAutomation.Views.About.Sections"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -25,6 +26,17 @@
     </UserControl.Resources>
 
     <StackPanel>
+
+        <!--
+          ═══ LICENSE (Phase 3 — slice 5b) ═══
+          A self-contained card whose DataContext is the
+          LicenseStatusViewModel singleton. Shows the
+          current licence status, edition, customer,
+          expiry, days remaining, features, and both the
+          licence-bound fingerprint and the current
+          machine's fingerprint (with a copy button).
+        -->
+        <aboutSections:AboutLicenseCard/>
 
         <!-- ═══ ABOUT ═══ -->
         <Border Style="{StaticResource AboutCardStyle}">

@@ -1,0 +1,193 @@
+<!--
+  AboutLicenseCard — a self-contained UserControl that shows
+  the current license status for the About page and the
+  Settings → Data → Database Health card. Its DataContext
+  is set to LicenseStatusViewModel.Instance, so it picks up
+  live updates whenever the license changes.
+
+  Visibility logic:
+    • When the licence is valid OR trial → show full
+      detail (edition, customer, fingerprint, etc.).
+    • When the licence is not runnable (NotActivated,
+      Expired, Invalid, MachineMismatch, ActivationLimit)
+      → show only the status badge + description. The
+      user can reactivate from the welcome view or the
+      Settings → Data → Database Health card.
+-->
+<UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutLicenseCard"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../AboutStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Border Style="{StaticResource AboutCardStyle}">
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="License"
+                               Style="{StaticResource SectionTitleStyle}"/>
+                    <TextBlock Text="How this ProGlass Automation build is licensed"
+                               Style="{StaticResource SectionSubtitleStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="1"
+                        VerticalAlignment="Top"
+                        Padding="10,5"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
+                        Background="#26FFFFFF"
+                        BorderBrush="#66BFDBFE"
+                        BorderThickness="1"
+                        SnapsToDevicePixels="True">
+                    <TextBlock Text="{Binding StatusBadge}"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{StaticResource GlassAccent}"/>
+                </Border>
+            </Grid>
+
+            <TextBlock Text="{Binding StatusDescription}"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       Margin="0,12,0,16"
+                       Foreground="{StaticResource GlassFrost}"/>
+
+            <!--
+              Full detail block — visible only when the
+              user has a runnable licence. BooleanToVisibilityConverter
+              is a built-in WPF converter registered by the
+              PresentationFramework assembly, so no custom
+              converter is required.
+            -->
+            <Grid Visibility="{Binding CanRunFullUi,
+                              Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Edition"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding EditionDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Days remaining"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="{Binding DaysRemainingDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CustomerDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="2" Text="Issued"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="1" Grid.Column="3" Text="{Binding IssuedDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Company"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding CompanyDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="2" Text="Expires"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="{Binding ExpiresDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"/>
+
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="License id"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3"
+                           Text="{Binding LicenseIdDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"
+                           FontFamily="Consolas, Cascadia Mono, Courier New"
+                           FontSize="11"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="Features"
+                           Style="{StaticResource LicenseFieldLabelStyle}"/>
+                <TextBlock Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3"
+                           Text="{Binding FeaturesDisplay}"
+                           Style="{StaticResource LicenseFieldValueStyle}"
+                           FontSize="11"
+                           TextWrapping="Wrap"/>
+            </Grid>
+
+            <!--
+              Machine fingerprint block — always visible.
+              Shows both the licence-side fingerprint
+              (which machine the licence is bound to, or
+              "portable") and the current machine's
+              fingerprint so the customer can copy the
+              current one to send to the vendor for
+              machine-binding.
+            -->
+            <Grid Margin="0,18,0,0"
+                  Visibility="{Binding CanRunFullUi,
+                                Converter={StaticResource BoolToVis}}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Licensed to"
+                           Style="{StaticResource LicenseFieldLabelStyle}"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="1"
+                           Text="{Binding MachineFingerprint}"
+                           FontFamily="Consolas, Cascadia Mono, Courier New"
+                           FontSize="11"
+                           Foreground="{StaticResource GlassSnow}"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="This machine"
+                           Style="{StaticResource LicenseFieldLabelStyle}"
+                           VerticalAlignment="Center"
+                           Margin="0,6,0,0"/>
+                <TextBlock Grid.Row="1" Grid.Column="1"
+                           Text="{Binding CurrentFingerprint}"
+                           FontFamily="Consolas, Cascadia Mono, Courier New"
+                           FontSize="11"
+                           Foreground="{StaticResource GlassSnow}"
+                           VerticalAlignment="Center"
+                           TextTrimming="CharacterEllipsis"
+                           Margin="0,6,0,0"/>
+
+                <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+                        Style="{StaticResource AboutPillButtonStyle}"
+                        Click="CopyFingerprintButton_Click"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center"
+                        Content="COPY"/>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

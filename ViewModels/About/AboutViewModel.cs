@@ -45,6 +45,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels.Licensing;
 
 namespace ProGlassAutomation.ViewModels.About;
 
@@ -90,6 +91,17 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public string Version { get; } =
         "v" + Services.Updates.AppInfo.Version;
+
+    /// <summary>
+    /// The current license status as a bindable view
+    /// model. Singleton — the same instance is shared
+    /// with the Settings → Data → Database Health card
+    /// and any future license surface. Bound by the
+    /// hero-card "Edition" badge and the License section
+    /// in the About tab.
+    /// </summary>
+    public LicenseStatusViewModel LicenseStatus =>
+        LicenseStatusViewModel.Instance;
 
     /// <summary>
     /// v3 OTA §25 — build label derived from the build artifact date.

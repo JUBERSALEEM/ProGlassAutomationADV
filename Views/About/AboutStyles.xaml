@@ -326,4 +326,73 @@
         </Border>
     </DataTemplate>
 
+    <!--
+      ═══════════════════════════════════════════════════════
+      LICENSE CARD STYLES (Phase 3 — AboutLicenseCard.xaml)
+
+      FieldLabelStyle + FieldValueStyle would have
+      collided with every other section that defines
+      its own FieldLabelStyle with a different font /
+      margin. We use License-prefixed names so the
+      About license card is self-contained.
+      ═══════════════════════════════════════════════════════
+    -->
+    <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="FontWeight"   Value="Bold"/>
+        <Setter Property="Foreground"   Value="{StaticResource GlassCerulean}"/>
+        <Setter Property="Margin"       Value="0,0,0,4"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"     Value="12"/>
+        <Setter Property="Foreground"   Value="{StaticResource GlassSnow}"/>
+        <Setter Property="Margin"       Value="0,0,12,4"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!--
+      Pill button used on the license card for the
+      "COPY" action and any future call-to-action
+      chips. Flat, semi-transparent, accent-coloured
+      border, hand cursor, hover-lighten.
+    -->
+    <Style x:Key="AboutPillButtonStyle" TargetType="Button">
+        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="FontWeight"   Value="Bold"/>
+        <Setter Property="Foreground"   Value="{StaticResource GlassAccent}"/>
+        <Setter Property="Background"   Value="Transparent"/>
+        <Setter Property="BorderBrush"   Value="#66BFDBFE"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding"      Value="12,4"/>
+        <Setter Property="Cursor"       Value="Hand"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="11"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="#14FFFFFF"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="#26FFFFFF"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

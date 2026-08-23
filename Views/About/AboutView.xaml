@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
      MODULE: About — tabbed glass shell (v6)
@@ -184,9 +184,22 @@
                                                Foreground="{StaticResource GlassAccent}"
                                                IsHitTestVisible="False"/>
                                 </Border>
+                                <!--
+                                  Edition badge — bound to the
+                                  live LicenseStatusViewModel.
+                                  The badge shows the current
+                                  edition (Trial / Business /
+                                  etc.) and a status hint when
+                                  the licence is in grace
+                                  period or expiring soon.
+                                  The full detail (customer,
+                                  expiry, fingerprint) lives in
+                                  the License card in the About
+                                  section below.
+                                -->
                                 <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
                                         HorizontalAlignment="Right">
-                                    <TextBlock Text="Enterprise Edition"
+                                    <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
                                                FontSize="12" FontWeight="Bold"
                                                Foreground="{StaticResource GlassAccent}"
                                                IsHitTestVisible="False"/>
