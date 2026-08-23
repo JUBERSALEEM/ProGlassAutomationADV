@@ -11,6 +11,13 @@ Five short documents for end users, in the order they are most likely to be need
 | 5 | [UPDATE.md](UPDATE.md) | How OTA updates work, what they contain, schema migrations, offline behaviour. |
 | 6 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | The diagnostic checklist; reading the error ID, the crash report, the technical log; the common-problems section. |
 
+## Operator / developer docs
+
+| # | Document | When to read |
+|---|----------|--------------|
+| O1 | [CI.md](CI.md) | The build-and-test pipeline (`docs/ci/build-test.yml`), how to activate it on `.github/workflows/`, what it does. |
+| O2 | [INSTALLER.md](INSTALLER.md) | The local + CI installer pipeline: Velopack manifest, publish profile, build script, release workflow, Authenticode signing. |
+
 ## Where to find more
 
 - **In the app** — **About → License**, **About → Recent crash reports**, **Settings → Data → Database Health**, **Logs & Activity**.
