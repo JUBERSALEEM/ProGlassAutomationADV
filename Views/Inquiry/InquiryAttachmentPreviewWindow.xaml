@@ -1,14 +1,10 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Inquiry/InquiryAttachmentPreviewWindow.xaml
-     MODULE: Inquiry attachment preview — 2026 rebuild
+     MODULE: Inquiry attachment preview — "Lumen" redesign
 
-     A1 fix: images decode with BitmapCacheOption.OnLoad + Freeze() so the
-             source file is never locked (deleting the attachment no longer
-             leaves orphan files behind).
-     A2 fix: the WebBrowser PDF surface navigates to about:blank on close so
-             the document handle is released.
-     A3 fix: a missing file gets its own state with a precise message
-             (previously it masqueraded as "unsupported file type").
+     Viewer chrome: command strip on top (icon tile + name + meta + open
+     action), full-bleed content area. Lock-free image decode and PDF
+     release behaviour are in the code-behind (A1/A2 fixes) and unchanged.
 ═══════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Inquiry.InquiryAttachmentPreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -20,81 +16,88 @@
         FontFamily="{DynamicResource AppFontFamily}"
         UseLayoutRounding="True" SnapsToDevicePixels="True"
         Closed="OnClosed">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="InquiryTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Meta header -->
+        <!-- Command strip -->
         <Border Padding="16,10" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
-                Background="{DynamicResource ModuleBackgroundBrush}">
+                Background="{DynamicResource ElevatedSurfaceBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Width="34" Height="34" CornerRadius="{DynamicResource ControlCornerRadius}"
+                <Border Width="38" Height="38" CornerRadius="{StaticResource InqRadiusControl}"
                         Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                    <TextBlock x:Name="IconGlyph" Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                    <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="15"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock x:Name="NameText" FontSize="13" FontWeight="Bold" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock x:Name="MetaText" FontSize="10.5" Margin="0,2,0,0"
+                    <TextBlock x:Name="MetaText" FontSize="10" Margin="0,2,0,0"
                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Open with system app" Click="OpenExternal_Click" Cursor="Hand"
-                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"/>
-                </StackPanel>
+                <Button Grid.Column="2" Content="Open with system app" Click="OpenExternal_Click" Cursor="Hand"
+                        Style="{StaticResource InqSecondaryButtonStyle}" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 
-        <!-- Preview surfaces -->
-        <Image x:Name="ImagePreview" Grid.Row="1" Stretch="Uniform" Margin="14" Visibility="Collapsed"/>
-        <WebBrowser x:Name="PdfPreview" Grid.Row="1" Margin="8" Visibility="Collapsed"/>
+        <!-- Surfaces -->
+        <Grid Grid.Row="1" Background="{DynamicResource ModuleBackgroundBrush}">
+            <Image x:Name="ImagePreview" Stretch="Uniform" Margin="16" Visibility="Collapsed"/>
+            <WebBrowser x:Name="PdfPreview" Margin="8" Visibility="Collapsed"/>
 
-        <!-- Missing file state -->
-        <Border x:Name="MissingPanel" Grid.Row="1" Background="{DynamicResource ModuleBackgroundBrush}"
-                Visibility="Collapsed">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="460">
-                <Border Width="64" Height="64" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
-                    <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="26"
-                               Foreground="{DynamicResource DangerBrush}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="File not found on disk" FontSize="16" FontWeight="Bold" Margin="0,16,0,0"
-                           HorizontalAlignment="Center" TextAlignment="Center"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock x:Name="MissingDetail" FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center"
-                           TextAlignment="Center" TextWrapping="Wrap"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Text="The attachment metadata exists, but the stored file cannot be found. It may have been moved or deleted outside ProGlass."/>
-            </StackPanel>
-        </Border>
-
-        <!-- Unsupported type state -->
-        <Border x:Name="UnsupportedPanel" Grid.Row="1" Background="{DynamicResource ModuleBackgroundBrush}"
-                Visibility="Collapsed">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="460">
-                <Border Width="64" Height="64" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                        Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
-                    <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+            <Border x:Name="MissingPanel" Visibility="Collapsed">
+                <Border.Background>
+                    <SolidColorBrush Color="Transparent"/>
+                </Border.Background>
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
+                    <Border Width="62" Height="62" CornerRadius="{StaticResource InqRadiusSurface}"
+                            Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="File not found on disk" FontSize="16" FontWeight="Bold" Margin="0,16,0,0"
+                               HorizontalAlignment="Center" TextAlignment="Center"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock x:Name="MissingDetail" FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center"
+                               TextAlignment="Center" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="In-app preview is not available for this file type" FontSize="15" FontWeight="Bold"
-                           Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
-                           TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Text="Drawings and spreadsheets open with their system application."/>
-            </StackPanel>
-        </Border>
+                               Text="The attachment metadata exists, but the stored file cannot be found. It may have been moved or deleted outside ProGlass."/>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="UnsupportedPanel" Background="Transparent" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
+                    <Border Width="62" Height="62" CornerRadius="{StaticResource InqRadiusSurface}"
+                            Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="In-app preview is not available for this file type" FontSize="15" FontWeight="Bold"
+                               Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
+                               TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Text="Drawings and spreadsheets open with their system application."/>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

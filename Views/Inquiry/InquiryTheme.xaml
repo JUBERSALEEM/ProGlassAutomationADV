@@ -1,0 +1,423 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Inquiry/InquiryTheme.xaml
+     MODULE: Inquiry — private design dictionary ("Lumen" micro-system)
+
+     A module-local visual language, deliberately distinct from the shared
+     ERP chrome (ListPageStyles / DesignTokens compositions used by the
+     PI / JO / DN / TI pages):
+
+       • floating surfaces — soft 16px cards on an open canvas, not
+         full-bleed bordered tables;
+       • self-describing row cards — status spine + customer avatar +
+         inline meta chips instead of a columned grid;
+       • pill segmented status rail instead of underline tabs;
+       • bento stat tiles with oversized numerals;
+       • dashed drop zones, timeline connectors, cover-tinted drawer.
+
+     FUNCTIONAL CONTRACT: this file defines visuals only. Every colour is
+     theme-aware (DynamicResource), so Light/Dark appearance and accent
+     changes keep working. No hardcoded page colors.
+═══════════════════════════════════════════════════════════════════ -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ══ GEOMETRY ══════════════════════════════════════════════════ -->
+
+    <sys:CornerRadius xmlns:sys="clr-namespace:System.Windows;assembly=System.Runtime"
+                      x:Key="InqRadiusSurface">16</sys:CornerRadius>
+    <sys:CornerRadius xmlns:sys="clr-namespace:System.Windows;assembly=System.Runtime"
+                      x:Key="InqRadiusControl">10</sys:CornerRadius>
+    <sys:CornerRadius xmlns:sys="clr-namespace:System.Windows;assembly=System.Runtime"
+                      x:Key="InqRadiusPill">999</sys:CornerRadius>
+
+    <!-- ══ SURFACES ══════════════════════════════════════════════════ -->
+
+    <!-- Floating card -->
+    <Style x:Key="InqSurfaceStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusSurface}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Soft-tinted panel (used inside surfaces for sub-sections) -->
+    <Style x:Key="InqInsetStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusControl}"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ══ TYPOGRAPHY ════════════════════════════════════════════════ -->
+
+    <Style x:Key="InqOverlineStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="9.5"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="InqDisplayStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="23"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+    </Style>
+
+    <Style x:Key="InqHintStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <!-- ══ BUTTONS ═══════════════════════════════════════════════════ -->
+
+    <Style x:Key="InqPrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Padding" Value="16,9"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusControl}"
+                            Background="{DynamicResource AccentBrush}"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="InqSecondaryButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Padding" Value="14,8"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusControl}"
+                            Background="{DynamicResource ElevatedSurfaceBrush}"
+                            BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Ghost text action (inline links, row actions) -->
+    <Style x:Key="InqGhostActionStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="10.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Padding" Value="8,4"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="7" Background="Transparent"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Round icon button (refresh, close, pagination) -->
+    <Style x:Key="InqIconButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Width" Value="32"/>
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusPill}"
+                            Background="Transparent"
+                            BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══ SEGMENTED STATUS RAIL ════════════════════════════════════ -->
+
+    <Style x:Key="InqSegmentPillStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Padding" Value="13,7"/>
+        <Setter Property="Margin" Value="0,0,7,0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusPill}"
+                            Background="Transparent"
+                            BorderBrush="Transparent" BorderThickness="1"
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                            <Border Margin="8,0,0,0" Padding="7,1.5" CornerRadius="{StaticResource InqRadiusPill}"
+                                    Background="{DynamicResource TintGrayBrush}">
+                                <TextBlock x:Name="Count" Text="{Binding Count, Mode=OneWay}" FontSize="10"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                        </Trigger>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            <Setter TargetName="Count" Property="Foreground"
+                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══ PILLS & CHIPS ═════════════════════════════════════════════ -->
+
+    <Style x:Key="InqStatusPillStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusPill}"/>
+        <Setter Property="Padding" Value="10,3.5"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="Received">
+                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Prepared">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Sent">
+                <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Hold">
+                <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="InqPillTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+
+    <!-- Small outline meta chip -->
+    <Style x:Key="InqMetaChipStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusPill}"/>
+        <Setter Property="Padding" Value="9,3"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="InqMetaChipTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+    </Style>
+
+    <!-- Status spine on row cards -->
+    <Style x:Key="InqSpineStyle" TargetType="Border">
+        <Setter Property="Width" Value="4"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Margin" Value="0,4,12,4"/>
+        <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Status}" Value="Received">
+                <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Prepared">
+                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Sent">
+                <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Customer avatar (initials tile) -->
+    <Style x:Key="InqAvatarStyle" TargetType="Border">
+        <Setter Property="Width" Value="36"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusControl}"/>
+        <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="InqAvatarTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ══ INPUTS ════════════════════════════════════════════════════ -->
+
+    <Style x:Key="InqFieldLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Margin" Value="2,0,0,6"/>
+    </Style>
+
+    <Style x:Key="InqInputStyle" TargetType="TextBox">
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="11,0"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bg" CornerRadius="{StaticResource InqRadiusControl}"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="Validation.HasError" Value="True">
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="InqComboStyle" TargetType="ComboBox">
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style x:Key="InqFilterComboStyle" TargetType="ComboBox">
+        <Setter Property="Height" Value="30"/>
+        <Setter Property="Padding" Value="9,0"/>
+        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <!-- Dashed drop zone (file intake) -->
+    <Style x:Key="InqDropZoneStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource InqRadiusControl}"/>
+        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ══ TIMELINE (drawer activity + editor workflow rail) ════════ -->
+
+    <Style x:Key="InqTimelineDotStyle" TargetType="Ellipse">
+        <Setter Property="Width" Value="9"/>
+        <Setter Property="Height" Value="9"/>
+        <Setter Property="Fill" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <Style x:Key="InqTimelineLineStyle" TargetType="Border">
+        <Setter Property="Width" Value="2"/>
+        <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Margin" Value="3.5,4,0,4"/>
+    </Style>
+
+</ResourceDictionary>

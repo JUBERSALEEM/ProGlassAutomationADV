@@ -1,24 +1,22 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Inquiry/InquiryEditorWindow.xaml
-     PROJECT: ProGlassAutomation
-     MODULE: Inquiry workspace — 2026 SaaS rebuild
+     MODULE: Inquiry workspace — "Lumen" redesign (from scratch)
 
-     Two-pane layout:
-       left  — validated form (customer & project / commercial / notes),
-               UpdateSourceTrigger=PropertyChanged so a click on Save can
-               never commit a half-updated record;
-       right — controlled workflow stepper (timestamps included) and the
-               attachment rail with drag-and-drop drop zone.
-
-     Fixes implemented here (see Docs/INQUIRY_SENIOR_ANALYSIS.md):
-       S4 auto-save draft before first attachment, S6 discard confirmation,
-       S8 explicit value parsing, A6 uses the injected service.
+     Composition:
+       header  — floating identity bar: icon tile, title + status pill,
+                  unsaved dot, subtitle, shortcut hint
+       body    — LEFT workflow rail (vertical timeline with live state +
+                 transition chips) · RIGHT scrollable canvas of floating
+                 section cards (Customer → Project → Commercial → Notes →
+                 Source documents with dashed drop zone)
+       footer  — diagnostic strip (error dot + message) + Discard / Save
 ═══════════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.Inquiry.InquiryEditorWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
         Title="Inquiry workspace"
-        Width="1180" Height="780" MinWidth="980" MinHeight="660"
+        Width="1180" Height="790" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource WindowBackgroundBrush}"
         FontFamily="{DynamicResource AppFontFamily}"
@@ -28,136 +26,52 @@
         AllowDrop="True" Drop="OnFileDrop" DragOver="OnDragOver">
 
     <Window.Resources>
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource ModuleFieldLabelStyle}">
-            <Setter Property="Margin" Value="0,0,0,6"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="InquiryTheme.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
-        <Style x:Key="FieldInputStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="{DynamicResource DensityInputHeight}"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="12.5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        </Style>
+            <!-- Workflow step node: dot + label + timestamp -->
+            <Style x:Key="StepDotStyle" TargetType="Border">
+                <Setter Property="Width" Value="30"/>
+                <Setter Property="Height" Value="30"/>
+                <Setter Property="CornerRadius" Value="15"/>
+                <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
 
-        <Style x:Key="FieldComboStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="{DynamicResource DensityInputHeight}"/>
-            <Setter Property="Padding" Value="9,0"/>
-            <Setter Property="FontSize" Value="12.5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
+            <Style x:Key="StepNumberStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
 
-        
+            <Style x:Key="StepTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            </Style>
 
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-        </Style>
-
-        <!-- Workflow stepper dot + label -->
-        <Style x:Key="StepDotStyle" TargetType="Border">
-            <Setter Property="Width" Value="26"/>
-            <Setter Property="Height" Value="26"/>
-            <Setter Property="CornerRadius" Value="13"/>
-            <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="VerticalAlignment" Value="Top"/>
-        </Style>
-
-        <Style x:Key="StepTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11.5"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="StepHintStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-        </Style>
-
-        <Style x:Key="StepperChipStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="12,7"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Attachment row -->
-        <Style x:Key="AttachmentRowStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
-            <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="Margin" Value="0,0,0,7"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <Style x:Key="MiniGhostButtonStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" CornerRadius="7" Background="Transparent"
-                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <!-- Section card heading row -->
+            <Style x:Key="SectionCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                <Setter Property="BorderThickness" Value="1"/>
+                <Setter Property="CornerRadius" Value="{StaticResource InqRadiusSurface}"/>
+                <Setter Property="Padding" Value="16,13"/>
+                <Setter Property="Margin" Value="0,0,0,12"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
+        </ResourceDictionary>
     </Window.Resources>
 
-    <Grid Margin="22,18,22,16">
+    <Grid Margin="20,16,20,14">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -165,350 +79,450 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <StackPanel>
+        <Border Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="#475569"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding HeaderTitle}" Style="{StaticResource ModuleDetailTitleStyle}"/>
-                    <TextBlock Text="{Binding HeaderDotText}" FontSize="14" Margin="8,0,0,0"
-                               Foreground="{DynamicResource WarningBrush}" VerticalAlignment="Center"
-                               ToolTip="Unsaved changes"/>
-                    <Border Margin="12,0,0,0" Style="{StaticResource StatusPillBaseStyle}"
-                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
+                    <Border Width="40" Height="40" CornerRadius="{StaticResource InqRadiusControl}"
+                            Background="{DynamicResource AccentBrush}">
+                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
+                    <StackPanel Margin="13,0,0,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding HeaderTitle}" FontSize="18" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="●" FontSize="12" Margin="8,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource WarningBrush}"
+                                       ToolTip="Unsaved changes"
+                                       Visibility="{Binding IsDirty, Converter={StaticResource BoolToVis}}"/>
+                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="999"
+                                    Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </StackPanel>
+                        <TextBlock Text="{Binding HeaderSubtitle}" FontSize="10.5" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
                 </StackPanel>
-                <TextBlock Text="{Binding HeaderSubtitle}" FontSize="11.5" Margin="0,3,0,0"
+                <TextBlock Grid.Column="1" Text="Ctrl+S save · Esc close" FontSize="10" VerticalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
-            </StackPanel>
-            <TextBlock Grid.Column="1" Text="Ctrl+S save · Esc close" FontSize="10.5" VerticalAlignment="Center"
-                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-        </Grid>
+            </Grid>
+        </Border>
 
         <!-- ══ BODY ══════════════════════════════════════════════════ -->
-        <Grid Grid.Row="1" Margin="0,16,0,0">
+        <Grid Grid.Row="1" Margin="0,14,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1.5*"/>
-                <ColumnDefinition Width="18"/>
+                <ColumnDefinition Width="252"/>
+                <ColumnDefinition Width="14"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- LEFT: form -->
-            <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="18,16">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel>
+            <!-- LEFT · workflow rail -->
+            <Border Style="{StaticResource InqSurfaceStyle}" Padding="16,14">
+                <StackPanel>
+                    <TextBlock Text="WORKFLOW" Style="{StaticResource InqOverlineStyle}" Margin="2,0,0,10"/>
 
-                        <TextBlock Text="CUSTOMER &amp; PROJECT" Style="{StaticResource SectionTitleStyle}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Customer *" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}" IsEditable="True"
-                                          Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource FieldComboStyle}"
-                                          StaysOpenOnEdit="True"
-                                          ToolTip="Type a new customer or pick a saved client"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Customer location" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource FieldInputStyle}"/>
-                            </StackPanel>
-                        </Grid>
-                        <Grid Margin="0,12,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Project *" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource FieldInputStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Inquiry reference" Style="{StaticResource FieldLabelStyle}"/>
-                                <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource FieldInputStyle}"/>
-                            </StackPanel>
-                        </Grid>
-                        <StackPanel Margin="0,12,0,0">
-                            <TextBlock Text="Project description / subject" Style="{StaticResource FieldLabelStyle}"/>
-                            <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource FieldInputStyle}" Height="64" AcceptsReturn="True"
-                                     TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="10,8"/>
+                    <!-- Step 1 · Received (always active) -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border Style="{StaticResource StepDotStyle}" Background="{DynamicResource AccentBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}">
+                            <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Received" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="Captured from the customer" Style="{StaticResource InqHintStyle}"/>
                         </StackPanel>
-
-                        <TextBlock Text="COMMERCIAL" Style="{StaticResource SectionTitleStyle}" Margin="0,20,0,8"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="Received date" Style="{StaticResource FieldLabelStyle}"/>
-                                <DatePicker SelectedDate="{Binding ReceivedDate}"
-                                            Style="{StaticResource ModuleListFilterDatePickerStyle}"/>
-                                <TextBlock Text="{Binding ReceivedHint}" Style="{StaticResource ModuleInlineWarningStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Salesman" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox ItemsSource="{Binding Salesmen}" IsEditable="True"
-                                          Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
-                                          Style="{StaticResource FieldComboStyle}"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="4">
-                                <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
-                                <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
-                                          Style="{StaticResource FieldComboStyle}"/>
-                            </StackPanel>
-                        </Grid>
-                        <StackPanel Margin="0,12,0,0" MaxWidth="280" HorizontalAlignment="Left">
-                            <TextBlock Text="Inquiry value (AED)" Style="{StaticResource FieldLabelStyle}"/>
-                            <TextBox Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource FieldInputStyle}" TextAlignment="Right"
-                                     ToolTip="Estimated value — thousands separators allowed"/>
-                            <TextBlock Text="{Binding ValueHint}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasValueError}" Value="True">
-                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                                <Setter Property="FontWeight" Value="SemiBold"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                        </StackPanel>
-
-                        <TextBlock Text="NOTES" Style="{StaticResource SectionTitleStyle}" Margin="0,20,0,8"/>
-                        <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInputStyle}" Height="110" AcceptsReturn="True"
-                                 TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="10,8"
-                                 ToolTip="Internal notes — visible in the register drawer"/>
-
                     </StackPanel>
-                </ScrollViewer>
+                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+
+                    <!-- Step 2 · Prepared -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Prepared">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Sent">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                            <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="2" Style="{StaticResource StepNumberStyle}"/>
+                        </Border>
+                        <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Prepared" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding PreparedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+
+                    <!-- Step 3 · Sent -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Sent">
+                                            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="3" Style="{StaticResource StepNumberStyle}"/>
+                        </Border>
+                        <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Sent to customer" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding SentDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Style="{StaticResource InqTimelineLineStyle}" Height="14"/>
+
+                    <!-- Step 4 · Confirmed -->
+                    <StackPanel Orientation="Horizontal">
+                        <Border>
+                            <Border.Style>
+                                <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="4" Style="{StaticResource StepNumberStyle}"/>
+                        </Border>
+                        <StackPanel Margin="11,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Confirmed" Style="{StaticResource StepTitleStyle}"/>
+                            <TextBlock Text="{Binding ConfirmedDateText, Mode=OneWay}" Style="{StaticResource InqHintStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <TextBlock Text="TRANSITIONS" Style="{StaticResource InqOverlineStyle}" Margin="2,18,0,9"/>
+                    <WrapPanel>
+                        <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
+                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                IsEnabled="{Binding CanPrepare}"/>
+                        <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
+                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                IsEnabled="{Binding CanSend}"/>
+                        <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
+                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                IsEnabled="{Binding CanConfirm}"/>
+                        <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
+                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                IsEnabled="{Binding CanHold}"/>
+                        <Button Content="Cancel inquiry" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
+                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6"
+                                IsEnabled="{Binding CanCancel}"/>
+                    </WrapPanel>
+                    <TextBlock Text="Transitions need a saved record and no unsaved edits."
+                               Style="{StaticResource InqHintStyle}" Margin="2,6,0,0"/>
+                </StackPanel>
             </Border>
 
-            <!-- RIGHT: workflow + attachments -->
-            <Grid Grid.Column="2">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <!-- RIGHT · content canvas -->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
 
-                <!-- Workflow stepper -->
-                <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
-                    <StackPanel>
-                        <TextBlock Text="WORKFLOW" Style="{StaticResource SectionTitleStyle}"/>
-
-                        <StackPanel Orientation="Horizontal">
-                            <Border Style="{StaticResource StepDotStyle}" Background="{DynamicResource AccentBrush}">
-                                <TextBlock Text="1" FontSize="11" FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Received" Style="{StaticResource StepTextStyle}"/>
-                                <TextBlock Text="Captured from the customer" Style="{StaticResource StepHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <Border Height="10" Width="2" Margin="12,4" HorizontalAlignment="Left"
-                                Background="{DynamicResource DividerBrush}"/>
-
-                        <StackPanel Orientation="Horizontal">
-                            <Border>
-                                <Border.Style>
-                                    <Style TargetType="Border" BasedOn="{StaticResource StepDotStyle}">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CanSend}" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
-                                                <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="2" FontSize="11" FontWeight="Bold"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Prepared" Style="{StaticResource StepTextStyle}"/>
-                                <TextBlock Text="{Binding PreparedDateText}" Style="{StaticResource StepHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <Border Height="10" Width="2" Margin="12,4" HorizontalAlignment="Left"
-                                Background="{DynamicResource DividerBrush}"/>
-
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Top"
-                                    Background="{DynamicResource TintGrayBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
-                                <TextBlock Text="3" FontSize="11" FontWeight="Bold"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Sent to customer" Style="{StaticResource StepTextStyle}"/>
-                                <TextBlock Text="{Binding SentDateText}" Style="{StaticResource StepHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-                        <Border Height="10" Width="2" Margin="12,4" HorizontalAlignment="Left"
-                                Background="{DynamicResource DividerBrush}"/>
-
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="26" Height="26" CornerRadius="13" VerticalAlignment="Top"
-                                    Background="{DynamicResource TintGrayBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
-                                <TextBlock Text="4" FontSize="11" FontWeight="Bold"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="Confirmed" Style="{StaticResource StepTextStyle}"/>
-                                <TextBlock Text="{Binding ConfirmedDateText}" Style="{StaticResource StepHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <TextBlock Text="TRANSITIONS" Style="{StaticResource SectionTitleStyle}" Margin="0,14,0,8"/>
-                        <WrapPanel>
-                            <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
-                                    Style="{StaticResource StepperChipStyle}" Margin="0,0,6,6"
-                                    IsEnabled="{Binding CanPrepare}"/>
-                            <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
-                                    Style="{StaticResource StepperChipStyle}" Margin="0,0,6,6"
-                                    IsEnabled="{Binding CanSend}"/>
-                            <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
-                                    Style="{StaticResource StepperChipStyle}" Margin="0,0,6,6"
-                                    IsEnabled="{Binding CanConfirm}"/>
-                            <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
-                                    Style="{StaticResource StepperChipStyle}" Margin="0,0,6,6"
-                                    IsEnabled="{Binding CanHold}"/>
-                            <Button Content="Cancel inquiry" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
-                                    Style="{StaticResource StepperChipStyle}" Margin="0,0,6,6"
-                                    IsEnabled="{Binding CanCancel}"/>
-                        </WrapPanel>
-                        <TextBlock Text="Transitions require a saved record and no unsaved edits."
-                                   Style="{StaticResource StepHintStyle}" TextWrapping="Wrap" Margin="0,2,0,0"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Attachments -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleSectionCardStyle}" Margin="0,14,0,0" Padding="16,14">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <!-- Customer -->
+                    <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="SOURCE DOCUMENTS" Style="{StaticResource SectionTitleStyle}"/>
-                            <TextBlock FontSize="10.5" Foreground="{DynamicResource MutedForegroundBrush}"
-                                       TextWrapping="Wrap"
-                                       Text="Drop files anywhere in this window, or use the button. Images and PDFs preview in-app; a new inquiry is saved automatically before the first file is attached."/>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="CUSTOMER" Style="{StaticResource InqOverlineStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Customer *" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}" IsEditable="True"
+                                              Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource InqComboStyle}" StaysOpenOnEdit="True"
+                                              ToolTip="Type a new customer or pick a saved client"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Location" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBox Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InqInputStyle}"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
-                        <Button Grid.Row="1" Command="{Binding AddAttachmentCommand}" Margin="0,12"
-                                Style="{StaticResource ModuleToolbarPrimaryButtonStyle}" Content="＋ Add files"/>
+                    </Border>
 
-                        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
-                            <StackPanel>
-                                <ItemsControl ItemsSource="{Binding AttachmentItems}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Style="{StaticResource AttachmentRowStyle}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Width="32" Height="32" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
-                                                        <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="9.5"
-                                                                       FontWeight="Bold"
-                                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                                            <TextBlock Text=" · " FontSize="9.5"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                            <TextBlock Text="{Binding FileSize, Mode=OneWay, StringFormat={}{0:N0} bytes}"
-                                                                       FontSize="9.5"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Button Content="Preview" Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MiniGhostButtonStyle}" Margin="0,0,6,0"/>
-                                                        <Button Content="Delete" Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource MiniGhostButtonStyle}"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <TextBlock Text="No files attached yet." FontSize="11" Margin="2,4,0,0"
-                                           Foreground="{DynamicResource MutedForegroundBrush}">
+                    <!-- Project -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="PROJECT" Style="{StaticResource InqOverlineStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Project *" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InqInputStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Inquiry reference" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource InqInputStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Margin="0,12,0,0">
+                                <TextBlock Text="Description / subject" Style="{StaticResource InqFieldLabelStyle}"/>
+                                <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InqInputStyle}" Height="66" AcceptsReturn="True"
+                                         TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Commercial -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="COMMERCIAL" Style="{StaticResource InqOverlineStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Received date" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="12.5"
+                                                VerticalContentAlignment="Center"/>
+                                    <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
+                                               Style="{StaticResource InqHintStyle}" Margin="2,5,0,0"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Salesman" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding Salesmen}" IsEditable="True"
+                                              Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource InqComboStyle}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="Priority" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
+                                              Style="{StaticResource InqComboStyle}"/>
+                                </StackPanel>
+                            </Grid>
+                            <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left">
+                                <TextBlock Text="Inquiry value (AED)" Style="{StaticResource InqFieldLabelStyle}"/>
+                                <TextBox Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource InqInputStyle}" TextAlignment="Right"
+                                         ToolTip="Thousands separators allowed"/>
+                                <TextBlock Text="{Binding ValueHint, Mode=OneWay}" Margin="2,5,0,0">
                                     <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding HasAttachments}" Value="False">
-                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                <DataTrigger Binding="{Binding HasValueError}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                    <Setter Property="FontWeight" Value="SemiBold"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
                             </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
-            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Notes -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <TextBlock Text="NOTES" Style="{StaticResource InqOverlineStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                            </StackPanel>
+                            <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource InqInputStyle}" Height="108" AcceptsReturn="True"
+                                     TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"
+                                     ToolTip="Internal notes — visible in the register drawer"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Source documents -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                <TextBlock Text="SOURCE DOCUMENTS" Style="{StaticResource InqOverlineStyle}"/>
+                                <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
+                                           VerticalAlignment="Center" Margin="9,0,0,0"/>
+                                <TextBlock Text="manifest-backed · works on any database" Margin="9,0,0,0"
+                                           FontSize="9.5" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+
+                            <!-- Dashed drop zone -->
+                            <Grid Margin="0,8,0,4" Cursor="Hand">
+                                <Button Command="{Binding AddAttachmentCommand}" HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch" Background="Transparent" BorderThickness="0"
+                                        Focusable="False">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="Transparent">
+                                                <ContentPresenter/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                    <Border Style="{StaticResource InqDropZoneStyle}">
+                                        <Grid>
+                                            <Rectangle Stroke="{DynamicResource AccentBrush}}" StrokeThickness="1.4"
+                                                       StrokeDashArray="6 4" RadiusX="9" RadiusY="9"
+                                                       Opacity="0.55"/>
+                                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                        Margin="14,12">
+                                                <Border Width="40" Height="40" CornerRadius="10"
+                                                        Background="{DynamicResource ElevatedSurfaceBrush}}"
+                                                        HorizontalAlignment="Center">
+                                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="17"
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Text="Drop files here — or click to browse" FontSize="12.5"
+                                                           FontWeight="SemiBold" Margin="0,9,0,0" HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="A new inquiry is saved automatically before the first file. Images and PDFs preview in-app."
+                                                           Style="{StaticResource InqHintStyle}" Margin="0,4,0,0"
+                                                           HorizontalAlignment="Center" TextAlignment="Center"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </Button>
+                            </Grid>
+
+                            <ItemsControl ItemsSource="{Binding AttachmentItems}" Margin="0,6,0,0">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border CornerRadius="{StaticResource InqRadiusControl}"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                                Padding="10,8" Margin="0,0,0,7">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Width="32" Height="32" CornerRadius="8"
+                                                        Background="{DynamicResource TintBlueBrush}"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                                               Foreground="{DynamicResource AccentBrush}"
+                                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
+                                                    <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               TextTrimming="CharacterEllipsis"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Extension, Mode=OneWay}" FontSize="9.5"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
+                                                        <TextBlock Text=" · " FontSize="9.5"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding FileSize, Mode=OneWay, StringFormat={}{0:N0} bytes}"
+                                                                   FontSize="9.5"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Button Content="Preview"
+                                                            Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
+                                                    <Button Content="Delete"
+                                                            Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                            CommandParameter="{Binding}"
+                                                            Style="{StaticResource InqGhostActionStyle}"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="No files attached yet." Margin="2,3,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasAttachments}" Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </ScrollViewer>
         </Grid>
 
         <!-- ══ FOOTER ═════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Style="{StaticResource ModuleDetailActionBarStyle}" Margin="0,16,0,0" Padding="14,10">
+        <Border Grid.Row="2" Margin="0,14,0,0" Style="{StaticResource InqSurfaceStyle}" Padding="14,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Border Width="8" Height="8" CornerRadius="4" Margin="0,0,8,0" VerticalAlignment="Center"
-                            Background="{DynamicResource DangerBrush}"
-                            Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                    <TextBlock Text="{Binding StatusText}" FontSize="11.5" VerticalAlignment="Center"
+                    <Ellipse Width="8" Height="8" Fill="{DynamicResource DangerBrush}" VerticalAlignment="Center"
+                             Visibility="{Binding IsStatusError, Converter={StaticResource BoolToVis}}"/>
+                    <TextBlock Text="{Binding StatusText}" FontSize="11.5" VerticalAlignment="Center" Margin="9,0,0,0"
                                TextWrapping="Wrap" MaxWidth="640"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="Discard" Command="{Binding CancelCommand}" Margin="0,0,8,0"
-                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"/>
+                    <Button Content="Discard" Command="{Binding CancelCommand}"
+                            Style="{StaticResource InqSecondaryButtonStyle}" Margin="0,0,8,0"/>
                     <Button Content="{Binding SaveCommandText}" Command="{Binding SaveCommand}"
-                            Style="{StaticResource ModuleToolbarPrimaryButtonStyle}" MinWidth="150"/>
+                            Style="{StaticResource InqPrimaryButtonStyle}" MinWidth="150"/>
                 </StackPanel>
             </Grid>
         </Border>

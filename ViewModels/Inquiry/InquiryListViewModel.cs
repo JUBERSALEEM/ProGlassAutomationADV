@@ -226,7 +226,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                             AsyncUtility.SafeFireAndForget(() => LoadSelectedDetailAsync(row), "Inquiry drawer refresh");
                         }
                     }
-                    catch (Exception ex) { SetStatus("Delete failed: " + ex.Message); }
+                    catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
                 }
             });
 
@@ -249,7 +249,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     if (!PreparedByUsers.Contains(name)) PreparedByUsers.Add(name);
                 }
             }
-            catch (Exception ex) { SetStatus("Filter sources unavailable: " + ex.Message); }
+            catch (Exception ex) { SetStatus("Filter sources unavailable: " + ExceptionMessages.Deep(ex)); }
         }
 
         private void DebounceReload()
@@ -329,7 +329,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             }
             catch (Exception ex)
             {
-                ErrorText = "Could not load inquiries: " + ex.Message;
+                ErrorText = "Could not load inquiries: " + ExceptionMessages.Deep(ex);
                 SetStatus(ErrorText);
             }
             finally { if (generation == _reloadGeneration) IsLoading = false; }
@@ -361,7 +361,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         {
             try
             {
-                var attachments = await _repository.GetAttachmentsAsync(row.Id);
+                var attachments = await _attachments.GetAsync(row.Id);
                 var communications = await _repository.GetCommunicationsAsync(row.Id);
                 var detail = await _repository.GetDetailAsync(row.Id);
                 if (!ReferenceEquals(SelectedInquiry, row)) return;
@@ -387,7 +387,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 OnPropertyChanged(nameof(SelectedInquiry));
             }
             catch (OperationCanceledException) { }
-            catch (Exception ex) { SetStatus("Detail unavailable: " + ex.Message); }
+            catch (Exception ex) { SetStatus("Detail unavailable: " + ExceptionMessages.Deep(ex)); }
         }
 
         // ── Actions ────────────────────────────────────────────────────
@@ -435,7 +435,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     Reload();
                 }
             }
-            catch (Exception ex) { SetStatus(ex.Message); }
+            catch (Exception ex) { SetStatus(ExceptionMessages.Deep(ex)); }
         }
 
         private async Task ExportAsync()
@@ -467,7 +467,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 await _io.ExportCsvAsync(path, rows);
                 SetStatus($"Exported {rows.Count} inquiries to {System.IO.Path.GetFileName(path)}.");
             }
-            catch (Exception ex) { SetStatus("Export failed: " + ex.Message); }
+            catch (Exception ex) { SetStatus("Export failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         private async Task ImportAsync()
@@ -499,7 +499,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 ResetAndReload();
             }
             catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.Message); }
-            catch (Exception ex) { SetStatus("Import failed: " + ex.Message); }
+            catch (Exception ex) { SetStatus("Import failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         private static (DateTime? From, DateTime? ToExclusive) DateRange(string value, DateTime now)
@@ -627,6 +627,18 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public string NotesPreview { get; internal set; } = "";
         public bool IsDetailLoaded { get; internal set; }
         public string ContactSummary => string.IsNullOrWhiteSpace(CustomerLocation) ? "" : CustomerLocation;
+        /// <summary>Avatar initials for the row card (first letters of the first two words).</summary>
+        public string CustomerInitials
+        {
+            get
+            {
+                var parts = CustomerName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length == 0) return "·";
+                return parts.Length == 1
+                    ? parts[0][..1].ToUpperInvariant()
+                    : (parts[0][..1] + parts[1][..1]).ToUpperInvariant();
+            }
+        }
         public ObservableCollection<InquiryAttachmentItem> Attachments { get; } = new();
         public ObservableCollection<InquiryActivityItem> RecentActivity { get; } = new();
 

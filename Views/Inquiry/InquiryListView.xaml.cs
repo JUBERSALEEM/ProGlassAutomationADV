@@ -6,33 +6,27 @@ using ProGlassAutomation.ViewModels.Inquiry;
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.Views.Inquiry
 {
     /// <summary>
-    /// Code-behind for the Inquiry register. UI-only concerns:
-    /// - wires the editor/export/import dialogs onto the ViewModel callbacks;
-    /// - keeps the fixed-width column header horizontally synchronized with
-    ///   the virtualized rows ListBox (one shared scroll offset).
-    /// No business logic — everything else lives in the ViewModel.
+    /// Code-behind for the Inquiry register ("Lumen" layout). UI plumbing only:
+    /// - wires the editor/export/import/preview dialogs onto the ViewModel;
+    /// - double-click opens the selected inquiry in the workspace.
+    /// All behaviour lives in InquiryListViewModel.
     /// </summary>
     public partial class InquiryListView : UserControl
     {
-        private bool _syncingScroll;
-
         public InquiryListView()
         {
             InitializeComponent();
             DataContextChanged += (_, __) => WireEditor();
-            Loaded += (_, __) =>
-            {
-                WireEditor();
-                HookScrollSync();
-            };
+            Loaded += (_, __) => WireEditor();
         }
 
-        /// <summary>Double-click a register row → open it in the workspace.</summary>
-        private void OnRowDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        /// <summary>Double-click a row card → open it in the workspace.</summary>
+        private void OnRowDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (DataContext is InquiryListViewModel vm
                 && vm.SelectedInquiry != null
@@ -40,51 +34,6 @@ namespace ProGlassAutomation.Views.Inquiry
             {
                 vm.EditInquiryCommand.Execute(vm.SelectedInquiry);
             }
-        }
-
-        /// <summary>Two-way offset sync: header bar follows the rows scroller.</summary>
-        private void HookScrollSync()
-        {
-            if (RegisterList == null || HeaderScroller == null) return;
-            RegisterList.AddHandler(ScrollViewer.ScrollChangedEvent, new ScrollChangedEventHandler(OnRowsScrolled));
-            HeaderScroller.ScrollChanged += OnHeaderScrolled;
-        }
-
-        private void OnRowsScrolled(object sender, ScrollChangedEventArgs e)
-        {
-            if (_syncingScroll || HeaderScroller == null) return;
-            _syncingScroll = true;
-            try
-            {
-                if (Math.Abs(HeaderScroller.HorizontalOffset - e.HorizontalOffset) > 0.5)
-                    HeaderScroller.ScrollToHorizontalOffset(e.HorizontalOffset);
-            }
-            finally { _syncingScroll = false; }
-        }
-
-        private void OnHeaderScrolled(object sender, ScrollChangedEventArgs e)
-        {
-            if (_syncingScroll || RegisterList == null) return;
-            _syncingScroll = true;
-            try
-            {
-                var inner = GetInnerScrollViewer(RegisterList);
-                if (inner != null && Math.Abs(inner.HorizontalOffset - e.HorizontalOffset) > 0.5)
-                    inner.ScrollToHorizontalOffset(e.HorizontalOffset);
-            }
-            finally { _syncingScroll = false; }
-        }
-
-        private static ScrollViewer? GetInnerScrollViewer(DependencyObject obj)
-        {
-            if (obj is ScrollViewer viewer) return viewer;
-            for (int i = 0; i < System.Windows.Media.VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(obj, i);
-                var result = GetInnerScrollViewer(child);
-                if (result != null) return result;
-            }
-            return null;
         }
 
         private void WireEditor()

@@ -157,7 +157,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                         SetMessage(removed ? $"Deleted '{file.FileName}'." : "Attachment was already removed.");
                         OnPropertyChanged(nameof(HasAttachments));
                     }
-                    catch (Exception ex) { SetMessage("Delete failed: " + ex.Message, isError: true); }
+                    catch (Exception ex) { SetMessage("Delete failed: " + ExceptionMessages.Deep(ex), isError: true); }
                     finally { IsBusy = false; }
                 }
             }, _ => !IsBusy);
@@ -206,20 +206,22 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     if (!string.IsNullOrWhiteSpace(x.Name) && !Salesmen.Contains(x.Name))
                         Salesmen.Add(x.Name);
             }
-            catch (Exception ex) { SetMessage("Master data unavailable: " + ex.Message, isError: true); }
+            catch (Exception ex) { SetMessage("Master data unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
         }
 
         private async Task LoadAttachmentsAsync()
         {
-            if (Record.Id <= 0 || App.Inquiries == null) return;
+            if (Record.Id <= 0) return;
             try
             {
-                var rows = await App.Inquiries.GetAttachmentsAsync(Record.Id);
+                // Manifest-backed (PI Step 8 pattern) — no EF read, immune to
+                // legacy child-table drift; legacy rows migrate on first call.
+                var rows = await _attachments.GetAsync(Record.Id);
                 AttachmentItems.Clear();
                 foreach (var x in rows) AttachmentItems.Add(x);
                 OnPropertyChanged(nameof(HasAttachments));
             }
-            catch (Exception ex) { SetMessage("Attachments unavailable: " + ex.Message, isError: true); }
+            catch (Exception ex) { SetMessage("Attachments unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
         }
 
         // ── Save ───────────────────────────────────────────────────────
@@ -278,7 +280,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     CloseRequested?.Invoke(true);
                 }
             }
-            catch (Exception ex) { SetMessage(ex.Message, isError: true); }
+            catch (Exception ex) { SetMessage(ExceptionMessages.Deep(ex), isError: true); }
             finally { IsBusy = false; }
         }
 
@@ -317,7 +319,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     }
                     catch (Exception ex)
                     {
-                        SetMessage($"'{System.IO.Path.GetFileName(path)}' failed: {ex.Message}", isError: true);
+                        SetMessage($"'{System.IO.Path.GetFileName(path)}' failed: {ExceptionMessages.Deep(ex)}", isError: true);
                     }
                 }
                 if (added > 0)
@@ -326,7 +328,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     OnPropertyChanged(nameof(HasAttachments));
                 }
             }
-            catch (Exception ex) { SetMessage("Attachment failed: " + ex.Message, isError: true); }
+            catch (Exception ex) { SetMessage("Attachment failed: " + ExceptionMessages.Deep(ex), isError: true); }
             finally { IsBusy = false; }
         }
 
@@ -363,7 +365,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     SetMessage($"Status changed to {Record.Status}.");
                 }
             }
-            catch (Exception ex) { SetMessage(ex.Message, isError: true); }
+            catch (Exception ex) { SetMessage(ExceptionMessages.Deep(ex), isError: true); }
             finally { IsBusy = false; }
         }
 

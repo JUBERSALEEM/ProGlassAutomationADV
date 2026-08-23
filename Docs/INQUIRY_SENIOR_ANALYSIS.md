@@ -164,6 +164,32 @@ The details drawer showed `ContactSummary` (never populated → always blank),
 real detail entity; chain text is computed from the actual PI/JO links; selection is
 restored by id after a reload.
 
+### A8. CRITICAL — "Attachment failed: An error occurred while saving the entity changes"
+**Root cause:** Inquiry attachments were persisted as EF rows in the
+`InquiryAttachments` table — a deviation from this codebase's own attachment
+convention. The Proforma (Step 8) and Delivery Note modules store attachments as
+`manifest.json` on disk precisely because, per
+`ProformaAttachmentRecord.cs`, *"the manifest makes attachments survive without
+any EF schema change"*. `EnsureCreated` never upgrades an existing database, so
+on any drifted legacy `inquiries.db` the attachment INSERT could fail (drifted
+child-table shape, FK/NOT NULL constraints) and the whole upload died with a
+useless EF wrapper message.
+
+**Fix (Step 8 alignment):**
+1. `InquiryAttachmentService` is now manifest-backed — `manifest.json` next to
+   the files is the source of truth; the upload path performs **zero entity
+   saves**, so the failure class is gone by construction, on every database
+   shape, without a schema migration.
+2. Legacy EF rows migrate into the manifest on first access (files resolved
+   through the current data root); an unreadable legacy table is skipped, never
+   fatal.
+3. The EF table remains only as a best-effort *count mirror* for the register's
+   "files" chip; mirror failures are logged and ignored — on a drifted database
+   the count may lag while attachments themselves keep working.
+4. Diagnostics: every user-facing catch now flattens the exception chain
+   (`Utilities/ExceptionMessages.Deep`) — "See the inner exception for details"
+   is replaced by the real cause (e.g. `NOT NULL constraint failed: …`).
+
 ---
 
 ## Part 3 — Dead / fake UI removed (truthfulness audit)
@@ -215,6 +241,27 @@ canonical app primitives instead:
 
 **Preview (`InquiryAttachmentPreviewWindow`)**
 - Theme-aware; no file locks; missing-file state; releases the PDF control on close.
+
+### 2026 "Lumen" redesign (second pass — from-scratch XAML)
+
+Per the master prompt ("preserve functionality, not the old UI"), the module was
+rebuilt visually from zero with its own private design dictionary
+(`Views/Inquiry/InquiryTheme.xaml`) — no layouts copied from the shared ERP list
+pages, while remaining 100% theme-aware (Light/Dark/accent) and binding-compatible:
+
+- **Register** — a floating *command deck* (identity + inline search + actions),
+  *bento stat tiles* with oversized numerals, a *pill status rail* with live
+  counts + compact filter cluster, and *self-describing row cards* (status
+  spine, customer-initials avatar, meta chips, right meta cluster) on a
+  virtualized canvas — replacing the columned table and its header/sync
+  machinery entirely.
+- **Editor** — left *workflow rail* (vertical timeline reacting to status,
+  transition chips) + a scrollable canvas of floating section cards; a dashed
+  drop zone is the primary attachment intake.
+- **Preview** — viewer chrome: command strip (icon tile, name, meta, open
+  action) over a full-bleed surface.
+- Every control, state and command from the previous iteration remains
+  available; only the presentation changed.
 
 ---
 
