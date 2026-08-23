@@ -75,19 +75,30 @@ namespace ProGlassAutomation.Models.Inquiry
         // ── Per-stage raw data (nullable when not started) ─────────────
 
         public string InquiryStatus { get; init; } = "";
+        // Proforma Invoice (PI) — the row ID lets the right-click
+        // "Open Proforma Invoice" item load the specific document
+        // instead of just navigating to the module. Set to 0 when
+        // no PI exists yet.
+        public int ProformaRowId { get; init; }
         public string? ProformaNumber { get; init; }
         public string? ProformaStatus { get; init; }
         public DateTime? ProformaUpdatedAt { get; init; }
 
+        // Job Order (JO) — same pattern as PI.
+        public int JobOrderRowId { get; init; }
         public string? JobOrderNumber { get; init; }
         public string? JobOrderStatus { get; init; }
         public DateTime? JobOrderUpdatedAt { get; init; }
 
+        // Delivery Note (DN) — the most recent DN in the family.
+        public int DeliveryNoteRowId { get; init; }
         public int DeliveryNoteCount { get; init; }
         public string? LatestDeliveryNoteNumber { get; init; }
         public string? LatestDeliveryNoteStatus { get; init; }
         public DateTime? LatestDeliveryNoteAt { get; init; }
 
+        // Tax Invoice (TI) — the most recent TI in the family.
+        public int TaxInvoiceRowId { get; init; }
         public int TaxInvoiceCount { get; init; }
         public string? LatestTaxInvoiceNumber { get; init; }
         public string? LatestTaxInvoiceStatus { get; init; }

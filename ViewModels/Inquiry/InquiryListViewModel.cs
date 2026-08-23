@@ -157,11 +157,18 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         // stays MessageBox-free. Each one defaults to a no-op (or
         // clipboard fallback) if the view never sets it.
         public Action<InquiryListRow>? OpenAttachmentsFolderRequested { get; set; }
-        public Func<InquiryListRow, Task>? OpenProformaForRowRequested { get; set; }
-        public Func<InquiryListRow, Task>? OpenJobOrderForRowRequested { get; set; }
-        public Func<InquiryListRow, Task>? OpenDeliveryNoteForRowRequested { get; set; }
-        public Func<InquiryListRow, Task>? OpenTaxInvoiceForRowRequested { get; set; }
-        public Func<InquiryListRow, Task>? OpenStatementForRowRequested { get; set; }
+        // Per-stage navigation. The second argument is the row ID of
+        // the downstream document (PI/JO/DN/TI). The MainViewModel
+        // uses it to actually load the document, not just navigate
+        // to the module. When the row ID is 0 (no downstream
+        // document exists), the handler falls back to navigating to
+        // the module and copying the document number to the clipboard
+        // so the user can paste it into the module's own search.
+        public Func<InquiryListRow, int, Task>? OpenProformaForRowRequested { get; set; }
+        public Func<InquiryListRow, int, Task>? OpenJobOrderForRowRequested { get; set; }
+        public Func<InquiryListRow, int, Task>? OpenDeliveryNoteForRowRequested { get; set; }
+        public Func<InquiryListRow, int, Task>? OpenTaxInvoiceForRowRequested { get; set; }
+        public Func<InquiryListRow, int, Task>? OpenStatementForRowRequested { get; set; }
         // Confirms a destructive delete. Returns true to proceed. The
         // view wires this to a MessageBox so the VM stays UI-free.
         // The parameter is the row that will be deleted; the message
@@ -386,22 +393,28 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // ── Per-stage navigation (rail context menu) ────────────────
             // Each command calls the corresponding func if wired (set by
             // MainViewModel to navigate the shell to that module and open
-            // the document); otherwise it copies the document number to
-            // the clipboard as a fallback.
+            // the specific document by row ID); otherwise it copies the
+            // document number to the clipboard as a fallback so the
+            // user can paste it into the module's own search.
             OpenProformaForRowCommand = new RelayCommand(
-                p => InvokeStageOpen(p, OpenProformaForRowRequested, r => r.Lifecycle.ProformaNumber),
+                p => InvokeStageOpen(p, OpenProformaForRowRequested,
+                    r => r.Lifecycle.ProformaRowId, r => r.Lifecycle.ProformaNumber, "PI"),
                 p => p is InquiryListRow r && r.Lifecycle.HasProforma);
             OpenJobOrderForRowCommand = new RelayCommand(
-                p => InvokeStageOpen(p, OpenJobOrderForRowRequested, r => r.Lifecycle.JobOrderNumber),
+                p => InvokeStageOpen(p, OpenJobOrderForRowRequested,
+                    r => r.Lifecycle.JobOrderRowId, r => r.Lifecycle.JobOrderNumber, "JO"),
                 p => p is InquiryListRow r && r.Lifecycle.HasJobOrder);
             OpenDeliveryNoteForRowCommand = new RelayCommand(
-                p => InvokeStageOpen(p, OpenDeliveryNoteForRowRequested, r => r.Lifecycle.LatestDeliveryNoteNumber),
+                p => InvokeStageOpen(p, OpenDeliveryNoteForRowRequested,
+                    r => r.Lifecycle.DeliveryNoteRowId, r => r.Lifecycle.LatestDeliveryNoteNumber, "DN"),
                 p => p is InquiryListRow r && r.Lifecycle.HasDeliveryNote);
             OpenTaxInvoiceForRowCommand = new RelayCommand(
-                p => InvokeStageOpen(p, OpenTaxInvoiceForRowRequested, r => r.Lifecycle.LatestTaxInvoiceNumber),
+                p => InvokeStageOpen(p, OpenTaxInvoiceForRowRequested,
+                    r => r.Lifecycle.TaxInvoiceRowId, r => r.Lifecycle.LatestTaxInvoiceNumber, "TI"),
                 p => p is InquiryListRow r && r.Lifecycle.HasTaxInvoice);
             OpenStatementForRowCommand = new RelayCommand(
-                p => InvokeStageOpen(p, OpenStatementForRowRequested, r => r.Lifecycle.LatestStatementNumber),
+                p => InvokeStageOpen(p, OpenStatementForRowRequested,
+                    r => 0, r => r.Lifecycle.LatestStatementNumber, "STMT"),
                 p => p is InquiryListRow r && r.Lifecycle.HasStatement);
 
             // ── Copy document number (always available when a doc exists) ──
@@ -537,17 +550,26 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         }
 
         private void InvokeStageOpen(object parameter,
-            Func<InquiryListRow, Task>? openFunc,
-            Func<InquiryListRow, string?> numberGetter)
+            Func<InquiryListRow, int, Task>? openFunc,
+            Func<InquiryListRow, int> rowIdGetter,
+            Func<InquiryListRow, string?> numberGetter,
+            string kindLabel)
         {
             if (parameter is not InquiryListRow row) return;
             // Promote the target row into the rail selection so any UI
             // state tied to SelectedInquiry (KPI strip, etc.) updates too.
             SelectedInquiry = row;
+            int rowId = rowIdGetter(row);
             string? number = numberGetter(row);
             if (openFunc != null)
             {
-                AsyncUtility.SafeFireAndForget(() => openFunc(row), $"Open {number} from inquiry rail");
+                // When a row ID is available the MainViewModel handler
+                // loads the specific document. When it isn't (e.g. for
+                // statements which aren't joined to the inquiry), the
+                // handler still navigates to the module and the user
+                // can find the document by the clipboard-copied number.
+                AsyncUtility.SafeFireAndForget(() => openFunc(row, rowId),
+                    $"Open {kindLabel} {number ?? rowId.ToString()} from inquiry rail");
             }
             else if (!string.IsNullOrWhiteSpace(number))
             {

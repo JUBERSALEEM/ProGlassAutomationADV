@@ -186,6 +186,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 .Where(p => p.InquiryId.HasValue && inquiryIds.Contains(p.InquiryId.Value))
                 .Select(p => new
                 {
+                    p.Id,
                     p.InquiryId,
                     p.ProformaId,
                     p.Status,
@@ -199,7 +200,7 @@ namespace ProGlassAutomation.Services.Inquiry
             foreach (var r in rows)
             {
                 if (!r.InquiryId.HasValue) continue;
-                var lite = new ProformaLite(r.ProformaId, r.Status, r.UpdatedAt, r.GrandTotalVatInclusive);
+                var lite = new ProformaLite(r.Id, r.ProformaId, r.Status, r.UpdatedAt, r.GrandTotalVatInclusive);
                 if (!byInquiry.TryGetValue(r.InquiryId.Value, out var existing) ||
                     lite.UpdatedAt > existing.UpdatedAt)
                     byInquiry[r.InquiryId.Value] = lite;
@@ -223,6 +224,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 .Where(j => numbers.Contains(j.SourceProformaId))
                 .Select(j => new
                 {
+                    j.Id,
                     j.SourceProformaId,
                     j.JobOrderId,
                     j.Status,
@@ -233,7 +235,7 @@ namespace ProGlassAutomation.Services.Inquiry
             var byPi = new Dictionary<string, JobOrderLite>();
             foreach (var r in rows)
             {
-                var lite = new JobOrderLite(r.JobOrderId, r.Status, r.UpdatedAt);
+                var lite = new JobOrderLite(r.Id, r.JobOrderId, r.Status, r.UpdatedAt);
                 if (!byPi.TryGetValue(r.SourceProformaId, out var existing) ||
                     lite.UpdatedAt > existing.UpdatedAt)
                     byPi[r.SourceProformaId] = lite;
@@ -268,6 +270,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 .Where(d => !d.IsMasterDn && joNumbers.Contains(d.JobOrderId))
                 .Select(d => new
                 {
+                    d.Id,
                     d.JobOrderId,
                     d.DeliveryNoteId,
                     d.Status,
@@ -279,10 +282,10 @@ namespace ProGlassAutomation.Services.Inquiry
             var byJo = new Dictionary<string, DeliveryNoteSummary>();
             foreach (var r in rows)
             {
-                DateTime when = r.DeliveryDate == default ? r.CreatedAt : r.DeliveryDate;
+                DateTime when = r.DeliveryDate == default ? r.CreatedAt : r.CreatedAt;
                 if (!byJo.TryGetValue(r.JobOrderId, out var existing) || when > existing.When)
                     byJo[r.JobOrderId] = new DeliveryNoteSummary(
-                        r.DeliveryNoteId, r.Status, when, 1);
+                        r.Id, r.DeliveryNoteId, r.Status, when, 1);
             }
             // Now also count how many DNs each JO has.
             foreach (var grp in rows.GroupBy(x => x.JobOrderId))
@@ -306,6 +309,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 .Where(t => piNumberList.Contains(t.ProformaId))
                 .Select(t => new
                 {
+                    t.Id,
                     t.ProformaId,
                     t.InvoiceNumber,
                     t.Status,
@@ -333,6 +337,7 @@ namespace ProGlassAutomation.Services.Inquiry
                              && !t.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase))
                     .Sum(t => t.GrandTotal);
                 byPi[grp.Key] = new TaxInvoiceSummary(
+                    Id: latest.Id,
                     InvoiceNumber: latest.InvoiceNumber,
                     Status: latest.Status,
                     When: latest.UpdatedAt == default ? latest.IssueDate : latest.UpdatedAt,
@@ -366,16 +371,20 @@ namespace ProGlassAutomation.Services.Inquiry
             return new InquiryLifecycleSnapshot
             {
                 InquiryId = inquiryId,
+                ProformaRowId = pi.Id,
                 ProformaNumber = pi.ProformaId,
                 ProformaStatus = pi.Status,
                 ProformaUpdatedAt = pi.UpdatedAt,
+                JobOrderRowId = jo?.Id ?? 0,
                 JobOrderNumber = jo?.JobOrderId,
                 JobOrderStatus = jo?.Status,
                 JobOrderUpdatedAt = jo?.UpdatedAt,
+                DeliveryNoteRowId = dn?.Id ?? 0,
                 DeliveryNoteCount = dn?.Count ?? 0,
                 LatestDeliveryNoteNumber = dn?.DeliveryNoteId,
                 LatestDeliveryNoteStatus = dn?.Status,
                 LatestDeliveryNoteAt = dn?.When,
+                TaxInvoiceRowId = ti?.Id ?? 0,
                 TaxInvoiceCount = ti?.Count ?? 0,
                 LatestTaxInvoiceNumber = ti?.InvoiceNumber,
                 LatestTaxInvoiceStatus = ti?.Status,
@@ -389,12 +398,17 @@ namespace ProGlassAutomation.Services.Inquiry
         }
 
         // ── Internal projection records (lightweight, AsNoTracking-safe) ──
+        // Each record now carries the database row ID alongside the
+        // human-readable number. The number is still the primary key
+        // for the join chain (PI number → JO number → DN/TI), but the
+        // row ID is what the right-click "Open …" handlers need to
+        // actually load a specific document.
 
-        private sealed record ProformaLite(string ProformaId, string Status, DateTime UpdatedAt, decimal GrandTotal);
-        private sealed record JobOrderLite(string JobOrderId, string Status, DateTime UpdatedAt);
-        private sealed record DeliveryNoteSummary(string DeliveryNoteId, string Status, DateTime When, int Count);
+        private sealed record ProformaLite(int Id, string ProformaId, string Status, DateTime UpdatedAt, decimal GrandTotal);
+        private sealed record JobOrderLite(int Id, string JobOrderId, string Status, DateTime UpdatedAt);
+        private sealed record DeliveryNoteSummary(int Id, string DeliveryNoteId, string Status, DateTime When, int Count);
         private sealed record TaxInvoiceSummary(
-            string InvoiceNumber, string Status, DateTime When,
+            int Id, string InvoiceNumber, string Status, DateTime When,
             decimal GrandTotal, int Count,
             decimal TotalBilled, decimal TotalOutstanding);
     }

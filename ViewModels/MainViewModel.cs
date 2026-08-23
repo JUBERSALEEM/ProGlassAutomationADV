@@ -467,33 +467,47 @@ namespace ProGlassAutomation.ViewModels
             };
 
             // Right-click per-stage navigation from the inquiry rail.
-            // We just jump to the right module — opening the specific
-            // document by number would require a reverse lookup the
-            // lifecycle service doesn't yet expose (it returns the
-            // document number, not the DB id). Users find the document
-            // in the target module's own search by pasting the number
-            // (the "Copy … number" right-click item already did that).
-            InquiryVM.OpenProformaForRowRequested = _ =>
+            // The right-click "Open Proforma/Job Order/Delivery Note/
+            // Tax Invoice/Statement" items in the inquiry rail now
+            // open the SPECIFIC document, not just navigate to the
+            // module. The lifecycle service populates the row IDs on
+            // InquiryLifecycleSnapshot (ProformaRowId / JobOrderRowId /
+            // DeliveryNoteRowId / TaxInvoiceRowId). When a row ID is
+            // non-zero we call the appropriate "open by id" method on
+            // the target VM. When the row ID is zero (the lifecycle
+            // service didn't find the document, e.g. statements have
+            // no FK to inquiry) we fall back to the previous behaviour
+            // — navigate to the module and let the user find the
+            // document in the module's own search.
+            InquiryVM.OpenProformaForRowRequested = (_, rowId) =>
             {
                 Navigate("ProformaInvoice");
+                if (rowId > 0) _ = ProformaInvoiceVM.OpenSavedInvoiceAsync(rowId);
                 return Task.CompletedTask;
             };
-            InquiryVM.OpenJobOrderForRowRequested = _ =>
+            InquiryVM.OpenJobOrderForRowRequested = (_, rowId) =>
             {
                 Navigate("JobOrder");
+                if (rowId > 0) _ = JobOrderVM.OpenJobOrderAsync(rowId);
                 return Task.CompletedTask;
             };
-            InquiryVM.OpenDeliveryNoteForRowRequested = _ =>
+            InquiryVM.OpenDeliveryNoteForRowRequested = (_, rowId) =>
             {
                 Navigate("DeliveryNote");
+                if (rowId > 0) _ = DeliveryNoteVM.OpenDeliveryNoteAsync(rowId);
                 return Task.CompletedTask;
             };
-            InquiryVM.OpenTaxInvoiceForRowRequested = _ =>
+            InquiryVM.OpenTaxInvoiceForRowRequested = (_, rowId) =>
             {
                 Navigate("TaxInvoice");
+                if (rowId > 0) _ = TaxInvoiceVM.OpenInvoiceAsync(rowId);
                 return Task.CompletedTask;
             };
-            InquiryVM.OpenStatementForRowRequested = _ =>
+            // Statements don't have a FK to inquiry, so the lifecycle
+            // service can't return a row ID. The right-click handler
+            // still navigates to the Statement module; the user picks
+            // the period from there.
+            InquiryVM.OpenStatementForRowRequested = (_, _) =>
             {
                 Navigate("StatementGenerator");
                 return Task.CompletedTask;
