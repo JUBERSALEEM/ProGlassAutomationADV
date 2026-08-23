@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Data.Sqlite;
+using ProGlassAutomation.Services.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
