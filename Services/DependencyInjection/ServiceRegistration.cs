@@ -127,6 +127,7 @@ namespace ProGlassAutomation.Services.DependencyInjection
 
             // Inquiry list shell + Proforma Invoice wizard
             services.AddTransient<InquiryListViewModel>();
+            services.AddTransient<InquiryEditorViewModel>();
             services.AddTransient<ProformaInvoiceViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step1CompanySetup.CompanySetupViewModel>();
             services.AddTransient<ViewModels.ProformaInvoice.Step2ClientProfile.ClientProfileViewModel>();

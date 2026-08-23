@@ -1,4 +1,5 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Common;
@@ -81,6 +82,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         private bool _hasAttachmentsOnly;
         public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); ResetAndReload(); } }
 
+        public Func<InquiryRecord?, Task<bool>>? EditRequested { get; set; }
         public ICommand NewInquiryCommand { get; }
         public ICommand FilterByStatisticCommand { get; }
         public ICommand ExportCommand { get; }
@@ -103,7 +105,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public InquiryListViewModel(IInquiryRepository repository)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
-            NewInquiryCommand = new RelayCommand(_ => SetStatus("Inquiry editor is the next implementation phase."));
+            NewInquiryCommand = new RelayCommand(async _ => await EditAsync(null));
             FilterByStatisticCommand = new RelayCommand(p =>
             {
                 SelectedStatus = p as string ?? "All statuses";
@@ -115,7 +117,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             PreviousPageCommand = new RelayCommand(_ => { if (CanGoPrevious) { CurrentPage--; Reload(); } }, _ => CanGoPrevious);
             NextPageCommand = new RelayCommand(_ => { if (CanGoNext) { CurrentPage++; Reload(); } }, _ => CanGoNext);
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
-            OpenWorkspaceCommand = new RelayCommand(_ => SetStatus("Select an Inquiry to open its workspace."));
+            OpenWorkspaceCommand = new RelayCommand(async _ =>
+            {
+                if (SelectedInquiry != null)
+                {
+                    var detail = await _repository.GetDetailAsync(SelectedInquiry.Id);
+                    await EditAsync(detail);
+                }
+            }, _ => SelectedInquiry != null);
             ConvertToPiCommand = new RelayCommand(_ => SetStatus("Inquiry conversion is not implemented yet."));
             ShowHistoryCommand = new RelayCommand(_ => SetStatus("Inquiry history is shown in the detail panel."));
             OpenAttachmentCommand = new RelayCommand(p =>
@@ -131,6 +140,12 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             ExportSelectedCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();
+        }
+
+        private async Task EditAsync(InquiryRecord? record)
+        {
+            if (EditRequested == null) { SetStatus("Inquiry editor is unavailable."); return; }
+            if (await EditRequested(record)) ResetAndReload();
         }
 
         private async Task LoadFilterSourcesAsync()
