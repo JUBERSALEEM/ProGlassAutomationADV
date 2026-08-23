@@ -57,7 +57,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="42" Height="42" CornerRadius="10"
+                    <Border Width="42" Height="42" CornerRadius="8"
                             Background="{DynamicResource AccentBrush}" VerticalAlignment="Center">
                         <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -67,7 +67,7 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="Inquiries" Style="{StaticResource InqDisplayStyle}"/>
                             <Border Margin="9,1,0,0" Padding="8,2.5" VerticalAlignment="Center"
-                                    CornerRadius="999"
+                                    CornerRadius="8"
                                     Background="{DynamicResource TintBlueBrush}">
                                 <TextBlock FontSize="10.5" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
@@ -83,7 +83,7 @@
 
                 <!-- Inline search in the deck -->
                 <Grid Grid.Column="1" Width="300" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <Border CornerRadius="10"
+                    <Border CornerRadius="8"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1" Height="36">
                         <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13"
@@ -143,7 +143,7 @@
             <Border Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="26" Height="26" CornerRadius="7"
+                        <Border Width="26" Height="26" CornerRadius="8"
                                 Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
                             <TextBlock Text="&#xE9C9;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                        Foreground="{DynamicResource SuccessBrush}"
@@ -160,7 +160,7 @@
             <Border Grid.Column="2" Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="26" Height="26" CornerRadius="7"
+                        <Border Width="26" Height="26" CornerRadius="8"
                                 Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                             <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                        Foreground="{DynamicResource AccentBrush}"
@@ -177,7 +177,7 @@
             <Border Grid.Column="4" Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="26" Height="26" CornerRadius="7"
+                        <Border Width="26" Height="26" CornerRadius="8"
                                 Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                             <TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                        Foreground="{DynamicResource WarningBrush}"
@@ -194,7 +194,7 @@
             <Border Grid.Column="6" Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="26" Height="26" CornerRadius="7"
+                        <Border Width="26" Height="26" CornerRadius="8"
                                 Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
                             <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="12"
                                        Foreground="{DynamicResource SuccessBrush}"
@@ -236,7 +236,7 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
-                    <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,8,0"
+                    <Border Width="7" Height="7" CornerRadius="6" Margin="0,0,8,0"
                             VerticalAlignment="Center" Background="{DynamicResource AccentBrush}"
                             ToolTip="Filters are active"
                             Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVis}}"/>
@@ -260,7 +260,7 @@
                                   ToolTip="Only show inquiries with attachments">
                         <ToggleButton.Template>
                             <ControlTemplate TargetType="ToggleButton">
-                                <Border x:Name="Bg" CornerRadius="999"
+                                <Border x:Name="Bg" CornerRadius="8"
                                         Background="Transparent"
                                         BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1"
                                         Padding="11,6">
@@ -294,7 +294,57 @@
         <!-- ══ 4 · REGISTER (row cards) ══════════════════════════════ -->
         <Border Grid.Row="3" Margin="0,12,0,0" Style="{StaticResource InqSurfaceStyle}" ClipToBounds="True">
             <Grid>
-                <ListBox x:Name="RegisterList"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- COLUMN HEADER — same column grid as the row cards below,
+                     so labels and values stay aligned at every width. Each
+                     label carries a tooltip explaining the column. -->
+                <Border Margin="10,10,10,0" Padding="12,7,12,7"
+                        BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
+                        Background="{DynamicResource TintGrayBrush}"
+                        CornerRadius="8,8,0,0" SnapsToDevicePixels="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="52"/>
+                            <ColumnDefinition Width="168"/>
+                            <ColumnDefinition Width="96"/>
+                            <ColumnDefinition Width="192"/>
+                            <ColumnDefinition Width="*" MinWidth="160"/>
+                            <ColumnDefinition Width="106"/>
+                            <ColumnDefinition Width="116"/>
+                            <ColumnDefinition Width="116"/>
+                            <ColumnDefinition Width="96"/>
+                            <ColumnDefinition Width="114"/>
+                            <ColumnDefinition Width="136"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="ID" Style="{StaticResource InqOverlineStyle}"/>
+                        <TextBlock Grid.Column="1" Text="INQUIRY" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Unique inquiry number and its reference"/>
+                        <TextBlock Grid.Column="2" Text="STATUS" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Workflow stage: Received → Prepared → Sent → Confirmed, or Hold / Cancelled"/>
+                        <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Customer name and location"/>
+                        <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Project name and subject / description"/>
+                        <TextBlock Grid.Column="5" Text="VALUE (AED)" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Estimated inquiry value in AED"/>
+                        <TextBlock Grid.Column="6" Text="SALESMAN" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Sales owner of this inquiry"/>
+                        <TextBlock Grid.Column="7" Text="PREPARED BY" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="User who prepared the inquiry"/>
+                        <TextBlock Grid.Column="8" Text="FILES" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Number of attached source documents (drawings, photos, PDFs)"/>
+                        <TextBlock Grid.Column="9" Text="RECEIVED" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Date and time the inquiry was received"/>
+                        <TextBlock Grid.Column="10" Text="CONVERSION" Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Linkage to the proforma invoice and job order"/>
+                    </Grid>
+                </Border>
+
+                <ListBox Grid.Row="1" x:Name="RegisterList"
                          ItemsSource="{Binding Inquiries}"
                          SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
                          Background="Transparent" BorderThickness="0"
@@ -325,108 +375,141 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <Border x:Name="Card" CornerRadius="10"
+                            <Border x:Name="Card" CornerRadius="8"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                     Padding="12,10" Cursor="Hand" MinHeight="62"
                                     SnapsToDevicePixels="True">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="52"/>
+                                        <ColumnDefinition Width="168"/>
+                                        <ColumnDefinition Width="96"/>
+                                        <ColumnDefinition Width="192"/>
+                                        <ColumnDefinition Width="*" MinWidth="160"/>
+                                        <ColumnDefinition Width="106"/>
+                                        <ColumnDefinition Width="116"/>
+                                        <ColumnDefinition Width="116"/>
+                                        <ColumnDefinition Width="96"/>
+                                        <ColumnDefinition Width="114"/>
+                                        <ColumnDefinition Width="136"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <Border Style="{StaticResource InqSpineStyle}"/>
-                                    <Border Grid.Column="1" Style="{StaticResource InqAvatarStyle}" Margin="0,0,12,0">
-                                        <TextBlock Text="{Binding CustomerInitials, Mode=OneWay}"
-                                                   Style="{StaticResource InqAvatarTextStyle}"/>
+                                    <!-- identity: status spine + customer initials -->
+                                    <StackPanel Orientation="Horizontal" ToolTip="{Binding CustomerName}">
+                                        <Border Style="{StaticResource InqSpineStyle}"/>
+                                        <Border Style="{StaticResource InqAvatarStyle}">
+                                            <TextBlock Text="{Binding CustomerInitials, Mode=OneWay}"
+                                                       Style="{StaticResource InqAvatarTextStyle}"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- inquiry -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding InquiryNumber}" FontSize="12.5" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   ToolTip="{Binding InquiryNumber}"/>
+                                        <TextBlock Text="{Binding InquiryReference, Mode=OneWay}" FontSize="10"
+                                                   Margin="0,2,0,0" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <!-- status + priority -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <Border Style="{StaticResource InqStatusPillStyle}">
+                                            <TextBlock Text="{Binding Status}" Style="{StaticResource InqPillTextStyle}"/>
+                                        </Border>
+                                        <Border Margin="0,3,0,0" Style="{StaticResource InqMetaChipStyle}"
+                                                Padding="7,2" HorizontalAlignment="Left"
+                                                ToolTip="Priority set when the inquiry was captured">
+                                            <TextBlock Text="{Binding Priority, Mode=OneWay}"
+                                                       Style="{StaticResource InqMetaChipTextStyle}"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- customer -->
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0,8,0"
+                                                ToolTip="{Binding ContactSummary, Mode=OneWay}">
+                                        <TextBlock Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding CustomerLocation, Mode=OneWay}" FontSize="10"
+                                                   Margin="0,2,0,0" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <!-- project -->
+                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock Text="{Binding Project}" FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding Subject, Mode=OneWay}" FontSize="10" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </StackPanel>
+
+                                    <!-- value -->
+                                    <TextBlock Grid.Column="5" Text="{Binding ValueText, Mode=OneWay}" FontSize="12.5"
+                                               FontWeight="Bold" TextAlignment="Right" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               ToolTip="{Binding InquiryValue, StringFormat=Estimated value: AED {0:N2}}"/>
+
+                                    <!-- salesman -->
+                                    <TextBlock Grid.Column="6" Text="{Binding Salesman, Mode=OneWay}" FontSize="11.5"
+                                               VerticalAlignment="Center" Margin="8,0,8,0"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding Salesman}"/>
+
+                                    <!-- prepared by -->
+                                    <TextBlock Grid.Column="7" Text="{Binding PreparedBy, Mode=OneWay}" FontSize="11.5"
+                                               VerticalAlignment="Center" Margin="0,0,8,0"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextTrimming="CharacterEllipsis"
+                                               ToolTip="{Binding PreparedBy}"/>
+
+                                    <!-- files -->
+                                    <Border Grid.Column="8" Style="{StaticResource InqMetaChipStyle}"
+                                            HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            ToolTip="Attached source documents — open the details drawer to preview">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="{Binding AttachmentCount, Mode=OneWay}"
+                                                       Style="{StaticResource InqMetaChipTextStyle}"/>
+                                        </StackPanel>
                                     </Border>
 
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="2,0,14,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding InquiryNumber}" FontSize="12.5" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                            <Border Margin="9,0,0,0" Style="{StaticResource InqStatusPillStyle}">
-                                                <TextBlock Text="{Binding Status}" Style="{StaticResource InqPillTextStyle}"/>
-                                            </Border>
-                                            <Border Margin="7,0,0,0" Style="{StaticResource InqMetaChipStyle}"
-                                                    Padding="7,2.5">
-                                                <TextBlock Text="{Binding Priority, Mode=OneWay}"
-                                                           Style="{StaticResource InqMetaChipTextStyle}"/>
-                                            </Border>
-                                            <TextBlock Text="{Binding InquiryReference, Mode=OneWay}" FontSize="10.5"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       Margin="10,1,0,0" VerticalAlignment="Center"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="160"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                            <TextBlock Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="220"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Text="·" Margin="7,0,7,0" VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                            <TextBlock Text="{Binding Project}" FontSize="12"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="300"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
+                                    <!-- received -->
+                                    <StackPanel Grid.Column="9" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding ReceivedDateText, Mode=OneWay}" FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Text="{Binding ReceivedTimeText, Mode=OneWay}" FontSize="10"
+                                                   Margin="0,2,0,0" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   ToolTip="{Binding ReceivedAt, StringFormat=Received {0:dddd, dd MMM yyyy hh:mm tt}}"/>
                                     </StackPanel>
 
-                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center"
-                                                Margin="0,0,14,0">
-                                        <Border Style="{StaticResource InqMetaChipStyle}">
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                                <TextBlock Text="{Binding AttachmentChipText, Mode=OneWay}"
-                                                           Style="{StaticResource InqMetaChipTextStyle}"/>
-                                            </StackPanel>
-                                        </Border>
-                                        <Border Margin="6,0,0,0">
-                                            <Border.Style>
-                                                <Style TargetType="Border" BasedOn="{StaticResource InqMetaChipStyle}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsConverted}" Value="True">
-                                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                                                            <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <TextBlock Text="{Binding ChainText, Mode=OneWay}" FontSize="9.5"
-                                                       FontWeight="SemiBold" MaxWidth="150"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </Border>
-                                    </StackPanel>
-
-                                    <StackPanel Grid.Column="4" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                        <TextBlock Text="{Binding ValueText, Mode=OneWay}" FontSize="13" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   HorizontalAlignment="Right"/>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,3,0,0">
-                                            <TextBlock Text="{Binding ReceivedDateText, Mode=OneWay}" FontSize="10"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Text="{Binding ReceivedTimeText, Mode=OneWay}" FontSize="10"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       Margin="6,0,0,0" VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,2,0,0">
-                                            <TextBlock Text="{Binding Salesman, Mode=OneWay}" FontSize="9.5"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="110"/>
-                                            <TextBlock Text="{Binding PreparedBy, Mode=OneWay}" FontSize="9.5" Margin="6,0,0,0"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="110"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Grid>
+                                    <!-- conversion chain -->
+                                    <Border Grid.Column="10" VerticalAlignment="Center" Margin="0,0,0,0"
+                                            Padding="8,3" ToolTip="{Binding ChainText, Mode=OneWay}">
+                                        <Border.Style>
+                                            <Style TargetType="Border" BasedOn="{StaticResource InqMetaChipStyle}">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsConverted}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding ChainText, Mode=OneWay}" FontSize="9.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                    </Border>
+                                                                </Grid>
                             </Border>
                             <DataTemplate.Triggers>
                                 <DataTrigger Value="True">
@@ -451,8 +534,8 @@
                     </ListBox.ItemTemplate>
                 </ListBox>
 
-                <!-- In-card overlays -->
-                <Grid>
+                <!-- In-card overlays (over the list area; header stays visible) -->
+                <Grid Grid.Row="1">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="430">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
@@ -468,7 +551,7 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <Border Width="62" Height="62" CornerRadius="16"
+                        <Border Width="62" Height="62" CornerRadius="12"
                                 Background="{DynamicResource TintBlueBrush}" HorizontalAlignment="Center">
                             <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="26"
                                        Foreground="{DynamicResource AccentBrush}"
@@ -494,7 +577,7 @@
                     </StackPanel>
 
                     <Border MaxWidth="520" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20"
-                            Padding="18,14" CornerRadius="10"
+                            Padding="18,14" CornerRadius="8"
                             Background="{DynamicResource TintRedBrush}"
                             BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                             Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}">
@@ -515,8 +598,9 @@
                     </Border>
                 </Grid>
 
+            </Grid>
                 <!-- ══ DETAILS DRAWER ═════════════════════════════════ -->
-                <Border x:Name="Drawer" Width="452" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                <Border Grid.Row="0" Grid.RowSpan="2" x:Name="Drawer" Width="452" HorizontalAlignment="Right" VerticalAlignment="Stretch"
                         Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1,0,0,0"
                         Opacity="0" IsHitTestVisible="False">
@@ -683,7 +767,7 @@
                                 <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border CornerRadius="10"
+                                            <Border CornerRadius="8"
                                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                                     Padding="10,8" Margin="0,0,0,7">
@@ -796,7 +880,6 @@
                         </Border>
                     </Grid>
                 </Border>
-            </Grid>
         </Border>
 
         <!-- ══ 5 · FOOTER ═════════════════════════════════════════════ -->

@@ -39,7 +39,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Border Width="38" Height="38" CornerRadius="10"
+                <Border Width="38" Height="38" CornerRadius="8"
                         Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                     <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="15"
                                Foreground="{DynamicResource AccentBrush}"
@@ -66,7 +66,7 @@
                     <SolidColorBrush Color="Transparent"/>
                 </Border.Background>
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
-                    <Border Width="62" Height="62" CornerRadius="16"
+                    <Border Width="62" Height="62" CornerRadius="12"
                             Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="26"
                                    Foreground="{DynamicResource DangerBrush}"
@@ -84,7 +84,7 @@
 
             <Border x:Name="UnsupportedPanel" Background="Transparent" Visibility="Collapsed">
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
-                    <Border Width="62" Height="62" CornerRadius="16"
+                    <Border Width="62" Height="62" CornerRadius="12"
                             Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
                         <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="26"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
