@@ -79,7 +79,7 @@
    </Grid>
   </Border>
 
-  <DockPanel Grid.Row="4" Margin="24,0"><TextBlock Text="{Binding PageStatus}" Foreground="#667085" VerticalAlignment="Center"/><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="PREVIOUS" Command="{Binding PreviousPageCommand}" Height="30" Padding="10,3"/><TextBlock VerticalAlignment="Center" Margin="10,0"><Run Text="Page "/><Run Text="{Binding CurrentPage}"/><Run Text=" of "/><Run Text="{Binding TotalPages}"/></TextBlock><Button Content="NEXT" Command="{Binding NextPageCommand}" Height="30" Padding="10,3"/></StackPanel></DockPanel>
+  <DockPanel Grid.Row="4" Margin="24,0"><TextBlock Text="{Binding PageStatus}" Foreground="#667085" VerticalAlignment="Center"/><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="PREVIOUS" Command="{Binding PreviousPageCommand}" Height="30" Padding="10,3"/><TextBlock VerticalAlignment="Center" Margin="10,0"><Run Text="Page "/><Run Text="{Binding CurrentPage, Mode=OneWay}"/><Run Text=" of "/><Run Text="{Binding TotalPages, Mode=OneWay}"/></TextBlock><Button Content="NEXT" Command="{Binding NextPageCommand}" Height="30" Padding="10,3"/></StackPanel></DockPanel>
 
   <!-- Drawer overlays KPI/filter/table exactly like approved image -->
   <Border Grid.Row="1" Grid.RowSpan="4" Width="460" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,-16,8,8" Background="#FFFFFF" BorderBrush="#D6DEE7" BorderThickness="1" CornerRadius="8" Panel.ZIndex="20" RenderTransformOrigin="1,0.5">

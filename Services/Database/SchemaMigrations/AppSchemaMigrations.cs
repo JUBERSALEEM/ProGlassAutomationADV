@@ -53,7 +53,11 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         public static IReadOnlyList<SchemaMigration> ProformaInvoices { get; }
             = new List<SchemaMigration>
             {
-                new(1, "Add optional stable Inquiry relationship", connection =>
+                // Use a reserved high version: customer databases may already
+                // carry PRAGMA user_version values from older installers even
+                // though this registry was previously empty. Version 1 was
+                // therefore incorrectly skipped, leaving InquiryId absent.
+                new(1001, "Add optional stable Inquiry relationship", connection =>
                 {
                     SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "InquiryId", "INTEGER NULL");
                     SchemaMigrationSql.CreateIndexIfNotExists(connection,
