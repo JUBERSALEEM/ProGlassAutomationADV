@@ -24,6 +24,7 @@
 
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProGlassAutomation.Services.Database.SchemaMigrations
 {
@@ -270,23 +271,77 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         /// <summary>
         /// Migration 1002: drop any column that exists in the live
-        /// Inquiries table but isn't in the expected model. Interim
-        /// builds (before 1001) shipped a different InquiryRecord
-        /// shape — most notably a required NOT NULL column called
-        /// "InquiryDate" that was later renamed to "ReceivedAt".
-        /// 1001 added the new columns and indexes but never removed
-        /// the legacy ones, so every INSERT now fails with:
-        ///     SQLite error 19: 'NOT NULL constraint failed:
-        ///     Inquiries.InquiryDate'
-        /// because EF's INSERT statement omits the column (it's not
-        /// in the model) and SQLite tries to apply the (missing)
-        /// DEFAULT. This step runs after 1001 and is idempotent: a
-        /// fresh database that was just CREATE-TABLE'd in step 1 has
-        /// only the expected columns, so the Except set is empty and
-        /// the ALTER TABLE block is a no-op.
+        /// Inquiries table but isn't in the expected model, AND
+        /// rename known legacy columns to their current names so
+        /// user data isn't lost. Interim builds (before 1001)
+        /// shipped a different InquiryRecord shape — most notably a
+        /// required NOT NULL column called "InquiryDate" that was
+        /// later renamed to "ReceivedAt", and a "Salesman" column
+        /// that was later renamed to "SalesmanName".
+        ///
+        /// 1001 added the new columns and indexes but never renamed
+        /// or removed the legacy ones, so every INSERT fails with
+        /// SQLite error 19 (NOT NULL constraint failed) on the
+        /// leftover column because EF's INSERT statement omits it
+        /// (it's not in the model) and SQLite tries to apply the
+        /// (missing) DEFAULT. The user's first symptom is the
+        /// "Attachment failed" dialog when the editor's auto-save
+        /// runs before the first attachment on a brand-new inquiry.
+        ///
+        /// This step runs after 1001 and is idempotent: a fresh
+        /// database that was just CREATE-TABLE'd in step 1 has
+        /// only the expected columns, so the rename / drop
+        /// passes are both no-ops.
         /// </summary>
         private static void DropLegacyInquiriesColumns(SqliteConnection connection)
         {
+            // 0) Loud pre-migration snapshot. Logs the live column
+            //    list so an operator can correlate "my DB has a
+            //    Salesman column" with what the migration did. This
+            //    is the first place to look when a user reports a
+            //    NOT NULL constraint failure that the migration was
+            //    supposed to fix.
+            try
+            {
+                using var pre = connection.CreateCommand();
+                pre.CommandText = "PRAGMA table_info(\"Inquiries\");";
+                using var reader = pre.ExecuteReader();
+                var before = new List<string>();
+                while (reader.Read()) before.Add(reader.GetString(1));
+                AppLogService.Info(
+                    $"[Inquiries] pre-migration columns: {string.Join(", ", before)}",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "SnapshotInquiriesSchema" });
+            }
+            catch { /* snapshot logging is best-effort */ }
+
+            // 1) Rename known legacy columns so user data is preserved.
+            //    Maps "old name" → "new name". Each entry is run as
+            //    "ALTER TABLE Inquiries RENAME COLUMN old TO new"
+            //    which is supported on SQLite 3.25+. The runner
+            //    ignores failures (the column may not exist on a
+            //    particular install, OR the new name may already
+            //    exist from migration 1001) and logs to AppLogService
+            //    so ops can see what actually happened. The drop pass
+            //    below still runs after the renames, so a renamed
+            //    column with a duplicate new-name is cleaned up by
+            //    the orphan drop.
+            var renames = new (string OldName, string NewName)[]
+            {
+                ("InquiryDate", "ReceivedAt"),     // pre-2025 build
+                ("Salesman",    "SalesmanName"),   // pre-2025 build (no "Name" suffix)
+                ("Customer",    "CustomerName"),   // pre-2025 build (no "Name" suffix)
+                ("Project",     "ProjectName"),    // pre-2025 build (no "Name" suffix)
+                ("PreparedBy",  "PreparedByName"), // pre-2025 build (no "Name" suffix)
+            };
+            foreach (var (oldName, newName) in renames)
+            {
+                TryRenameColumn(connection, "Inquiries", oldName, newName);
+            }
+
+            // 2) Drop any column that exists but isn't in the
+            //    expected model. Idempotent on a fresh DB: a
+            //    CREATE-TABLE'd Inquiries only has the expected
+            //    columns, so the Except set is empty.
             string[] expectedInquiriesColumns = new[]
             {
                 "Id", "InquiryNumber", "InquiryReference", "CustomerId", "CustomerName", "CustomerLocation",
@@ -296,9 +351,6 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 "CreatedAt", "UpdatedAt", "UpdatedBy", "ProformaInvoiceId", "ProformaNumber",
                 "JobOrderNumber"
             };
-            // PRAGMA table_info gives us the live column list. Anything
-            // outside the expected set is dropped. We avoid quoting
-            // issues by validating membership before issuing DDL.
             var liveColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             using (var pragma = connection.CreateCommand())
             {
@@ -306,27 +358,108 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 using var reader = pragma.ExecuteReader();
                 while (reader.Read()) liveColumns.Add(reader.GetString(1));
             }
-            foreach (var orphan in liveColumns.Except(expectedInquiriesColumns, StringComparer.OrdinalIgnoreCase))
+            var expectedSet = new HashSet<string>(expectedInquiriesColumns, StringComparer.OrdinalIgnoreCase);
+            var orphans = liveColumns.Where(c => !expectedSet.Contains(c)).ToList();
+            foreach (var orphan in orphans)
             {
-                // SQLite >= 3.35 supports ALTER TABLE ... DROP COLUMN.
-                // The SQLitePCL raw bundle in this project is 3.46+ so
-                // this is always available. Identifier sanitization:
-                // orphan is a column name from PRAGMA so it can't be
-                // user input; quoting it with " preserves any case that
-                // SQLite preserved.
-                try
+                TryDropColumn(connection, "Inquiries", orphan);
+            }
+
+            // 3) Loud verification step. After the pass, log the
+            //    final column list so an operator reading the log
+            //    can confirm the table is in the expected shape.
+            //    A lingering "Salesman" or "InquiryDate" in this
+            //    list means a rename failed and the operator needs
+            //    to look at the file by hand.
+            try
+            {
+                using var check = connection.CreateCommand();
+                check.CommandText = "PRAGMA table_info(\"Inquiries\");";
+                using var reader = check.ExecuteReader();
+                var final = new List<string>();
+                while (reader.Read()) final.Add(reader.GetString(1));
+                AppLogService.Info(
+                    $"[Inquiries] post-migration columns: {string.Join(", ", final)}",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "VerifyInquiriesSchema" });
+            }
+            catch { /* verification logging is best-effort */ }
+        }
+
+        /// <summary>
+        /// Renames an Inquiries column from <paramref name="oldName"/>
+        /// to <paramref name="newName"/> if it exists. Idempotent:
+        /// silently skips when the source column isn't present.
+        /// Failures are logged to AppLogService so ops can see
+        /// what actually happened — the previous implementation
+        /// swallowed errors to Debug.WriteLine, which is invisible
+        /// in production.
+        /// </summary>
+        private static void TryRenameColumn(SqliteConnection connection, string table, string oldName, string newName)
+        {
+            try
+            {
+                // Confirm the source column exists. PRAGMA table_info
+                // is case-insensitive on the column-name match, but
+                // we keep the case the user typed in their DDL for
+                // the ALTER statement.
+                using (var check = connection.CreateCommand())
                 {
-                    using var drop = connection.CreateCommand();
-                    drop.CommandText = $"ALTER TABLE \"Inquiries\" DROP COLUMN \"{orphan}\";";
-                    drop.ExecuteNonQuery();
+                    check.CommandText = $"PRAGMA table_info(\"{table}\");";
+                    using var reader = check.ExecuteReader();
+                    bool exists = false;
+                    while (reader.Read())
+                    {
+                        if (string.Equals(reader.GetString(1), oldName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (!exists) return; // column not present, nothing to rename
                 }
-                catch (Exception ex)
-                {
-                    // Non-fatal: a single bad column shouldn't block
-                    // startup. Worst case it forces a manual migration.
-                    System.Diagnostics.Debug.WriteLine(
-                        $"DropLegacyInquiriesColumns: could not drop '{orphan}': {ex.Message}");
-                }
+
+                using var cmd = connection.CreateCommand();
+                cmd.CommandText = $"ALTER TABLE \"{table}\" RENAME COLUMN \"{oldName}\" TO \"{newName}\";";
+                cmd.ExecuteNonQuery();
+                AppLogService.Info(
+                    $"[Inquiries] renamed legacy column '{oldName}' → '{newName}' (user data preserved).",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryRenameColumn" });
+            }
+            catch (Exception ex)
+            {
+                // Non-fatal: another column with the same shape may
+                // already exist (the new name is in the model), or
+                // the rename is unsupported on this SQLite build.
+                // Either way we log and continue so the drop pass
+                // below still runs.
+                AppLogService.Warning(
+                    $"[Inquiries] could not rename column '{oldName}' → '{newName}': {ex.Message}",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryRenameColumn" });
+            }
+        }
+
+        /// <summary>
+        /// Drops a single orphan column from a table. Idempotent:
+        /// silently skips when the column isn't present. Failures
+        /// are logged to AppLogService (was previously swallowed
+        /// to Debug.WriteLine, which is invisible in production).
+        /// </summary>
+        private static void TryDropColumn(SqliteConnection connection, string table, string column)
+        {
+            try
+            {
+                using var drop = connection.CreateCommand();
+                drop.CommandText = $"ALTER TABLE \"{table}\" DROP COLUMN \"{column}\";";
+                drop.ExecuteNonQuery();
+                AppLogService.Info(
+                    $"[{table}] dropped orphan column '{column}'.",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryDropColumn" });
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"[{table}] could not drop orphan column '{column}': {ex.Message}",
+                    new LogContext { Module = "Database", Class = "SchemaMigrations", Operation = "TryDropColumn" });
             }
         }
     }

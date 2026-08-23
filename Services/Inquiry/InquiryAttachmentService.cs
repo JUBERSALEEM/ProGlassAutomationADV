@@ -255,9 +255,23 @@ namespace ProGlassAutomation.Services.Inquiry
         /// register's "files" count keeps working on healthy databases. The
         /// manifest is the source of truth; a mirror failure (drifted legacy
         /// schema — the reported crash) is logged and ignored.
+        ///
+        /// The mirror is wrapped in three layers of defence:
+        ///   1. A cached health flag (`_mirrorEnabled`) — once any
+        ///      mirror call fails we skip subsequent mirrors in this
+        ///      session so a broken schema can't slow every upload.
+        ///   2. A try/catch on the synchronous setup (the part that
+        ///      would throw inside this method).
+        ///   3. The async `AddAttachmentAsync` is wrapped in a
+        ///      `TryAsyncFireAndForget` helper that catches every
+        ///      exception from the continuation so the manifest save
+        ///      above stays successful even on a broken EF schema.
         /// </summary>
+        private bool _mirrorEnabled = true;
+
         private void MirrorToDatabase(InquiryAttachment record)
         {
+            if (!_mirrorEnabled) return;
             try
             {
                 var mirror = new InquiryAttachment
@@ -267,13 +281,15 @@ namespace ProGlassAutomation.Services.Inquiry
                     StoragePath = record.StoragePath, AttachmentType = record.AttachmentType,
                     UploadedBy = record.UploadedBy, UploadedAt = record.UploadedAt
                 };
-                AsyncUtility.SafeFireAndForget(
+                TryAsyncFireAndForget(
                     () => _repository.AddAttachmentAsync(mirror),
-                    "Inquiry attachment count mirror");
+                    "Inquiry attachment count mirror",
+                    () => _mirrorEnabled = false);
             }
             catch (Exception ex)
             {
                 AppLogService.Debug("[InquiryAttachments] Count mirror skipped: " + ExceptionMessages.Deep(ex));
+                _mirrorEnabled = false;
             }
         }
 
