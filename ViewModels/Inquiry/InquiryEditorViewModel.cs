@@ -567,10 +567,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     Salesmen.Add(sm.Name);
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // master-data write-back is best-effort. The inquiry is already
-                // saved; a failure here should not roll that back.
+                // saved; a failure here should not roll that back. But it
+                // should be visible: log to Debug so an attached debugger
+                // or the in-app log panel sees the exception type and
+                // message. The end-user sees nothing because the master-
+                // data write isn't part of the inquiry-save contract.
+                System.Diagnostics.Debug.WriteLine(
+                    $"TryUpsertMasterDataAsync: master-data write-back failed: {ex}");
             }
         }
 

@@ -199,8 +199,22 @@ namespace ProGlassAutomation.Views.Inquiry
             }
             vm.EditRequested = async record =>
             {
-                var workflow = App.ServiceProvider.GetRequiredService<IInquiryWorkflowService>();
-                var attachments = App.ServiceProvider.GetRequiredService<InquiryAttachmentService>();
+                // Defensive: the list VM's ctor has a fallback for
+                // App.Inquiries, but the editor's required services
+                // (IInquiryWorkflowService, InquiryAttachmentService) have
+                // no fallback — GetRequiredService throws when the DI
+                // container never built. We resolve them via the
+                // service provider when available, and fall back to
+                // newing up the same instances the VM's ctor would
+                // fall back to, so the editor still works in a
+                // manually-constructed startup (the App.xaml.cs catch
+                // branch).
+                var workflow = App.ServiceProvider?.GetService(typeof(IInquiryWorkflowService))
+                    as IInquiryWorkflowService
+                    ?? new InquiryWorkflowService(App.Inquiries ?? new InquiryRepository());
+                var attachments = App.ServiceProvider?.GetService(typeof(InquiryAttachmentService))
+                    as InquiryAttachmentService
+                    ?? new InquiryAttachmentService(App.Inquiries ?? new InquiryRepository());
                 // Resolve master-data through DI when available, fall back
                 // to the App.* static when the DI container never built
                 // (manual startup). The VM already does this internally;

@@ -699,6 +699,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     result = await _repository.QueryAsync(Build(result.Page + 1));
                     rows.AddRange(result.Items);
                 }
+                // Apply the same in-memory pipeline filter that LoadAsync
+                // applies. Without this, a user who filtered to "PI only"
+                // would export ALL inquiries regardless of the visible
+                // filter — which is almost never what they want.
+                var pipelineFilter = SelectedPipelineKind;
+                if (pipelineFilter.HasValue)
+                {
+                    int minStage = (int)pipelineFilter.Value;
+                    rows = rows.Where(x => x.Lifecycle.FurthestStageReached >= minStage).ToList();
+                }
                 await _io.ExportCsvAsync(path, rows);
                 SetStatus($"Exported {rows.Count} inquiries to {System.IO.Path.GetFileName(path)}.");
             }

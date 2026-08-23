@@ -116,15 +116,24 @@
         </Style>
 
         <!-- Segmented status pill for the tab row above the list.
-             Inactive = pale surface with grey text; active = accent surface. -->
+             Inactive = pale surface with grey text; active = accent surface.
+
+             Note: this style is used inside a 7-column Grid that gives each
+             tab 1/7 of the available width. The Margin / Padding below are
+             tuned for that: a small vertical + horizontal pad, no right
+             margin (the grid spacing handles the gap), and the content
+             is centred horizontally so the label and count pill are
+             visually balanced inside the cell. Count is hidden when 0 so
+             the tab isn't a noisy "All 0" pill before any data lands. -->
         <Style x:Key="InquiryStatusTabStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="14,8"/>
-            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="Padding" Value="6,8"/>
+            <Setter Property="Margin" Value="0"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -132,9 +141,9 @@
                         <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <ContentPresenter VerticalAlignment="Center"/>
-                                <Border Margin="8,0,0,0" Padding="7,1.5" CornerRadius="12"
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                <Border x:Name="CountPill" Margin="8,0,0,0" Padding="7,1.5" CornerRadius="12"
                                         Background="{DynamicResource ModuleBackgroundBrush}">
                                     <TextBlock Text="{Binding Count, Mode=OneWay}" FontSize="10"
                                                FontWeight="Bold"
@@ -151,6 +160,11 @@
                                 <Setter TargetName="Bg" Property="Background"
                                         Value="{DynamicResource AccentBrush}"/>
                                 <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                            <!-- Hide the count pill when there are zero rows
+                                 in this bucket. Showing "0" is noise. -->
+                            <DataTrigger Binding="{Binding Count}" Value="0">
+                                <Setter TargetName="CountPill" Property="Visibility" Value="Collapsed"/>
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -324,35 +338,95 @@
             </Grid>
         </Border>
 
-        <!-- ══ 3 · STATUS TABS + FILTER ROW ══════════════════════════ -->
+        <!-- ══ 3 · STATUS TABS + PIPELINE TABS + FILTER ROW ═══════ -->
         <Grid Grid.Row="2" Margin="24,0,24,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Status tabs (segmented, horizontal) -->
+            <!-- Status tabs (All / Received / Prepared / Sent / Confirmed / Hold / Cancelled).
+                 Implemented as a 7-column Grid (not a StackPanel) so each
+                 tab gets an equal 1/7 of the available width. The previous
+                 StackPanel layout was collapsing on narrow windows and the
+                 "Cancel inquiry" label was clipping into the next tab. -->
             <Border Grid.Row="0" Margin="0,0,0,8">
-                <ItemsControl ItemsSource="{Binding StatusTabs}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Button Content="{Binding Label}"
-                                    Command="{Binding DataContext.SelectStatusTabCommand,
-                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding Key}"
-                                    Style="{StaticResource InquiryStatusTabStyle}"/>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ItemsControl ItemsSource="{Binding StatusTabs}" Grid.ColumnSpan="7">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" Columns="7"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Command="{Binding DataContext.SelectStatusTabCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Key}"
+                                        Style="{StaticResource InquiryStatusTabStyle}"
+                                        HorizontalContentAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
             </Border>
 
-            <!-- Filter row -->
-            <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+            <!-- Pipeline tabs (INQ / PI / JO / DN / TI / STMT).
+                 Same full-width pattern as the status tabs above. This row
+                 was wired in the VM (PipelineTabs collection, the
+                 SelectPipelineTabCommand, the in-memory pipeline filter
+                 in LoadAsync) but never bound to the UI — fixed now. The
+                 "Inquiry" tab maps to the default (no filter); the rest
+                 filter to inquiries that have reached that downstream
+                 stage. -->
+            <Border Grid.Row="1" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <ItemsControl ItemsSource="{Binding PipelineTabs}" Grid.ColumnSpan="6">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1" Columns="6"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Command="{Binding DataContext.SelectPipelineTabCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Kind}"
+                                        Style="{StaticResource InquiryStatusTabStyle}"
+                                        HorizontalContentAlignment="Stretch"
+                                        HorizontalAlignment="Stretch"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+            <!-- Filter row — six inputs (search / date / salesman / prepared-by / priority / sort)
+                 plus a "Has attachments" checkbox and the RESET button.
+                 All controls span the row evenly; the checkbox sits next to
+                 RESET so it doesn't crowd the date / sort combos. -->
+            <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
@@ -364,6 +438,12 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="8"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
@@ -383,11 +463,19 @@
                               SelectedItem="{Binding SelectedPreparedBy}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
                               ToolTip="Prepared by"/>
-                    <ComboBox Grid.Column="8" ItemsSource="{Binding SortOptions}"
+                    <ComboBox Grid.Column="8" ItemsSource="{Binding Priorities}"
+                              SelectedItem="{Binding SelectedPriority}"
+                              Style="{StaticResource ModuleListFilterComboStyle}"
+                              ToolTip="Priority"/>
+                    <ComboBox Grid.Column="10" ItemsSource="{Binding SortOptions}"
                               SelectedItem="{Binding SelectedSort}"
                               Style="{StaticResource ModuleListFilterComboStyle}"
                               ToolTip="Sort order"/>
-                    <Button Grid.Column="10" MinWidth="92" Margin="8,0,0,0"
+                    <CheckBox Grid.Column="12" Content="Has attachments"
+                              VerticalAlignment="Center" Margin="4,0,0,0"
+                              IsChecked="{Binding HasAttachmentsOnly}"
+                              ToolTip="Show only inquiries that have at least one attachment"/>
+                    <Button Grid.Column="14" MinWidth="92" Margin="8,0,0,0"
                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                             Command="{Binding ResetFiltersCommand}"
                             Content="RESET" Tag="↺"/>
