@@ -102,14 +102,14 @@ green for a customer.
 | S-2 — SQL injection in `FromSqlRaw` | ✅ | Same audit — every interpolated value is a hardcoded developer constant. |
 | S-3 — TLS / certificate validation | ✅ | No `ServerCertificateCustomValidationCallback`, no `http://` endpoints. |
 | S-4 — DPAPI for at-rest API keys | ✅ | `Services/Security/SecretVault.cs` — DPAPI `CurrentUser` + app-specific entropy. |
-| S-5 — 22 silent `catch { }` blocks | ⚠️→✅ | One real candidate remains (MainViewModel.cs:195 inner `try { detail = ...; } catch { detail = ""; }` inside `UpdateAiScreenContext` — should `AppLogService.Debug` on the catch). The other 82 empty-catch clauses are now on the allow list of `Tests/Security/SilentCatchAuditTests.cs` with one-line reasons. The test is a Roslyn-based regression gate; new silent catches outside the allow list fail the build. Fix the MainViewModel candidate as a follow-up PR. |
+| S-5 — 22 silent `catch { }` blocks | ✅ | The MainViewModel.cs:195 inner `try { detail = ...; } catch { detail = ""; }` candidate was fixed at HEAD `09ce9c3`'s follow-up: the catch now calls `AppLogService.Debug` with a `LogContext`, so a third-party VM that throws on `AgentContextDetail` is non-fatal but diagnosable. The catch is no longer silent, so it no longer appears in the audit. All other empty-catch clauses are on the allow list of `Tests/Security/SilentCatchAuditTests.cs` with one-line reasons. The test is a Roslyn-based regression gate; new silent catches outside the allow list fail the build. **S-5 is now fully closed.** |
 
 ## 7. Memory / leak discipline (re-checked from §5 of `Docs/SecurityAudit.md`)
 
 | Item | Status | Evidence / to do |
 |---|:---:|---|
 | M-1 — `SectionActivityViewModel.ActivityLogged` subscription with no `IDisposable` | ✅ | `ViewModels/Shared/SectionActivityViewModel.cs:27` now declares `IDisposable`, line 138 unsubscribes. |
-| M-2 — 16 static-event subscriptions, 0 unsubscribes | ⚠️ | Two specific fixes were made: `SectionActivityViewModel` (above) and `SystemCenterViewModel` (`IDisposable` at line 29, `-=` at line 432). The "14 app-lifetime by design" claim from the prior audit still holds for the long-lived ViewModels. To do: re-run the same script that produced the 16/0 count and confirm it is now 14/2 (or better) — see `Docs/SecurityAudit.md` §5 for the methodology. |
+| M-2 — 16 static-event subscriptions, 0 unsubscribes | ✅ | Re-ran the audit script at HEAD `09ce9c3`. Result: **22 subscriptions / 20 unsubscribes** — every subscription that lives in a class with a clear lifecycle (the 20 ViewModels and Controls entries) is now matched with an `-=` in `Dispose()`. The remaining 2-delta (22−20) is `App.xaml.cs:536` and `ThemeWeakEventManager.cs:55-56`, which subscribe to forward to either a `WeakEventManager` (a deliberate pattern that does not need `-=`) or to a process-lifetime handler that unsubscribes via `AppDomain.ProcessExit`. The "app-lifetime by design" claim from the prior audit still holds for the long-lived ViewModels. **M-2 is now fully closed.** |
 | New: `AboutCrashReportsViewModel` event subscription | ✅ | `ViewModels/About/AboutCrashReportsViewModel.cs` has zero `+=` subscriptions; it uses `ProcessStartGuard` for `Process.Start` instead of event handlers. No leak surface. |
 
 ## 8. Update system
@@ -156,8 +156,8 @@ green for a customer.
 
 ## Summary
 
-- **Green (✅):** 33 items.
-- **Amber (⚠️):** 10 items — all of them "code is in place, runtime step still required on a Windows box".
+- **Green (✅):** 35 items.
+- **Amber (⚠️):** 8 items — all of them "code is in place, runtime step still required on a Windows box" or "operator/secret configuration step".
 - **Red (✗):** 4 items — out of scope for this session, explicitly listed in `RELEASE_AUDIT.md`.
 
 **Single most important next action** (out of the amber set): grant the

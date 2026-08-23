@@ -244,23 +244,14 @@ namespace ProGlassAutomation.Tests.Security
         //
         // The audit at HEAD `1a1f601` flagged "22 silent
         // catch { } blocks" (S-5). After this test scans the
-        // codebase with the allow list above, the *only*
-        // remaining catch that warrants a real human look is:
-        //
-        //   - ViewModels/MainViewModel.cs line 195 (inner
-        //     try { detail = aware.AgentContextDetail ?? ""; }
-        //     catch { detail = ""; })
-        //       This is the per-VM best-effort probe inside
-        //       UpdateAiScreenContext. The outer method is
-        //       on the allow list, but a third-party VM that
-        //       throws on this property should log at Debug
-        //       level so the developer can find it. The
-        //       fix is one line: replace `catch { detail = ""; }`
-        //       with `catch (Exception ex) { AppLogService.Debug(
-        //       $"[Main] AgentContextDetail probe failed: {ex.Message}");
-        //       detail = ""; }`. This is left as a follow-up
-        //       because the test is more useful as a regression
-        //       gate than as a forcing function.
+        // codebase with the allow list above, the only
+        // remaining candidate — the per-VM best-effort probe
+        // inside MainViewModel.UpdateAiScreenContext — was
+        // fixed at HEAD `b2d73e4`'s follow-up: the catch now
+        // calls AppLogService.Debug so a third-party VM that
+        // throws on AgentContextDetail is non-fatal but
+        // diagnosable. The catch is no longer silent, so it
+        // no longer appears in this audit.
         //
         // All other previously-flagged S-5 hits are explicitly
         // on the allow list above with a one-line reason.

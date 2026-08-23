@@ -193,7 +193,20 @@ namespace ProGlassAutomation.ViewModels
                 string detail = "";
                 if (_currentViewModel is ProGlassAutomation.Agent.Context.IAgentContextAware aware)
                 {
-                    try { detail = aware.AgentContextDetail ?? ""; } catch { detail = ""; }
+                    // Per-VM best-effort probe. A third-party VM that
+                    // throws on AgentContextDetail is non-fatal — the AI
+                    // context just gets an empty detail — but we log at
+                    // Debug so the developer can find the offender
+                    // (audit S-5: 1 real candidate fixed in this slice).
+                    try { detail = aware.AgentContextDetail ?? ""; }
+                    catch (Exception probeEx)
+                    {
+                        AppLogService.Debug(
+                            $"[Main] AgentContextDetail probe failed for " +
+                            $"{_currentViewModel?.GetType().Name}: {probeEx.Message}",
+                            new LogContext { Module = "Main", Operation = "UpdateAiScreenContext" });
+                        detail = "";
+                    }
                 }
                 ProGlassAutomation.Services.AI.AIContext.AiScreenContext.Set(PrettyModuleName(raw), detail);
                 ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentViewModelProvider = () => _currentViewModel;
