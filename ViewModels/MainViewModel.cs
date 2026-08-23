@@ -501,8 +501,12 @@ namespace ProGlassAutomation.ViewModels
             // Open the system file-explorer at the inquiry's attachments
             // folder. We don't have a per-inquiry subfolder today, so we
             // fall back to the app's attachments root (Documents / Inquiries)
-            // — the user can then drill in. Gracefully no-ops when the
-            // folder doesn't exist yet.
+            // — the user can then drill in. Failures (locked folder,
+            // missing xdg-open, sandboxed environment) are logged but not
+            // surfaced to the status bar (the shell VM doesn't have a
+            // public status setter); the inquiry list VM's command has a
+            // built-in fallback that prints the same message to its own
+            // status bar when no handler is wired.
             InquiryVM.OpenAttachmentsFolderRequested = row =>
             {
                 try
@@ -510,29 +514,43 @@ namespace ProGlassAutomation.ViewModels
                     string baseDir = System.IO.Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                         "ProGlassAutomation", "Inquiries");
-                    if (!System.IO.Directory.Exists(baseDir))
-                        System.IO.Directory.CreateDirectory(baseDir);
+                    // Whitelist the resolved path. Process.Start with
+                    // UseShellExecute=true on a path the user already owns
+                    // (under their Documents folder) is safe; the real
+                    // risk is a malicious dependency rewriting the path
+                    // argument, which the canonicalisation here prevents.
+                    string fullPath = System.IO.Path.GetFullPath(baseDir);
+                    string documentsRoot = System.IO.Path.GetFullPath(
+                        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments));
+                    if (!fullPath.StartsWith(documentsRoot, StringComparison.OrdinalIgnoreCase))
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"OpenAttachmentsFolder: refused path outside Documents: {fullPath}");
+                        return;
+                    }
+                    if (!System.IO.Directory.Exists(fullPath))
+                        System.IO.Directory.CreateDirectory(fullPath);
                     System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                     {
-                        FileName = baseDir,
+                        FileName = fullPath,
                         UseShellExecute = true
                     });
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // If file-explorer launch fails (locked, missing xdg-open,
-                    // etc.) we silently no-op. The context menu item stays
-                    // available for the next attempt.
+                    // Log and move on — the inquiry list VM's command has
+                    // its own "handler not wired" fallback status message.
+                    System.Diagnostics.Debug.WriteLine($"OpenAttachmentsFolder failed: {ex}");
                 }
             };
 
             // Editor right-click: open the company-center module so the user
-            // can see the customer card and any saved addresses.
-            InquiryVM.NavigateRequested = async target =>
-            {
-                Navigate(target);
-                await Task.CompletedTask;
-            };
+            // can see the customer card and any saved addresses. The
+            // callback is wired onto the editor VM by the list view's
+            // WireEditor (each editor instance gets its own callback);
+            // we don't wire it here because the editor is created lazily
+            // on demand and a static reference would leak the shell
+            // through the editor.
 
             JobOrderVM.OnRequestOpenDeliveryNote = async dnId =>
             {

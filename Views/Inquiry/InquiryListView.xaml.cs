@@ -24,13 +24,45 @@ namespace ProGlassAutomation.Views.Inquiry
         /// <summary>Width of the slide-in rail, matching SheetStoreView's panel.</summary>
         private const double RailWidth = 376.0;
 
+        // Cached so we can unsubscribe exactly once on Unload. Avoids the
+        // memory leak where a replaced DataContext VM still holds a delegate
+        // pointing at this UserControl (and vice versa).
+        private InquiryListViewModel? _subscribedVm;
+
         public InquiryListView()
         {
             InitializeComponent();
-            DataContextChanged += (_, __) => WireEditor();
-            DataContextChanged += (_, __) => SubscribeSelection();
+            DataContextChanged += OnDataContextChanged;
             Loaded += (_, __) => WireEditor();
-            Loaded += (_, __) => SubscribeSelection();
+            Unloaded += OnUnloaded;
+        }
+
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            // Unsubscribe from the outgoing VM BEFORE the new one is wired,
+            // so we never hold a delegate into a VM that's about to be
+            // collected. (C# event unsubscribers on a non-null reference
+            // are idempotent and silent on no-op.)
+            if (_subscribedVm != null)
+            {
+                _subscribedVm.PropertyChanged -= OnViewModelPropertyChanged;
+                _subscribedVm = null;
+            }
+            WireEditor();
+            SubscribeSelection();
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            // Final cleanup when the view leaves the visual tree (navigation,
+            // window close, etc.). Without this, the VM keeps a strong
+            // reference to this UserControl, and we keep the VM alive too —
+            // classic UserControl lifetime leak.
+            if (_subscribedVm != null)
+            {
+                _subscribedVm.PropertyChanged -= OnViewModelPropertyChanged;
+                _subscribedVm = null;
+            }
         }
 
         private void SubscribeSelection()
@@ -38,6 +70,7 @@ namespace ProGlassAutomation.Views.Inquiry
             if (DataContext is not InquiryListViewModel vm) return;
             vm.PropertyChanged -= OnViewModelPropertyChanged;
             vm.PropertyChanged += OnViewModelPropertyChanged;
+            _subscribedVm = vm;
         }
 
         private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -149,12 +182,49 @@ namespace ProGlassAutomation.Views.Inquiry
         private void WireEditor()
         {
             if (DataContext is not InquiryListViewModel vm || vm.EditRequested != null) return;
+            // Cache the shell's NavigateFromAgent method via reflection so we
+            // can wire it onto the editor's NavigateRequested callback every
+            // time a new editor window is opened. Using reflection (instead
+            // of dynamic) avoids the per-call DLR dispatch and keeps the
+            // editor decoupled from MainViewModel's concrete type.
+            var shellVm = Application.Current?.MainWindow?.DataContext;
+            var shellNavigate = shellVm?.GetType().GetMethod(
+                "NavigateFromAgent",
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            void InvokeShellNavigate(string target)
+            {
+                if (shellNavigate == null || shellVm == null) return;
+                try { shellNavigate.Invoke(shellVm, new object[] { target }); }
+                catch { /* shell method may not be available — never crash the editor */ }
+            }
             vm.EditRequested = async record =>
             {
                 var workflow = App.ServiceProvider.GetRequiredService<IInquiryWorkflowService>();
                 var attachments = App.ServiceProvider.GetRequiredService<InquiryAttachmentService>();
-                var window = new InquiryEditorWindow(workflow, attachments, record)
+                // Resolve master-data through DI when available, fall back
+                // to the App.* static when the DI container never built
+                // (manual startup). The VM already does this internally;
+                // we just hand it the same instance to avoid a duplicate
+                // connection.
+                var masterData = App.ServiceProvider?.GetService(typeof(
+                    ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository))
+                    as ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository;
+                var window = new InquiryEditorWindow(workflow, attachments, record, masterData)
                 { Owner = Application.Current.MainWindow };
+                // Wire the editor's module-navigation callback (used by the
+                // right-click "Open in master data" / "View customer
+                // history" menu items) to the shell's NavigateFromAgent.
+                // Done AFTER the window's DataContext is set in the
+                // constructor, so we read the VM from window.DataContext
+                // (guaranteed non-null at this point).
+                if (window.DataContext is InquiryEditorViewModel editorVm)
+                {
+                    editorVm.NavigateRequested = target =>
+                    {
+                        InvokeShellNavigate(target);
+                        return Task.CompletedTask;
+                    };
+                }
                 return window.ShowDialog() == true;
             };
             vm.ExportPathRequested = () =>

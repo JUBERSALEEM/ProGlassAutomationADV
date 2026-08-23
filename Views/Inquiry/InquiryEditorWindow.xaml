@@ -36,7 +36,14 @@
                  Cut / Copy / Paste / Select all pattern is consistent across
                  every editable input. The customer-specific actions
                  (Open in master data, View history) are always present
-                 and gated by whether the customer exists in master data. -->
+                 and gated by whether the customer exists in master data.
+                 "Clear all customer info" is intentionally not "Clear
+                 <field>" because this same menu is shown on the Customer,
+                 Location, AND Salesman fields; clearing always targets
+                 the customer (name + location) regardless of which
+                 field the user right-clicked. The header was renamed from
+                 "Clear customer field" to "Clear all customer info" to
+                 make that unambiguous. -->
             <ContextMenu x:Key="EditorFieldContextMenu" Style="{DynamicResource ModernContextMenuStyle}">
                 <MenuItem Header="Cut"
                           Style="{DynamicResource ModernMenuItemStyle}"
@@ -52,7 +59,11 @@
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="ApplicationCommands.SelectAll"/>
                 <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
-                <MenuItem Header="Clear customer field"
+                <MenuItem Header="Customer actions"
+                          IsEnabled="False"
+                          FontWeight="Bold"
+                          Style="{DynamicResource ModernMenuItemStyle}"/>
+                <MenuItem Header="Clear all customer info"
                           Style="{DynamicResource ModernMenuItemStyle}"
                           Command="{Binding ClearCustomerCommand}"/>
                 <MenuItem Header="Open customer in master data"

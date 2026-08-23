@@ -321,8 +321,12 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 OnPropertyChanged(nameof(CanOpenCustomerInMasterData));
                 OnPropertyChanged(nameof(CanViewCustomerHistory));
-                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
             }
+            // Force a re-evaluation of every Command's CanExecute. Without
+            // this the Save button only updates when the user moves focus
+            // (WPF's default requery cadence is "sometimes"). Every field
+            // change can flip CanSave, so we explicitly invalidate.
+            System.Windows.Input.CommandManager.InvalidateRequerySuggested();
             return true;
         }
 
@@ -343,6 +347,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 // Populate the location dropdown with whatever we have for the
                 // currently-selected customer (may be empty for new records).
                 RefreshCustomerLocations();
+                // Master data just arrived — the right-click menu's
+                // "Open in master data" / "View customer history" gates
+                // depend on this list, so re-notify them. (CustomerName
+                // alone isn't enough: a customer typed before masters
+                // loaded would show IsEnabled=false forever otherwise.)
+                OnPropertyChanged(nameof(CanOpenCustomerInMasterData));
+                OnPropertyChanged(nameof(CanViewCustomerHistory));
+                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex) { SetMessage("Master data unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
         }
