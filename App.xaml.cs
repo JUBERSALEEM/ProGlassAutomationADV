@@ -143,6 +143,53 @@ namespace ProGlassAutomation
         public static UserPresenceService Presence { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
+        //  ENTRY POINT — Velopack bootstrap BEFORE anything else
+        //  (audit fix for vpk warning: "VelopackApp.Run() was found
+        //  in method StartupCoreAsync.MoveNext(), which does not look
+        //  like your application's entry point. It is strongly
+        //  recommended that you move this to the very beginning of
+        //  your Main() method.")
+        //
+        //  Velopack's Run() must be the FIRST line of the process entry
+        //  point so that:
+        //    • During install / update / uninstall hooks, the
+        //      fast-exit arguments are handled before any WPF / DB
+        //      / DI startup cost is paid.
+        //    • During a normal launch, Run() returns immediately and
+        //      the rest of Main() runs as before.
+        //    • A pending update can re-launch the new version with
+        //      the correct working directory and command-line args
+        //      before the rest of the WPF process state is built.
+        //
+        //  WPF normally generates Main() automatically from the
+        //  App.xaml ApplicationDefinition. To put our own Main in
+        //  front of it, App.xaml's Build Action is set to "Page"
+        //  (see ProGlassAutomation.csproj) and the Startup event
+        //  handler below still wires Application_Startup → the same
+        //  crash-guarded StartupCoreAsync() as before. No behavioural
+        //  change other than the Velopack hook running first.
+        // ══════════════════════════════════════════════════════════════
+        [STAThread]
+        public static void Main(string[] args)
+        {
+            // 1) Velopack hook — must be first, before any other
+            //    startup work. In dev mode (running from
+            //    bin/Debug without an installed package) this is a
+            //    no-op; in a real install it handles pending
+            //    updates, first-run callbacks, and uninstall hooks.
+            Velopack.VelopackApp.Build().Run();
+
+            // 2) Hand off to the normal WPF Application bootstrap.
+            //    app.InitializeComponent() loads App.xaml (and
+            //    wires the Startup="Application_Startup" handler
+            //    that runs StartupCoreAsync); app.Run() starts
+            //    the dispatcher loop.
+            var app = new App();
+            app.InitializeComponent();
+            app.Run();
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  STARTUP — CRASH-GUARDED ENTRY POINT  (audit finding C-2)
         //
         //  THE PROBLEM THIS SOLVES
@@ -229,9 +276,14 @@ namespace ProGlassAutomation
         private async Task StartupCoreAsync(
             object sender, StartupEventArgs e)
         {
-            // OTA bootstrap FIRST (Velopack): handles pending updates and
-            // restart plumbing before any UI is created. No-op in dev mode.
-            Velopack.VelopackApp.Build().Run();
+            // Velopack bootstrap was moved to Main() so it runs
+            // as the very first line of the process entry point
+            // (suppresses the vpk "Run() was not found in the
+            // entry point" warning, and lets install / update
+            // / uninstall hooks exit before any WPF startup
+            // cost). The hook is a no-op when the app is run
+            // from a dev bin/Debug folder, so behaviour in
+            // development is unchanged.
 
             // Work-area caps + Ctrl+Wheel zoom. Does not Viewbox-lock
             // the shell — layouts reflow in native pixels.

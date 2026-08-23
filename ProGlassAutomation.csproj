@@ -47,6 +47,34 @@
 		<Using Include="System.Threading.Tasks" />
 	</ItemGroup>
 
+	<!-- ═══════════════════════════════════════════════════════════════
+	     VELOPACK MAIN — App.xaml is treated as a Page, not the
+	     implicit WPF ApplicationDefinition, so we can supply our own
+	     [STAThread] static Main() (see App.xaml.cs) that calls
+	     VelopackApp.Build().Run() as the very first line. WPF then
+	     boots the same way it would from the auto-generated entry
+	     point: InitializeComponent() loads the merged dictionaries
+	     and wires the Startup="Application_Startup" handler; Run()
+	     starts the dispatcher.
+
+	     Without this, the SDK auto-generates a Main() that calls
+	     App.Run() and the Velopack hook has to live inside the
+	     WPF Startup handler — which vpk logs as a warning
+	     ("VelopackApp.Run() was found in method
+	     StartupCoreAsync.MoveNext(), which does not look like
+	     your application's entry point"). Moving the hook to
+	     Main() silences the warning and lets Velopack's
+	     install / update / uninstall fast-exit hooks terminate
+	     the process before any WPF / DB / DI cost is paid.
+	══════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<ApplicationDefinition Remove="App.xaml" />
+		<Page Include="App.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+	</ItemGroup>
+
 	<!-- ══════════════════════════════════════════════════════════════
 	     PHASE P — keep the test project out of the app project.
 
