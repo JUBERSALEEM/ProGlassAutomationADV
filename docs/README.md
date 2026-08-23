@@ -17,6 +17,7 @@ Five short documents for end users, in the order they are most likely to be need
 |---|----------|--------------|
 | O1 | [CI.md](CI.md) | The build-and-test pipeline (`docs/ci/build-test.yml`), how to activate it on `.github/workflows/`, what it does. |
 | O2 | [INSTALLER.md](INSTALLER.md) | The local + CI installer pipeline: Velopack manifest, publish profile, build script, release workflow, Authenticode signing. |
+| O3 | [E2E_WALKTHROUGH.md](E2E_WALKTHROUGH.md) | The end-to-end click-through script that closes the highest-impact amber in `RELEASE_GATE.md` §10. 30+ numbered steps, each with a Pass criterion. |
 
 ## Where to find more
 
