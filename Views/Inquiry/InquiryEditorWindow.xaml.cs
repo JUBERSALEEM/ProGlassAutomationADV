@@ -111,10 +111,17 @@ namespace ProGlassAutomation.Views.Inquiry
         /// Mirror of the preview-text-input guard for pasted content. Pasting
         /// bypasses PreviewTextInput, so we strip non-numeric characters from
         /// the clipboard text before letting the paste through.
+        ///
+        /// WPF quirk: <c>DataObjectPastingEventArgs.SourceDataObject</c> is
+        /// read-only, so we can't replace it. The settable <c>DataObject</c>
+        /// is the same instance as SourceDataObject and we mutate it in place
+        /// via <see cref="DataObject.SetData(string, object)"/> — WPF will
+        /// then read the sanitized text when it commits the paste.
         /// </summary>
         private void OnValuePaste(object sender, DataObjectPastingEventArgs e)
         {
             if (sender is not TextBox tb) { e.CancelCommand(); return; }
+            // Read the raw text from the read-only SourceDataObject.
             if (!e.SourceDataObject.GetDataPresent(DataFormats.UnicodeText, true)) { e.CancelCommand(); return; }
             string pasted = (string)e.SourceDataObject.GetData(DataFormats.UnicodeText);
             char dec = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
@@ -125,15 +132,22 @@ namespace ProGlassAutomation.Views.Inquiry
                     sb.Append(c);
             string clean = sb.ToString();
             if (clean.Length == 0) { e.CancelCommand(); return; }
-            // Replace the clipboard contents with the sanitized string.
-            var newData = new DataObject();
-            newData.SetData(DataFormats.UnicodeText, clean);
-            e.SourceDataObject = newData;
-            // Let the paste proceed only if the resulting text still parses.
+            // Reject the paste if the resulting text would not parse as a decimal
+            // in the current culture. (We can also rewrite the text, but if it's
+            // already numeric, no rewrite is needed — and rewriting can fight
+            // other handlers in the bubbling chain.)
             string proposed = tb.Text.Remove(tb.SelectionStart, tb.SelectionLength)
                                    .Insert(tb.SelectionStart, clean);
             if (!decimal.TryParse(proposed, NumberStyles.Number, CultureInfo.CurrentCulture, out _))
+            {
                 e.CancelCommand();
+                return;
+            }
+            // Mutate the (writable) DataObject in place so what actually lands
+            // in the TextBox is the sanitized string. SourceDataObject returns
+            // the same IDataObject instance as DataObject in WPF, but only
+            // DataObject is the concrete class exposing SetData.
+            e.DataObject.SetData(DataFormats.UnicodeText, clean);
         }
 
         private void OnDragOver(object sender, DragEventArgs e)
