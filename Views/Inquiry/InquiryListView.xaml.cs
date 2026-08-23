@@ -23,7 +23,8 @@ namespace ProGlassAutomation.Views.Inquiry
             vm.EditRequested = record =>
             {
                 var workflow = App.ServiceProvider.GetRequiredService<IInquiryWorkflowService>();
-                var window = new InquiryEditorWindow(workflow, record) { Owner = Application.Current.MainWindow };
+                var attachments = App.ServiceProvider.GetRequiredService<InquiryAttachmentService>();
+                var window = new InquiryEditorWindow(workflow, attachments, record) { Owner = Application.Current.MainWindow };
                 return Task.FromResult(window.ShowDialog() == true);
             };
             vm.ExportPathRequested = () =>
