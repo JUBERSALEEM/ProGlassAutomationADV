@@ -66,13 +66,39 @@ namespace ProGlassAutomation.Services.Licensing
         /// Replace with a real key on first use:
         ///   1. Run Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.exe
         ///   2. Choose "Generate new key pair".
-        ///   3. Copy the printed line into this constant.
+        ///   3. Copy the printed line into this field.
         ///   4. Rebuild.
         ///
         /// Until step 4 is done, the app shows "License: not
         /// activated (placeholder key in use)".
+        ///
+        /// WHY static readonly AND NOT const
+        /// ─────────────────────────────────
+        /// A `const string` is compiled into the assembly's
+        /// metadata as a literal, and every reference is
+        /// inlined at the call site at compile time. The CLR
+        /// therefore has no field to write to at runtime —
+        /// `FieldInfo.SetValue` throws FieldAccessException
+        /// ("Cannot set a constant field") on every version
+        /// of .NET. Tests that try to swap the public key
+        /// (LicenseSignerTests, LicenseGateTests,
+        /// LicenseServiceTests, LicenseStatusViewModelTests,
+        /// CrashReportServiceTests) need the field to be
+        /// writable.
+        ///
+        /// `static readonly` keeps the field read-only from
+        /// production code (no public setter, no property
+        /// mutator) while allowing reflection-based mutation
+        /// from test code. The micro-optimisation we lose is
+        /// the compile-time inlining of the string at the
+        /// call site, which is irrelevant: this field is
+        /// read once per license verification, not in a hot
+        /// loop. We do, however, also gain the ability to
+        /// rotate the public key at runtime in the future
+        /// (e.g. an admin "switch key pair" command) without
+        /// a rebuild, which is a small but real feature.
         /// </summary>
-        public const string PublicKeyXml =
+        public static readonly string PublicKeyXml =
             "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML";
 
         /// <summary>

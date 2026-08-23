@@ -346,10 +346,12 @@ namespace ProGlassAutomation.Tests.Licensing
                 ?? throw new InvalidOperationException(
                     "LicensePublicKey.PublicKeyXml field not found.");
 
-            // The const is compiled into the static field
-            // initialiser; reflection can still write it
-            // because FieldInfo.SetValue bypasses the const
-            // check at the C# level.
+            // The field is `static readonly string` (NOT
+            // `const string`). FieldInfo.SetValue is allowed
+            // on a readonly field; on a const field it throws
+            // FieldAccessException on every .NET version. See
+            // the comment block on LicensePublicKey.PublicKeyXml
+            // for the rationale.
             string original = (string)field.GetValue(null)!;
             field.SetValue(null, newValue);
             return original;
