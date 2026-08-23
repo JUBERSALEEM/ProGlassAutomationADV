@@ -7,3 +7,7 @@
 /Services/Export/ @JUBERSALEEM
 /Agent/AI/ @JUBERSALEEM
 /.github/workflows/ @JUBERSALEEM
+# Canonical copy of build-test.yml lives under docs/ until the
+# arena-ai-coding-agent App is granted the workflows scope.
+/docs/ci/ @JUBERSALEEM
+/docs/CI.md @JUBERSALEEM
