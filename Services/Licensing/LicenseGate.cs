@@ -47,7 +47,6 @@
 
 using System;
 using System.Collections.Generic;
-using ProGlassAutomation.ViewModels.Licensing;
 
 namespace ProGlassAutomation.Services.Licensing
 {

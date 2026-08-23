@@ -31,6 +31,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.ViewModels.Licensing;
+using ProGlassAutomation.Views.Licensing;       // LicenseUiText (StatusBadge / StatusDescription)
 
 namespace ProGlassAutomation.ViewModels.Licensing
 {
@@ -144,7 +145,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
 
             try
             {
-                _currentFingerprint = MachineFingerprint.ComputeCurrent();
+                // Fully-qualified because this class has a
+                // property named MachineFingerprint (the
+                // license-side fingerprint, of type string).
+                // A bare MachineFingerprint would resolve to
+                // the property, not to the static class.
+                _currentFingerprint = ProGlassAutomation
+                    .Services.Licensing.MachineFingerprint
+                    .ComputeCurrent();
             }
             catch
             {
