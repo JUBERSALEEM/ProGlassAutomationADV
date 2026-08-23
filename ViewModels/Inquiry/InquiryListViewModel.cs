@@ -236,7 +236,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         private async Task LoadAsync(CancellationToken ct)
         {
-            SetStatus("Loading inquiries…");
+            IsLoading = true; ErrorText = ""; SetStatus("Loading inquiries…");
+            try
+            {
             var range = DateRange(SelectedDateRange, DateTimeOffset.Now);
             var query = new InquiryQuery
             {
@@ -275,6 +277,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             PageStatus = page.TotalCount == 0 ? "No inquiries found"
                 : $"Showing {(page.Page - 1) * page.PageSize + 1}–{Math.Min(page.TotalCount, page.Page * page.PageSize)} of {page.TotalCount}";
             SetStatus(PageStatus);
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception ex) { ErrorText = "Could not load inquiries: " + ex.Message; SetStatus(ErrorText); }
+            finally { IsLoading = false; }
         }
 
         private async Task LoadSelectedDetailAsync(InquiryListRow row)
@@ -317,6 +323,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool CanGoPrevious => CurrentPage > 1;
         public bool CanGoNext => CurrentPage < TotalPages;
 
+        private bool _isLoading;
+        public bool IsLoading { get => _isLoading; private set { _isLoading = value; OnPropertyChanged(); } }
+        private string _errorText = "";
+        public string ErrorText { get => _errorText; private set { _errorText = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasError)); } }
+        public bool HasError => !string.IsNullOrWhiteSpace(ErrorText);
         private string _statusText = "Inquiry list ready.";
         public string StatusText { get => _statusText; private set { _statusText = value; OnPropertyChanged(); } }
         private void SetStatus(string value) => StatusText = value;
