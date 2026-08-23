@@ -38,7 +38,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;          // ComboBox, TextBox, Expander
-using System.Windows.Media;
 using Microsoft.Win32;
 using ProGlassAutomation.Services.Licensing;
 
@@ -393,12 +392,28 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
         private void SetStatus(string message, StatusKind kind)
         {
             StatusText.Text = message;
-            StatusText.Foreground = new SolidColorBrush(kind switch
+            // FindResource returns the brush instance itself
+            // (the resource is declared as SolidColorBrush,
+            // not as a raw Color), so we cast to SolidColorBrush
+            // and reuse the existing instance. Creating a new
+            // SolidColorBrush from .Color would also work but
+            // is wasteful and loses the frozen state.
+            string brushKey = kind switch
             {
-                StatusKind.Success => (Color)FindResource("SuccessBrush"),
-                StatusKind.Error => (Color)FindResource("DangerBrush"),
-                _ => (Color)FindResource("TextDimBrush")
-            });
+                StatusKind.Success => "SuccessBrush",
+                StatusKind.Error => "DangerBrush",
+                _ => "TextDimBrush"
+            };
+            if (FindResource(brushKey) is System.Windows.Media.Brush brush)
+            {
+                StatusText.Foreground = brush;
+            }
+            else
+            {
+                // Defensive: never let a status-bar update
+                // throw. Fall back to a default brush.
+                StatusText.Foreground = System.Windows.Media.Brushes.Gray;
+            }
             StatusTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
         }
 
