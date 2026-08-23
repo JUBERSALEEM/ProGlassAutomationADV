@@ -40,10 +40,21 @@
       with Microsoft.NET.Test.Sdk 17.11.1, so the runtime
       weight is zero. PrivateAssets=all keeps it out of any
       package the test project could produce.
+
+      IMPORTANT: do NOT add an explicit IncludeAssets here.
+      NuGet's default IncludeAssets for a PackageReference
+      includes the 'compile' asset, which is what feeds
+      Microsoft's.CodeAnalysis.CSharp.dll into the C#
+      compiler's reference list. If you override
+      IncludeAssets without listing 'compile', the
+      Microsoft.CodeAnalysis.CSharp namespace becomes
+      invisible at compile time and every 'using
+      Microsoft.CodeAnalysis.CSharp;' in the test project
+      fails with CS0234. This is the failure mode we hit
+      on the first Windows build.
     -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 

@@ -49,6 +49,15 @@ namespace ProGlassAutomation.Tests.Inquiry
                 => Task.FromResult(true);
             public Task<IReadOnlyList<InquiryCommunication>> GetCommunicationsAsync(int inquiryId, CancellationToken ct = default)
                 => Task.FromResult<IReadOnlyList<InquiryCommunication>>(new List<InquiryCommunication>());
+
+            // The interface gained these members in a later round;
+            // the manifest tests don't exercise them, so the stub
+            // returns "not found" / "not supported" sentinels.
+            public Task<DeleteInquiryResult> DeleteAsync(int id, CancellationToken ct = default)
+                => Task.FromResult(DeleteInquiryResult.NotFound());
+            public Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
+                => throw new NotSupportedException();
+            public void InvalidateLifecycle(int inquiryId) { /* no-op */ }
         }
 
         private readonly string _tempDir;
