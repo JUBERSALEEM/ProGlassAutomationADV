@@ -32,6 +32,19 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!--
+      Microsoft.CodeAnalysis.CSharp 4.11.x — used only by
+      Tests/Audit and Tests/Security to run source-level audit
+      tests (silent-catch detection, OperationGuard.Demand
+      coverage). It is the same Roslyn version that ships
+      with Microsoft.NET.Test.Sdk 17.11.1, so the runtime
+      weight is zero. PrivateAssets=all keeps it out of any
+      package the test project could produce.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
