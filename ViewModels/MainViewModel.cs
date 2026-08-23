@@ -522,32 +522,42 @@ namespace ProGlassAutomation.ViewModels
             // no FK to inquiry) we fall back to the previous behaviour
             // — navigate to the module and let the user find the
             // document in the module's own search.
+            // The async-open call is invoked as a statement (no
+            // assignment, no await) so the Task return value is
+            // discarded at the expression-statement level. We do NOT
+            // use "_ = X.Async()" inside an if-block because "_" is a
+            // regular local inside a method body — the discard syntax
+            // only applies at the top level of an expression or in a
+            // deconstruction. That was the source of the latest
+            // CS0029 ("Task → InquiryListRow"): the compiler was
+            // inferring the discard as a local of the lambda's first
+            // parameter type and then complaining that the Task
+            // return value didn't fit.
             // Uses fully-qualified System.Threading.Tasks.Task so
             // the build is robust even if `using System.Threading.Tasks;`
-            // is dropped during a refactor — this was the original
-            // cause of CS0029 at these four sites.
+            // is dropped during a refactor.
             InquiryVM.OpenProformaForRowRequested = (_, rowId) =>
             {
                 Navigate("ProformaInvoice");
-                if (rowId > 0) _ = ProformaInvoiceVM.OpenSavedInvoiceAsync(rowId);
+                if (rowId > 0) ProformaInvoiceVM.OpenSavedInvoiceAsync(rowId);
                 return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenJobOrderForRowRequested = (_, rowId) =>
             {
                 Navigate("JobOrder");
-                if (rowId > 0) _ = JobOrderVM.OpenJobOrderAsync(rowId);
+                if (rowId > 0) JobOrderVM.OpenJobOrderAsync(rowId);
                 return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenDeliveryNoteForRowRequested = (_, rowId) =>
             {
                 Navigate("DeliveryNote");
-                if (rowId > 0) _ = DeliveryNoteVM.OpenDeliveryNoteAsync(rowId);
+                if (rowId > 0) DeliveryNoteVM.OpenDeliveryNoteAsync(rowId);
                 return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenTaxInvoiceForRowRequested = (_, rowId) =>
             {
                 Navigate("TaxInvoice");
-                if (rowId > 0) _ = TaxInvoiceVM.OpenInvoiceAsync(rowId);
+                if (rowId > 0) TaxInvoiceVM.OpenInvoiceAsync(rowId);
                 return System.Threading.Tasks.Task.CompletedTask;
             };
             // Statements don't have a FK to inquiry, so the lifecycle
