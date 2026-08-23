@@ -1,14 +1,21 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Inquiry/InquiryListView.xaml
-     MODULE: Inquiry register — "Lumen" redesign (from scratch)
+     MODULE: Inquiry register — "Lumen" redesign
 
      Layout concept (functionality identical to the ViewModel contract):
        1. COMMAND DECK — one floating bar: identity + inline search + actions
        2. BENTO STATS — four oversized-number tiles
        3. STATUS RAIL — pill segments with live counts + compact filter cluster
-       4. REGISTER — virtualized self-describing row cards (status spine,
-          customer avatar, meta chips, right meta cluster); loading/empty/
-          error are in-card overlays
+       4. REGISTER — virtualized rows. Each row is a 7-column grid that
+          lines up with the header (no off-grid children):
+            col 0  SPINE  (4 px, status-tinted, no header label)
+            col 1  ID     (inquiry number — identity column)
+            col 2  INQUIRY(status pill + caller reference)
+            col 3  CUSTOMER(avatar + customer name)
+            col 4  PROJECT (project name)
+            col 5  FILES · CHAIN (attachment chip + conversion chip)
+            col 6  VALUE · RECEIVED · OWNERS
+                          (date + time + salesman + prepared by | value)
        5. FOOTER — result count + round pagination
        6. DETAILS DRAWER — cover-tinted panel: workflow chips, fields,
           notes, attachment tiles, timeline, convert actions
@@ -299,58 +306,47 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- COLUMN HEADER — same 9-column shape as the ProformaInvoice
-                     list so every header cell lines up with its row cell.
-                       0  spine       (3 px)
-                       1  ID          (InquiryNumber)
-                       2  INQUIRY     (status pill + caller reference)
-                       3  CUSTOMER    (customer name)
-                       4  PROJECT     (project name)
-                       5  FILES       (attachment count chip)
-                       6  CHAIN       (PI / JO link)
-                       7  VALUE       (AED value + received time)
-                       8  RECEIVED    (date + salesman / prepared by)  -->
+                <!-- COLUMN HEADER — five named zones that match the row
+                     card exactly. Each header cell has a tooltip that
+                     describes what lives under it.
+                       0  SPINE   (4 px, status-tinted on the row)
+                       1  ID      (inquiry number, the unique reference)
+                       2  INQUIRY (workflow status + caller reference)
+                       3  CUSTOMER(customer name + avatar)
+                       4  PROJECT (project name)
+                       5  FILES · CHAIN (attachment count, conversion link)
+                       6  VALUE · RECEIVED · OWNERS (value, date+time, owners)
+                -->
                 <Border Margin="0" Padding="0"
-                        Style="{StaticResource InqTableHeaderStyle}"
+                        BorderBrush="{DynamicResource DividerBrush}"
+                        BorderThickness="0,0,0,1"
+                        Background="{DynamicResource TintGrayBrush}"
                         SnapsToDevicePixels="True">
-                    <Grid>
+                    <Grid Margin="14,9,14,8">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="4"/>
                             <ColumnDefinition Width="1.2*"/>
-                            <ColumnDefinition Width="1.8*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="1.6*"/>
                             <ColumnDefinition Width="1.4*"/>
-                            <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="180"/>
+                            <ColumnDefinition Width="1.4*"/>
+                            <ColumnDefinition Width="1.1*"/>
+                            <ColumnDefinition Width="1.5*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="1" Text="ID"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
+                        <TextBlock Grid.Column="1" Text="ID" Style="{StaticResource InqOverlineStyle}"
                                    ToolTip="Inquiry number (the unique commercial reference)"/>
-                        <TextBlock Grid.Column="2" Text="INQUIRY"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
+                        <TextBlock Grid.Column="2" Text="INQUIRY" Style="{StaticResource InqOverlineStyle}"
                                    ToolTip="Workflow status and the caller's reference supplied on the inquiry"/>
-                        <TextBlock Grid.Column="3" Text="CUSTOMER"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
+                        <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource InqOverlineStyle}"
                                    ToolTip="Customer / company the inquiry is for"/>
-                        <TextBlock Grid.Column="4" Text="PROJECT"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
+                        <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource InqOverlineStyle}"
                                    ToolTip="Project name the inquiry is about"/>
-                        <TextBlock Grid.Column="5" Text="FILES"
+                        <TextBlock Grid.Column="5" Text="FILES · CHAIN"
                                    HorizontalAlignment="Center"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
-                                   ToolTip="Number of attached source documents (drawings, photos, PDFs)"/>
-                        <TextBlock Grid.Column="6" Text="CHAIN"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
-                                   ToolTip="Downstream proforma-invoice / job-order linkage"/>
-                        <TextBlock Grid.Column="7" Text="VALUE" Margin="0,0,12,0"
-                                   HorizontalAlignment="Right"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
-                                   ToolTip="Estimated inquiry value in AED"/>
-                        <TextBlock Grid.Column="8" Text="RECEIVED · OWNERS"
-                                   Style="{StaticResource InqTableHeaderTextStyle}"
-                                   ToolTip="Date received, salesman and the user who prepared the inquiry"/>
+                                   Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Attached source documents and the proforma-invoice / job-order linkage"/>
+                        <TextBlock Grid.Column="6" Text="VALUE · RECEIVED · OWNERS"
+                                   Style="{StaticResource InqOverlineStyle}"
+                                   ToolTip="Estimated value, received date and time, salesman and prepared by"/>
                     </Grid>
                 </Border>
 
@@ -385,160 +381,139 @@
                     </ListBox.ItemContainerStyle>
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <!-- ROW CARD — Lumen card chrome on a PI-style grid.
-                                 The card carries hover/selection state, the grid
-                                 guarantees every column lines up with the header. -->
+                            <!-- ROW CARD — Lumen card chrome. Each of the 7
+                                 grid columns renders the data its header
+                                 promises, no nested re-stacking. -->
                             <Border x:Name="Card" CornerRadius="0"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1"
-                                    Padding="0" Cursor="Hand" MinHeight="56"
+                                    Padding="0" Cursor="Hand" MinHeight="62"
                                     SnapsToDevicePixels="True">
-                                <Grid>
+                                <Grid Margin="14,10,14,10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="3"/>
+                                        <ColumnDefinition Width="4"/>
                                         <ColumnDefinition Width="1.2*"/>
-                                        <ColumnDefinition Width="1.8*"/>
-                                        <ColumnDefinition Width="1.5*"/>
-                                        <ColumnDefinition Width="1.5*"/>
-                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="1.6*"/>
                                         <ColumnDefinition Width="1.4*"/>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="180"/>
+                                        <ColumnDefinition Width="1.4*"/>
+                                        <ColumnDefinition Width="1.1*"/>
+                                        <ColumnDefinition Width="1.5*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- 0 · status spine (tinted to the inquiry state) -->
-                                    <Border>
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Received">
-                                                        <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Prepared">
-                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Sent">
-                                                        <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Confirmed">
-                                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                                                    </DataTrigger>
-                                                    <DataTrigger Binding="{Binding Status}" Value="Cancelled">
-                                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                    </Border>
+                                    <!-- 0 · SPINE — status-tinted 4 px bar (visual only) -->
+                                    <Border Style="{StaticResource InqSpineStyle}"
+                                            HorizontalAlignment="Stretch" Width="Auto"/>
 
-                                    <!-- 1 · ID (inquiry number) -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,10,8,10">
-                                        <TextBlock Text="{Binding InquiryNumber}" FontSize="13" FontWeight="Bold"
+                                    <!-- 1 · ID — the inquiry number (identity column) -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="6,0,8,0">
+                                        <TextBlock Text="{Binding InquiryNumber}" FontSize="14" FontWeight="Bold"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    TextTrimming="CharacterEllipsis" ToolTip="{Binding InquiryNumber}"/>
-                                        <Border Margin="0,5,0,0" HorizontalAlignment="Left"
-                                                Style="{StaticResource InqMetaChipStyle}" Padding="7,2.5">
+                                        <Border Margin="0,6,0,0" HorizontalAlignment="Left"
+                                                Style="{StaticResource InqMetaChipStyle}" Padding="8,2.5">
                                             <TextBlock Text="{Binding Priority, Mode=OneWay}"
                                                        Style="{StaticResource InqMetaChipTextStyle}"/>
                                         </Border>
                                     </StackPanel>
 
-                                    <!-- 2 · INQUIRY (status pill + caller reference) -->
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,10,8,10">
+                                    <!-- 2 · INQUIRY — status pill + caller reference -->
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0,8,0">
                                         <Border HorizontalAlignment="Left" Style="{StaticResource InqStatusPillStyle}">
                                             <TextBlock Text="{Binding Status}" Style="{StaticResource InqPillTextStyle}"/>
                                         </Border>
-                                        <TextBlock Text="{Binding InquiryReference, Mode=OneWay}" FontSize="10.5"
+                                        <TextBlock Text="{Binding InquiryReference, Mode=OneWay}" FontSize="11"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   Margin="0,4,0,0" TextTrimming="CharacterEllipsis"
+                                                   Margin="0,5,0,0" TextTrimming="CharacterEllipsis"
                                                    ToolTip="{Binding InquiryReference}"/>
                                     </StackPanel>
 
-                                    <!-- 3 · CUSTOMER (avatar + name) -->
-                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,10,8,10"
-                                                Orientation="Horizontal">
-                                        <Border Style="{StaticResource InqAvatarStyle}" Margin="0,0,9,0">
+                                    <!-- 3 · CUSTOMER — avatar + name -->
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Orientation="Horizontal"
+                                                Margin="8,0,8,0">
+                                        <Border Style="{StaticResource InqAvatarStyle}" Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CustomerInitials, Mode=OneWay}"
                                                        Style="{StaticResource InqAvatarTextStyle}"/>
                                         </Border>
-                                        <TextBlock Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding CustomerName}" FontSize="12.5" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                                                    ToolTip="{Binding CustomerName}"/>
                                     </StackPanel>
 
                                     <!-- 4 · PROJECT -->
-                                    <TextBlock Grid.Column="4" Text="{Binding Project}" FontSize="12"
+                                    <TextBlock Grid.Column="4" Text="{Binding Project}" FontSize="12.5"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextTrimming="CharacterEllipsis" VerticalAlignment="Center"
                                                Margin="8,0,8,0" ToolTip="{Binding Project}"/>
 
-                                    <!-- 5 · FILES (attachment chip) -->
-                                    <Border Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center"
-                                            Style="{StaticResource InqMetaChipStyle}">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                    <!-- 5 · FILES · CHAIN — attachment chip + conversion chip -->
+                                    <StackPanel Grid.Column="5" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                Orientation="Horizontal" Margin="4,0,4,0">
+                                        <Border Style="{StaticResource InqMetaChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding AttachmentChipText, Mode=OneWay}"
+                                                           Style="{StaticResource InqMetaChipTextStyle}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        <Border Margin="6,0,0,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border" BasedOn="{StaticResource InqMetaChipStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsConverted}" Value="True">
+                                                            <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding ChainText, Mode=OneWay}" FontSize="10"
+                                                       FontWeight="SemiBold" MaxWidth="160"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                            <TextBlock Text="{Binding AttachmentChipText, Mode=OneWay}"
-                                                       Style="{StaticResource InqMetaChipTextStyle}"/>
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding ChainText}"/>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- 6 · VALUE · RECEIVED · OWNERS — value (right) + date / time / owners (left) -->
+                                    <Grid Grid.Column="6" VerticalAlignment="Center" Margin="8,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding ReceivedDateText, Mode=OneWay}" FontSize="11.5"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                <TextBlock Text="{Binding ReceivedTimeText, Mode=OneWay}" FontSize="10"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <TextBlock Text=" · " FontSize="10"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <TextBlock Text="{Binding Salesman, Mode=OneWay}" FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis" MaxWidth="120"
+                                                           ToolTip="{Binding Salesman}"/>
+                                                <TextBlock Text=" · " FontSize="10"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                <TextBlock Text="{Binding PreparedBy, Mode=OneWay}" FontSize="10"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis" MaxWidth="120"
+                                                           ToolTip="{Binding PreparedBy}"/>
+                                            </StackPanel>
                                         </StackPanel>
-                                    </Border>
-
-                                    <!-- 6 · CHAIN (PI / JO link) -->
-                                    <Border Grid.Column="6" VerticalAlignment="Center" HorizontalAlignment="Left"
-                                            Margin="8,0,8,0">
-                                        <Border.Style>
-                                            <Style TargetType="Border" BasedOn="{StaticResource InqMetaChipStyle}">
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsConverted}" Value="True">
-                                                        <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                                                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock Text="{Binding ChainText, Mode=OneWay}" FontSize="10"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   ToolTip="{Binding ChainText}"/>
-                                    </Border>
-
-                                    <!-- 7 · VALUE (bold) + received time (muted) -->
-                                    <StackPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Right"
-                                                Margin="0,10,14,10">
-                                        <TextBlock Text="{Binding ValueText, Mode=OneWay}" FontSize="13" FontWeight="Bold"
+                                        <TextBlock Grid.Column="1" Text="{Binding ValueText, Mode=OneWay}"
+                                                   FontSize="14" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   HorizontalAlignment="Right" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding ReceivedTimeText, Mode=OneWay}" FontSize="10"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   HorizontalAlignment="Right" Margin="0,3,0,0"/>
-                                    </StackPanel>
-
-                                    <!-- 8 · RECEIVED date + owners (salesman / prepared by) -->
-                                    <StackPanel Grid.Column="8" VerticalAlignment="Center" Margin="8,10,14,10">
-                                        <TextBlock Text="{Binding ReceivedDateText, Mode=OneWay}" FontSize="11.5"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                                            <TextBlock Text="{Binding Salesman, Mode=OneWay}" FontSize="10"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="80"
-                                                       ToolTip="{Binding Salesman}"/>
-                                            <TextBlock Text=" · " FontSize="10"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                            <TextBlock Text="{Binding PreparedBy, Mode=OneWay}" FontSize="10"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis" MaxWidth="80"
-                                                       ToolTip="{Binding PreparedBy}"/>
-                                        </StackPanel>
-                                    </StackPanel>
+                                                   VerticalAlignment="Center" HorizontalAlignment="Right"
+                                                   TextTrimming="CharacterEllipsis" Margin="12,0,0,0"/>
+                                    </Grid>
                                 </Grid>
                             </Border>
                             <DataTemplate.Triggers>
-                                <!-- hover — pale row tint + accent left spine accent -->
+                                <!-- hover — pale row tint -->
                                 <Trigger SourceName="Card" Property="IsMouseOver" Value="True">
                                     <Setter TargetName="Card" Property="Background"
                                             Value="{DynamicResource MenuHoverBrush}"/>

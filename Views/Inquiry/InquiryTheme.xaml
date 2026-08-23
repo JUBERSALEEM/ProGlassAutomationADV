@@ -66,27 +66,6 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
-    <!-- ══ TABLE HEADER (registers) ════════════════════════════════ -->
-    <!-- Pale header bar with bottom divider. Mirrors the
-         ModuleListTableHeaderStyle in ListPageStyles so the column
-         rhythm matches the ProformaInvoice / JobOrder / DeliveryNote
-         / TaxInvoice register pages. -->
-    <Style x:Key="InqTableHeaderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Padding" Value="16,11"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
-
-    <Style x:Key="InqTableHeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
-    </Style>
-
     <!-- ══ BUTTONS ═══════════════════════════════════════════════════ -->
 
     <Style x:Key="InqPrimaryButtonStyle" TargetType="Button">
