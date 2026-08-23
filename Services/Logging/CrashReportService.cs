@@ -183,6 +183,39 @@ namespace ProGlassAutomation.Services.Logging
             public string StackTrace { get; init; } = "";
         }
 
+        /// <summary>
+        /// A historical crash report file, parsed for
+        /// display in the About / Settings panel. Only
+        /// the fields we know how to read are populated;
+        /// unknown lines are ignored.
+        /// </summary>
+        public sealed class ReportListing
+        {
+            /// <summary>Full path to the file on disk.</summary>
+            public string FilePath { get; init; } = "";
+
+            /// <summary>File creation time (UTC, as on disk).</summary>
+            public DateTime TimestampUtc { get; init; }
+
+            /// <summary>Size in bytes — used to show "12 KB" hints.</summary>
+            public long FileSize { get; init; }
+
+            /// <summary>ErrorId parsed from the file ("ERR-XXXXXX").</summary>
+            public string ErrorId { get; init; } = "";
+
+            /// <summary>
+            /// Top-level exception type from the first
+            /// "[0] Full.Type.Name" line. Empty if the file
+            /// is unreadable or in an old format.
+            /// </summary>
+            public string TopExceptionType { get; init; } = "";
+
+            /// <summary>
+            /// Top-level exception message, if parseable.
+            /// </summary>
+            public string TopExceptionMessage { get; init; } = "";
+        }
+
         // ── Build from a live exception ──────────────────────
 
         /// <summary>
@@ -397,6 +430,160 @@ namespace ProGlassAutomation.Services.Logging
         private static T SafeGet<T>(Func<T> getter, T fallback)
         {
             try { return getter(); } catch { return fallback; }
+        }
+
+        // ── Listing / parsing (Phase 2 — slice 2) ────────────
+        //
+        // The About / Settings panel calls this to
+        // populate the "Recent crash reports" list. The
+        // implementation:
+        //   1. Globs the crash-*.txt files in the folder.
+        //   2. Sorts newest-first.
+        //   3. For each file, reads the first ~20 lines
+        //      and pulls out the ErrorId, top exception
+        //      type and message via a small parser. The
+        //      parser is tolerant of partial / corrupt
+        //      files — anything unrecognised becomes an
+        //      empty field, not an exception.
+        //
+        // Files larger than MaxReportBytes per page are
+        // skipped from the read but still listed with
+        // their file size — the UI shows the size and
+        // the user can open the file in Notepad.
+
+        /// <summary>
+        /// Cap on how many bytes of a report file we
+        /// read when parsing for the listing. 32 KB is
+        /// enough to cover the header + the first few
+        /// stack frames; the rest is on disk.
+        /// </summary>
+        public const int MaxReportParseBytes = 32 * 1024;
+
+        /// <summary>
+        /// List the most recent crash reports in the
+        /// standard folder, newest first. Returns up to
+        /// <paramref name="count"/> entries.
+        /// </summary>
+        public static IReadOnlyList<ReportListing> GetRecentReports(
+            int count = 10)
+        {
+            var list = new List<ReportListing>();
+            try
+            {
+                var dir = new DirectoryInfo(CrashReportFolder);
+                if (!dir.Exists) return list;
+
+                var files = dir.GetFiles("crash-*.txt")
+                    .OrderByDescending(f => f.CreationTimeUtc)
+                    .Take(Math.Max(1, count));
+                foreach (var f in files)
+                {
+                    list.Add(ParseReportFile(f));
+                }
+            }
+            catch
+            {
+                // Listing failure is best-effort.
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// Read a single report file and extract the
+        /// header fields. Tolerant of partial reads,
+        /// missing fields, old format, etc.
+        /// </summary>
+        public static ReportListing ParseReportFile(FileInfo file)
+        {
+            string errorId = "";
+            string typeName = "";
+            string message = "";
+            try
+            {
+                // Read the first MaxReportParseBytes.
+                // StreamReader with a small buffer keeps
+                // a 10 MB log from OOM-ing the listing.
+                using var fs = new FileStream(
+                    file.FullName, FileMode.Open, FileAccess.Read,
+                    FileShare.ReadWrite, bufferSize: 4096,
+                    useAsync: false);
+                fs.Position = 0;
+                var buf = new byte[Math.Min(MaxReportParseBytes,
+                    (int)Math.Min(int.MaxValue, file.Length))];
+                int read = fs.Read(buf, 0, buf.Length);
+                string head = System.Text.Encoding.UTF8.GetString(
+                    buf, 0, read);
+
+                foreach (var rawLine in head.Split('\n'))
+                {
+                    string line = rawLine.TrimEnd('\r');
+                    if (line.StartsWith("Error ID", StringComparison.Ordinal))
+                    {
+                        int colon = line.IndexOf(':');
+                        if (colon > 0) errorId = line.Substring(colon + 1).Trim();
+                    }
+                    else if (line.StartsWith("[0] ", StringComparison.Ordinal))
+                    {
+                        typeName = line.Substring(4).Trim();
+                    }
+                    else if (line.StartsWith("    Message : ", StringComparison.Ordinal)
+                             && message.Length == 0)
+                    {
+                        // First "    Message :" is the
+                        // top-level message. The next
+                        // "[1]" line is the inner exception
+                        // which we ignore in the listing.
+                        message = line.Substring("    Message : ".Length).Trim();
+                    }
+                    if (errorId.Length > 0 && typeName.Length > 0
+                        && message.Length > 0)
+                    {
+                        // Got everything we need.
+                        break;
+                    }
+                }
+            }
+            catch
+            {
+                // Reading failed (locked, corrupt). Leave
+                // fields empty; the listing still shows
+                // the file name + size.
+            }
+
+            return new ReportListing
+            {
+                FilePath = file.FullName,
+                TimestampUtc = file.CreationTimeUtc,
+                FileSize = file.Length,
+                ErrorId = errorId,
+                TopExceptionType = typeName,
+                TopExceptionMessage = message
+            };
+        }
+
+        /// <summary>
+        /// Delete every crash-*.txt in the standard
+        /// folder. crash-latest.txt is also removed so
+        /// the next crash starts clean. Returns the
+        /// number of files removed.
+        /// </summary>
+        public static int DeleteAllReports()
+        {
+            try
+            {
+                var dir = new DirectoryInfo(CrashReportFolder);
+                if (!dir.Exists) return 0;
+                int removed = 0;
+                foreach (var f in dir.GetFiles("crash-*.txt"))
+                {
+                    try { f.Delete(); removed++; } catch { }
+                }
+                return removed;
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }

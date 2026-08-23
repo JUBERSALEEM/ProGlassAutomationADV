@@ -38,6 +38,17 @@
         -->
         <aboutSections:AboutLicenseCard/>
 
+        <!--
+          ═══ RECENT CRASH REPORTS (Phase 2 — slice 2) ═══
+          Self-contained card listing the last 10
+          crash-*.txt files. Each row has a timestamp,
+          error id, exception type, message, file size,
+          and an OPEN button (gated by ProcessStartGuard).
+          REFRESH / OPEN FOLDER / CLEAR ALL sit in the
+          card header.
+        -->
+        <aboutSections:AboutCrashReportsCard/>
+
         <!-- ═══ ABOUT ═══ -->
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>

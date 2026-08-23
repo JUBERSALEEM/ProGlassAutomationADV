@@ -277,19 +277,26 @@ namespace ProGlassAutomation
                     "Unhandled UI exception", args.Exception,
                     new LogContext { Operation = "UnhandledException" });
 
-                WriteCrashReport(errorId, args.Exception);
+                string crashPath = WriteCrashReport(errorId, args.Exception);
 
-                string msg =
-                    $"Something went wrong.\n\n" +
-                    $"Error ID: {errorId}\n" +
-                    $"Type:    {args.Exception.GetType().Name}\n" +
-                    $"Message: {args.Exception.Message}\n\n" +
-                    "Full technical details were saved to:\n" +
-                    $"{CrashReportPath}\n\n" +
-                    "Share that file (or the Error ID) with support.";
-
-                MessageBox.Show(msg, "ProGlass — Error",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                // Show the rich crash dialog instead of
+                // a plain MessageBox. The dialog has
+                // buttons for Restart, Copy Error ID,
+                // Open Crash Folder, and Close.
+                try
+                {
+                    var dialog = new ProGlassAutomation.Views
+                        .CrashReports.CrashReportDialog(
+                            errorId,
+                            crashPath,
+                            args.Exception.GetType().Name,
+                            args.Exception.Message ?? "");
+                    dialog.ShowDialog();
+                }
+                catch
+                {
+                    // Dialog itself must never crash.
+                }
                 args.Handled = true;
             };
 
@@ -1009,16 +1016,17 @@ namespace ProGlassAutomation
         /// keep using the local <c>WriteCrashReport(id,
         /// ex)</c> shape.
         /// </summary>
-        private static void WriteCrashReport(string errorId, Exception root)
+        private static string WriteCrashReport(string errorId, Exception root)
         {
             try
             {
-                ProGlassAutomation.Services.Logging.CrashReportService
+                return ProGlassAutomation.Services.Logging.CrashReportService
                     .HandleCrash(errorId, root);
             }
             catch
             {
                 // Reporting failure must never propagate.
+                return "";
             }
         }
 

@@ -1,0 +1,119 @@
+<!--
+  CrashReportDialog — a small modal that appears after an
+  unhandled crash. Gives the user three concrete actions
+  (open the crash folder, copy the Error ID, restart the
+  app) plus a Cancel. Self-contained WPF, no third-party
+  deps, light theme by default.
+-->
+<Window x:Class="ProGlassAutomation.Views.CrashReports.CrashReportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ProGlass Automation — Error"
+        Width="560" Height="380"
+        MinWidth="480" MinHeight="320"
+        Background="White"
+        Foreground="#1F2937"
+        FontFamily="Segoe UI, Segoe UI Variable, Arial"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="CanResize"
+        ShowInTaskbar="true">
+
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="CrashReportDialogStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ── Header ─────────────────────────────────────────── -->
+        <StackPanel Grid.Row="0">
+            <TextBlock Text="Something went wrong"
+                       FontSize="20" FontWeight="SemiBold"
+                       Foreground="#B91C1C"/>
+            <TextBlock Text="ProGlass Automation has recovered from an unexpected error."
+                       FontSize="12" Margin="0,6,0,0"
+                       TextWrapping="Wrap"
+                       Foreground="#4B5563"/>
+        </StackPanel>
+
+        <!-- ── Detail block ──────────────────────────────────── -->
+        <Border Grid.Row="1" Margin="0,18,0,0" Padding="16,14"
+                Background="#F9FAFB"
+                BorderBrush="#E5E7EB" BorderThickness="1"
+                CornerRadius="6">
+            <StackPanel>
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Error ID"
+                               Style="{StaticResource CrashFieldLabel}"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1"
+                               x:Name="ErrorIdText"
+                               Text="—"
+                               Style="{StaticResource CrashFieldValue}"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Type"
+                               Style="{StaticResource CrashFieldLabel}"/>
+                    <TextBlock Grid.Row="1" Grid.Column="1"
+                               x:Name="ExceptionTypeText"
+                               Text="—"
+                               Style="{StaticResource CrashFieldValue}"/>
+
+                    <TextBlock Grid.Row="2" Grid.Column="0" Text="Message"
+                               Style="{StaticResource CrashFieldLabel}"/>
+                    <TextBlock Grid.Row="2" Grid.Column="1"
+                               x:Name="ExceptionMessageText"
+                               Text="—"
+                               TextWrapping="Wrap"
+                               Style="{StaticResource CrashFieldValue}"/>
+                </Grid>
+
+                <TextBlock Text="Crash report saved to:"
+                           Style="{StaticResource CrashFieldLabel}"
+                           Margin="0,4,0,4"/>
+                <TextBlock x:Name="ReportPathText"
+                           Text="—"
+                           FontFamily="Consolas, Cascadia Mono, Courier New"
+                           FontSize="11"
+                           Foreground="#374151"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Buttons ────────────────────────────────────────── -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal"
+                    HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Style="{StaticResource CrashPrimaryButton}"
+                    Content="RESTART APP"
+                    Click="RestartButton_Click"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource CrashOutlinedButton}"
+                    Content="COPY ERROR ID"
+                    Click="CopyErrorIdButton_Click"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource CrashOutlinedButton}"
+                    Content="OPEN CRASH FOLDER"
+                    Click="OpenFolderButton_Click"
+                    Margin="0,0,8,0"/>
+            <Button Style="{StaticResource CrashGhostButton}"
+                    Content="CLOSE"
+                    Click="CloseButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
