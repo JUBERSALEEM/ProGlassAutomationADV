@@ -46,6 +46,22 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             Execute(connection, sql);
         }
 
+        /// <summary>
+        /// Drops a column from a table only if it exists. Idempotent and
+        /// safe to call on any SQLite ≥ 3.35.0 (DROP COLUMN was added then).
+        /// The bundled SQLitePCL raw library in this project ships a
+        /// modern SQLite, so the operation is always available.
+        /// </summary>
+        public static void DropColumnIfExists(
+            SqliteConnection connection,
+            string table,
+            string column)
+        {
+            var existing = GetColumnNames(connection, table);
+            if (!existing.Contains(column)) return;
+            Execute(connection, $"ALTER TABLE {table} DROP COLUMN {column};");
+        }
+
         /// <summary>Creates an index if it does not already exist.</summary>
         public static void CreateIndexIfNotExists(
             SqliteConnection connection, string sql)

@@ -62,7 +62,14 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         public static IReadOnlyList<SchemaMigration> Inquiries { get; } = new List<SchemaMigration>
         {
             new(1001, "Converge legacy inquiry databases to the current model", connection =>
-                ConvergeInquirySchema(connection))
+                ConvergeInquirySchema(connection)),
+            // 1002 runs after 1001 so customers who already upgraded past
+            // 1001 (and therefore still have the legacy InquiryDate column)
+            // get the drop. We split it out as a separate migration
+            // rather than mutating 1001, which is the documented baseline
+            // for what EnsureCreated should look like after first run.
+            new(1002, "Drop legacy Inquiry columns (InquiryDate, etc.) not in the model", connection =>
+                DropLegacyInquiriesColumns(connection))
         };
 
         // proformainvoices.db
@@ -258,6 +265,68 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 // Non-fatal on purpose: the register still works without the
                 // constraint, and the repository's number generator already
                 // regenerates on unique collisions.
+            }
+        }
+
+        /// <summary>
+        /// Migration 1002: drop any column that exists in the live
+        /// Inquiries table but isn't in the expected model. Interim
+        /// builds (before 1001) shipped a different InquiryRecord
+        /// shape — most notably a required NOT NULL column called
+        /// "InquiryDate" that was later renamed to "ReceivedAt".
+        /// 1001 added the new columns and indexes but never removed
+        /// the legacy ones, so every INSERT now fails with:
+        ///     SQLite error 19: 'NOT NULL constraint failed:
+        ///     Inquiries.InquiryDate'
+        /// because EF's INSERT statement omits the column (it's not
+        /// in the model) and SQLite tries to apply the (missing)
+        /// DEFAULT. This step runs after 1001 and is idempotent: a
+        /// fresh database that was just CREATE-TABLE'd in step 1 has
+        /// only the expected columns, so the Except set is empty and
+        /// the ALTER TABLE block is a no-op.
+        /// </summary>
+        private static void DropLegacyInquiriesColumns(SqliteConnection connection)
+        {
+            string[] expectedInquiriesColumns = new[]
+            {
+                "Id", "InquiryNumber", "InquiryReference", "CustomerId", "CustomerName", "CustomerLocation",
+                "ProjectId", "ProjectName", "ProjectDescription", "SalesmanId", "SalesmanName",
+                "PreparedByUserId", "PreparedByName", "PreparedByRole", "Status", "Priority",
+                "InquiryValue", "Notes", "ReceivedAt", "PreparedAt", "SentAt", "ConfirmedAt",
+                "CreatedAt", "UpdatedAt", "UpdatedBy", "ProformaInvoiceId", "ProformaNumber",
+                "JobOrderNumber"
+            };
+            // PRAGMA table_info gives us the live column list. Anything
+            // outside the expected set is dropped. We avoid quoting
+            // issues by validating membership before issuing DDL.
+            var liveColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            using (var pragma = connection.CreateCommand())
+            {
+                pragma.CommandText = "PRAGMA table_info(\"Inquiries\");";
+                using var reader = pragma.ExecuteReader();
+                while (reader.Read()) liveColumns.Add(reader.GetString(1));
+            }
+            foreach (var orphan in liveColumns.Except(expectedInquiriesColumns, StringComparer.OrdinalIgnoreCase))
+            {
+                // SQLite >= 3.35 supports ALTER TABLE ... DROP COLUMN.
+                // The SQLitePCL raw bundle in this project is 3.46+ so
+                // this is always available. Identifier sanitization:
+                // orphan is a column name from PRAGMA so it can't be
+                // user input; quoting it with " preserves any case that
+                // SQLite preserved.
+                try
+                {
+                    using var drop = connection.CreateCommand();
+                    drop.CommandText = $"ALTER TABLE \"Inquiries\" DROP COLUMN \"{orphan}\";";
+                    drop.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    // Non-fatal: a single bad column shouldn't block
+                    // startup. Worst case it forces a manual migration.
+                    System.Diagnostics.Debug.WriteLine(
+                        $"DropLegacyInquiriesColumns: could not drop '{orphan}': {ex.Message}");
+                }
             }
         }
     }
