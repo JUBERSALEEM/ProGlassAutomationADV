@@ -125,6 +125,287 @@
                     <Button Content="＋ New inquiry" Command="{Binding NewInquiryCommand}"
                             Style="{StaticResource InqPrimaryButtonStyle}"/>
                 </StackPanel>
+                <!-- ══ DETAILS DRAWER ═════════════════════════════════ -->
+                <Border Grid.Row="0" Grid.RowSpan="2" x:Name="Drawer" Width="452" HorizontalAlignment="Right" VerticalAlignment="Stretch"
+                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1,0,0,0"
+                        Opacity="0" IsHitTestVisible="False">
+                    <Border.RenderTransform>
+                        <TranslateTransform x:Name="DrawerShift" X="452"/>
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDetailsDrawerOpen}" Value="True">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Setter Property="IsHitTestVisible" Value="True"/>
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.16"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.24">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.14"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="452" Duration="0:0:0.19">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseIn"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.25" Color="#334155"/>
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Cover header -->
+                        <Grid>
+                            <Border Background="{DynamicResource AccentBrush}" Opacity="0.10"/>
+                            <Border Background="{DynamicResource TintBlueBrush}" Opacity="0.5"/>
+                            <Grid Margin="18,13">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}" FontSize="17"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Margin="10,0,0,0" Style="{StaticResource InqStatusPillStyle}">
+                                            <TextBlock Text="{Binding SelectedInquiry.Status}"
+                                                       Style="{StaticResource InqPillTextStyle}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding SelectedInquiry.InquiryReference, Mode=OneWay}"
+                                               Style="{StaticResource InqHintStyle}" Margin="0,3,0,0"/>
+                                </StackPanel>
+                                <Button Grid.Column="1" Command="{Binding CloseDetailsCommand}"
+                                        Style="{StaticResource InqIconButtonStyle}" VerticalAlignment="Top"
+                                        ToolTip="Close details">
+                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Button>
+                            </Grid>
+                        </Grid>
+
+                        <!-- Body -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="18,4,18,14">
+                            <StackPanel>
+                                <TextBlock Text="WORKFLOW" Style="{StaticResource InqOverlineStyle}" Margin="2,8,0,6"/>
+                                <WrapPanel>
+                                    <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
+                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
+                                            IsEnabled="{Binding SelectedInquiry.CanPrepareWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
+                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
+                                            IsEnabled="{Binding SelectedInquiry.CanSendWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
+                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
+                                            IsEnabled="{Binding SelectedInquiry.CanConfirmWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
+                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
+                                            IsEnabled="{Binding SelectedInquiry.CanHoldWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Cancel" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
+                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6"
+                                            IsEnabled="{Binding SelectedInquiry.CanCancelWorkflow, Mode=OneWay}"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="DETAILS" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
+                                <Border Style="{StaticResource InqInsetStyle}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="106"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <TextBlock Text="Customer" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.CustomerName}"
+                                                   FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="1" Text="Location" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedInquiry.ContactSummary, Mode=OneWay}"
+                                                   FontSize="12" Margin="0,0,0,5"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="2" Text="Project" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedInquiry.Project}"
+                                                   FontSize="12" Margin="0,0,0,5"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="3" Text="Subject" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedInquiry.Subject}"
+                                                   FontSize="12" Margin="0,0,0,5"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                        <TextBlock Grid.Row="4" Text="Received" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
+                                        <TextBlock Grid.Row="4" Grid.Column="1"
+                                                   Text="{Binding SelectedInquiry.ReceivedAt, StringFormat={}{0:dd MMM yyyy · hh:mm tt}}"
+                                                   FontSize="12" Margin="0,0,0,5"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                        <TextBlock Grid.Row="5" Text="Value" FontSize="10.5" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                        <TextBlock Grid.Row="5" Grid.Column="1"
+                                                   Text="{Binding SelectedInquiry.InquiryValue, StringFormat=AED {0:N2}}"
+                                                   FontSize="12.5" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </Grid>
+                                </Border>
+
+                                <TextBlock Text="NOTES" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
+                                <Border Style="{StaticResource InqInsetStyle}">
+                                    <TextBlock Text="{Binding SelectedInquiry.NotesPreview, Mode=OneWay}"
+                                               FontSize="11.5" MaxHeight="110" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Border>
+
+                                <TextBlock Text="ATTACHMENTS" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
+                                <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border CornerRadius="8"
+                                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                                    Padding="10,8" Margin="0,0,0,7">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Width="32" Height="32" CornerRadius="8"
+                                                            Background="{DynamicResource TintBlueBrush}"
+                                                            VerticalAlignment="Center">
+                                                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                                                   Foreground="{DynamicResource AccentBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
+                                                        <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding TypeLabel, Mode=OneWay}" FontSize="9.5"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                                            <TextBlock Text=" · " FontSize="9.5"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                            <TextBlock Text="{Binding FileSizeDisplay, Mode=OneWay}" FontSize="9.5"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <Button Content="Preview"
+                                                                Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
+                                                        <Button Content="Open"
+                                                                Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
+                                                        <Button Content="Delete"
+                                                                Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}"
+                                                                Style="{StaticResource InqGhostActionStyle}"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="No files attached." Margin="2,2,0,0">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedInquiry.HasAttachments}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <TextBlock Text="DOCUMENT CHAIN" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
+                                <Border Style="{StaticResource InqInsetStyle}">
+                                    <TextBlock Text="{Binding SelectedInquiry.ChainText, Mode=OneWay}" FontSize="11.5"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
+                                </Border>
+
+                                <TextBlock Text="ACTIVITY" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,8"/>
+                                <ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="18"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Ellipse Style="{StaticResource InqTimelineDotStyle}"/>
+                                                <StackPanel Grid.Column="1" Margin="12,0,0,12">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding OccurredText, Mode=OneWay}" FontSize="9.5"
+                                                                   Margin="8,1.5,0,0"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Description}" FontSize="11"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Drawer footer -->
+                        <Border Grid.Row="2" Padding="18,12" BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="0,1,0,0"
+                                Background="{DynamicResource ModuleBackgroundBrush}">
+                            <StackPanel>
+                                <Button Content="Open workspace" Command="{Binding OpenWorkspaceCommand}"
+                                        Style="{StaticResource InqPrimaryButtonStyle}" Margin="0,0,0,7"/>
+                                <Button Content="Convert to proforma invoice" Command="{Binding ConvertToPiCommand}"
+                                        Style="{StaticResource InqSecondaryButtonStyle}" Margin="0,0,0,7"/>
+                                <TextBlock Text="Conversion is available for confirmed inquiries that have no PI yet."
+                                           Style="{StaticResource InqHintStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
             </Grid>
         </Border>
 
@@ -599,287 +880,6 @@
                 </Grid>
 
             </Grid>
-                <!-- ══ DETAILS DRAWER ═════════════════════════════════ -->
-                <Border Grid.Row="0" Grid.RowSpan="2" x:Name="Drawer" Width="452" HorizontalAlignment="Right" VerticalAlignment="Stretch"
-                        Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1,0,0,0"
-                        Opacity="0" IsHitTestVisible="False">
-                    <Border.RenderTransform>
-                        <TranslateTransform x:Name="DrawerShift" X="452"/>
-                    </Border.RenderTransform>
-                    <Border.Style>
-                        <Style TargetType="Border">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsDetailsDrawerOpen}" Value="True">
-                                    <Setter Property="Opacity" Value="1"/>
-                                    <Setter Property="IsHitTestVisible" Value="True"/>
-                                    <DataTrigger.EnterActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.16"/>
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.24">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <CubicEase EasingMode="EaseOut"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.EnterActions>
-                                    <DataTrigger.ExitActions>
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.14"/>
-                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="452" Duration="0:0:0.19">
-                                                    <DoubleAnimation.EasingFunction>
-                                                        <CubicEase EasingMode="EaseIn"/>
-                                                    </DoubleAnimation.EasingFunction>
-                                                </DoubleAnimation>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.25" Color="#334155"/>
-                    </Border.Effect>
-
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Cover header -->
-                        <Grid>
-                            <Border Background="{DynamicResource AccentBrush}" Opacity="0.10"/>
-                            <Border Background="{DynamicResource TintBlueBrush}" Opacity="0.5"/>
-                            <Grid Margin="18,13">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}" FontSize="17"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
-                                        <Border Margin="10,0,0,0" Style="{StaticResource InqStatusPillStyle}">
-                                            <TextBlock Text="{Binding SelectedInquiry.Status}"
-                                                       Style="{StaticResource InqPillTextStyle}"/>
-                                        </Border>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding SelectedInquiry.InquiryReference, Mode=OneWay}"
-                                               Style="{StaticResource InqHintStyle}" Margin="0,3,0,0"/>
-                                </StackPanel>
-                                <Button Grid.Column="1" Command="{Binding CloseDetailsCommand}"
-                                        Style="{StaticResource InqIconButtonStyle}" VerticalAlignment="Top"
-                                        ToolTip="Close details">
-                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </Button>
-                            </Grid>
-                        </Grid>
-
-                        <!-- Body -->
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="18,4,18,14">
-                            <StackPanel>
-                                <TextBlock Text="WORKFLOW" Style="{StaticResource InqOverlineStyle}" Margin="2,8,0,6"/>
-                                <WrapPanel>
-                                    <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
-                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
-                                            IsEnabled="{Binding SelectedInquiry.CanPrepareWorkflow, Mode=OneWay}"/>
-                                    <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
-                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
-                                            IsEnabled="{Binding SelectedInquiry.CanSendWorkflow, Mode=OneWay}"/>
-                                    <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
-                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
-                                            IsEnabled="{Binding SelectedInquiry.CanConfirmWorkflow, Mode=OneWay}"/>
-                                    <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
-                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6" Margin="0,0,6,6"
-                                            IsEnabled="{Binding SelectedInquiry.CanHoldWorkflow, Mode=OneWay}"/>
-                                    <Button Content="Cancel" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
-                                            Style="{StaticResource InqSecondaryButtonStyle}" Padding="13,6"
-                                            IsEnabled="{Binding SelectedInquiry.CanCancelWorkflow, Mode=OneWay}"/>
-                                </WrapPanel>
-
-                                <TextBlock Text="DETAILS" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
-                                <Border Style="{StaticResource InqInsetStyle}">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="106"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                            <RowDefinition Height="Auto"/>
-                                        </Grid.RowDefinitions>
-                                        <TextBlock Text="Customer" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
-                                        <TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.CustomerName}"
-                                                   FontSize="12" FontWeight="SemiBold" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="1" Text="Location" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
-                                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedInquiry.ContactSummary, Mode=OneWay}"
-                                                   FontSize="12" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="2" Text="Project" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
-                                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedInquiry.Project}"
-                                                   FontSize="12" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="3" Text="Subject" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
-                                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedInquiry.Subject}"
-                                                   FontSize="12" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                                        <TextBlock Grid.Row="4" Text="Received" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,0,0,5"/>
-                                        <TextBlock Grid.Row="4" Grid.Column="1"
-                                                   Text="{Binding SelectedInquiry.ReceivedAt, StringFormat={}{0:dd MMM yyyy · hh:mm tt}}"
-                                                   FontSize="12" Margin="0,0,0,5"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock Grid.Row="5" Text="Value" FontSize="10.5" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        <TextBlock Grid.Row="5" Grid.Column="1"
-                                                   Text="{Binding SelectedInquiry.InquiryValue, StringFormat=AED {0:N2}}"
-                                                   FontSize="12.5" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </Grid>
-                                </Border>
-
-                                <TextBlock Text="NOTES" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
-                                <Border Style="{StaticResource InqInsetStyle}">
-                                    <TextBlock Text="{Binding SelectedInquiry.NotesPreview, Mode=OneWay}"
-                                               FontSize="11.5" MaxHeight="110" TextWrapping="Wrap"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </Border>
-
-                                <TextBlock Text="ATTACHMENTS" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
-                                <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border CornerRadius="8"
-                                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
-                                                    Padding="10,8" Margin="0,0,0,7">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Border Width="32" Height="32" CornerRadius="8"
-                                                            Background="{DynamicResource TintBlueBrush}"
-                                                            VerticalAlignment="Center">
-                                                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="13"
-                                                                   Foreground="{DynamicResource AccentBrush}"
-                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                    </Border>
-                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
-                                                        <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="{Binding TypeLabel, Mode=OneWay}" FontSize="9.5"
-                                                                       FontWeight="Bold"
-                                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                                            <TextBlock Text=" · " FontSize="9.5"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                            <TextBlock Text="{Binding FileSizeDisplay, Mode=OneWay}" FontSize="9.5"
-                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                        </StackPanel>
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                                                        <Button Content="Preview"
-                                                                Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
-                                                        <Button Content="Open"
-                                                                Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource InqGhostActionStyle}" Margin="0,0,4,0"/>
-                                                        <Button Content="Delete"
-                                                                Command="{Binding DataContext.DeleteAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource InqGhostActionStyle}"/>
-                                                    </StackPanel>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                                <TextBlock Text="No files attached." Margin="2,2,0,0">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding SelectedInquiry.HasAttachments}" Value="False">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-
-                                <TextBlock Text="DOCUMENT CHAIN" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,6"/>
-                                <Border Style="{StaticResource InqInsetStyle}">
-                                    <TextBlock Text="{Binding SelectedInquiry.ChainText, Mode=OneWay}" FontSize="11.5"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap"/>
-                                </Border>
-
-                                <TextBlock Text="ACTIVITY" Style="{StaticResource InqOverlineStyle}" Margin="2,14,0,8"/>
-                                <ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0,0,0,0">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="18"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Ellipse Style="{StaticResource InqTimelineDotStyle}"/>
-                                                <StackPanel Grid.Column="1" Margin="12,0,0,12">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                        <TextBlock Text="{Binding OccurredText, Mode=OneWay}" FontSize="9.5"
-                                                                   Margin="8,1.5,0,0"
-                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                    </StackPanel>
-                                                    <TextBlock Text="{Binding Description}" FontSize="11"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               TextWrapping="Wrap"/>
-                                                </StackPanel>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </ScrollViewer>
-
-                        <!-- Drawer footer -->
-                        <Border Grid.Row="2" Padding="18,12" BorderBrush="{DynamicResource DividerBrush}"
-                                BorderThickness="0,1,0,0"
-                                Background="{DynamicResource ModuleBackgroundBrush}">
-                            <StackPanel>
-                                <Button Content="Open workspace" Command="{Binding OpenWorkspaceCommand}"
-                                        Style="{StaticResource InqPrimaryButtonStyle}" Margin="0,0,0,7"/>
-                                <Button Content="Convert to proforma invoice" Command="{Binding ConvertToPiCommand}"
-                                        Style="{StaticResource InqSecondaryButtonStyle}" Margin="0,0,0,7"/>
-                                <TextBlock Text="Conversion is available for confirmed inquiries that have no PI yet."
-                                           Style="{StaticResource InqHintStyle}"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Border>
         </Border>
 
         <!-- ══ 5 · FOOTER ═════════════════════════════════════════════ -->
