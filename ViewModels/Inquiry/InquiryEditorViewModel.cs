@@ -21,6 +21,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             set => Record.ReceivedAt = new DateTimeOffset(value.Date.Add(Record.ReceivedAt == default ? DateTime.Now.TimeOfDay : Record.ReceivedAt.TimeOfDay));
         }
         public ICommand SaveCommand { get; }
+        public ICommand ChangeStatusCommand { get; }
         public ICommand CancelCommand { get; }
         public event Action<bool>? CloseRequested;
 
@@ -33,6 +34,19 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 Priority = "Normal", ReceivedAt = DateTimeOffset.Now
             };
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
+            ChangeStatusCommand = new RelayCommand(async p =>
+            {
+                if (Record.Id > 0 && p is string next)
+                {
+                    try
+                    {
+                        await _workflow.ChangeStatusAsync(Record.Id, Record.Status, next);
+                        Record.Status = InquiryStatuses.Normalize(next);
+                        OnPropertyChanged(nameof(Record)); StatusText = $"Status changed to {Record.Status}.";
+                    }
+                    catch (Exception ex) { StatusText = ex.Message; }
+                }
+            }, _ => Record.Id > 0);
             CancelCommand = new RelayCommand(_ => CloseRequested?.Invoke(false));
             _ = LoadMastersAsync();
         }
