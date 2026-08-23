@@ -1147,6 +1147,18 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ObservableCollection<DatabaseHealthRow> DatabaseHealthRows { get; } =
             new();
 
+        /// <summary>
+        /// Live license status. The same singleton
+        /// instance is used by the About page's license
+        /// card, so changes propagate everywhere. The
+        /// VM subscribes to LicenseService.StatusChanged
+        /// via its own constructor and calls Refresh()
+        /// automatically.
+        /// </summary>
+        public ProGlassAutomation.ViewModels.Licensing.LicenseStatusViewModel
+            LicenseStatus =>
+            ProGlassAutomation.ViewModels.Licensing.LicenseStatusViewModel.Instance;
+
         private string _databaseHealthStatus = "Press REFRESH to probe the live databases.";
         public string DatabaseHealthStatus
         {
