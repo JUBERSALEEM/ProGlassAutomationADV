@@ -29,17 +29,32 @@ namespace ProGlassAutomation.Views.Inquiry
         private readonly InquiryEditorViewModel _viewModel;
 
         public InquiryEditorWindow(IInquiryWorkflowService workflow,
-            InquiryAttachmentService attachments, InquiryRecord? record = null)
+            InquiryAttachmentService attachments, InquiryRecord? record = null,
+            ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository? masterData = null)
         {
             InitializeComponent();
             _attachmentService = attachments ?? throw new ArgumentNullException(nameof(attachments));
-            // Resolve master data from DI when the call site can supply it.
-            // Falls back to App.MasterData inside the VM when null.
-            var masterData = App.ServiceProvider?.GetService(typeof(ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository))
-                as ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository;
+            // Master data is optional. The caller may inject a test fake
+            // via the `masterData` parameter, otherwise we use the App.*
+            // static singleton that's already initialised at app startup.
+            // We resolve it here ONLY when the caller didn't supply one
+            // — the caller may have a service-locator-aware instance
+            // (e.g. resolved through App.ServiceProvider in the list view).
+            if (masterData == null)
+                masterData = App.ServiceProvider?.GetService(typeof(
+                    ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository))
+                    as ProGlassAutomation.Services.MasterData.Repository.IMasterDataRepository;
             var vm = new InquiryEditorViewModel(workflow, attachments, record, masterData);
             _viewModel = vm;
-            vm.CloseRequested += saved => { DialogResult = saved; };
+            // Subscribe to the VM's CloseRequested event. We hold the
+            // handler in a field so the window's Closed handler can
+            // unsubscribe it — otherwise the VM would keep a strong
+            // reference to this window (and its captured `this`) past
+            // the lifetime of the window. Classic event-subscription
+            // leak that turns a 1KB editor into a multi-MB hold for
+            // every inquiry the user opens during a long session.
+            _closeRequestedHandler = saved => { DialogResult = saved; };
+            vm.CloseRequested += _closeRequestedHandler;
             vm.SelectFilesRequested = SelectFiles;
             vm.ConfirmDiscardRequested = () => MessageBox.Show(
                 "Discard unsaved changes to this inquiry?", "Unsaved changes",
@@ -50,12 +65,30 @@ namespace ProGlassAutomation.Views.Inquiry
                 MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) == MessageBoxResult.Yes;
             vm.PreviewRequested = Preview;
             DataContext = vm;
-            // Put the caret where the story starts.
-            Loaded += (_, __) =>
+            // Put the caret where the story starts. Cached as a field so
+            // the Closed handler can unsubscribe it.
+            _focusHandler = (_, __) =>
             {
                 CustomerInput.Focus();
                 Keyboard.Focus(CustomerInput);
             };
+            Loaded += _focusHandler;
+            // Closed runs after the window is hidden; this is the
+            // right place to drop all VM/handler references so the VM
+            // can be collected as soon as the user moves on.
+            Closed += OnEditorClosed;
+        }
+
+        private readonly Action<bool> _closeRequestedHandler;
+        private readonly RoutedEventHandler _focusHandler;
+
+        private void OnEditorClosed(object? sender, EventArgs e)
+        {
+            // Drop every callback we own so the VM doesn't keep the
+            // window (or its captured state) alive past its lifetime.
+            if (_viewModel != null) _viewModel.CloseRequested -= _closeRequestedHandler;
+            Loaded -= _focusHandler;
+            Closed -= OnEditorClosed;
         }
 
         private static string[]? SelectFiles()
