@@ -22,6 +22,7 @@
 // later, separately-verified phase.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Services.Database.SchemaMigrations
@@ -46,8 +47,23 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
             = new List<SchemaMigration>();
 
         // inquiries.db
-        public static IReadOnlyList<SchemaMigration> Inquiries { get; }
-            = new List<SchemaMigration>();
+        //
+        // Interim builds shipped an earlier Inquiry domain model, so customer
+        // databases exist whose Inquiries table predates the commercial
+        // columns (InquiryValue / Priority / Notes / …) or even the child
+        // tables. EnsureCreated never alters an existing database, and this
+        // registry was empty until now — those installs crashed at first load
+        // with SQLite error 1 "no such column i.InquiryValue".
+        //
+        // 1001 converges ANY legacy shape to the current model. It is
+        // idempotent: CREATE TABLE IF NOT EXISTS, one ADD COLUMN per missing
+        // column, duplicate numbers made unique, then the indexes. Reserved
+        // high version for the same reason as ProformaInvoices above.
+        public static IReadOnlyList<SchemaMigration> Inquiries { get; } = new List<SchemaMigration>
+        {
+            new(1001, "Converge legacy inquiry databases to the current model", connection =>
+                ConvergeInquirySchema(connection))
+        };
 
         // proformainvoices.db
         public static IReadOnlyList<SchemaMigration> ProformaInvoices { get; }
@@ -80,5 +96,169 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
         // aimemory.db
         public static IReadOnlyList<SchemaMigration> AiMemory { get; }
             = new List<SchemaMigration>();
+
+        // ── inquiries.db helpers (migration 1001) ───────────────────────
+
+        /// <summary>
+        /// Brings any legacy inquiries.db to the current InquiryRecord /
+        /// InquiryAttachment / InquiryCommunication shape without touching
+        /// existing rows. Every step is idempotent, so a database created by
+        /// EnsureCreated at the current schema is a complete no-op.
+        /// </summary>
+        private static void ConvergeInquirySchema(SqliteConnection connection)
+        {
+            // 1) Tables missing entirely on the earliest builds.
+            SchemaMigrationSql.CreateTableIfNotExists(connection, """
+                CREATE TABLE IF NOT EXISTS "Inquiries" (
+                    "Id"                 INTEGER NOT NULL CONSTRAINT "PK_Inquiries" PRIMARY KEY AUTOINCREMENT,
+                    "InquiryNumber"      TEXT NOT NULL DEFAULT '',
+                    "InquiryReference"   TEXT NOT NULL DEFAULT 'Customer Inquiry',
+                    "CustomerId"         INTEGER NULL,
+                    "CustomerName"       TEXT NOT NULL DEFAULT '',
+                    "CustomerLocation"   TEXT NOT NULL DEFAULT '',
+                    "ProjectId"          INTEGER NULL,
+                    "ProjectName"        TEXT NOT NULL DEFAULT '',
+                    "ProjectDescription" TEXT NOT NULL DEFAULT '',
+                    "SalesmanId"         INTEGER NULL,
+                    "SalesmanName"       TEXT NOT NULL DEFAULT '',
+                    "PreparedByUserId"   INTEGER NULL,
+                    "PreparedByName"     TEXT NOT NULL DEFAULT '',
+                    "PreparedByRole"     TEXT NOT NULL DEFAULT '',
+                    "Status"             TEXT NOT NULL DEFAULT 'Received',
+                    "Priority"           TEXT NOT NULL DEFAULT 'Normal',
+                    "InquiryValue"       TEXT NULL DEFAULT '0',
+                    "Notes"              TEXT NOT NULL DEFAULT '',
+                    "ReceivedAt"         TEXT NOT NULL DEFAULT '0001-01-01 00:00:00',
+                    "PreparedAt"         TEXT NULL,
+                    "SentAt"             TEXT NULL,
+                    "ConfirmedAt"        TEXT NULL,
+                    "CreatedAt"          TEXT NOT NULL DEFAULT '0001-01-01 00:00:00',
+                    "UpdatedAt"          TEXT NOT NULL DEFAULT '0001-01-01 00:00:00',
+                    "UpdatedBy"          TEXT NOT NULL DEFAULT '',
+                    "ProformaInvoiceId"  INTEGER NULL,
+                    "ProformaNumber"     TEXT NOT NULL DEFAULT '',
+                    "JobOrderNumber"     TEXT NOT NULL DEFAULT ''
+                );
+                """);
+            SchemaMigrationSql.CreateTableIfNotExists(connection, """
+                CREATE TABLE IF NOT EXISTS "InquiryAttachments" (
+                    "Id"             INTEGER NOT NULL CONSTRAINT "PK_InquiryAttachments" PRIMARY KEY AUTOINCREMENT,
+                    "InquiryId"      INTEGER NOT NULL,
+                    "FileName"       TEXT NOT NULL DEFAULT '',
+                    "Extension"      TEXT NOT NULL DEFAULT '',
+                    "FileSize"       INTEGER NOT NULL DEFAULT 0,
+                    "StoragePath"    TEXT NOT NULL DEFAULT '',
+                    "AttachmentType" TEXT NOT NULL DEFAULT 'Document',
+                    "UploadedBy"     TEXT NOT NULL DEFAULT '',
+                    "UploadedAt"     TEXT NOT NULL DEFAULT '0001-01-01 00:00:00',
+                    CONSTRAINT "FK_InquiryAttachments_Inquiries_InquiryId"
+                        FOREIGN KEY ("InquiryId") REFERENCES "Inquiries" ("Id") ON DELETE CASCADE
+                );
+                """);
+            SchemaMigrationSql.CreateTableIfNotExists(connection, """
+                CREATE TABLE IF NOT EXISTS "InquiryCommunications" (
+                    "Id"          INTEGER NOT NULL CONSTRAINT "PK_InquiryCommunications" PRIMARY KEY AUTOINCREMENT,
+                    "InquiryId"   INTEGER NOT NULL,
+                    "EventType"   TEXT NOT NULL DEFAULT '',
+                    "Title"       TEXT NOT NULL DEFAULT '',
+                    "Description" TEXT NOT NULL DEFAULT '',
+                    "OccurredAt"  TEXT NOT NULL DEFAULT '0001-01-01 00:00:00',
+                    "ActorUserId" INTEGER NULL,
+                    "ActorName"   TEXT NOT NULL DEFAULT '',
+                    CONSTRAINT "FK_InquiryCommunications_Inquiries_InquiryId"
+                        FOREIGN KEY ("InquiryId") REFERENCES "Inquiries" ("Id") ON DELETE CASCADE
+                );
+                """);
+
+            // 2) Columns missing on interim builds. ALTER TABLE ADD COLUMN
+            //    fills existing rows with the DEFAULT, so EF can read them.
+            (string Table, string Column, string Definition)[] columns =
+            {
+                ("Inquiries", "InquiryNumber",      "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "InquiryReference",   "TEXT NOT NULL DEFAULT 'Customer Inquiry'"),
+                ("Inquiries", "CustomerId",         "INTEGER NULL"),
+                ("Inquiries", "CustomerName",       "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "CustomerLocation",   "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "ProjectId",          "INTEGER NULL"),
+                ("Inquiries", "ProjectName",        "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "ProjectDescription", "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "SalesmanId",         "INTEGER NULL"),
+                ("Inquiries", "SalesmanName",       "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "PreparedByUserId",   "INTEGER NULL"),
+                ("Inquiries", "PreparedByName",     "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "PreparedByRole",     "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "Status",             "TEXT NOT NULL DEFAULT 'Received'"),
+                ("Inquiries", "Priority",           "TEXT NOT NULL DEFAULT 'Normal'"),
+                ("Inquiries", "InquiryValue",       "TEXT NULL DEFAULT '0'"),
+                ("Inquiries", "Notes",              "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "ReceivedAt",         "TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'"),
+                ("Inquiries", "PreparedAt",         "TEXT NULL"),
+                ("Inquiries", "SentAt",             "TEXT NULL"),
+                ("Inquiries", "ConfirmedAt",        "TEXT NULL"),
+                ("Inquiries", "CreatedAt",          "TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'"),
+                ("Inquiries", "UpdatedAt",          "TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'"),
+                ("Inquiries", "UpdatedBy",          "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "ProformaInvoiceId",  "INTEGER NULL"),
+                ("Inquiries", "ProformaNumber",     "TEXT NOT NULL DEFAULT ''"),
+                ("Inquiries", "JobOrderNumber",     "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryAttachments", "InquiryId",      "INTEGER NOT NULL DEFAULT 0"),
+                ("InquiryAttachments", "FileName",       "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryAttachments", "Extension",      "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryAttachments", "FileSize",       "INTEGER NOT NULL DEFAULT 0"),
+                ("InquiryAttachments", "StoragePath",    "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryAttachments", "AttachmentType", "TEXT NOT NULL DEFAULT 'Document'"),
+                ("InquiryAttachments", "UploadedBy",     "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryAttachments", "UploadedAt",     "TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'"),
+                ("InquiryCommunications", "InquiryId",   "INTEGER NOT NULL DEFAULT 0"),
+                ("InquiryCommunications", "EventType",   "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryCommunications", "Title",       "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryCommunications", "Description", "TEXT NOT NULL DEFAULT ''"),
+                ("InquiryCommunications", "OccurredAt",  "TEXT NOT NULL DEFAULT '0001-01-01 00:00:00'"),
+                ("InquiryCommunications", "ActorUserId", "INTEGER NULL"),
+                ("InquiryCommunications", "ActorName",   "TEXT NOT NULL DEFAULT ''"),
+            };
+            foreach (var (table, column, definition) in columns)
+                SchemaMigrationSql.AddColumnIfMissing(connection, table, column, definition);
+
+            // 3) Rows with duplicate InquiryNumbers (possible from the era
+            //    before the unique index) would make step 4 fail. Keep the
+            //    oldest row's number, make later duplicates unique.
+            SchemaMigrationSql.Execute(connection, """
+                UPDATE "Inquiries"
+                   SET "InquiryNumber" = "InquiryNumber" || '-' || "Id"
+                 WHERE "Id" NOT IN (SELECT MIN("Id") FROM "Inquiries" GROUP BY "InquiryNumber")
+                   AND "InquiryNumber" IN (SELECT "InquiryNumber" FROM "Inquiries"
+                                            GROUP BY "InquiryNumber" HAVING COUNT(*) > 1);
+                """);
+
+            // 4) Indexes. The unique inquiry-number index is best-effort:
+            //    column convergence above must never be blocked by data.
+            foreach (string sql in new[]
+            {
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_ReceivedAt\" ON \"Inquiries\" (\"ReceivedAt\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_UpdatedAt\" ON \"Inquiries\" (\"UpdatedAt\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_Status\" ON \"Inquiries\" (\"Status\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_CustomerId\" ON \"Inquiries\" (\"CustomerId\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_SalesmanId\" ON \"Inquiries\" (\"SalesmanId\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_Inquiries_PreparedByUserId\" ON \"Inquiries\" (\"PreparedByUserId\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_InquiryAttachments_InquiryId\" ON \"InquiryAttachments\" (\"InquiryId\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_InquiryAttachments_UploadedAt\" ON \"InquiryAttachments\" (\"UploadedAt\");",
+                "CREATE INDEX IF NOT EXISTS \"IX_InquiryCommunications_InquiryId_OccurredAt\" ON \"InquiryCommunications\" (\"InquiryId\", \"OccurredAt\");",
+            })
+            {
+                SchemaMigrationSql.CreateIndexIfNotExists(connection, sql);
+            }
+            try
+            {
+                SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                    "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Inquiries_InquiryNumber\" ON \"Inquiries\" (\"InquiryNumber\");");
+            }
+            catch (SqliteException)
+            {
+                // Non-fatal on purpose: the register still works without the
+                // constraint, and the repository's number generator already
+                // regenerates on unique collisions.
+            }
+        }
     }
 }

@@ -82,6 +82,32 @@ keystroke, hiding real errors in noise. **Fix:** cancellations return quietly.
 `decimal.TryParse(NumberStyles.Number)`; parse failures are shown inline and block
 save.
 
+### S9. CRITICAL — SQLite error 1 "no such column i.InquiryValue" on load (schema drift)
+**Root cause:** `inquiries.db` files created by interim builds carry an earlier
+`Inquiries` schema (pre-commercial columns such as `InquiryValue`, `Priority`,
+`Notes`). `Database.EnsureCreated()` never alters an existing database, and the
+inquiry migration registry (`AppSchemaMigrations.Inquiries`) was **empty**, so
+nothing converged those files. The first register query that referenced a newer
+column (the KPI/statistics projection selects `InquiryValue`) failed with
+SQLite error 1 and the module showed "Could not load inquiries".
+
+**Fix:** registered additive migration **1001 — "Converge legacy inquiry
+databases to the current model"** (reserved high version, same rule as the
+Proforma registry):
+1. `CREATE TABLE IF NOT EXISTS` for `Inquiries` / `InquiryAttachments` /
+   `InquiryCommunications` (earliest builds lacked the child tables);
+2. one idempotent `ADD COLUMN` for **every** mapped column on all three tables,
+   with row-filling DEFAULTs so EF can read legacy rows;
+3. duplicate `InquiryNumber` rows (pre-unique-index era) are made unique by
+   keeping the oldest number and suffixing later duplicates with the row id —
+   existing rows are never dropped or blanked;
+4. all query indexes plus the unique inquiry-number index (best-effort so data
+   can never block column convergence).
+
+The migration runs inside the standard `SchemaMigrationRunner` transaction with
+a pre-migration backup, on both Production and Demo data roots. Fresh databases
+created by `EnsureCreated` see a complete no-op.
+
 ---
 
 ## Part 2 — Attachment issues (root causes)
