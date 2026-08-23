@@ -262,10 +262,11 @@ namespace ProGlassAutomation.Services.Inquiry
         ///      session so a broken schema can't slow every upload.
         ///   2. A try/catch on the synchronous setup (the part that
         ///      would throw inside this method).
-        ///   3. The async `AddAttachmentAsync` is wrapped in a
-        ///      `TryAsyncFireAndForget` helper that catches every
-        ///      exception from the continuation so the manifest save
-        ///      above stays successful even on a broken EF schema.
+        ///   3. The async `AddAttachmentAsync` is wrapped in
+        ///      <c>AsyncUtility.TryAsyncFireAndForget</c> (see commit
+        ///      5735cd1) — it catches every exception from the
+        ///      continuation so the manifest save above stays
+        ///      successful even on a broken EF schema.
         /// </summary>
         private bool _mirrorEnabled = true;
 
@@ -281,7 +282,12 @@ namespace ProGlassAutomation.Services.Inquiry
                     StoragePath = record.StoragePath, AttachmentType = record.AttachmentType,
                     UploadedBy = record.UploadedBy, UploadedAt = record.UploadedAt
                 };
-                TryAsyncFireAndForget(
+                // Use the fully-qualified name so the IDE's incremental
+                // parser cannot confuse this with a non-existent
+                // identifier. The helper lives in
+                // ProGlassAutomation.Utilities.AsyncUtility and was
+                // added by 5735cd1 alongside the previous build fix.
+                ProGlassAutomation.Utilities.AsyncUtility.TryAsyncFireAndForget(
                     () => _repository.AddAttachmentAsync(mirror),
                     "Inquiry attachment count mirror",
                     () => _mirrorEnabled = false);
