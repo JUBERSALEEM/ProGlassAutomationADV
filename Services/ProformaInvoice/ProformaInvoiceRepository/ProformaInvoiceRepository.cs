@@ -434,6 +434,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         public async Task<Result<int>> InsertWithResultAsync(SavedProformaInvoice invoice, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "create a proforma invoice (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
 

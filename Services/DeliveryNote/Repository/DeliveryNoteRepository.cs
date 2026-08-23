@@ -975,6 +975,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task<Result<SavedDeliveryNote>> InsertWithResultAsync(SavedDeliveryNote entity, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "create a delivery note (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
             using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
 

@@ -171,6 +171,11 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.InquiryEdit, "update an inquiry");
+
             if (inquiry == null || inquiry.Id <= 0) throw new ArgumentException("A saved Inquiry is required.", nameof(inquiry));
             await using var db = new InquiryDbContext();
             var stored = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == inquiry.Id, ct).ConfigureAwait(false)
@@ -263,6 +268,11 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<DeleteInquiryResult> DeleteAsync(int id, CancellationToken ct = default)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.InquiryDelete, "delete an inquiry");
+
             await using var db = new InquiryDbContext();
             var row = await db.Inquiries
                 .Include(x => x.Attachments)
@@ -316,6 +326,11 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.InquiryEdit, "duplicate an inquiry");
+
             await using var db = new InquiryDbContext();
             var source = await db.Inquiries.AsNoTracking()
                 .SingleOrDefaultAsync(x => x.Id == sourceId, ct).ConfigureAwait(false)

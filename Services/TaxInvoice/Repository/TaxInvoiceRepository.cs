@@ -535,6 +535,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task<Result<SavedTaxInvoice>> InsertWithResultAsync(SavedTaxInvoice entity, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "create a tax invoice (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", entity?.InvoiceNumber);
             using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", entity?.InvoiceNumber ?? "", corrId);
 
