@@ -85,7 +85,7 @@ namespace ProGlassAutomation.Views.CrashReports
                 string? exe = Process.GetCurrentProcess()
                     .MainModule?.FileName;
                 if (!string.IsNullOrEmpty(exe) &&
-                    Safety.ProcessStartGuard.IsPathInsideAllowedRoot(exe))
+                    ProcessStartGuard.IsPathInsideAllowedRoot(exe))
                 {
                     Process.Start(new ProcessStartInfo
                     {
