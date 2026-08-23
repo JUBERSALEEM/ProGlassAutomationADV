@@ -1,17 +1,22 @@
 # ProGlass Automation — License Generator
 
-A developer-only console tool that issues signed ProGlass Automation
-license files. **Never** shipped to customers.
+A developer-only **WPF** tool that issues signed ProGlass
+Automation license files. **Never** shipped to customers.
 
 ## What it does
 
 1. **First run:** generates a fresh RSA-2048 key pair.
    - **Private key** → `%AppData%\ProGlassAutomation\license-keys.json`
-   - **Public key** → printed to the console. You paste it into
-     `Services/Licensing/LicensePublicKey.cs` and rebuild the app.
-
-2. **Every run:** reads the existing key pair (if present) and lets
-   you sign licenses through an interactive prompt.
+   - **Public key** → displayed in the window. You copy it
+     into `Services/Licensing/LicensePublicKey.cs` and
+     rebuild the app.
+2. **Every run:** the existing key pair is loaded. Fill in
+   the customer details, click **SIGN LICENSE & SAVE**,
+   pick where the `.lic` should be written (or accept the
+   default in `Documents\ProGlassAutomation\Licenses\`).
+3. **Reveal full public key** at any time: the REVEAL
+   button in the KEY PAIR card shows the entire XML the
+   developer must paste into the app.
 
 ## Where the keys live
 
@@ -19,70 +24,75 @@ license files. **Never** shipped to customers.
 |---|---|---|
 | Private key | Signs new licenses | `%AppData%\ProGlassAutomation\license-keys.json` |
 | Public key | Verifies licenses | Embedded in `Services/Licensing/LicensePublicKey.cs` (after you paste it) |
-| Signed licenses | Output | `%USERPROFILE%\Documents\ProGlassAutomation\Licenses\` |
+| Signed licenses (output) | Customer artifacts | `%USERPROFILE%\Documents\ProGlassAutomation\Licenses\` by default |
 
 ## First-time setup (developer)
 
-```
-> ProGlassAutomation.LicenseGenerator.exe
+1. Build the tool (see *Build* below).
+2. Run `ProGlassAutomation.LicenseGenerator.exe`. The
+   window opens. The KEY PAIR card shows "No key pair
+   found."
+3. Click **GENERATE NEW KEY PAIR**. A confirmation dialog
+   warns that any old key (if present) will be replaced.
+4. The card now shows the public key. Click **REVEAL FULL
+   XML**, then **COPY TO CLIPBOARD**.
+5. Open `Services/Licensing/LicensePublicKey.cs` in
+   Visual Studio. Replace the placeholder with the
+   printed public-key XML:
 
-ProGlass Automation — License Generator
-========================================
+   ```csharp
+   public const string PublicKeyXml =
+       @"<RSAKeyValue>...</RSAKeyValue>";
+   ```
 
-No signing key found. Generate a new RSA-2048 key pair? [Y/n] y
-Generating key pair...
-Key pair saved to: C:\Users\You\AppData\Roaming\ProGlassAutomation\license-keys.json
-
-Paste this line into Services/Licensing/LicensePublicKey.cs:
-
-    public const string PublicKeyXml =
-        @"<RSAKeyValue><Modulus>...AQAB</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
-
-After pasting, rebuild the app so the new key is embedded.
-```
-
-Open `Services/Licensing/LicensePublicKey.cs`, replace the placeholder
-with the printed public key XML, save, and rebuild. Future builds of
-the app will accept any license signed with the matching private key.
+6. Rebuild the main app. Future builds accept any
+   license signed with the matching private key.
 
 ## Issuing a customer license
 
-```
-[S] Sign a license
-[E] Re-export public key
-[Q] Quit
-> s
+1. Fill in the **Sign a license** card:
+   - **Edition** — Trial / Basic / Business / Factory / Enterprise.
+   - **Customer ID** — your internal code, e.g. `CUST-2026-042`.
+   - **Company name** — `Acme Glass LLC` (used in the file
+     name and in the welcome-view status display).
+   - **License duration (days)** — 1 to 3650. 365 for a
+     year, 30 for a trial.
+   - **Max activations** — 1 for single-machine; >1 for
+     a portable license that the customer can install on
+     N devices.
+   - **Features** — comma-separated allow-list. `*`
+     grants every feature. `Inquiry.*` grants all Inquiry
+     operations. Leave at the default for a full
+     Business / Factory / Enterprise license.
+   - **Machine fingerprint** — leave blank for a
+     portable license. For a machine-bound license, click
+     **USE THIS MACHINE** on your own box to fill the
+     field, or paste the customer's fingerprint
+     (they read it from the welcome view's diagnostic
+     card or the About page).
+   - **Notes** — free-form. Shown in the About page and
+     written to the audit log on activation.
+2. The **Output path** is auto-populated with
+   `%USERPROFILE%\Documents\ProGlassAutomation\Licenses\<Company>-<date>.lic`.
+   Click **BROWSE…** to choose a different location.
+3. Click **SIGN LICENSE & SAVE**. A success message in
+   the status bar confirms the LicenseId. Windows
+   Explorer opens with the new `.lic` selected.
+4. Email the `.lic` to the customer (or deliver by any
+   out-of-band channel — WhatsApp, support ticket, etc.).
 
-Edition (Trial|Basic|Business|Factory|Enterprise) [Business]: business
-Customer ID (e.g. CUST-2026-001) [CUST-2026-001]: CUST-2026-042
-Company name [Acme Glass LLC]: Acme Glass LLC
-License duration in days [365]: 365
-Max activations (1 for single-machine) [1]: 3
-Features (comma-separated; * = all; *.<Module> = whole module) [...]: *
-Machine fingerprint (hex16) or empty for portable: <Enter>
-Notes (optional) [Issued by ...]:
+## Customer-side installation
 
-License signed.
-  LicenseId     : 0e3a...
-  Edition       : Business
-  Customer      : CUST-2026-042 (Acme Glass LLC)
-  Expires       : 2027-08-23 10:42:13Z (in 365 days)
-  Activations   : 3
-  Features      : *
-  Machine bound : no (portable)
-  Notes         : Issued by You 2026-08-23
+The customer receives the `.lic` file. They have two ways
+to install it:
 
-  Saved to      : C:\Users\You\Documents\ProGlassAutomation\Licenses\Acme Glass LLC-2026-08-23.lic
-
-Send this file to the customer. They drop it into:
-  %AppData%\ProGlassAutomation\license.lic
-…or use the welcome view's 'Activate License' button.
-```
-
-The customer receives the `.lic` file. They place it in
-`%AppData%\ProGlassAutomation\license.lic` (or use the welcome view's
-**Activate License** button). The app verifies the signature on next
-startup. No network connection is involved.
+1. **Manual**: drop the file in
+   `%AppData%\ProGlassAutomation\license.lic`. Start the
+   app — the welcome dialog skips; the app boots in full
+   mode.
+2. **First-run welcome**: launch the app, click
+   **ACTIVATE LICENSE FILE…**, pick the `.lic`. The app
+   activates and boots in full mode.
 
 ## Edition cheat-sheet
 
@@ -94,71 +104,79 @@ startup. No network connection is involved.
 | Factory    | Unlimited | All ERP + cutting optimisation |
 | Enterprise | Unlimited | All ERP + custom integrations |
 
-The list above is the licence issuer's policy, not the app's
-enforcement. The app only checks the `Edition` field to decide which
-UI badge to show ("Trial", "Business", etc.) and which `Features[]`
-are granted.
+The list above is the licence issuer's policy, not the
+app's enforcement. The app only checks the `Edition`
+field to decide which UI badge to show ("Trial",
+"Business", etc.) and which `Features[]` are granted.
+`Features[]` is the real gate — set it to a curated list
+for a Trial, `*` for Enterprise.
 
 ## Machine-bound vs portable
 
-* **Portable** (leave fingerprint blank): the customer may install on
-  up to `MaxActivations` devices. The app records each device's
-  fingerprint in `%AppData%\ProGlassAutomation\activations.json`
-  and refuses the activation when the cap is hit.
-* **Machine-bound** (paste a hex-16 fingerprint): the licence only
-  runs on that exact machine. Get the fingerprint with:
-
-  ```
-  > LicenseGenerator.exe --print-fingerprint
-  abcd1234ef567890
-  ```
-
-  (or have the customer run the same command and send you the output).
-  The app shows the current machine's fingerprint in the About page.
+* **Portable** (leave fingerprint blank): the customer
+  may install on up to `MaxActivations` devices. The app
+  records each device's fingerprint in
+  `%AppData%\ProGlassAutomation\activations.json` and
+  refuses the activation when the cap is hit.
+* **Machine-bound** (paste a hex-16 fingerprint): the
+  licence only runs on that exact machine. Get the
+  fingerprint from the customer (they read it from the
+  app's About page or run a small helper) and paste it
+  into the form. The fingerprint is a SHA-256 prefix
+  derived from CPU count, OS, arch, framework, volume
+  serial and the first non-loopback NIC MAC address.
 
 ## What is NEVER committed
 
 `.gitignore` excludes:
 
 * `license-keys.json` — your private key
-* `*.lic` — customer artifacts (rename to `*.sample.lic` to keep)
+* `*.lic` — customer artifacts (rename to `*.sample.lic`
+  to keep)
 * `activations.json` — per-machine state
 
-If your private key is ever pushed to a remote, treat it as
-**compromised**: rotate the key pair, reissue every active license
-under the new key, and notify affected customers.
+If your private key is ever pushed to a remote, treat it
+as **compromised**: rotate the key pair, reissue every
+active license under the new key, and notify affected
+customers.
 
 ## Why a separate tool?
 
-The signing private key must never enter the shipped app's binary.
-A separate console project (a) keeps the tool out of the install
-bundle, (b) has no WPF / EF Core / ClosedXML dependency graph, and
-(c) shares the licensing primitives with the app via
-`<Compile Include="..." />` so the two stay in lockstep.
+The signing private key must never enter the shipped
+app's binary. A separate WPF project (a) keeps the tool
+out of the install bundle, (b) has no EF Core / ClosedXML
+/ NAudio / Whisper dependency graph, and (c) shares the
+licensing primitives with the app via
+`<Compile Include="..." Link="..." />` so the two stay in
+lockstep.
 
-## What if I lose the private key?
-
-You cannot reissue any license. The customers' existing licenses
-will keep working (the public key is in the app), but new customers
-cannot be onboarded until you generate a fresh key pair, paste the
-new public key into the app, and ship a new build. **Back up
-`license-keys.json` somewhere safe.**
+The tool uses its own minimal dark theme (`Theme.xaml`)
+because `pack://application:,,,/Themes/...` URIs only
+resolve inside the owning assembly.
 
 ## Build
 
-The tool is part of the solution (or it would be if a `.sln` file
-existed). From the repo root:
+From the repo root:
 
 ```
 dotnet build Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj -c Release
 ```
 
-The output goes to `Tools/LicenseGenerator/bin/Release/net8.0-windows/`.
+Output: `Tools\LicenseGenerator\bin\Release\net8.0-windows\ProGlassAutomation.LicenseGenerator.exe`.
 
 ## Run
 
+Double-click the produced `.exe`, or:
+
 ```
-dotnet Tools/LicenseGenerator/bin/Release/net8.0-windows/ProGlassAutomation.LicenseGenerator.dll
+dotnet Tools\LicenseGenerator\bin\Release\net8.0-windows\ProGlassAutomation.LicenseGenerator.dll
 ```
 
-Or, on Windows, double-click the produced `.exe`.
+## What if I lose the private key?
+
+You cannot reissue any license. The customers' existing
+licenses will keep working (the public key is in the
+app), but new customers cannot be onboarded until you
+generate a fresh key pair, paste the new public key into
+the app, and ship a new build. **Back up
+`license-keys.json` somewhere safe.**

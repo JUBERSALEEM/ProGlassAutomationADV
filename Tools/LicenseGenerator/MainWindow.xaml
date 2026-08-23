@@ -1,0 +1,288 @@
+<Window x:Class="ProGlassAutomation.Tools.LicenseGenerator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ProGlass Automation — License Generator"
+        Width="1100" Height="820"
+        MinWidth="900" MinHeight="700"
+        Background="{StaticResource BgBrush}"
+        Foreground="{StaticResource TextBrush}"
+        FontFamily="{StaticResource AppFont}"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>     <!-- header strip -->
+            <RowDefinition Height="*"/>        <!-- scrollable body -->
+            <RowDefinition Height="Auto"/>     <!-- status bar -->
+        </Grid.RowDefinitions>
+
+        <!-- ── Header ───────────────────────────────────────── -->
+        <Border Grid.Row="0"
+                Background="{StaticResource PanelBrush}"
+                BorderBrush="{StaticResource BorderSoftBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="32,24">
+            <StackPanel>
+                <TextBlock Text="ProGlass Automation — License Generator"
+                           Style="{StaticResource HeaderText}"/>
+                <TextBlock Style="{StaticResource HelpText}" Margin="0,4,0,0"
+                           Text="Developer tool. Issue signed .lic files for end customers. The signing private key never leaves this machine."/>
+            </StackPanel>
+        </Border>
+
+        <!-- ── Body ─────────────────────────────────────────── -->
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="32,24">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- 1. KEY PAIR ────────────────────────────────── -->
+                <Border Grid.Row="0" Style="{StaticResource Card}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="KEY PAIR" Style="{StaticResource SectionLabel}"/>
+                                <TextBlock x:Name="KeyStatusText"
+                                           Text="No key pair found."
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{StaticResource TextBrush}"/>
+                                <TextBlock x:Name="KeyStatusDetail"
+                                           Style="{StaticResource HelpText}"
+                                           Margin="0,4,0,0"
+                                           Text="Click GENERATE to create a fresh RSA-2048 key pair. The private key is saved to %AppData%\ProGlassAutomation\license-keys.json (chmod 600 / admins-only). The public key is shown below — paste it into Services/Licensing/LicensePublicKey.cs."/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    x:Name="GenerateKeyButton"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Content="GENERATE NEW KEY PAIR"
+                                    Click="GenerateKeyButton_Click"
+                                    VerticalAlignment="Top"/>
+                        </Grid>
+
+                        <Expander x:Name="PublicKeyExpander"
+                                  Header="Public key (paste into the app)"
+                                  Margin="0,16,0,0"
+                                  IsExpanded="False"
+                                  Foreground="{StaticResource TextBrush}">
+                            <StackPanel Margin="0,12,0,0">
+                                <TextBlock Style="{StaticResource HelpText}"
+                                           Margin="0,0,0,8"
+                                           Text="After pasting, rebuild the main app so the new public key is embedded. Every license you sign will be accepted by the rebuilt app — and rejected by every older build that still has the placeholder."/>
+                                <TextBox x:Name="PublicKeyTextBox"
+                                         Style="{StaticResource CodeTextBox}"
+                                         Height="120"
+                                         IsReadOnly="True"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <Button Style="{StaticResource OutlinedButton}"
+                                            Content="COPY TO CLIPBOARD"
+                                            Click="CopyPublicKeyButton_Click"/>
+                                    <Button Style="{StaticResource GhostButton}"
+                                            Content="REVEAL FULL XML"
+                                            Click="RevealPublicKeyButton_Click"
+                                            Margin="10,0,0,0"/>
+                                    <Button Style="{StaticResource GhostButton}"
+                                            Content="OPEN KEYS FOLDER"
+                                            Click="OpenKeysFolderButton_Click"
+                                            Margin="10,0,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </Border>
+
+                <!-- 2. SIGN A LICENSE ───────────────────────────── -->
+                <Border Grid.Row="1" Style="{StaticResource Card}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="SIGN A LICENSE" Style="{StaticResource SectionLabel}"/>
+
+                        <Grid Margin="0,4,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Edition -->
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="Edition" Style="{StaticResource LabelText}"/>
+                                <ComboBox x:Name="EditionCombo" SelectedIndex="2">
+                                    <ComboBoxItem Content="Trial"      Tag="Trial"/>
+                                    <ComboBoxItem Content="Basic"      Tag="Basic"/>
+                                    <ComboBoxItem Content="Business"   Tag="Business"/>
+                                    <ComboBoxItem Content="Factory"    Tag="Factory"/>
+                                    <ComboBoxItem Content="Enterprise" Tag="Enterprise"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <!-- Customer id -->
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Customer ID" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="CustomerIdBox" Text="CUST-2026-001"/>
+                            </StackPanel>
+
+                            <!-- Company name (span 2 cols) -->
+                            <StackPanel Grid.Row="1" Grid.ColumnSpan="3" Margin="0,0,0,12">
+                                <TextBlock Text="Company name" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="CompanyNameBox" Text="Acme Glass LLC"/>
+                            </StackPanel>
+
+                            <!-- Days valid + Max activations -->
+                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="License duration (days)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="DaysBox" Text="365"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Max activations" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="MaxActivationsBox" Text="1"/>
+                            </StackPanel>
+
+                            <!-- Features -->
+                            <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Margin="0,0,0,12">
+                                <TextBlock Style="{StaticResource LabelText}">
+                                    <Run Text="Features"/>
+                                    <Run Text="  (comma-separated; * = all; *.&lt;Module&gt; = whole module)"
+                                         FontSize="10"
+                                         Foreground="{StaticResource TextDimBrush}"/>
+                                </TextBlock>
+                                <TextBox x:Name="FeaturesBox"
+                                         Text="Inquiry.*, Proforma.*, JobOrder.*, DeliveryNote.*, TaxInvoice.*, Statement.*, MasterData.*, SheetStore.*"
+                                         AcceptsReturn="True"
+                                         TextWrapping="Wrap"
+                                         Height="60"
+                                         VerticalScrollBarVisibility="Auto"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- Machine fingerprint -->
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Style="{StaticResource LabelText}">
+                                    <Run Text="Machine fingerprint (hex16)"/>
+                                    <Run Text="  leave blank for portable"
+                                         FontSize="10"
+                                         Foreground="{StaticResource TextDimBrush}"/>
+                                </TextBlock>
+                                <TextBox x:Name="FingerprintBox"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource GhostButton}"
+                                    Content="USE THIS MACHINE"
+                                    Click="UseThisMachineButton_Click"
+                                    VerticalAlignment="Bottom"
+                                    Margin="10,0,0,0"/>
+                        </Grid>
+
+                        <!-- Notes -->
+                        <StackPanel Margin="0,0,0,16">
+                            <TextBlock Text="Notes (optional)" Style="{StaticResource LabelText}"/>
+                            <TextBox x:Name="NotesBox"
+                                     AcceptsReturn="True"
+                                     TextWrapping="Wrap"
+                                     Height="50"
+                                     VerticalScrollBarVisibility="Auto"/>
+                        </StackPanel>
+
+                        <!-- Output path -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Output path" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="OutputPathBox" IsReadOnly="True"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource GhostButton}"
+                                    Content="BROWSE…"
+                                    Click="BrowseOutputButton_Click"
+                                    VerticalAlignment="Bottom"
+                                    Margin="10,0,0,0"/>
+                        </Grid>
+
+                        <!-- Sign action -->
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SignButton"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Content="SIGN LICENSE &amp; SAVE"
+                                    Click="SignButton_Click"/>
+                            <Button Style="{StaticResource GhostButton}"
+                                    Content="RESET FORM"
+                                    Click="ResetFormButton_Click"
+                                    Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 3. HELP ─────────────────────────────────────── -->
+                <Border Grid.Row="2" Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="QUICK WORKFLOW" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Style="{StaticResource HelpText}">
+                            <Run Text="1. "/>
+                            <Run FontWeight="SemiBold" Text="First run:"/>
+                            <Run Text=" click GENERATE NEW KEY PAIR. Copy the public key into Services/Licensing/LicensePublicKey.cs and rebuild the main app."/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource HelpText}" Margin="0,6,0,0">
+                            <Run Text="2. "/>
+                            <Run FontWeight="SemiBold" Text="Each customer:"/>
+                            <Run Text=" fill in edition, customer id, company, days, activations, features, and optional machine fingerprint. Click SIGN LICENSE &amp; SAVE."/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource HelpText}" Margin="0,6,0,0">
+                            <Run Text="3. "/>
+                            <Run FontWeight="SemiBold" Text="Send:"/>
+                            <Run Text=" the resulting .lic file to the customer (email, WhatsApp, etc). They drop it into %AppData%\ProGlassAutomation\license.lic, or use the welcome view's Activate button."/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource HelpText}" Margin="0,12,0,0"
+                                   FontStyle="Italic">
+                            <Run Text="Tip: to machine-bind a license, the customer runs the LicenseGenerator on their own machine with --print-fingerprint (or reads the fingerprint from the app's About page) and sends you the string. Paste it into the Machine fingerprint field above."/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </ScrollViewer>
+
+        <!-- ── Status bar ──────────────────────────────────── -->
+        <Border Grid.Row="2" Style="{StaticResource StatusBar}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatusText"
+                           Text="Ready."
+                           FontSize="11"
+                           Foreground="{StaticResource TextDimBrush}"
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           x:Name="StatusTimeText"
+                           Text=""
+                           FontSize="11"
+                           Foreground="{StaticResource TextDimBrush}"
+                           Margin="16,0,0,0"
+                           VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

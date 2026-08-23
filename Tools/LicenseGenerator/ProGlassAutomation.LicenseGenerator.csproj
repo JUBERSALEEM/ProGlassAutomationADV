@@ -1,16 +1,21 @@
 <!--
-  ProGlassAutomation.LicenseGenerator — developer-only tool.
+  ProGlassAutomation.LicenseGenerator — developer-only WPF tool.
 
-  This project is a separate console application that
-  generates RSA-2048 key pairs and signs license files
-  (.lic). It is NEVER shipped to customers — it lives in
-  the developer's source tree and the produced .lic files
-  are what the customer receives out-of-band (email,
-  WhatsApp, etc.).
+  A small standalone WPF application that generates RSA-2048
+  key pairs and signs license files (.lic). It is NEVER
+  shipped to customers — it lives in the developer's source
+  tree and the produced .lic files are what the customer
+  receives out-of-band (email, WhatsApp, etc.).
 
   Why a separate project?
-    • Different output type (Exe, not WinExe).
-    • No WPF / no UI dependencies.
+    • Different output type (WinExe, not the main app's
+      WinExe — the main app has its own App.xaml and
+      bootstrapping).
+    • Self-contained — does NOT reference the main
+      ProGlassAutomation.csproj. A reference would drag
+      in EF Core / ClosedXML / NAudio / Whisper / Velopack
+      / every XAML resource, and the tool would be
+      unbuildable without a Windows desktop session.
     • Marked IsPackable=false so the .csproj is never
       included in a customer-facing installer.
 
@@ -21,34 +26,32 @@
     dependency graph into a tool that only needs the
     licensing primitives. Sharing source files keeps
     the tool's restore + build time in seconds rather
-    than minutes, and the licensing code is small
-    enough that the duplication risk is acceptable.
-    The CI build verifies the app project compiles, so
-    the licensing code stays in lockstep with the
-    app's understanding of the contract.
+    than minutes. The licensing code is small (5
+    files, < 1000 lines) and the test suite on the app
+    side guarantees behavioural parity.
 -->
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ProGlassAutomation.Tools.LicenseGenerator</RootNamespace>
     <AssemblyName>ProGlassAutomation.LicenseGenerator</AssemblyName>
     <IsPackable>false</IsPackable>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307</WarningsNotAsErrors>
+    <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307;CA1416</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <!--
       The licensing primitives — shared verbatim with
-      the app. If the app's copy changes, this copy
-      does NOT auto-update; the developer must keep
-      them in sync. The contract is "this list of files
-      lives in both places"; the test suite on the app
-      side guarantees behaviour parity.
+      the app. The contract is "this list of files lives
+      in both places". The test suite on the app side
+      guards the contract.
     -->
     <Compile Include="..\..\Services\Licensing\LicensePayload.cs"
              Link="Shared\LicensePayload.cs" />
