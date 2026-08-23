@@ -132,7 +132,7 @@ namespace ProGlassAutomation.Services.Licensing
         /// and the production assembly owns the policy (private
         /// setter, no public surface).
         /// </summary>
-        [EditorBrowsable(Never)]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         internal static void SetForTest(string xml) => PublicKeyXml = xml;
     }
 }
