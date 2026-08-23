@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsDataSection.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — DATA & BACKUP page
@@ -133,6 +133,79 @@
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,8,0,0"
                                    Text="Done testing? Use CLEAR ALL DATA to wipe the demo dataset in one step and start entering real data."/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ── DATABASE HEALTH — diagnostics + emergency rebuild ───
+                     Lets the user see exactly what is in every database
+                     and, if a schema ever drifts beyond the auto-fix
+                     range, rebuild from scratch. The rebuild path is
+                     gated behind Manager+ and a typed confirmation. -->
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="DATABASE HEALTH"
+                                   Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock FontSize="11" TextWrapping="Wrap"
+                                   Margin="0,6,0,0"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Text="Probes every ProGlass Automation database file (row counts, schema version, missing / extra columns). The auto-migration on next app start handles most drift; the rebuild button below is the nuclear option for when a file is so broken it will not open."/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE72C;" Content="REFRESH"
+                                    Command="{Binding RefreshDatabaseHealthCommand}"
+                                    ToolTip="Probe every database and refresh the row-count table"/>
+                            <Button Style="{StaticResource DangerButton}"
+                                    Tag="&#xE74D;" Content="REBUILD ALL DATABASES (EMERGENCY)"
+                                    Command="{Binding RebuildAllDatabasesCommand}"
+                                    Margin="10,0,0,0"
+                                    ToolTip="Move every .db file to MigrationBackups and recreate at the current schema. Manager+ only."/>
+                        </StackPanel>
+
+                        <ListBox ItemsSource="{Binding DatabaseHealthRows}"
+                                 Margin="0,10,0,0"
+                                 MaxHeight="240"
+                                 BorderThickness="1"
+                                 BorderBrush="{DynamicResource BorderBrush}"
+                                 Background="{DynamicResource MenuHoverBrush}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="220"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="60"/>
+                                            <ColumnDefinition Width="80"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12"
+                                                   Text="{Binding DisplayName}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Text="{Binding Status}"/>
+                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11"
+                                                   Text="{Binding TotalRowsDisplay}"
+                                                   TextAlignment="Right"/>
+                                        <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Text="{Binding FileSizeDisplay}"
+                                                   TextAlignment="Right"/>
+                                        <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="10"
+                                                   TextWrapping="Wrap"
+                                                   Margin="8,0,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Text="{Binding DriftDisplay}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                        <TextBlock Text="{Binding DatabaseHealthStatus}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Margin="0,8,0,0"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </Border>
 

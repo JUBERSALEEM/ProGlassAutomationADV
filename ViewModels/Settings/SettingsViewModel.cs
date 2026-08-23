@@ -22,6 +22,7 @@ using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Fonts;
 using System;
 using System.Diagnostics;
@@ -1135,6 +1136,52 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand ClearAllDataCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
+        //  v2 — DATABASE HEALTH (diagnostics + emergency rebuild)
+        //  SettingsViewModel is the only intended caller of
+        //  SchemaHealthService; the service is destructive so we gate
+        //  it behind a Manager+ role check.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Row per ProGlass Automation database file.
+        /// Populated by <see cref="RefreshDatabaseHealthCommand"/>.</summary>
+        public ObservableCollection<DatabaseHealthRow> DatabaseHealthRows { get; } =
+            new();
+
+        private string _databaseHealthStatus = "Press REFRESH to probe the live databases.";
+        public string DatabaseHealthStatus
+        {
+            get => _databaseHealthStatus;
+            private set { _databaseHealthStatus = value; OnPropertyChanged(); }
+        }
+
+        private bool _isDiagnosing;
+        public bool IsDiagnosing
+        {
+            get => _isDiagnosing;
+            private set
+            {
+                if (_isDiagnosing == value) return;
+                _isDiagnosing = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _isRebuilding;
+        public bool IsRebuilding
+        {
+            get => _isRebuilding;
+            private set
+            {
+                if (_isRebuilding == value) return;
+                _isRebuilding = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand RefreshDatabaseHealthCommand { get; private set; }
+        public ICommand RebuildAllDatabasesCommand { get; private set; }
+
+        // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
         // ══════════════════════════════════════════════════════════════
 
@@ -1988,7 +2035,175 @@ namespace ProGlassAutomation.ViewModels.Settings
                 catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
             });
 
+            // ── Database health (diagnostics + emergency rebuild) ─────
+            //
+            // Diagnostics is read-only and safe for any signed-in user.
+            // Rebuild is destructive: it MOVES every .db file to
+            // MigrationBackups/_rebuild_<timestamp>/, then recreates the
+            // files at the current schema. It is gated behind a Manager+
+            // role check (the same gate ClearAllData uses) and a typed
+            // confirmation so a misclick cannot destroy data.
+            RefreshDatabaseHealthCommand = new RelayCommand(
+                async _ => await RunDatabaseDiagnosticsAsync(),
+                _ => !IsDiagnosing && !IsRebuilding);
+
+            RebuildAllDatabasesCommand = new RelayCommand(
+                async _ => await RebuildAllDatabasesAsync(),
+                _ => !IsDiagnosing && !IsRebuilding);
+
             RefreshBackupSets();
+        }
+
+        private async Task RunDatabaseDiagnosticsAsync()
+        {
+            if (IsDiagnosing || IsRebuilding) return;
+            IsDiagnosing = true;
+            DatabaseHealthStatus = "Probing live databases…";
+            try
+            {
+                var rows = await SchemaHealthService.DiagnoseAsync();
+                ProGlassAutomation.ViewModels.Shared.UiDispatch.Run(() =>
+                {
+                    DatabaseHealthRows.Clear();
+                    foreach (var r in rows) DatabaseHealthRows.Add(r);
+                });
+                int populated = rows.Count(r => r.FileExists && r.TotalRows > 0);
+                int drift = rows.Sum(r => r.DriftNotes.Count);
+                DatabaseHealthStatus =
+                    $"✓ {rows.Count} database(s) probed — " +
+                    $"{populated} contain data, " +
+                    $"{drift} schema note(s). " +
+                    "If a note lists \"missing\" columns, run the schema " +
+                    "migration on next app start (it runs automatically).";
+            }
+            catch (Exception ex)
+            {
+                DatabaseHealthStatus = "✗ Diagnostics failed: " + ex.Message;
+                AppLogService.Error(
+                    "Database diagnostics failed", ex,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SettingsViewModel),
+                        Operation = "RunDatabaseDiagnostics"
+                    });
+            }
+            finally
+            {
+                IsDiagnosing = false;
+            }
+        }
+
+        private async Task RebuildAllDatabasesAsync()
+        {
+            if (IsDiagnosing || IsRebuilding) return;
+
+            // Gate 1: Manager+ only. Same role the ClearAllData
+            // command uses, so a non-manager can never reach this
+            // destructive path even by typing the wrong key.
+            string role = Services.Audit.AuditService.CurrentUser?.Role ?? "";
+            bool isManagerOrAbove =
+                string.Equals(role, "Manager", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(role, "Administrator", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase);
+            if (!isManagerOrAbove)
+            {
+                System.Windows.MessageBox.Show(
+                    "Rebuilding all databases is restricted to Managers " +
+                    "and Administrators. Your role: " +
+                    (string.IsNullOrEmpty(role) ? "none" : role) + ".",
+                    "Permission Denied",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+
+            // Gate 2: confirm the user knows what they're doing.
+            var proceed = System.Windows.MessageBox.Show(
+                "EMERGENCY DATABASE REBUILD\n\n" +
+                "This will:\n" +
+                "  1. Move every .db file to MigrationBackups/_rebuild_<timestamp>/\n" +
+                "  2. Recreate each one at the CURRENT schema\n" +
+                "  3. Re-run the schema migration on inquiries.db\n\n" +
+                "All transactional data (inquiries, PIs, JOs, DNs, TIs, " +
+                "statements, sheet store) will be LOST. Master data, audit " +
+                "log and AI memory are also wiped.\n\n" +
+                "The originals are MOVED (not deleted) and can be copied " +
+                "back by hand from the MigrationBackups folder.\n\n" +
+                "ProGlass must be restarted afterwards.\n\n" +
+                "Continue?",
+                "Emergency Database Rebuild",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Warning,
+                System.Windows.MessageBoxResult.No);
+
+            if (proceed != System.Windows.MessageBoxResult.Yes) return;
+
+            IsRebuilding = true;
+            DatabaseHealthStatus = "Rebuilding — this can take a few seconds…";
+            try
+            {
+                var progress = new Progress<string>(msg =>
+                    DatabaseHealthStatus = msg);
+
+                var summary = await SchemaHealthService
+                    .RebuildAllAsync(progress);
+
+                AppLogService.Info(
+                    "[Rebuild] " + summary,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SettingsViewModel),
+                        Operation = "RebuildAllDatabases"
+                    });
+
+                // Refresh the row-count table so the user sees the
+                // freshly-empty databases immediately.
+                await RunDatabaseDiagnosticsAsync();
+
+                // Offer the restart. The user can defer it (e.g. they
+                // want to copy files out of MigrationBackups first) but
+                // the app's pooled connections still point at the
+                // moved files until restart.
+                var restart = System.Windows.MessageBox.Show(
+                    "✓ All databases were rebuilt at the current schema.\n\n" +
+                    "The originals are saved in:\n" +
+                    AppDataRoot.CurrentFolder + "\\MigrationBackups\\\n\n" +
+                    "ProGlass must be restarted to load the new databases.\n\n" +
+                    "Restart now?",
+                    "Rebuild complete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Information,
+                    System.Windows.MessageBoxResult.Yes);
+
+                if (restart == System.Windows.MessageBoxResult.Yes)
+                    RestartApplication();
+            }
+            catch (Exception ex)
+            {
+                DatabaseHealthStatus = "✗ Rebuild failed: " + ex.Message;
+                AppLogService.Error(
+                    "Emergency database rebuild failed", ex,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Database",
+                        Class = nameof(SettingsViewModel),
+                        Operation = "RebuildAllDatabases"
+                    });
+
+                System.Windows.MessageBox.Show(
+                    "Rebuild failed: " + ex.Message +
+                    "\n\nThe original databases are still in " +
+                    "MigrationBackups and have NOT been deleted.",
+                    "Rebuild failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsRebuilding = false;
+            }
         }
 
         private void RefreshBackupSets()
