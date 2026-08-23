@@ -397,6 +397,7 @@ namespace ProGlassAutomation.Tests.Security
             }
 
             var root = tree.GetCompilationUnitRoot();
+            var sourceText = tree.GetText();
             var relative = fullPath.Substring(repoRoot.Length)
                                    .TrimStart(Path.DirectorySeparatorChar,
                                               Path.AltDirectorySeparatorChar)
@@ -411,9 +412,14 @@ namespace ProGlassAutomation.Tests.Security
                 if (catchClause.Block == null) continue;
                 if (catchClause.Block.Statements.Count != 0) continue;
 
-                var line = catchClause.SyntaxTree
-                    .GetLineSpan(catchClause.Span).StartLinePosition.Line + 1;
-                var method = FindContainingMethod(root, catchClause.Span);
+                // Use GetText().Lines directly. The .NET 10 SDK
+                // ships Roslyn 4.14 which removed the
+                // SyntaxTree.GetLineSpan(TextSpan) overload that
+                // earlier versions exposed; going through
+                // GetText().Lines is the cross-version path.
+                var line = sourceText.Lines
+                    .GetLinePosition(catchClause.SpanStart).Line + 1;
+                var method = FindContainingMethod(root, catchClause.SpanStart);
 
                 var (allowed, reason) = Classify(relative, method);
                 yield return new Finding(
@@ -422,15 +428,34 @@ namespace ProGlassAutomation.Tests.Security
         }
 
         private static string FindContainingMethod(
-            CompilationUnitSyntax root, int spanStart)
+            SyntaxNode root, int spanStart)
         {
+            // Cross-Roslyn-version method-name extraction.
+            // The .NET 10 SDK (Roslyn 4.14) removed
+            // BaseMethodDeclarationSyntax.Identifier; we now
+            // pattern-match on each concrete subtype
+            // (MethodDeclaration, ConstructorDeclaration,
+            // DestructorDeclaration, OperatorDeclaration,
+            // ConversionOperatorDeclaration) and fall back to
+            // "<unknown>" for anything we don't recognise.
             foreach (var node in root.DescendantNodes())
             {
                 if (node.SpanStart > spanStart) break;
-                if (node is BaseMethodDeclarationSyntax m)
-                    return m.Identifier.Text;
-                if (node is LocalFunctionStatementSyntax l)
-                    return l.Identifier.Text;
+                switch (node)
+                {
+                    case MethodDeclarationSyntax m:
+                        return m.Identifier.Text;
+                    case ConstructorDeclarationSyntax c:
+                        return c.Identifier.Text;
+                    case DestructorDeclarationSyntax d:
+                        return "~" + d.Identifier.Text;
+                    case OperatorDeclarationSyntax o:
+                        return "operator " + o.OperatorToken.Text;
+                    case ConversionOperatorDeclarationSyntax co:
+                        return co.ImplicitOrExplicitKeyword.Text + " operator";
+                    case LocalFunctionStatementSyntax l:
+                        return l.Identifier.Text;
+                }
             }
             return "<unknown>";
         }

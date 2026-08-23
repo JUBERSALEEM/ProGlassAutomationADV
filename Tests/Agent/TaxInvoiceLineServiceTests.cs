@@ -30,10 +30,13 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void CalculateFinancials_computes_vat_and_grand_total()
         {
+            // Rate is per SQM; the model's Value = Rate * Qty * Sqm.
+            // Sqm = 1.0m so Value matches the rate*qty number the
+            // test is asserting on.
             var items = new[]
             {
-                new TaxInvoiceItem { Qty = 2, UnitPrice = 100m, LineTotal = 200m },
-                new TaxInvoiceItem { Qty = 1, UnitPrice = 50m, LineTotal = 50m },
+                new TaxInvoiceItem { Qty = 2, Rate = 100m, Sqm = 1m, Value = 200m },
+                new TaxInvoiceItem { Qty = 1, Rate = 50m,  Sqm = 1m, Value = 50m  },
             };
 
             var (subtotal, vat, grandTotal) = TaxInvoiceLineService.CalculateFinancials(items, discountAmount: 10m, vatRate: 0.05m);
@@ -80,7 +83,7 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 InvoiceNumber = "INV-001",
                 ProformaId = "PI-001",
-                Items = new System.Collections.Generic.List<TaxInvoiceItem> { new TaxInvoiceItem { Qty = 1, LineTotal = 0 } },
+                Items = new System.Collections.Generic.List<TaxInvoiceItem> { new TaxInvoiceItem { Qty = 1, Value = 0m } },
                 GrandTotal = 0m
             };
 
@@ -95,7 +98,7 @@ namespace ProGlassAutomation.Tests.Agent
             {
                 InvoiceNumber = "INV-001",
                 ProformaId = "PI-001",
-                Items = new System.Collections.Generic.List<TaxInvoiceItem> { new TaxInvoiceItem { Qty = 5, LineTotal = 100m } },
+                Items = new System.Collections.Generic.List<TaxInvoiceItem> { new TaxInvoiceItem { Qty = 5, Value = 100m } },
                 GrandTotal = 105m
             };
 
