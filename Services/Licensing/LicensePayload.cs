@@ -7,15 +7,16 @@
 // ────────────
 // The on-disk format of a ProGlass Automation license file (.lic).
 // A license is a JSON envelope containing the customer/company
-// record PLUS an Ed25519 signature over the canonicalised record.
-// The signature is verified by the app on every load — the private
-// key only ever exists in the separate LicenseGenerator tool, never
-// in the app's source tree.
+// record PLUS an RSA-2048-PSS signature over the canonicalised
+// record. The signature is verified by the app on every load —
+// the private key only ever exists in the separate
+// LicenseGenerator tool, never in the app's source tree.
 //
 // FILE SHAPE (illustrative — actual JSON is produced by
 // LicenseSigner and consumed by LicenseVerifier):
 //
 //   {
+//     "envelopeVersion": 1,
 //     "payload": {
 //       "schemaVersion": 1,
 //       "licenseId":     "uuid",
@@ -29,30 +30,33 @@
 //       "machineFingerprint": null,    // null = portable; non-null = locked
 //       "notes":         "Issued by J. Saleem 2026-08-23"
 //     },
-//     "signature": "base64(64 bytes Ed25519 over canonical JSON)"
+//     "signature": "base64(256 bytes RSA-2048-PSS over canonical JSON)"
 //   }
 //
 // SIGNING MODEL
 // ─────────────
-//   • Ed25519 (RFC 8032) via System.Security.Cryptography.
-//   • Public key embedded as a const string in LicensePublicKey.cs.
+//   • RSA-2048, PSS padding, SHA-256, via the BCL.
+//   • Public key embedded as an XML const string in
+//     LicensePublicKey.cs.
 //   • Private key only ever lives in the LicenseGenerator tool,
-//     stored on the developer's machine outside the source tree.
+//     stored on the developer's machine outside the source tree
+//     (see %AppData%\ProGlassAutomation\license-keys.json).
 //   • The signature is over the canonical JSON of the payload
 //     (sorted keys, no whitespace), NOT over the pretty-printed
 //     JSON the operator sees. This makes verification robust to
-//     formatting changes.
+//     formatting changes. The round-trip tests guard this.
 //
-// WHY ED25519
-// ───────────
-//   • 64-byte signatures (vs RSA-2048's 256).
-//   • Deterministic — no random k generation, so re-signing the
-//     same payload yields the same signature. Useful for tests.
-//   • Fast verify on cold-start (microseconds).
-//   • Built into .NET 8 — no extra NuGet dependency.
-//   • The keys cannot be confused with the existing RSA keys used
-//     elsewhere (e.g. UpdateSignatureVerifier, PasswordHasher,
-//     SecretVault). One algorithm per purpose.
+// WHY RSA, NOT ED25519
+// ────────────────────
+//   • Universal .NET support across every version back to .NET
+//     Framework 2.0 — no risk of API rename in a future
+//     release breaking every shipped license.
+//   • .NET 8's Ed25519 class is in flux across previews.
+//   • The rest of this codebase already uses RSA (PasswordHasher,
+//     UpdateSignatureVerifier, DPAPI). One family for the whole
+//     app means one toolset for the developer.
+//   • 256-byte signatures are larger than Ed25519's 64 bytes,
+//     but invisible to a customer.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;

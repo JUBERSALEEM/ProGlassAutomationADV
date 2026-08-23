@@ -61,6 +61,21 @@
 		<None Remove="Tests/**" />
 		<Page Remove="Tests/**" />
 		<Resource Remove="Tests/**" />
+		<!--
+		  PHASE L — keep the developer-only tool out of the
+		  app project.
+
+		  The license generator lives under Tools/ and is a
+		  separate console executable. If SDK-style default
+		  globbing pulled Tools\**\*.cs into the app
+		  project, we'd get CS5001 (multiple entry points)
+		  and CS0234 (Program type already defined) on
+		  every build of the shipped app.
+		-->
+		<Compile Remove="Tools/**" />
+		<None Remove="Tools/**" />
+		<Page Remove="Tools/**" />
+		<Resource Remove="Tools/**" />
 	</ItemGroup>
 
 	<ItemGroup>

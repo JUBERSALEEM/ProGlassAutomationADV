@@ -1,0 +1,63 @@
+<!--
+  ProGlassAutomation.LicenseGenerator — developer-only tool.
+
+  This project is a separate console application that
+  generates RSA-2048 key pairs and signs license files
+  (.lic). It is NEVER shipped to customers — it lives in
+  the developer's source tree and the produced .lic files
+  are what the customer receives out-of-band (email,
+  WhatsApp, etc.).
+
+  Why a separate project?
+    • Different output type (Exe, not WinExe).
+    • No WPF / no UI dependencies.
+    • Marked IsPackable=false so the .csproj is never
+      included in a customer-facing installer.
+
+  Why share source files with the app instead of a
+  ProjectReference?
+    A ProjectReference on the full app would drag the
+    WPF / EF Core / ClosedXML / NAudio / Whisper
+    dependency graph into a tool that only needs the
+    licensing primitives. Sharing source files keeps
+    the tool's restore + build time in seconds rather
+    than minutes, and the licensing code is small
+    enough that the duplication risk is acceptable.
+    The CI build verifies the app project compiles, so
+    the licensing code stays in lockstep with the
+    app's understanding of the contract.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>ProGlassAutomation.Tools.LicenseGenerator</RootNamespace>
+    <AssemblyName>ProGlassAutomation.LicenseGenerator</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307</WarningsNotAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      The licensing primitives — shared verbatim with
+      the app. If the app's copy changes, this copy
+      does NOT auto-update; the developer must keep
+      them in sync. The contract is "this list of files
+      lives in both places"; the test suite on the app
+      side guarantees behaviour parity.
+    -->
+    <Compile Include="..\..\Services\Licensing\LicensePayload.cs"
+             Link="Shared\LicensePayload.cs" />
+    <Compile Include="..\..\Services\Licensing\LicenseSigner.cs"
+             Link="Shared\LicenseSigner.cs" />
+    <Compile Include="..\..\Services\Licensing\LicensePublicKey.cs"
+             Link="Shared\LicensePublicKey.cs" />
+    <Compile Include="..\..\Services\Licensing\MachineFingerprint.cs"
+             Link="Shared\MachineFingerprint.cs" />
+  </ItemGroup>
+
+</Project>

@@ -361,3 +361,26 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# ════════════════════════════════════════════════════════════════
+# Licensing — never commit a private signing key.
+# The license generator writes the developer's RSA private
+# key to %AppData%\ProGlassAutomation\license-keys.json
+# on first run. If you ever put a private key into the
+# repository, treat it as compromised — rotate the key
+# pair and reissue every customer license.
+# ════════════════════════════════════════════════════════════════
+license-keys.json
+**/license-keys.json
+
+# Generated license files (.lic) are customer artifacts.
+# They are also uninteresting in source control. If a
+# developer wants to keep a test .lic around, name it
+# with a .sample.lic suffix and the rule below will
+# ignore the .lic and keep the .sample.lic.
+*.lic
+!**/*.sample.lic
+
+# Activations ledger — per-machine state, no business
+# value in source control.
+activations.json
+**/activations.json
