@@ -1,111 +1,1005 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Inquiry/InquiryListView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Inquiry register — 2026 SaaS rebuild
+
+     Architecture (see Docs/INQUIRY_SENIOR_ANALYSIS.md):
+       header (title, count, actions)
+       → KPI strip (pipeline value / open / awaiting / confirmed)
+       → shell card: segmented status tabs · command bar · sortable table
+         (virtualized, pixel columns shared with the header row)
+         · overlays (loading / empty / error+retry)
+       → slide-in details drawer (workflow actions, attachments, timeline)
+
+     Everything is theme-aware (DynamicResource) — no hardcoded colors,
+     so Light/Dark appearance and the radius slider apply everywhere.
+═══════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Inquiry.InquiryListView"
- xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
- xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
- FontFamily="Segoe UI" FontSize="13" Foreground="#111827"
- TextOptions.TextFormattingMode="Display" TextOptions.TextRenderingMode="ClearType"
- UseLayoutRounding="True" SnapsToDevicePixels="True">
- <UserControl.Resources>
-  <SolidColorBrush x:Key="Blue" Color="#0967D8"/>
-  <SolidColorBrush x:Key="Line" Color="#D9E0E8"/>
-  <Style TargetType="Button"><Setter Property="Height" Value="38"/><Setter Property="Padding" Value="14,7"/><Setter Property="FontFamily" Value="Segoe UI"/><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Background" Value="#FFFFFF"/><Setter Property="Foreground" Value="#26364A"/><Setter Property="BorderBrush" Value="#C7D1DD"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Cursor" Value="Hand"/></Style>
-  <Style x:Key="BlueButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}"><Setter Property="Background" Value="#0967D8"/><Setter Property="Foreground" Value="White"/><Setter Property="BorderBrush" Value="#0967D8"/></Style>
-  <Style TargetType="TextBox"><Setter Property="Height" Value="40"/><Setter Property="FontSize" Value="12.5"/><Setter Property="Padding" Value="34,0,10,0"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="Background" Value="#FFFFFF"/><Setter Property="BorderBrush" Value="#D1D8E0"/><Setter Property="BorderThickness" Value="1"/></Style>
-  <Style TargetType="ComboBox"><Setter Property="Height" Value="40"/><Setter Property="FontSize" Value="12.5"/><Setter Property="Padding" Value="11,5"/><Setter Property="Background" Value="#FFFFFF"/><Setter Property="BorderBrush" Value="#D1D8E0"/><Setter Property="BorderThickness" Value="1"/></Style>
-  <Style TargetType="DataGrid"><Setter Property="Background" Value="#FFFFFF"/><Setter Property="Foreground" Value="#172033"/><Setter Property="FontFamily" Value="Segoe UI"/><Setter Property="FontSize" Value="12"/><Setter Property="BorderThickness" Value="0"/><Setter Property="GridLinesVisibility" Value="Horizontal"/><Setter Property="HorizontalGridLinesBrush" Value="#DFE5EC"/><Setter Property="VerticalGridLinesBrush" Value="Transparent"/><Setter Property="HeadersVisibility" Value="Column"/><Setter Property="RowHeight" Value="47"/></Style>
-  <Style TargetType="DataGridColumnHeader"><Setter Property="Height" Value="47"/><Setter Property="Background" Value="#F5F7FA"/><Setter Property="Foreground" Value="#1E293B"/><Setter Property="FontSize" Value="11"/><Setter Property="FontWeight" Value="Bold"/><Setter Property="Padding" Value="10,0"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="BorderBrush" Value="#D7DEE7"/><Setter Property="BorderThickness" Value="0,0,0,1"/></Style>
-  <Style TargetType="DataGridRow"><Setter Property="Background" Value="#FFFFFF"/><Setter Property="BorderThickness" Value="0"/><Style.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter Property="Background" Value="#F4F8FD"/></Trigger><Trigger Property="IsSelected" Value="True"><Setter Property="Background" Value="#EDF4FF"/><Setter Property="Foreground" Value="#102A56"/><Setter Property="BorderBrush" Value="#0967D8"/><Setter Property="BorderThickness" Value="3,0,0,0"/></Trigger></Style.Triggers></Style>
-  <Style TargetType="DataGridCell"><Setter Property="Padding" Value="10,0"/><Setter Property="VerticalContentAlignment" Value="Center"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="BorderThickness" Value="0"/><Setter Property="FocusVisualStyle" Value="{x:Null}"/></Style>
-  <Style x:Key="StatButton" TargetType="Button"><Setter Property="Background" Value="#FFFFFF"/><Setter Property="BorderBrush" Value="#E1E6ED"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Height" Value="78"/><Setter Property="Margin" Value="5,0"/><Setter Property="Padding" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/><Setter Property="Cursor" Value="Hand"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="Button"><Border x:Name="Card" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10" Padding="{TemplateBinding Padding}"><ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Center"/></Border><ControlTemplate.Triggers><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Card" Property="BorderBrush" Value="#8CB7F0"/><Setter TargetName="Card" Property="Background" Value="#F8FBFF"/></Trigger><Trigger Property="IsPressed" Value="True"><Setter TargetName="Card" Property="Background" Value="#EEF5FF"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
-  <Style x:Key="AttachmentToggle" TargetType="ToggleButton"><Setter Property="Height" Value="38"/><Setter Property="Padding" Value="12,0"/><Setter Property="Background" Value="#FFFFFF"/><Setter Property="BorderBrush" Value="#D5DCE6"/><Setter Property="BorderThickness" Value="1"/><Setter Property="Template"><Setter.Value><ControlTemplate TargetType="ToggleButton"><Border x:Name="Shell" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="7" Padding="{TemplateBinding Padding}"><StackPanel Orientation="Horizontal"><Border x:Name="Box" Width="16" Height="16" CornerRadius="4" BorderBrush="#98A2B3" BorderThickness="1.5" Background="White" Margin="0,0,8,0"><TextBlock x:Name="Tick" Text="✓" FontSize="11" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/></Border><ContentPresenter VerticalAlignment="Center"/></StackPanel></Border><ControlTemplate.Triggers><Trigger Property="IsChecked" Value="True"><Setter TargetName="Shell" Property="Background" Value="#EEF5FF"/><Setter TargetName="Shell" Property="BorderBrush" Value="#6EA8F4"/><Setter TargetName="Box" Property="Background" Value="#0967D8"/><Setter TargetName="Box" Property="BorderBrush" Value="#0967D8"/><Setter TargetName="Tick" Property="Visibility" Value="Visible"/></Trigger><Trigger Property="IsMouseOver" Value="True"><Setter TargetName="Shell" Property="BorderBrush" Value="#84AEE6"/></Trigger></ControlTemplate.Triggers></ControlTemplate></Setter.Value></Setter></Style>
-  <Style x:Key="DrawerLabel" TargetType="TextBlock"><Setter Property="FontSize" Value="10"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="Foreground" Value="#667085"/><Setter Property="Margin" Value="0,16,0,5"/></Style>
- </UserControl.Resources>
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
- <Grid Background="#F7F8FA">
-  <Grid.RowDefinitions><RowDefinition Height="82"/><RowDefinition Height="118"/><RowDefinition Height="76"/><RowDefinition Height="*"/><RowDefinition Height="44"/></Grid.RowDefinitions>
+    <UserControl.Resources>
+        <conv:ReferenceEqualityConverter x:Key="ReferenceEquals"/>
 
-  <!-- Exact mockup header -->
-  <Grid Margin="24,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <StackPanel VerticalAlignment="Center"><TextBlock Text="INQUIRIES" FontSize="28" FontWeight="Bold"/><TextBlock Text="Customer inquiries, communication history and commercial workflow" FontSize="12" Foreground="#667085" Margin="0,2,0,0"/></StackPanel>
-   <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="18,0,0,0"><Button Content="EXPORT" Command="{Binding ExportCommand}" Background="Transparent" BorderThickness="0" Foreground="#344054"/><Button Content="IMPORT" Command="{Binding ImportCommand}" Background="Transparent" BorderThickness="0" Foreground="#344054"/></StackPanel>
-   <Button Grid.Column="3" Content="＋  NEW INQUIRY" Command="{Binding NewInquiryCommand}" Style="{StaticResource BlueButton}" VerticalAlignment="Center"/>
-  </Grid>
+        <!-- ══ Local primitives (module-specific only — chrome comes
+             from Themes/Styles: ListPageStyles, PillStyles, DesignTokens) ══ -->
 
-  <!-- One continuous metric strip, not inherited cards -->
-  <Border Grid.Row="1" Margin="19,0" Background="Transparent" BorderThickness="0">
-   <UniformGrid Columns="6">
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="All statuses"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#F0F2F6"><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#5C6675" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="ALL INQUIRIES" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding TotalCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="Received"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#EAF2FF"><TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#075FD8" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="RECEIVED" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding ReceivedCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="Sent"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#EEF2FF"><TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#475CC7" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="SENT" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding SentCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="Confirmed"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#E9F7F0"><TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#009B69" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="CONFIRMED" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding ConfirmedCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="Hold"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#FFF4D8"><TextBlock Text="&#xE769;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#B7791F" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="ON HOLD" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding HoldCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-    <Button Style="{StaticResource StatButton}" Command="{Binding FilterByStatisticCommand}" CommandParameter="Cancelled"><Grid Margin="15,18"><Grid.ColumnDefinitions><ColumnDefinition Width="44"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Width="38" Height="38" CornerRadius="6" Background="#FDECEC"><TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="#C2413B" HorizontalAlignment="Center" VerticalAlignment="Center"/></Border><StackPanel Grid.Column="1" Margin="9,0,0,0"><TextBlock Text="CANCELLED" FontSize="9.5" Foreground="#667085"/><TextBlock Text="{Binding CancelledCount}" FontSize="24" FontWeight="Bold"/></StackPanel><Border Grid.Column="1" Width="1" Background="#DDE3EA" HorizontalAlignment="Right" Margin="0,0,-15,0"/></Grid></Button>
-   </UniformGrid>
-  </Border>
+        <!-- Segmented status tab driven by InquiryStatusTab.IsSelected -->
+        <Style x:Key="StatusTabButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="Transparent" Padding="12,0" SnapsToDevicePixels="True">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+                                    <TextBlock Text="{TemplateBinding Content}" FontSize="11.5" FontWeight="SemiBold"
+                                               Foreground="{TemplateBinding Foreground}"
+                                               VerticalAlignment="Center"/>
+                                    <Border Margin="7,0,0,0" Padding="7,1" CornerRadius="8"
+                                            Background="{DynamicResource TintGrayBrush}">
+                                        <TextBlock Text="{Binding Count, Mode=OneWay}" FontSize="10.5" FontWeight="Bold"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </Border>
+                                </StackPanel>
+                                <Border x:Name="Underline" Height="2.5" VerticalAlignment="Bottom" CornerRadius="1"
+                                        Background="Transparent"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource BorderBrush}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Underline" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-  <!-- 2026 SaaS command bar: search left, filters center, actions locked right -->
-  <Border Grid.Row="2" Margin="24,14,24,12" Background="#FFFFFF" BorderBrush="#E1E6ED" BorderThickness="1" CornerRadius="10" Padding="10">
-   <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="260"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-    <Grid><TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" Foreground="#667085" Margin="13,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/><TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ToolTip="Search inquiry, customer, project, salesman or prepared by" BorderBrush="#D8DEE7"/></Grid>
-    <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="10,0"><StackPanel Orientation="Horizontal">
-     <ComboBox Width="122" ItemsSource="{Binding DateRanges}" SelectedItem="{Binding SelectedDateRange}" ToolTip="Received date"/>
-     <ComboBox Width="124" Margin="8,0,0,0" ItemsSource="{Binding Salesmen}" SelectedItem="{Binding SelectedSalesman}" ToolTip="Salesman"/>
-     <ComboBox Width="138" Margin="8,0,0,0" ItemsSource="{Binding PreparedByUsers}" SelectedItem="{Binding SelectedPreparedBy}" ToolTip="Prepared By"/>
-     <ToggleButton Style="{StaticResource AttachmentToggle}" Content="Has attachments" IsChecked="{Binding HasAttachmentsOnly}" Margin="8,0,0,0"/>
-     <ComboBox Width="136" Margin="8,0,0,0" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" ToolTip="Sort register"/>
-     <Grid Margin="8,0,0,0"><Button x:Name="MoreFiltersButton" Content="MORE FILTERS" Command="{Binding ToggleMoreFiltersCommand}"/><Popup IsOpen="{Binding IsMoreFiltersOpen}" PlacementTarget="{Binding ElementName=MoreFiltersButton}" Placement="Bottom" StaysOpen="False"><Border Background="White" BorderBrush="#D8DEE7" BorderThickness="1" CornerRadius="8" Padding="14" Width="220"><StackPanel><TextBlock Text="STATUS" FontSize="10" FontWeight="SemiBold" Foreground="#667085"/><ComboBox ItemsSource="{Binding Statuses}" SelectedItem="{Binding SelectedStatus}" Margin="0,5,0,12"/><TextBlock Text="PRIORITY" FontSize="10" FontWeight="SemiBold" Foreground="#667085"/><ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding SelectedPriority}" Margin="0,5,0,0"/></StackPanel></Border></Popup></Grid>
-    </StackPanel></ScrollViewer>
-    <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="RESET" Command="{Binding ResetFiltersCommand}" Background="#FFFFFF" Foreground="#475467" BorderBrush="#D8DEE7"/><Button Content="REFRESH" Command="{Binding RefreshCommand}" Style="{StaticResource BlueButton}" Margin="8,0,0,0"/></StackPanel>
-   </Grid>
-  </Border>
+        <!-- Status pill — background from DataTriggers on Status -->
+        <Style x:Key="StatusPillStyle" TargetType="Border" BasedOn="{StaticResource StatusPillBaseStyle}">
+            <Setter Property="Padding" Value="9,3"/>
+            <Setter Property="CornerRadius" Value="9"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Received">
+                    <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Prepared">
+                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Sent">
+                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Confirmed">
+                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Hold">
+                    <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
-  <!-- Approved table columns and proportions -->
-  <Border Grid.Row="3" Margin="24,0" Background="#FFFFFF" BorderBrush="#D6DEE7" BorderThickness="1" CornerRadius="8" ClipToBounds="True">
-   <Grid>
-   <DataGrid ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" EnableRowVirtualization="True" VirtualizingPanel.IsVirtualizing="True" VirtualizingPanel.VirtualizationMode="Recycling" ItemsSource="{Binding Inquiries}" SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" SelectionMode="Single">
-    <DataGrid.Columns>
-     <DataGridTemplateColumn Width="42"><DataGridTemplateColumn.CellTemplate><DataTemplate><CheckBox IsChecked="{Binding IsSelected}" HorizontalAlignment="Center"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="INQUIRY" Width="1.05*" MinWidth="150"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel HorizontalAlignment="Left"><TextBlock Text="{Binding InquiryNumber}" FontWeight="SemiBold"/><TextBlock Text="{Binding InquiryReference}" FontSize="10.5" Foreground="#7A8699"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="CUSTOMER" Width="1.25*" MinWidth="180"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel HorizontalAlignment="Left"><TextBlock Text="{Binding CustomerName}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding CustomerLocation}" FontSize="10.5" Foreground="#7A8699" TextTrimming="CharacterEllipsis"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="PROJECT" Width="1.45*" MinWidth="200"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel HorizontalAlignment="Left"><TextBlock Text="{Binding Project}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding Subject}" FontSize="10.5" Foreground="#7A8699" TextTrimming="CharacterEllipsis"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="ATTACHMENTS" Width="140"><DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding AttachmentBadgeText}" FontSize="10.5" FontWeight="SemiBold" Foreground="#475467"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="SALESMAN" Width="125"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding Salesman}"/><TextBlock Text="Sales owner" FontSize="10.5" Foreground="#7A8699"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="PREPARED BY" Width="135"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding PreparedBy}"/><TextBlock Text="{Binding PreparedByRole}" FontSize="10.5" Foreground="#7A8699"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="RECEIVED" Width="128"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding ReceivedAt, StringFormat={}{0:dd MMM yyyy}}"/><TextBlock Text="{Binding ReceivedAt, StringFormat={}{0:hh:mm tt}}" FontSize="10.5" Foreground="#7A8699"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Header="LAST UPDATED" Width="128"><DataGridTemplateColumn.CellTemplate><DataTemplate><StackPanel><TextBlock Text="{Binding UpdatedAt, StringFormat={}{0:dd MMM yyyy}}"/><TextBlock Text="{Binding UpdatedAt, StringFormat={}{0:hh:mm tt}}" FontSize="10.5" Foreground="#7A8699"/></StackPanel></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-     <DataGridTemplateColumn Width="40"><DataGridTemplateColumn.CellTemplate><DataTemplate><TextBlock Text="···" FontWeight="Bold" HorizontalAlignment="Center"/></DataTemplate></DataGridTemplateColumn.CellTemplate></DataGridTemplateColumn>
-    </DataGrid.Columns>
-   </DataGrid>
-   <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding HasNoInquiries, Converter={StaticResource BoolToVisibilityConverter}}"><TextBlock Text="No inquiries found" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/><TextBlock Text="Try changing your filters or create a new inquiry." Foreground="#667085" Margin="0,6,0,12"/><Button Content="+ NEW INQUIRY" Command="{Binding NewInquiryCommand}" Style="{StaticResource BlueButton}" HorizontalAlignment="Center"/></StackPanel>
-   <Border Background="#D9FFFFFF" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"><StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><ProgressBar IsIndeterminate="True" Width="180" Height="4"/><TextBlock Text="Loading inquiries…" Margin="0,10,0,0"/></StackPanel></Border>
-   <Border Background="#FDF2F2" Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}"><StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"><TextBlock Text="Unable to load inquiries" FontSize="17" FontWeight="SemiBold" Foreground="#B42318"/><TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" MaxWidth="520" Margin="0,6,0,12"/><Button Content="RETRY" Command="{Binding RefreshCommand}"/></StackPanel></Border>
-   </Grid>
-  </Border>
+        <!-- Register row: hover + selected (reference equality against the
+             ListBox selection) + accent rail on selection -->
+        <Style x:Key="RegisterRowStyle" TargetType="Border" BasedOn="{StaticResource ModuleListRowStyle}">
+            <Setter Property="MinHeight" Value="54"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                </Trigger>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource ReferenceEquals}">
+                            <Binding Path="DataContext.SelectedInquiry"
+                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                            <Binding/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
-  <DockPanel Grid.Row="4" Margin="24,0"><TextBlock Text="{Binding PageStatus}" Foreground="#667085" VerticalAlignment="Center"/><StackPanel DockPanel.Dock="Right" Orientation="Horizontal"><Button Content="PREVIOUS" Command="{Binding PreviousPageCommand}" Height="30" Padding="10,3"/><TextBlock VerticalAlignment="Center" Margin="10,0"><Run Text="Page "/><Run Text="{Binding CurrentPage, Mode=OneWay}"/><Run Text=" of "/><Run Text="{Binding TotalPages, Mode=OneWay}"/></TextBlock><Button Content="NEXT" Command="{Binding NextPageCommand}" Height="30" Padding="10,3"/></StackPanel></DockPanel>
+        <Style x:Key="RegisterRailStyle" TargetType="Border">
+            <Setter Property="Width" Value="3"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Grid.Column" Value="0"/>
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource ReferenceEquals}">
+                            <Binding Path="DataContext.SelectedInquiry"
+                                     RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                            <Binding/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
-  <!-- Drawer overlays KPI/filter/table exactly like approved image -->
-  <Border Grid.Row="1" Grid.RowSpan="4" Width="460" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,-16,8,8" Background="#FFFFFF" BorderBrush="#D6DEE7" BorderThickness="1" CornerRadius="8" Panel.ZIndex="20" RenderTransformOrigin="1,0.5">
-   <Border.RenderTransform><TranslateTransform X="470"/></Border.RenderTransform>
-   <Border.Style><Style TargetType="Border"><Setter Property="Opacity" Value="0"/><Setter Property="IsHitTestVisible" Value="False"/><Style.Triggers><DataTrigger Binding="{Binding IsDetailsDrawerOpen}" Value="True"><Setter Property="IsHitTestVisible" Value="True"/><DataTrigger.EnterActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.20"/><DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.20"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction></DoubleAnimation></Storyboard></BeginStoryboard></DataTrigger.EnterActions><DataTrigger.ExitActions><BeginStoryboard><Storyboard><DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18"/><DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="470" Duration="0:0:0.18"><DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseIn"/></DoubleAnimation.EasingFunction></DoubleAnimation></Storyboard></BeginStoryboard></DataTrigger.ExitActions></DataTrigger></Style.Triggers></Style></Border.Style>
-   <Border.Effect><DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.20" Color="#344054"/></Border.Effect>
-   <Grid><Grid.RowDefinitions><RowDefinition Height="64"/><RowDefinition Height="*"/><RowDefinition Height="142"/></Grid.RowDefinitions>
-    <Grid Margin="16,0"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="38"/></Grid.ColumnDefinitions><TextBlock Text="{Binding SelectedInquiry.InquiryNumber}" FontSize="19" FontWeight="Bold" VerticalAlignment="Center"/><Border Grid.Column="1" Background="#FFF0B8" CornerRadius="4" Padding="9,4" VerticalAlignment="Center"><TextBlock Text="{Binding SelectedInquiry.Status}" FontSize="11"/></Border><Button Grid.Column="2" Content="×" Command="{Binding CloseDetailsCommand}" FontSize="23" BorderThickness="0" Background="Transparent" Padding="0"/></Grid>
-    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel Margin="16,0,16,12">
-     <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Customer" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.CustomerName}" Foreground="#174A8B" TextDecorations="Underline"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Contact" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.ContactSummary}"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Project/Subject" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.Subject}" TextWrapping="Wrap"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Received" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.ReceivedAt, StringFormat={}{0:dd MMM yyyy, hh:mm tt}}"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Salesman" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.Salesman}"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Prepared By" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.PreparedBy}"/></Grid>
-     <Grid Margin="0,9,0,0"><Grid.ColumnDefinitions><ColumnDefinition Width="105"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><TextBlock Text="Inquiry Value" FontWeight="SemiBold"/><TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.InquiryValue, StringFormat=AED {0:N2}}"/></Grid>
-     <TextBlock Text="Notes Preview" FontWeight="SemiBold" Margin="0,12,0,3"/><TextBlock Text="{Binding SelectedInquiry.NotesPreview}" TextWrapping="Wrap" MaxHeight="56"/>
-     <TextBlock Text="Attachments" Style="{StaticResource DrawerLabel}"/>
-     <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}"><ItemsControl.ItemTemplate><DataTemplate><Grid Margin="0,3"><Grid.ColumnDefinitions><ColumnDefinition Width="24"/><ColumnDefinition Width="*"/><ColumnDefinition Width="72"/><ColumnDefinition Width="52"/></Grid.ColumnDefinitions><TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="#596579"/><StackPanel Grid.Column="1"><TextBlock Text="{Binding FileName}" TextTrimming="CharacterEllipsis"/><TextBlock Text="{Binding FileSizeDisplay}" FontSize="10" Foreground="#7A8699"/></StackPanel><TextBlock Grid.Column="2" Text="{Binding Extension}" FontSize="10" FontWeight="Bold" VerticalAlignment="Center"/><Button Grid.Column="3" Content="OPEN" Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Height="28" Padding="5,2" FontSize="9"/></Grid></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-     <TextBlock Text="Linked Documents" Style="{StaticResource DrawerLabel}"/><Border Background="#F1F5FA" CornerRadius="5" Padding="9"><TextBlock Text="{Binding SelectedInquiry.DocumentChainText}"/></Border>
-     <TextBlock Text="Recent Activity" Style="{StaticResource DrawerLabel}"/><ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}"><ItemsControl.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" FontSize="11" Margin="0,3" TextWrapping="Wrap"/></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
-    </StackPanel></ScrollViewer>
-    <StackPanel Grid.Row="2" Margin="16,10"><Button Content="OPEN FULL WORKSPACE" Command="{Binding OpenWorkspaceCommand}" Style="{StaticResource BlueButton}" Margin="0,0,0,7"/><Button Content="CONVERT TO PI" Command="{Binding ConvertToPiCommand}" Margin="0,0,0,5"/><Button Content="View History" Command="{Binding ShowHistoryCommand}" BorderThickness="0" Background="Transparent" Foreground="#475467"/></StackPanel>
-   </Grid>
-  </Border>
- </Grid>
+        <!-- Command-bar toggle for the "has attachments" filter -->
+        <Style x:Key="AttachmentFilterToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Shell" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
+                                Padding="11,6" SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal">
+                                <Border x:Name="Box" Width="15" Height="15" CornerRadius="4"
+                                        Background="Transparent"
+                                        BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1.5"
+                                        VerticalAlignment="Center" Margin="0,0,8,0">
+                                    <TextBlock x:Name="Tick" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                               FontSize="9" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"
+                                               Visibility="Collapsed"/>
+                                </Border>
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Shell" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Shell" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Box" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Tick" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Shell" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Small ghost action button used in rows/drawer -->
+        <Style x:Key="GhostButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="9,5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Workflow action chip in the drawer -->
+        <Style x:Key="WorkflowChipStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Padding" Value="12,7"/>
+            <Setter Property="Margin" Value="0,0,6,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="DrawerLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,16,0,6"/>
+        </Style>
+
+        <Style x:Key="DrawerFieldStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="KpiValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{DynamicResource DensityKpiValueFontSize}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+
+        <Style x:Key="KpiCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="20,16,20,12">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ PAGE HEADER ═════════════════════════════════════════════ -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Inquiries" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <Border Margin="10,2,0,0" Padding="9,3" CornerRadius="9"
+                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                        <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                            <Run Text="{Binding StatusTabs[0].Count, Mode=OneWay}"/><Run Text=" total"/>
+                        </TextBlock>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="Commercial intake — capture, prepare, send, confirm and convert to proforma invoices."
+                           Style="{StaticResource ModulePageSubtitleStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="Refresh" Command="{Binding RefreshCommand}"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Margin="0,0,8,0"/>
+                <Button Content="Import" Command="{Binding ImportCommand}"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Margin="0,0,8,0"/>
+                <Button Content="Export" Command="{Binding ExportCommand}"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Margin="0,0,8,0"/>
+                <Button Content="＋ New inquiry" Command="{Binding NewInquiryCommand}"
+                        Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ══ KPI STRIP ═══════════════════════════════════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleSectionCardStyle}" Margin="0,14,0,0" Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.3*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="2,0,10,0">
+                    <TextBlock Text="OPEN PIPELINE VALUE" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                    <TextBlock Text="{Binding PipelineValueText}" Style="{StaticResource KpiValueStyle}"/>
+                    <TextBlock Text="Cancelled inquiries excluded" Style="{StaticResource KpiCaptionStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="OPEN" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                    <TextBlock Text="{Binding OpenCount}" Style="{StaticResource KpiValueStyle}"/>
+                    <TextBlock Text="Received + prepared" Style="{StaticResource KpiCaptionStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="AWAITING CUSTOMER" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                    <TextBlock Text="{Binding AwaitingCount}" Style="{StaticResource KpiValueStyle}"/>
+                    <TextBlock Text="Sent, waiting confirmation" Style="{StaticResource KpiCaptionStyle}"/>
+                </StackPanel>
+                <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="10,0,2,0">
+                    <TextBlock Text="CONFIRMED" Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                    <TextBlock Text="{Binding ConfirmedCount}" Style="{StaticResource KpiValueStyle}"/>
+                    <TextBlock Text="Ready to convert to PI" Style="{StaticResource KpiCaptionStyle}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ REGISTER SHELL ══════════════════════════════════════════ -->
+        <Border Grid.Row="2" Style="{StaticResource ModuleListShellStyle}" Margin="0,14,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Segmented status tabs with live counts -->
+                <Border Style="{StaticResource ModuleListKpiStripStyle}" Padding="8,4">
+                    <ItemsControl ItemsSource="{Binding StatusTabs}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Command="{Binding DataContext.SelectStatusTabCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding Key}"
+                                        Style="{StaticResource StatusTabButtonStyle}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
+
+                <!-- Command bar -->
+                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="260"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid>
+                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="12,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False"/>
+                            <TextBox x:Name="SearchInput"
+                                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource ModuleListFilterInputStyle}"
+                                     Padding="32,0,10,0"
+                                     ToolTip="Search inquiry number, customer, project, salesman or prepared by"/>
+                                                    </Grid>
+
+                        <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto"
+                                      VerticalScrollBarVisibility="Disabled" Margin="10,0" Padding="0">
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox Width="120" ItemsSource="{Binding DateRanges}"
+                                          SelectedItem="{Binding SelectedDateRange}"
+                                          Style="{StaticResource ModuleListFilterComboStyle}"
+                                          ToolTip="Received date range"/>
+                                <ComboBox Width="150" Margin="8,0,0,0" ItemsSource="{Binding Salesmen}"
+                                          SelectedItem="{Binding SelectedSalesman}"
+                                          Style="{StaticResource ModuleListFilterComboStyle}" ToolTip="Salesman"/>
+                                <ComboBox Width="160" Margin="8,0,0,0" ItemsSource="{Binding PreparedByUsers}"
+                                          SelectedItem="{Binding SelectedPreparedBy}"
+                                          Style="{StaticResource ModuleListFilterComboStyle}" ToolTip="Prepared by"/>
+                                <ComboBox Width="130" Margin="8,0,0,0" ItemsSource="{Binding Priorities}"
+                                          SelectedItem="{Binding SelectedPriority}"
+                                          Style="{StaticResource ModuleListFilterComboStyle}" ToolTip="Priority"/>
+                                <ToggleButton Margin="8,0,0,0" Content="Has files"
+                                              IsChecked="{Binding HasAttachmentsOnly}"
+                                              Style="{StaticResource AttachmentFilterToggleStyle}"
+                                              ToolTip="Only show inquiries with attachments"/>
+                                <ComboBox Width="170" Margin="8,0,0,0" ItemsSource="{Binding SortOptions}"
+                                          SelectedItem="{Binding SelectedSort}"
+                                          Style="{StaticResource ModuleListFilterComboStyle}" ToolTip="Sort order"/>
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal">
+                            <Border Width="7" Height="7" CornerRadius="4" Margin="0,0,7,0"
+                                    VerticalAlignment="Center" Background="{DynamicResource AccentBrush}"
+                                    ToolTip="Filters are active" Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <Button Content="Reset filters" Command="{Binding ResetFiltersCommand}"
+                                    Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Table: header + virtualized rows sharing the same columns.
+                     Horizontal scroll keeps every column reachable on small screens. -->
+                <Grid Grid.Row="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ScrollViewer x:Name="HeaderScroller" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                        <Border Style="{StaticResource ModuleListTableHeaderStyle}" MinWidth="1508" Padding="16,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="3"/>
+                                    <ColumnDefinition Width="165"/>
+                                    <ColumnDefinition Width="96"/>
+                                    <ColumnDefinition Width="200"/>
+                                    <ColumnDefinition Width="235"/>
+                                    <ColumnDefinition Width="105"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="84"/>
+                                    <ColumnDefinition Width="112"/>
+                                    <ColumnDefinition Width="138"/>
+                                    <ColumnDefinition Width="130"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="1" Text="INQUIRY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="2" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="VALUE (AED)" Style="{StaticResource ModuleListHeaderTextStyle}" TextAlignment="Right"/>
+                                <TextBlock Grid.Column="6" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="7" Text="PREPARED BY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="8" Text="FILES" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="9" Text="RECEIVED" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="10" Text="LAST UPDATED" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="11" Text="CONVERSION" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                            </Grid>
+                        </Border>
+                    </ScrollViewer>
+
+                    <ListBox x:Name="RegisterList" Grid.Row="1"
+                             ItemsSource="{Binding Inquiries}"
+                             SelectedItem="{Binding SelectedInquiry, Mode=TwoWay}"
+                             Style="{StaticResource ModuleReportListBoxStyle}"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             MouseDoubleClick="OnRowDoubleClick"
+                             HorizontalContentAlignment="Stretch">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border MinWidth="1508" Style="{StaticResource RegisterRowStyle}" Cursor="Hand">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="3"/>
+                                                <ColumnDefinition Width="165"/>
+                                                <ColumnDefinition Width="96"/>
+                                                <ColumnDefinition Width="200"/>
+                                                <ColumnDefinition Width="235"/>
+                                                <ColumnDefinition Width="105"/>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="84"/>
+                                                <ColumnDefinition Width="112"/>
+                                                <ColumnDefinition Width="138"/>
+                                                <ColumnDefinition Width="130"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border Style="{StaticResource RegisterRailStyle}"/>
+
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
+                                                <TextBlock Text="{Binding InquiryNumber}" FontSize="12.5" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding InquiryReference}" FontSize="10.5" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="2" Style="{StaticResource StatusPillStyle}">
+                                                <TextBlock Text="{Binding Status}" Style="{StaticResource PillTextStyle}"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding CustomerLocation}" FontSize="10.5" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding Project}" FontSize="12" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding Subject}" FontSize="10.5" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <TextBlock Grid.Column="5" Text="{Binding ValueText, Mode=OneWay}"
+                                                       FontSize="12" FontWeight="SemiBold" TextAlignment="Right"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       VerticalAlignment="Center" Margin="8,8"/>
+
+                                            <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding Salesman}" FontSize="11.5"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="Sales owner" FontSize="10" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="7" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding PreparedBy}" FontSize="11.5"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding PreparedByRole}" FontSize="10" Margin="0,2,0,0"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="8" VerticalAlignment="Center" HorizontalAlignment="Center"
+                                                    Padding="8,3" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasAttachments}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding AttachmentChipText, Mode=OneWay}" FontSize="10"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            </Border>
+
+                                            <StackPanel Grid.Column="9" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding ReceivedDateText, Mode=OneWay}" FontSize="11.5"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding ReceivedTimeText, Mode=OneWay}" FontSize="10"
+                                                           Margin="0,2,0,0" Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="10" VerticalAlignment="Center" Margin="8,8">
+                                                <TextBlock Text="{Binding UpdatedText, Mode=OneWay}" FontSize="11"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Text="{Binding UpdatedByDisplay, Mode=OneWay}" FontSize="10"
+                                                           Margin="0,2,0,0" Foreground="{DynamicResource MutedForegroundBrush}"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+
+                                            <Border Grid.Column="11" VerticalAlignment="Center" Margin="8,8"
+                                                    Padding="8,3" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                    Background="{DynamicResource TintGrayBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                                    HorizontalAlignment="Left">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsConverted}" Value="True">
+                                                                <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding ChainText, Mode=OneWay}" FontSize="9.5"
+                                                           FontWeight="SemiBold" TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <!-- ══ OVERLAYS: loading / empty / error ═════════════ -->
+                    <Grid Grid.Row="1">
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <!-- Style setter (not a local value) so the
+                                         IsLoading/HasError triggers below can win. -->
+                                    <Setter Property="Visibility"
+                                            Value="{Binding HasInquiries, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasError}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE8A5;"
+                                Title="No inquiries match the current filters"
+                                Message="Inquiries captured by the sales team appear here. Widen the date range, clear filters, or create the first inquiry."
+                                ActionText="＋ New inquiry"
+                                ActionCommand="{Binding NewInquiryCommand}"/>
+                        </StackPanel>
+
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}" Opacity="0.92"
+                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <ProgressBar Width="220" Height="4" IsIndeterminate="True"
+                                             Background="Transparent"
+                                             Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Loading inquiries…" Margin="0,12,0,0" FontSize="12"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Style="{StaticResource ModuleErrorBannerStyle}" Margin="24"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xEB90;" FontFamily="Segoe MDL2 Assets" FontSize="16"
+                                               Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Could not load the inquiry register" FontSize="14"
+                                               FontWeight="Bold" Margin="8,0,0,0"
+                                               Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock Text="{Binding ErrorText}" TextWrapping="Wrap" Margin="0,8,0,0"
+                                           FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Button Content="Retry" Command="{Binding RefreshCommand}" Margin="0,12,0,0"
+                                        HorizontalAlignment="Left"
+                                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+
+                <!-- Footer: pagination -->
+                <Border Grid.Row="3" Style="{StaticResource ModuleListFilterBarStyle}" Padding="16,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding PageStatus}" FontSize="11.5"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="  ·  " Foreground="{DynamicResource MutedForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding StatusText}" FontSize="11.5"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                            <Button Content="&#xE76B;" FontFamily="Segoe MDL2 Assets"
+                                    Command="{Binding PreviousPageCommand}" Style="{StaticResource GhostButtonStyle}"
+                                    ToolTip="Previous page"/>
+                            <TextBlock VerticalAlignment="Center" Margin="10,0" FontSize="11.5"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                <Run Text="Page "/><Run Text="{Binding CurrentPage, Mode=OneWay, StringFormat={}{0}}"/><Run Text=" of "/><Run Text="{Binding TotalPages, Mode=OneWay}"/>
+                            </TextBlock>
+                            <Button Content="&#xE76C;" FontFamily="Segoe MDL2 Assets"
+                                    Command="{Binding NextPageCommand}" Style="{StaticResource GhostButtonStyle}"
+                                    ToolTip="Next page"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ══ DETAILS DRAWER (slides over the table) ═══════════ -->
+                <Border Grid.Row="0" Grid.RowSpan="4" Width="440" HorizontalAlignment="Right"
+                        VerticalAlignment="Stretch" Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1,0,0,0"
+                        Opacity="0" IsHitTestVisible="False" RenderTransformOrigin="0.5,0.5">
+                    <Border.RenderTransform>
+                        <TranslateTransform X="440"/>
+                    </Border.RenderTransform>
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDetailsDrawerOpen}" Value="True">
+                                    <Setter Property="Opacity" Value="1"/>
+                                    <Setter Property="IsHitTestVisible" Value="True"/>
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="0" Duration="0:0:0.22">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseOut"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
+                                    <DataTrigger.ExitActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15"/>
+                                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)" To="440" Duration="0:0:0.18">
+                                                    <DoubleAnimation.EasingFunction>
+                                                        <CubicEase EasingMode="EaseIn"/>
+                                                    </DoubleAnimation.EasingFunction>
+                                                </DoubleAnimation>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.ExitActions>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="18" ShadowDepth="0" Opacity="0.22" Color="#344054"/>
+                    </Border.Effect>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Drawer header -->
+                        <Border Padding="18,14" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding SelectedInquiry.InquiryNumber}" FontSize="17"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <Border Margin="10,0,0,0" Style="{StaticResource StatusPillStyle}">
+                                            <TextBlock Text="{Binding SelectedInquiry.Status}"
+                                                       Style="{StaticResource PillTextStyle}"/>
+                                        </Border>
+                                    </StackPanel>
+                                    <TextBlock Text="{Binding SelectedInquiry.InquiryReference}" FontSize="11"
+                                               Margin="0,3,0,0"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </StackPanel>
+                                <Button Grid.Column="2" Content="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="12"
+                                        Command="{Binding CloseDetailsCommand}" Cursor="Hand"
+                                        VerticalAlignment="Center" Padding="8" Focusable="False">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="Transparent">
+                                                <TextBlock Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="12"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </Border>
+
+                        <!-- Drawer body -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="18,4,18,12">
+                            <StackPanel>
+
+                                <TextBlock Text="WORKFLOW" Style="{StaticResource DrawerLabelStyle}"/>
+                                <WrapPanel>
+                                    <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
+                                            Style="{StaticResource WorkflowChipStyle}"
+                                            IsEnabled="{Binding SelectedInquiry.CanPrepareWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
+                                            Style="{StaticResource WorkflowChipStyle}"
+                                            IsEnabled="{Binding SelectedInquiry.CanSendWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
+                                            Style="{StaticResource WorkflowChipStyle}"
+                                            IsEnabled="{Binding SelectedInquiry.CanConfirmWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
+                                            Style="{StaticResource WorkflowChipStyle}"
+                                            IsEnabled="{Binding SelectedInquiry.CanHoldWorkflow, Mode=OneWay}"/>
+                                    <Button Content="Cancel inquiry" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
+                                            Style="{StaticResource WorkflowChipStyle}"
+                                            IsEnabled="{Binding SelectedInquiry.CanCancelWorkflow, Mode=OneWay}"/>
+                                </WrapPanel>
+
+                                <TextBlock Text="DETAILS" Style="{StaticResource DrawerLabelStyle}"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="118"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <TextBlock Text="Customer" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding SelectedInquiry.CustomerName}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="1" Text="Location" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding SelectedInquiry.ContactSummary}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="2" Text="Project" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding SelectedInquiry.Project}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="3" Text="Subject" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedInquiry.Subject}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="4" Text="Received" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="4" Grid.Column="1"
+                                               Text="{Binding SelectedInquiry.ReceivedAt, StringFormat={}{0:dd MMM yyyy · hh:mm tt}}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="5" Text="Salesman" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding SelectedInquiry.Salesman}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+
+                                    <TextBlock Grid.Row="6" Text="Value" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
+                                    <TextBlock Grid.Row="6" Grid.Column="1"
+                                               Text="{Binding SelectedInquiry.InquiryValue, StringFormat=AED {0:N2}}"
+                                               Style="{StaticResource DrawerFieldStyle}" Margin="0,0,0,6"/>
+                                </Grid>
+
+                                <TextBlock Text="NOTES" Style="{StaticResource DrawerLabelStyle}"/>
+                                <Border Background="{DynamicResource TintGrayBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                                    <TextBlock Text="{Binding SelectedInquiry.NotesPreview}"
+                                               Style="{StaticResource DrawerFieldStyle}" MaxHeight="120"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </Border>
+
+                                <TextBlock Text="ATTACHMENTS" Style="{StaticResource DrawerLabelStyle}"/>
+                                <ItemsControl ItemsSource="{Binding SelectedInquiry.Attachments}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Padding="8,6" Margin="0,0,0,6"
+                                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Width="30" Height="30" CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                            Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
+                                                        <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                                                   Foreground="{DynamicResource AccentBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0,8,0">
+                                                        <TextBlock Text="{Binding FileName}" FontSize="11.5" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding TypeLabel, Mode=OneWay}" FontSize="10"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                                            <TextBlock Text=" · " FontSize="10"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                            <TextBlock Text="{Binding FileSizeDisplay, Mode=OneWay}" FontSize="10"
+                                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        </StackPanel>
+                                                    </StackPanel>
+                                                    <Button Grid.Column="2" Content="Preview" Command="{Binding DataContext.PreviewAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}" Style="{StaticResource GhostButtonStyle}" Margin="0,0,6,0"/>
+                                                    <Button Grid.Column="3" Content="Open" Command="{Binding DataContext.OpenAttachmentCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                            CommandParameter="{Binding}" Style="{StaticResource GhostButtonStyle}"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="No attachments on this inquiry." FontSize="11" Margin="0,2,0,0"
+                                           Foreground="{DynamicResource MutedForegroundBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding SelectedInquiry.HasAttachments}" Value="False">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+
+                                <TextBlock Text="DOCUMENT CHAIN" Style="{StaticResource DrawerLabelStyle}"/>
+                                <Border Background="{DynamicResource TintGrayBrush}"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,8">
+                                    <TextBlock Text="{Binding SelectedInquiry.ChainText, Mode=OneWay}"
+                                               Style="{StaticResource DrawerFieldStyle}"/>
+                                </Border>
+
+                                <TextBlock Text="ACTIVITY" Style="{StaticResource DrawerLabelStyle}"/>
+                                <ItemsControl ItemsSource="{Binding SelectedInquiry.RecentActivity}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Grid Margin="0,0,0,10">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="14"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Ellipse Width="8" Height="8" VerticalAlignment="Top" Margin="0,4,0,0"
+                                                         Fill="{DynamicResource AccentBrush}"/>
+                                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding OccurredText, Mode=OneWay}" FontSize="10"
+                                                                   Margin="8,1,0,0"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Description}" FontSize="11"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </ScrollViewer>
+
+                        <!-- Drawer footer -->
+                        <Border Grid.Row="2" Padding="18,12" BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="0,1,0,0" Background="{DynamicResource ModuleBackgroundBrush}">
+                            <StackPanel>
+                                <Button Content="Open full workspace" Command="{Binding OpenWorkspaceCommand}"
+                                        Style="{StaticResource ModuleToolbarPrimaryButtonStyle}" Margin="0,0,0,8"/>
+                                <Button Content="Convert to proforma invoice" Command="{Binding ConvertToPiCommand}"
+                                        Style="{StaticResource ModuleToolbarSuccessButtonStyle}" Margin="0,0,0,8"/>
+                                <TextBlock Text="Available for confirmed inquiries that have no PI yet." FontSize="10.5"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

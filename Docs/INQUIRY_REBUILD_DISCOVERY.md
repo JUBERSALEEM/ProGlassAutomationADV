@@ -1,5 +1,11 @@
 # Inquiry Module Rebuild — Phase 0/1 Discovery
 
+> **STATUS UPDATE (2026-08 rebuild):** the domain layer, register and editor
+> described below are implemented and the defects found in the first cut are
+> fixed. See `Docs/INQUIRY_SENIOR_ANALYSIS.md` for the root-cause analysis
+> (saving failures S1–S8, attachment defects A1–A7), the fixes applied and the
+> 2026 SaaS redesign notes.
+
 ## Repository finding
 
 The current branch does **not** contain an existing Inquiry domain implementation. The only Inquiry code is the recently added UI shell:

@@ -20,15 +20,19 @@ namespace ProGlassAutomation.Services.Inquiry
                 AppSchemaMigrations.Inquiries, "Inquiry");
         }
 
-        public async Task<PagedResult<InquiryListProjection>> QueryAsync(InquiryQuery query, CancellationToken ct = default)
+        public async Task<PagedResult<InquiryListProjection>> QueryAsync(
+            InquiryQuery query, CancellationToken ct = default)
         {
             await using var db = new InquiryDbContext();
             var source = ApplyFilters(db.Inquiries.AsNoTracking(), query, includeStatus: true);
             source = query.Sort switch
             {
+                "Updated oldest" => source.OrderBy(x => x.UpdatedAt),
                 "Received oldest" => source.OrderBy(x => x.ReceivedAt),
                 "Received newest" => source.OrderByDescending(x => x.ReceivedAt),
                 "Inquiry number" => source.OrderBy(x => x.InquiryNumber),
+                "Inquiry number descending" => source.OrderByDescending(x => x.InquiryNumber),
+                "Value highest" => source.OrderByDescending(x => x.InquiryValue),
                 _ => source.OrderByDescending(x => x.UpdatedAt)
             };
             var page = await GlobalQueryEngine.Instance.ExecutePagedQueryAsync(source,
@@ -39,7 +43,8 @@ namespace ProGlassAutomation.Services.Inquiry
                     ProjectName = x.ProjectName, ProjectDescription = x.ProjectDescription,
                     SalesmanName = x.SalesmanName, PreparedByName = x.PreparedByName,
                     PreparedByRole = x.PreparedByRole, Status = x.Status, Priority = x.Priority,
-                    InquiryValue = x.InquiryValue, ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt, UpdatedBy = x.UpdatedBy,
+                    InquiryValue = x.InquiryValue, Notes = x.Notes,
+                    ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt, UpdatedBy = x.UpdatedBy,
                     AttachmentCount = x.Attachments.Count, ProformaInvoiceId = x.ProformaInvoiceId,
                     ProformaNumber = x.ProformaNumber, JobOrderNumber = x.JobOrderNumber
                 }, query.Page, Math.Clamp(query.PageSize, 10, 200), ct).ConfigureAwait(false);
@@ -56,8 +61,8 @@ namespace ProGlassAutomation.Services.Inquiry
                         .Select(x => (x.Extension ?? "").TrimStart('.').ToUpperInvariant())
                         .Where(x => x.Length > 0).Distinct().Take(3).ToList();
                     int extra = Math.Max(0, row.AttachmentCount - types.Count);
-                    row.AttachmentBadgeText = string.Join("  ", types)
-                        + (extra > 0 ? $"  +{extra}" : "");
+                    row.AttachmentBadgeText = string.Join(" ", types)
+                        + (extra > 0 ? $" +{extra}" : "");
                 }
             }
             return page;
@@ -67,14 +72,20 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             await using var db = new InquiryDbContext();
             var source = ApplyFilters(db.Inquiries.AsNoTracking(), query, includeStatus: false);
-            var counts = await source.GroupBy(x => x.Status)
-                .Select(x => new { x.Key, Count = x.Count() }).ToListAsync(ct).ConfigureAwait(false);
-            int Count(string status) => counts.FirstOrDefault(x => x.Key == status)?.Count ?? 0;
+            var rows = await source.Select(x => new { x.Status, x.InquiryValue })
+                .ToListAsync(ct).ConfigureAwait(false);
+            int Count(string status) => rows.Count(x => x.Status == status);
             return new InquiryStatistics
             {
-                All = counts.Sum(x => x.Count), Received = Count(InquiryStatuses.Received),
-                Sent = Count(InquiryStatuses.Sent), Confirmed = Count(InquiryStatuses.Confirmed),
-                Hold = Count(InquiryStatuses.Hold), Cancelled = Count(InquiryStatuses.Cancelled)
+                All = rows.Count,
+                Received = Count(InquiryStatuses.Received),
+                Prepared = Count(InquiryStatuses.Prepared),
+                Sent = Count(InquiryStatuses.Sent),
+                Confirmed = Count(InquiryStatuses.Confirmed),
+                Hold = Count(InquiryStatuses.Hold),
+                Cancelled = Count(InquiryStatuses.Cancelled),
+                OpenPipelineValue = rows.Where(x => x.Status != InquiryStatuses.Cancelled)
+                    .Sum(x => x.InquiryValue)
             };
         }
 
@@ -88,31 +99,61 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
             await using var db = new InquiryDbContext();
-            if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber))
+
+            // S5 fix: unique-index collisions (concurrent save, import batch) are
+            // retried with the next sequence number instead of surfacing a raw
+            // DbUpdateException and losing the save.
+            for (int attempt = 0; ; attempt++)
             {
-                string prefix = $"INQ-{DateTime.Now:yyyy}-";
-                var ids = await db.Inquiries.AsNoTracking()
-                    .Where(x => x.InquiryNumber.StartsWith(prefix))
-                    .Select(x => x.InquiryNumber).ToListAsync(ct).ConfigureAwait(false);
-                int next = ids.Select(x => int.TryParse(x.Substring(prefix.Length), out int n) ? n : 0)
-                    .DefaultIfEmpty().Max() + 1;
-                inquiry.InquiryNumber = prefix + next.ToString("D4");
+                if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber) || attempt > 0)
+                    inquiry.InquiryNumber = await NextInquiryNumberAsync(db, ct).ConfigureAwait(false);
+                var now = DateTime.Now;
+                inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
+                inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
+                if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
+                db.Inquiries.Add(inquiry);
+                try
+                {
+                    await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                    return inquiry;
+                }
+                catch (DbUpdateException ex) when (attempt < 5 && IsUniqueViolation(ex))
+                {
+                    db.Entry(inquiry).State = EntityState.Detached;
+                }
             }
-            var now = DateTime.Now;
-            inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
-            inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
-            if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
-            db.Inquiries.Add(inquiry);
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
-            return inquiry;
         }
+
+        /// <summary>Maximum existing sequence for the current year prefix, plus one.</summary>
+        private static async Task<string> NextInquiryNumberAsync(InquiryDbContext db, CancellationToken ct)
+        {
+            string prefix = $"INQ-{DateTime.Now:yyyy}-";
+            var numbers = await db.Inquiries.AsNoTracking()
+                .Where(x => x.InquiryNumber.StartsWith(prefix))
+                .Select(x => x.InquiryNumber).ToListAsync(ct).ConfigureAwait(false);
+            int highest = numbers.Select(x => ParseSequenceSuffix(x, prefix))
+                .DefaultIfEmpty(0).Max();
+            return prefix + (highest + 1).ToString("D4");
+        }
+
+        /// <summary>Pure helper (unit-tested): "INQ-2026-0007" + prefix → 7, junk → 0.</summary>
+        public static int ParseSequenceSuffix(string? number, string prefix)
+        {
+            if (string.IsNullOrEmpty(number) || number.Length <= prefix.Length)
+                return 0;
+            return int.TryParse(number.Substring(prefix.Length), out int value) ? value : 0;
+        }
+
+        private static bool IsUniqueViolation(DbUpdateException ex) =>
+            ex.InnerException?.Message.Contains("UNIQUE constraint failed",
+                StringComparison.OrdinalIgnoreCase) == true;
 
         public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
             if (inquiry == null || inquiry.Id <= 0) throw new ArgumentException("A saved Inquiry is required.", nameof(inquiry));
             await using var db = new InquiryDbContext();
             var stored = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == inquiry.Id, ct).ConfigureAwait(false)
-                ?? throw new InvalidOperationException("Inquiry no longer exists.");
+                ?? throw new InvalidOperationException("Inquiry no longer exists. It may have been removed by another user — refresh the register.");
             stored.InquiryReference = inquiry.InquiryReference;
             stored.CustomerId = inquiry.CustomerId; stored.CustomerName = inquiry.CustomerName;
             stored.CustomerLocation = inquiry.CustomerLocation; stored.ProjectId = inquiry.ProjectId;
@@ -121,6 +162,9 @@ namespace ProGlassAutomation.Services.Inquiry
             stored.PreparedByUserId = inquiry.PreparedByUserId; stored.PreparedByName = inquiry.PreparedByName;
             stored.PreparedByRole = inquiry.PreparedByRole; stored.Priority = inquiry.Priority;
             stored.InquiryValue = inquiry.InquiryValue; stored.Notes = inquiry.Notes;
+            // S2 fix: ReceivedAt is an editable field — persist it. (Never write
+            // default; a stale binding must not reset the date to 0001-01-01.)
+            if (inquiry.ReceivedAt != default) stored.ReceivedAt = inquiry.ReceivedAt;
             stored.UpdatedAt = DateTime.Now; stored.UpdatedBy = inquiry.UpdatedBy;
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
             return stored;
@@ -133,7 +177,18 @@ namespace ProGlassAutomation.Services.Inquiry
             if (row == null) return false;
             string next = InquiryStatuses.Normalize(status);
             row.Status = next; row.UpdatedAt = DateTime.Now; row.UpdatedBy = actor ?? "";
-            if (next == InquiryStatuses.Prepared) row.PreparedAt ??= row.UpdatedAt;
+            if (next == InquiryStatuses.Prepared)
+            {
+                row.PreparedAt ??= row.UpdatedAt;
+                // Stamp the preparer the first time the record is prepared —
+                // the register's "Prepared By" column was silently empty when
+                // records were created from import.
+                if (string.IsNullOrWhiteSpace(row.PreparedByName))
+                {
+                    row.PreparedByName = actor ?? "";
+                    row.PreparedByUserId ??= Services.Audit.AuditService.CurrentUser?.Id;
+                }
+            }
             if (next == InquiryStatuses.Sent) row.SentAt ??= row.UpdatedAt;
             if (next == InquiryStatuses.Confirmed) row.ConfirmedAt ??= row.UpdatedAt;
             db.Communications.Add(new InquiryCommunication
