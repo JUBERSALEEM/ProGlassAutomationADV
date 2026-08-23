@@ -312,15 +312,22 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
                                     <TextBlock Text="Customer *" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                    <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}" IsEditable="True"
+                                    <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}"
                                               Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource ModernComboBoxStyle}" StaysOpenOnEdit="True"
+                                              Style="{StaticResource ModernEditableComboBoxStyle}" StaysOpenOnEdit="True"
                                               ToolTip="Type a new customer or pick a saved client"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Location" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                    <TextBox Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource ModernTextBoxStyle}"/>
+                                    <!-- Editable ComboBox: shows the saved addresses for
+                                         the currently-typed customer, but the user can still
+                                         type a brand-new one. The dropdown is empty when
+                                         the customer is unknown or master data is missing. -->
+                                    <ComboBox ItemsSource="{Binding CustomerLocations}"
+                                              Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
+                                              Style="{StaticResource ModernEditableComboBoxStyle}"
+                                              IsTextSearchEnabled="True"
+                                              ToolTip="Saved addresses for this customer — type a new one if needed"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -385,9 +392,11 @@
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="Salesman" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                    <ComboBox ItemsSource="{Binding Salesmen}" IsEditable="True"
+                                    <ComboBox ItemsSource="{Binding Salesmen}"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource ModernComboBoxStyle}"/>
+                                              Style="{StaticResource ModernEditableComboBoxStyle}"
+                                              IsTextSearchEnabled="True"
+                                              ToolTip="Pick a saved salesman or type a new name — it will be saved to master data"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">
                                     <TextBlock Text="Priority" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -397,9 +406,12 @@
                             </Grid>
                             <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left">
                                 <TextBlock Text="Inquiry value (AED)" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                                <TextBox Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBox x:Name="ValueInput"
+                                         Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" TextAlignment="Right"
-                                         ToolTip="Thousands separators allowed"/>
+                                         PreviewTextInput="OnValuePreviewTextInput"
+                                         DataObject.Pasting="OnValuePaste"
+                                         ToolTip="Numbers only — thousands separators allowed"/>
                                 <TextBlock Text="{Binding ValueHint, Mode=OneWay}" Margin="2,5,0,0">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock" BasedOn="{StaticResource InqHintStyle}">

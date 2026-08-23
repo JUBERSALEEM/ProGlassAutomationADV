@@ -1,8 +1,11 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Inquiry;
+using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Inquiry;
+using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
@@ -31,6 +34,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     {
         private readonly IInquiryWorkflowService _workflow;
         private readonly InquiryAttachmentService _attachments;
+        private readonly IMasterDataRepository? _masterData;
+        // Full list of saved clients (read once at load). We keep this around so
+        // we can auto-fill CustomerLocation when a known customer is picked,
+        // and we can also write a new / updated client back to master data
+        // when the user saves the inquiry. Empty when the master-data service
+        // is unavailable — auto-fill is silently skipped in that case.
+        private List<SavedClient> _savedClients = new();
+        // Tracks whether the user has manually edited CustomerLocation so we
+        // don't stomp their value when they type a customer name that has a
+        // different address in master data.
+        private bool _locationManuallyEdited;
+        // Tracks whether the user has manually edited SalesmanName so the
+        // auto-suggest flow doesn't keep fighting the user's typing.
+        private bool _salesmanManuallyEdited;
 
         public InquiryRecord Record { get; }
         public bool IsNewRecord => Record.Id == 0;
@@ -51,21 +68,72 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ObservableCollection<string> Priorities { get; } = new() { "Urgent", "High", "Normal", "Low" };
         public ObservableCollection<string> Salesmen { get; } = new();
         public ObservableCollection<string> Customers { get; } = new();
+        // Distinct saved addresses for the current customer. The bound ComboBox
+        // shows them as suggestions but the user can still type a new value.
+        // Refreshed whenever the customer name changes.
+        public ObservableCollection<string> CustomerLocations { get; } = new();
 
         // ── Form fields (each setter marks the form dirty) ─────────────
 
         private string _reference = "";
         public string Reference { get => _reference; set => SetField(ref _reference, value); }
         private string _customerName = "";
-        public string CustomerName { get => _customerName; set => SetField(ref _customerName, value); }
+        public string CustomerName
+        {
+            get => _customerName;
+            set
+            {
+                if (!SetField(ref _customerName, value)) return;
+                // Refresh the location suggestions for the new customer name.
+                RefreshCustomerLocations();
+                // Auto-fill the location the first time the user picks a known
+                // customer — but never clobber a value they typed themselves.
+                if (!_locationManuallyEdited)
+                {
+                    var match = FindClientByName(_customerName);
+                    if (match != null && !string.IsNullOrWhiteSpace(match.BillingAddress))
+                    {
+                        SetLocation(match.BillingAddress, markManual: false);
+                    }
+                }
+            }
+        }
         private string _customerLocation = "";
-        public string CustomerLocation { get => _customerLocation; set => SetField(ref _customerLocation, value); }
+        public string CustomerLocation
+        {
+            get => _customerLocation;
+            set
+            {
+                if (!SetField(ref _customerLocation, value)) return;
+                // Any time the user touches the location box, mark it manually
+                // edited so future customer-name auto-fills don't overwrite it.
+                _locationManuallyEdited = !string.IsNullOrWhiteSpace(_customerLocation)
+                    || _locationManuallyEdited;
+            }
+        }
         private string _projectName = "";
         public string ProjectName { get => _projectName; set => SetField(ref _projectName, value); }
         private string _projectDescription = "";
         public string ProjectDescription { get => _projectDescription; set => SetField(ref _projectDescription, value); }
         private string _salesmanName = "";
-        public string SalesmanName { get => _salesmanName; set => SetField(ref _salesmanName, value); }
+        public string SalesmanName
+        {
+            get => _salesmanName;
+            set
+            {
+                if (SetField(ref _salesmanName, value))
+                {
+                    // Track manual edits so the master-data auto-add only
+                    // fires for genuinely new names (not while the user is
+                    // still typing one that's already in the list).
+                    if (!string.IsNullOrWhiteSpace(_salesmanName)
+                        && !Salesmen.Any(s => string.Equals(s, _salesmanName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        _salesmanManuallyEdited = true;
+                    }
+                }
+            }
+        }
         private string _notes = "";
         public string Notes { get => _notes; set => SetField(ref _notes, value); }
         private string _priority = "Normal";
@@ -120,10 +188,17 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public event Action<bool>? CloseRequested;
 
         public InquiryEditorViewModel(IInquiryWorkflowService workflow,
-            InquiryAttachmentService attachments, InquiryRecord? source = null)
+            InquiryAttachmentService attachments, InquiryRecord? source = null,
+            IMasterDataRepository? masterData = null)
         {
             _workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
             _attachments = attachments ?? throw new ArgumentNullException(nameof(attachments));
+            // Master data is optional. The caller may inject a test fake via
+            // the `masterData` parameter, otherwise we use the App.* static
+            // singleton that's already initialised at app startup. The
+            // dropdowns work either way — auto-fill is silently skipped when
+            // master data is unavailable.
+            _masterData = masterData ?? App.MasterData;
             Record = source ?? new InquiryRecord
             {
                 InquiryReference = "Customer Inquiry", Status = InquiryStatuses.Received,
@@ -132,9 +207,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             _reference = Record.InquiryReference;
             _customerName = Record.CustomerName;
             _customerLocation = Record.CustomerLocation;
+            _locationManuallyEdited = !string.IsNullOrWhiteSpace(_customerLocation);
             _projectName = Record.ProjectName;
             _projectDescription = Record.ProjectDescription;
             _salesmanName = Record.SalesmanName;
+            _salesmanManuallyEdited = !string.IsNullOrWhiteSpace(_salesmanName);
             _notes = Record.Notes;
             _priority = string.IsNullOrWhiteSpace(Record.Priority) ? "Normal" : Record.Priority;
             _receivedDate = Record.ReceivedAt == default ? DateTime.Today : Record.ReceivedAt.Date;
@@ -196,17 +273,79 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         private async Task LoadMastersAsync()
         {
-            if (App.MasterData == null) return;
+            if (_masterData == null) return;
             try
             {
-                foreach (var x in await App.MasterData.GetAllClientsAsync())
+                // Pull the full client records (not just names) so we can
+                // auto-fill the location and upsert the client on save.
+                _savedClients = await _masterData.GetAllClientsAsync();
+                foreach (var x in _savedClients)
                     if (!string.IsNullOrWhiteSpace(x.CustomerName) && !Customers.Contains(x.CustomerName))
                         Customers.Add(x.CustomerName);
-                foreach (var x in await App.MasterData.GetAllSalesmenAsync())
+                foreach (var x in await _masterData.GetAllSalesmenAsync())
                     if (!string.IsNullOrWhiteSpace(x.Name) && !Salesmen.Contains(x.Name))
                         Salesmen.Add(x.Name);
+                // Populate the location dropdown with whatever we have for the
+                // currently-selected customer (may be empty for new records).
+                RefreshCustomerLocations();
             }
             catch (Exception ex) { SetMessage("Master data unavailable: " + ExceptionMessages.Deep(ex), isError: true); }
+        }
+
+        // ── Master-data helpers ───────────────────────────────────────
+
+        /// <summary>
+        /// Returns the most-recently-used saved client whose name matches the
+        /// supplied value (case-insensitive). Null when the customer isn't
+        /// known to master data or master data is unavailable.
+        /// </summary>
+        private SavedClient? FindClientByName(string? name)
+        {
+            if (_masterData == null || string.IsNullOrWhiteSpace(name)) return null;
+            return _savedClients.FirstOrDefault(c =>
+                string.Equals(c.CustomerName, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Rebuilds the location-suggestion list for the currently-typed
+        /// customer name. We surface every distinct billing address we've
+        /// ever seen for that customer (so the user can pick "Site A" or
+        /// "Site B" rather than re-typing). Empty when the customer is
+        /// unknown.
+        /// </summary>
+        private void RefreshCustomerLocations()
+        {
+            CustomerLocations.Clear();
+            if (_masterData == null || string.IsNullOrWhiteSpace(_customerName)) return;
+            var addresses = _savedClients
+                .Where(c => string.Equals(c.CustomerName, _customerName, StringComparison.OrdinalIgnoreCase))
+                .Select(c => c.BillingAddress)
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            foreach (var a in addresses) CustomerLocations.Add(a);
+            // Make sure the currently-displayed location still shows up in the
+            // dropdown even if master data doesn't list it.
+            if (!string.IsNullOrWhiteSpace(_customerLocation)
+                && !CustomerLocations.Contains(_customerLocation))
+            {
+                CustomerLocations.Insert(0, _customerLocation);
+            }
+        }
+
+        /// <summary>
+        /// Internal setter for CustomerLocation that lets us bypass the
+        /// "mark as manually edited" side-effect when we're auto-filling
+        /// from master data.
+        /// </summary>
+        private void SetLocation(string value, bool markManual)
+        {
+            if (_customerLocation == value) return;
+            _customerLocation = value;
+            OnPropertyChanged(nameof(CustomerLocation));
+            if (markManual) _locationManuallyEdited = true;
+            IsDirty = true;
+            OnPropertyChanged(nameof(CanSave));
         }
 
         private async Task LoadAttachmentsAsync()
@@ -259,12 +398,79 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             var saved = Record.Id == 0
                 ? await _workflow.CreateAsync(Record)
                 : await _workflow.UpdateAsync(Record);
+            // After a successful save, mirror the new/updated client + salesman
+            // back to master data so the next inquiry (and the dropdowns on
+            // any open editor) see them. Failures here are non-fatal: the
+            // inquiry is already saved, the dropdowns just won't be richer.
+            await TryUpsertMasterDataAsync().ConfigureAwait(false);
             IsDirty = false;
             OnPropertyChanged(nameof(IsNewRecord));
             OnPropertyChanged(nameof(HeaderTitle));
             OnPropertyChanged(nameof(HeaderSubtitle));
             OnPropertyChanged(nameof(SaveCommandText));
             return saved;
+        }
+
+        /// <summary>
+        /// Best-effort write-back of the new customer location and new
+        /// salesman name to the master-data database. Only fires for values
+        /// the user typed themselves (i.e. the auto-fill didn't push them
+        /// in from existing master data). All failures are swallowed — the
+        /// inquiry save itself already succeeded.
+        /// </summary>
+        private async Task TryUpsertMasterDataAsync()
+        {
+            if (_masterData == null) return;
+            try
+            {
+                // ── Customer / location ──
+                if (!string.IsNullOrWhiteSpace(Record.CustomerName))
+                {
+                    var existing = _savedClients.FirstOrDefault(c =>
+                        string.Equals(c.CustomerName, Record.CustomerName, StringComparison.OrdinalIgnoreCase));
+                    string existingAddress = existing?.BillingAddress ?? "";
+                    if (existing == null)
+                    {
+                        // Brand new customer — create a SavedClient with whatever
+                        // location the user supplied.
+                        var created = await _masterData.SaveOrUpdateClientAsync(new SavedClient
+                        {
+                            CustomerName = Record.CustomerName,
+                            BillingAddress = Record.CustomerLocation ?? "",
+                            CreatedAt = DateTime.Now,
+                            LastUsedAt = DateTime.Now
+                        }).ConfigureAwait(false);
+                        _savedClients.Add(created);
+                        if (!Customers.Contains(created.CustomerName)) Customers.Add(created.CustomerName);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(Record.CustomerLocation)
+                        && !string.Equals(existingAddress, Record.CustomerLocation, StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Known customer, new/updated address — update master data
+                        // so the next inquiry auto-fills this address.
+                        existing.BillingAddress = Record.CustomerLocation;
+                        existing.LastUsedAt = DateTime.Now;
+                        await _masterData.SaveOrUpdateClientAsync(existing).ConfigureAwait(false);
+                    }
+                }
+                // ── Salesman ──
+                if (!string.IsNullOrWhiteSpace(Record.SalesmanName)
+                    && !Salesmen.Any(s => string.Equals(s, Record.SalesmanName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var sm = await _masterData.SaveOrUpdateSalesmanAsync(new SavedSalesman
+                    {
+                        Name = Record.SalesmanName,
+                        CreatedAt = DateTime.Now,
+                        LastUsedAt = DateTime.Now
+                    }).ConfigureAwait(false);
+                    Salesmen.Add(sm.Name);
+                }
+            }
+            catch
+            {
+                // master-data write-back is best-effort. The inquiry is already
+                // saved; a failure here should not roll that back.
+            }
         }
 
         private async Task SaveAndCloseAsync()

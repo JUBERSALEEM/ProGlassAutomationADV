@@ -93,6 +93,110 @@
         </Setter>
     </Style>
 
+    <!-- ── Editable ComboBox (IsEditable=True) ──────────────────────
+         ModernComboBoxStyle is non-editable (its template uses a
+         ContentPresenter for SelectionBoxItem only). For dropdowns where
+         the user must be able to type a NEW value that isn't in the list
+         (Customer name, Salesman, Location, …), use this style. It adds
+         the standard PART_EditableTextBox so typing actually works.
+
+         The toggle button on the right opens the popup; the popup lists
+         the ItemsSource; the textbox is bound to the ComboBox.Text property
+         so any binding that targets the text (e.g. a two-way binding on
+         a VM string property) sees what the user types.
+    ──────────────────────────────────────────────────────────────── -->
+    <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="Padding" Value="12,7"/>
+        <Setter Property="Height" Value="34"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="IsEditable" Value="True"/>
+        <Setter Property="IsTextSearchEnabled" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Grid.Column="0"
+                                     Style="{x:Null}"
+                                     Background="Transparent"
+                                     BorderThickness="0"
+                                     Foreground="{TemplateBinding Foreground}"
+                                     FontSize="{TemplateBinding FontSize}"
+                                     CaretBrush="{DynamicResource AccentBrush}"
+                                     Padding="{TemplateBinding Padding}"
+                                     VerticalContentAlignment="Center"
+                                     Focusable="True"/>
+                            <ToggleButton Grid.Column="1"
+                                          x:Name="PART_Button"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Padding="0,0,12,0"
+                                          Cursor="Hand">
+                                <TextBlock Text="&#xE70D;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="10"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </ToggleButton>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   Placement="Bottom"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Fade"
+                                   StaysOpen="False">
+                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Padding="6"
+                                        MinWidth="{TemplateBinding ActualWidth}">
+                                    <ScrollViewer MaxHeight="300">
+                                        <ItemsPresenter/>
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsDropDownOpen" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ── ComboBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="13"/>
