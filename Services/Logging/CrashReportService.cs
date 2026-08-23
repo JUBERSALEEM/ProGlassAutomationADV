@@ -520,11 +520,18 @@ namespace ProGlassAutomation.Services.Logging
         private static DateTime ParseFileTimestamp(string fileName)
         {
             // Filename shape: crash-yyyyMMdd_HHmmss_<rand>.txt
-            // Index 0..4 = "crash", 5 = '-', 6..19 = 14-char timestamp.
-            if (fileName == null || fileName.Length < 20) return DateTime.MinValue;
+            // Index 0..4 = "crash", 5 = '-', 6..20 = 15-char timestamp
+            // (yyyyMMdd_HHmmss is 4+2+2+1+2+2+2 = 15 chars).
+            // The previous version used Substring(6, 14),
+            // which truncated the last second digit and
+            // made TryParseExact always fail — every
+            // filename then sorted to DateTime.MinValue,
+            // leaving the listing in whatever order
+            // DirectoryInfo.GetFiles happened to return.
+            if (fileName == null || fileName.Length < 21) return DateTime.MinValue;
             if (fileName.StartsWith("crash-", StringComparison.Ordinal)
                 && DateTime.TryParseExact(
-                    fileName.Substring(6, 14),
+                    fileName.Substring(6, 15),
                     "yyyyMMdd_HHmmss",
                     System.Globalization.CultureInfo.InvariantCulture,
                     System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
