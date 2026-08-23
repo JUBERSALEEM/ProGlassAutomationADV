@@ -255,6 +255,122 @@ namespace ProGlassAutomation.Services.Inquiry
                 .OrderByDescending(x => x.OccurredAt).ToListAsync(ct).ConfigureAwait(false);
         }
 
+        public async Task<DeleteInquiryResult> DeleteAsync(int id, CancellationToken ct = default)
+        {
+            await using var db = new InquiryDbContext();
+            var row = await db.Inquiries
+                .Include(x => x.Attachments)
+                .Include(x => x.Communications)
+                .SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
+            if (row == null) return DeleteInquiryResult.NotFound();
+
+            // Downstream-document guard: an inquiry that's already spawned
+            // a PI / JO / DN / TI / Statement is part of the audit trail
+            // and must be cancelled, not erased. Deleting it would orphan
+            // the downstream rows and break the "FurthestStageReached"
+            // history. We surface the blocking document numbers so the
+            // caller can show a precise message.
+            var blocking = new List<string>();
+            if (!string.IsNullOrWhiteSpace(row.ProformaNumber)) blocking.Add($"PI {row.ProformaNumber}");
+            if (!string.IsNullOrWhiteSpace(row.JobOrderNumber)) blocking.Add($"JO {row.JobOrderNumber}");
+            if (row.ProformaInvoiceId.HasValue)
+            {
+                // Re-check for actual downstream documents even when the
+                // denormalised fields are empty (e.g. legacy rows from
+                // before the link fields were populated). The lifecycle
+                // service has the cached picture.
+                var snap = (await _lifecycle.GetLifecycleAsync(new[] { id }, ct).ConfigureAwait(false))
+                    .TryGetValue(id, out var s) ? s : null;
+                if (snap != null)
+                {
+                    if (snap.HasProforma && !blocking.Any(x => x.StartsWith("PI ")))
+                        blocking.Add($"PI {snap.ProformaNumber}");
+                    if (snap.HasJobOrder && !blocking.Any(x => x.StartsWith("JO ")))
+                        blocking.Add($"JO {snap.JobOrderNumber}");
+                    if (snap.HasDeliveryNote && !blocking.Any(x => x.StartsWith("DN ")))
+                        blocking.Add($"DN {snap.LatestDeliveryNoteNumber}");
+                    if (snap.HasTaxInvoice && !blocking.Any(x => x.StartsWith("TI ")))
+                        blocking.Add($"TI {snap.LatestTaxInvoiceNumber}");
+                    if (snap.HasStatement && !blocking.Any(x => x.StartsWith("STMT ")))
+                        blocking.Add($"STMT {snap.LatestStatementNumber}");
+                }
+            }
+            if (blocking.Count > 0) return DeleteInquiryResult.Blocked(blocking);
+
+            // Delete the children first so SQLite's FK enforcement (when
+            // enabled by the migration) is satisfied; the cascade is also
+            // safe when FK is off because we explicitly drop the rows.
+            if (row.Communications.Count > 0) db.Communications.RemoveRange(row.Communications);
+            if (row.Attachments.Count > 0) db.Attachments.RemoveRange(row.Attachments);
+            db.Inquiries.Remove(row);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            _lifecycle.Invalidate(id);
+            return DeleteInquiryResult.Deleted();
+        }
+
+        public async Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
+        {
+            await using var db = new InquiryDbContext();
+            var source = await db.Inquiries.AsNoTracking()
+                .SingleOrDefaultAsync(x => x.Id == sourceId, ct).ConfigureAwait(false)
+                ?? throw new InvalidOperationException(
+                    $"Inquiry {sourceId} no longer exists. It may have been removed — refresh the register.");
+
+            var now = DateTime.Now;
+            var clone = new InquiryRecord
+            {
+                // New identity: fresh number, new Id (EF assigns on save).
+                InquiryNumber = await NextInquiryNumberAsync(db, ct).ConfigureAwait(false),
+                // The reference is preserved so the clone carries a breadcrumb
+                // back to the source. Useful when both records are alive.
+                InquiryReference = string.IsNullOrWhiteSpace(source.InquiryReference)
+                    ? $"Clone of {source.InquiryNumber}"
+                    : source.InquiryReference + " · cloned",
+                CustomerId = source.CustomerId,
+                CustomerName = source.CustomerName,
+                CustomerLocation = source.CustomerLocation,
+                ProjectId = source.ProjectId,
+                ProjectName = source.ProjectName,
+                ProjectDescription = source.ProjectDescription,
+                SalesmanId = source.SalesmanId,
+                SalesmanName = source.SalesmanName,
+                PreparedByUserId = source.PreparedByUserId,
+                PreparedByName = source.PreparedByName,
+                PreparedByRole = source.PreparedByRole,
+                Status = InquiryStatuses.Received, // clones always start as a new intake
+                Priority = source.Priority,
+                InquiryValue = source.InquiryValue,
+                Notes = source.Notes,
+                // Timestamps: ReceivedAt is "now" (when the clone was raised),
+                // not the source's. PreparedAt / SentAt / ConfirmedAt are
+                // dropped — the new inquiry has no downstream history yet.
+                ReceivedAt = now,
+                PreparedAt = null,
+                SentAt = null,
+                ConfirmedAt = null,
+                CreatedAt = now,
+                UpdatedAt = now,
+                // UpdatedBy is set by the workflow service; we leave it empty
+                // here so the audit trail starts fresh.
+                UpdatedBy = "",
+                // Critical: drop the downstream link fields. A clone must
+                // not inherit the source's ProformaInvoiceId / ProformaNumber
+                // / JobOrderNumber, otherwise the new draft would show as
+                // "already converted to PI" and would block a fresh
+                // conversion flow.
+                ProformaInvoiceId = null,
+                ProformaNumber = "",
+                JobOrderNumber = ""
+                // Attachments and Communications stay empty — see interface
+                // contract. Re-uploading the relevant source files is the
+                // user's explicit choice for a new request.
+            };
+            db.Inquiries.Add(clone);
+            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            _lifecycle.Invalidate(clone.Id);
+            return clone;
+        }
+
         public void InvalidateLifecycle(int inquiryId) => _lifecycle.Invalidate(inquiryId);
 
         private static IQueryable<InquiryRecord> ApplyFilters(

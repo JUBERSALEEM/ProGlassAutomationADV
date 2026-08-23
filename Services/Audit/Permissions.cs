@@ -49,6 +49,15 @@ namespace ProGlassAutomation.Services.Audit
     {
         public const string DashboardView = "Dashboard.View";
 
+        // Inquiry module — newly gated for the right-click Delete /
+        // Duplicate / Edit-Priority actions that landed in the 2026
+        // "Lumen" redesign. Every role that previously could see the
+        // register keeps at least View; only Manager+ gets Delete.
+        public const string InquiryView = "Inquiry.View";
+        public const string InquiryCreate = "Inquiry.Create";
+        public const string InquiryEdit = "Inquiry.Edit";
+        public const string InquiryDelete = "Inquiry.Delete";
+
         public const string ProformaView = "ProformaInvoice.View";
         public const string ProformaCreate = "ProformaInvoice.Create";
         public const string ProformaEdit = "ProformaInvoice.Edit";
@@ -93,6 +102,8 @@ namespace ProGlassAutomation.Services.Audit
 
             [AppRoles.Manager] = ViewAll().Concat(new[]
             {
+                AppPermissions.InquiryCreate, AppPermissions.InquiryEdit,
+                AppPermissions.InquiryDelete,
                 AppPermissions.ProformaCreate, AppPermissions.ProformaEdit,
                 AppPermissions.ProformaDelete, AppPermissions.ProformaExport,
                 AppPermissions.ProformaPrint,
@@ -107,6 +118,8 @@ namespace ProGlassAutomation.Services.Audit
             [AppRoles.Estimator] = new[]
             {
                 AppPermissions.DashboardView,
+                AppPermissions.InquiryView, AppPermissions.InquiryCreate,
+                AppPermissions.InquiryEdit,
                 AppPermissions.ProformaView, AppPermissions.ProformaCreate,
                 AppPermissions.ProformaEdit, AppPermissions.ProformaExport,
                 AppPermissions.ProformaPrint,
@@ -117,6 +130,8 @@ namespace ProGlassAutomation.Services.Audit
             [AppRoles.Sales] = new[]
             {
                 AppPermissions.DashboardView,
+                AppPermissions.InquiryView, AppPermissions.InquiryCreate,
+                AppPermissions.InquiryEdit,
                 AppPermissions.ProformaView, AppPermissions.ProformaCreate,
                 AppPermissions.ProformaEdit, AppPermissions.ProformaExport,
                 AppPermissions.ProformaPrint,
@@ -127,6 +142,7 @@ namespace ProGlassAutomation.Services.Audit
             [AppRoles.Production] = new[]
             {
                 AppPermissions.DashboardView,
+                AppPermissions.InquiryView,
                 AppPermissions.JobOrderView, AppPermissions.JobOrderEdit,
                 AppPermissions.DeliveryNoteView, AppPermissions.DeliveryNoteEdit,
                 AppPermissions.ProformaView, AppPermissions.SheetStoreView

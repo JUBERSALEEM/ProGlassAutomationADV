@@ -96,7 +96,54 @@ namespace ProGlassAutomation.Services.Inquiry
         Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default);
         Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default);
         Task<IReadOnlyList<InquiryCommunication>> GetCommunicationsAsync(int inquiryId, CancellationToken ct = default);
+        /// <summary>
+        /// Permanently delete an inquiry and its attachments /
+        /// communications rows. Returns false when the row no longer
+        /// exists. The caller is responsible for permission gating;
+        /// this method does not check roles.
+        ///
+        /// Refuses to delete when downstream documents exist: an inquiry
+        /// that has spawned a Proforma Invoice, Job Order, Delivery
+        /// Note, Tax Invoice or Statement is part of the audit trail
+        /// and must be cancelled, not erased. The call returns false in
+        /// that case and the caller should show a status message.
+        /// </summary>
+        Task<DeleteInquiryResult> DeleteAsync(int id, CancellationToken ct = default);
+
+        /// <summary>
+        /// Clone an existing inquiry as a brand new draft. The clone
+        /// gets a fresh InquiryNumber, resets Status to Received and
+        /// drops the Proforma / Job-Order link fields. Attachments are
+        /// NOT copied — the new inquiry starts empty so the user
+        /// can re-attach the relevant files for the new request.
+        /// Returns the new InquiryRecord.
+        /// </summary>
+        Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default);
+
         /// <summary>Drop the lifecycle cache (call after a downstream edit).</summary>
         void InvalidateLifecycle(int inquiryId);
+    }
+
+    /// <summary>
+    /// Outcome of a delete attempt. Distinguishes "gone" from
+    /// "blocked because downstream documents exist" so the UI can
+    /// show a precise message instead of a generic success/failure.
+    /// </summary>
+    public enum DeleteInquiryOutcome
+    {
+        Deleted = 0,
+        NotFound = 1,
+        BlockedByDownstream = 2
+    }
+
+    public readonly record struct DeleteInquiryResult(
+        DeleteInquiryOutcome Outcome,
+        IReadOnlyList<string> BlockingDocuments)
+    {
+        public bool IsSuccess => Outcome == DeleteInquiryOutcome.Deleted;
+        public static DeleteInquiryResult Deleted() => new(DeleteInquiryOutcome.Deleted, Array.Empty<string>());
+        public static DeleteInquiryResult NotFound() => new(DeleteInquiryOutcome.NotFound, Array.Empty<string>());
+        public static DeleteInquiryResult Blocked(IReadOnlyList<string> blocking) =>
+            new(DeleteInquiryOutcome.BlockedByDownstream, blocking);
     }
 }

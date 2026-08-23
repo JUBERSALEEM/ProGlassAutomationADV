@@ -50,6 +50,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Services.Audit
 {
@@ -146,6 +147,42 @@ namespace ProGlassAutomation.Services.Audit
             }
 
             throw new PermissionDeniedException(permission, operation, role);
+        }
+
+        /// <summary>
+        /// Throws when the active user lacks EVERY one of the supplied
+        /// permissions. Use this for actions that historically were
+        /// gated by a legacy permission but are now also covered by a
+        /// newer, more granular permission — so existing role configs
+        /// keep working AND new configs get the precise gate.
+        /// Throws with the first permission the user lacks; the audit
+        /// entry names every permission checked.
+        /// </summary>
+        public static void DemandAny(IReadOnlyList<string> permissions, string operation)
+        {
+            if (!Enabled) return;
+            if (permissions == null || permissions.Count == 0)
+                throw new ArgumentException("DemandAny requires at least one permission.", nameof(permissions));
+            foreach (var p in permissions)
+            {
+                if (PermissionService.Can(p)) return;
+            }
+            // No permission held. Audit + throw with the first one
+            // (so the user sees a precise message naming what was
+            // expected) but log every permission checked for forensics.
+            string role = AuditService.CurrentUser?.Role ?? "";
+            string required = string.Join(" or ", permissions);
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Users,
+                    "Permission denied (service layer)",
+                    $"{AuditService.CurrentUsername} " +
+                    $"({(string.IsNullOrEmpty(role) ? "?" : role)}) " +
+                    $"tried {operation} without any of: {required}");
+            }
+            catch { /* auditing must never suppress the denial */ }
+            throw new PermissionDeniedException(permissions[0], operation, role);
         }
 
         /// <summary>
