@@ -59,6 +59,11 @@ $ErrorActionPreference = "Stop"
 $RepoRoot     = Resolve-Path (Join-Path $PSScriptRoot "..")
 $PublishDir   = Join-Path $RepoRoot "publish"
 $ReleasesDir  = Join-Path $RepoRoot "releases"
+# The Velopack manifest. Kept on disk for documentation; the
+# build script does not pass --config to vpk because the
+# installed vpk version (1.x via `dotnet tool install -g vpk`)
+# does not accept that flag. See the vpk pack invocation below
+# for the equivalent explicit-flag invocation.
 $VpkManifest  = Join-Path $RepoRoot "installer/velopack.json"
 $PortableZip  = "ProGlassAutomation-Portable-$Version.zip"
 
@@ -140,10 +145,32 @@ if ($LASTEXITCODE -ne 0) { exit 3 }
 Write-Host "> Running vpk pack..." -ForegroundColor Yellow
 if (Test-Path $ReleasesDir) { Remove-Item -Recurse -Force $ReleasesDir }
 
-# The installer/velopack.json manifest is the durable source of
-# packId / title / authors; version is overridden on the command
-# line so the same manifest can pack any release.
-& vpk pack --config $VpkManifest --packVersion $Version --packDir $PublishDir --outputDir $ReleasesDir
+# The installer/velopack.json manifest is the durable source
+# of pack metadata (id, title, authors, icon). The
+# Velopack CLI 1.x we install on the build machine does not
+# accept --config, so we pass the manifest's values as
+# explicit command-line flags. Version is overridden on the
+# command line so the same manifest can pack any release.
+#
+# Flags (Velopack 1.x, confirmed via `vpk pack --help`):
+#   --packId       (required)  unique app id
+#   --packVersion  (required)  app version (N.N.N[.N])
+#   --packDir      (required)  published app folder
+#   --outputDir    (optional)  where to write the artefacts
+#   --packTitle    (optional)  display name
+#   --packAuthors  (optional)  author / publisher
+#   --icon         (optional)  app icon .ico file
+#   --channel      (optional)  release channel (stable, beta, ...)
+& vpk pack `
+    --packId       $PackId `
+    --packVersion  $Version `
+    --packDir      $PublishDir `
+    --outputDir    $ReleasesDir `
+    --packTitle    $PackTitle `
+    --packAuthors  $PackAuthors `
+    --icon         (Join-Path $RepoRoot 'favicon.ico') `
+    --channel      'stable' `
+    --mainExe      'ProGlassAutomation.exe'
 if ($LASTEXITCODE -ne 0) { exit 4 }
 
 # -- 6. Portable zip (no installer; for sysadmins who block Setup.exe)
