@@ -477,6 +477,78 @@
                                 <Border Style="{StaticResource ModuleListRowStyle}"
                                         Cursor="Hand"
                                         MouseLeftButtonUp="OnRowClick">
+                                    <!-- Right-click row context menu. Bound to the
+                                         row's DataContext (an InquiryListRow) and
+                                         resolves commands via the UserControl
+                                         DataContext (the InquiryListViewModel) so
+                                         every command works on the right-clicked
+                                         row, not just the rail's selection. -->
+                                    <Border.ContextMenu>
+                                        <ContextMenu Style="{DynamicResource ModernContextMenuStyle}">
+                                            <MenuItem Header="Open workspace"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                            <MenuItem Header="Convert to Proforma Invoice"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Command="{Binding DataContext.ConvertToPiRowCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"
+                                                      IsEnabled="{Binding CanConvert}"/>
+                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                            <MenuItem Header="Change status"
+                                                      Style="{DynamicResource ModernMenuItemStyle}">
+                                                <MenuItem Header="Prepare"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          IsEnabled="{Binding CanPrepareWorkflow}"
+                                                          Command="{Binding DataContext.PrepareRowCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Send"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          IsEnabled="{Binding CanSendWorkflow}"
+                                                          Command="{Binding DataContext.SendRowCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Confirm"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          IsEnabled="{Binding CanConfirmWorkflow}"
+                                                          Command="{Binding DataContext.ConfirmRowCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Hold"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          IsEnabled="{Binding CanHoldWorkflow}"
+                                                          Command="{Binding DataContext.HoldRowCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                                <MenuItem Header="Cancel inquiry"
+                                                          Style="{DynamicResource ModernMenuItemStyle}"
+                                                          IsEnabled="{Binding CanCancelWorkflow}"
+                                                          Command="{Binding DataContext.CancelRowCommand,
+                                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                            </MenuItem>
+                                            <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                            <MenuItem Header="Copy inquiry number"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Command="{Binding DataContext.CopyInquiryNumberCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                            <MenuItem Header="Copy summary"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      Command="{Binding DataContext.CopySummaryCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                            <MenuItem Header="Open attachments folder"
+                                                      Style="{DynamicResource ModernMenuItemStyle}"
+                                                      IsEnabled="{Binding HasAttachments}"
+                                                      Command="{Binding DataContext.OpenAttachmentsFolderCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                          CommandParameter="{Binding}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="3"/>
@@ -704,8 +776,35 @@
                                             Content="Open"
                                             FontSize="10" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasProforma}"/>
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasProforma}"
+                                            Command="{Binding DataContext.OpenProformaForRowCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
+                                <!-- Right-click context menu on the PI stage. -->
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                 DataContext="{Binding SelectedInquiry}">
+                                        <MenuItem Header="Open Proforma Invoice"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
+                                                  Command="{Binding DataContext.OpenProformaForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Copy PI number"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasProforma}"
+                                                  Command="{Binding DataContext.CopyProformaNumberCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- Stage 3 · JO -->
@@ -760,8 +859,34 @@
                                             Content="Open"
                                             FontSize="10" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasJobOrder}"/>
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasJobOrder}"
+                                            Command="{Binding DataContext.OpenJobOrderForRowCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                 DataContext="{Binding SelectedInquiry}">
+                                        <MenuItem Header="Open Job Order"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
+                                                  Command="{Binding DataContext.OpenJobOrderForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Copy JO number"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasJobOrder}"
+                                                  Command="{Binding DataContext.CopyJobOrderNumberCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- Stage 4 · DN -->
@@ -816,8 +941,34 @@
                                             Content="Open"
                                             FontSize="10" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasDeliveryNote}"/>
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasDeliveryNote}"
+                                            Command="{Binding DataContext.OpenDeliveryNoteForRowCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                 DataContext="{Binding SelectedInquiry}">
+                                        <MenuItem Header="Open Delivery Note"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
+                                                  Command="{Binding DataContext.OpenDeliveryNoteForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Copy DN number"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
+                                                  Command="{Binding DataContext.CopyDeliveryNoteNumberCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- Stage 5 · TI -->
@@ -872,8 +1023,34 @@
                                             Content="Open"
                                             FontSize="10" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasTaxInvoice}"/>
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasTaxInvoice}"
+                                            Command="{Binding DataContext.OpenTaxInvoiceForRowCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                 DataContext="{Binding SelectedInquiry}">
+                                        <MenuItem Header="Open Tax Invoice"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
+                                                  Command="{Binding DataContext.OpenTaxInvoiceForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Copy TI number"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
+                                                  Command="{Binding DataContext.CopyTaxInvoiceNumberCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- Stage 6 · STMT -->
@@ -916,8 +1093,33 @@
                                             Content="Open"
                                             FontSize="10" Padding="9,3"
                                             Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasStatement}"/>
+                                            IsEnabled="{Binding SelectedInquiry.Lifecycle.HasStatement}"
+                                            Command="{Binding DataContext.OpenStatementForRowCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding SelectedInquiry}"/>
                                 </Grid>
+                                <Border.ContextMenu>
+                                    <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                 DataContext="{Binding SelectedInquiry}">
+                                        <MenuItem Header="Open Statement"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  IsEnabled="{Binding Lifecycle.HasStatement}"
+                                                  Command="{Binding DataContext.OpenStatementForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Open statement module"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenStatementForRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                        <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                                        <MenuItem Header="View inquiry workspace"
+                                                  Style="{DynamicResource ModernMenuItemStyle}"
+                                                  Command="{Binding DataContext.OpenWorkspaceRowCommand,
+                                                            RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
                             </Border>
 
                             <!-- MONEY — total billed + outstanding -->

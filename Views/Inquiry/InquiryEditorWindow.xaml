@@ -28,9 +28,42 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                
+
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+            <!-- Right-click field context menu. One shared definition so the
+                 Cut / Copy / Paste / Select all pattern is consistent across
+                 every editable input. The customer-specific actions
+                 (Open in master data, View history) are always present
+                 and gated by whether the customer exists in master data. -->
+            <ContextMenu x:Key="EditorFieldContextMenu" Style="{DynamicResource ModernContextMenuStyle}">
+                <MenuItem Header="Cut"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="ApplicationCommands.Cut"/>
+                <MenuItem Header="Copy"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="ApplicationCommands.Copy"/>
+                <MenuItem Header="Paste"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="ApplicationCommands.Paste"/>
+                <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                <MenuItem Header="Select all"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="ApplicationCommands.SelectAll"/>
+                <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
+                <MenuItem Header="Clear customer field"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="{Binding ClearCustomerCommand}"/>
+                <MenuItem Header="Open customer in master data"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="{Binding OpenCustomerInMasterDataCommand}"
+                          IsEnabled="{Binding CanOpenCustomerInMasterData}"/>
+                <MenuItem Header="View customer history"
+                          Style="{DynamicResource ModernMenuItemStyle}"
+                          Command="{Binding ViewCustomerHistoryCommand}"
+                          IsEnabled="{Binding CanViewCustomerHistory}"/>
+            </ContextMenu>
 
             <!-- Workflow step node: dot + label + timestamp -->
             <Style x:Key="StepDotStyle" TargetType="Border">
@@ -315,6 +348,7 @@
                                     <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}"
                                               Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}" StaysOpenOnEdit="True"
+                                              ContextMenu="{StaticResource EditorFieldContextMenu}"
                                               ToolTip="Type a new customer or pick a saved client"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
@@ -327,6 +361,7 @@
                                               Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}"
                                               IsTextSearchEnabled="True"
+                                              ContextMenu="{StaticResource EditorFieldContextMenu}"
                                               ToolTip="Saved addresses for this customer — type a new one if needed"/>
                                 </StackPanel>
                             </Grid>
@@ -396,6 +431,7 @@
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
                                               Style="{StaticResource ModernEditableComboBoxStyle}"
                                               IsTextSearchEnabled="True"
+                                              ContextMenu="{StaticResource EditorFieldContextMenu}"
                                               ToolTip="Pick a saved salesman or type a new name — it will be saved to master data"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">

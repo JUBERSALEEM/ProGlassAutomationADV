@@ -152,6 +152,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public Func<int, bool>? ConfirmImportRequested { get; set; }
         public Func<InquiryAttachment, bool>? ConfirmDeleteAttachmentRequested { get; set; }
         public Action<InquiryAttachment>? PreviewAttachmentRequested { get; set; }
+        // Right-click context-menu callbacks. Wired by the view so the VM
+        // stays MessageBox-free. Each one defaults to a no-op (or
+        // clipboard fallback) if the view never sets it.
+        public Action<InquiryListRow>? OpenAttachmentsFolderRequested { get; set; }
+        public Func<InquiryListRow, Task>? OpenProformaForRowRequested { get; set; }
+        public Func<InquiryListRow, Task>? OpenJobOrderForRowRequested { get; set; }
+        public Func<InquiryListRow, Task>? OpenDeliveryNoteForRowRequested { get; set; }
+        public Func<InquiryListRow, Task>? OpenTaxInvoiceForRowRequested { get; set; }
+        public Func<InquiryListRow, Task>? OpenStatementForRowRequested { get; set; }
 
         // ── Commands ───────────────────────────────────────────────────
 
@@ -172,6 +181,35 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand OpenAttachmentCommand { get; }
         public ICommand PreviewAttachmentCommand { get; }
         public ICommand DeleteAttachmentCommand { get; }
+        // Right-click context-menu commands. All take an InquiryListRow
+        // parameter (the row the user right-clicked) so the menu can
+        // re-bind to whatever row fired it, not just the rail's selection.
+        public ICommand OpenWorkspaceRowCommand { get; }
+        public ICommand ConvertToPiRowCommand { get; }
+        // Per-status row commands. Each takes an InquiryListRow parameter
+        // and applies the legal transition. We can't reuse ChangeStatusRowCommand
+        // for the context menu because WPF's CommandParameter is a single
+        // value — binding a Tuple<> from XAML requires a MultiBinding +
+        // converter, which is more code than five small commands.
+        public ICommand PrepareRowCommand { get; }
+        public ICommand SendRowCommand { get; }
+        public ICommand ConfirmRowCommand { get; }
+        public ICommand HoldRowCommand { get; }
+        public ICommand CancelRowCommand { get; }
+        public ICommand CopyInquiryNumberCommand { get; }
+        public ICommand CopySummaryCommand { get; }
+        public ICommand OpenAttachmentsFolderCommand { get; }
+        // Per-stage navigation commands fired from the rail pipeline.
+        public ICommand OpenProformaForRowCommand { get; }
+        public ICommand OpenJobOrderForRowCommand { get; }
+        public ICommand OpenDeliveryNoteForRowCommand { get; }
+        public ICommand OpenTaxInvoiceForRowCommand { get; }
+        public ICommand OpenStatementForRowCommand { get; }
+        // Copy a pipeline-stage document number to the clipboard.
+        public ICommand CopyProformaNumberCommand { get; }
+        public ICommand CopyJobOrderNumberCommand { get; }
+        public ICommand CopyDeliveryNoteNumberCommand { get; }
+        public ICommand CopyTaxInvoiceNumberCommand { get; }
 
         public InquiryListViewModel() : this(
             App.Inquiries ?? new InquiryRepository(),
@@ -258,8 +296,149 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 }
             });
 
+            // ── Right-click context-menu commands ───────────────────────
+            // Row-targeted variants of OpenWorkspace / Convert / ChangeStatus
+            // so the context menu can fire on a row other than the rail's
+            // SelectedInquiry. Internally they reuse the same logic — we just
+            // promote the parameter into SelectedInquiry first so the rail,
+            // KPI strip and double-click handlers all stay in sync.
+            OpenWorkspaceRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await EditRowAsync(row); }
+            }, p => p is InquiryListRow);
+            ConvertToPiRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ConvertToPiAsync(); }
+            }, p => p is InquiryListRow row && row.CanConvert);
+            // Per-status row commands. Each promotes the row into the
+            // selection (so the rail, KPI strip etc. update too) and then
+            // delegates to the standard ChangeSelectedStatusAsync path.
+            PrepareRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Prepared); }
+            }, p => p is InquiryListRow row && row.CanPrepareWorkflow);
+            SendRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Sent); }
+            }, p => p is InquiryListRow row && row.CanSendWorkflow);
+            ConfirmRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Confirmed); }
+            }, p => p is InquiryListRow row && row.CanConfirmWorkflow);
+            HoldRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Hold); }
+            }, p => p is InquiryListRow row && row.CanHoldWorkflow);
+            CancelRowCommand = new RelayCommand(async p =>
+            {
+                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Cancelled); }
+            }, p => p is InquiryListRow row && row.CanCancelWorkflow);
+            CopyInquiryNumberCommand = new RelayCommand(p =>
+            {
+                if (p is InquiryListRow row && !string.IsNullOrWhiteSpace(row.InquiryNumber))
+                {
+                    try
+                    {
+                        System.Windows.Clipboard.SetText(row.InquiryNumber);
+                        SetStatus($"Copied '{row.InquiryNumber}' to clipboard.");
+                    }
+                    catch (Exception ex) { SetStatus("Copy failed: " + ExceptionMessages.Deep(ex)); }
+                }
+            }, p => p is InquiryListRow);
+            CopySummaryCommand = new RelayCommand(p =>
+            {
+                if (p is not InquiryListRow row) return;
+                string summary = ComposeSummary(row);
+                try
+                {
+                    System.Windows.Clipboard.SetText(summary);
+                    SetStatus("Copied one-line summary to clipboard.");
+                }
+                catch (Exception ex) { SetStatus("Copy failed: " + ExceptionMessages.Deep(ex)); }
+            }, p => p is InquiryListRow);
+            OpenAttachmentsFolderCommand = new RelayCommand(p =>
+            {
+                if (p is not InquiryListRow row) return;
+                if (OpenAttachmentsFolderRequested != null) OpenAttachmentsFolderRequested(row);
+                else SetStatus("Attachments folder handler is not wired.");
+            }, p => p is InquiryListRow row && row.AttachmentCount > 0);
+
+            // ── Per-stage navigation (rail context menu) ────────────────
+            // Each command calls the corresponding func if wired (set by
+            // MainViewModel to navigate the shell to that module and open
+            // the document); otherwise it copies the document number to
+            // the clipboard as a fallback.
+            OpenProformaForRowCommand = new RelayCommand(
+                p => InvokeStageOpen(p, OpenProformaForRowRequested, r => r.Lifecycle.ProformaNumber),
+                p => p is InquiryListRow r && r.Lifecycle.HasProforma);
+            OpenJobOrderForRowCommand = new RelayCommand(
+                p => InvokeStageOpen(p, OpenJobOrderForRowRequested, r => r.Lifecycle.JobOrderNumber),
+                p => p is InquiryListRow r && r.Lifecycle.HasJobOrder);
+            OpenDeliveryNoteForRowCommand = new RelayCommand(
+                p => InvokeStageOpen(p, OpenDeliveryNoteForRowRequested, r => r.Lifecycle.LatestDeliveryNoteNumber),
+                p => p is InquiryListRow r && r.Lifecycle.HasDeliveryNote);
+            OpenTaxInvoiceForRowCommand = new RelayCommand(
+                p => InvokeStageOpen(p, OpenTaxInvoiceForRowRequested, r => r.Lifecycle.LatestTaxInvoiceNumber),
+                p => p is InquiryListRow r && r.Lifecycle.HasTaxInvoice);
+            OpenStatementForRowCommand = new RelayCommand(
+                p => InvokeStageOpen(p, OpenStatementForRowRequested, r => r.Lifecycle.LatestStatementNumber),
+                p => p is InquiryListRow r && r.Lifecycle.HasStatement);
+
+            // ── Copy document number (always available when a doc exists) ──
+            CopyProformaNumberCommand = new RelayCommand(
+                p => CopyToClipboard(p, r => r.Lifecycle.ProformaNumber, "PI"),
+                p => p is InquiryListRow r && r.Lifecycle.HasProforma);
+            CopyJobOrderNumberCommand = new RelayCommand(
+                p => CopyToClipboard(p, r => r.Lifecycle.JobOrderNumber, "JO"),
+                p => p is InquiryListRow r && r.Lifecycle.HasJobOrder);
+            CopyDeliveryNoteNumberCommand = new RelayCommand(
+                p => CopyToClipboard(p, r => r.Lifecycle.LatestDeliveryNoteNumber, "DN"),
+                p => p is InquiryListRow r && r.Lifecycle.HasDeliveryNote);
+            CopyTaxInvoiceNumberCommand = new RelayCommand(
+                p => CopyToClipboard(p, r => r.Lifecycle.LatestTaxInvoiceNumber, "TI"),
+                p => p is InquiryListRow r && r.Lifecycle.HasTaxInvoice);
+
             AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();
+        }
+
+        // ── Right-click helpers ──────────────────────────────────────────
+
+        /// <summary>One-line plain-text summary used by "Copy summary".</summary>
+        private static string ComposeSummary(InquiryListRow row) =>
+            $"{row.InquiryNumber} · {row.CustomerName} · {row.Project} · AED {row.InquiryValue:N0} · {row.Status} · {row.ReceivedDateText}";
+
+        private static void CopyToClipboard(object parameter,
+            Func<InquiryListRow, string?> numberGetter, string kind)
+        {
+            if (parameter is not InquiryListRow row) return;
+            string? number = numberGetter(row);
+            if (string.IsNullOrWhiteSpace(number)) return;
+            try
+            {
+                System.Windows.Clipboard.SetText(number);
+            }
+            catch { /* clipboard contention — ignore */ }
+        }
+
+        private void InvokeStageOpen(object parameter,
+            Func<InquiryListRow, Task>? openFunc,
+            Func<InquiryListRow, string?> numberGetter)
+        {
+            if (parameter is not InquiryListRow row) return;
+            // Promote the target row into the rail selection so any UI
+            // state tied to SelectedInquiry (KPI strip, etc.) updates too.
+            SelectedInquiry = row;
+            string? number = numberGetter(row);
+            if (openFunc != null)
+            {
+                AsyncUtility.SafeFireAndForget(() => openFunc(row), $"Open {number} from inquiry rail");
+            }
+            else if (!string.IsNullOrWhiteSpace(number))
+            {
+                try { System.Windows.Clipboard.SetText(number); }
+                catch { /* ignore */ }
+            }
         }
 
         // ── Loading ────────────────────────────────────────────────────

@@ -466,6 +466,74 @@ namespace ProGlassAutomation.ViewModels
                 Navigate("ProformaInvoice");
             };
 
+            // Right-click per-stage navigation from the inquiry rail.
+            // We just jump to the right module — opening the specific
+            // document by number would require a reverse lookup the
+            // lifecycle service doesn't yet expose (it returns the
+            // document number, not the DB id). Users find the document
+            // in the target module's own search by pasting the number
+            // (the "Copy … number" right-click item already did that).
+            InquiryVM.OpenProformaForRowRequested = _ =>
+            {
+                Navigate("ProformaInvoice");
+                return Task.CompletedTask;
+            };
+            InquiryVM.OpenJobOrderForRowRequested = _ =>
+            {
+                Navigate("JobOrder");
+                return Task.CompletedTask;
+            };
+            InquiryVM.OpenDeliveryNoteForRowRequested = _ =>
+            {
+                Navigate("DeliveryNote");
+                return Task.CompletedTask;
+            };
+            InquiryVM.OpenTaxInvoiceForRowRequested = _ =>
+            {
+                Navigate("TaxInvoice");
+                return Task.CompletedTask;
+            };
+            InquiryVM.OpenStatementForRowRequested = _ =>
+            {
+                Navigate("StatementGenerator");
+                return Task.CompletedTask;
+            };
+            // Open the system file-explorer at the inquiry's attachments
+            // folder. We don't have a per-inquiry subfolder today, so we
+            // fall back to the app's attachments root (Documents / Inquiries)
+            // — the user can then drill in. Gracefully no-ops when the
+            // folder doesn't exist yet.
+            InquiryVM.OpenAttachmentsFolderRequested = row =>
+            {
+                try
+                {
+                    string baseDir = System.IO.Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                        "ProGlassAutomation", "Inquiries");
+                    if (!System.IO.Directory.Exists(baseDir))
+                        System.IO.Directory.CreateDirectory(baseDir);
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = baseDir,
+                        UseShellExecute = true
+                    });
+                }
+                catch
+                {
+                    // If file-explorer launch fails (locked, missing xdg-open,
+                    // etc.) we silently no-op. The context menu item stays
+                    // available for the next attempt.
+                }
+            };
+
+            // Editor right-click: open the company-center module so the user
+            // can see the customer card and any saved addresses.
+            InquiryVM.NavigateRequested = async target =>
+            {
+                Navigate(target);
+                await Task.CompletedTask;
+            };
+
             JobOrderVM.OnRequestOpenDeliveryNote = async dnId =>
             {
                 Navigate("DeliveryNote");

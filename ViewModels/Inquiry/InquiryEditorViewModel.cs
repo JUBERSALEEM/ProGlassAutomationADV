@@ -64,6 +64,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public Func<bool>? ConfirmDiscardRequested { get; set; }
         public Func<InquiryAttachment, bool>? ConfirmDeleteRequested { get; set; }
         public Action<InquiryAttachment>? PreviewRequested { get; set; }
+        // Right-click context-menu callbacks. The view wires these so the
+        // VM stays MessageBox-free. Each defaults to a no-op if the view
+        // never sets it (the menu items just no-op).
+        public Action? OpenMasterDataRequested { get; set; }
+        public Action? ViewCustomerHistoryRequested { get; set; }
+        // Module-level navigation callback for the right-click menu's
+        // "Open in master data" / "View customer history" items. Wired by
+        // MainViewModel to the shell's NavigateFromAgent so the editor
+        // can switch modules without holding a hard reference to it.
+        public Func<string, Task>? NavigateRequested { get; set; }
 
         public ObservableCollection<string> Priorities { get; } = new() { "Urgent", "High", "Normal", "Low" };
         public ObservableCollection<string> Salesmen { get; } = new();
@@ -183,6 +193,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand DeleteAttachmentCommand { get; }
         public ICommand PreviewAttachmentCommand { get; }
         public ICommand CancelCommand { get; }
+        // Right-click context-menu commands on editor fields.
+        public ICommand ClearCustomerCommand { get; }
+        public ICommand OpenCustomerInMasterDataCommand { get; }
+        public ICommand ViewCustomerHistoryCommand { get; }
 
         /// <summary>Raised with true when the record was saved and the editor should close.</summary>
         public event Action<bool>? CloseRequested;
@@ -244,6 +258,29 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             });
             CancelCommand = new RelayCommand(_ => CloseOrDiscard());
 
+            // ── Right-click field commands ──────────────────────────────
+            ClearCustomerCommand = new RelayCommand(_ =>
+            {
+                CustomerName = "";
+                CustomerLocation = "";
+                _locationManuallyEdited = false;
+            }, _ => !string.IsNullOrWhiteSpace(CustomerName) || !string.IsNullOrWhiteSpace(CustomerLocation));
+            OpenCustomerInMasterDataCommand = new RelayCommand(_ =>
+            {
+                if (NavigateRequested != null)
+                    AsyncUtility.SafeFireAndForget(() => NavigateRequested("CompanyCenter"), "Open master data from inquiry");
+                else OpenMasterDataRequested?.Invoke();
+            }, _ => !string.IsNullOrWhiteSpace(CustomerName));
+            ViewCustomerHistoryCommand = new RelayCommand(_ =>
+            {
+                // "View customer history" is the same shell action for now:
+                // jump to the Company Center which lists every saved client
+                // (the inquiry's own history is already shown in the rail).
+                if (NavigateRequested != null)
+                    AsyncUtility.SafeFireAndForget(() => NavigateRequested("CompanyCenter"), "View customer history from inquiry");
+                else ViewCustomerHistoryRequested?.Invoke();
+            }, _ => !string.IsNullOrWhiteSpace(CustomerName));
+
             AsyncUtility.SafeFireAndForget(LoadMastersAsync, "Inquiry editor masters");
             AsyncUtility.SafeFireAndForget(LoadAttachmentsAsync, "Inquiry editor attachments");
         }
@@ -260,6 +297,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             && !string.IsNullOrWhiteSpace(ProjectName)
             && !HasValueError;
 
+        // Customer-context-menu gate: true when the typed customer exists in
+        // master data (so "Open in master data" is a real action, not a
+        // stub) and when we have a customer name to act on.
+        public bool CanOpenCustomerInMasterData =>
+            !string.IsNullOrWhiteSpace(CustomerName)
+            && FindClientByName(CustomerName) != null;
+        public bool CanViewCustomerHistory => !string.IsNullOrWhiteSpace(CustomerName);
+
         private bool SetField<T>(ref T field, T value,
             [System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
@@ -268,6 +313,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             OnPropertyChanged(propertyName ?? "");
             IsDirty = true;
             OnPropertyChanged(nameof(CanSave));
+            // Customer-context-menu gates depend on CustomerName. We
+            // notify them on every field change so the menu re-evaluates
+            // its IsEnabled state correctly. (Cheap — these are
+            // computed-property reads, not DB calls.)
+            if (propertyName == nameof(CustomerName))
+            {
+                OnPropertyChanged(nameof(CanOpenCustomerInMasterData));
+                OnPropertyChanged(nameof(CanViewCustomerHistory));
+                System.Windows.Input.CommandManager.InvalidateRequerySuggested();
+            }
             return true;
         }
 

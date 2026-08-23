@@ -227,18 +227,32 @@
                                               VerticalAlignment="Center"
                                               ContentSource="SelectionBoxItem"
                                               IsHitTestVisible="False"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="&#xE70D;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="10"
-                                       Margin="0,0,12,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <!-- ToggleButton (required, or the popup never opens).
+                                 The previous template only had a static TextBlock
+                                 chevron with no click surface; IsDropDownOpen was
+                                 bound on the Popup but nothing ever set it true.
+                                 Mirrors the editable variant's pattern. -->
+                            <ToggleButton Grid.Column="1"
+                                          x:Name="PART_Button"
+                                          Focusable="False"
+                                          ClickMode="Press"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Padding="0,0,12,0"
+                                          Cursor="Hand">
+                                <TextBlock Text="&#xE70D;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="10"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </ToggleButton>
                             <Popup IsOpen="{TemplateBinding IsDropDownOpen}"
                                    Placement="Bottom"
                                    AllowsTransparency="True"
                                    Focusable="False"
-                                   PopupAnimation="Fade">
+                                   PopupAnimation="Fade"
+                                   StaysOpen="False">
                                 <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
@@ -255,6 +269,10 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsDropDownOpen" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
