@@ -369,6 +369,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         public async Task<bool> MarkCancelledAsync(string proformaId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "cancel a proforma invoice");
+
             if (string.IsNullOrWhiteSpace(proformaId)) return false;
 
             using var db = new ProformaInvoicesDbContext();
@@ -471,6 +476,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         public async Task<Result> UpdateWithResultAsync(SavedProformaInvoice invoice, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "update a proforma invoice (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", invoice?.ProformaId);
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", invoice?.ProformaId ?? "", corrId);
 
@@ -513,6 +523,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         public async Task<Result> DeleteWithResultAsync(int id, string? proformaId = null, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "delete a proforma invoice (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("ProformaInvoice", proformaId ?? id.ToString());
             using var scope = CorrelationContext.BeginDocumentScope("ProformaInvoice", proformaId ?? id.ToString(), corrId);
 

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.Inquiry;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Reporting;
@@ -240,6 +241,11 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public async Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.InquiryEdit, "delete an inquiry attachment");
+
             await using var db = new InquiryDbContext();
             var row = await db.Attachments.SingleOrDefaultAsync(x => x.Id == attachmentId, ct).ConfigureAwait(false);
             if (row == null) return false;

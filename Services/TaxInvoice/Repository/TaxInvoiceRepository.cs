@@ -572,6 +572,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task<Result> DeleteWithResultAsync(int id, string? invoiceNumber = null, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "delete a tax invoice (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("TaxInvoice", invoiceNumber ?? id.ToString());
             using var scope = CorrelationContext.BeginDocumentScope("TaxInvoice", invoiceNumber ?? id.ToString(), corrId);
 

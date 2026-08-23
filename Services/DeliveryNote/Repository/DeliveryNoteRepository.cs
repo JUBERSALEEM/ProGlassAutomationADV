@@ -227,6 +227,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             string deliveryNoteId,
             string taxInvoiceId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "mark a delivery note as invoiced");
+
             if (string.IsNullOrWhiteSpace(deliveryNoteId)) return;
             if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
 
@@ -264,6 +269,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             IEnumerable<string> deliveryNoteIds,
             string taxInvoiceId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "mark delivery notes as invoiced in bulk");
+
             if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
 
             var idList = deliveryNoteIds
@@ -1002,6 +1012,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task<Result> UpdateWithResultAsync(SavedDeliveryNote entity, string? correlationId = null)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "update a delivery note (Result variant)");
+
             var corrId = correlationId ?? CorrelationContext.NewIdFor("DeliveryNote", entity?.DeliveryNoteId);
             using var scope = CorrelationContext.BeginDocumentScope("DeliveryNote", entity?.DeliveryNoteId ?? "", corrId);
 
