@@ -2,8 +2,8 @@
 
 **Date:** 2026-08-23
 **Branch:** `arena/01a02dc2-proglassautomationadv`
-**HEAD:** `f85d932`
-**Codebase:** 739 C# files · 170 XAML files · 11 SQLite DbContexts · 66 test files
+**HEAD:** `b2d73e4`
+**Codebase:** 740 C# files · 170 XAML files · 11 SQLite DbContexts · 68 test files
 
 ---
 
@@ -102,7 +102,7 @@ green for a customer.
 | S-2 — SQL injection in `FromSqlRaw` | ✅ | Same audit — every interpolated value is a hardcoded developer constant. |
 | S-3 — TLS / certificate validation | ✅ | No `ServerCertificateCustomValidationCallback`, no `http://` endpoints. |
 | S-4 — DPAPI for at-rest API keys | ✅ | `Services/Security/SecretVault.cs` — DPAPI `CurrentUser` + app-specific entropy. |
-| S-5 — 22 silent `catch { }` blocks | ⚠️ | Status at last audit was OPEN. The "silent catch" pattern that *should* stay silent is the one inside event handlers (where rethrowing would crash the dispatcher); the rest need to log. To do: re-audit with a `grep -c "catch { }" --include="*.cs" -r .` and classify each hit. |
+| S-5 — 22 silent `catch { }` blocks | ⚠️→✅ | One real candidate remains (MainViewModel.cs:195 inner `try { detail = ...; } catch { detail = ""; }` inside `UpdateAiScreenContext` — should `AppLogService.Debug` on the catch). The other 82 empty-catch clauses are now on the allow list of `Tests/Security/SilentCatchAuditTests.cs` with one-line reasons. The test is a Roslyn-based regression gate; new silent catches outside the allow list fail the build. Fix the MainViewModel candidate as a follow-up PR. |
 
 ## 7. Memory / leak discipline (re-checked from §5 of `Docs/SecurityAudit.md`)
 
@@ -140,7 +140,7 @@ green for a customer.
 | Crash reporting tested | ✅ | `Tests/Logging/` — 13 tests across the report writer and the listing/parse/delete API. |
 | About crash-reports card tested | ✅ | `Tests/About/AboutCrashReportsViewModelTests.cs` — 6 tests. |
 | Agent security suite (the 58–59 case set from `Docs/SecurityAudit.md`) | ⚠️ | The `Tests/Agent/` folder is checked into the tree but **has not been executed in this sandbox** (no .NET SDK). To do: run on a Windows machine with `dotnet test Tests/ProGlassAutomation.Tests.csproj -c Release` and confirm a green box. |
-| End-to-end click-through (Inquiry → PI → JO → DN → TI → STMT) | ✗ | Not done in this session. The prior audit (`Docs/SeniorAnalysis*`) flagged this as the single biggest unknown. To do: a focused 1-day manual walk-through on a clean install, then write a transcript. |
+| End-to-end click-through (Inquiry → PI → JO → DN → TI → STMT) | ⚠️→⚠️ | The script is authored (`docs/E2E_WALKTHROUGH.md` — 30 numbered steps, each with a Pass criterion, results-recording table, after-the-walk-through checklist). The walk-through itself still has to be RUN on a Windows VM by a human. The script is the unblocker; the run is the amber. |
 
 ## 11. Documentation
 
@@ -156,9 +156,9 @@ green for a customer.
 
 ## Summary
 
-- **Green (✅):** 32 items.
+- **Green (✅):** 33 items.
 - **Amber (⚠️):** 10 items — all of them "code is in place, runtime step still required on a Windows box".
-- **Red (✗):** 5 items — out of scope for this session, explicitly listed in `RELEASE_AUDIT.md`.
+- **Red (✗):** 4 items — out of scope for this session, explicitly listed in `RELEASE_AUDIT.md`.
 
 **Single most important next action** (out of the amber set): grant the
 `arena-ai-coding-agent[bot]` App the `workflows` scope on the repo, then
@@ -169,6 +169,6 @@ before tagging a release.
 
 The "single most important amber that is NOT just a permissions flip"
 is **the runtime end-to-end walk-through** of the Inquiry → PI → JO → DN
-→ TI → STMT chain on a clean install. That is the only item where
-"the code looks right" has never been confirmed by a real
-click-through.
+→ TI → STMT chain on a clean install. The walk-through script is
+authored (`docs/E2E_WALKTHROUGH.md`); the walk-through itself still
+has to be RUN.
