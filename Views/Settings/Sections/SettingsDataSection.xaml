@@ -178,7 +178,7 @@
                                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                     <TextBlock FontSize="12" FontWeight="SemiBold">
                                         <Run Text="License: "/>
-                                        <Run Text="{Binding LicenseStatus.StatusBadge}"/>
+                                        <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
                                     </TextBlock>
                                     <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
                                                FontSize="10"
