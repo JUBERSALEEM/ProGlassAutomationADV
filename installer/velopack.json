@@ -1,0 +1,42 @@
+{
+  "$schema": "https://raw.githubusercontent.com/velopack/velopack/develop/src/vpk/Schema.json",
+  "id": "ProGlassAutomation",
+  "title": "ProGlass Automation",
+  "shortVersion": "2.0.0",
+  "fullVersion": "2.0.0.0",
+  "authors": "Juber Saleem",
+  "description": "Glass-industry ERP for cutting, job orders, deliveries, tax invoices and statements.",
+  "copyright": "© 2026 Juber Saleem. Made in India. All rights reserved.",
+  "icon": "../favicon.ico",
+  "readme": "../README.md",
+  "exe": "ProGlassAutomation.exe",
+  "arguments": "",
+  "runtime": "",
+  "framework": "net8.0-windows",
+  "rid": "win-x64",
+  "channel": "stable",
+  "prerelease": false,
+  "packagingScope": {
+    "include": [
+      "*.exe",
+      "*.dll",
+      "*.json",
+      "*.pdb"
+    ]
+  },
+  "deltaMode": "BestSpeed",
+  "packSources": null,
+  "zipExclude": [
+    "**/*.pdb",
+    "**/TestResults/**",
+    "**/appsettings.Development.json"
+  ],
+  "codeSign": null,
+  "awsRegions": null,
+  "azureBlob": null,
+  "gcpBucket": null,
+  "githubArtifact": null,
+  "s3Bucket": null,
+  "webhook": null,
+  "feed": null
+}
