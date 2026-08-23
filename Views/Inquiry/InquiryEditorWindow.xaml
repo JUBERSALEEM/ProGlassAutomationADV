@@ -411,13 +411,13 @@
                                     </Button.Template>
                                     <Border Style="{StaticResource InqDropZoneStyle}">
                                         <Grid>
-                                            <Rectangle Stroke="{DynamicResource AccentBrush}}" StrokeThickness="1.4"
+                                            <Rectangle Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.4"
                                                        StrokeDashArray="6 4" RadiusX="9" RadiusY="9"
                                                        Opacity="0.55"/>
                                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                                         Margin="14,12">
                                                 <Border Width="40" Height="40" CornerRadius="10"
-                                                        Background="{DynamicResource ElevatedSurfaceBrush}}"
+                                                        Background="{DynamicResource ElevatedSurfaceBrush}"
                                                         HorizontalAlignment="Center">
                                                     <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                                                                Foreground="{DynamicResource AccentBrush}"

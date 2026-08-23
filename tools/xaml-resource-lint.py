@@ -20,7 +20,11 @@ and the build surfaced XDG0010 across the module. This tool fails on:
       its merged dictionaries, or anywhere in the repository (the repo
       resolves many keys through nested merge graphs — App.xaml,
       MainWindow.xaml and hub dictionaries — so a repo-wide declaration
-      scan is the accurate signal; a compiler remains the final judge).
+      scan is the accurate signal; a compiler remains the final judge);
+  L4  attribute values that ARE a markup extension but keep text after the
+      expression closes (e.g. the shipped "…Brush}}\" typo → MC3044 /
+      XDG0055). Implemented as a real brace-balance walk, so nested
+      Converter={StaticResource X} closings stay valid.
 
 Exit 0 = clean, 1 = violations.
 """
@@ -47,6 +51,12 @@ VALID_ASSEMBLY_FOR_NS = {
 HARD_FRAGILE = ("CornerRadius",)
 
 STATIC_REF = re.compile(r"\{StaticResource ([A-Za-z_][\w.]*)\}")
+
+# Attribute values — used by the L4 markup-extension balance check.
+ATTR_VALUE = re.compile(r'([\w:.]+)="([^"]*)"')
+# Extensions an attribute value may legitimately START with.
+EXT_PREFIXES = ("{Binding", "{StaticResource", "{DynamicResource",
+                "{TemplateBinding", "{x:", "{RelativeSource")
 
 
 def load_keys_and_merges(path: Path):
@@ -105,6 +115,28 @@ def main() -> int:
                 warnings.append(
                     f"L2 {rel}: typed <{fragile} x:Key=…> resource — prefer "
                     f"literals (pre-existing theme resources are not fatal)"
+                )
+
+        # L4 — markup-extension balance: MC3044 class. A value that starts
+        # as an extension must close its top-level brace exactly at the end.
+        for m in ATTR_VALUE.finditer(text):
+            value = m.group(2)
+            if not value.startswith(EXT_PREFIXES):
+                continue
+            depth = 0
+            closed_at = None
+            for idx, ch in enumerate(value):
+                if ch == "{":
+                    depth += 1
+                elif ch == "}":
+                    depth -= 1
+                    if depth == 0:
+                        closed_at = idx
+                        break
+            if closed_at is None or value[closed_at + 1:].strip():
+                violations.append(
+                    f"L4 {rel}: attribute '{m.group(1)}' has text after the "
+                    f"closing brace of its markup extension (MC3044): \"{value[:70]}\""
                 )
 
         # L3 — unresolved StaticResource keys (file-local + theme-level; a
