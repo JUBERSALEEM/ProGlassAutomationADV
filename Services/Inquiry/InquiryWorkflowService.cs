@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             if (string.IsNullOrWhiteSpace(x.CustomerName)) throw new InvalidOperationException("Customer is required.");
             if (string.IsNullOrWhiteSpace(x.ProjectName)) throw new InvalidOperationException("Project is required.");
-            if (x.ReceivedAt == default) x.ReceivedAt = DateTimeOffset.Now;
+            if (x.ReceivedAt == default) x.ReceivedAt = DateTime.Now;
         }
         private static string Snapshot(InquiryRecord x) => JsonSerializer.Serialize(new
         {

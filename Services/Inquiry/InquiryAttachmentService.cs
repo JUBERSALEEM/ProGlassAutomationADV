@@ -41,7 +41,7 @@ namespace ProGlassAutomation.Services.Inquiry
                     InquiryId = inquiryId, FileName = info.Name, Extension = extension,
                     FileSize = info.Length, StoragePath = destination,
                     AttachmentType = extension.TrimStart('.').ToUpperInvariant(),
-                    UploadedBy = AuditService.CurrentUsername, UploadedAt = DateTimeOffset.Now
+                    UploadedBy = AuditService.CurrentUsername, UploadedAt = DateTime.Now
                 }, ct).ConfigureAwait(false);
                 AuditService.Log(AuditSections.Proforma, "Inquiry attachment added", info.Name, "INQ", inquiryId.ToString());
                 return row;

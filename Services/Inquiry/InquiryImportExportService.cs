@@ -36,7 +36,8 @@ namespace ProGlassAutomation.Services.Inquiry
                     InquiryNumber = c[0], InquiryReference = c[1], CustomerName = c[2],
                     CustomerLocation = c[3], ProjectName = c[4], ProjectDescription = c[5],
                     SalesmanName = c.Count > 6 ? c[6] : "", PreparedByName = c.Count > 7 ? c[7] : "",
-                    ReceivedAt = c.Count > 8 && DateTimeOffset.TryParse(c[8], out var received) ? received : DateTimeOffset.Now,
+                    ReceivedAt = c.Count > 8 && DateTime.TryParse(c[8], out var received)
+                        ? DateTime.SpecifyKind(received, DateTimeKind.Local) : DateTime.Now,
                     Status = c.Count > 10 ? InquiryStatuses.Normalize(c[10]) : InquiryStatuses.Received,
                     Priority = "Normal"
                 });

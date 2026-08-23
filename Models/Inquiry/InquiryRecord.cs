@@ -46,12 +46,12 @@ namespace ProGlassAutomation.Models.Inquiry
         [MaxLength(20)] public string Priority { get; set; } = "Normal";
         [Column(TypeName = "TEXT")] public decimal InquiryValue { get; set; }
         public string Notes { get; set; } = "";
-        public DateTimeOffset ReceivedAt { get; set; }
-        public DateTimeOffset? PreparedAt { get; set; }
-        public DateTimeOffset? SentAt { get; set; }
-        public DateTimeOffset? ConfirmedAt { get; set; }
-        public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime ReceivedAt { get; set; }
+        public DateTime? PreparedAt { get; set; }
+        public DateTime? SentAt { get; set; }
+        public DateTime? ConfirmedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         [MaxLength(200)] public string UpdatedBy { get; set; } = "";
         public int? ProformaInvoiceId { get; set; }
         [MaxLength(50)] public string ProformaNumber { get; set; } = "";
@@ -71,7 +71,7 @@ namespace ProGlassAutomation.Models.Inquiry
         [Required] public string StoragePath { get; set; } = "";
         [MaxLength(50)] public string AttachmentType { get; set; } = "Document";
         [MaxLength(200)] public string UploadedBy { get; set; } = "";
-        public DateTimeOffset UploadedAt { get; set; }
+        public DateTime UploadedAt { get; set; }
         public InquiryRecord Inquiry { get; set; } = null!;
     }
 
@@ -83,7 +83,7 @@ namespace ProGlassAutomation.Models.Inquiry
         [Required, MaxLength(100)] public string EventType { get; set; } = "";
         [Required, MaxLength(200)] public string Title { get; set; } = "";
         public string Description { get; set; } = "";
-        public DateTimeOffset OccurredAt { get; set; }
+        public DateTime OccurredAt { get; set; }
         public int? ActorUserId { get; set; }
         [MaxLength(200)] public string ActorName { get; set; } = "";
         public InquiryRecord Inquiry { get; set; } = null!;

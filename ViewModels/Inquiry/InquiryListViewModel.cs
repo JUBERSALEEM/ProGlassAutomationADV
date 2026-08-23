@@ -239,7 +239,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             IsLoading = true; ErrorText = ""; SetStatus("Loading inquiries…");
             try
             {
-            var range = DateRange(SelectedDateRange, DateTimeOffset.Now);
+            var range = DateRange(SelectedDateRange, DateTime.Now);
             var query = new InquiryQuery
             {
                 Search = SearchText, Status = SelectedStatus,
@@ -303,9 +303,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             OnPropertyChanged(nameof(SelectedInquiry));
         }
 
-        private static (DateTimeOffset? From, DateTimeOffset? ToExclusive) DateRange(string value, DateTimeOffset now)
+        private static (DateTime? From, DateTime? ToExclusive) DateRange(string value, DateTime now)
         {
-            var today = new DateTimeOffset(now.Date, now.Offset);
+            var today = now.Date;
             return value switch
             {
                 "Today" => (today, today.AddDays(1)),
@@ -350,8 +350,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool IsSelected { get; set; }
         public string InquiryNumber { get; set; } = "";
         public string InquiryReference { get; set; } = "";
-        public DateTimeOffset ReceivedAt { get; set; }
-        public DateTimeOffset UpdatedAt { get; set; }
+        public DateTime ReceivedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
         public string CustomerName { get; set; } = "";
         public string CustomerLocation { get; set; } = "";
         public string Subject { get; set; } = "";

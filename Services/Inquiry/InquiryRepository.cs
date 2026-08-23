@@ -98,7 +98,7 @@ namespace ProGlassAutomation.Services.Inquiry
                     .DefaultIfEmpty().Max() + 1;
                 inquiry.InquiryNumber = prefix + next.ToString("D4");
             }
-            var now = DateTimeOffset.Now;
+            var now = DateTime.Now;
             inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
             inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
             if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.Services.Inquiry
             stored.PreparedByUserId = inquiry.PreparedByUserId; stored.PreparedByName = inquiry.PreparedByName;
             stored.PreparedByRole = inquiry.PreparedByRole; stored.Priority = inquiry.Priority;
             stored.InquiryValue = inquiry.InquiryValue; stored.Notes = inquiry.Notes;
-            stored.UpdatedAt = DateTimeOffset.Now; stored.UpdatedBy = inquiry.UpdatedBy;
+            stored.UpdatedAt = DateTime.Now; stored.UpdatedBy = inquiry.UpdatedBy;
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
             return stored;
         }
@@ -132,7 +132,7 @@ namespace ProGlassAutomation.Services.Inquiry
             var row = await db.Inquiries.SingleOrDefaultAsync(x => x.Id == id, ct).ConfigureAwait(false);
             if (row == null) return false;
             string next = InquiryStatuses.Normalize(status);
-            row.Status = next; row.UpdatedAt = DateTimeOffset.Now; row.UpdatedBy = actor ?? "";
+            row.Status = next; row.UpdatedAt = DateTime.Now; row.UpdatedBy = actor ?? "";
             if (next == InquiryStatuses.Prepared) row.PreparedAt ??= row.UpdatedAt;
             if (next == InquiryStatuses.Sent) row.SentAt ??= row.UpdatedAt;
             if (next == InquiryStatuses.Confirmed) row.ConfirmedAt ??= row.UpdatedAt;

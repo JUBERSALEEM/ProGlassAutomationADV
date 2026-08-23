@@ -15,8 +15,8 @@ namespace ProGlassAutomation.Services.Inquiry
         public string SalesmanName { get; init; } = "";
         public int? PreparedByUserId { get; init; }
         public string PreparedByName { get; init; } = "";
-        public DateTimeOffset? From { get; init; }
-        public DateTimeOffset? ToExclusive { get; init; }
+        public DateTime? From { get; init; }
+        public DateTime? ToExclusive { get; init; }
         public bool HasAttachmentsOnly { get; init; }
         public string Priority { get; init; } = "";
         public string Sort { get; init; } = "Updated newest";
@@ -39,8 +39,8 @@ namespace ProGlassAutomation.Services.Inquiry
         public string Status { get; init; } = "";
         public string Priority { get; init; } = "";
         public decimal InquiryValue { get; init; }
-        public DateTimeOffset ReceivedAt { get; init; }
-        public DateTimeOffset UpdatedAt { get; init; }
+        public DateTime ReceivedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
         public string UpdatedBy { get; init; } = "";
         public int AttachmentCount { get; init; }
         public string AttachmentBadgeText { get; set; } = "";

@@ -17,8 +17,9 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ObservableCollection<string> Customers { get; } = new();
         public DateTime ReceivedDate
         {
-            get => Record.ReceivedAt == default ? DateTime.Today : Record.ReceivedAt.LocalDateTime.Date;
-            set => Record.ReceivedAt = new DateTimeOffset(value.Date.Add(Record.ReceivedAt == default ? DateTime.Now.TimeOfDay : Record.ReceivedAt.TimeOfDay));
+            get => Record.ReceivedAt == default ? DateTime.Today : Record.ReceivedAt.Date;
+            set => Record.ReceivedAt = value.Date.Add(
+                Record.ReceivedAt == default ? DateTime.Now.TimeOfDay : Record.ReceivedAt.TimeOfDay);
         }
         public ICommand SaveCommand { get; }
         public ICommand ChangeStatusCommand { get; }
@@ -31,7 +32,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             Record = source ?? new InquiryRecord
             {
                 InquiryReference = "Customer Inquiry", Status = InquiryStatuses.Received,
-                Priority = "Normal", ReceivedAt = DateTimeOffset.Now
+                Priority = "Normal", ReceivedAt = DateTime.Now
             };
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             ChangeStatusCommand = new RelayCommand(async p =>
