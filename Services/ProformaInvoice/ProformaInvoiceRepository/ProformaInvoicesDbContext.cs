@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using System;
 using System.IO;
@@ -52,6 +52,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 entity.HasIndex(e => e.ProformaId).IsUnique();
 
                 // Additional indexes for Load List UI (Phase 7.17)
+                entity.HasIndex(e => e.InquiryId);
                 entity.HasIndex(e => e.CompanyName);
                 entity.HasIndex(e => e.CustomerName);
                 entity.HasIndex(e => e.Status);

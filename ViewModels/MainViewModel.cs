@@ -460,6 +460,11 @@ namespace ProGlassAutomation.ViewModels
 
             DashboardVM.NavigateTo = target => Navigate(target);
             DashboardVM.TriggerNewInvoice = () => ProformaInvoiceVM.TriggerNewInvoice();
+            InquiryVM.CreateProformaRequested = async inquiry =>
+            {
+                await ProformaInvoiceVM.StartFromInquiryAsync(inquiry);
+                Navigate("ProformaInvoice");
+            };
 
             JobOrderVM.OnRequestOpenDeliveryNote = async dnId =>
             {

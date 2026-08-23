@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -31,6 +31,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>User-facing proforma reference, e.g. "PI-2026-001". UNIQUE.</summary>
         [Required, MaxLength(50)]
         public string ProformaId { get; set; } = "";
+
+        /// <summary>Stable optional source Inquiry relationship.</summary>
+        public int? InquiryId { get; set; }
 
         // ── Indexed searchable fields ────────────────────────────────────
 

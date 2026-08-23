@@ -83,6 +83,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";
         public string ProformaId { get; set; } = "";
+        public int? InquiryId { get; set; }
 
         /// <summary>BUG-01: default(DateTime). Mapper sets explicitly.</summary>
         public DateTime IssueDate { get; set; } = default;

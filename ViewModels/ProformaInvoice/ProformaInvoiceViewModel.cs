@@ -250,6 +250,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         private async Task StartNewInvoiceAsync()
         {
+            Step1VM.InquiryId = null;
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
             Step1VM.CompanyLocation = "";
@@ -379,6 +380,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         public void TriggerNewInvoice() =>
             AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI TriggerNewInvoice");
+
+        public async Task StartFromInquiryAsync(Models.Inquiry.InquiryRecord inquiry)
+        {
+            if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
+            if (!string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Confirmed, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Only a confirmed Inquiry is eligible for Proforma creation.");
+            await StartNewInvoiceAsync();
+            Step1VM.InquiryId = inquiry.Id;
+            Step2VM.CustomerName = inquiry.CustomerName;
+            Step2VM.SalesRepresentative = inquiry.SalesmanName;
+            Step2VM.DocumentPreparedBy = inquiry.PreparedByName;
+            Step3VM.ProjectIdentifierName = inquiry.ProjectName;
+            Step3VM.ProjectReference = inquiry.InquiryNumber;
+        }
 
         public async Task OpenSavedInvoiceAsync(int invoiceId)
         {

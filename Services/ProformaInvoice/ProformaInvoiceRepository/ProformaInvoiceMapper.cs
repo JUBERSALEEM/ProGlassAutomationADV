@@ -114,6 +114,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var entity = new SavedProformaInvoice
             {
                 ProformaId = company.ProformaId ?? "",
+                InquiryId = company.InquiryId,
                 CompanyName = company.CompanyName ?? "",
                 CustomerName = client.CustomerName ?? "",
                 // Indexed list column is Project Name. Reference stays
@@ -200,6 +201,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     CompanyTrn = company.CompanyTrn ?? "",
                     CompanyLocation = company.CompanyLocation ?? "",
                     ProformaId = company.ProformaId ?? "",
+                    InquiryId = company.InquiryId,
                     IssueDate = company.IssueDate,
                     ValidUntil = company.ValidUntil,
                     ProformaStatus = company.ProformaStatus ?? "Draft",
@@ -444,6 +446,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.CompanyTrn = snap.Company.CompanyTrn ?? "";
                 company.CompanyLocation = snap.Company.CompanyLocation ?? "";
                 company.ProformaId = snap.Company.ProformaId ?? "";
+                company.InquiryId = snap.Company.InquiryId;
                 company.IssueDate = snap.Company.IssueDate;
                 company.ValidUntil = snap.Company.ValidUntil;
                 company.ProformaStatus = snap.Company.ProformaStatus ?? "Draft";

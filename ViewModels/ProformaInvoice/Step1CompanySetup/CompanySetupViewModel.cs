@@ -90,6 +90,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         //  PROFORMA FIELDS
         // ═══════════════════════════════════════════════════════════════
 
+        private int? _inquiryId;
+        public int? InquiryId
+        {
+            get => _inquiryId;
+            set { if (_inquiryId == value) return; _inquiryId = value; OnPropertyChanged(); }
+        }
+
         private string _proformaId = "";
         public string ProformaId
         {

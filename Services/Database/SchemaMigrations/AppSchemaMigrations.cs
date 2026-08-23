@@ -51,7 +51,15 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         // proformainvoices.db
         public static IReadOnlyList<SchemaMigration> ProformaInvoices { get; }
-            = new List<SchemaMigration>();
+            = new List<SchemaMigration>
+            {
+                new(1, "Add optional stable Inquiry relationship", connection =>
+                {
+                    SchemaMigrationSql.AddColumnIfMissing(connection, "ProformaInvoices", "InquiryId", "INTEGER NULL");
+                    SchemaMigrationSql.CreateIndexIfNotExists(connection,
+                        "CREATE INDEX IF NOT EXISTS IX_ProformaInvoices_InquiryId ON ProformaInvoices(InquiryId);");
+                })
+            };
 
         // specifications.db
         public static IReadOnlyList<SchemaMigration> Specifications { get; }

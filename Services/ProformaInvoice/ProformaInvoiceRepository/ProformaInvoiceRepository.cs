@@ -228,6 +228,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
 
             // Copy fields onto tracked entity
+            existing.InquiryId = invoice.InquiryId;
             existing.CompanyName = invoice.CompanyName;
             existing.CustomerName = invoice.CustomerName;
             existing.ProjectName = invoice.ProjectName;

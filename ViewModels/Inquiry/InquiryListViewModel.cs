@@ -85,6 +85,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); ResetAndReload(); } }
 
         public Func<InquiryRecord?, Task<bool>>? EditRequested { get; set; }
+        public Func<InquiryRecord, Task>? CreateProformaRequested { get; set; }
         public Func<string?>? ExportPathRequested { get; set; }
         public Func<string?>? ImportPathRequested { get; set; }
         public Func<int, bool>? ConfirmImportRequested { get; set; }
@@ -136,7 +137,13 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     await EditAsync(detail);
                 }
             }, _ => SelectedInquiry != null);
-            ConvertToPiCommand = new RelayCommand(_ => SetStatus("Inquiry conversion is not implemented yet."));
+            ConvertToPiCommand = new RelayCommand(async _ =>
+            {
+                if (SelectedInquiry == null || CreateProformaRequested == null) return;
+                var detail = await _repository.GetDetailAsync(SelectedInquiry.Id);
+                if (detail == null) return;
+                await CreateProformaRequested(detail);
+            }, _ => SelectedInquiry?.Status == InquiryStatuses.Confirmed);
             ShowHistoryCommand = new RelayCommand(_ => SetStatus("Inquiry history is shown in the detail panel."));
             OpenAttachmentCommand = new RelayCommand(p =>
             {
