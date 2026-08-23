@@ -56,6 +56,13 @@ namespace ProGlassAutomation.Services.Inquiry
         public int? ProformaInvoiceId { get; init; }
         public string ProformaNumber { get; init; } = "";
         public string JobOrderNumber { get; init; } = "";
+
+        // ── Full-lifecycle projection (hydrated by IInquiryLifecycleService) ──
+        // Defaults represent "not started" so a row that fails the lifecycle
+        // hydration still renders correctly. The service overwrites these
+        // before the page is returned to the UI.
+        public InquiryLifecycleSnapshot Lifecycle { get; set; } =
+            new InquiryLifecycleSnapshot();
     }
 
     /// <summary>
@@ -89,5 +96,7 @@ namespace ProGlassAutomation.Services.Inquiry
         Task<InquiryAttachment> AddAttachmentAsync(InquiryAttachment attachment, CancellationToken ct = default);
         Task<bool> DeleteAttachmentAsync(long attachmentId, CancellationToken ct = default);
         Task<IReadOnlyList<InquiryCommunication>> GetCommunicationsAsync(int inquiryId, CancellationToken ct = default);
+        /// <summary>Drop the lifecycle cache (call after a downstream edit).</summary>
+        void InvalidateLifecycle(int inquiryId);
     }
 }

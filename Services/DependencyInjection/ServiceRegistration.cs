@@ -78,6 +78,11 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IInquiryWorkflowService, InquiryWorkflowService>();
             services.AddSingleton<InquiryAttachmentService>();
             services.AddSingleton<InquiryImportExportService>();
+            // Full commercial-pipeline hydration for the inquiry register
+            // (reads PI / JO / DN / TI / STMT databases in parallel and
+            // caches the result for 60 seconds). Singleton — the cache
+            // is shared across all navigation instances of the register.
+            services.AddSingleton<IInquiryLifecycleService, InquiryLifecycleService>();
             services.AddSingleton<IProformaInvoiceRepository, ProformaInvoiceRepository>();
             services.AddSingleton<IJobOrderRepository, JobOrderRepository>();
             services.AddSingleton<IDeliveryNoteRepository, DeliveryNoteRepository>();

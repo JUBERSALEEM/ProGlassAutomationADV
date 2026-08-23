@@ -37,6 +37,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
 
         public ObservableCollection<InquiryListRow> Inquiries { get; } = new();
         public ObservableCollection<InquiryStatusTab> StatusTabs { get; } = new();
+        public ObservableCollection<InquiryPipelineTab> PipelineTabs { get; } = new();
         public ObservableCollection<string> DateRanges { get; } =
             new() { "All time", "Today", "Yesterday", "Last 7 Days", "Last 30 Days" };
         public ObservableCollection<string> Salesmen { get; } = new() { "All salesmen" };
@@ -110,7 +111,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             !string.IsNullOrWhiteSpace(SearchText) || SelectedDateRange != "All time"
             || SelectedSalesman != "All salesmen" || SelectedPreparedBy != "All prepared by"
             || SelectedPriority != "All priorities" || HasAttachmentsOnly
-            || SelectedStatusKey.Length > 0;
+            || SelectedStatusKey.Length > 0
+            || SelectedPipelineKind.HasValue;
 
         /// <summary>"" = All statuses; otherwise a controlled status value.</summary>
         public string SelectedStatusKey
@@ -120,6 +122,22 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 foreach (var tab in StatusTabs)
                     tab.IsSelected = tab.Key == value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasActiveFilters));
+            }
+        }
+
+        /// <summary>
+        /// Optional pipeline-stage filter: when set, only inquiries that
+        /// have reached that downstream stage are shown. Null = no filter.
+        /// </summary>
+        public InquiryLifecycleKind? SelectedPipelineKind
+        {
+            get => PipelineTabs.FirstOrDefault(x => x.IsSelected)?.Kind;
+            private set
+            {
+                foreach (var tab in PipelineTabs)
+                    tab.IsSelected = value.HasValue && tab.Kind == value.Value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasActiveFilters));
             }
@@ -140,6 +158,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand NewInquiryCommand { get; }
         public ICommand EditInquiryCommand { get; }
         public ICommand SelectStatusTabCommand { get; }
+        public ICommand SelectPipelineTabCommand { get; }
         public ICommand ExportCommand { get; }
         public ICommand ImportCommand { get; }
         public ICommand ResetFiltersCommand { get; }
@@ -177,6 +196,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             StatusTabs.Add(new InquiryStatusTab { Key = InquiryStatuses.Hold, Label = "Hold" });
             StatusTabs.Add(new InquiryStatusTab { Key = InquiryStatuses.Cancelled, Label = "Cancelled" });
 
+            // Pipeline tabs — one per downstream document kind. Counts are
+            // populated by ApplyStatistics after each page load. Default 0.
+            foreach (var t in InquiryPipelineTab.All) PipelineTabs.Add(t);
+
             NewInquiryCommand = new RelayCommand(async _ => await EditAsync(null));
             EditInquiryCommand = new RelayCommand(async p =>
             {
@@ -186,6 +209,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             SelectStatusTabCommand = new RelayCommand(p =>
             {
                 SelectedStatusKey = p as string ?? "";
+                ResetAndReload();
+            });
+            SelectPipelineTabCommand = new RelayCommand(p =>
+            {
+                SelectedPipelineKind = p is InquiryLifecycleKind k ? k : (InquiryLifecycleKind?)null;
                 ResetAndReload();
             });
             ExportCommand = new RelayCommand(async _ => await ExportAsync());
@@ -305,14 +333,27 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 int keepId = SelectedInquiry?.Id ?? 0;
                 InquiryListRow? restored = null;
                 Inquiries.Clear();
+                var pipelineFilter = SelectedPipelineKind;
+                int pipelineCount = 0;
                 foreach (var x in page.Items)
                 {
+                    // Pipeline-stage filter: applied in-memory after the page
+                    // loads, because the stage data comes from a separate
+                    // service call (IInquiryLifecycleService) and is not a
+                    // column on the inquiry row. A 50-row page makes this
+                    // trivially fast.
+                    if (pipelineFilter.HasValue
+                        && x.Lifecycle.FurthestStageReached < (int)pipelineFilter.Value)
+                    {
+                        continue;
+                    }
+                    if (pipelineFilter.HasValue) pipelineCount++;
                     var row = InquiryListRow.FromProjection(x);
                     Inquiries.Add(row);
                     if (row.Id == keepId) restored = row;
                 }
                 OnPropertyChanged(nameof(HasInquiries));
-                ApplyStatistics(stats);
+                ApplyStatistics(stats, pipelineCount);
                 TotalPages = page.TotalCount == 0 ? 0 : (int)Math.Ceiling(page.TotalCount / (double)page.PageSize);
                 PageStatus = page.TotalCount == 0
                     ? "No inquiries match the current filters"
@@ -335,7 +376,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             finally { if (generation == _reloadGeneration) IsLoading = false; }
         }
 
-        private void ApplyStatistics(InquiryStatistics stats)
+        private void ApplyStatistics(InquiryStatistics stats, int pipelineTabCount = 0)
         {
             PipelineValue = stats.OpenPipelineValue;
             OpenCount = stats.Received + stats.Prepared;
@@ -353,6 +394,20 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     InquiryStatuses.Hold => stats.Hold,
                     InquiryStatuses.Cancelled => stats.Cancelled,
                     _ => 0
+                };
+            }
+            // Pipeline-tab counts: the "current page" count comes from the
+            // filter pass (pipelineTabCount); the All tab is just the page count.
+            // Per-stage totals across the whole filtered set would require a
+            // second pass over the repository; the senior-dev decision is to
+            // show the current-page count on each tab and let users click the
+            // tab to see only that stage — same UX as the status tabs above.
+            foreach (var tab in PipelineTabs)
+            {
+                tab.Count = tab.Kind switch
+                {
+                    InquiryLifecycleKind.Inquiry => Inquiries.Count,
+                    _ => pipelineTabCount
                 };
             }
         }
@@ -558,6 +613,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             _selectedPriority = "All priorities"; _selectedSort = "Updated newest";
             _hasAttachmentsOnly = false;
             foreach (var tab in StatusTabs) tab.IsSelected = tab.Key.Length == 0;
+            SelectedPipelineKind = null;
             OnPropertyChanged(nameof(SearchText)); OnPropertyChanged(nameof(SelectedDateRange));
             OnPropertyChanged(nameof(SelectedSalesman)); OnPropertyChanged(nameof(SelectedPreparedBy));
             OnPropertyChanged(nameof(SelectedPriority)); OnPropertyChanged(nameof(SelectedSort));
@@ -642,6 +698,64 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ObservableCollection<InquiryAttachmentItem> Attachments { get; } = new();
         public ObservableCollection<InquiryActivityItem> RecentActivity { get; } = new();
 
+        // ── Full-lifecycle display fields ────────────────────────────
+        // Bound from the InquiryLifecycleSnapshot hydrated by the repository
+        // via IInquiryLifecycleService. Every property here is a precomputed
+        // string the XAML can bind to directly without converters.
+
+        public InquiryLifecycleSnapshot Lifecycle { get; private set; } = new();
+
+        // Per-stage cell text for the row card. Empty when the stage has not started.
+        public string ProformaCellText => Lifecycle.HasProforma
+            ? $"{Lifecycle.ProformaNumber} · {Lifecycle.ProformaStatus}"
+            : "—";
+        public string JobOrderCellText => Lifecycle.HasJobOrder
+            ? $"{Lifecycle.JobOrderNumber} · {Lifecycle.JobOrderStatus}"
+            : "—";
+        public string DeliveryNoteCellText => Lifecycle.HasDeliveryNote
+            ? (Lifecycle.DeliveryNoteCount > 1
+                ? $"{Lifecycle.LatestDeliveryNoteNumber} · {Lifecycle.LatestDeliveryNoteStatus} (+{Lifecycle.DeliveryNoteCount - 1})"
+                : $"{Lifecycle.LatestDeliveryNoteNumber} · {Lifecycle.LatestDeliveryNoteStatus}")
+            : "—";
+        public string TaxInvoiceCellText => Lifecycle.HasTaxInvoice
+            ? (Lifecycle.TaxInvoiceCount > 1
+                ? $"{Lifecycle.LatestTaxInvoiceNumber} · {Lifecycle.LatestTaxInvoiceStatus} (+{Lifecycle.TaxInvoiceCount - 1})"
+                : $"{Lifecycle.LatestTaxInvoiceNumber} · {Lifecycle.LatestTaxInvoiceStatus}")
+            : "—";
+        public string StatementCellText => Lifecycle.HasStatement
+            ? Lifecycle.LatestStatementNumber ?? "—"
+            : "—";
+
+        // Per-stage coarse state — bound to background tints in the row card.
+        public InquiryLifecycleState ProformaState =>
+            Lifecycle.StateFor(InquiryLifecycleKind.ProformaInvoice);
+        public InquiryLifecycleState JobOrderState =>
+            Lifecycle.StateFor(InquiryLifecycleKind.JobOrder);
+        public InquiryLifecycleState DeliveryNoteState =>
+            Lifecycle.StateFor(InquiryLifecycleKind.DeliveryNote);
+        public InquiryLifecycleState TaxInvoiceState =>
+            Lifecycle.StateFor(InquiryLifecycleKind.TaxInvoice);
+        public InquiryLifecycleState StatementState =>
+            Lifecycle.StateFor(InquiryLifecycleKind.Statement);
+
+        // Aggregated money fields.
+        public string TotalBilledText => Lifecycle.TotalBilled == 0
+            ? "—"
+            : $"AED {Lifecycle.TotalBilled.ToString("N0", CultureInfo.CurrentCulture)}";
+        public string CurrentBillOutstandingText => Lifecycle.CurrentBillOutstanding == 0
+            ? "—"
+            : $"AED {Lifecycle.CurrentBillOutstanding.ToString("N0", CultureInfo.CurrentCulture)}";
+        public string TotalOutstandingText => Lifecycle.TotalOutstanding == 0
+            ? "—"
+            : $"AED {Lifecycle.TotalOutstanding.ToString("N0", CultureInfo.CurrentCulture)}";
+
+        // Pipeline progress — "2/6" of stages reached, with a label.
+        public string PipelineProgressText =>
+            $"{Lifecycle.FurthestStageReached + 1}/{(int)InquiryLifecycleKind.Statement + 1}";
+        public int PipelineProgressPercent =>
+            (int)Math.Round(100.0 * (Lifecycle.FurthestStageReached + 1) /
+                ((int)InquiryLifecycleKind.Statement + 1));
+
         public static InquiryListRow FromProjection(InquiryListProjection x) => new()
         {
             Id = x.Id, InquiryNumber = x.InquiryNumber, InquiryReference = x.InquiryReference,
@@ -652,7 +766,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             InquiryValue = x.InquiryValue, ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt,
             UpdatedBy = x.UpdatedBy, AttachmentCount = x.AttachmentCount,
             AttachmentBadgeText = x.AttachmentBadgeText, ProformaNumber = x.ProformaNumber,
-            JobOrderNumber = x.JobOrderNumber
+            JobOrderNumber = x.JobOrderNumber, Lifecycle = x.Lifecycle
         };
     }
 

@@ -12,6 +12,15 @@ namespace ProGlassAutomation.Services.Inquiry
 {
     public sealed class InquiryRepository : IInquiryRepository
     {
+        private readonly IInquiryLifecycleService _lifecycle;
+
+        public InquiryRepository() : this(new InquiryLifecycleService()) { }
+
+        public InquiryRepository(IInquiryLifecycleService lifecycle)
+        {
+            _lifecycle = lifecycle ?? throw new ArgumentNullException(nameof(lifecycle));
+        }
+
         public async Task InitializeAsync(CancellationToken ct = default)
         {
             await using var db = new InquiryDbContext();
@@ -49,6 +58,16 @@ namespace ProGlassAutomation.Services.Inquiry
                     ProformaNumber = x.ProformaNumber, JobOrderNumber = x.JobOrderNumber
                 }, query.Page, Math.Clamp(query.PageSize, 10, 200), ct).ConfigureAwait(false);
             var ids = page.Items.Select(x => x.Id).ToList();
+            if (ids.Count > 0)
+            {
+                var lifecycle = await _lifecycle.GetLifecycleAsync(ids, ct).ConfigureAwait(false);
+                foreach (var row in page.Items)
+                {
+                    row.Lifecycle = lifecycle.TryGetValue(row.Id, out var snap)
+                        ? snap
+                        : InquiryLifecycleSnapshot.Empty(row.Id);
+                }
+            }
             if (ids.Count > 0)
             {
                 var metadata = await db.Attachments.AsNoTracking()
@@ -112,15 +131,16 @@ namespace ProGlassAutomation.Services.Inquiry
                 inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
                 if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
                 db.Inquiries.Add(inquiry);
-                try
-                {
-                    await db.SaveChangesAsync(ct).ConfigureAwait(false);
-                    return inquiry;
-                }
-                catch (DbUpdateException ex) when (attempt < 5 && IsUniqueViolation(ex))
-                {
-                    db.Entry(inquiry).State = EntityState.Detached;
-                }
+            try
+            {
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                _lifecycle.Invalidate(inquiry.Id);
+                return inquiry;
+            }
+            catch (DbUpdateException ex) when (attempt < 5 && IsUniqueViolation(ex))
+            {
+                db.Entry(inquiry).State = EntityState.Detached;
+            }
             }
         }
 
@@ -167,6 +187,7 @@ namespace ProGlassAutomation.Services.Inquiry
             if (inquiry.ReceivedAt != default) stored.ReceivedAt = inquiry.ReceivedAt;
             stored.UpdatedAt = DateTime.Now; stored.UpdatedBy = inquiry.UpdatedBy;
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            _lifecycle.Invalidate(stored.Id);
             return stored;
         }
 
@@ -198,6 +219,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 ActorName = actor ?? ""
             });
             await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            _lifecycle.Invalidate(id);
             return true;
         }
 
@@ -232,6 +254,8 @@ namespace ProGlassAutomation.Services.Inquiry
             return await db.Communications.AsNoTracking().Where(x => x.InquiryId == inquiryId)
                 .OrderByDescending(x => x.OccurredAt).ToListAsync(ct).ConfigureAwait(false);
         }
+
+        public void InvalidateLifecycle(int inquiryId) => _lifecycle.Invalidate(inquiryId);
 
         private static IQueryable<InquiryRecord> ApplyFilters(
             IQueryable<InquiryRecord> source, InquiryQuery query, bool includeStatus)
