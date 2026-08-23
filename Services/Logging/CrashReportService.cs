@@ -55,6 +55,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -473,8 +474,30 @@ namespace ProGlassAutomation.Services.Logging
                 var dir = new DirectoryInfo(CrashReportFolder);
                 if (!dir.Exists) return list;
 
+                // Sort by the timestamp embedded in the
+                // filename (crash-yyyyMMdd_HHmmss_<rand>.txt)
+                // rather than by FileSystemInfo.CreationTimeUtc.
+                // Reasons:
+                //  1. The filename timestamp is recorded by
+                //     the app at the moment of the crash, which
+                //     is what the operator actually wants to
+                //     see. CreationTimeUtc is when the file
+                //     was flushed to disk and can be later
+                //     (especially if the disk is under load).
+                //  2. On Windows / NTFS, CreationTimeUtc has
+                //     a ~1 second resolution; files written
+                //     within the same second are sorted
+                //     non-deterministically, which made the
+                //     CrashReportListingTests flaky when tests
+                //     wrote multiple reports in quick
+                //     succession. The filename has 1-second
+                //     resolution too, but at least it's the
+                //     same resolution the test uses.
+                //  3. Files restored from a backup retain
+                //     their original timestamp in the
+                //     filename, which is the right sort key.
                 var files = dir.GetFiles("crash-*.txt")
-                    .OrderByDescending(f => f.CreationTimeUtc)
+                    .OrderByDescending(f => ParseFileTimestamp(f.Name))
                     .Take(Math.Max(1, count));
                 foreach (var f in files)
                 {
@@ -486,6 +509,30 @@ namespace ProGlassAutomation.Services.Logging
                 // Listing failure is best-effort.
             }
             return list;
+        }
+
+        /// <summary>
+        /// Parse the yyyyMMdd_HHmmss timestamp from a crash
+        /// report filename. Returns DateTime.MinValue on a
+        /// non-conforming filename so the file sorts to the
+        /// bottom rather than crashing the listing.
+        /// </summary>
+        private static DateTime ParseFileTimestamp(string fileName)
+        {
+            // Filename shape: crash-yyyyMMdd_HHmmss_<rand>.txt
+            // Index 0..4 = "crash", 5 = '-', 6..19 = 14-char timestamp.
+            if (fileName == null || fileName.Length < 20) return DateTime.MinValue;
+            if (fileName.StartsWith("crash-", StringComparison.Ordinal)
+                && DateTime.TryParseExact(
+                    fileName.Substring(6, 14),
+                    "yyyyMMdd_HHmmss",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.AssumeUniversal | System.Globalization.DateTimeStyles.AdjustToUniversal,
+                    out var ts))
+            {
+                return ts;
+            }
+            return DateTime.MinValue;
         }
 
         /// <summary>
