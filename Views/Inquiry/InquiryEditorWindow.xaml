@@ -89,7 +89,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
-                    <Border Width="40" Height="40" CornerRadius="8"
+                    <Border Width="40" Height="40" CornerRadius="10"
                             Background="{DynamicResource AccentBrush}">
                         <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -103,7 +103,7 @@
                                        Foreground="{DynamicResource WarningBrush}"
                                        ToolTip="Unsaved changes"
                                        Visibility="{Binding IsDirty, Converter={StaticResource BoolToVis}}"/>
-                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="8"
+                            <Border Margin="11,0,0,0" Padding="9,3" CornerRadius="12"
                                     Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Status}" FontSize="10" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}"/>
@@ -412,11 +412,11 @@
                                     <Border Style="{StaticResource InqDropZoneStyle}">
                                         <Grid>
                                             <Rectangle Stroke="{DynamicResource AccentBrush}" StrokeThickness="1.4"
-                                                       StrokeDashArray="6 4" RadiusX="8" RadiusY="8"
+                                                       StrokeDashArray="6 4" RadiusX="9" RadiusY="9"
                                                        Opacity="0.55"/>
                                             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                                         Margin="14,12">
-                                                <Border Width="40" Height="40" CornerRadius="8"
+                                                <Border Width="40" Height="40" CornerRadius="10"
                                                         Background="{DynamicResource ElevatedSurfaceBrush}"
                                                         HorizontalAlignment="Center">
                                                     <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="17"
@@ -438,7 +438,7 @@
                             <ItemsControl ItemsSource="{Binding AttachmentItems}" Margin="0,6,0,0">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="8"
+                                        <Border CornerRadius="10"
                                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
                                                 Padding="10,8" Margin="0,0,0,7">

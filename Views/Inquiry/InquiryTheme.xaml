@@ -33,14 +33,14 @@
         <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <!-- Soft-tinted panel (used inside surfaces for sub-sections) -->
     <Style x:Key="InqInsetStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -78,7 +78,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="8"
+                    <Border x:Name="Bg" CornerRadius="10"
                             Background="{DynamicResource AccentBrush}"
                             Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -109,7 +109,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="8"
+                    <Border x:Name="Bg" CornerRadius="10"
                             Background="{DynamicResource ElevatedSurfaceBrush}"
                             BorderBrush="{DynamicResource OutlineStrongBrush}" BorderThickness="1"
                             Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
@@ -141,7 +141,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="8" Background="Transparent"
+                    <Border x:Name="Bg" CornerRadius="7" Background="Transparent"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
@@ -168,7 +168,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="8"
+                    <Border x:Name="Bg" CornerRadius="12"
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -200,13 +200,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg" CornerRadius="8"
+                    <Border x:Name="Bg" CornerRadius="12"
                             Background="Transparent"
                             BorderBrush="Transparent" BorderThickness="1"
                             Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal">
                             <ContentPresenter VerticalAlignment="Center"/>
-                            <Border Margin="8,0,0,0" Padding="7,1.5" CornerRadius="8"
+                            <Border Margin="8,0,0,0" Padding="7,1.5" CornerRadius="12"
                                     Background="{DynamicResource TintGrayBrush}">
                                 <TextBlock x:Name="Count" Text="{Binding Count, Mode=OneWay}" FontSize="10"
                                            FontWeight="Bold"
@@ -234,7 +234,7 @@
     <!-- ══ PILLS & CHIPS ═════════════════════════════════════════════ -->
 
     <Style x:Key="InqStatusPillStyle" TargetType="Border">
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="10,3.5"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
@@ -261,14 +261,14 @@
     </Style>
 
     <Style x:Key="InqPillTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="8"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
     </Style>
 
     <!-- Small outline meta chip -->
     <Style x:Key="InqMetaChipStyle" TargetType="Border">
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="9,3"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineStrongBrush}"/>
@@ -277,7 +277,7 @@
     </Style>
 
     <Style x:Key="InqMetaChipTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="8"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
     </Style>
@@ -312,7 +312,7 @@
     <Style x:Key="InqAvatarStyle" TargetType="Border">
         <Setter Property="Width" Value="36"/>
         <Setter Property="Height" Value="36"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -329,7 +329,7 @@
     <!-- ══ INPUTS ════════════════════════════════════════════════════ -->
 
     <Style x:Key="InqFieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="8"/>
+        <Setter Property="FontSize" Value="10"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="Margin" Value="2,0,0,6"/>
@@ -348,7 +348,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="Bg" CornerRadius="8"
+                    <Border x:Name="Bg" CornerRadius="10"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
@@ -394,7 +394,7 @@
     <!-- Dashed drop zone (file intake) -->
     <Style x:Key="InqDropZoneStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
-        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="CornerRadius" Value="10"/>
         <Setter Property="Padding" Value="18,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
