@@ -90,6 +90,12 @@
                      BUILT-IN CONVERTERS (preserved)
                 ══════════════════════════════════════════════════════════ -->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <!-- Short aliases so XAML files can use the more concise
+                 "BoolToVis" / "InverseBoolToVis" names that match the
+                 app's other XAML conventions. Both names resolve to
+                 the same converter instance, so either is fine. -->
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
 
             <!-- Density defaults (overwritten at startup by ThemeManager). -->
             <sys:Double x:Key="DensityInputHeight">28</sys:Double>
