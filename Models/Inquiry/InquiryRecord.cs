@@ -15,9 +15,14 @@ namespace ProGlassAutomation.Models.Inquiry
         public const string Cancelled = "Cancelled";
         public static readonly IReadOnlyList<string> All =
             [Received, Prepared, Sent, Confirmed, Hold, Cancelled];
-        public static string Normalize(string? value) =>
-            All.FirstOrDefault(x => string.Equals(x, value?.Trim(), StringComparison.OrdinalIgnoreCase))
-            ?? Received;
+        public static string Normalize(string? value)
+        {
+            string text = value?.Trim() ?? "";
+            if (text.Equals("On Hold", StringComparison.OrdinalIgnoreCase)) return Hold;
+            if (text.Equals("Canceled", StringComparison.OrdinalIgnoreCase)) return Cancelled;
+            return All.FirstOrDefault(x => string.Equals(x, text, StringComparison.OrdinalIgnoreCase))
+                ?? Received;
+        }
     }
 
     [Table("Inquiries")]

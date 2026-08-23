@@ -50,13 +50,13 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             OperationGuard.Demand(AppPermissions.ProformaEdit, "change inquiry status");
             next = InquiryStatuses.Normalize(next);
-            if (!Allowed(current, next)) throw new InvalidOperationException($"Inquiry cannot move from {current} to {next}.");
+            if (!CanTransition(current, next)) throw new InvalidOperationException($"Inquiry cannot move from {current} to {next}.");
             bool changed = await _repository.ChangeStatusAsync(id, next, AuditService.CurrentUsername, ct).ConfigureAwait(false);
             if (changed) AuditService.Log(AuditSections.Proforma, "Inquiry status changed", $"{current} → {next}", "INQ", id.ToString());
             return changed;
         }
 
-        private static bool Allowed(string current, string next) => InquiryStatuses.Normalize(current) switch
+        public static bool CanTransition(string current, string next) => InquiryStatuses.Normalize(current) switch
         {
             InquiryStatuses.Received => next is InquiryStatuses.Prepared or InquiryStatuses.Hold or InquiryStatuses.Cancelled,
             InquiryStatuses.Prepared => next is InquiryStatuses.Sent or InquiryStatuses.Hold or InquiryStatuses.Cancelled,
