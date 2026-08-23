@@ -24,8 +24,8 @@
 
   <!-- Exact mockup header -->
   <Grid Margin="24,0"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-   <TextBlock Text="Inquiry Management" FontSize="28" FontWeight="Bold" VerticalAlignment="Center"/>
-   <Button Grid.Column="1" Content="EXPORT" Command="{Binding ExportCommand}" Background="Transparent" BorderThickness="0" Foreground="#344054" Margin="18,0,0,0"/>
+   <StackPanel VerticalAlignment="Center"><TextBlock Text="INQUIRIES" FontSize="28" FontWeight="Bold"/><TextBlock Text="Customer inquiries, communication history and commercial workflow" FontSize="12" Foreground="#667085" Margin="0,2,0,0"/></StackPanel>
+   <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="18,0,0,0"><Button Content="EXPORT" Command="{Binding ExportCommand}" Background="Transparent" BorderThickness="0" Foreground="#344054"/><Button Content="IMPORT" Command="{Binding ImportCommand}" Background="Transparent" BorderThickness="0" Foreground="#344054"/></StackPanel>
    <Button Grid.Column="3" Content="＋  NEW INQUIRY" Command="{Binding NewInquiryCommand}" Style="{StaticResource BlueButton}" VerticalAlignment="Center"/>
   </Grid>
 

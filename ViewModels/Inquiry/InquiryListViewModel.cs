@@ -20,6 +20,8 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     public sealed class InquiryListViewModel : ViewModelBase
     {
         private readonly IInquiryRepository _repository;
+        private readonly IInquiryWorkflowService _workflow;
+        private readonly InquiryImportExportService _io;
         private CancellationTokenSource? _loadCts;
         private CancellationTokenSource? _debounceCts;
         public ObservableCollection<InquiryListRow> Inquiries { get; } = new();
@@ -83,9 +85,13 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public bool HasAttachmentsOnly { get => _hasAttachmentsOnly; set { if (_hasAttachmentsOnly == value) return; _hasAttachmentsOnly = value; OnPropertyChanged(); ResetAndReload(); } }
 
         public Func<InquiryRecord?, Task<bool>>? EditRequested { get; set; }
+        public Func<string?>? ExportPathRequested { get; set; }
+        public Func<string?>? ImportPathRequested { get; set; }
+        public Func<int, bool>? ConfirmImportRequested { get; set; }
         public ICommand NewInquiryCommand { get; }
         public ICommand FilterByStatisticCommand { get; }
         public ICommand ExportCommand { get; }
+        public ICommand ImportCommand { get; }
         public ICommand ResetFiltersCommand { get; }
         public ICommand RefreshCommand { get; }
         public ICommand ToggleMoreFiltersCommand { get; }
@@ -100,17 +106,22 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand BulkChangeStatusCommand { get; }
         public ICommand ExportSelectedCommand { get; }
 
-        public InquiryListViewModel() : this(App.Inquiries ?? new InquiryRepository()) { }
+        public InquiryListViewModel() : this(App.Inquiries ?? new InquiryRepository(),
+            new InquiryWorkflowService(App.Inquiries ?? new InquiryRepository()), new InquiryImportExportService()) { }
 
-        public InquiryListViewModel(IInquiryRepository repository)
+        public InquiryListViewModel(IInquiryRepository repository,
+            IInquiryWorkflowService workflow, InquiryImportExportService io)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _workflow = workflow ?? throw new ArgumentNullException(nameof(workflow));
+            _io = io ?? throw new ArgumentNullException(nameof(io));
             NewInquiryCommand = new RelayCommand(async _ => await EditAsync(null));
             FilterByStatisticCommand = new RelayCommand(p =>
             {
                 SelectedStatus = p as string ?? "All statuses";
             });
-            ExportCommand = new RelayCommand(_ => SetStatus("Export is the next implementation phase."));
+            ExportCommand = new RelayCommand(async _ => await ExportAsync());
+            ImportCommand = new RelayCommand(async _ => await ImportAsync());
             ResetFiltersCommand = new RelayCommand(_ => { ResetFilters(); ResetAndReload(); });
             RefreshCommand = new RelayCommand(_ => Reload());
             ToggleMoreFiltersCommand = new RelayCommand(_ => IsMoreFiltersOpen = !IsMoreFiltersOpen);
@@ -140,6 +151,32 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             ExportSelectedCommand = new RelayCommand(_ => SetStatus("No Inquiry records selected."));
             AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();
+        }
+
+        private async Task ExportAsync()
+        {
+            if (!Services.Audit.PermissionService.Require(Services.Audit.AppPermissions.ProformaExport, "export inquiries")) return;
+            string? path = ExportPathRequested?.Invoke(); if (string.IsNullOrWhiteSpace(path)) return;
+            var rows = Inquiries.Select(x => new InquiryListProjection
+            {
+                Id = x.Id, InquiryNumber = x.InquiryNumber, InquiryReference = x.InquiryReference,
+                CustomerName = x.CustomerName, CustomerLocation = x.CustomerLocation,
+                ProjectName = x.Project, ProjectDescription = x.Subject, SalesmanName = x.Salesman,
+                PreparedByName = x.PreparedBy, ReceivedAt = x.ReceivedAt, UpdatedAt = x.UpdatedAt,
+                Status = x.Status, AttachmentCount = x.AttachmentCount
+            });
+            await _io.ExportCsvAsync(path, rows); SetStatus("Inquiry page exported.");
+        }
+
+        private async Task ImportAsync()
+        {
+            string? path = ImportPathRequested?.Invoke(); if (string.IsNullOrWhiteSpace(path)) return;
+            var rows = await _io.ParseCsvAsync(path);
+            if (rows.Count == 0) { SetStatus("Import contains no valid customer/project rows."); return; }
+            if (ConfirmImportRequested?.Invoke(rows.Count) != true) return;
+            int created = 0;
+            foreach (var row in rows) { await _workflow.CreateAsync(row); created++; }
+            SetStatus($"Imported {created} inquiries."); ResetAndReload();
         }
 
         private async Task EditAsync(InquiryRecord? record)
