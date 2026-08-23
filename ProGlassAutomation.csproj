@@ -30,6 +30,24 @@
 	</PropertyGroup>
 
 	<!-- ══════════════════════════════════════════════════════════════
+	     CS0029 hardening — explicit System.Threading.Tasks import.
+
+	     The previous build broke with four CS0029 errors at the
+	     right-click per-stage navigation lambdas in MainViewModel
+	     (Task → InquiryListRow). ImplicitUsings normally injects
+	     System.Threading.Tasks for net8.0-windows SDK-style projects,
+	     but the IDE IntelliSense / Roslyn incremental parser can lose
+	     the implicit using during partial edits. The explicit
+	     <Using> below guarantees the namespace is in scope in every
+	     .cs file regardless of IDE state. Combined with the
+	     fully-qualified System.Threading.Tasks.Task references in
+	     the affected lambdas, the build is robust.
+	══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Using Include="System.Threading.Tasks" />
+	</ItemGroup>
+
+	<!-- ══════════════════════════════════════════════════════════════
 	     PHASE P — keep the test project out of the app project.
 
 	     The app project lives at the repository ROOT, so SDK-style default

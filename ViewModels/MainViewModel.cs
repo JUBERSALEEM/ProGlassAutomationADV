@@ -478,6 +478,11 @@ namespace ProGlassAutomation.ViewModels
             // ProformaInvoiceVM.TriggerNewInvoice / NewInvoiceCommand,
             // which call this callback. The MessageBox lives here so
             // the VM stays UI-free; the VM only sees the choice.
+            // Uses fully-qualified System.Threading.Tasks.Task so the
+            // build is robust against missing `using` directives in
+            // any IDE/SDK combination — the property type is
+            // Func<Task<NewProformaStartChoice>> and the lambda body
+            // returns the same.
             ProformaInvoiceVM.AskStartFromInquiryRequested = () =>
             {
                 var dispatcher = System.Windows.Application.Current?.Dispatcher;
@@ -517,29 +522,33 @@ namespace ProGlassAutomation.ViewModels
             // no FK to inquiry) we fall back to the previous behaviour
             // — navigate to the module and let the user find the
             // document in the module's own search.
+            // Uses fully-qualified System.Threading.Tasks.Task so
+            // the build is robust even if `using System.Threading.Tasks;`
+            // is dropped during a refactor — this was the original
+            // cause of CS0029 at these four sites.
             InquiryVM.OpenProformaForRowRequested = (_, rowId) =>
             {
                 Navigate("ProformaInvoice");
                 if (rowId > 0) _ = ProformaInvoiceVM.OpenSavedInvoiceAsync(rowId);
-                return Task.CompletedTask;
+                return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenJobOrderForRowRequested = (_, rowId) =>
             {
                 Navigate("JobOrder");
                 if (rowId > 0) _ = JobOrderVM.OpenJobOrderAsync(rowId);
-                return Task.CompletedTask;
+                return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenDeliveryNoteForRowRequested = (_, rowId) =>
             {
                 Navigate("DeliveryNote");
                 if (rowId > 0) _ = DeliveryNoteVM.OpenDeliveryNoteAsync(rowId);
-                return Task.CompletedTask;
+                return System.Threading.Tasks.Task.CompletedTask;
             };
             InquiryVM.OpenTaxInvoiceForRowRequested = (_, rowId) =>
             {
                 Navigate("TaxInvoice");
                 if (rowId > 0) _ = TaxInvoiceVM.OpenInvoiceAsync(rowId);
-                return Task.CompletedTask;
+                return System.Threading.Tasks.Task.CompletedTask;
             };
             // Statements don't have a FK to inquiry, so the lifecycle
             // service can't return a row ID. The right-click handler
@@ -548,7 +557,7 @@ namespace ProGlassAutomation.ViewModels
             InquiryVM.OpenStatementForRowRequested = (_, _) =>
             {
                 Navigate("StatementGenerator");
-                return Task.CompletedTask;
+                return System.Threading.Tasks.Task.CompletedTask;
             };
             // Open the system file-explorer at the inquiry's attachments
             // folder. We don't have a per-inquiry subfolder today, so we
