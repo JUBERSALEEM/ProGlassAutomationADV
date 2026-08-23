@@ -384,3 +384,43 @@ license-keys.json
 # value in source control.
 activations.json
 **/activations.json
+
+# ════════════════════════════════════════════════════════════════
+# Installer pipeline (Phase 5) — whitelist the durable
+# source files for the Velopack build while keeping the
+# generated build OUTPUT out of source control.
+#
+#   * `publish/`            — dotnet publish output folder,
+#                              regenerated on every build. The
+#                              default gitignore above ignores
+#                              the whole folder, which is what
+#                              we want here.
+#
+#   * `[Rr]eleases/`        — the upstream gitignore rule
+#                              matches the project's MSBuild
+#                              configuration folders like
+#                              `bin/Releases/`. Our top-level
+#                              `releases/` folder is the
+#                              destination of `vpk pack`; the
+#                              build script creates it at
+#                              runtime (mkdir -p), so no
+#                              placeholder .gitkeep is needed.
+#                              Generated *.nupkg / *.zip files
+#                              stay ignored as expected.
+#
+#   * `*.pubxml`            — Visual Studio's default
+#                              gitignore rule matches ALL
+#                              publish-profile XMLs because
+#                              they may contain environment-
+#                              specific secrets. Whitelist our
+#                              own Release.pubxml (no secrets,
+#                              parameterized by -p:Version=…)
+#                              explicitly. Any future
+#                              profile that DOES contain
+#                              secrets must be added to the
+#                              ignore list, not the whitelist.
+# ════════════════════════════════════════════════════════════════
+# Whitelist: keep the Release publish profile, which has no
+# secrets. The re-include rule must come AFTER the matching
+# ignore rule in the same block.
+!/Properties/PublishProfiles/Release.pubxml

@@ -111,14 +111,17 @@ if (-not $SkipTests) {
 }
 
 # ── 4. Publish (self-contained win-x64) ───────────────────────────
-Write-Host "▶ Publishing self-contained win-x64..." -ForegroundColor Yellow
+# Uses the Release.pubxml profile so the settings (SelfContained,
+# win-x64, ReadyToRun, deterministic, no PDBs) live in one place
+# and are shared with .github/workflows/release.yml.
+Write-Host "▶ Publishing self-contained win-x64 (Release.pubxml)..." -ForegroundColor Yellow
 if (Test-Path $PublishDir) { Remove-Item -Recurse -Force $PublishDir }
-& dotnet publish "$RepoRoot/ProGlassAutomation.csproj" -c Release -r win-x64 --self-contained true -o $PublishDir -p:Version=$Version
+& dotnet publish "$RepoRoot/ProGlassAutomation.csproj" -c Release -r win-x64 --self-contained true -p:PublishProfile=Release -o $PublishDir -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { exit 3 }
 
 # ── 5. Velopack pack ──────────────────────────────────────────────
 Write-Host "▶ Running vpk pack..." -ForegroundColor Yellow
-if (Test-Path $ReleasesDir) { Remove-Item -Recurse -Force $ReleasesDir -Exclude ".gitkeep" }
+if (Test-Path $ReleasesDir) { Remove-Item -Recurse -Force $ReleasesDir }
 
 # The installer/velopack.json manifest is the durable source of
 # packId / title / authors; version is overridden on the command
