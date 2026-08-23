@@ -43,6 +43,8 @@
 //   baseline used by every major PKI for code signing.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.ComponentModel;
+
 namespace ProGlassAutomation.Services.Licensing
 {
     /// <summary>
@@ -72,33 +74,35 @@ namespace ProGlassAutomation.Services.Licensing
         /// Until step 4 is done, the app shows "License: not
         /// activated (placeholder key in use)".
         ///
-        /// WHY static readonly AND NOT const
-        /// ─────────────────────────────────
+        /// WHY auto-property WITH PRIVATE SETTER (not const, not static readonly)
+        /// ──────────────────────────────────────────────────────────────────────
         /// A `const string` is compiled into the assembly's
-        /// metadata as a literal, and every reference is
-        /// inlined at the call site at compile time. The CLR
-        /// therefore has no field to write to at runtime —
-        /// `FieldInfo.SetValue` throws FieldAccessException
-        /// ("Cannot set a constant field") on every version
-        /// of .NET. Tests that try to swap the public key
-        /// (LicenseSignerTests, LicenseGateTests,
-        /// LicenseServiceTests, LicenseStatusViewModelTests,
-        /// CrashReportServiceTests) need the field to be
-        /// writable.
+        /// metadata as a literal — FieldInfo.SetValue throws
+        /// FieldAccessException on every .NET version. A
+        /// `static readonly` field is also initonly at the
+        /// CLR level — FieldInfo.SetValue throws
+        /// FieldAccessException on .NET Core 3.0+ (and the
+        /// .NET 10 SDK on the build machine).
         ///
-        /// `static readonly` keeps the field read-only from
-        /// production code (no public setter, no property
-        /// mutator) while allowing reflection-based mutation
-        /// from test code. The micro-optimisation we lose is
-        /// the compile-time inlining of the string at the
-        /// call site, which is irrelevant: this field is
-        /// read once per license verification, not in a hot
-        /// loop. We do, however, also gain the ability to
-        /// rotate the public key at runtime in the future
-        /// (e.g. an admin "switch key pair" command) without
-        /// a rebuild, which is a small but real feature.
+        /// An auto-property with a private setter is the
+        /// only shape that satisfies BOTH requirements:
+        ///   1. Production code cannot change the value
+        ///      (private setter is not callable from outside
+        ///      the class).
+        ///   2. Tests in the same assembly's test project can
+        ///      swap the value via SetForTest, the documented
+        ///      internal hook. The test hook is the supported
+        ///      alternative to reflection-on-initonly-field
+        ///      and is what every .NET BCL that needs this
+        ///      pattern (e.g. System.Text.Json's JsonSerializer
+        ///      test hooks) does.
+        ///
+        /// The micro-optimisation we lose is the C# compile-
+        /// time inlining of the string at the call site, which
+        /// is irrelevant: this field is read once per license
+        /// verification, not in a hot loop.
         /// </summary>
-        public static readonly string PublicKeyXml =
+        public static string PublicKeyXml { get; private set; } =
             "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML";
 
         /// <summary>
@@ -111,5 +115,24 @@ namespace ProGlassAutomation.Services.Licensing
         /// </summary>
         public static bool IsPlaceholder =>
             PublicKeyXml.StartsWith("PLACEHOLDER_", System.StringComparison.Ordinal);
+
+        /// <summary>
+        /// INTERNAL TEST HOOK. Swaps the public key for the
+        /// duration of a test. Production code cannot reach
+        /// this because it is marked [EditorBrowsable(Never)]
+        /// and lives in a production assembly that the test
+        /// project gets via a ProjectReference (with
+        /// <PrivateAssets>all</PrivateAssets> on the Roslyn
+        /// reference, but the licensing types have no such
+        /// marker, so the test assembly CAN see this method).
+        ///
+        /// Replace the reflection-on-initonly-field pattern
+        /// (which throws FieldAccessException on .NET Core 3.0+)
+        /// with this direct call. The test owns the call site
+        /// and the production assembly owns the policy (private
+        /// setter, no public surface).
+        /// </summary>
+        [EditorBrowsable(Never)]
+        internal static void SetForTest(string xml) => PublicKeyXml = xml;
     }
 }

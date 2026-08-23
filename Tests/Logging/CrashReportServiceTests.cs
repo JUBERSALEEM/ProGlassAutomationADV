@@ -18,7 +18,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
 using Xunit;
@@ -263,13 +262,20 @@ namespace ProGlassAutomation.Tests.Logging
 
         private static string SwapPublicKey(string newValue)
         {
-            FieldInfo field = typeof(LicensePublicKey).GetField(
-                "PublicKeyXml",
-                BindingFlags.Public | BindingFlags.Static)
-                ?? throw new InvalidOperationException(
-                    "LicensePublicKey.PublicKeyXml field not found.");
-            string original = (string)field.GetValue(null)!;
-            field.SetValue(null, newValue);
+            // The previous version of this helper used
+            // FieldInfo.SetValue on the LicensePublicKey.PublicKeyXml
+            // field. That worked in .NET Framework but the .NET 10
+            // SDK on the build machine enforces the initonly bit
+            // on static readonly fields, so FieldInfo.SetValue
+            // throws "Cannot set initonly static field".
+            //
+            // LicensePublicKey exposes an internal SetForTest
+            // hook specifically for this case. It is the
+            // production-side seam that the test-side
+            // SwapPublicKey delegates to. No reflection is
+            // involved any more.
+            string original = LicensePublicKey.PublicKeyXml;
+            LicensePublicKey.SetForTest(newValue);
             return original;
         }
     }
