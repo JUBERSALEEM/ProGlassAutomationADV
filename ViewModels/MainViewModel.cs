@@ -859,8 +859,27 @@ namespace ProGlassAutomation.ViewModels
 
         private void Navigate(object parameter)
         {
-            CurrentModuleKey = parameter?.ToString() ?? "";
-            switch (parameter?.ToString())
+            string? targetKey = parameter?.ToString();
+
+            // Phase 3 — feature gating. A Trial user
+            // should not be able to open the Cutting
+            // Optimisation module. The gate is a pure
+            // function of (moduleKey, current license
+            // state), so a future test passes trivially.
+            var gate = ProGlassAutomation.Services.Licensing.LicenseGate
+                .CanNavigate(targetKey ?? "");
+            if (!gate.Allowed)
+            {
+                System.Windows.MessageBox.Show(
+                    gate.Reason,
+                    "Upgrade required",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+                return;
+            }
+
+            CurrentModuleKey = targetKey ?? "";
+            switch (targetKey)
             {
                 case "Dashboard": CurrentViewModel = DashboardVM; break;
                 case "Inquiry": CurrentViewModel = InquiryVM; break;
