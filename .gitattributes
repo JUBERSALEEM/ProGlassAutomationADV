@@ -3,6 +3,19 @@
 ###############################################################################
 * text=auto
 
+# PowerShell scripts MUST be CRLF on the working tree. Windows
+# PowerShell 5.1's tokenizer uses CR (0x0D) as a token boundary
+# for line-aware constructs; a .ps1 saved as LF (Unix line
+# endings) parses incorrectly the moment a multi-byte UTF-8
+# character (e.g. a box-drawing char in a comment) crosses a
+# line boundary, because the parser mis-aligns the byte stream.
+# The result is "Variable reference is not valid" or "The term
+# 'X' is not recognized" parse errors that look like missing
+# commands, even though the script body is syntactically fine.
+# Pinning to -text (CRLF on the working tree) makes the file
+# robust regardless of the user's core.autocrlf setting.
+*.ps1   text eol=crlf
+
 ###############################################################################
 # Set default behavior for command prompt diff.
 #
