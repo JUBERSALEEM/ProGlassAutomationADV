@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     PI shell — steps 1–9 live in a single top panel. No sidebar.
     Bindings, commands and AutomationIds preserved.
 -->
@@ -55,15 +55,22 @@
                     <TextBlock Text="Saved quotations ready to convert into job orders"
                                Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
-                <Button Grid.Column="1"
-                        Command="{Binding NewInvoiceCommand}"
-                        Style="{StaticResource PrimaryPillButton}"
-                        Tag="&#xE710;"
-                        Content="NEW INVOICE"
-                        VerticalAlignment="Center"
-                        ToolTip="Create a new proforma invoice"
-                        AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
-                        AutomationProperties.Name="New Invoice"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button Command="{Binding NewFromInquiryCommand}"
+                            Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE710;"
+                            Content="NEW FROM INQUIRY"
+                            ToolTip="Create a new proforma invoice from a confirmed inquiry — the recommended path. The inquiry list opens so you can pick or create one."
+                            AutomationProperties.AutomationId="ProformaInvoice.NewFromInquiryButton"
+                            AutomationProperties.Name="New From Inquiry"/>
+                    <Button Margin="8,0,0,0"
+                            Command="{Binding NewInvoiceCommand}"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Content="BLANK (NOT RECOMMENDED)"
+                            ToolTip="Create a blank proforma invoice without an inquiry. Use only when no inquiry exists yet; the audit trail will be incomplete."
+                            AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
+                            AutomationProperties.Name="New Invoice Blank"/>
+                </StackPanel>
             </Grid>
             <ContentControl Grid.Row="1" Margin="24,0,24,20" Content="{Binding SavedInvoicesListVM}">
                 <ContentControl.ContentTemplate>

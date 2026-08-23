@@ -237,6 +237,27 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public ICommand SetHighPriorityCommand { get; }
         public ICommand SetNormalPriorityCommand { get; }
         public ICommand SetLowPriorityCommand { get; }
+        // Cancel the "you were sent here from a new-PI prompt"
+        // round-trip. Sends the user back to the Proforma list
+        // without starting a new invoice.
+        public ICommand CancelNewPiFromInquiryCommand { get; }
+
+        // Set by the host (MainViewModel) when the user picked
+        // "Start from Inquiry" in the PI module's new-PI prompt
+        // and was sent here. The view binds to this to show a
+        // banner that tells the user to pick a Confirmed inquiry
+        // (or create one) to continue. The flag is cleared when
+        // the user picks an inquiry (CreateProformaRequested
+        // fires) or when they cancel.
+        private bool _isAwaitingNewPiSelection;
+        public bool IsAwaitingNewPiSelection
+        {
+            get => _isAwaitingNewPiSelection;
+            set { if (_isAwaitingNewPiSelection == value) return; _isAwaitingNewPiSelection = value; OnPropertyChanged(); OnPropertyChanged(nameof(AwaitingNewPiBannerText)); }
+        }
+        public string AwaitingNewPiBannerText =>
+            "Pick (or create) a Confirmed inquiry to start a new Proforma Invoice. " +
+            "Use 'Convert to Proforma Invoice' on the right-click menu, or Cancel to go back.";
 
         public InquiryListViewModel() : this(
             App.Inquiries ?? new InquiryRepository(),
@@ -265,7 +286,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // populated by ApplyStatistics after each page load. Default 0.
             foreach (var t in InquiryPipelineTab.All) PipelineTabs.Add(t);
 
-            NewInquiryCommand = new RelayCommand(async _ => await EditAsync(null));
+            NewInquiryCommand = new RelayCommand(async _ =>
+            {
+                // If the user came here from the PI module's
+                // "Start from Inquiry" prompt, clear the banner so
+                // it doesn't linger after they click the toolbar
+                // "+ New inquiry" — the new inquiry is a new round
+                // of work, not a continuation of the PI prompt.
+                IsAwaitingNewPiSelection = false;
+                await EditAsync(null);
+            });
             EditInquiryCommand = new RelayCommand(async p =>
             {
                 var row = p as InquiryListRow ?? SelectedInquiry;
@@ -289,7 +319,11 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             NextPageCommand = new RelayCommand(_ => { if (CanGoNext) { CurrentPage++; Reload(); } }, _ => CanGoNext);
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
             OpenWorkspaceCommand = new RelayCommand(async _ => { if (SelectedInquiry != null) await EditRowAsync(SelectedInquiry); }, _ => SelectedInquiry != null);
-            ConvertToPiCommand = new RelayCommand(async _ => await ConvertToPiAsync(), _ => CanConvertSelected);
+            ConvertToPiCommand = new RelayCommand(async _ =>
+            {
+                IsAwaitingNewPiSelection = false;
+                await ConvertToPiAsync();
+            }, _ => CanConvertSelected);
             ChangeStatusCommand = new RelayCommand(async p => await ChangeSelectedStatusAsync(p as string), p => SelectedInquiry != null && p is string);
             OpenAttachmentCommand = new RelayCommand(p =>
             {
@@ -335,7 +369,14 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             }, p => p is InquiryListRow);
             ConvertToPiRowCommand = new RelayCommand(async p =>
             {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ConvertToPiAsync(); }
+                if (p is InquiryListRow row)
+                {
+                    // Clear the "new PI from inquiry" banner — the
+                    // round-trip is complete now that the user picked.
+                    IsAwaitingNewPiSelection = false;
+                    SelectedInquiry = row;
+                    await ConvertToPiAsync();
+                }
             }, p => p is InquiryListRow row && row.CanConvert);
             // Per-status row commands. Each promotes the row into the
             // selection (so the rail, KPI strip etc. update too) and then
@@ -483,13 +524,19 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     {
                         // BlockedByDownstream: surface a precise message
                         // naming every document that would have been
-                        // orphaned. The user can cancel the inquiry
-                        // (via Change status → Cancel) instead.
+                        // orphaned. The product rule is "delete is
+                        // allowed only when no PI has been created" —
+                        // because deleting the inquiry would break
+                        // the PI / JO / DN / TI / STMT chain. The user
+                        // can cancel the inquiry (via Change status →
+                        // Cancel) instead so the audit trail stays
+                        // intact.
                         string list = result.BlockingDocuments.Count == 0
                             ? "downstream documents"
                             : string.Join(", ", result.BlockingDocuments);
-                        SetStatus($"Cannot delete: {row.InquiryNumber} has {list}. " +
-                                  "Cancel the inquiry instead of deleting it.");
+                        SetStatus($"Cannot delete {row.InquiryNumber}: a {list} already exists. " +
+                                  "Delete is only allowed when no Proforma Invoice has been created. " +
+                                  "Use 'Change status → Cancel' to close the inquiry instead.");
                     }
                 }
                 catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
@@ -509,6 +556,16 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 p => p is InquiryListRow);
             SetLowPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Low"),
                 p => p is InquiryListRow);
+
+            // Cancel the "new PI from inquiry" round-trip. Cleared
+            // automatically when the user picks an inquiry (via
+            // CreateProformaRequested in MainViewModel) so this is
+            // an explicit "I changed my mind" exit. The host wires
+            // the actual navigation back to the Proforma module.
+            CancelNewPiFromInquiryCommand = new RelayCommand(_ =>
+            {
+                IsAwaitingNewPiSelection = false;
+            }, _ => IsAwaitingNewPiSelection);
 
             AsyncUtility.SafeFireAndForget(LoadFilterSourcesAsync, "Inquiry filter sources");
             Reload();

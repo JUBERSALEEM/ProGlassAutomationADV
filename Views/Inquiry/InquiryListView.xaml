@@ -219,6 +219,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -265,8 +266,39 @@
             </StackPanel>
         </Grid>
 
+        <!-- ══ 1.5 · NEW-PI-FROM-INQUIRY BANNER ═════════════════════
+             Visible only when the user was sent here from the PI
+             module's "Start from Inquiry" prompt. Tells them to pick
+             a Confirmed inquiry (right-click → Convert) or cancel
+             the round-trip. Cleared automatically on selection /
+             cancel. -->
+        <Border Grid.Row="1" Margin="24,0,24,0"
+                Background="{DynamicResource TintAmberBrush}"
+                BorderBrush="{DynamicResource WarningBrush}"
+                BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}"
+                Padding="14,10" SnapsToDevicePixels="True"
+                Visibility="{Binding IsAwaitingNewPiSelection, Converter={StaticResource BoolToVis}}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="⤴" FontSize="16" FontWeight="Bold"
+                           Foreground="{DynamicResource WarningBrush}"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Grid.Column="1" Text="{Binding AwaitingNewPiBannerText}"
+                           FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           TextWrapping="Wrap" VerticalAlignment="Center"/>
+                <Button Grid.Column="2" Content="Cancel"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                        Command="{Binding CancelNewPiFromInquiryCommand}"
+                        Margin="10,0,0,0" VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+
         <!-- ══ 2 · KPI STRIP ═══════════════════════════════════════ -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListKpiStripStyle}" Margin="24,0,24,12">
+        <Border Grid.Row="2" Style="{StaticResource ModuleListKpiStripStyle}" Margin="24,0,24,12">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -340,7 +372,7 @@
         </Border>
 
         <!-- ══ 3 · STATUS TABS + PIPELINE TABS + FILTER ROW ═══════ -->
-        <Grid Grid.Row="2" Margin="24,0,24,12">
+        <Grid Grid.Row="3" Margin="24,0,24,12">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -483,7 +515,7 @@
         </Grid>
 
         <!-- ══ 4 · MAIN LIST + SLIDE-IN RAIL ═════════════════════════ -->
-        <Grid Grid.Row="3" Margin="24,0,24,12">
+        <Grid Grid.Row="4" Margin="24,0,24,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition x:Name="DetailColumn" Width="0"/>
@@ -1357,7 +1389,7 @@
         </Grid>
 
         <!-- ══ 5 · FOOTER ═══════════════════════════════════════════ -->
-        <Grid Grid.Row="4" Margin="24,0,24,16">
+        <Grid Grid.Row="5" Margin="24,0,24,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

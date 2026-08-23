@@ -132,6 +132,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public ICommand GoToStepCommand { get; }
         public ICommand NewInvoiceCommand { get; }
         public ICommand BackToListCommand { get; }
+        public ICommand NewFromInquiryCommand { get; }
+
+        // ── Cross-module callbacks (wired by MainViewModel) ─────────────
+        // Ask the host to show the user a 3-way picker for how a "new PI"
+        // should start. The host shows a MessageBox; we never call
+        // MessageBox from the VM. Returning a value of Cancelled means
+        // the user dismissed the dialog; Skip means the user wants to
+        // create a blank PI without an inquiry; FromInquiry means the
+        // user wants to pick an existing inquiry (or create a new one)
+        // first. The default when no callback is wired is Skip, which
+        // preserves the pre-fix behaviour.
+        public Func<Task<NewProformaStartChoice>>? AskStartFromInquiryRequested { get; set; }
+
+        // Navigate the shell to the Inquiry module so the user can pick
+        // or create an inquiry. Set by MainViewModel.
+        public Action? NavigateToInquiryForNewPiRequested { get; set; }
+
+        // True while a "new PI from inquiry" round-trip is in flight
+        // (we sent the user to the Inquiry module and they're
+        // expected to come back via the inquiry's "Convert to
+        // Proforma Invoice" action). Used by the PI list header to
+        // show a status message.
+        private bool _awaitingInquirySelection;
+        public bool IsAwaitingInquirySelection
+        {
+            get => _awaitingInquirySelection;
+            set { if (_awaitingInquirySelection == value) return; _awaitingInquirySelection = value; OnPropertyChanged(); }
+        }
+
+        public enum NewProformaStartChoice
+        {
+            Cancelled = 0,
+            Skip = 1,
+            FromInquiry = 2
+        }
 
         public ProformaInvoiceViewModel()
         {
@@ -194,8 +229,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                     GoToStep(step.StepNumber);
             });
 
+            // NewInvoiceCommand: the historically "direct" entry point.
+            // We now route through AskStartFromInquiryRequested first so
+            // the user gets a 3-way choice (Inquiry / Skip / Cancel)
+            // every time, no matter which button (sidebar "+", dashboard
+            // quick action, or in-list "NEW INVOICE") triggered the flow.
+            // The actual dialog lives in the host (MainViewModel) so the
+            // VM stays MessageBox-free.
             NewInvoiceCommand = new RelayCommand(
-                _ => AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI NewInvoice"));
+                _ => AsyncUtility.SafeFireAndForget(StartNewInvoiceWithPromptAsync, "PI NewInvoice"));
+
+            // NewFromInquiryCommand: the explicit "I want to start from
+            // an Inquiry" path. Skips the prompt and goes straight to
+            // the Inquiry module so the user can pick or create.
+            NewFromInquiryCommand = new RelayCommand(
+                _ => BeginNewFromInquiryFlow(),
+                _ => NavigateToInquiryForNewPiRequested != null);
 
             BackToListCommand = new RelayCommand(
                 _ => AsyncUtility.SafeFireAndForget(ReturnToListAsync, "PI BackToList"));
@@ -379,13 +428,86 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         public void TriggerNewInvoice() =>
-            AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI TriggerNewInvoice");
+            // Same routed flow as the in-VM NewInvoiceCommand: the
+            // host (MainViewModel) wires the prompt so every entry
+            // point — sidebar "+", dashboard quick action, in-list
+            // button, agent trigger — gives the user the same
+            // "Inquiry / Skip / Cancel" choice.
+            AsyncUtility.SafeFireAndForget(StartNewInvoiceWithPromptAsync, "PI TriggerNewInvoice");
+
+        /// <summary>
+        /// Public "navigate to inquiry so the user can pick" entry.
+        /// Used by the explicit "New from Inquiry" command and by
+        /// the prompt-driven flow. Sets the awaiting flag so the
+        /// PI list header can show a "waiting for inquiry pick"
+        /// status. The host wires the actual Navigate call.
+        /// </summary>
+        public void BeginNewFromInquiryFlow()
+        {
+            if (NavigateToInquiryForNewPiRequested == null)
+            {
+                // No host — fall back to a direct blank create. The
+                // command's CanExecute guards against this in the
+                // common case, but the agent / test paths can still
+                // reach here.
+                AsyncUtility.SafeFireAndForget(StartNewInvoiceAsync, "PI NewFromInquiry fallback");
+                return;
+            }
+            IsAwaitingInquirySelection = true;
+            NavigateToInquiryForNewPiRequested();
+        }
+
+        /// <summary>
+        /// End the "awaiting inquiry" round-trip. Called by the
+        /// inquiry module after the user picks a row (or the chain
+        /// reaches StartFromInquiryAsync). Resets the flag and
+        /// switches the shell back to the Proforma view.
+        /// </summary>
+        public void CompleteInquirySelectionForNewPi()
+        {
+            IsAwaitingInquirySelection = false;
+        }
+
+        private async Task StartNewInvoiceWithPromptAsync()
+        {
+            NewProformaStartChoice choice = NewProformaStartChoice.Skip;
+            try
+            {
+                if (AskStartFromInquiryRequested != null)
+                    choice = await AskStartFromInquiryRequested();
+            }
+            catch (Exception ex)
+            {
+                // The host dialog threw — log and default to Skip so
+                // the user is never left without a path. The audit
+                // log captures the host-side exception.
+                AppLogService.Warning($"PI NewInvoice prompt failed: {ex.Message}",
+                    new LogContext { Module = "Proforma", Class = nameof(ProformaInvoiceViewModel), Operation = "NewInvoicePrompt" });
+                choice = NewProformaStartChoice.Skip;
+            }
+            switch (choice)
+            {
+                case NewProformaStartChoice.FromInquiry:
+                    BeginNewFromInquiryFlow();
+                    break;
+                case NewProformaStartChoice.Skip:
+                    await StartNewInvoiceAsync();
+                    break;
+                // Cancelled: do nothing.
+            }
+        }
 
         public async Task StartFromInquiryAsync(Models.Inquiry.InquiryRecord inquiry)
         {
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
             if (!string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Confirmed, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only a confirmed Inquiry is eligible for Proforma creation.");
+            // Clear the "awaiting inquiry pick" flag if a previous
+            // BeginNewFromInquiryFlow set it. The shell is about to
+            // navigate back to the Proforma view (via the host), so
+            // the awaiting banner needs to come down before the user
+            // sees the wizard.
+            IsAwaitingInquirySelection = false;
             await StartNewInvoiceAsync();
             Step1VM.InquiryId = inquiry.Id;
             Step2VM.CustomerName = inquiry.CustomerName;

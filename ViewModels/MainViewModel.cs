@@ -463,8 +463,45 @@ namespace ProGlassAutomation.ViewModels
             DashboardVM.TriggerNewInvoice = () => ProformaInvoiceVM.TriggerNewInvoice();
             InquiryVM.CreateProformaRequested = async inquiry =>
             {
+                // The user picked (or created) an inquiry. Clear the
+                // PI module's "awaiting inquiry" banner — the host
+                // navigates back to the PI module below, and we want
+                // the wizard to land cleanly without the stale
+                // "Waiting for inquiry pick" indicator.
+                ProformaInvoiceVM.CompleteInquirySelectionForNewPi();
                 await ProformaInvoiceVM.StartFromInquiryAsync(inquiry);
                 Navigate("ProformaInvoice");
+            };
+
+            // 3-way prompt for "new PI" entry points. Every caller
+            // (sidebar +, dashboard, in-list button) goes through
+            // ProformaInvoiceVM.TriggerNewInvoice / NewInvoiceCommand,
+            // which call this callback. The MessageBox lives here so
+            // the VM stays UI-free; the VM only sees the choice.
+            ProformaInvoiceVM.AskStartFromInquiryRequested = () =>
+            {
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher == null || !dispatcher.CheckAccess())
+                {
+                    // We must show a MessageBox on the UI thread.
+                    return dispatcher?.InvokeAsync(() => PromptNewPiStart())
+                        .Task ?? System.Threading.Tasks.Task.FromResult(
+                            ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.Skip);
+                }
+                return System.Threading.Tasks.Task.FromResult(PromptNewPiStart());
+            };
+
+            // Explicit "new PI from inquiry" flow. We set the
+            // "awaiting" flag on the inquiry module so the user
+            // sees a banner telling them why they were sent here
+            // and what to do next (pick a Confirmed inquiry or
+            // create one). Then we navigate; the inquiry module
+            // clears the flag when the user picks a row
+            // (CreateProformaRequested fires) or cancels.
+            ProformaInvoiceVM.NavigateToInquiryForNewPiRequested = () =>
+            {
+                InquiryVM.IsAwaitingNewPiSelection = true;
+                Navigate("Inquiry");
             };
 
             // Right-click per-stage navigation from the inquiry rail.
@@ -755,6 +792,40 @@ namespace ProGlassAutomation.ViewModels
                     new LogContext { Module = "Main", Operation = "AgentConfirm" });
                 return System.Threading.Tasks.Task.FromResult(false);
             }
+        }
+
+        /// <summary>
+        /// 3-way "How should this new Proforma Invoice start?"
+        /// dialog. Returns the user's choice. The default result
+        /// (when the user hits Escape or closes the dialog) is
+        /// <see cref="ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.Cancelled"/>
+        /// so a stray dismissal never silently creates a blank PI.
+        /// </summary>
+        private static ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice PromptNewPiStart()
+        {
+            // We use a 3-button MessageBox: Yes / No / Cancel, mapped to
+            // FromInquiry / Skip / Cancelled. The Yes button is the
+            // default because starting from an Inquiry is the
+            // recommended path; Cancel is the cancel button so Esc
+            // dismisses safely.
+            var message =
+                "Proforma Invoices should start from a confirmed Inquiry so the customer, " +
+                "project, value, and audit trail are pre-filled automatically.\n\n" +
+                "Open the Inquiry list now to pick (or create) a Confirmed inquiry?\n\n" +
+                "• Yes — open the Inquiry list (recommended)\n" +
+                "• No — create a blank Proforma Invoice without an inquiry\n" +
+                "• Cancel — do not start a new Proforma Invoice";
+            var result = System.Windows.MessageBox.Show(message,
+                "Start Proforma Invoice from Inquiry?",
+                System.Windows.MessageBoxButton.YesNoCancel,
+                System.Windows.MessageBoxImage.Question,
+                System.Windows.MessageBoxResult.Yes);
+            return result switch
+            {
+                System.Windows.MessageBoxResult.Yes => ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.FromInquiry,
+                System.Windows.MessageBoxResult.No => ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.Skip,
+                _ => ViewModels.ProformaInvoice.ProformaInvoiceViewModel.NewProformaStartChoice.Cancelled
+            };
         }
 
         public void NavigateFromAgent(string target)
