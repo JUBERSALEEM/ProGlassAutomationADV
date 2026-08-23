@@ -19,7 +19,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="InquiryTheme.xaml"/>
+                
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -52,7 +52,7 @@
                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
                 <Button Grid.Column="2" Content="Open with system app" Click="OpenExternal_Click" Cursor="Hand"
-                        Style="{StaticResource InqSecondaryButtonStyle}" VerticalAlignment="Center"/>
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" VerticalAlignment="Center"/>
             </Grid>
         </Border>
 

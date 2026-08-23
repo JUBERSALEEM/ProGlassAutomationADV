@@ -28,7 +28,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="InquiryTheme.xaml"/>
+                
             </ResourceDictionary.MergedDictionaries>
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
@@ -68,6 +68,52 @@
                 <Setter Property="Margin" Value="0,0,0,12"/>
                 <Setter Property="SnapsToDevicePixels" Value="True"/>
             </Style>
+
+            <!-- Editor-local adornments. These are small one-off
+                 styles that don't exist in the shared design system
+                 because they're only used here. -->
+            <Style x:Key="InqHintStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="10.5"/>
+                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+            </Style>
+            <Style x:Key="InqGhostActionStyle" TargetType="Button">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="FontSize" Value="10.5"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                <Setter Property="Padding" Value="8,4"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bg" CornerRadius="7" Background="Transparent"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="InqDropZoneStyle" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                <Setter Property="CornerRadius" Value="10"/>
+                <Setter Property="Padding" Value="18,14"/>
+                <Setter Property="SnapsToDevicePixels" Value="True"/>
+            </Style>
+            <Style x:Key="InqTimelineLineStyle" TargetType="Border">
+                <Setter Property="Width" Value="2"/>
+                <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="Margin" Value="3.5,4,0,4"/>
+            </Style>
         </ResourceDictionary>
     </Window.Resources>
 
@@ -79,7 +125,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
-        <Border Style="{StaticResource InqSurfaceStyle}" Padding="16,12">
+        <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,12">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="#475569"/>
             </Border.Effect>
@@ -127,9 +173,9 @@
             </Grid.ColumnDefinitions>
 
             <!-- LEFT · workflow rail -->
-            <Border Style="{StaticResource InqSurfaceStyle}" Padding="16,14">
+            <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,14">
                 <StackPanel>
-                    <TextBlock Text="WORKFLOW" Style="{StaticResource InqOverlineStyle}" Margin="2,0,0,10"/>
+                    <TextBlock Text="WORKFLOW" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,0,0,10"/>
 
                     <!-- Step 1 · Received (always active) -->
                     <StackPanel Orientation="Horizontal">
@@ -223,22 +269,22 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <TextBlock Text="TRANSITIONS" Style="{StaticResource InqOverlineStyle}" Margin="2,18,0,9"/>
+                    <TextBlock Text="TRANSITIONS" Style="{StaticResource ModuleColumnHeaderStyle}" Margin="2,18,0,9"/>
                     <WrapPanel>
                         <Button Content="Prepare" Command="{Binding ChangeStatusCommand}" CommandParameter="Prepared"
-                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanPrepare}"/>
                         <Button Content="Send" Command="{Binding ChangeStatusCommand}" CommandParameter="Sent"
-                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanSend}"/>
                         <Button Content="Confirm" Command="{Binding ChangeStatusCommand}" CommandParameter="Confirmed"
-                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanConfirm}"/>
                         <Button Content="Hold" Command="{Binding ChangeStatusCommand}" CommandParameter="Hold"
-                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
+                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6" Margin="0,0,6,6"
                                 IsEnabled="{Binding CanHold}"/>
                         <Button Content="Cancel inquiry" Command="{Binding ChangeStatusCommand}" CommandParameter="Cancelled"
-                                Style="{StaticResource InqSecondaryButtonStyle}" Padding="12,6"
+                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Padding="12,6"
                                 IsEnabled="{Binding CanCancel}"/>
                     </WrapPanel>
                     <TextBlock Text="Transitions need a saved record and no unsaved edits."
@@ -254,7 +300,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="CUSTOMER" Style="{StaticResource InqOverlineStyle}"/>
+                                <TextBlock Text="CUSTOMER" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -265,16 +311,16 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Customer *" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Customer *" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox x:Name="CustomerInput" ItemsSource="{Binding Customers}" IsEditable="True"
                                               Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource InqComboStyle}" StaysOpenOnEdit="True"
+                                              Style="{StaticResource ModernComboBoxStyle}" StaysOpenOnEdit="True"
                                               ToolTip="Type a new customer or pick a saved client"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Location" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Location" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding CustomerLocation, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InqInputStyle}"/>
+                                             Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                         </StackPanel>
@@ -284,7 +330,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="PROJECT" Style="{StaticResource InqOverlineStyle}"/>
+                                <TextBlock Text="PROJECT" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -295,20 +341,20 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Project *" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Project *" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InqInputStyle}"/>
+                                             Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Inquiry reference" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Inquiry reference" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource InqInputStyle}"/>
+                                             Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                             <StackPanel Margin="0,12,0,0">
-                                <TextBlock Text="Description / subject" Style="{StaticResource InqFieldLabelStyle}"/>
+                                <TextBlock Text="Description / subject" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InqInputStyle}" Height="66" AcceptsReturn="True"
+                                         Style="{StaticResource ModernTextBoxStyle}" Height="66" AcceptsReturn="True"
                                          TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"/>
                             </StackPanel>
                         </StackPanel>
@@ -318,7 +364,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="COMMERCIAL" Style="{StaticResource InqOverlineStyle}"/>
+                                <TextBlock Text="COMMERCIAL" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
@@ -331,28 +377,28 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel>
-                                    <TextBlock Text="Received date" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Received date" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <DatePicker SelectedDate="{Binding ReceivedDate}" Height="34" FontSize="12.5"
                                                 VerticalContentAlignment="Center"/>
                                     <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
                                                Style="{StaticResource InqHintStyle}" Margin="2,5,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Salesman" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Salesman" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Salesmen}" IsEditable="True"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
-                                              Style="{StaticResource InqComboStyle}"/>
+                                              Style="{StaticResource ModernComboBoxStyle}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="4">
-                                    <TextBlock Text="Priority" Style="{StaticResource InqFieldLabelStyle}"/>
+                                    <TextBlock Text="Priority" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
-                                              Style="{StaticResource InqComboStyle}"/>
+                                              Style="{StaticResource ModernComboBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
                             <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left">
-                                <TextBlock Text="Inquiry value (AED)" Style="{StaticResource InqFieldLabelStyle}"/>
+                                <TextBlock Text="Inquiry value (AED)" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource InqInputStyle}" TextAlignment="Right"
+                                         Style="{StaticResource ModernTextBoxStyle}" TextAlignment="Right"
                                          ToolTip="Thousands separators allowed"/>
                                 <TextBlock Text="{Binding ValueHint, Mode=OneWay}" Margin="2,5,0,0">
                                     <TextBlock.Style>
@@ -374,12 +420,12 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <TextBlock Text="NOTES" Style="{StaticResource InqOverlineStyle}"/>
+                                <TextBlock Text="NOTES" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                             </StackPanel>
                             <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource InqInputStyle}" Height="108" AcceptsReturn="True"
+                                     Style="{StaticResource ModernTextBoxStyle}" Height="108" AcceptsReturn="True"
                                      TextWrapping="Wrap" VerticalContentAlignment="Top" Padding="11,9"
                                      ToolTip="Internal notes — visible in the register drawer"/>
                         </StackPanel>
@@ -389,7 +435,7 @@
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                                <TextBlock Text="SOURCE DOCUMENTS" Style="{StaticResource InqOverlineStyle}"/>
+                                <TextBlock Text="SOURCE DOCUMENTS" Style="{StaticResource ModuleColumnHeaderStyle}"/>
                                 <Rectangle Width="26" Height="1" Fill="{DynamicResource DividerBrush}"
                                            VerticalAlignment="Center" Margin="9,0,0,0"/>
                                 <TextBlock Text="manifest-backed · works on any database" Margin="9,0,0,0"
@@ -505,7 +551,7 @@
         </Grid>
 
         <!-- ══ FOOTER ═════════════════════════════════════════════════ -->
-        <Border Grid.Row="2" Margin="0,14,0,0" Style="{StaticResource InqSurfaceStyle}" Padding="14,10">
+        <Border Grid.Row="2" Margin="0,14,0,0" Style="{StaticResource ModuleSectionCardStyle}" Padding="14,10">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -520,9 +566,9 @@
                 </StackPanel>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Discard" Command="{Binding CancelCommand}"
-                            Style="{StaticResource InqSecondaryButtonStyle}" Margin="0,0,8,0"/>
+                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}" Margin="0,0,8,0"/>
                     <Button Content="{Binding SaveCommandText}" Command="{Binding SaveCommand}"
-                            Style="{StaticResource InqPrimaryButtonStyle}" MinWidth="150"/>
+                            Style="{StaticResource ModuleToolbarPrimaryButtonStyle}" MinWidth="150"/>
                 </StackPanel>
             </Grid>
         </Border>
