@@ -642,6 +642,90 @@ namespace ProGlassAutomation
             // during sign-in. Restored once MainWindow exists.
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
+            // 11) License check (Phase 3, slice 4 of RELEASE_AUDIT.md).
+            //     Runs AFTER every other startup step (config, DBs, DI,
+            //     theme, font, scale) so a missing license does not
+            //     waste a partial-init on a customer who cannot run the
+            //     app yet. Three outcomes:
+            //       • CanRun=true         → skip welcome, go to splash.
+            //       • CanRun=false,
+            //         Result=ReadOnly    → skip welcome, status banner
+            //                                shown elsewhere.
+            //       • NotActivated       → show WelcomeView.
+            //     The welcome view itself drives the user into
+            //     Activate / Trial / ContinueReadOnly; this block just
+            //     decides whether to show it.
+            ProGlassAutomation.Services.Licensing.LicenseService.Initialize();
+            var licenseStatus = ProGlassAutomation.Services.Licensing
+                .LicenseService.Current;
+            if (!licenseStatus.CanRun
+                && licenseStatus.Status
+                    == ProGlassAutomation.Services.Licensing
+                        .LicenseStatus.NotActivated)
+            {
+                var welcome = new ProGlassAutomation.Views.Licensing.WelcomeView();
+                var welcomeWindow = new System.Windows.Window
+                {
+                    Title = "ProGlass Automation — Activation",
+                    Width = 760,
+                    Height = 720,
+                    MinWidth = 640,
+                    MinHeight = 600,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    ResizeMode = ResizeMode.NoResize,
+                    ShowInTaskbar = true,
+                    Content = welcome
+                };
+                var welcomeDone = new System.Threading.Tasks.TaskCompletionSource<bool>();
+                welcome.Accepted += (_, __) => welcomeDone.TrySetResult(true);
+                welcomeWindow.Closed += (_, __) => welcomeDone.TrySetResult(false);
+                welcomeWindow.Show();
+                bool welcomeAccepted = await welcomeDone.Task;
+                welcomeWindow.Close();
+
+                if (!welcomeAccepted
+                    || welcome.Result == ProGlassAutomation.Views.Licensing
+                        .WelcomeView.WelcomeResult.Cancelled)
+                {
+                    AppLogService.Info(
+                        "User closed welcome dialog without activating a license. " +
+                        "Exiting.");
+                    Shutdown(0);
+                    return;
+                }
+
+                // Re-read the status after the welcome flow so
+                // the rest of the boot sees the new license.
+                licenseStatus = ProGlassAutomation.Services.Licensing
+                    .LicenseService.Current;
+                AppLogService.Info(
+                    $"Welcome flow completed: result={welcome.Result}; " +
+                    $"new status={licenseStatus.Status}");
+            }
+            else if (!licenseStatus.CanRun)
+            {
+                // E.g. Expired / Invalid / MachineMismatch. Show
+                // a clear dialog and exit — the welcome view's
+                // "Continue Read-Only" path is the one the user
+                // would pick, but we did not show the welcome so
+                // be explicit here.
+                var problem = System.Windows.MessageBox.Show(
+                    "ProGlass Automation cannot start because the " +
+                    "license is not in a runnable state:\n\n" +
+                    ProGlassAutomation.Views.Licensing
+                        .LicenseUiText.StatusDescription(licenseStatus.Status)
+                    + "\n\nActivate a valid license and restart the app. " +
+                    "You can also re-install the LicenseGenerator " +
+                    "tool to issue yourself a new key pair if the " +
+                    "public key embedded in the app is still the " +
+                    "placeholder.",
+                    "License problem",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+                Shutdown(0);
+                return;
+            }
+
             // 12) Splash screen — this one window owns terms AND login.
             var splash = new SplashView();
             splash.Show();
