@@ -47,7 +47,6 @@ namespace ProGlassAutomation.ViewModels.Licensing
 
         public static LicenseStatusViewModel Instance => _instance.Value;
 
-        private bool _subscribed;
         private string _statusBadge = "—";
         private string _statusDescription = "Loading…";
         private string _editionDisplay = "—";
@@ -77,7 +76,6 @@ namespace ProGlassAutomation.ViewModels.Licensing
             // the subscription is permanent for the
             // process lifetime.
             LicenseService.StatusChanged += OnLicenseChanged;
-            _subscribed = true;
             Refresh();
         }
 

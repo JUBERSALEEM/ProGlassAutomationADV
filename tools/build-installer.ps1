@@ -95,16 +95,29 @@ if ($Clean) {
 }
 
 # -- 2. Build (Release) + restore ----------------------------------
+# We build the test project (not the app project directly) so the
+# test DLL is produced as part of the same step. The test project
+# has a ProjectReference on the app project, so MSBuild compiles
+# the app first, then the test project. This avoids the bug where
+# the previous 'dotnet build app.csproj' skipped the test project
+# (because the app's csproj has <Compile Remove="Tests/**" />) and
+# 'dotnet test --no-build' then failed with "test source file not
+# found".
 Write-Host "> Restoring + building Release configuration..." -ForegroundColor Yellow
-& dotnet restore "$RepoRoot/ProGlassAutomation.csproj" --verbosity minimal
+& dotnet restore "$RepoRoot/Tests/ProGlassAutomation.Tests.csproj" --verbosity minimal
 if ($LASTEXITCODE -ne 0) { exit 2 }
 
-& dotnet build "$RepoRoot/ProGlassAutomation.csproj" -c Release --no-restore --verbosity minimal -p:Version=$Version
+& dotnet build "$RepoRoot/Tests/ProGlassAutomation.Tests.csproj" -c Release --no-restore --verbosity minimal -p:Version=$Version
 if ($LASTEXITCODE -ne 0) { exit 2 }
 
 # -- 3. Test gate --------------------------------------------------
 if (-not $SkipTests) {
     Write-Host "> Running xUnit test gate..." -ForegroundColor Yellow
+    # --no-build is correct here: the test DLL was just produced
+    # by the previous step. The previous version of this script
+    # called `dotnet test` after `dotnet build app.csproj`, which
+    # skipped the test project entirely and produced "test source
+    # file not found".
     & dotnet test "$RepoRoot/Tests/ProGlassAutomation.Tests.csproj" -c Release --no-build --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Test gate failed. Refusing to package an installer that ships a red test suite."
