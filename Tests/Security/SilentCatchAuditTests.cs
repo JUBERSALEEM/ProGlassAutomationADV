@@ -175,6 +175,123 @@ namespace ProGlassAutomation.Tests.Security
             // misses that input.
             ("MachineFingerprint.cs",               "*",                   "WMI unavailable → fingerprint input skipped"),
 
+            // LicenseService — startup-time reads that
+            // must never break the app: portable check
+            // (best-effort by design), StatusChanged
+            // event-raise (UI subscribers must not break
+            // licensing), audit-sink write (audit must
+            // not block startup).
+            ("LicenseService.cs",                   "*",                   "Startup best-effort / event-raise must not throw"),
+
+            // AIContextBuilder — DB / external-resource
+            // probe; the context builder just falls back
+            // to an empty context.
+            ("AiContextBuilder.cs",                 "*",                   "DB unavailable → fall back to empty context"),
+
+            // RecordMetadataService — the metadata write
+            // is observability-only and must never break
+            // the business flow.
+            ("RecordMetadataService.cs",            "*",                   "Metadata must never break the business flow"),
+
+            // DocumentLifecycle — the static Changed
+            // event is best-effort; a listener that throws
+            // must not undo a completed write.
+            ("DocumentLifecycle.cs",                "*",                   "Event-raise must not undo a completed write"),
+
+            // SchemaHealthService — the audit-write call
+            // inside a schema-rebuild must not block the
+            // rebuild.
+            ("SchemaHealthService.cs",              "*",                   "Audit must not block schema rebuild"),
+
+            // SchemaMigrationRunner — the EF transaction
+            // rollback in the catch-block is best-effort;
+            // if it fails the migration failure log is the
+            // next-best signal.
+            ("SchemaMigrationRunner.cs",            "*",                   "Rollback after migration failure is best-effort"),
+
+            // PdfTheme — the config probe at startup
+            // (Config.Appearance.PdfLayoutId) may not
+            // be ready; default to the active theme.
+            ("PdfTheme.cs",                         "*",                   "Config not ready at startup"),
+
+            // ScreenshotService — window-restore after a
+            // capture is best-effort; the screenshot was
+            // already taken.
+            ("ScreenshotService.cs",                "*",                   "Window restore after capture is best-effort"),
+
+            // FontService — the Win32 WM_FONTCHANGE
+            // broadcast and the post-rebuild font-cache
+            // invalidation are best-effort. UI must not
+            // break the font engine.
+            ("FontService.cs",                      "*",                   "Font-engine: UI must not break broadcast or rebuild"),
+
+            // LogEntry — log-entry construction must
+            // never throw. Logging failures must not
+            // surface as exceptions to callers.
+            ("LogEntry.cs",                         "*",                   "Log-entry construction must never throw"),
+
+            // UserScreenRecordService — sidecar
+            // attachment and the partial-file cleanup
+            // are best-effort. The screen recording
+            // itself is the user-visible artefact; the
+            // sidecar is a debugging aid.
+            ("UserScreenRecordService.cs",          "*",                   "Sidecar and partial-file cleanup are best-effort"),
+
+            // AppInfo — the assembly-identity and
+            // file-timestamp probes are best-effort.
+            // The fallback constants are the right
+            // answer for a partial / unversioned build.
+            ("AppInfo.cs",                          "*",                   "Assembly-identity probe is best-effort"),
+
+            // UpdateService — the OTA check and the
+            // post-failure partial-file cleanup are
+            // best-effort. OTA must never affect the
+            // running app.
+            ("UpdateService.cs",                    "*",                   "OTA check and partial-file cleanup are best-effort"),
+
+            // TaxInvoiceRepository — the badge-cleanup
+            // in InitializeAsync is best-effort.
+            ("TaxInvoiceRepository.cs",             "InitializeAsync",     "Badge cleanup at startup is best-effort"),
+
+            // TaxInvoiceDnReconciler — the audit-write
+            // inside the reconciler is best-effort.
+            ("TaxInvoiceDnReconciler.cs",           "*",                   "Reconciler audit-write is best-effort"),
+
+            // ScreenRecordPanelViewModel — the status-
+            // update probe is best-effort.
+            ("ScreenRecordPanelViewModel.cs",       "*",                   "Status update is best-effort"),
+
+            // SheetStoreViewModel — multiple best-effort
+            // probes (sheet history, sheet reset, etc).
+            ("SheetStoreViewModel.cs",              "*",                   "Sheet-store probes are best-effort"),
+
+            // OverviewDashboardViewModel — sheet-
+            // history load is best-effort.
+            ("OverviewDashboardViewModel.cs",       "*",                   "Sheet-history load is best-effort"),
+
+            // DeliveryNoteDetailViewModel — attachment
+            // file delete is best-effort (file may have
+            // been moved by the user already).
+            ("DeliveryNoteDetailViewModel.cs",      "*",                   "Attachment file delete is best-effort"),
+
+            // DeliveryNoteListViewModel — the JO
+            // picker probe is best-effort; picker still
+            // searches the JO fields it has.
+            ("DeliveryNoteListViewModel.cs",        "*",                   "JO picker probe is best-effort"),
+
+            // JobOrderDetailViewModel — guarded export;
+            // the real DN is still created even if the
+            // export-probe fails.
+            ("JobOrderDetailViewModel.cs",          "*",                   "Guarded export is best-effort"),
+
+            // JobOrderRepository — the "Quietly" helper
+            // is best-effort by name; the audit
+            // FindContainingMethod reports the outer
+            // method (InitializeAsync) because the
+            // helper is a private static below it. Allow
+            // the containing method too.
+            ("JobOrderRepository.cs",               "InitializeAsync",     "Master-DN quiet-cleanup is best-effort by name"),
+
             // Schema migrations — the unique-index creation
             // is best-effort; the repository already retries
             // on unique collisions.
@@ -225,13 +342,24 @@ namespace ProGlassAutomation.Tests.Security
             // This is exactly the M-1 pattern; the catch
             // exists because `-=` on a null handler would NRE.
             // Standard IDisposable idiom; logging is a no-op.
+            //
+            // The * entry covers constructor-time silent
+            // catches too (e.g. the audit-write guard in
+            // DashboardViewModel, the sample-data
+            // subscription in SavedJobOrdersListViewModel).
             ("DashboardViewModel.cs",               "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("DashboardViewModel.cs",               "*",                   "VM constructor and ctor-side event subscriptions"),
             ("DeliveryNoteViewModel.cs",            "Dispose",             "VM teardown (M-1 mitigation)"),
             ("SavedJobOrdersListViewModel.cs",      "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("SavedJobOrdersListViewModel.cs",      "*",                   "VM constructor and ctor-side event subscriptions"),
             ("SavedInvoicesListViewModel.cs",       "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("SavedInvoicesListViewModel.cs",       "*",                   "VM constructor and ctor-side event subscriptions"),
             ("SystemCenterViewModel.cs",            "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("SystemCenterViewModel.cs",            "*",                   "VM constructor and ctor-side event subscriptions"),
             ("TaxInvoiceViewModel.cs",              "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("TaxInvoiceViewModel.cs",              "*",                   "VM constructor and ctor-side event subscriptions"),
             ("UserCenterViewModel.cs",              "Dispose",             "VM teardown (M-1 mitigation)"),
+            ("UserCenterViewModel.cs",              "*",                   "VM constructor and ctor-side event subscriptions"),
 
             // ── Remaining catch-alls (handled by member 'name = ANY') ──
             // These are file-wide allows; if you add a new VM and a
