@@ -672,9 +672,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 string newId = await App.Invoices.SuggestNextIdAsync(
                     original.ProformaId);
 
+                // Senior audit fix (Aug 2026): scrub Inquiry / PI id
+                // fields from the snapshot before duplicating so the
+                // copy does NOT silently inherit the source's
+                // Inquiry back-link. The entity's InquiryId is
+                // already omitted below; without this, the first
+                // save of the duplicate re-populated Company.InquiryId
+                // from the snapshot and pointed a second PI at the
+                // same inquiry — bypassing the Convert-to-PI guard.
+                string sanitizedSnapshot = ScrubIdsForDuplicate(
+                    original.FullSnapshotJson, newId);
+
                 var copy = new SavedProformaInvoice
                 {
                     ProformaId = newId,
+                    // InquiryId deliberately NOT copied — a duplicate
+                    // is a fresh quotation, not another PI for the
+                    // same inquiry.
                     CompanyName = original.CompanyName,
                     CustomerName = original.CustomerName,
                     ProjectName = original.ProjectName,
@@ -686,7 +700,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     DiscountAmount = original.DiscountAmount,
                     VatAmount = original.VatAmount,
                     GrandTotalVatInclusive = original.GrandTotalVatInclusive,
-                    FullSnapshotJson = original.FullSnapshotJson
+                    FullSnapshotJson = sanitizedSnapshot
                 };
 
                 await App.Invoices.InsertAsync(copy);
@@ -1176,6 +1190,60 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
             try { DocumentLifecycle.Unsubscribe(LoadInvoicesAsync); } catch { }
             GC.SuppressFinalize(this);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  DUPLICATE HELPER — scrub Inquiry/PI id fields from snapshot
+        //
+        //  Called by ExecuteDuplicateAsync to prevent the duplicated
+        //  invoice from silently inheriting the source's Inquiry
+        //  back-link via the snapshot JSON. Without this, a duplicate
+        //  saved back through the wizard re-populated Company.InquiryId
+        //  from the snapshot on RestoreWizardFromSnapshot, and a second
+        //  PI ended up linked to the same inquiry — bypassing the
+        //  Convert-to-PI duplicate-prevention guard.
+        //
+        //  Deserialise → clear the two fields → re-serialise with the
+        //  same JsonOptions the mapper uses so the round-trip is
+        //  byte-identical for every OTHER field.
+        // ══════════════════════════════════════════════════════════════
+        private static string ScrubIdsForDuplicate(
+            string? sourceSnapshotJson, string newProformaId)
+        {
+            if (string.IsNullOrWhiteSpace(sourceSnapshotJson))
+                return sourceSnapshotJson ?? string.Empty;
+
+            try
+            {
+                var snap = ProformaInvoiceMapper.DeserializeSnapshot(
+                    new Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice
+                    {
+                        FullSnapshotJson = sourceSnapshotJson
+                    });
+                if (snap.Company != null)
+                {
+                    snap.Company.InquiryId = null;
+                    snap.Company.ProformaId = newProformaId ?? string.Empty;
+                }
+                return ProformaInvoiceMapper.SerializeSnapshot(snap);
+            }
+            catch (Exception ex)
+            {
+                // Deserialise failed — keep the original snapshot so
+                // the duplicate at least carries the same visual state.
+                // The entity's own InquiryId is still null, so the
+                // back-link stays disconnected until the user saves
+                // through the wizard; the audit log records why.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "ScrubIdsForDuplicate could not sanitise snapshot: " + ex.Message,
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(SavedInvoicesListViewModel),
+                        Operation = "ScrubIdsForDuplicate"
+                    });
+                return sourceSnapshotJson;
+            }
         }
     }
 }

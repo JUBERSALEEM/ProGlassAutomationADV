@@ -122,6 +122,28 @@ namespace ProGlassAutomation.Services.Inquiry
 
         /// <summary>Drop the lifecycle cache (call after a downstream edit).</summary>
         void InvalidateLifecycle(int inquiryId);
+
+        /// <summary>
+        /// Set (or clear) the denormalised Proforma-Invoice back-link on
+        /// the Inquiry row. Called by ProformaInvoiceRepository after
+        /// each Insert / Update / Delete of a PI that has an InquiryId,
+        /// so the inquiry list can show "Converted → PI xxx" without a
+        /// second query and the Convert-to-PI button correctly disables
+        /// once a PI already exists.
+        ///
+        /// Pass <paramref name="proformaInvoiceId"/> = null and
+        /// <paramref name="proformaNumber"/> = "" to clear the link
+        /// (used when the PI is deleted).
+        ///
+        /// The method never throws — link writing is best-effort
+        /// bookkeeping. A missing inquiry, a race with a concurrent
+        /// edit, or a locked file returns quietly and logs a warning.
+        /// Returns true when the row was updated, false when it was
+        /// skipped (row not found, values already match, etc.).
+        /// </summary>
+        Task<bool> SetProformaLinkAsync(
+            int inquiryId, int? proformaInvoiceId, string proformaNumber,
+            CancellationToken ct = default);
     }
 
     /// <summary>

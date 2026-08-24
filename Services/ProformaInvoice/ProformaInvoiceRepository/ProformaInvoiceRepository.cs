@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.ProformaInvoice;   // InquiryLinkSync
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
 using System.Collections.Generic;
@@ -173,24 +174,70 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
-            using var db = new ProformaInvoicesDbContext();
+            // Senior audit fix (Aug 2026): concurrent SuggestNextIdAsync
+            // callers could both see "PI-2026-042" as free, both call
+            // InsertAsync, and the second one would surface a raw
+            // DbUpdateException (unique-index violation on ProformaId)
+            // that RelayCommand swallowed silently. We now retry with
+            // the next free id — capped at 5 attempts so a truly stuck
+            // system still surfaces an error instead of looping.
+            for (int attempt = 0; attempt < 5; attempt++)
+            {
+                await using var db = new ProformaInvoicesDbContext();
 
-            bool exists = await db.ProformaInvoices
-                .AnyAsync(x => x.ProformaId == invoice.ProformaId);
-            if (exists)
-                throw new InvalidOperationException(
-                    $"An invoice with ProformaId '{invoice.ProformaId}' already exists. " +
-                    "Use UpdateAsync or generate a new ID.");
+                bool exists = await db.ProformaInvoices
+                    .AnyAsync(x => x.ProformaId == invoice.ProformaId)
+                    .ConfigureAwait(false);
+                if (exists)
+                {
+                    // Bump to the next free id and retry.
+                    invoice.ProformaId = await SuggestNextIdAsync(
+                        invoice.ProformaId).ConfigureAwait(false);
+                    continue;
+                }
 
-            invoice.CreatedAt = DateTime.Now;
-            invoice.UpdatedAt = DateTime.Now;
+                invoice.CreatedAt = DateTime.Now;
+                invoice.UpdatedAt = DateTime.Now;
 
-            db.ProformaInvoices.Add(invoice);
-            await db.SaveChangesAsync();
-            RaiseChanged();
+                db.ProformaInvoices.Add(invoice);
+                try
+                {
+                    await db.SaveChangesAsync().ConfigureAwait(false);
+                }
+                catch (DbUpdateException ex)
+                    when (IsUniqueViolation(ex) && attempt < 4)
+                {
+                    // Race with another writer between the AnyAsync check
+                    // and SaveChanges. Detach, bump id, try again.
+                    db.Entry(invoice).State = EntityState.Detached;
+                    invoice.ProformaId = await SuggestNextIdAsync(
+                        invoice.ProformaId).ConfigureAwait(false);
+                    invoice.Id = 0;
+                    continue;
+                }
 
-            return invoice.Id;
+                RaiseChanged();
+
+                // Senior audit fix (Aug 2026) — write the PI back-link
+                // onto the source Inquiry so the InquiryList and the
+                // ConvertToPi guard see the freshly-created PI. No-op
+                // when the PI has no InquiryId. Fire-and-forget safe:
+                // failures are logged and never fail the insert.
+                await InquiryLinkSync.AfterInsertAsync(invoice)
+                    .ConfigureAwait(false);
+
+                return invoice.Id;
+            }
+
+            throw new InvalidOperationException(
+                $"Could not allocate a free ProformaId after 5 retries " +
+                $"starting from '{invoice.ProformaId}'. Another concurrent " +
+                $"writer is racing this insert.");
         }
+
+        private static bool IsUniqueViolation(DbUpdateException ex) =>
+            ex.InnerException?.Message?.Contains("UNIQUE",
+                StringComparison.OrdinalIgnoreCase) == true;
 
         /// <summary>
         /// Updates an existing invoice or creates a new one if missing.
@@ -214,6 +261,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var existing = await db.ProformaInvoices
                 .FirstOrDefaultAsync(x => x.ProformaId == invoice.ProformaId);
 
+            int? previousInquiryId = existing?.InquiryId;
+
             if (existing == null)
             {
                 // BUG-10: Insert inline instead of calling InsertAsync()
@@ -223,7 +272,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
                 db.ProformaInvoices.Add(invoice);
                 await db.SaveChangesAsync();
-            RaiseChanged();
+                RaiseChanged();
+
+                // Senior audit fix — write the PI back-link so the
+                // Inquiry list picks up the association immediately.
+                await InquiryLinkSync.AfterInsertAsync(invoice)
+                    .ConfigureAwait(false);
                 return;
             }
 
@@ -245,6 +299,40 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             await db.SaveChangesAsync();
             RaiseChanged();
+
+            // Senior audit fix — the update may have re-pointed the PI at
+            // a different inquiry (rare: only via a snapshot-JSON edit
+            // that changed Company.InquiryId). In that case the OLD
+            // inquiry's link must be cleared and the NEW one written.
+            if (previousInquiryId.HasValue &&
+                previousInquiryId != existing.InquiryId)
+            {
+                try
+                {
+                    if (App.Inquiries != null)
+                    {
+                        await App.Inquiries.SetProformaLinkAsync(
+                            previousInquiryId.Value,
+                            proformaInvoiceId: null,
+                            proformaNumber: string.Empty)
+                            .ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        "Could not clear previous inquiry link on PI update: " + ex.Message,
+                        new LogContext
+                        {
+                            Module = "Proforma",
+                            Class = nameof(ProformaInvoiceRepository),
+                            Operation = "UpdateAsync/PreviousInquiryClear"
+                        });
+                }
+            }
+
+            await InquiryLinkSync.AfterUpdateAsync(existing)
+                .ConfigureAwait(false);
         }
 
         public async Task<SavedProformaInvoice?> GetByIdAsync(int id)
@@ -344,11 +432,25 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             var entity = await db.ProformaInvoices.FindAsync(id);
             if (entity == null) return;
 
+            // Capture identifiers BEFORE removing so we can synchronise
+            // the Inquiry back-link and attachments after the row is gone.
             string? proformaId = entity.ProformaId;
+            var deletedSnapshot = new SavedProformaInvoice
+            {
+                Id = entity.Id,
+                ProformaId = entity.ProformaId,
+                InquiryId = entity.InquiryId
+            };
 
             db.ProformaInvoices.Remove(entity);
             await db.SaveChangesAsync();
             RaiseChanged();
+
+            // Senior audit fix — clear the PI back-link on the source
+            // inquiry so ConvertToPi becomes available again and the
+            // list projection stops showing a stale PI number.
+            await InquiryLinkSync.AfterDeleteAsync(deletedSnapshot)
+                .ConfigureAwait(false);
 
             // Remove the invoice's Step 8 attachments (files + manifest)
             // so no orphaned files remain and a re-created invoice with

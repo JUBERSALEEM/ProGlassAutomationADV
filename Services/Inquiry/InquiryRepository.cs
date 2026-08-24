@@ -394,6 +394,88 @@ namespace ProGlassAutomation.Services.Inquiry
 
         public void InvalidateLifecycle(int inquiryId) => _lifecycle.Invalidate(inquiryId);
 
+        // ══════════════════════════════════════════════════════════════
+        //  PI back-link write (senior audit — Aug 2026)
+        //
+        //  Before this method existed, the Inquiries.ProformaInvoiceId
+        //  and Inquiries.ProformaNumber columns were declared in the
+        //  schema, read by the list projection, and USED by
+        //  ConvertToPiAsync as a duplicate-prevention guard — but were
+        //  never written by any code path. The guard was dead code and
+        //  the same Confirmed inquiry could spawn unlimited PIs.
+        //
+        //  This method is the single write-side. Called from
+        //  ProformaInvoiceRepository.InsertAsync (link set),
+        //  UpdateAsync (link refreshed in case InquiryId changed),
+        //  DeleteAsync (link cleared). It also invalidates the
+        //  Inquiry lifecycle cache so the list rehydrates the next
+        //  time it renders.
+        //
+        //  DELIBERATE CHOICES
+        //  ──────────────────
+        //  • No permission demand — this is bookkeeping triggered by a
+        //    PI operation that already passed ProformaCreate / Edit /
+        //    Delete. Demanding InquiryEdit here would refuse the link
+        //    write for a Sales role that only holds ProformaCreate,
+        //    leaving the columns stale.
+        //  • Best-effort — logs a warning and returns false on any
+        //    exception. The PI operation must not roll back just
+        //    because the denormalised cache write failed.
+        //  • Idempotent — a no-op update when the target values
+        //    already match returns true without touching the row.
+        // ══════════════════════════════════════════════════════════════
+
+        public async Task<bool> SetProformaLinkAsync(
+            int inquiryId, int? proformaInvoiceId, string proformaNumber,
+            CancellationToken ct = default)
+        {
+            if (inquiryId <= 0) return false;
+            proformaNumber ??= string.Empty;
+
+            try
+            {
+                await using var db = new InquiryDbContext();
+                var row = await db.Inquiries
+                    .FirstOrDefaultAsync(x => x.Id == inquiryId, ct)
+                    .ConfigureAwait(false);
+                if (row == null) return false;
+
+                bool changed =
+                    row.ProformaInvoiceId != proformaInvoiceId ||
+                    !string.Equals(row.ProformaNumber ?? "", proformaNumber,
+                        StringComparison.Ordinal);
+                if (!changed)
+                {
+                    // Still invalidate the cache so a stale downstream
+                    // snapshot cannot survive across a PI edit that
+                    // happened to leave the denormalised fields alone.
+                    _lifecycle.Invalidate(inquiryId);
+                    return true;
+                }
+
+                row.ProformaInvoiceId = proformaInvoiceId;
+                row.ProformaNumber = proformaNumber;
+                row.UpdatedAt = DateTime.Now;
+                await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                _lifecycle.Invalidate(inquiryId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Warning(
+                    "SetProformaLinkAsync failed for inquiry " + inquiryId +
+                    " (PI=" + (proformaInvoiceId?.ToString() ?? "null") +
+                    " / '" + proformaNumber + "'): " + ex.Message,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Inquiry",
+                        Class = nameof(InquiryRepository),
+                        Operation = nameof(SetProformaLinkAsync)
+                    });
+                return false;
+            }
+        }
+
         private static IQueryable<InquiryRecord> ApplyFilters(
             IQueryable<InquiryRecord> source, InquiryQuery query, bool includeStatus)
         {

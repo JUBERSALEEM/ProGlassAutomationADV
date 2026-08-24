@@ -529,24 +529,70 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             }
         }
 
+        /// <summary>
+        /// Pre-fills the wizard from an Inquiry the operator picked.
+        ///
+        /// Senior-audit fix (Aug 2026):
+        ///   • Also carries CustomerLocation → BillingAddress and
+        ///     ProjectDescription → ProjectReference (fuller text),
+        ///     falling back to InquiryNumber if the description is
+        ///     empty. Previously only 5 of the 8 relevant fields
+        ///     were copied.
+        ///   • Bug #7 protection — refuses to start a new PI when
+        ///     the inquiry already has a linked PI. The Inquiry list
+        ///     already guards this in the UI, but the VM must guard
+        ///     too because other entry points (Agent, tests, dashboard
+        ///     quick-actions) reach here without going through the
+        ///     list. Once InquiryLinkSync populates ProformaNumber
+        ///     correctly, this check is meaningful.
+        /// </summary>
         public async Task StartFromInquiryAsync(Models.Inquiry.InquiryRecord inquiry)
         {
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
             if (!string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Confirmed, StringComparison.OrdinalIgnoreCase))
                 throw new InvalidOperationException("Only a confirmed Inquiry is eligible for Proforma creation.");
-            // Clear the "awaiting inquiry pick" flag if a previous
-            // BeginNewFromInquiryFlow set it. The shell is about to
-            // navigate back to the Proforma view (via the host), so
-            // the awaiting banner needs to come down before the user
-            // sees the wizard.
+            if (inquiry.ProformaInvoiceId.HasValue ||
+                !string.IsNullOrWhiteSpace(inquiry.ProformaNumber))
+            {
+                throw new InvalidOperationException(
+                    $"Inquiry {inquiry.InquiryNumber} already has a Proforma Invoice " +
+                    $"({inquiry.ProformaNumber}). Delete the existing PI first or " +
+                    $"open it via Load Invoice.");
+            }
+
+            // Clear the "awaiting inquiry pick" flag so the banner does
+            // not linger while the wizard fields populate below. The
+            // host performs the actual navigation after this method
+            // returns.
             IsAwaitingInquirySelection = false;
             await StartNewInvoiceAsync();
+
+            // Company / commercial context
             Step1VM.InquiryId = inquiry.Id;
+
+            // Client identity — Customer Name is the DB-required field
+            // and also the trigger for the Step 3 project filter (see
+            // OnStep2PropertyChanged). Setting CustomerName alone does
+            // NOT wake the SelectedClientName property; the wizard's
+            // saved-clients list normally does that when the operator
+            // clicks a card. We therefore also assign BillingAddress
+            // from the inquiry so the operator can see a starting
+            // point in Step 2 without re-typing.
             Step2VM.CustomerName = inquiry.CustomerName;
+            if (!string.IsNullOrWhiteSpace(inquiry.CustomerLocation))
+                Step2VM.BillingAddress = inquiry.CustomerLocation;
             Step2VM.SalesRepresentative = inquiry.SalesmanName;
             Step2VM.DocumentPreparedBy = inquiry.PreparedByName;
+
+            // Project reference. ProjectDescription is the fuller
+            // free-text field on the inquiry; when empty we fall back
+            // to InquiryNumber so the PI always carries something
+            // linking back to the origin.
             Step3VM.ProjectIdentifierName = inquiry.ProjectName;
-            Step3VM.ProjectReference = inquiry.InquiryNumber;
+            Step3VM.ProjectReference =
+                !string.IsNullOrWhiteSpace(inquiry.ProjectDescription)
+                    ? inquiry.ProjectDescription
+                    : inquiry.InquiryNumber;
         }
 
         public async Task OpenSavedInvoiceAsync(int invoiceId)
