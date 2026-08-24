@@ -26,7 +26,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         {
             Directory.CreateDirectory(
                 ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
-            optionsBuilder.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
+            // via SqliteResilience. See SqliteResilience.cs.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(optionsBuilder, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

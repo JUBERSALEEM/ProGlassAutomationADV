@@ -15,9 +15,31 @@ namespace ProGlassAutomation.Services.Database
 
         public static bool IsDemo { get; private set; }
 
-        public static string CurrentFolder => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            IsDemo ? DemoName : ProductionName);
+        // Senior audit (Aug 2026): test-only override so a repository test
+        // can point every DbContext at an ephemeral %TEMP% folder without
+        // touching the user's real %AppData% files. Production code never
+        // sets this — the getter falls back to Environment.SpecialFolder.
+        //
+        // WHY NOT ENV VAR: an env var would leak between tests unless
+        // every test remembers to clear it; a static property assigned
+        // in a test fixture ctor and cleared in Dispose is race-free.
+        //
+        // WHY PUBLIC SET: making it internal would force InternalsVisibleTo
+        // which we don't otherwise need. Documented as test-only.
+        public static string? TestFolderOverride { get; set; }
+
+        public static string CurrentFolder
+        {
+            get
+            {
+                var overrideFolder = TestFolderOverride;
+                if (!string.IsNullOrWhiteSpace(overrideFolder))
+                    return overrideFolder;
+                return Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    IsDemo ? DemoName : ProductionName);
+            }
+        }
 
         public static string ProductionFolder => Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

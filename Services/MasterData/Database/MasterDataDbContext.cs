@@ -59,7 +59,10 @@ namespace ProGlassAutomation.Services.MasterData.Database
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            options.UseSqlite($"Data Source={DbPath}");
+            // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
+            // via SqliteResilience. See SqliteResilience.cs.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(options, DbPath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

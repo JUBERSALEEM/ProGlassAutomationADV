@@ -42,7 +42,10 @@ namespace ProGlassAutomation.Services.AI.AIMemory
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            optionsBuilder.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): route through SqliteResilience for WAL,
+            // busy_timeout, foreign_keys=ON. See SqliteResilience.cs.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(optionsBuilder, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

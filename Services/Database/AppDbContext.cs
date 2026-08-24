@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using System;
@@ -26,7 +26,9 @@ namespace ProGlassAutomation.Services.Database
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             Directory.CreateDirectory(AppDataRoot.CurrentFolder);
-            options.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): route through SqliteResilience for WAL,
+            // busy_timeout=5s, foreign_keys=ON. See SqliteResilience.cs.
+            SqliteResilience.ConfigureFor(options, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

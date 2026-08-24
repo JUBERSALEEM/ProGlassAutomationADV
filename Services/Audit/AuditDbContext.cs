@@ -49,7 +49,11 @@ namespace ProGlassAutomation.Services.Audit
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            optionsBuilder.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): audit.db is security-critical — WAL
+            // + foreign_keys=ON + busy_timeout=5s guarantee no audit write is
+            // lost to a transient lock, and cascade behaviour matches the model.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(optionsBuilder, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

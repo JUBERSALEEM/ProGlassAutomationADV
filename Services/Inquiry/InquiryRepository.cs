@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Reporting;
 using System;
 using System.Linq;
@@ -118,31 +119,81 @@ namespace ProGlassAutomation.Services.Inquiry
         public async Task<InquiryRecord> CreateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
-            await using var db = new InquiryDbContext();
 
-            // S5 fix: unique-index collisions (concurrent save, import batch) are
-            // retried with the next sequence number instead of surfacing a raw
-            // DbUpdateException and losing the save.
-            for (int attempt = 0; ; attempt++)
+            // Senior audit (Aug 2026): the prior implementation reused ONE
+            // DbContext across all retry attempts. When SaveChangesAsync
+            // threw a UNIQUE violation, only the tracked entity was
+            // detached — the connection's transaction state and the
+            // change-tracker's shadow-property cache were left in a
+            // partial state, so the next SaveChanges could throw a
+            // confusing "attempted to update or insert entity with the
+            // same key" (an EF-level error, not the intended SQLite
+            // retry). We now allocate a fresh DbContext per attempt,
+            // clone the inquiry into it, and let the previous context
+            // dispose cleanly. Combined with the WAL + busy_timeout
+            // pragmas from SqliteResilience, this is the shape a
+            // multi-user desktop app actually needs.
+            //
+            // Retry semantics:
+            //   • UNIQUE violation → regenerate InquiryNumber, retry (up to 5x)
+            //   • SQLITE_BUSY / SQLITE_LOCKED → SqliteResilience.SaveWithRetryAsync
+            //     handles those inside a single attempt (with exponential
+            //     back-off), so we don't double-count them here.
+            //   • Any other error → surface immediately.
+            const int maxAttempts = 5;
+            InquiryRecord? saved = null;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
-                if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber) || attempt > 0)
+                await using var db = new InquiryDbContext();
+
+                if (string.IsNullOrWhiteSpace(inquiry.InquiryNumber) || attempt > 1)
                     inquiry.InquiryNumber = await NextInquiryNumberAsync(db, ct).ConfigureAwait(false);
+
                 var now = DateTime.Now;
                 inquiry.Status = InquiryStatuses.Normalize(inquiry.Status);
-                inquiry.CreatedAt = now; inquiry.UpdatedAt = now;
+                inquiry.CreatedAt = now;
+                inquiry.UpdatedAt = now;
                 if (inquiry.ReceivedAt == default) inquiry.ReceivedAt = now;
+
                 db.Inquiries.Add(inquiry);
-            try
+                try
+                {
+                    await SqliteResilience.SaveWithRetryAsync(
+                        token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
+                    saved = inquiry;
+                    break;
+                }
+                catch (DbUpdateException ex) when (attempt < maxAttempts && SqliteErrorClassifier.IsUnique(ex))
+                {
+                    // Fresh context on next iteration will re-seed the
+                    // sequence number and re-attempt. Detach the current
+                    // entity so the retiring context disposes cleanly.
+                    db.Entry(inquiry).State = EntityState.Detached;
+                    AppLogService.Debug(
+                        $"[InquiryRepository] UNIQUE collision on '{inquiry.InquiryNumber}' " +
+                        $"attempt {attempt}/{maxAttempts}. Regenerating number and retrying.",
+                        new LogContext
+                        {
+                            Module = "Inquiry",
+                            Class = nameof(InquiryRepository),
+                            Operation = nameof(CreateAsync)
+                        });
+                }
+            }
+
+            if (saved == null)
             {
-                await db.SaveChangesAsync(ct).ConfigureAwait(false);
-                _lifecycle.Invalidate(inquiry.Id);
-                return inquiry;
+                // Exhausted retries — surface a clean domain exception
+                // so the UI layer can show a friendly message instead
+                // of the SQLite error text.
+                throw new InvalidOperationException(
+                    "Could not allocate a unique inquiry number after " + maxAttempts +
+                    " attempts. The sequence table may be under heavy contention — try again in a moment.");
             }
-            catch (DbUpdateException ex) when (attempt < 5 && IsUniqueViolation(ex))
-            {
-                db.Entry(inquiry).State = EntityState.Detached;
-            }
-            }
+
+            _lifecycle.Invalidate(saved.Id);
+            return saved;
         }
 
         /// <summary>Maximum existing sequence for the current year prefix, plus one.</summary>
@@ -165,9 +216,14 @@ namespace ProGlassAutomation.Services.Inquiry
             return int.TryParse(number.Substring(prefix.Length), out int value) ? value : 0;
         }
 
+        /// <summary>Legacy helper preserved for source compatibility with
+        /// tests / call sites that reference it. New code should use
+        /// <see cref="SqliteErrorClassifier.IsUnique"/> which understands
+        /// the SQLite extended error codes (SQLITE_CONSTRAINT_UNIQUE /
+        /// SQLITE_CONSTRAINT_PRIMARYKEY) rather than string-matching the
+        /// error message.</summary>
         private static bool IsUniqueViolation(DbUpdateException ex) =>
-            ex.InnerException?.Message.Contains("UNIQUE constraint failed",
-                StringComparison.OrdinalIgnoreCase) == true;
+            SqliteErrorClassifier.IsUnique(ex);
 
         public async Task<InquiryRecord> UpdateAsync(InquiryRecord inquiry, CancellationToken ct = default)
         {
@@ -192,7 +248,7 @@ namespace ProGlassAutomation.Services.Inquiry
             // default; a stale binding must not reset the date to 0001-01-01.)
             if (inquiry.ReceivedAt != default) stored.ReceivedAt = inquiry.ReceivedAt;
             stored.UpdatedAt = DateTime.Now; stored.UpdatedBy = inquiry.UpdatedBy;
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             _lifecycle.Invalidate(stored.Id);
             return stored;
         }
@@ -224,7 +280,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 Description = $"Status changed to {next}.", OccurredAt = row.UpdatedAt,
                 ActorName = actor ?? ""
             });
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             _lifecycle.Invalidate(id);
             return true;
         }
@@ -240,7 +296,7 @@ namespace ProGlassAutomation.Services.Inquiry
         {
             await using var db = new InquiryDbContext();
             db.Attachments.Add(attachment);
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             return attachment;
         }
 
@@ -255,7 +311,7 @@ namespace ProGlassAutomation.Services.Inquiry
             var row = await db.Attachments.SingleOrDefaultAsync(x => x.Id == attachmentId, ct).ConfigureAwait(false);
             if (row == null) return false;
             db.Attachments.Remove(row);
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             return true;
         }
 
@@ -313,13 +369,19 @@ namespace ProGlassAutomation.Services.Inquiry
             }
             if (blocking.Count > 0) return DeleteInquiryResult.Blocked(blocking);
 
-            // Delete the children first so SQLite's FK enforcement (when
-            // enabled by the migration) is satisfied; the cascade is also
-            // safe when FK is off because we explicitly drop the rows.
+            // Delete the children first. Since Aug 2026 SqliteResilience
+            // turns foreign_keys=ON on every connection, the FK constraints
+            // declared in InquiryDbContext.OnModelCreating are actually
+            // enforced by SQLite — leaving orphan children would now throw
+            // SQLITE_CONSTRAINT_FOREIGNKEY. EF Core will also honour the
+            // OnDelete(Cascade) rule on its own, but making the delete
+            // explicit here is faster (one round-trip) and works
+            // identically whether or not the DbContext was configured
+            // with cascade behaviour.
             if (row.Communications.Count > 0) db.Communications.RemoveRange(row.Communications);
             if (row.Attachments.Count > 0) db.Attachments.RemoveRange(row.Attachments);
             db.Inquiries.Remove(row);
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             _lifecycle.Invalidate(id);
             return DeleteInquiryResult.Deleted();
         }
@@ -387,7 +449,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 // user's explicit choice for a new request.
             };
             db.Inquiries.Add(clone);
-            await db.SaveChangesAsync(ct).ConfigureAwait(false);
+            await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
             _lifecycle.Invalidate(clone.Id);
             return clone;
         }
@@ -456,7 +518,7 @@ namespace ProGlassAutomation.Services.Inquiry
                 row.ProformaInvoiceId = proformaInvoiceId;
                 row.ProformaNumber = proformaNumber;
                 row.UpdatedAt = DateTime.Now;
-                await db.SaveChangesAsync(ct).ConfigureAwait(false);
+                await SqliteResilience.SaveWithRetryAsync(token => db.SaveChangesAsync(token), ct).ConfigureAwait(false);
                 _lifecycle.Invalidate(inquiryId);
                 return true;
             }

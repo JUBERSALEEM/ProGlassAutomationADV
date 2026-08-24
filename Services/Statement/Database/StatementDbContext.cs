@@ -42,9 +42,13 @@ namespace ProGlassAutomation.Services.Statement.Database
         protected override void OnConfiguring(
             DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder
-                .UseSqlite($"Data Source={DbPath}")
-                .EnableSensitiveDataLogging(false);
+            // Senior audit (Aug 2026): WAL + busy_timeout=5s + foreign_keys=ON
+            // via SqliteResilience. Statement generation reads across five
+            // sibling databases in parallel — without WAL, one long read
+            // would block PI/JO/DN/TI writers.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(optionsBuilder, DbPath);
+            optionsBuilder.EnableSensitiveDataLogging(false);
         }
 
         // ── Model / fluent API ────────────────────────────────────────────

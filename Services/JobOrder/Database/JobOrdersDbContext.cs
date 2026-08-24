@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using System;
 using System.IO;
@@ -25,7 +25,10 @@ namespace ProGlassAutomation.Services.JobOrder.Database
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(DatabaseFilePath)!);
-            options.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): WAL + busy_timeout + foreign_keys=ON
+            // via SqliteResilience. See SqliteResilience.cs.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(options, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -51,7 +51,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            options.UseSqlite($"Data Source={DbPath}");
+            // Senior audit (Aug 2026): SqliteResilience applies WAL,
+            // busy_timeout=5s, foreign_keys=ON on every connection so the
+            // DN detail auto-save + list-refresh don't collide with a lock.
+            ProGlassAutomation.Services.Database.SqliteResilience
+                .ConfigureFor(options, DbPath);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

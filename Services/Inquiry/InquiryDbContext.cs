@@ -15,7 +15,13 @@ namespace ProGlassAutomation.Services.Inquiry
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(DatabaseFilePath)!);
-            options.UseSqlite($"Data Source={DatabaseFilePath}");
+            // Senior audit (Aug 2026): route every SQLite connection through
+            // SqliteResilience so WAL, busy_timeout=5s, foreign_keys=ON and
+            // the other hardening pragmas are applied on every physical
+            // connection. Prevents "database is locked" during concurrent
+            // Inquiry save + lifecycle hydration, and enforces the cascade
+            // deletes declared in OnModelCreating below.
+            SqliteResilience.ConfigureFor(options, DatabaseFilePath);
         }
 
         protected override void OnModelCreating(ModelBuilder model)
