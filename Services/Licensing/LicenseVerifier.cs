@@ -212,13 +212,48 @@ namespace ProGlassAutomation.Services.Licensing
             }
             byte[] message = Encoding.UTF8.GetBytes(envelope.Payload.ToCanonicalJson());
 
+            // Pick the right public key. A payload marked as a
+            // trial (TrialSource != "") is verified against the
+            // trial public key, not the production public key.
+            // This separation is what lets the shipped app
+            // issue its own 7-day trial without having the
+            // production private key on disk. The trial key
+            // pair is embedded in LicensePublicKey for this
+            // purpose (see the threat-model comment there for
+            // why this is a business-logic gate, not a
+            // cryptographic one).
+            string publicKeyXml = !string.IsNullOrEmpty(envelope.Payload.TrialSource)
+                ? LicensePublicKey.TrialPublicKeyXml
+                : LicensePublicKey.PublicKeyXml;
+
+            // If the trial key is still the placeholder, refuse
+            // any trial payload — the developer has not finished
+            // configuring the licensing subsystem. A real
+            // customer license (TrialSource == "") falls through
+            // to the production-key path, which is its own
+            // placeholder check.
+            if (!string.IsNullOrEmpty(envelope.Payload.TrialSource)
+                && LicensePublicKey.IsTrialKeyPlaceholder)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail =
+                        "Trial public key is the placeholder. The developer " +
+                        "must generate a real trial key pair via the " +
+                        "LicenseGenerator and paste it into " +
+                        "Services/Licensing/LicensePublicKey.cs before " +
+                        "shipping to a customer."
+                };
+            }
+
             // Verify the signature. PSS first (the modern
             // padding); fall back to PKCS#1 v1.5 for backward
             // compatibility with old hand-rolled license tools.
             try
             {
                 using var rsa = RSA.Create();
-                rsa.FromXmlString(LicensePublicKey.PublicKeyXml);
+                rsa.FromXmlString(publicKeyXml);
 
                 bool ok =
                     rsa.VerifyData(message, signature,

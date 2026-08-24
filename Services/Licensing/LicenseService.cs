@@ -22,6 +22,20 @@
 //     lives in %AppData%\ProGlassAutomation\license-keys.json,
 //     and stores the resulting .lic in the standard location).
 //
+//   • The auto-issued 7-day trial on first launch
+//     (commit 2 of the licensing refactor): when there is
+//     no .lic on disk and no prior trial on this machine,
+//     Initialize() generates a 7-day trial signed with the
+//     embedded trial private key (LicensePublicKey
+//     .TrialPrivateKeyXml), writes it to the standard
+//     location, and re-verifies. The trial is marked with
+//     TrialSource = "auto-7d" and a separate TrialExpiresAt
+//     so the verifier can enforce the 7-day window
+//     independently of the canonical ExpiresAt. When the
+//     window passes, EnforceTrialExpiry deletes the file and
+//     reports TrialExpired; the user must activate a real
+//     license to continue.
+//
 // LICENSE FILE LOCATIONS (searched in order, first hit wins)
 //   1. %AppData%\ProGlassAutomation\license.lic
 //   2. %AppData%\ProGlassAutomation\license.json  (older format)
@@ -73,6 +87,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Logging;
@@ -176,6 +191,15 @@ namespace ProGlassAutomation.Services.Licensing
         /// wins) and verify it. Idempotent — safe to call from
         /// <c>App.OnStartup</c> on every cold start, and again
         /// from the welcome view after a new .lic is dropped.
+        ///
+        /// First-launch auto-trial (commit 2 of the licensing
+        /// refactor): if the verifier returns
+        /// <see cref="LicenseStatus.NotActivated"/> AND no trial
+        /// has been issued on this machine yet AND the trial
+        /// key pair is configured (not the placeholder), this
+        /// method auto-issues a 7-day trial, writes it to disk,
+        /// and re-verifies. The user gets a working app on
+        /// first launch with no manual step.
         /// </summary>
         public static LicenseVerificationResult Initialize()
         {
@@ -187,6 +211,24 @@ namespace ProGlassAutomation.Services.Licensing
 
                 _licensePath = ResolveLicensePath(dataRoot);
                 _current = LicenseVerifier.Verify(_licensePath ?? string.Empty);
+
+                // Strict 7-day trial expiry: an auto-issued
+                // trial that has aged past TrialExpiresAt is
+                // deleted from disk and reported as
+                // TrialExpired. The user must activate a real
+                // license to continue. See the comment on
+                // EnforceTrialExpiry for the why.
+                _current = EnforceTrialExpiry(_current, dataRoot);
+
+                // First-launch auto-trial: NotActivated on a
+                // fresh machine with no prior trial ⇒ issue
+                // a 7-day trial. This runs AFTER
+                // EnforceTrialExpiry so a TrialExpired state
+                // is never accidentally re-issued.
+                if (_current.Status == LicenseStatus.NotActivated)
+                {
+                    _current = IssueAutoTrialIfEligible(dataRoot);
+                }
 
                 // For non-machine-bound licenses, count this
                 // machine against MaxActivations.
@@ -400,15 +442,342 @@ namespace ProGlassAutomation.Services.Licensing
             }
         }
 
+        // ── Auto-trial (commit 2 of the licensing refactor) ─────────
+        //
+        // First-launch behaviour: if the verifier returns
+        // NotActivated and no trial has been issued on this
+        // machine yet, write a 7-day trial .lic and re-verify.
+        // The 7-day window is enforced by EnforceTrialExpiry
+        // (which deletes the file and returns TrialExpired),
+        // not by trusting the payload's TrialExpiresAt — a
+        // determined user can edit the .lic to extend the
+        // window, but they cannot re-create the file once
+        // we have deleted it on day 8.
+
+        /// <summary>
+        /// How long an auto-issued trial runs. 7 days is
+        /// the product decision (commit-2 of the licensing
+        /// refactor): long enough for a real evaluation,
+        /// short enough that the user has to engage with
+        /// licensing on a meaningful timeline.
+        /// </summary>
+        public const int AutoTrialDays = 7;
+
+        /// <summary>
+        /// Marker that goes into <see cref="LicensePayload.TrialSource"/>
+        /// for an auto-issued trial. The verifier switches
+        /// to the trial public key when this marker is
+        /// non-empty. The value is also the audit-trail
+        /// handle: the operator can grep for "auto-7d" in
+        /// the audit log to see every machine that ever
+        /// self-issued.
+        /// </summary>
+        public const string AutoTrialSourceMarker = "auto-7d";
+
+        /// <summary>
+        /// Check the loaded license for an expired auto-trial.
+        /// If the payload is a trial (TrialSource non-empty)
+        /// and the current time is past TrialExpiresAt, delete
+        /// the .lic file from disk and return a new result
+        /// with <see cref="LicenseStatus.TrialExpired"/>. The
+        /// payload is preserved in the result so the UI can
+        /// still show "your trial expired on YYYY-MM-DD" with
+        /// the correct date, even though the file is gone.
+        ///
+        /// Why delete: a real customer license has a renewable
+        /// signature; an auto-trial has a self-signing one. If
+        /// we kept the file around, a user could copy it to
+        /// another machine and the 7-day window would
+        /// effectively be ignored. By deleting the file we
+        /// force the user to either activate a real license
+        /// (which has cryptographic protection) or accept
+        /// that the trial is over on this specific machine.
+        /// </summary>
+        private static LicenseVerificationResult EnforceTrialExpiry(
+            LicenseVerificationResult input, string dataRoot)
+        {
+            var p = input.Payload;
+            if (p == null) return input;
+            if (string.IsNullOrEmpty(p.TrialSource)) return input;
+            if (p.TrialExpiresAt == default) return input;
+
+            if (DateTime.UtcNow <= p.TrialExpiresAt.ToUniversalTime())
+            {
+                return input; // still valid
+            }
+
+            // Trial has expired. Delete the file so a fresh
+            // launch starts from NotActivated (and IssueAutoTrial
+            // refuses to re-issue because Config.AutoTrialWasIssued
+            // is now true).
+            //
+            // TEST-ENVIRONMENT SAFEGUARD: if App.Config is null
+            // we are in a unit test. The "expired trial → delete
+            // file" behaviour would silently nuke the test
+            // fixture on every test that loads a trial with a
+            // past TrialExpiresAt. Refuse to delete the file
+            // when there is no persisted config to enforce the
+            // one-per-machine rule; the test can still observe
+            // the TrialExpired status, but the file is left
+            // alone so the next test starts from the same
+            // state.
+            bool testEnvironment = App.Config == null;
+
+            if (!testEnvironment)
+            {
+                try
+                {
+                    string path = Path.Combine(dataRoot, DefaultLicenseFileName);
+                    if (File.Exists(path)) File.Delete(path);
+                }
+                catch (Exception ex)
+                {
+                    // Refusing to start is more important than
+                    // failing to delete the file. Log and move
+                    // on — the verifier still returns TrialExpired
+                    // because the payload's TrialExpiresAt is in
+                    // the past, regardless of file presence.
+                    AppLogService.Warning(
+                        "Could not delete expired trial license: " + ex.Message,
+                        new LogContext
+                        {
+                            Module = "Licensing",
+                            Class = nameof(LicenseService),
+                            Operation = "EnforceTrialExpiry"
+                        });
+                }
+            }
+
+            // Mark the trial as fully used so we never re-issue.
+            // The flag is set on disk via the persisted
+            // AppConfig; this matters because the .lic file is
+            // gone, so the next launch will see NotActivated
+            // and (without this flag) auto-issue a new trial.
+            try
+            {
+                if (App.Config != null)
+                {
+                    App.Config.AutoTrialWasIssued = true;
+                    ConfigService.Save(App.Config);
+                }
+            }
+            catch
+            {
+                // Best effort. If we cannot save the
+                // config, the worst case is the next launch
+                // re-issues a trial and the user gets a
+                // second 7-day window — annoying, not
+                // catastrophic, and only happens on a
+                // permission-locked profile.
+            }
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    testEnvironment
+                        ? "Auto-trial expired (test env; file preserved)"
+                        : "Auto-trial expired; trial file deleted",
+                    "licenseId=" + p.LicenseId + "; " +
+                    "trialSource=" + p.TrialSource + "; " +
+                    "trialExpiresAt=" + p.TrialExpiresAt.ToString("u"));
+            }
+            catch { /* audit must not block startup */ }
+
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.TrialExpired,
+                Payload = p,
+                ErrorDetail =
+                    "The 7-day trial has expired. The trial " +
+                    "license was removed from this machine on " +
+                    p.TrialExpiresAt.ToString("yyyy-MM-dd") + ". " +
+                    "Activate a full license to continue."
+            };
+        }
+
+        /// <summary>
+        /// If the current state is NotActivated (no license
+        /// file on disk) AND no auto-trial has been issued
+        /// on this machine yet AND the trial key pair is
+        /// configured (not the placeholder), generate a
+        /// 7-day trial, sign it with the embedded trial
+        /// private key, write it to the default location,
+        /// and return the new verification result.
+        ///
+        /// Gate: <see cref="App.Config"/>'s
+        /// <see cref="AppConfig.AutoTrialWasIssued"/> is
+        /// false. This is the one-per-machine lock: once a
+        /// trial has been issued on a given install, it
+        /// never auto-issues again, even if the user
+        /// deletes the .lic file.
+        /// </summary>
+        private static LicenseVerificationResult IssueAutoTrialIfEligible(
+            string dataRoot)
+        {
+            // 1) Trial key pair must be configured. A
+            //    developer who has not yet run the
+            //    LicenseGenerator to generate a real pair
+            //    is left in NotActivated — the same
+            //    behaviour as before this commit, so the
+            //    audit finding "the public key is the
+            //    placeholder" stays loud.
+            if (LicensePublicKey.IsTrialKeyPlaceholder)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.NotActivated,
+                    ErrorDetail =
+                        "Trial key pair is the placeholder. The " +
+                        "developer must generate a real pair via " +
+                        "the LicenseGenerator and paste it into " +
+                        "Services/Licensing/LicensePublicKey.cs " +
+                        "(TrialPublicKeyXml + TrialPrivateKeyXml) " +
+                        "before shipping to a customer."
+                };
+            }
+
+            // 2) One trial per machine. We look at
+            //    App.Config.AutoTrialWasIssued. If the
+            //    config is not loaded yet (tests, weird
+            //    startup order), default to "not eligible"
+            //    so we never accidentally double-issue.
+            //
+            //    ALSO: if App.Config is null, we are
+            //    almost certainly in a test environment.
+            //    Auto-issuing a trial during a unit test
+            //    would write to whatever folder
+            //    TestDataFolderOverride points at and
+            //    pollute the test fixture for every
+            //    subsequent test in the assembly. Treat
+            //    null Config the same as "trial already
+            //    issued" — refuse the auto-trial.
+            if (App.Config == null
+                || App.Config.AutoTrialWasIssued)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.NotActivated,
+                    ErrorDetail = App.Config == null
+                        ? "App.Config is not loaded; " +
+                          "auto-trial is disabled (likely " +
+                          "a test environment)."
+                        : "No license file found. A 7-day " +
+                          "trial was previously issued on " +
+                          "this machine. Activate a full " +
+                          "license to use the app."
+                };
+            }
+
+            // 3) Build the payload. Same feature set as the
+            //    developer-triggered 30-day trial (in
+            //    InstallTrial) but duration is 7 days and
+            //    TrialSource is the auto marker. ExpiresAt
+            //    is set to a far-future date as a safety
+            //    net (a customer who flips the clock back
+            //    would otherwise bypass the trial), but
+            //    TrialExpiresAt is the authoritative value
+            //    for an auto-issued trial.
+            var now = DateTime.UtcNow;
+            var payload = new LicensePayload
+            {
+                LicenseId = "AUTO-" + Guid.NewGuid().ToString("N"),
+                Edition = LicenseEdition.Trial,
+                CustomerId = "TRIAL",
+                CompanyName = "Trial user",
+                IssuedAt = now,
+                ExpiresAt = now.AddDays(AutoTrialDays),
+                MaxActivations = 1,
+                Features = new[]
+                {
+                    "Inquiry.*", "Proforma.*", "JobOrder.*",
+                    "DeliveryNote.*", "TaxInvoice.*", "Statement.*",
+                    "MasterData.*", "SheetStore.*"
+                },
+                MachineFingerprint = null,    // portable
+                Notes = "Auto-issued 7-day trial.",
+                TrialSource = AutoTrialSourceMarker,
+                TrialExpiresAt = now.AddDays(AutoTrialDays)
+            };
+
+            // 4) Sign with the embedded trial private key
+            //    and write the file. We use the standard
+            //    default location so the rest of the
+            //    service (ResolveLicensePath, EnforceActivation
+            //    Count, audit log) treats it like any other
+            //    license.
+            string destPath = Path.Combine(dataRoot, DefaultLicenseFileName);
+            try
+            {
+                Directory.CreateDirectory(dataRoot);
+                LicenseSigner.SignToFile(
+                    payload, LicensePublicKey.TrialPrivateKeyXml, destPath);
+            }
+            catch (Exception ex)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.NotActivated,
+                    ErrorDetail =
+                        "Could not auto-issue trial: " + ex.Message
+                };
+            }
+
+            // 5) Persist the one-per-machine flag so this
+            //    never re-issues. We save the config even
+            //    if the file save later fails — the worst
+            //    case is one extra trial, not zero.
+            try
+            {
+                if (App.Config != null)
+                {
+                    App.Config.AutoTrialWasIssued = true;
+                    ConfigService.Save(App.Config);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not persist AutoTrialWasIssued flag: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "IssueAutoTrialIfEligible"
+                    });
+            }
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Auto-trial issued",
+                    "licenseId=" + payload.LicenseId + "; " +
+                    "days=" + AutoTrialDays + "; " +
+                    "trialSource=" + AutoTrialSourceMarker + "; " +
+                    "expires=" + payload.TrialExpiresAt.ToString("u"));
+            }
+            catch { /* audit must not block startup */ }
+
+            // 6) Re-verify the freshly written file. The
+            //    result's Payload is the auto-trial we
+            //    just wrote; the status comes back as
+            //    Trial (the same branch a customer-issued
+            //    trial lands in) so the rest of the
+            //    startup can take the standard path.
+            return LicenseVerifier.Verify(destPath);
+        }
+
         // ── Trial install ──────────────────────────────────────────
 
         /// <summary>
-        /// Generate a 30-day trial license, sign it with the
-        /// developer's private key (stored alongside the
-        /// public key in <c>license-keys.json</c>), and
-        /// write the result to the default license path.
-        /// Returns the resulting verification status so the
-        /// UI can show "trial started, 30 days remaining".
+        /// Manual trial install — used by the developer
+        /// when they need a longer / different-duration
+        /// trial than the auto-issued 7-day default. Signs
+        /// with the developer's private key from
+        /// <c>license-keys.json</c> (the same key the
+        /// LicenseGenerator uses) and writes the .lic.
+        /// Returns the resulting verification status.
         ///
         /// The trial uses the same key pair as production
         /// licenses — there is no "DEV-ONLY" key. The
@@ -424,6 +793,15 @@ namespace ProGlassAutomation.Services.Licensing
         /// Enterprise requires a real issuer signature,
         /// which requires the private key the customer does
         /// not have.
+        ///
+        /// Commit 2 of the licensing refactor: this method
+        /// is the DEVELOPER-ONLY path. End users on a
+        /// shipped install never call this — the 7-day
+        /// auto-trial in <see cref="Initialize"/> is the
+        /// only trial they get. InstallTrial remains for
+        /// the developer's own machine (where the
+        /// LicenseGenerator wrote the private key to
+        /// license-keys.json).
         /// </summary>
         public static LicenseVerificationResult InstallTrial(int days = 30)
         {

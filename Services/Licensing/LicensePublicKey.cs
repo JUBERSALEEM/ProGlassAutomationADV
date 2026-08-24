@@ -134,5 +134,98 @@ namespace ProGlassAutomation.Services.Licensing
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static void SetForTest(string xml) => PublicKeyXml = xml;
+
+        // ═════════════════════════════════════════════════════════
+        //  TRIAL KEY PAIR — embedded for the auto-issued 7-day trial
+        //  (commit 2 of the licensing refactor)
+        //
+        //  A self-issued 7-day trial needs a key pair, because the
+        //  existing verifier rejects unsigned or wrong-key payloads
+        //  with Invalid. The production key pair is held only by
+        //  the LicenseGenerator tool, so the shipped app cannot
+        //  use it to sign a trial. We solve this by embedding a
+        //  SECOND key pair, dedicated to trials:
+        //
+        //    • TrialPublicKeyXml — the public half, used by
+        //      LicenseVerifier when payload.TrialSource is non-empty.
+        //      Stored as a const-ish property so the verifier can
+        //      reach it without a file-system read on cold start.
+        //
+        //    • TrialPrivateKeyXml — the private half, used by
+        //      LicenseService.IssueAutoTrialIfEligible to sign a
+        //      fresh trial on first launch. Marked internal + non-
+        //      browsable so the IDE does not surface it.
+        //
+        //  THREAT MODEL — this is NOT cryptographically strong. A
+        //  determined user can extract the private key from the
+        //  shipped binary with ildasm / ILSpy and write a
+        //  100-year trial of their own. The trial is a
+        //  business-logic enforcement, not a cryptographic one.
+        //  The actual 7-day limit is enforced by
+        //  LicenseService.EnforceTrialExpiry deleting the file at
+        //  day 8, regardless of what the payload says. The
+        //  signature is here so the file is tamper-evident against
+        //  ACCIDENTAL edits, not to be uncrackable. Real customer
+        //  licenses use the production key pair and are unbreakable
+        //  without the private key the customer does not have.
+        //
+        //  THE PLACEHOLDER below is a real-looking but invalid
+        //  RSA XML. The verifier detects the placeholder and
+        //  refuses to accept any trial signed against it. The
+        //  developer (or LicenseGenerator) must generate a real
+        //  pair and replace both halves. Until that is done, the
+        //  auto-trial path is disabled and the app behaves as
+        //  before Commit 2 (NotActivated on first launch).
+        // ═════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// RSA-2048 public key for the auto-issued trial
+        /// subsystem. Used by <see cref="LicenseVerifier"/>
+        /// when the payload's <c>TrialSource</c> field is
+        /// non-empty (see <see cref="LicensePayload.TrialSource"/>).
+        /// </summary>
+        public static string TrialPublicKeyXml { get; private set; } =
+            "PLACEHOLDER_TRIAL_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML";
+
+        /// <summary>
+        /// RSA-2048 private key for the auto-issued trial
+        /// subsystem. Held only in this assembly; never
+        /// written to disk. Used by
+        /// <see cref="LicenseService"/> to sign a 7-day
+        /// trial on first launch.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public static string TrialPrivateKeyXml { get; private set; } =
+            "PLACEHOLDER_TRIAL_REPLACE_WITH_REAL_RSA2048_PRIVATE_KEY_XML";
+
+        /// <summary>
+        /// True when the trial key pair is still the
+        /// placeholder. While true, the auto-trial path is
+        /// disabled and the verifier treats any
+        /// TrialSource-tagged payload as Invalid. The
+        /// developer must run the LicenseGenerator tool and
+        /// replace both TrialPublicKeyXml and
+        /// TrialPrivateKeyXml with a real pair before
+        /// shipping to a customer.
+        /// </summary>
+        public static bool IsTrialKeyPlaceholder =>
+            TrialPublicKeyXml.StartsWith("PLACEHOLDER_TRIAL_",
+                System.StringComparison.Ordinal)
+            || TrialPrivateKeyXml.StartsWith("PLACEHOLDER_TRIAL_",
+                System.StringComparison.Ordinal);
+
+        /// <summary>
+        /// INTERNAL TEST HOOK. Swaps the trial key pair
+        /// for the duration of a test that exercises the
+        /// auto-trial path. Mirrors <see cref="SetForTest"/>
+        /// for the production key.
+        /// </summary>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal static void SetTrialKeysForTest(
+            string publicXml, string privateXml)
+        {
+            TrialPublicKeyXml = publicXml;
+            TrialPrivateKeyXml = privateXml;
+        }
     }
 }

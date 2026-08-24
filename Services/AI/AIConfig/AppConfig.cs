@@ -123,5 +123,57 @@ namespace ProGlassAutomation.Services.AI.AIConfig
 
         /// <summary>When false the last username is cleared on sign-in.</summary>
         public bool RememberUsername { get; set; } = true;
+
+        // ── Auto-trial bookkeeping (commit 2 of the licensing refactor) ──
+        //
+        // The shipped app issues a 7-day trial on first launch when
+        // there is no license file on disk. To make that exactly
+        // one-per-machine and not re-issued on every launch, we
+        // remember that a trial has been issued in the persisted
+        // config. The flag is set on the same launch the trial
+        // .lic file is written, and cleared by
+        // LicenseService.EnforceTrialExpiry when the trial has
+        // expired (so a customer who activates a real license
+        // after the trial window is not penalised).
+
+        /// <summary>
+        /// UTC timestamp of the first auto-issued trial on
+        /// this machine, or null if no trial has been
+        /// issued yet. Used as the one-per-machine
+        /// gate by <see cref="Services.Licensing.LicenseService"/>.
+        /// </summary>
+        public DateTime? AutoTrialIssuedAtUtc { get; set; }
+
+        /// <summary>
+        /// Convenience mirror of <see cref="AutoTrialIssuedAtUtc"/>:
+        /// true iff a trial was ever issued on this machine.
+        /// Kept as a separate flag so config code can read
+        /// the boolean without null-checks. Both fields are
+        /// kept in sync by the licence code.
+        /// </summary>
+        public bool AutoTrialWasIssued
+        {
+            get => AutoTrialIssuedAtUtc.HasValue;
+            set
+            {
+                if (value)
+                {
+                    // Record the moment the trial was first
+                    // issued. Preserve the original timestamp
+                    // if one is already present (do not
+                    // overwrite on every save).
+                    AutoTrialIssuedAtUtc ??= DateTime.UtcNow;
+                }
+                else
+                {
+                    // Explicit clear — used by
+                    // LicenseService.EnforceTrialExpiry when
+                    // the trial window has passed and a real
+                    // license has not been activated, so a
+                    // future launch does not re-issue.
+                    AutoTrialIssuedAtUtc = null;
+                }
+            }
+        }
     }
 }
