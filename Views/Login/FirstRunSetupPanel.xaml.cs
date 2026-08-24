@@ -35,7 +35,6 @@ using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
-using ProGlassAutomation.Services.Updates;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -167,9 +166,10 @@ namespace ProGlassAutomation.Views.Login
                 // NOT arm the auto-sign-in pill here — the operator
                 // has not been shown that consent surface yet, and
                 // a senior-ERP UX contract requires an explicit
-                // opt-in for silent sign-in. See TryArmAutoLogin for
-                // the reasoning and the subsequent-boot flow.
-                TryArmAutoLogin(username);
+                // opt-in for silent sign-in. See
+                // PersistFirstRunUsername for the reasoning and the
+                // subsequent-boot flow.
+                PersistFirstRunUsername(username);
 
                 SetBusyState(false, "Administrator created — signing in…");
                 PasswordBox.Clear();
@@ -268,7 +268,7 @@ namespace ProGlassAutomation.Views.Login
         ///                  every subsequent boot until the next
         ///                  installed update.
         /// </summary>
-        private static void TryArmAutoLogin(string username)
+        private static void PersistFirstRunUsername(string username)
         {
             try
             {
@@ -298,7 +298,7 @@ namespace ProGlassAutomation.Views.Login
                     {
                         Module = "Auth",
                         Class = nameof(FirstRunSetupPanel),
-                        Operation = "TryArmAutoLogin"
+                        Operation = "PersistFirstRunUsername"
                     });
             }
         }

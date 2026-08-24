@@ -446,13 +446,14 @@ namespace ProGlassAutomation.Services.Licensing
         //
         // First-launch behaviour: if the verifier returns
         // NotActivated and no trial has been issued on this
-        // machine yet, write a 7-day trial .lic and re-verify.
-        // The 7-day window is enforced by EnforceTrialExpiry
-        // (which deletes the file and returns TrialExpired),
-        // not by trusting the payload's TrialExpiresAt — a
-        // determined user can edit the .lic to extend the
-        // window, but they cannot re-create the file once
-        // we have deleted it on day 8.
+        // machine yet, write an AutoTrialDays-long trial .lic
+        // and re-verify. The window is enforced by
+        // EnforceTrialExpiry (which returns TrialExpired and
+        // drops the app into read-only mode), not by trusting
+        // the payload's TrialExpiresAt — a determined user
+        // can edit the .lic to extend the window, but the
+        // AutoTrialWasIssued flag in AppConfig is the
+        // one-per-machine gate so re-issue is refused.
 
         /// <summary>
         /// How long an auto-issued trial runs. 30 days is the

@@ -563,10 +563,13 @@ namespace ProGlassAutomation.Views.Splash
         ///
         /// After the operator creates the first administrator
         /// we silently call AuditService.SwitchUserAsync with
-        /// the freshly-typed credentials, arm the auto-login
-        /// pill by default (their brand-new password lives
-        /// in DPAPI-encrypted SecretVault), and return true
-        /// so App.xaml.cs proceeds to show the main window.
+        /// the freshly-typed credentials and return true so
+        /// App.xaml.cs proceeds to show the main window. The
+        /// auto-login pill is deliberately NOT armed here —
+        /// the operator has not seen that consent surface
+        /// yet, so the next boot presents the login form and
+        /// only writes the DPAPI-vault entry if the user
+        /// explicitly opts in on that screen.
         ///
         /// Call this INSTEAD of <see cref="RunLoginAsync"/>
         /// on a fresh install. The choice is driven by
@@ -584,9 +587,15 @@ namespace ProGlassAutomation.Views.Splash
             // window without any further prompting.
             async void OnCreated(string newUsername, string newPassword)
             {
-                // Lock the setup panel so the operator
-                // cannot double-submit while the sign-in
-                // is in progress.
+                // Unsubscribe FIRST so a re-entrant Created (e.g. the
+                // panel raised it twice due to a fast double-click that
+                // slipped the re-entrancy guard) cannot double-invoke
+                // this handler and complete `done` twice with different
+                // results.
+                SetupGate.Created -= OnCreated;
+
+                // Lock the setup panel so the operator cannot
+                // double-submit while the sign-in is in progress.
                 SetupGate.IsEnabled = false;
                 LoadingText.Text = "Opening workspace…";
 

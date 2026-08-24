@@ -401,8 +401,11 @@ namespace ProGlassAutomation.ViewModels
         /// "Activate license" button on the read-only banner so a
         /// single click takes the user from anywhere in the app to
         /// the activation surface — no manual nav-rail hunting.
+        /// Assigned in the constructor alongside the other Show*
+        /// commands, so it is guaranteed non-null for the lifetime
+        /// of any bound view.
         /// </summary>
-        public ICommand OpenLicenseSettingsCommand { get; private set; } = null!;
+        public ICommand OpenLicenseSettingsCommand { get; }
 
         // ── Parameterless ctor for XAML backward compat — uses App.ServiceProvider fallback ──
         public MainViewModel() : this(App.ServiceProvider ?? Services.DependencyInjection.ServiceRegistration.BuildProGlassProvider())

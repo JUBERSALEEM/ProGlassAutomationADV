@@ -1405,11 +1405,15 @@
                  commands are gated by ReadOnlyGate.
                  The banner links straight to Settings → License so
                  the user can activate without hunting for the page.
-                 ZIndex 90 sits below the AI/Agent overlays (200/210)
-                 but above the module content so it is always visible.
+                 ZIndex 5 sits ABOVE the module content card (implicit
+                 ZIndex 0) but BELOW the sidebar drawer (ZIndex 10),
+                 the license activation overlay (100), the AI chat
+                 (200) and the agent chat (210), so the drawer and
+                 any modal surface cover the banner cleanly when open
+                 without the banner poking through their top edge.
             ═══════════════════════════════════════════════════════════ -->
             <Border x:Name="ReadOnlyBanner"
-                    Panel.ZIndex="90"
+                    Panel.ZIndex="5"
                     Margin="16,16,16,0"
                     VerticalAlignment="Top"
                     Padding="16,10"

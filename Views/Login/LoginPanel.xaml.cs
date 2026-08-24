@@ -254,7 +254,7 @@ namespace ProGlassAutomation.Views.Login
                 }
 
                 PersistRememberedUsername(username);
-                PersistSkipLoginChoice(username, password);
+                PersistSkipLoginChoice(password);
 
                 bool usingDefault = await Task.Run(
                     () => AuditService.IsUsingDefaultPasswordAsync(username));
@@ -331,7 +331,7 @@ namespace ProGlassAutomation.Views.Login
         /// previously stored blob and unbinds the version so a
         /// user who once opted in can also cleanly opt out.
         /// </summary>
-        private void PersistSkipLoginChoice(string username, string password)
+        private void PersistSkipLoginChoice(string password)
         {
             try
             {
