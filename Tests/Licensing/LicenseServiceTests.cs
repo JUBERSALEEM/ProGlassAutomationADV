@@ -55,6 +55,22 @@ namespace ProGlassAutomation.Tests.Licensing
             _savedOverride = LicenseService.TestDataFolderOverride;
             LicenseService.TestDataFolderOverride = _tempFolder;
 
+            // TrialLedger anchor isolation (Aug 2026 cross-check fix):
+            // LicenseService.Initialize now writes to the TrialLedger
+            // on every call. Redirect the ledger's %ProgramData% +
+            // registry anchors into the same temp folder so tests
+            // never touch the real %ProgramData%\ProGlassAutomation
+            // and never pollute the developer's real trial state.
+            //
+            // LicenseService.Initialize auto-propagates when
+            // TestDataFolderOverride is set, but the explicit save/
+            // restore here is defence in depth against tests that
+            // reach TrialLedger directly.
+            _savedLedgerOverride     = ProGlassAutomation.Services.Licensing.TrialLedger.TestProgramDataOverride;
+            _savedLedgerSkipRegistry = ProGlassAutomation.Services.Licensing.TrialLedger.SkipRegistryAnchorForTests;
+            ProGlassAutomation.Services.Licensing.TrialLedger.TestProgramDataOverride  = _tempFolder;
+            ProGlassAutomation.Services.Licensing.TrialLedger.SkipRegistryAnchorForTests = true;
+
             // Start each test with the placeholder public
             // key so any test that forgets to install a
             // working pair will fail loudly instead of
@@ -68,9 +84,15 @@ namespace ProGlassAutomation.Tests.Licensing
         {
             SwapPublicKey(_savedPublicKey);
             LicenseService.TestDataFolderOverride = _savedOverride;
+            ProGlassAutomation.Services.Licensing.TrialLedger.TestProgramDataOverride  = _savedLedgerOverride;
+            ProGlassAutomation.Services.Licensing.TrialLedger.SkipRegistryAnchorForTests = _savedLedgerSkipRegistry;
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort */ }
         }
+
+        // ── TrialLedger anchor overrides — see ctor ────────────────
+        private readonly string? _savedLedgerOverride;
+        private readonly bool _savedLedgerSkipRegistry;
 
         /// <summary>
         /// Helper: generate a fresh key pair, install the

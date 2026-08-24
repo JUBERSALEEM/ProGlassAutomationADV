@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.Shared.RecordOverlayWindow"
+<Window x:Class="ProGlassAutomation.Views.Shared.RecordOverlayWindow"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -21,10 +21,13 @@
 
     <Window.Resources>
         <!-- Matches the app's rounded action buttons: CardCornerRadius (12). -->
+        <!-- Compact HUD buttons (Aug 2026 senior audit: user asked to
+             make the recorder smaller). Was 38x38; shrunk to 28x28
+             with tighter padding for a more phone-like recorder pill. -->
         <Style x:Key="HudButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Width" Value="38"/>
-            <Setter Property="Height" Value="38"/>
+            <Setter Property="Width" Value="28"/>
+            <Setter Property="Height" Value="28"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Padding" Value="0"/>
@@ -73,7 +76,7 @@
     -->
     <Border x:Name="HudRoot"
             CornerRadius="{DynamicResource CardCornerRadius}"
-            Padding="14,10"
+            Padding="10,6"
             BorderThickness="1"
             BorderBrush="#4DFFFFFF"
             Cursor="SizeAll"
@@ -86,41 +89,54 @@
         <StackPanel>
             <DockPanel LastChildFill="False">
                 <Ellipse x:Name="HudDot" DockPanel.Dock="Left"
-                         Width="10" Height="10" Margin="0,0,10,0"
+                         Width="8" Height="8" Margin="0,0,8,0"
                          VerticalAlignment="Center" Fill="#EF4444"/>
 
                 <TextBlock x:Name="HudBadge" DockPanel.Dock="Left"
-                           Text="REC" FontSize="11" FontWeight="Bold"
+                           Text="REC" FontSize="10" FontWeight="Bold"
                            Foreground="#FCA5A5" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
+                           Margin="0,0,8,0"/>
 
                 <TextBlock x:Name="HudTime" DockPanel.Dock="Left"
-                           Text="00:00" FontSize="20" FontWeight="Bold"
+                           Text="00:00" FontSize="15" FontWeight="Bold"
                            Foreground="White" VerticalAlignment="Center"
-                           MinWidth="72" TextAlignment="Right"/>
+                           MinWidth="52" TextAlignment="Right"/>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal"
-                            VerticalAlignment="Center" Margin="14,0,0,0">
+                            VerticalAlignment="Center" Margin="10,0,0,0">
                     <!-- Pause / Resume — ⏸ ▶ (Segoe MDL2) -->
                     <Button x:Name="HudPause"
                             Style="{StaticResource HudButtonStyle}"
                             Click="Pause_Click"
-                            Margin="0,0,6,0"
+                            Margin="0,0,4,0"
                             Background="#334155"
                             AutomationProperties.Name="Pause or resume recording">
                         <TextBlock Text="&#xE769;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="15" VerticalAlignment="Center"
+                                   FontSize="12" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Stop — ⏹ (Segoe MDL2) -->
                     <Button x:Name="HudStop"
                             Style="{StaticResource HudButtonStyle}"
                             Click="Stop_Click"
-                            Margin="0,0,6,0"
+                            Margin="0,0,4,0"
                             Background="#DC2626"
                             AutomationProperties.Name="Stop and save recording">
                         <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="15" VerticalAlignment="Center"
+                                   FontSize="12" VerticalAlignment="Center"
+                                   HorizontalAlignment="Center"/>
+                    </Button>
+                    <!-- Open folder — visible after SAVED (Aug 2026 fix) -->
+                    <Button x:Name="HudOpenFolder"
+                            Style="{StaticResource HudButtonStyle}"
+                            Click="OpenFolder_Click"
+                            Margin="0,0,4,0"
+                            Background="#0369A1"
+                            Visibility="Collapsed"
+                            ToolTip="Open the folder where the video was saved"
+                            AutomationProperties.Name="Open recording folder">
+                        <TextBlock Text="&#xE8DA;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="12" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Dismiss after SAVED / FAILED -->
@@ -131,7 +147,7 @@
                             Visibility="Collapsed"
                             AutomationProperties.Name="Close">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="13" VerticalAlignment="Center"
+                                   FontSize="11" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
@@ -140,9 +156,9 @@
             <!-- Only visible while finalizing / finished -->
             <TextBlock x:Name="HudStage"
                        Text=""
-                       FontSize="11" Foreground="#CBD5E1"
-                       Margin="22,6,0,0" TextWrapping="Wrap"
-                       MaxWidth="300"
+                       FontSize="10" Foreground="#CBD5E1"
+                       Margin="16,4,0,0" TextWrapping="Wrap"
+                       MaxWidth="260"
                        Visibility="Collapsed"/>
         </StackPanel>
     </Border>

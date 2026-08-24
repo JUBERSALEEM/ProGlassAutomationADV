@@ -1,6 +1,8 @@
 using ProGlassAutomation.Agent.Demo.Recording;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -109,6 +111,45 @@ namespace ProGlassAutomation.Views.Shared
             HudPause.Visibility = Visibility.Collapsed;
             HudStop.Visibility = Visibility.Collapsed;
             HudClose.Visibility = Visibility.Visible;
+        }
+
+        /// <summary>
+        /// Wires the "open folder" HUD button to point at the just-saved
+        /// file. Called from DemoRecordingChrome.ShowSaved so the user
+        /// has a one-click affordance to reach the MP4 without the
+        /// blocking MessageBox that used to fire.
+        /// </summary>
+        public void EnableOpenFolder(string? savedPath)
+        {
+            _savedPathForOpenFolder = savedPath;
+            HudOpenFolder.Visibility = string.IsNullOrEmpty(savedPath)
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+        }
+
+        private string? _savedPathForOpenFolder;
+
+        private void OpenFolder_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var p = _savedPathForOpenFolder;
+                if (string.IsNullOrEmpty(p)) return;
+                if (File.Exists(p))
+                {
+                    // /select highlights the file in Explorer.
+                    var psi = new ProcessStartInfo("explorer.exe",
+                        "/select,\"" + p + "\"") { UseShellExecute = true };
+                    Process.Start(psi);
+                }
+                else
+                {
+                    var dir = Path.GetDirectoryName(p);
+                    if (!string.IsNullOrEmpty(dir) && Directory.Exists(dir))
+                        Process.Start(new ProcessStartInfo(dir) { UseShellExecute = true });
+                }
+            }
+            catch (Exception ex) { AppLogService.Warning("Suppressed exception: " + ex.Message); }
         }
 
         private void Close_Click(object sender, RoutedEventArgs e)

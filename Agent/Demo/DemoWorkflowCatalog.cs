@@ -83,8 +83,20 @@ namespace ProGlassAutomation.Agent.Demo
             W("StatementReport", "Statement Report", "Analyze generated customer statements.", "StatementReport", "Open Statement Report."),
             W("SystemCenter", "System Center", "Administer access and system users.", "SystemCenter", "Open System Center."),
             W("Diagnostics", "Diagnostics", "Inspect application health and logs.", "Diagnostics", "Open Diagnostics."),
-            W("Settings", "Settings", "Configure application services and appearance.", "Settings", "Open Settings."),
-            W("About", "About", "Review platform capabilities and release information.", "About", "Open About."),
+            W("Settings", "Settings", "Configure application services and appearance.", "Settings",
+                "Open Settings — the central place for every preference in the app.",
+                "Appearance controls the theme, density and wallpaper. AI and Voice pick the assistant provider and the microphone. Data and Backup keeps a snapshot of your database. Updates checks for a new release without leaving the app."),
+            W("Features", "Settings — Features", "Toggle optional fields in Proforma Invoice and Inquiry, and manage the session.", "Settings",
+                "Open Settings, then Features. This is the no-code panel — turn any optional field on or off without editing XAML.",
+                "Session controls give you one-click sign out for a shift handover, and forget-this-device to revoke the skip-login credentials on this machine without ending your session.",
+                "Proforma Invoice toggles hide fields you never fill in — bank details, LPO, attention line, and many more. Company Name and Proforma ID stay always visible because the database needs them.",
+                "Inquiry toggles work the same way. Customer Name and Project Name always show; every other field is your choice."),
+            W("License", "Settings — License", "Start a trial or activate a licence key.", "Settings",
+                "Open Settings, then License. This is the only place licensing lives in the app.",
+                "Fresh installs get a thirty-day trial automatically with every module unlocked. When it ends the app switches to read-only mode — your data is safe, but new writes need a real licence key.",
+                "The trial is strictly one-time per machine. Anti-tamper anchors keep it that way: config, program-data, registry and a DPAPI blob all agree before a new trial can be issued."),
+            W("About", "About", "Review platform capabilities and release information.", "About",
+                "Open About — the platform's release information, feature summary, and machine fingerprint for support."),
         };
 
         public static DemoWorkflow? Find(string? id)

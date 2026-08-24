@@ -217,6 +217,24 @@ namespace ProGlassAutomation.Services.Licensing
                     ?? AppDataRoot.CurrentFolder;
                 _activationsPath = Path.Combine(dataRoot, ActivationsFileName);
 
+                // TEST-HOST HYGIENE (cross-check fix, Aug 2026):
+                // When the caller has redirected the license folder
+                // (TestDataFolderOverride is set), also redirect the
+                // TrialLedger's %ProgramData% + registry anchors into
+                // the same temp folder — otherwise the LicenseService
+                // tests would write "trial issued" markers to the real
+                // %ProgramData%\ProGlassAutomation and pollute the
+                // developer's actual auto-trial state.
+                //
+                // Idempotent — if a test explicitly set the ledger
+                // override to a different path, we do NOT overwrite it.
+                if (TestDataFolderOverride != null)
+                {
+                    if (TrialLedger.TestProgramDataOverride == null)
+                        TrialLedger.TestProgramDataOverride = TestDataFolderOverride;
+                    TrialLedger.SkipRegistryAnchorForTests = true;
+                }
+
                 _licensePath = ResolveLicensePath(dataRoot);
                 _current = LicenseVerifier.Verify(_licensePath ?? string.Empty);
 

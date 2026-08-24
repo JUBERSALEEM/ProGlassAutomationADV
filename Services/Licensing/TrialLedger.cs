@@ -201,10 +201,14 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch { /* silence */ }
 
-            // Anchor 3 — HKLM registry
+            // Anchor 3 — HKLM registry. Skipped in tests so a stale
+            // registry key left behind by a previous developer session
+            // does not give false-positive "issued" verdicts.
             try
             {
-                var r = RegistryAnchor.Read();
+                RegistryAnchor.Record? r = SkipRegistryAnchorForTests
+                    ? null
+                    : RegistryAnchor.Read();
                 if (r.HasValue)
                 {
                     anyIssued = true;

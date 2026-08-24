@@ -44,27 +44,53 @@ namespace ProGlassAutomation.Agent.Demo
             string path, TimeSpan duration, int frames, string audioNote)
         {
             _recorder = null;
+
+            // Senior audit (Aug 2026): the modal MessageBox that used
+            // to fire here BLOCKED the UI thread until the user
+            // dismissed it — the user reported the recorder "keeps
+            // running after the video is recorded". The HUD now
+            // auto-dismisses after a short window; the toast on the
+            // HUD carries the filename so no dialog is needed. The
+            // "Open folder" button on the HUD close row still lets
+            // the user reach the file.
             RunOnUi(() =>
             {
                 var win = Ensure();
                 if (!win.IsVisible) win.Show();
-                win.SetFinal("SAVED",
+                win.SetFinal(
+                    "SAVED",
                     RecordingTime.Format(duration) + " · " + frames + " frames",
-                    (audioNote ?? "") + "\n" + path,
+                    (string.IsNullOrWhiteSpace(audioNote) ? "" : audioNote + "\n") +
+                        System.IO.Path.GetFileName(path),
                     failed: false);
+                win.EnableOpenFolder(path);
+
+                // Auto-dismiss unless the user explicitly disabled it
+                // in Settings (RecordingPreferences.AutoCloseHudAfterSave).
+                bool autoClose = true;
                 try
                 {
-                    MessageBox.Show(
-                        "Recording saved.\n\n" +
-                        "Duration: " + RecordingTime.Format(duration) + "\n" +
-                        "Frames: " + frames + "\n" +
-                        "Audio: " + (string.IsNullOrWhiteSpace(audioNote) ? "none" : audioNote) + "\n\n" +
-                        path,
-                        SavedTitle,
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    autoClose = ProGlassAutomation.App.Config?.Recording?
+                        .AutoCloseHudAfterSave ?? true;
                 }
-                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                catch { /* stick with default true */ }
+
+                if (autoClose)
+                {
+                    // 4-second dwell so the operator can read the toast,
+                    // then close cleanly. Fire-and-forget timer.
+                    var timer = new DispatcherTimer
+                    {
+                        Interval = TimeSpan.FromSeconds(4)
+                    };
+                    timer.Tick += (s, e) =>
+                    {
+                        timer.Stop();
+                        try { _overlay?.Close(); } catch { /* silence */ }
+                        _overlay = null;
+                    };
+                    timer.Start();
+                }
             });
         }
 

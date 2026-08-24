@@ -39,7 +39,8 @@ namespace ProGlassAutomation.ViewModels.Shared
             PauseCommand = new RelayCommand(
                 _ => _svc.TogglePause(),
                 _ => _svc.IsRecording);
-            OpenOutputCommand = new RelayCommand(_ => _svc.OpenOutput());
+            OpenOutputCommand          = new RelayCommand(_ => _svc.OpenOutput());
+            OpenRecordingsFolderCommand = new RelayCommand(_ => _svc.OpenRecordingsFolder());
 
             _svc.Changed += RaiseStatus;
         }
@@ -129,6 +130,15 @@ namespace ProGlassAutomation.ViewModels.Shared
         public ICommand StopCommand { get; }
         public ICommand PauseCommand { get; }
         public ICommand OpenOutputCommand { get; }
+
+        /// <summary>
+        /// Opens %AppData%\ProGlassAutomation\Recordings in Explorer
+        /// regardless of whether a recording has finished yet. Bound
+        /// to the "Open recordings folder" button in the top-bar
+        /// recorder popup (Aug 2026 senior audit — the user asked
+        /// for a visible "where is my file" affordance).
+        /// </summary>
+        public ICommand OpenRecordingsFolderCommand { get; }
 
         private void PushSettings()
         {

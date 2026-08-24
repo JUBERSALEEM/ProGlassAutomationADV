@@ -178,6 +178,46 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     }
 
     /// <summary>
+    /// Persisted preferences for the in-app screen recorder. Simple
+    /// primitives only so the settings survive both a config-schema
+    /// bump and a JSON round-trip. Kept as int rather than the
+    /// ScreenRecordQuality enum so a value the enum no longer
+    /// recognises (older config after an enum rename) hydrates as
+    /// FullHd (1080) without crashing.
+    ///
+    /// UX contract (Aug 2026 senior audit):
+    ///   • Quality, Fps, CaptureLiveAudio, CaptureMicrophone all
+    ///     survive an app restart.
+    ///   • Only an installed update that intentionally breaks the
+    ///     schema resets them; ConfigService.Load's null-coalescing
+    ///     hydration returns a fresh defaulted instance in that case.
+    /// </summary>
+    public class RecordingPreferences
+    {
+        /// <summary>Vertical resolution: 720, 1080, 1440 or 2160.</summary>
+        public int QualityHeight { get; set; } = 1080;
+
+        /// <summary>Target frame rate: 30, 40, 50 or 60.</summary>
+        public int Fps { get; set; } = 30;
+
+        /// <summary>Capture internal system audio via WASAPI loopback.</summary>
+        public bool CaptureLiveAudio { get; set; } = true;
+
+        /// <summary>Capture microphone via WASAPI.</summary>
+        public bool CaptureMicrophone { get; set; } = true;
+
+        /// <summary>Supersampled capture (higher-quality downscale).</summary>
+        public bool Supersample { get; set; }
+
+        /// <summary>
+        /// Auto-dismiss the recording HUD after "SAVED" is shown.
+        /// True by default so the user doesn't have to click Close
+        /// on the overlay after every recording.
+        /// </summary>
+        public bool AutoCloseHudAfterSave { get; set; } = true;
+    }
+
+    /// <summary>
     /// Root config container persisted to disk as JSON.
     ///
     /// SECURITY (v2): API keys never reach the JSON file. They live in
@@ -209,6 +249,19 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public InquiryFeatureFlags InquiryFields { get; set; }
             = new InquiryFeatureFlags();
+
+        /// <summary>
+        /// Persisted user preferences for the in-app screen recorder
+        /// (Demo Center card and top-bar recorder popup). Before this
+        /// existed the user's last-picked quality / fps / mic / speaker
+        /// choices were only kept in memory and reset every restart —
+        /// a real usability complaint. Config bump is additive; older
+        /// config.json files hydrate to defaults via ConfigService.Load's
+        /// null-coalescing pass. Only reset on an installed update if
+        /// the schema breaks in a future release.
+        /// </summary>
+        public RecordingPreferences Recording { get; set; }
+            = new RecordingPreferences();
 
         /// <summary>
         /// Last signed-in username. Never a password. Restored on the

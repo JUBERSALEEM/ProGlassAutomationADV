@@ -1,4 +1,5 @@
 using ProGlassAutomation.Agent.Demo;
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using ProGlassAutomation.Services.Common;
@@ -34,7 +35,42 @@ namespace ProGlassAutomation.Services.Recording
         private string? _jobFolder;
         private IDisposable? _critical;
         private CancellationTokenSource? _cts;
-        private ScreenRecordSettings _settings = new();
+        private ScreenRecordSettings _settings = LoadPersistedSettings();
+
+        /// <summary>
+        /// Hydrates the recording settings from
+        /// <see cref="AppConfig.Recording"/> on first construction so
+        /// the user's last quality / fps / mic / speaker choices
+        /// survive an app restart (Aug 2026 senior audit fix). Before
+        /// this, every launch reset to defaults.
+        /// </summary>
+        private static ScreenRecordSettings LoadPersistedSettings()
+        {
+            try
+            {
+                var prefs = App.Config?.Recording;
+                if (prefs == null) return new ScreenRecordSettings();
+
+                return new ScreenRecordSettings
+                {
+                    Quality = prefs.QualityHeight switch
+                    {
+                        720  => ScreenRecordQuality.Hd720,
+                        1440 => ScreenRecordQuality.Qhd2K,
+                        2160 => ScreenRecordQuality.Uhd4K,
+                        _    => ScreenRecordQuality.FullHd
+                    },
+                    Fps = prefs.Fps,
+                    CaptureLiveAudio = prefs.CaptureLiveAudio,
+                    CaptureMicrophone = prefs.CaptureMicrophone,
+                    Supersample = prefs.Supersample
+                }.Clamp();
+            }
+            catch
+            {
+                return new ScreenRecordSettings();
+            }
+        }
 
         public bool IsRecording { get; private set; }
         public bool IsEncoding { get; private set; }
@@ -50,7 +86,37 @@ namespace ProGlassAutomation.Services.Recording
         public ScreenRecordSettings Settings
         {
             get => _settings;
-            set => _settings = (value ?? new ScreenRecordSettings()).Clone().Clamp();
+            set
+            {
+                _settings = (value ?? new ScreenRecordSettings()).Clone().Clamp();
+                PersistSettings(_settings);
+            }
+        }
+
+        /// <summary>
+        /// Writes the current settings into <see cref="AppConfig.Recording"/>
+        /// and saves the config file. Best-effort: a failed save logs a
+        /// warning but does not gate the recording — the in-memory value
+        /// still takes effect for the current session.
+        /// </summary>
+        private static void PersistSettings(ScreenRecordSettings rec)
+        {
+            try
+            {
+                if (App.Config == null) return;
+                App.Config.Recording ??= new RecordingPreferences();
+                App.Config.Recording.QualityHeight = (int)rec.Quality;
+                App.Config.Recording.Fps = rec.Fps;
+                App.Config.Recording.CaptureLiveAudio = rec.CaptureLiveAudio;
+                App.Config.Recording.CaptureMicrophone = rec.CaptureMicrophone;
+                App.Config.Recording.Supersample = rec.Supersample;
+                ConfigService.Save(App.Config);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not persist recording settings: " + ex.Message);
+            }
         }
 
         public event Action? Changed;
@@ -292,6 +358,27 @@ namespace ProGlassAutomation.Services.Recording
             catch (Exception ex)
             {
                 Status = "Could not open recordings: " + ex.Message;
+                RaiseChanged();
+            }
+        }
+
+        /// <summary>
+        /// Opens the top-level recordings ROOT folder in Explorer
+        /// regardless of whether a recording has been made yet. Bound
+        /// to the top-bar recorder popup's "OPEN RECORDINGS FOLDER"
+        /// button (Aug 2026 senior audit).
+        /// </summary>
+        public void OpenRecordingsFolder()
+        {
+            try
+            {
+                Directory.CreateDirectory(OutputRoot);
+                ProcessStartGuard.TryOpenFolder(OutputRoot,
+                    CorrelationContext.NewId());
+            }
+            catch (Exception ex)
+            {
+                Status = "Could not open recordings folder: " + ex.Message;
                 RaiseChanged();
             }
         }
