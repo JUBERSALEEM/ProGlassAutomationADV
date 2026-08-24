@@ -206,15 +206,20 @@ namespace ProGlassAutomation.Services.Licensing
             // does not give false-positive "issued" verdicts.
             try
             {
+                // RegistryAnchor.Record is a record CLASS (reference type),
+                // not a struct — the nullable-annotated variable is a
+                // reference that is either null or points at an instance.
+                // Use `r is not null` rather than the .HasValue/.Value
+                // pattern that only applies to Nullable<T> value types.
                 RegistryAnchor.Record? r = SkipRegistryAnchorForTests
                     ? null
                     : RegistryAnchor.Read();
-                if (r.HasValue)
+                if (r is not null)
                 {
                     anyIssued = true;
-                    MergeTimestamps(r.Value.FirstIssuedUtc, ref earliest, ref latest);
-                    if (r.Value.LastSeenUtc.HasValue)
-                        MergeTimestamps(r.Value.LastSeenUtc.Value, ref earliest, ref latest);
+                    MergeTimestamps(r.FirstIssuedUtc, ref earliest, ref latest);
+                    if (r.LastSeenUtc.HasValue)
+                        MergeTimestamps(r.LastSeenUtc.Value, ref earliest, ref latest);
                     evidence.Append("registry;");
                 }
             }
