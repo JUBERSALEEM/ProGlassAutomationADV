@@ -297,6 +297,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
             catch { /* best-effort teardown */ }
 
+            // Follow-up audit pass (Aug 2026): SavedInvoicesListViewModel
+            // is IDisposable and subscribes to static DocumentLifecycle
+            // + SampleDataService events that outlive any short-lived
+            // parent. Chain its disposal here so the whole PI tree
+            // tears down cleanly on shutdown / test hosts. Best-effort:
+            // a partially-constructed child never blocks teardown.
+            try { SavedInvoicesListVM?.Dispose(); }
+            catch { /* best-effort teardown */ }
+
             GC.SuppressFinalize(this);
         }
 

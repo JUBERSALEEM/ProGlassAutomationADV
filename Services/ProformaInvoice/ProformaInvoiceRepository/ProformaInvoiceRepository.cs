@@ -235,8 +235,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 $"writer is racing this insert.");
         }
 
+        /// <summary>
+        /// Match SQLite's unique-index violation text. Aligned with
+        /// <c>InquiryRepository.IsUniqueViolation</c> so both retry
+        /// loops respond to the same signal — a follow-up refactor
+        /// can hoist a single helper into <c>Services.Database</c>.
+        /// The narrower "UNIQUE constraint failed" phrase avoids
+        /// false-positives on unrelated error messages that happen
+        /// to mention "UNIQUE".
+        /// </summary>
         private static bool IsUniqueViolation(DbUpdateException ex) =>
-            ex.InnerException?.Message?.Contains("UNIQUE",
+            ex.InnerException?.Message?.Contains(
+                "UNIQUE constraint failed",
                 StringComparison.OrdinalIgnoreCase) == true;
 
         /// <summary>

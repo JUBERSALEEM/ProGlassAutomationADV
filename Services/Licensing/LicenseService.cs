@@ -168,8 +168,16 @@ namespace ProGlassAutomation.Services.Licensing
         }
 
         /// <summary>
-        /// True when the app may run but in read-only mode
-        /// (the user is in the post-expiry grace period).
+        /// True when the app may run but is not permitted to make new
+        /// writes / exports / prints. Two scenarios map here:
+        ///   • <see cref="LicenseStatus.GracePeriod"/> — a PAID licence
+        ///     has expired but is inside its 7-day grace window.
+        ///   • <see cref="LicenseStatus.TrialExpired"/> — the 30-day
+        ///     auto-trial has ended; customer data is preserved and the
+        ///     wizard remains navigable, but writes are blocked until
+        ///     activation. (Behaviour introduced by the August 2026
+        ///     licensing refactor — the trial no longer deletes its
+        ///     .lic file.)
         /// </summary>
         public static bool IsReadOnlyMode => Current.ReadOnly;
 
