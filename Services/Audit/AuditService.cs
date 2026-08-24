@@ -82,9 +82,20 @@ namespace ProGlassAutomation.Services.Audit
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Creates audit.db schema and seeds the default admin user on
-        /// first run. Safe to call multiple times. Never throws —
-        /// audit failure must not block app startup.
+        /// Creates audit.db schema on first run. Safe to
+        /// call multiple times. Never throws — audit
+        /// failure must not block app startup.
+        ///
+        /// Commit 5 of the licensing refactor: no longer
+        /// seeds a default admin/admin user. The
+        /// splash detects an empty Users table and
+        /// shows an interactive first-run setup
+        /// wizard (FirstRunSetupPanel) that creates
+        /// the first user with the operator's choice
+        /// of credentials. The wizard requires
+        /// username, display name, and a password
+        /// (twice) — same validation rules as
+        /// CreateUserAsync.
         /// </summary>
         public static async Task InitializeAsync()
         {
@@ -103,28 +114,11 @@ namespace ProGlassAutomation.Services.Audit
                     _initialized = true;
                 }
 
-                // Seed default admin so there is always an active user.
-                bool hasUsers = await db.Users.AnyAsync();
-                if (!hasUsers)
-                {
-                    // A-3: seeded from the same constants the
-                    // default-password detector uses, so the two can never
-                    // drift apart.
-                    var admin = BuildUser(
-                        username: DefaultAdminUsername,
-                        displayName: "Administrator",
-                        role: AppRoles.Administrator,
-                        password: DefaultAdminPassword);
-
-                    admin.CreatedAtUtc = DateTime.UtcNow;
-                    db.Users.Add(admin);
-                    await db.SaveChangesAsync();
-                }
-
-                // AUTH-1: do not treat the first seeded user as signed in.
-                // Splash / startup run as "system" until LoginWindow verifies
-                // a password. Auto-picking the lowest Id made Presence and
-                // the audit trail claim admin was online before anyone signed in.
+                // AUTH-1: do not treat any user as signed in.
+                // Splash / startup run as "system" until LoginWindow
+                // verifies a password. Auto-picking the lowest Id made
+                // Presence and the audit trail claim admin was online
+                // before anyone signed in.
                 _currentUser = null;
 
                 AppLogService.Debug(
@@ -379,6 +373,33 @@ namespace ProGlassAutomation.Services.Audit
             catch
             {
                 return new List<AppUser>();
+            }
+        }
+
+        /// <summary>
+        /// True when at least one user row exists in the
+        /// audit database. Used by the first-run
+        /// detection in the splash: an empty Users
+        /// table is the "fresh install" signal that
+        /// triggers the interactive setup wizard
+        /// (Commit 5 of the licensing refactor).
+        ///
+        /// Returns false on any error. Refusing to
+        /// answer the question (vs. crashing) is the
+        /// safe side: the wizard will still show and
+        /// CreateUserAsync will surface the real reason
+        /// the DB is unreachable.
+        /// </summary>
+        public static async Task<bool> HasAnyUsersAsync()
+        {
+            try
+            {
+                using var db = new AuditDbContext();
+                return await db.Users.AnyAsync();
+            }
+            catch
+            {
+                return false;
             }
         }
 

@@ -419,6 +419,110 @@ namespace ProGlassAutomation.Views.Splash
             return done.Task;
         }
 
+        /// <summary>
+        /// First-run setup flow (Commit 5 of the
+        /// licensing refactor). Shown when the audit
+        /// database has no users yet. The operator
+        /// creates the first administrator; on
+        /// success this method transitions the splash
+        /// straight to the regular login flow (with
+        /// the new username pre-filled) so the same
+        /// operator can sign in.
+        ///
+        /// Call this INSTEAD of <see cref="RunLoginAsync"/>
+        /// on a fresh install. The choice is driven by
+        /// App.xaml.cs based on
+        /// <see cref="AuditService.HasAnyUsersAsync"/>.
+        /// </summary>
+        public Task<bool> RunFirstRunSetupAsync()
+        {
+            var done = new TaskCompletionSource<bool>();
+
+            // The setup panel raises Created with the
+            // new username; we then hand off to the
+            // regular login. The login is the only
+            // thing that can return true to App.xaml.cs
+            // (so the splash fades and the main window
+            // opens).
+            void OnCreated(string newUsername)
+            {
+                // Lock the setup panel so the operator
+                // cannot double-submit while the swap is
+                // in progress.
+                SetupGate.IsEnabled = false;
+                SetupHost.Visibility = Visibility.Collapsed;
+
+                // The login panel's OnLoaded reads the
+                // remembered username from App.Config.
+                // For the very first sign-in, we want the
+                // freshly-created username to be the one
+                // that is pre-filled, so seed it in the
+                // config (RememberUsername defaults to
+                // true so the same username will be
+                // remembered for the next launch).
+                try
+                {
+                    if (App.Config != null)
+                    {
+                        App.Config.LastUsername = newUsername;
+                        App.Config.RememberUsername = true;
+                        ConfigService.Save(App.Config);
+                    }
+                }
+                catch
+                {
+                    // Best effort. The login panel
+                    // tolerates an empty username field
+                    // (the operator just types the
+                    // username again).
+                }
+
+                // Hand off to the regular login flow.
+                // We await RunLoginAsync and propagate
+                // its result so App.xaml.cs gets a true
+                // when the operator signs in.
+                _ = RunLoginAsync().ContinueWith(t =>
+                {
+                    if (t.IsCompletedSuccessfully)
+                        done.TrySetResult(t.Result);
+                    else
+                        done.TrySetResult(false);
+                });
+            }
+
+            SetupGate.Created += OnCreated;
+            Closed += (_, __) =>
+            {
+                // If the splash is closed while the
+                // setup is running (the operator
+                // clicked the X), the login never
+                // happens, so report not-signed-in so
+                // App.xaml.cs exits cleanly.
+                done.TrySetResult(false);
+            };
+
+            StopLoadingIndicators();
+            LoadingText.Text = "Setting up the first administrator";
+            LoadingDots.Text = "";
+
+            TermsPanel.Visibility = Visibility.Collapsed;
+            PosterHost.Visibility = Visibility.Collapsed;
+            SetupHost.Visibility = Visibility.Visible;
+            SetupHost.BeginAnimation(OpacityProperty, new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(280),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+
+            try { Activate(); } catch { /* window may be closing */ }
+            Dispatcher.BeginInvoke(new Action(() => SetupGate.Focus()),
+                DispatcherPriority.Input);
+
+            return done.Task;
+        }
+
         public void FadeOutAndClose(Action onCompleted)
         {
             StopLoadingIndicators();

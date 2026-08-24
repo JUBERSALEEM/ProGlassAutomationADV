@@ -1,0 +1,232 @@
+<!--
+  FirstRunSetupPanel — interactive first-run user setup wizard.
+
+  Commit 5 of the licensing refactor replaces the
+  admin/admin seed with an interactive first-run
+  flow:
+
+    * On a fresh install (empty Users table), the
+      splash shows THIS panel instead of the
+      LoginPanel.
+    * The operator types a username, display name,
+      and a password (twice) to create the first
+      administrator.
+    * On success, the panel transitions to the
+      regular LoginPanel so the same operator can
+      sign in with the credentials they just
+      created.
+
+  The visual chrome (frosted glass card, brand
+  mark, field labels) matches LoginPanel so the
+  first-run experience feels like a continuation of
+  the splash, not a different app.
+
+  No skip / no exit — the only escape is closing the
+  whole splash window via the OS (the app cannot run
+  without a user). A hint line at the bottom tells
+  the operator what closing the window will do.
+-->
+<UserControl x:Class="ProGlassAutomation.Views.Login.FirstRunSetupPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:updates="clr-namespace:ProGlassAutomation.Services.Updates"
+             PreviewKeyDown="Root_PreviewKeyDown"
+             FontFamily="{DynamicResource AppFontFamily}"
+             FontWeight="{DynamicResource AppFontWeight}"
+             FontStyle="{DynamicResource AppFontStyle}"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             RenderOptions.BitmapScalingMode="HighQuality"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="AuthGlassStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource PageBg}">
+        <Ellipse Width="360" Height="360"
+                 Fill="{StaticResource OrbRight}"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-80,-80,0" IsHitTestVisible="False"/>
+        <Ellipse Width="300" Height="300"
+                 Fill="{StaticResource OrbLeft}"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-80,0,0,-80" IsHitTestVisible="False"/>
+        <Border Width="460"
+                Margin="16"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Background="{StaticResource GlassCard}"
+                BorderBrush="#66FFFFFF"
+                BorderThickness="1"
+                Effect="{StaticResource CardShadow}"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        Background="{StaticResource CardSheen}"
+                        IsHitTestVisible="False"/>
+                <Border Padding="28,24"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  PanningMode="VerticalOnly"
+                                  Focusable="False"
+                                  FocusVisualStyle="{x:Null}">
+                        <StackPanel>
+
+                            <!-- ── BRAND ─────────────────────────────── -->
+                            <StackPanel HorizontalAlignment="Center">
+                                <Border Width="54" Height="54" CornerRadius="13"
+                                        SnapsToDevicePixels="True"
+                                        HorizontalAlignment="Center">
+                                    <Border.Background>
+                                        <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
+                                                    Stretch="UniformToFill"/>
+                                    </Border.Background>
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#1D4ED8" BlurRadius="24"
+                                                          ShadowDepth="0" Opacity="0.55"/>
+                                    </Border.Effect>
+                                </Border>
+                                <TextBlock Text="Welcome to ProGlass"
+                                           FontSize="19" FontWeight="Bold"
+                                           Foreground="{StaticResource NameGradient}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,12,0,0"/>
+                                <TextBlock Text="Create the first administrator account"
+                                           FontSize="12"
+                                           Foreground="{StaticResource Cerulean}"
+                                           HorizontalAlignment="Center"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,18,0,0"/>
+
+                            <!-- ── HEADLINE COPY ─────────────────────── -->
+                            <TextBlock TextWrapping="Wrap" FontSize="12"
+                                       Foreground="{StaticResource Ice}"
+                                       Opacity="0.9"
+                                       Margin="0,14,0,0"
+                                       HorizontalAlignment="Center">
+                                <Run Text="ProGlass needs an administrator to get started. Choose a username and password — you will use them to sign in right after."/>
+                            </TextBlock>
+
+                            <!-- ── USERNAME ─────────────────────────── -->
+                            <TextBlock Text="USERNAME" Style="{StaticResource FieldLabel}"
+                                       Margin="2,18,0,6"/>
+                            <TextBox x:Name="UsernameBox"
+                                     Tag="&#xE77B;"
+                                     Style="{StaticResource RoundedTextBox}"/>
+
+                            <!-- ── DISPLAY NAME ─────────────────────── -->
+                            <TextBlock Text="DISPLAY NAME" Style="{StaticResource FieldLabel}"
+                                       Margin="2,14,0,6"/>
+                            <TextBox x:Name="DisplayNameBox"
+                                     Tag="&#xE77B;"
+                                     Style="{StaticResource RoundedTextBox}"/>
+
+                            <!-- ── PASSWORD ─────────────────────────── -->
+                            <TextBlock Text="PASSWORD" Style="{StaticResource FieldLabel}"
+                                       Margin="2,14,0,6"/>
+                            <PasswordBox x:Name="PasswordBox"
+                                         Tag="&#xE72E;"
+                                         Style="{StaticResource RoundedPasswordBox}"/>
+
+                            <!-- ── CONFIRM PASSWORD ─────────────────── -->
+                            <TextBlock Text="CONFIRM PASSWORD" Style="{StaticResource FieldLabel}"
+                                       Margin="2,14,0,6"/>
+                            <PasswordBox x:Name="ConfirmPasswordBox"
+                                         Tag="&#xE72E;"
+                                         Style="{StaticResource RoundedPasswordBox}"/>
+
+                            <!-- ── PASSWORD RULES (small reminder) ───── -->
+                            <TextBlock x:Name="PasswordHintText"
+                                       TextWrapping="Wrap" FontSize="11"
+                                       Foreground="{StaticResource Frost}"
+                                       Opacity="0.75"
+                                       Margin="2,6,0,0">
+                                <Run Text="Password must be at least 6 characters. Choose something you will remember — there is no email-based recovery for offline installs."/>
+                            </TextBlock>
+
+                            <!-- ── ERROR PANEL ───────────────────────── -->
+                            <Border x:Name="ErrorPanel"
+                                    Margin="0,14,0,0" Padding="13,10"
+                                    CornerRadius="10"
+                                    Background="#33DC2626"
+                                    BorderBrush="{StaticResource DangerOnGlass}"
+                                    BorderThickness="1"
+                                    Visibility="Collapsed">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xEA39;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                    <TextBlock x:Name="ErrorText"
+                                               FontSize="12.5" FontWeight="SemiBold"
+                                               TextWrapping="Wrap"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- ── THE SINGLE ACTION ─────────────────── -->
+                            <Button x:Name="CreateButton"
+                                    Content="CREATE ADMINISTRATOR"
+                                    Height="44"
+                                    Margin="0,16,0,0"
+                                    Style="{StaticResource SignInButtonStyle}"
+                                    Click="Create_Click"
+                                    IsDefault="True"
+                                    ToolTip="Create the first administrator and continue to sign in"
+                                    AutomationProperties.Name="Create administrator"/>
+
+                            <!-- ── STATUS STRIP (busy / created) ─────── -->
+                            <StackPanel x:Name="StatusStrip"
+                                        Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,12,0,0"
+                                        Visibility="Hidden">
+                                <Ellipse x:Name="CreateBusyDot" Width="8" Height="8"
+                                         Fill="#4ADE80" Margin="0,0,8,0"
+                                         VerticalAlignment="Center"
+                                         Visibility="Collapsed"/>
+                                <TextBlock x:Name="CreateStatusText"
+                                           Text=""
+                                           FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{StaticResource Ice}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <Rectangle Style="{StaticResource HairlineStyle}" Margin="0,16,0,0"/>
+
+                            <!-- ── FOOTER (no Exit — fresh install) ──── -->
+                            <TextBlock HorizontalAlignment="Center"
+                                       FontSize="11"
+                                       Foreground="{StaticResource Frost}"
+                                       Opacity="0.65"
+                                       Margin="0,10,0,0">
+                                <Run Text="Version"/>
+                                <Run Text=" "/>
+                                <Run Text="{x:Static updates:AppInfo.Version}"/>
+                            </TextBlock>
+                            <TextBlock HorizontalAlignment="Center"
+                                       FontSize="10"
+                                       TextWrapping="Wrap"
+                                       Foreground="{StaticResource Frost}"
+                                       Opacity="0.55"
+                                       Margin="0,6,0,0">
+                                <Run Text="Closing the splash will exit the app — ProGlass cannot run without a user."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

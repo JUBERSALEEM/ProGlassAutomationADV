@@ -785,7 +785,23 @@ namespace ProGlassAutomation
                 return;
             }
 
-            bool signedIn = await splash.RunLoginAsync();
+            // Commit 5 of the licensing refactor: check
+            // for an empty Users table on first launch.
+            // If empty, show the interactive first-run
+            // setup wizard INSTEAD of the regular login
+            // form. The wizard creates the first
+            // administrator and then hands the splash
+            // off to the normal login flow with the
+            // new username pre-filled, so the same
+            // operator can sign in with the credentials
+            // they just chose. The old admin/admin
+            // seed (AuditService.InitializeAsync) is
+            // removed; this branch is the only path
+            // that creates the first user.
+            bool hasAnyUsers = await AuditService.HasAnyUsersAsync();
+            bool signedIn = hasAnyUsers
+                ? await splash.RunLoginAsync()
+                : await splash.RunFirstRunSetupAsync();
             if (!signedIn)
             {
                 Shutdown(0);

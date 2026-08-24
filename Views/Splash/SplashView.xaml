@@ -483,6 +483,19 @@
             <login:LoginPanel x:Name="LoginGate"/>
         </Grid>
 
+        <!-- ═══ FIRST-RUN SETUP GATE — Commit 5 of the licensing ═══
+             refactor. Replaces the pre-login Welcome and the
+             admin/admin seed. Shown when AuditService reports
+             an empty Users table (fresh install). On a
+             successful create, the splash swaps the
+             LoginPanel in via the SetupHost's Created event. -->
+        <Grid x:Name="SetupHost"
+              Visibility="Collapsed"
+              Opacity="0"
+              Panel.ZIndex="12">
+            <login:FirstRunSetupPanel x:Name="SetupGate"/>
+        </Grid>
+
         <!-- ═══ TERMS GATE — FULL PAGE (glass scrim) ═══ -->
         <Grid x:Name="TermsPanel"
               Background="#E60A1428"
