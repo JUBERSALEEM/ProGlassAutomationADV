@@ -718,10 +718,28 @@ namespace ProGlassAutomation
             //       • CanRun=false,
             //         Result=ReadOnly    → skip welcome, status banner
             //                                shown elsewhere.
-            //       • NotActivated       → show WelcomeView.
-            //     The welcome view itself drives the user into
+            //       • NotActivated       → show LicenseActivationView.
+            //     The activation view itself drives the user into
             //     Activate / Trial / ContinueReadOnly; this block just
             //     decides whether to show it.
+            //
+            //     Commit 3 of the licensing refactor: the in-app
+            //     LicenseActivationView replaces the pre-login
+            //     WelcomeView. The OLD "Continue Read-Only" exit
+            //     path is gone (read-only has no meaning under
+            //     the strict 7-day trial model). The OLD "Start a
+            //     30-day Trial" button is gone (LicenseService
+            //     auto-issues a 7-day trial on first launch, no
+            //     user action required). The new view has only two
+            //     exits: Activated (license installed, advance)
+            //     and Closed (user dismissed, exit).
+            //
+            //     Commit 4 will simplify this further: the app
+            //     will boot into the main shell even when the
+            //     license is missing, and the activation view
+            //     will be a page inside the shell rather than a
+            //     modal window. For Commit 3 the same modal
+            //     window pattern is kept (smaller blast radius).
             ProGlassAutomation.Services.Licensing.LicenseService.Initialize();
             var licenseStatus = ProGlassAutomation.Services.Licensing
                 .LicenseService.Current;
@@ -730,67 +748,108 @@ namespace ProGlassAutomation
                     == ProGlassAutomation.Services.Licensing
                         .LicenseStatus.NotActivated)
             {
-                var welcome = new ProGlassAutomation.Views.Licensing.WelcomeView();
-                var welcomeWindow = new System.Windows.Window
+                // Commit 3 — the auto-trial was supposed to
+                // fire inside LicenseService.Initialize() but
+                // is short-circuited when the trial key pair
+                // is still the placeholder (the shipped
+                // state). On a developer's machine the
+                // placeholder is in place, so the
+                // NotActivated branch still applies. When the
+                // developer pastes a real trial key pair
+                // into LicensePublicKey (the post-Commit-2
+                // follow-up), the auto-trial fires inside
+                // Initialize and this branch is dead code
+                // for new installs. It still covers the
+                // "license file deleted by hand" case so we
+                // keep the explicit window.
+                var activation = new ProGlassAutomation.Views.Licensing
+                    .LicenseActivationView();
+                var activationWindow = new System.Windows.Window
                 {
                     Title = "ProGlass Automation — Activation",
-                    Width = 760,
-                    Height = 720,
-                    MinWidth = 640,
-                    MinHeight = 600,
+                    Width = 800,
+                    Height = 760,
+                    MinWidth = 680,
+                    MinHeight = 640,
                     WindowStartupLocation = WindowStartupLocation.CenterScreen,
                     ResizeMode = ResizeMode.NoResize,
                     ShowInTaskbar = true,
-                    Content = welcome
+                    Content = activation
                 };
-                var welcomeDone = new System.Threading.Tasks.TaskCompletionSource<bool>();
-                welcome.Accepted += (_, __) => welcomeDone.TrySetResult(true);
-                welcomeWindow.Closed += (_, __) => welcomeDone.TrySetResult(false);
-                welcomeWindow.Show();
-                bool welcomeAccepted = await welcomeDone.Task;
-                welcomeWindow.Close();
+                var activationDone = new System.Threading.Tasks
+                    .TaskCompletionSource<bool>();
+                activation.Activated += (_, __) =>
+                    activationDone.TrySetResult(true);
+                activation.Closed += (_, __) =>
+                    activationDone.TrySetResult(false);
+                activationWindow.Closed += (_, __) =>
+                    activationDone.TrySetResult(false);
+                activationWindow.Show();
+                bool activationAccepted = await activationDone.Task;
+                activationWindow.Close();
 
-                if (!welcomeAccepted
-                    || welcome.Result == ProGlassAutomation.Views.Licensing
-                        .WelcomeView.WelcomeResult.Cancelled)
+                if (!activationAccepted
+                    || !ProGlassAutomation.Services.Licensing
+                        .LicenseService.Current.CanRun)
                 {
                     AppLogService.Info(
-                        "User closed welcome dialog without activating a license. " +
-                        "Exiting.");
+                        "User closed activation dialog without installing a " +
+                        "runnable license. Exiting.");
                     Shutdown(0);
                     return;
                 }
 
-                // Re-read the status after the welcome flow so
-                // the rest of the boot sees the new license.
-                licenseStatus = ProGlassAutomation.Services.Licensing
-                    .LicenseService.Current;
                 AppLogService.Info(
-                    $"Welcome flow completed: result={welcome.Result}; " +
-                    $"new status={licenseStatus.Status}");
+                    "Activation dialog accepted; new status=" +
+                    ProGlassAutomation.Services.Licensing
+                        .LicenseService.Current.Status);
             }
             else if (!licenseStatus.CanRun)
             {
-                // E.g. Expired / Invalid / MachineMismatch. Show
-                // a clear dialog and exit — the welcome view's
-                // "Continue Read-Only" path is the one the user
-                // would pick, but we did not show the welcome so
-                // be explicit here.
-                var problem = System.Windows.MessageBox.Show(
-                    "ProGlass Automation cannot start because the " +
-                    "license is not in a runnable state:\n\n" +
-                    ProGlassAutomation.Views.Licensing
-                        .LicenseUiText.StatusDescription(licenseStatus.Status)
-                    + "\n\nActivate a valid license and restart the app. " +
-                    "You can also re-install the LicenseGenerator " +
-                    "tool to issue yourself a new key pair if the " +
-                    "public key embedded in the app is still the " +
-                    "placeholder.",
-                    "License problem",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
-                Shutdown(0);
-                return;
+                // E.g. TrialExpired / Invalid / MachineMismatch /
+                // ActivationLimit / Expired. Commit 3 still
+                // shows the same modal here so the user has a
+                // clear path to fix the problem without
+                // restarting the app. The new view's
+                // LicenseService.StatusChanged hook keeps the
+                // current-license card up to date as soon as
+                // the user drops a working .lic.
+                var activation = new ProGlassAutomation.Views.Licensing
+                    .LicenseActivationView();
+                var activationWindow = new System.Windows.Window
+                {
+                    Title = "ProGlass Automation — License problem",
+                    Width = 800,
+                    Height = 760,
+                    MinWidth = 680,
+                    MinHeight = 640,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    ResizeMode = ResizeMode.NoResize,
+                    ShowInTaskbar = true,
+                    Content = activation
+                };
+                var activationDone = new System.Threading.Tasks
+                    .TaskCompletionSource<bool>();
+                activation.Activated += (_, __) =>
+                    activationDone.TrySetResult(true);
+                activation.Closed += (_, __) =>
+                    activationDone.TrySetResult(false);
+                activationWindow.Closed += (_, __) =>
+                    activationDone.TrySetResult(false);
+                activationWindow.Show();
+                bool activationAccepted = await activationDone.Task;
+                activationWindow.Close();
+
+                if (!activationAccepted
+                    || !ProGlassAutomation.Services.Licensing
+                        .LicenseService.Current.CanRun)
+                {
+                    AppLogService.Info(
+                        "User closed license-problem dialog without fixing the " +
+                        "license. Exiting.");
+                    Shutdown(0);
+                    return;
+                }
             }
 
             // 12) Splash screen — this one window owns terms AND login.
