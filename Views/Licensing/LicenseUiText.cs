@@ -34,6 +34,12 @@ namespace ProGlassAutomation.Views.Licensing
             LicenseStatus.Trial => "Trial",
             LicenseStatus.MachineMismatch => "Wrong machine",
             LicenseStatus.ActivationLimit => "Activation limit reached",
+            // Auto-issued 7-day trial that has expired. The
+            // license file is gone; the user must activate a
+            // real license to continue. Wording deliberately
+            // matches "License expired" so the message in
+            // the UI is unambiguous.
+            LicenseStatus.TrialExpired => "Trial expired",
             _ => status.ToString()
         };
 
@@ -46,8 +52,7 @@ namespace ProGlassAutomation.Views.Licensing
         {
             LicenseStatus.NotActivated =>
                 "No license file was found in the data folder. " +
-                "Activate a license, start a 30-day trial, or " +
-                "continue in read-only mode.",
+                "Activate a license or start the 7-day trial.",
             LicenseStatus.Invalid =>
                 "The license file is present but its signature " +
                 "could not be verified. The file may be corrupt, " +
@@ -70,9 +75,14 @@ namespace ProGlassAutomation.Views.Licensing
                 "The license is valid and all licensed features " +
                 "are available.",
             LicenseStatus.Trial =>
-                "A 30-day trial is active. The trial expires " +
+                "A 7-day trial is active. The trial expires " +
                 "automatically; activate a full license before " +
                 "then to avoid interruption.",
+            LicenseStatus.TrialExpired =>
+                "The 7-day trial has expired and the trial " +
+                "license has been removed from this machine. " +
+                "Activate a full license to continue using " +
+                "ProGlass Automation.",
             LicenseStatus.MachineMismatch =>
                 "This license is bound to a different machine. " +
                 "Ask the vendor to re-issue the license for this " +

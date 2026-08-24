@@ -124,7 +124,19 @@ namespace ProGlassAutomation.Services.Licensing
         MachineMismatch = 7,
 
         /// <summary>Too many devices have activated this license.</summary>
-        ActivationLimit = 8
+        ActivationLimit = 8,
+
+        /// <summary>
+        /// Auto-issued 7-day trial has expired. The license
+        /// file has been deleted from disk; the app MUST refuse
+        /// to start and require a real license key. Distinct
+        /// from <see cref="Expired"/> (which is for customer
+        /// licenses that ran out) because the recovery path is
+        /// different: an expired customer license can be
+        /// renewed by the vendor, a TrialExpired state
+        /// requires a brand-new activation.
+        /// </summary>
+        TrialExpired = 9
     }
 
     /// <summary>
@@ -221,6 +233,53 @@ namespace ProGlassAutomation.Services.Licensing
         [JsonPropertyName("notes")]
         public string Notes { get; init; } = "";
 
+        // ── Trial provenance (commit 1 of the licensing refactor) ─────
+        //
+        // A 7-day trial is auto-issued by the app itself on first
+        // launch (no .lic on disk, no vendor signature needed) so the
+        // user can boot the app without going through the
+        // LicenseGenerator tool first. To keep that auto-trial
+        // auditable and strict-expiry-friendly, two new fields are
+        // added here:
+        //
+        //   • TrialSource: who issued the trial.
+        //       ""           — not a trial (a real customer-issued license)
+        //       "auto-7d"    — the app auto-issued this on first launch
+        //       "auto-1d"    — emergency 1-day extension (future use)
+        //       "<vendor>"   — a future on-vendor-approval trial
+        //   • TrialExpiresAt: separate from ExpiresAt so the auto-
+        //     issued trial can use a different value (e.g. 7 days from
+        //     IssuedAt) than the canonical ExpiresAt field that real
+        //     licenses use. The verifier checks TrialExpiresAt FIRST
+        //     when TrialSource is non-empty, then falls back to
+        //     ExpiresAt.
+        //
+        // Backwards compatibility: both fields are init-only with
+        // empty/default initialisers, so a payload serialised by an
+        // older build (or a real customer license with no trial
+        // metadata) deserialises cleanly. The verifier treats empty
+        // TrialSource as "not a trial" and uses ExpiresAt as before.
+
+        /// <summary>
+        /// Identifies how a trial was issued. Empty string means
+        /// "this license is not a trial at all" (a real customer
+        /// license). Any non-empty value means the payload was
+        /// auto-issued by the app or a vendor tool, and the
+        /// <see cref="TrialExpiresAt"/> value takes precedence
+        /// over <see cref="ExpiresAt"/> for expiry checks.
+        /// </summary>
+        [JsonPropertyName("trialSource")]
+        public string TrialSource { get; init; } = "";
+
+        /// <summary>
+        /// The expiry timestamp for an auto-issued trial. Only
+        /// consulted when <see cref="TrialSource"/> is non-empty.
+        /// For real (non-trial) licenses, leave at the default
+        /// and let <see cref="ExpiresAt"/> drive expiry.
+        /// </summary>
+        [JsonPropertyName("trialExpiresAt")]
+        public DateTime TrialExpiresAt { get; init; }
+
         /// <summary>
         /// Canonical JSON of this payload, with keys sorted
         /// alphabetically and no insignificant whitespace. This is
@@ -263,6 +322,20 @@ namespace ProGlassAutomation.Services.Licensing
                 else
                     writer.WriteString("machineFingerprint", MachineFingerprint);
                 writer.WriteString("notes", Notes ?? "");
+                // Trial provenance — see comment on the fields above.
+                // Always written (even when empty / default) so the
+                // canonical JSON shape is stable across real licenses
+                // and auto-issued trials. Older verifiers that don't
+                // know about these fields will still validate the
+                // signature (the field is just an opaque string + a
+                // date), and the new verifier uses them for strict
+                // 7-day trial enforcement.
+                writer.WriteString("trialSource", TrialSource ?? "");
+                writer.WriteString("trialExpiresAt",
+                    TrialExpiresAt == default
+                        ? "0001-01-01T00:00:00.000Z"
+                        : TrialExpiresAt.ToUniversalTime()
+                            .ToString("yyyy-MM-ddTHH:mm:ss.fffZ"));
                 writer.WriteEndObject();
             }
             return System.Text.Encoding.UTF8.GetString(stream.ToArray());

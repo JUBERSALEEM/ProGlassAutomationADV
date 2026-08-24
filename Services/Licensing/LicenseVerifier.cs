@@ -70,6 +70,21 @@ namespace ProGlassAutomation.Services.Licensing
             LicenseStatus.ExpiringSoon => true,
             LicenseStatus.Trial => true,
             LicenseStatus.GracePeriod => true,   // read-only
+            // Auto-issued 7-day trial that has expired is a
+            // hard block — no read-only escape hatch. The
+            // license file has already been deleted by
+            // LicenseService.Reload() before we get here.
+            LicenseStatus.TrialExpired => false,
+            // Anything else (NotActivated, Invalid,
+            // MachineMismatch, ActivationLimit, Expired) is
+            // also a non-runnable state. Explicit list here
+            // keeps the switch exhaustive so a future enum
+            // value triggers CS8509 at the next compile.
+            LicenseStatus.NotActivated => false,
+            LicenseStatus.Invalid => false,
+            LicenseStatus.Expired => false,
+            LicenseStatus.MachineMismatch => false,
+            LicenseStatus.ActivationLimit => false,
             _ => false
         };
 
@@ -257,7 +272,26 @@ namespace ProGlassAutomation.Services.Licensing
 
             // Time checks. Compare in UTC.
             DateTime now = DateTime.UtcNow;
-            DateTime expiresUtc = payload.ExpiresAt.ToUniversalTime();
+
+            // For an auto-issued trial (TrialSource != ""), the
+            // app sets TrialExpiresAt to the strict 7-day mark
+            // but leaves ExpiresAt at the same value (or, in
+            // older builds, at a long safety-net value). The
+            // canonical expiry to enforce is TrialExpiresAt; if
+            // it is unset (DateTime.MinValue, the default) we
+            // fall back to ExpiresAt. For real (non-trial)
+            // licenses, TrialSource is "" and we always use
+            // ExpiresAt.
+            DateTime expiresUtc;
+            if (!string.IsNullOrEmpty(payload.TrialSource)
+                && payload.TrialExpiresAt != default)
+            {
+                expiresUtc = payload.TrialExpiresAt.ToUniversalTime();
+            }
+            else
+            {
+                expiresUtc = payload.ExpiresAt.ToUniversalTime();
+            }
 
             if (now > expiresUtc + GracePeriod)
             {
