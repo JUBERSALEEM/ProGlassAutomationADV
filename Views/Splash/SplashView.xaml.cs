@@ -509,6 +509,14 @@ namespace ProGlassAutomation.Views.Splash
 
             void Finish(bool signedIn)
             {
+                // Unsubscribe immediately so a subsequent Completed
+                // raise (e.g. the user tapping Exit after already
+                // signing in) cannot re-enter this handler for the
+                // same TCS. TrySetResult would then be a no-op, but
+                // symmetric unsubscribe is cleaner and keeps the
+                // event invocation list from growing across nested
+                // RunLoginAsync calls (first-run failure fallback).
+                LoginGate.Completed -= Finish;
                 SignedIn = signedIn;
                 done.TrySetResult(signedIn);
             }
@@ -648,12 +656,18 @@ namespace ProGlassAutomation.Views.Splash
                                 Class = nameof(SplashView),
                                 Operation = "RunFirstRunSetupAsync"
                             });
-                        // Fall back to the standard login
-                        // form on this same boot so the
-                        // operator can retry rather than
-                        // being kicked back to the OS.
+                        // Fall back to the standard login form on
+                        // this same boot so the operator can retry
+                        // rather than being kicked back to the OS.
+                        // LoadingText is set explicitly here so the
+                        // brief "Signing you in…" flicker inside
+                        // RunLoginAsync (its own auto-login probe,
+                        // which will trivially fail because the
+                        // vault is empty right after first-run) does
+                        // not surface confusing status swaps.
                         SetupHost.Visibility = Visibility.Collapsed;
                         SetupGate.IsEnabled = true;
+                        LoadingText.Text = "Please sign in to continue.";
                         bool loggedIn = await RunLoginAsync();
                         done.TrySetResult(loggedIn);
                         return;
