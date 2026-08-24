@@ -35,6 +35,7 @@
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
         xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels"
+        xmlns:vmLicensing="clr-namespace:ProGlassAutomation.ViewModels.Licensing"
         xmlns:vmDashboard="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
         xmlns:vmProforma="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
         xmlns:vmInquiry="clr-namespace:ProGlassAutomation.ViewModels.Inquiry"
@@ -56,6 +57,7 @@
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
+        xmlns:viewsLicensing="clr-namespace:ProGlassAutomation.Views.Licensing"
         xmlns:viewsSettings="clr-namespace:ProGlassAutomation.Views.Settings"
         xmlns:viewsSheetStore="clr-namespace:ProGlassAutomation.Views.SheetStore"
         xmlns:viewsJobOrder="clr-namespace:ProGlassAutomation.Views.JobOrder"
@@ -1389,6 +1391,60 @@
                         </StackPanel>
                     </Border>
                 </Grid>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 LICENSE ACTIVATION OVERLAY (Commit 4 of the
+                 licensing refactor)
+
+                 Shown when LicenseService.Current.CanRun is
+                 false. Blocks the content area (the user cannot
+                 do productive work without a license) but
+                 leaves the top bar and sidebar visible so the
+                 user can still reach About / Settings to see
+                 the status. The AI chat + agent overlays sit
+                 ABOVE this one (ZIndex 200 / 210) so a user
+                 can still ask the agent to help with a
+                 licensing question while the overlay is up.
+
+                 Visibility is bound to
+                 LicenseStatusViewModel.Instance.IsLicenseRequired
+                 via x:Static. The VM is a singleton that
+                 subscribes to LicenseService.StatusChanged,
+                 so the overlay shows / hides automatically
+                 when the user installs / removes a license —
+                 no main-window code-behind glue needed.
+            ═══════════════════════════════════════════════════════════ -->
+            <Border x:Name="LicenseOverlay"
+                    Panel.ZIndex="100"
+                    Margin="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="2"
+                    SnapsToDevicePixels="True"
+                    Visibility="{Binding IsLicenseRequired,
+                        Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!--
+                      The activation view is itself a UserControl with
+                      its own padding and chrome, so we just drop it
+                      into the second row. The view's own StatusChanged
+                      subscription keeps its current-license card up
+                      to date; when the user successfully activates,
+                      LicenseService.StatusChanged fires, the VM's
+                      IsLicenseRequired flips to false, and the
+                      overlay's Visibility binding hides this Border.
+                    -->
+                    <viewsLicensing:LicenseActivationView Grid.Row="1"
+                                                          x:Name="LicenseActivationHost"
+                                                          IsClosable="False"/>
                 </Grid>
             </Border>
 

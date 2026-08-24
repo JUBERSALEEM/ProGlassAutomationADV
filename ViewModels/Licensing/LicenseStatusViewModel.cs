@@ -183,6 +183,12 @@ namespace ProGlassAutomation.ViewModels.Licensing
             OnPropertyChanged(nameof(LicenseIdDisplay));
             OnPropertyChanged(nameof(NotesDisplay));
             OnPropertyChanged(nameof(ErrorDetail));
+            // Commit 4 of the licensing refactor: the main
+            // window's overlay trigger binds to this. Raise
+            // it explicitly so the overlay shows / hides on
+            // every status change without needing the host
+            // to wire anything.
+            OnPropertyChanged(nameof(IsLicenseRequired));
         }
 
         private void OnLicenseChanged(object? sender, LicenseVerificationResult e)
@@ -240,6 +246,26 @@ namespace ProGlassAutomation.ViewModels.Licensing
         /// functionality (no read-only mode).
         /// </summary>
         public bool CanRunFullUi => IsValid || IsTrial;
+
+        /// <summary>
+        /// True when the app is loaded but the license
+        /// is in a state that requires the user to
+        /// install / fix a license before any productive
+        /// work is possible. Used by the main window's
+        /// overlay to show the LicenseActivationView.
+        ///
+        /// The negation of <see cref="LicenseService.Current"/>
+        /// <c>.CanRun</c>, but exposed on this VM so the
+        /// binding path is uniform with the rest of the
+        /// license surface (no per-binding static
+        /// bridge). When this flips from true to false
+        /// (e.g. the user installed a valid license), the
+        /// main window's overlay hides automatically via
+        /// the existing StatusChanged → Refresh pipeline.
+        /// </summary>
+        public bool IsLicenseRequired =>
+            !LicenseService.Current.CanRun
+            || IsPlaceholder;
 
         // ── Helpers ─────────────────────────────────────────────
 

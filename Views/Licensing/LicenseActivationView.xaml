@@ -207,7 +207,11 @@
                             Margin="0,16,0,0">
                     <Button Style="{StaticResource OutlinedPillButton}"
                             Content="CLOSE"
-                            Click="CloseButton_Click"/>
+                            Click="CloseButton_Click"
+                            Visibility="{Binding IsClosable,
+                                RelativeSource={RelativeSource AncestorType=UserControl},
+                                Converter={StaticResource BoolToVisibilityConverter},
+                                FallbackValue=Visible}"/>
                 </StackPanel>
 
             </StackPanel>

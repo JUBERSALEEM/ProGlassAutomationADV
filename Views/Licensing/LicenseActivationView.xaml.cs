@@ -55,6 +55,36 @@ namespace ProGlassAutomation.Views.Licensing
     public partial class LicenseActivationView : UserControl
     {
         /// <summary>
+        /// Dependency property that controls whether
+        /// the Close button is visible. Defaults to true
+        /// (legacy modal-host usage). The main shell
+        /// (Commit 4) sets this to false because there
+        /// is no meaningful close action when the
+        /// overlay is blocking the content area — the
+        /// user must install a license to make the
+        /// overlay go away.
+        /// </summary>
+        public static readonly System.Windows.DependencyProperty
+            IsClosableProperty = System.Windows.DependencyProperty.Register(
+                nameof(IsClosable), typeof(bool),
+                typeof(LicenseActivationView),
+                new System.Windows.FrameworkPropertyMetadata(
+                    true,
+                    System.Windows.FrameworkPropertyMetadataOptions.AffectsRender));
+
+        /// <summary>
+        /// True when the Close button should be
+        /// visible. Host XAML sets this to false for
+        /// the in-app shell overlay; the modal host
+        /// (Commit 3) leaves it at the default true.
+        /// </summary>
+        public bool IsClosable
+        {
+            get => (bool)GetValue(IsClosableProperty);
+            set => SetValue(IsClosableProperty, value);
+        }
+
+        /// <summary>
         /// Raised when the user has successfully installed
         /// a license. <see cref="LicenseService.Current"/>
         /// is guaranteed to be CanRun when this fires.
