@@ -35,7 +35,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "opened_list",
                 "Sheet Store list",
-                "Live Sheet Store. Stock, used and balance are the same fields the clerk reads every morning.",
+                $"This is Sheet Store — the warehouse of raw glass sheets. Each row is one type of glass we keep in stock: a specific category like Clear or Reflective, a specific thickness like 5 or 6 or 8 millimetres, a specific colour, and a specific sheet size. The three key columns are Stock — how many sheets we bought — Used — how many the cutter has consumed on jobs — and Balance — the difference, which is what is physically still on the rack. Right now there are {store.Sheets.Count} sheet types on file totalling {store.TotalStock} sheets. This is the very first screen the storekeeper checks every morning to know what to reorder.",
                 $"sheets={store.Sheets.Count} stock={store.TotalStock}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -54,7 +54,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await DemoWalk.PresentAsync(events, "filtered",
                     "Filter 6 millimetre Clear",
-                    $"Filter is 6 millimetre Clear. {store.Sheets.Count} rows remain. Available is stock minus used.",
+                    $"You can slice the warehouse the way an operator thinks. Here we filtered on 6 millimetre Clear because that is the most common glass for shopfronts and interior partitions, and instantly only {store.Sheets.Count} rows are left — every one of them 6 millimetre Clear from a different supplier or a different sheet size. The Balance column tells the estimator on the spot whether we can start a job today or whether he has to wait for the next purchase.",
                     $"rows={store.Sheets.Count} thickness={store.SelectedThickness}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
             }
@@ -72,7 +72,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await DemoWalk.PresentAsync(events, "selected",
                     "Select a sheet",
-                    $"{pick.Category} {pick.ThicknessDisplay} {pick.Color}, {pick.SizeDisplay}. Stock {pick.Stock}, used {pick.Used}, balance {pick.Balance}.",
+                    $"Clicking a row opens the sheet's detail. This one is {pick.Category} {pick.ThicknessDisplay} in {pick.Color}, sheet size {pick.SizeDisplay}. We currently have {pick.Stock} sheets in Stock, {pick.Used} have been consumed on jobs, so the Balance actually on the rack is {pick.Balance}. The side panel also shows the supplier we usually buy this from, the purchase price per square metre and the selling price we quote to customers — the two numbers the estimator uses to price a new quotation.",
                     $"id={pick.Id} stock={pick.Stock} used={pick.Used} balance={pick.Balance}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
             }
@@ -103,7 +103,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 {
                     await DemoWalk.PresentAsync(events, "stock_moved",
                         "Buy two, use one",
-                        $"Same persist as the Buy and Use dialogs. Stock moved from {before} to {after.Stock}. Used {after.Used}, balance {after.Balance}.",
+                        $"Now watch a real stock movement. The storekeeper bought two more sheets from the supplier and issued one to the cutting floor for a job. Stock went from {before} to {after.Stock}, Used incremented to {after.Used}, and Balance recalculated to {after.Balance}. This is exactly what happens when he clicks the Buy and Use dialog boxes in production — we are calling the same save path, not a demo shortcut, so the audit log will show these as normal operator activity.",
                         $"id={after.Id} stock {before}→{after.Stock} used={after.Used}",
                         DemoWalk.HoldMs, ct).ConfigureAwait(false);
                 }
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
                 await DemoWalk.PresentAsync(events, "sheet_added",
                     "New laminated sheet",
-                    $"{added.Category} {added.ThicknessDisplay} {added.Color} from {added.Supplier} is now on the list. Opening stock {added.Stock} sheets.",
+                    $"And here is a brand new item added to the warehouse. When the supplier introduces a new specification — in this case a {added.Category} {added.ThicknessDisplay} {added.Color} sheet from {added.Supplier} — the storekeeper adds it here once, sets the opening stock at {added.Stock} sheets, and from that moment on the estimator can pick it in any quotation. There is no separate 'master data' screen — the storekeeper is the owner of his own catalogue.",
                     $"id={added.Id} {added.Category} {added.ThicknessDisplay}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
             }

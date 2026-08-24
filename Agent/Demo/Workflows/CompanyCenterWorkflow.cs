@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "opened_list",
                 "Company Center",
-                $"Company cards print on every quotation. {cc.Companies.Count} profiles in masterdata.",
+                $"Company Center is where we store our own trading identities. Many glass workshops trade under two or three companies — one for retail, one for contracting, sometimes a free-zone entity — and each one has its own tax registration, bank account and letterhead. There are {cc.Companies.Count} company profiles saved here. Whichever one you pick becomes the letterhead that prints on every quotation, tax invoice and delivery note issued from that job.",
                 $"companies={cc.Companies.Count}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -48,7 +48,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
                 await DemoWalk.PresentAsync(events, "selected",
                     "Open letterhead",
-                    $"{cc.CompanyName}. TRN {cc.CompanyTrn}. {cc.CompanyLocation}. This is the same card Proforma Step 1 reads.",
+                    $"Here is the letterhead card for {cc.CompanyName}. The tax registration number {cc.CompanyTrn} — required under UAE VAT law — sits right at the top, the trading address is {cc.CompanyLocation}, and further down you can see the bank name, IBAN and account holder that print on the invoice footer. This is exactly the card the Proforma Invoice module reads on Step 1, so whatever we change here immediately shows on the next quotation issued.",
                     $"id={card.Id} name={cc.CompanyName} trn={cc.CompanyTrn}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
             }
@@ -87,8 +87,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await DemoWalk.PresentAsync(events, "saved",
                 saved ? "Save second company" : "Company editor",
                 saved
-                    ? "Gulf Facade Works LLC saved through SaveCompanyCommand. Logo picker was not opened."
-                    : $"Editor ran. Status: {cc.Status}. Logo picker was not opened.",
+                    ? "And a second letterhead — Gulf Facade Works LLC — is now on file. This is a real production save, not a demo mock. From this moment, any operator preparing a Dubai-side quote can pick this company from the letterhead dropdown and its bank details, tax number and logo will flow straight onto the printed document. The logo picker was intentionally not opened so this recording never touches the file system."
+                    : $"You are looking at the live Company editor — the same form the finance manager uses. The save reported: {cc.Status}. Nothing was faked; if the save had succeeded the new company would appear immediately in the list on the left.",
                 saved
                     ? $"saved=Gulf Facade Works LLC count={cc.Companies.Count}"
                     : $"status={cc.Status}",

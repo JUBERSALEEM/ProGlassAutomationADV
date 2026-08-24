@@ -40,7 +40,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "opened_list",
                 "Job Order list",
-                $"The live job list. {jo.ListVM.TotalCount} jobs. A job is converted from an approved proforma — the floor sheet has no selling price.",
+                $"You are now on the Job Order desk — the shop floor's view of the business. There are {jo.ListVM.TotalCount} jobs currently in production. A Job Order is what a Proforma quotation becomes the moment the customer confirms and pays advance. The important thing to notice is that the floor sheet has no selling price on it — this is deliberate. The cutter and the polisher should focus on what to make, not what the customer paid. Money stays in the Proforma and the Tax Invoice; the workshop only sees quantities, sizes and deadlines.",
                 $"jobs={jo.ListVM.TotalCount}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -73,7 +73,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 {
                     await DemoWalk.PresentAsync(events, "opened",
                         "Open job",
-                        $"{jo.DetailVM.JobOrderId} from {jo.DetailVM.SourceProformaId}. Same Open command as the list row. Production quantities, no rate or total on the floor sheet.",
+                        $"This is job {jo.DetailVM.JobOrderId}, generated automatically from proforma {jo.DetailVM.SourceProformaId} when it was approved — the whole specification was copied across so nothing has to be retyped. On the left you see the customer and the project name, on the right the quantities per glass reference. There is no rate, no VAT and no grand total anywhere on this sheet — that is by design. This is a manufacturing document, not a financial one.",
                         $"jo={jo.DetailVM.JobOrderId} pi={jo.DetailVM.SourceProformaId}",
                         DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -99,7 +99,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
                     await DemoWalk.PresentAsync(events, "production",
                         "Production sheet",
-                        "Production tab. Assigned to Hassan on cutting bay 2. Site contact Eng. Mariam. The job sheet never carries a selling rate.",
+                        "The Production tab is where the factory manager plans the work. We assigned this job to Hassan on cutting bay 2 — that name will appear on his daily task list. We entered the site engineer Mariam as the delivery contact so the driver can reach her when the truck arrives. The cutting instruction 'polish all edges, temper 6 mm partitions before delivery' becomes the operator's cheat-sheet on the shop floor. The drawing reference links the physical shop drawing to this job, and the delivery date sets the deadline the whole floor works against. Nowhere on this page do we mention money.",
                         $"assigned={jo.DetailVM.AssignedTo} drawing={jo.DetailVM.DrawingReference}",
                         DemoWalk.HoldMs, ct).ConfigureAwait(false);
                 }
@@ -113,7 +113,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WpfUiDriver.DwellAsync(600, ct).ConfigureAwait(false);
             await DemoWalk.PresentAsync(events, "god",
                 "God View",
-                "God View is the real all-jobs overview for this module — not a storyboard.",
+                "God View shows every job in the factory on a single screen — perfect for a production meeting. You can sort by delivery date to see what is due this week, or filter by cutting bay to see one operator's load. Nothing here is a screenshot or a mock; each row is a live database record you can double-click straight into.",
                 $"tab={jo.ActiveTab}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -126,7 +126,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
             await DemoWalk.PresentAsync(events, "activity",
                 "Job Order activity",
-                $"Activity is the live audit feed for Job Orders. {jo.ActivityVM.Rows.Count} recent entries from audit.db.",
+                $"The Activity tab is the shop-floor audit log — {jo.ActivityVM.Rows.Count} entries showing every time someone opened, edited, reassigned or closed a job. Each line records the user, the machine and the timestamp. This is the trail an owner walks when a dispute happens on the floor: who changed the cutting instruction, when the delivery date moved, why a job was reassigned overnight. It is written directly to the audit database and cannot be edited from the interface.",
                 $"rows={jo.ActivityVM.Rows.Count}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 

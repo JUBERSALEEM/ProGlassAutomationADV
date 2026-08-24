@@ -31,7 +31,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "overview",
                 "Factory pulse",
-                $"{dash.WelcomeLine}. Overview is the same figures the Dashboard computes from the isolated demo folder.",
+                $"{dash.WelcomeLine}. This is the operations dashboard — the first screen the team opens every morning. The tiles you see summarise the whole factory: today's quotations, jobs on the shop floor, deliveries due, invoices waiting for payment and the running profit and loss. Every figure is calculated live from the demo folder, so nothing here is hard-coded. If a quote is edited or a delivery is closed, the numbers refresh on the very next load.",
                 $"tab={dash.ActivePage.TabTitle} pages={dash.Pages.Count}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -49,7 +49,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "tabs",
                 "Every dashboard tab",
-                $"Walked {visited.Count} live tabs: {string.Join(", ", visited)}. Each tab reloads its own module figures.",
+                $"Now the dashboard is walking through each of its {visited.Count} module tabs: {string.Join(", ", visited)}. Each tab is a mini-report for one part of the business — quotations, production, deliveries, receivables and stock — and each one reloads its own figures on demand, so you always see the latest state without having to open every module manually. Think of it as the factory's control panel.",
                 string.Join("|", visited),
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 

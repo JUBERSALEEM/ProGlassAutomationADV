@@ -33,7 +33,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "loaded",
                 "Job profitability",
-                $"Margins come from Proforma Step 9 snapshots — they are not recalculated here. {jp.Rows.Count} jobs. Portfolio {jp.TotalProfitLabel} {jp.TotalProfitDisplay}.",
+                $"This is the Job Profitability book — the finance team's favourite screen. Every row is one job we quoted, and each row shows what we told the customer, what we actually spent on glass, cutting, delivery and overhead, and what is left as profit. The important thing to understand is that these margins are not being recalculated on the fly — they are the frozen figures we saved on Step 9 of each Proforma when the quote was approved, so the numbers you see here are the ones we actually committed to. Right now we are looking at {jp.Rows.Count} jobs, and the whole portfolio is {jp.TotalProfitLabel} {jp.TotalProfitDisplay}.",
                 $"rows={jp.Rows.Count} profit={jp.TotalProfit:0.00} losses={jp.LossCount}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -50,7 +50,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WpfUiDriver.DwellAsync(900, ct).ConfigureAwait(false);
             await DemoWalk.PresentAsync(events, "filtered",
                 "Filter the book",
-                $"Search Skyline. {jp.Rows.Count} rows remain. Net {jp.TotalNetDisplay}, cost {jp.TotalCostDisplay}.",
+                $"You can slice this book any way you need to answer a question. Here we searched for the customer 'Skyline' and picked one of our companies from the filter. Instantly the totals at the bottom recomputed for just that slice: {jp.Rows.Count} jobs remain, net value {jp.TotalNetDisplay} and total cost {jp.TotalCostDisplay}. This is how a manager quickly answers questions like — how much profit did we make from this customer, or which projects lost money last quarter — without exporting anything to Excel.",
                 $"search={jp.SearchText} rows={jp.Rows.Count} net={jp.TotalNet:0.00}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 

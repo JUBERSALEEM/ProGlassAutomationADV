@@ -41,7 +41,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             await DemoWalk.PresentAsync(events, "opened_list",
                 "Tax Invoice list",
-                $"Live tax invoices. {ti.ListVM.AllCount} families. An FTA invoice uses dispatched pieces and keeps rate and value as separate columns.",
+                $"Now we are on the Tax Invoice desk — the module the accountant uses to convert delivered glass into money. There are {ti.ListVM.AllCount} invoice families on file. The word 'family' matters here: for one job we usually issue several tax invoices — one for the first shipment, one for the second, and so on — and the system groups them under the parent proforma so nothing goes missing. Every invoice you see here follows the UAE FTA layout: rate per square metre and total value are shown as separate columns, five percent VAT is calculated line by line, and each invoice is billed only against pieces that were actually dispatched.",
                 $"families={ti.ListVM.AllCount} invoiced={ti.ListVM.TotalInvoicedAmount:0.00}",
                 DemoWalk.BeatMs, ct).ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await DemoWalk.PresentAsync(events, "opened",
                     "Open tax invoice",
-                    $"{ti.DetailVM.PageTitle} for {ti.DetailVM.CustomerName}. Project {ti.DetailVM.ProjectIdentifierName}. Same open path as the family row.",
+                    $"Here is {ti.DetailVM.PageTitle}, raised for {ti.DetailVM.CustomerName} against the project {ti.DetailVM.ProjectIdentifierName}. Notice the company letterhead at the top — the same one we saw in Company Center — followed by the customer's tax registration number, the invoice number in the FTA-compliant format, and the invoice date. Every field required by the UAE VAT law is present and locked in the correct format. This is not a Word template — it is the real system record, so the numbers you see are the numbers the government will see on the return.",
                     $"inv={ti.DetailVM.EditingInvoiceNumber} pi={ti.DetailVM.ProformaId} status={ti.DetailVM.Status}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -105,7 +105,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
                 await DemoWalk.PresentAsync(events, "rates",
                     "Rate and value",
-                    $"FTA layout keeps rate and value. {rateLine}. Subtotal {ti.DetailVM.Subtotal:0.00}, VAT {ti.DetailVM.VatAmount:0.00}, grand {ti.DetailVM.GrandTotal:0.00}.",
+                    $"Now look at how each line reads: the FTA layout keeps rate and value as separate columns so an auditor can immediately see what unit price we charged. This line shows {rateLine}, meaning we are billing that many square metres at that price. At the bottom the system computes the subtotal at {ti.DetailVM.Subtotal:0.00}, adds five percent VAT giving {ti.DetailVM.VatAmount:0.00}, and lands on a grand total of {ti.DetailVM.GrandTotal:0.00}. Nothing here is hand-typed — every figure comes from the delivery notes we already dispatched, so under-billing or over-billing is prevented at source.",
                     $"line={rateLine} grand={ti.DetailVM.GrandTotal:0.00}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -114,7 +114,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     .ConfigureAwait(false);
                 await DemoWalk.PresentAsync(events, "family",
                     "Invoice family",
-                    $"Family of {ti.DetailVM.FamilyMemberCount}. Invoiced {ti.DetailVM.FamilyInvoicedTotal:0.00}, balance {ti.DetailVM.FamilyBalanceTotal:0.00}.",
+                    $"The Family tab is one of the reasons this module was built. For this job we have {ti.DetailVM.FamilyMemberCount} invoices under the same parent proforma. Together they have billed {ti.DetailVM.FamilyInvoicedTotal:0.00}, and {ti.DetailVM.FamilyBalanceTotal:0.00} of the original quote is still to be invoiced. This is what tells the accountant, without a spreadsheet, whether we have under-billed, over-billed or completed the invoicing for a project.",
                     $"members={ti.DetailVM.FamilyMemberCount}",
                     DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -134,7 +134,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 .ConfigureAwait(false);
             await DemoWalk.PresentAsync(events, "god",
                 "God View",
-                "God View is every tax invoice in the isolated demo folder.",
+                "God View is the finance manager's screen — every tax invoice we have ever issued, sortable by customer, project, date and status. From here you spot at a glance who is overdue, which invoices are still awaiting payment and which have been cleared. In this demo you are looking at the isolated demo folder so no real customer data is exposed.",
                 $"tab={ti.ActiveTab}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
@@ -147,7 +147,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             await WpfUiDriver.DwellAsync(700, ct).ConfigureAwait(false);
             await DemoWalk.PresentAsync(events, "activity",
                 "Tax Invoice activity",
-                $"Activity is the live Tax Invoice audit feed. {ti.ActivityVM.Rows.Count} entries.",
+                $"The Activity tab is the audit trail for finance — {ti.ActivityVM.Rows.Count} entries recording every time an invoice was issued, edited, marked paid or cancelled. Because tax invoices are legal documents, this log is treated as evidence: no one can delete or hide an entry from the interface. During a VAT audit this is the first screen the accountant opens.",
                 $"rows={ti.ActivityVM.Rows.Count}",
                 DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
