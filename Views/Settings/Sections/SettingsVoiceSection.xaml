@@ -1,10 +1,19 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsVoiceSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — VOICE page
+     MODULE: Settings v2 — VOICE page (redesigned Aug 2026)
 
-     Whisper speech-to-text: model picker (base / medium / large-v3)
-     and model status card (download, cancel, delete, location).
+     REDESIGN
+       Was: one giant SectionCardStyle containing the model picker AND
+       a nested "MODEL STATUS" card. Model picker was already card-like
+       but competed with the big outer border, so the page felt
+       double-boxed.
+
+       Now: tile-grid layout with two full-row tiles — one for the
+       MODEL PICKER, one for MODEL STATUS. Nested double borders
+       removed. ModelOption_MouseLeftButtonDown handler on the item
+       template is preserved byte-for-byte so the click-to-select
+       behaviour still works.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsVoiceSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -31,7 +40,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Voice" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Offline speech-to-text with OpenAI Whisper."
+            <TextBlock Text="Offline speech-to-text with OpenAI Whisper — 95%+ accuracy, no cloud."
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -45,334 +54,273 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="32,0,32,32">
 
-                <!-- ── VOICE ASSISTANT ────────────────────────────── -->
-                <Border Style="{StaticResource SectionCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="VOICE ASSISTANT"
-                                   Style="{StaticResource SectionLabelStyle}"/>
+                <!-- ═════════ GROUP: WHISPER MODEL ═════════ -->
+                <TextBlock Text="WHISPER MODEL"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Pick a model size and download it once. Larger models are more accurate but bigger and slower."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                        <TextBlock Style="{StaticResource HintTextStyle}"
-                                   Margin="0,0,0,14">
-                            <Run Text="ProGlass AI supports"/>
-                            <Run Text=" voice input" FontWeight="Bold"/>
-                            <Run Text=" via OpenAI Whisper running locally. 95%+ accuracy, works offline, handles accents."/>
-                        </TextBlock>
+                <WrapPanel Margin="0,0,0,6">
 
-                        <TextBlock Text="SELECT WHISPER MODEL"
-                                   Style="{StaticResource LabelStyle}"
-                                   Margin="0,0,0,8"/>
+                    <!-- Model picker (full row) -->
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Choose a Model"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Click a card to select it. Only one model is active at a time; you can switch or delete freely."/>
 
-                        <!-- Model option cards — styling via BasedOn on
-                             ModelOptionCardStyle only (XLS0501 rule). -->
-                        <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <Border MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
-                                            Tag="{Binding Key}">
-                                        <Border.Style>
-                                            <Style TargetType="Border"
-                                                   BasedOn="{StaticResource ModelOptionCardStyle}">
-                                                <Style.Triggers>
-                                                    <Trigger Property="IsMouseOver" Value="True">
-                                                        <Setter Property="BorderBrush"
-                                                                Value="{DynamicResource AccentBrush}"/>
-                                                    </Trigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
+                            <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
+                                                Tag="{Binding Key}">
+                                            <Border.Style>
+                                                <Style TargetType="Border"
+                                                       BasedOn="{StaticResource ModelOptionCardStyle}">
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderBrush"
+                                                                    Value="{DynamicResource AccentBrush}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
 
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                            <StackPanel Grid.Column="0">
-                                                <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="13" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontSize="13" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               IsHitTestVisible="False"/>
+                                                    <TextBlock FontSize="10"
+                                                               Margin="0,2,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               IsHitTestVisible="False">
+                                                        <Run Text="{Binding SizeMB, Mode=OneWay}"/>
+                                                        <Run Text=" MB · "/>
+                                                        <Run Text="{Binding Accuracy, Mode=OneWay}"/>
+                                                        <Run Text=" accuracy · "/>
+                                                        <Run Text="{Binding Speed, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="10"
+                                                               Margin="0,3,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"
+                                                               IsHitTestVisible="False"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="&#xE73E;"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="12,0,0,0"
+                                                           Visibility="Collapsed"
                                                            IsHitTestVisible="False"/>
-                                                <TextBlock FontSize="10"
-                                                           Margin="0,2,0,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           IsHitTestVisible="False">
-                                                    <Run Text="{Binding SizeMB, Mode=OneWay}"/>
-                                                    <Run Text=" MB · "/>
-                                                    <Run Text="{Binding Accuracy, Mode=OneWay}"/>
-                                                    <Run Text=" accuracy · "/>
-                                                    <Run Text="{Binding Speed, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Text="{Binding Description}"
-                                                           FontSize="10"
-                                                           Margin="0,3,0,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           TextWrapping="Wrap"
-                                                           IsHitTestVisible="False"/>
-                                            </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
 
-                                            <TextBlock Grid.Column="1"
-                                                       Text="&#xE73E;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="14"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="12,0,0,0"
-                                                       Visibility="Collapsed"
-                                                       IsHitTestVisible="False"/>
-                                        </Grid>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
+                </WrapPanel>
 
-                        <!-- ── MODEL STATUS CARD ──────────────────── -->
-                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,12"
-                                Margin="0,12,0,12"
-                                BorderThickness="{DynamicResource CardBorderThickness}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <Border.Style>
-                                <Style TargetType="Border">
-                                    <Setter Property="BorderBrush"
-                                            Value="{DynamicResource OutlineBrush}"/>
-                                    <Setter Property="Background"
-                                            Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                     Value="True">
-                                            <Setter Property="BorderBrush"
-                                                    Value="{DynamicResource AccentBrush}"/>
-                                            <Setter Property="Background"
-                                                    Value="{DynamicResource TintIndigoBrush}"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Border.Style>
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
-                            <StackPanel>
-                                <DockPanel LastChildFill="True">
+                <!-- ═════════ GROUP: STATUS ═════════ -->
+                <TextBlock Text="STATUS"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Where the selected model stands — download, cancel, delete."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                                    <!-- Status badge — RIGHT docked first -->
-                                    <Border DockPanel.Dock="Right"
-                                            VerticalAlignment="Center"
-                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4"
-                                            SnapsToDevicePixels="True"
-                                            UseLayoutRounding="True">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintRedBrush}"/>
+                <WrapPanel Margin="0,0,0,6">
+
+                    <!-- Model status (full row) -->
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <Border.Resources>
+                            <!-- Local: tinted highlight when the model is ready. -->
+                            <Style x:Key="StatusBadgeStyle" TargetType="Border">
+                                <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+                                <Setter Property="Padding" Value="10,4"/>
+                                <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Resources>
+                        <StackPanel>
+                            <DockPanel LastChildFill="True">
+
+                                <!-- Right-docked badge -->
+                                <Border DockPanel.Dock="Right"
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource StatusBadgeStyle}">
+                                    <TextBlock FontSize="10" FontWeight="Bold" IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="NOT INSTALLED"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                 Value="True">
-                                                        <Setter Property="Background"
-                                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                                    <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                        <Setter Property="Text" Value="INSTALLED"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </Border.Style>
-                                        <TextBlock FontSize="10" FontWeight="Bold"
-                                                   IsHitTestVisible="False">
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Border>
+
+                                <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                    <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource SettingsTileTitleStyle}">
                                             <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text"
-                                                            Value="NOT INSTALLED"/>
-                                                    <Setter Property="Foreground"
-                                                            Value="{DynamicResource DangerBrush}"/>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource SettingsTileTitleStyle}">
+                                                    <Setter Property="Text" Value="Whisper — Not Installed"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                     Value="True">
-                                                            <Setter Property="Text"
-                                                                    Value="INSTALLED"/>
-                                                            <Setter Property="Foreground"
-                                                                    Value="{DynamicResource AccentBrush}"/>
+                                                        <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                            <Setter Property="Text" Value="Whisper — Ready"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                    </Border>
-
-                                    <!-- Icon + title — LastChildFill -->
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Text="&#xE720;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="18"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"
-                                                   IsHitTestVisible="False"/>
-                                        <StackPanel>
-                                            <TextBlock FontSize="14" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       IsHitTestVisible="False">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text"
-                                                                Value="Whisper Model — Not Installed"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                         Value="True">
-                                                                <Setter Property="Text"
-                                                                        Value="Whisper Model — Ready"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                            <TextBlock FontSize="10"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       IsHitTestVisible="False">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text"
-                                                                Value="{Binding SelectedModelInfo.FileName,
-                                                                    StringFormat='{}{0} · Download required'}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                         Value="True">
-                                                                <Setter Property="Text"
-                                                                        Value="{Binding SelectedModelInfo.FileName,
-                                                                            StringFormat='{}{0} · Installed · Offline neural STT'}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </DockPanel>
-
-                                <!-- Download progress -->
-                                <StackPanel Margin="0,10,0,0"
-                                            Visibility="{Binding IsDownloadingModel,
-                                                Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <ProgressBar Value="{Binding DownloadProgress}"
-                                                 Style="{StaticResource DownloadProgressBarStyle}"
-                                                 Width="300"
-                                                 HorizontalAlignment="Left"/>
-
-                                    <!-- Percent · size · speed · ETA.
-                                         Separators live in their own Runs so
-                                         they can hide with their value. -->
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="0,6,0,0">
-                                        <TextBlock FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   IsHitTestVisible="False">
-                                            <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
-                                        </TextBlock>
-
-                                        <TextBlock Text="{Binding DownloadSizeText}"
-                                                   FontSize="11"
-                                                   Margin="10,0,0,0"
+                                        <TextBlock FontSize="10"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   IsHitTestVisible="False"/>
-
-                                        <TextBlock Text="{Binding DownloadSpeedText}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Margin="10,0,0,0"
-                                                   Foreground="{DynamicResource SuccessBrush}"
-                                                   IsHitTestVisible="False"/>
-
-                                        <TextBlock Text="{Binding DownloadEtaText}"
-                                                   FontSize="11"
-                                                   Margin="10,0,0,0"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   IsHitTestVisible="False"/>
+                                                   IsHitTestVisible="False">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="{Binding SelectedModelInfo.FileName, StringFormat='{}{0} · Download required'}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsWhisperModelReady}" Value="True">
+                                                            <Setter Property="Text" Value="{Binding SelectedModelInfo.FileName, StringFormat='{}{0} · Installed · Offline neural STT'}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
                                     </StackPanel>
                                 </StackPanel>
+                            </DockPanel>
 
-                                <!-- Action buttons -->
-                                <StackPanel Orientation="Horizontal"
-                                            Margin="0,10,0,0">
-                                    <!-- Reads DOWNLOADING… while in flight and
-                                         disables itself, instead of still
-                                         inviting a click that does nothing. -->
-                                    <Button Tag="&#xE896;"
-                                            Command="{Binding DownloadWhisperModelCommand}"
-                                            Margin="0,0,8,0"
-                                            Visibility="{Binding IsWhisperModelReady,
-                                                    Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                                            MinWidth="180"
-                                            Height="34"
-                                            FontSize="11">
-                                        <Button.Style>
-                                            <Style TargetType="Button"
-                                                   BasedOn="{StaticResource PrimaryPillButton}">
-                                                <Setter Property="Content" Value="DOWNLOAD MODEL"/>
-                                                <Setter Property="IsEnabled" Value="True"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsDownloadingModel}"
-                                                                 Value="True">
-                                                        <Setter Property="Content" Value="DOWNLOADING…"/>
-                                                        <Setter Property="IsEnabled" Value="False"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Button.Style>
-                                    </Button>
-                                    <Button Style="{StaticResource OutlinedPillButton}"
-                                            Tag="&#xE711;" Content="CANCEL"
-                                            Command="{Binding CancelDownloadCommand}"
-                                            Margin="0,0,8,0"
-                                            Visibility="{Binding IsDownloadingModel,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    <Button Style="{StaticResource DangerButton}"
-                                            Tag="&#xE74D;" Content="DELETE MODEL"
-                                            Command="{Binding DeleteWhisperModelCommand}"
-                                            Visibility="{Binding IsWhisperModelReady,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <!-- Download progress -->
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding IsDownloadingModel,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ProgressBar Value="{Binding DownloadProgress}"
+                                             Style="{StaticResource DownloadProgressBarStyle}"
+                                             HorizontalAlignment="Stretch"/>
+                                <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                                    <TextBlock FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               IsHitTestVisible="False">
+                                        <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding DownloadSizeText}"
+                                               FontSize="11" Margin="10,0,0,0"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="{Binding DownloadSpeedText}"
+                                               FontSize="11" FontWeight="Bold" Margin="10,0,0,0"
+                                               Foreground="{DynamicResource SuccessBrush}"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="{Binding DownloadEtaText}"
+                                               FontSize="11" Margin="10,0,0,0"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               IsHitTestVisible="False"/>
                                 </StackPanel>
+                            </StackPanel>
 
-                                <!-- Unified status text -->
-                                <TextBlock Text="{Binding VoiceStatus}"
-                                           FontSize="11" FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           TextWrapping="Wrap"
-                                           Margin="0,8,0,0"
-                                           IsHitTestVisible="False">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Visibility" Value="Visible"/>
+                            <!-- Actions -->
+                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                                <Button Tag="&#xE896;"
+                                        Command="{Binding DownloadWhisperModelCommand}"
+                                        Margin="0,0,8,0"
+                                        Visibility="{Binding IsWhisperModelReady,
+                                                Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                        MinWidth="180"
+                                        Height="34"
+                                        FontSize="11">
+                                    <Button.Style>
+                                        <Style TargetType="Button"
+                                               BasedOn="{StaticResource PrimaryPillButton}">
+                                            <Setter Property="Content" Value="DOWNLOAD MODEL"/>
+                                            <Setter Property="IsEnabled" Value="True"/>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsDownloadingModel}"
-                                                             Value="True">
-                                                    <Setter Property="Visibility"
-                                                            Value="Collapsed"/>
+                                                <DataTrigger Binding="{Binding IsDownloadingModel}" Value="True">
+                                                    <Setter Property="Content" Value="DOWNLOADING…"/>
+                                                    <Setter Property="IsEnabled" Value="False"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-
-                                <!-- Model file location -->
-                                <Border Background="{DynamicResource MenuHoverBrush}"
-                                        BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="10,8" Margin="0,10,0,0"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True"
+                                    </Button.Style>
+                                </Button>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE711;" Content="CANCEL"
+                                        Command="{Binding CancelDownloadCommand}"
+                                        Margin="0,0,8,0"
+                                        Visibility="{Binding IsDownloadingModel,
+                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                <Button Style="{StaticResource DangerButton}"
+                                        Tag="&#xE74D;" Content="DELETE MODEL"
+                                        Command="{Binding DeleteWhisperModelCommand}"
                                         Visibility="{Binding IsWhisperModelReady,
-                                            Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <TextBlock Text="MODEL STORED AT"
-                                                   Style="{StaticResource LabelStyle}"/>
-                                        <TextBlock Text="{Binding ModelFilePath}"
-                                                   FontSize="10"
-                                                   FontFamily="Consolas, Courier New, monospace"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Margin="0,3,0,0"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-                                </Border>
-
+                                                Converter={StaticResource BoolToVisibilityConverter}}"/>
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
+
+                            <!-- Unified status text (hidden while downloading — progress bar takes over) -->
+                            <TextBlock Text="{Binding VoiceStatus}"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,8,0,0"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDownloadingModel}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+
+                            <!-- File location -->
+                            <TextBlock Text="MODEL STORED AT"
+                                       Style="{StaticResource LabelStyle}"
+                                       Margin="0,12,0,4"
+                                       Visibility="{Binding IsWhisperModelReady,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            <TextBlock Text="{Binding ModelFilePath}"
+                                       FontSize="11"
+                                       FontFamily="Consolas, Courier New, monospace"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       TextTrimming="CharacterEllipsis"
+                                       IsHitTestVisible="False"
+                                       Visibility="{Binding IsWhisperModelReady,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Border>
+
+                </WrapPanel>
 
             </StackPanel>
         </ScrollViewer>

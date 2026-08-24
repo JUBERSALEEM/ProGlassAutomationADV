@@ -570,6 +570,159 @@
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
+         6. TILE-GRID DESIGN SYSTEM (Settings redesign — Aug 2026)
+
+         The pre-2026 Settings layout stacked every option as a full-width
+         DockPanel row inside one giant SectionCardStyle. On wide monitors
+         that wasted 60-70% of horizontal space; on a 1366-pixel laptop
+         the vertical stack felt endless and crowded. The user asked for
+         a stylish, professional card layout.
+
+         WHAT THIS DESIGN SYSTEM IS
+         Each individual setting becomes its own self-contained "tile" -
+         a rounded bordered card that displays icon + title + subtitle +
+         control in a fixed footprint. Tiles are dropped into a WrapPanel
+         so they auto-flow into 1/2/3/4 columns depending on window
+         width. Wide-content tiles (wallpaper picker, backup list,
+         provider matrix) span two column widths; a Full-row variant
+         forces a break for the very largest surfaces.
+
+         RESOURCE INDEX
+           SettingsGroupHeaderTextStyle - group heading ("APPEARANCE").
+           SettingsGroupCaptionStyle    - one-line description under it.
+           SettingsTileStyle            - standard 320-wide setting tile.
+           SettingsWideTileStyle        - 660-wide (spans two columns).
+           SettingsFullRowTileStyle     - fills the row (Demo output).
+           SettingsTileHeaderPanelStyle - icon + title layout.
+           SettingsTileIconStyle        - MDL2 glyph in tile header.
+           SettingsTileTitleStyle       - big label at top of tile.
+           SettingsTileCaptionStyle     - small subtitle under title.
+           SettingsTileFooterHintStyle  - one-line hint below control.
+           SettingsTileHeroStyle        - centred value badge for metric
+                                          tiles (theme mode / version).
+           SettingsGroupSeparatorStyle  - divider between tile groups.
+
+         RULES
+           - Tiles do NOT set their own Width - the WrapPanel host does.
+             Hard-coding width inside the Setter would break reflow.
+           - Every tile uses the same Padding (18,16) and Margin
+             (0,0,14,14) so the WrapPanel gutter stays even regardless
+             of tile count.
+           - Only the accent-BorderBrush follows the current accent
+             preset; background stays neutral so the tile grid reads as
+             calm cards, not neon. Matches SectionCardStyle intent.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontWeight"       Value="Bold"/>
+        <Setter Property="Foreground"       Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Margin"           Value="0,4,0,0"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin"           Value="0,4,0,14"/>
+        <Setter Property="TextWrapping"     Value="Wrap"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsTileStyle" TargetType="Border">
+        <Setter Property="MinWidth"            Value="320"/>
+        <Setter Property="MaxWidth"            Value="380"/>
+        <Setter Property="MinHeight"           Value="128"/>
+        <Setter Property="Margin"              Value="0,0,14,14"/>
+        <Setter Property="Padding"             Value="18,16"/>
+        <Setter Property="CornerRadius"        Value="14"/>
+        <Setter Property="BorderThickness"     Value="1"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding"   Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="12" ShadowDepth="1.5"
+                                  Direction="270" Opacity="0.08"
+                                  Color="#000000"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SettingsWideTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsTileStyle}">
+        <Setter Property="MinWidth"  Value="660"/>
+        <Setter Property="MaxWidth"  Value="780"/>
+        <Setter Property="MinHeight" Value="128"/>
+    </Style>
+
+    <Style x:Key="SettingsFullRowTileStyle" TargetType="Border"
+           BasedOn="{StaticResource SettingsTileStyle}">
+        <Setter Property="MinWidth"  Value="660"/>
+        <Setter Property="MaxWidth"  Value="1280"/>
+        <Setter Property="MinHeight" Value="120"/>
+    </Style>
+
+    <Style x:Key="SettingsTileHeaderPanelStyle" TargetType="StackPanel">
+        <Setter Property="Orientation"       Value="Horizontal"/>
+        <Setter Property="Margin"            Value="0,0,0,6"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style x:Key="SettingsTileIconStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize"          Value="16"/>
+        <Setter Property="Width"             Value="20"/>
+        <Setter Property="TextAlignment"     Value="Center"/>
+        <Setter Property="Margin"            Value="0,0,10,0"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="IsHitTestVisible"  Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"          Value="14"/>
+        <Setter Property="FontWeight"        Value="Bold"/>
+        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="IsHitTestVisible"  Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsTileCaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin"           Value="0,0,0,12"/>
+        <Setter Property="LineHeight"       Value="16"/>
+        <Setter Property="TextWrapping"     Value="Wrap"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsTileFooterHintStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Margin"           Value="0,10,0,0"/>
+        <Setter Property="LineHeight"       Value="15"/>
+        <Setter Property="TextWrapping"     Value="Wrap"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsTileHeroStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"            Value="22"/>
+        <Setter Property="FontWeight"          Value="Bold"/>
+        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Margin"              Value="0,4,0,0"/>
+        <Setter Property="IsHitTestVisible"    Value="False"/>
+    </Style>
+
+    <Style x:Key="SettingsGroupSeparatorStyle" TargetType="Border">
+        <Setter Property="Height"     Value="1"/>
+        <Setter Property="Margin"     Value="0,6,0,18"/>
+        <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
          MODERN SLIDER — iPhone-style pill slider: a tall rounded pill
          track with an accent-coloured fill that shows the current level,
          and a round accent thumb. Replaces the default OS slider look for

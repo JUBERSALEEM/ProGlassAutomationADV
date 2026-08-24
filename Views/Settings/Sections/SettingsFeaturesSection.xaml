@@ -89,7 +89,7 @@
                      their DataContext to ProformaFeatures. Sits above
                      Proforma so a shift-change operator sees it
                      without scrolling. -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -126,7 +126,7 @@
                 <StackPanel DataContext="{Binding ProformaFeatures}">
 
                 <!-- ── HEADER + BULK ACTIONS ─────────────────────── -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -160,7 +160,7 @@
                 </Border>
 
                 <!-- ══════════════ STEP 1 — COMPANY ══════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Step 1 · Company" Style="{StaticResource StepHeaderStyle}"/>
                         <TextBlock Text="Company Name and Proforma ID stay visible (required by the database)."
@@ -259,7 +259,7 @@
                 </Border>
 
                 <!-- ══════════════ STEP 2 — CLIENT ═══════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Step 2 · Client" Style="{StaticResource StepHeaderStyle}"/>
                         <TextBlock Text="Customer Name stays visible (required by the database)."
@@ -331,7 +331,7 @@
                 </Border>
 
                 <!-- ══════════════ STEP 3 — PROJECT ══════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Step 3 · Project" Style="{StaticResource StepHeaderStyle}"/>
 
@@ -393,7 +393,7 @@
                 <StackPanel DataContext="{Binding DataContext.InquiryFeatures,
                                 ElementName=SettingsFeaturesRoot}">
 
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -423,7 +423,7 @@
                     </Grid>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="Inquiry editor" Style="{StaticResource StepHeaderStyle}"/>
 

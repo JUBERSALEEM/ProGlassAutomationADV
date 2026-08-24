@@ -45,7 +45,7 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ── BACKUP & RESTORE ───────────────────────────── -->
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
                     <StackPanel>
                         <TextBlock Text="BACKUP &amp; RESTORE"
                                    Style="{StaticResource SectionLabelStyle}"/>
@@ -111,7 +111,7 @@
                 </Border>
 
                 <!-- ── SAMPLE DATA — first-run learning aid ───────── -->
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
                     <StackPanel>
                         <TextBlock Text="SAMPLE DATA"
                                    Style="{StaticResource SectionLabelStyle}"/>
@@ -141,7 +141,7 @@
                      and, if a schema ever drifts beyond the auto-fix
                      range, rebuild from scratch. The rebuild path is
                      gated behind Manager+ and a typed confirmation. -->
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
                     <StackPanel>
                         <TextBlock Text="DATABASE HEALTH"
                                    Style="{StaticResource SectionLabelStyle}"/>

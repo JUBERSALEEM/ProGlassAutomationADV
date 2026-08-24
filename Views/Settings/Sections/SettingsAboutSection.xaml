@@ -46,7 +46,7 @@
             <StackPanel Margin="32,0,32,32">
 
                 <!-- ── VERSION CARD ───────────────────────────────── -->
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
                     <DockPanel>
                         <Border Style="{StaticResource InfoGlyphBadgeStyle}">
                             <TextBlock Text="&#xE946;" Style="{StaticResource InfoGlyphTextStyle}"/>

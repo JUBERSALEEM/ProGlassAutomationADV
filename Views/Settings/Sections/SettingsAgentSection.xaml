@@ -71,7 +71,7 @@
                 <!-- ══════════════════════════════════════════════════════
                      PRIVACY
                 ══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}">
                     <StackPanel>
                         <TextBlock Text="PRIVACY" Style="{StaticResource SectionLabelStyle}"/>
 
@@ -152,7 +152,7 @@
                 <!-- ══════════════════════════════════════════════════════
                      CREDENTIALS
                 ══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,16,0,0">
                     <StackPanel>
                         <TextBlock Text="PROVIDER CREDENTIALS"
                                    Style="{StaticResource SectionLabelStyle}"/>
@@ -212,7 +212,7 @@
                 <!-- ══════════════════════════════════════════════════════
                      TAUGHT RULES
                 ══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,16,0,0">
                     <StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -312,7 +312,7 @@
                 <!-- ══════════════════════════════════════════════════════
                      MEMORY & KNOWLEDGE
                 ══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" Margin="0,16,0,0">
                     <StackPanel>
                         <TextBlock Text="MEMORY &amp; KNOWLEDGE"
                                    Style="{StaticResource SectionLabelStyle}"/>

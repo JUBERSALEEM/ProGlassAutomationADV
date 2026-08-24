@@ -32,7 +32,7 @@
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="32,0,32,32">
 
-                <Border Style="{StaticResource SectionCardStyle}"
+                <Border Style="{StaticResource SettingsFullRowTileStyle}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Visibility="{Binding IsFfmpegMissing,
                             Converter={StaticResource BoolToVisibilityConverter},
@@ -99,7 +99,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="RECORD THIS SESSION" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="{Binding SessionRecordHint}"
@@ -133,7 +133,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="RECORDING" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Captures only this running app window. Not the desktop, not other programs."
@@ -183,7 +183,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Module"
@@ -233,7 +233,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="ISOLATION" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="{Binding IsolationText}"
@@ -263,7 +263,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="STATUS" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="{Binding StateText}"
@@ -292,7 +292,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
+                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
                     <StackPanel>
                         <TextBlock Text="HISTORY" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="No jobs yet. Generate Selected or Generate All to start a recording."
