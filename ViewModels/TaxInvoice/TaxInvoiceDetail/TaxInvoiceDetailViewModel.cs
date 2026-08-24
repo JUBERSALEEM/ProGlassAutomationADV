@@ -43,7 +43,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         // ── Navigation guard ─────────────────────────────────────────────
 
         private bool _isNavigatingFamily;
-        private bool _suppressNotifications;
 
         // ── Mode ─────────────────────────────────────────────────────────
 
@@ -1988,8 +1987,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private void RestoreFromSnapshot(
     SavedTaxInvoice entity, TaxInvoiceSnapshot snap)
         {
-            _suppressNotifications = true;
-
             _proformaId = snap.Header.ProformaId;
             _deliveryNoteReference = snap.Header.DeliveryNoteReference;
             _jobOrderId = snap.Header.JobOrderId;
@@ -2107,8 +2104,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             _afterDiscount = afterDiscount;
             _vatAmount = vatAmount;
             _grandTotal = afterDiscount + vatAmount;
-
-            _suppressNotifications = false;
 
             OnPropertyChanged(string.Empty);
         }

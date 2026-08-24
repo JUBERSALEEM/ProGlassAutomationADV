@@ -155,10 +155,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Reference Include="Microsoft.VisualBasic" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<Resource Include="favicon.ico" />
 		<Resource Include="Resources/proglass_icon_256.png" />
 		<Resource Include="Resources/Glass3D/sgu-3d.png" />
