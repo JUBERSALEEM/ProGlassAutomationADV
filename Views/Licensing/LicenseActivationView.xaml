@@ -150,11 +150,7 @@
                         <TextBlock TextWrapping="Wrap" FontSize="12"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Paste the full license JSON your vendor sent you (starts with "/>
-                            <Run FontFamily="Consolas" Text="{}{"/>
-                            <Run Text=" and ends with "/>
-                            <Run FontFamily="Consolas" Text="}"/>
-                            <Run Text="), or a base64-encoded envelope."/>
+                            <Run Text="Paste the full license JSON your vendor sent you (it starts with an open brace and ends with a close brace), or paste a base64-encoded envelope."/>
                         </TextBlock>
                         <TextBox x:Name="PasteTextBox"
                                  AcceptsReturn="True" AcceptsTab="True"
