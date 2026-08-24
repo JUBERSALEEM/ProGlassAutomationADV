@@ -189,7 +189,12 @@
                                 <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                     <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE720;"/>
                                     <StackPanel>
-                                        <TextBlock Style="{StaticResource SettingsTileTitleStyle}">
+                                        <!-- Style is set ONLY via the property-element <TextBlock.Style>.
+                                             Do NOT also set Style="…" on the opening tag — WPF rejects
+                                             that with XLS0501 / MC3024 ("Style set more than once")
+                                             even when both point at the same resource. BasedOn keeps
+                                             the tile-title look; the trigger swaps the Text. -->
+                                        <TextBlock>
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource SettingsTileTitleStyle}">
                                                     <Setter Property="Text" Value="Whisper — Not Installed"/>

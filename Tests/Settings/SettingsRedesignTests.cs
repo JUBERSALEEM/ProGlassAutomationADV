@@ -238,6 +238,70 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("SettingsGroupHeaderTextStyle", src);
         }
 
+        /// <summary>
+        /// XLS0501 / MC3024 regression lock. WPF's XAML compiler refuses
+        /// any element that sets the same property twice — once as an
+        /// inline attribute (Style="…") AND once as a property-element
+        /// child (&lt;TextBlock.Style&gt;…&lt;/TextBlock.Style&gt;), even
+        /// when both target the same resource. The Voice section shipped
+        /// exactly that pattern in the Aug-2026 redesign; this test
+        /// walks every Settings XAML and fails the build if it ever
+        /// comes back on any element / any property (not just Style).
+        /// </summary>
+        [Fact]
+        public void No_settings_xaml_sets_the_same_property_twice()
+        {
+            var root = LocateProjectRoot();
+            var failures = new List<string>();
+
+            foreach (var rel in SectionFiles.Concat(new[] { StylesPath, ShellPath }))
+            {
+                var path = Path.Combine(root, rel);
+                var xdoc = new XmlDocument();
+                xdoc.Load(path);
+                if (xdoc.DocumentElement != null)
+                    WalkForDoubleSet(xdoc.DocumentElement, rel, failures);
+            }
+
+            Assert.True(failures.Count == 0,
+                "XAML property-set-twice regression (XLS0501 / MC3024). Every " +
+                "listed element sets a property BOTH as an inline attribute AND " +
+                "as a property-element child — WPF rejects that at build time." +
+                Environment.NewLine +
+                "Fix by removing the inline attribute and keeping only the " +
+                "property-element form:" + Environment.NewLine + Environment.NewLine +
+                string.Join(Environment.NewLine, failures));
+        }
+
+        private static void WalkForDoubleSet(
+            XmlElement elem, string file, List<string> failures)
+        {
+            var localName = elem.LocalName;
+            // Which property-element children own a "Foo.Property" tag
+            // whose owner equals this element's local name?
+            foreach (XmlNode child in elem.ChildNodes)
+            {
+                if (child is not XmlElement ce) continue;
+                var cname = ce.LocalName;
+                var idx = cname.IndexOf('.');
+                if (idx <= 0) continue;
+                var owner = cname.Substring(0, idx);
+                var prop = cname.Substring(idx + 1);
+                if (!string.Equals(owner, localName, StringComparison.Ordinal)) continue;
+                // Owner matches — is the same property also set inline?
+                if (elem.HasAttribute(prop))
+                {
+                    failures.Add(
+                        $"{file}: <{localName}> sets '{prop}' both inline and " +
+                        $"as <{localName}.{prop}> — remove the inline attribute.");
+                }
+            }
+            // Recurse.
+            foreach (XmlNode child in elem.ChildNodes)
+                if (child is XmlElement ce)
+                    WalkForDoubleSet(ce, file, failures);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
