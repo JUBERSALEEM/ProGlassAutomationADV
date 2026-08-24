@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.Inquiry;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Licensing;   // ReadOnlyGate
 using ProGlassAutomation.Services.Security;
 using System;
 using System.Text.Json;
@@ -51,6 +52,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryCreate, AppPermissions.ProformaCreate },
                 "create an inquiry");
+            ReadOnlyGate.Demand("create an inquiry");
             Validate(inquiry);
             inquiry.PreparedByName = string.IsNullOrWhiteSpace(inquiry.PreparedByName)
                 ? AuditService.CurrentUser?.DisplayName ?? AuditService.CurrentUsername : inquiry.PreparedByName;
@@ -69,6 +71,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryEdit, AppPermissions.ProformaEdit },
                 "edit an inquiry");
+            ReadOnlyGate.Demand("edit an inquiry");
             Validate(inquiry); inquiry.UpdatedBy = AuditService.CurrentUsername;
             var saved = await _repository.UpdateAsync(inquiry, ct).ConfigureAwait(false);
             AuditService.Log(AuditSections.Proforma, "Inquiry updated", saved.InquiryNumber, "INQ", saved.InquiryNumber);
@@ -81,6 +84,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryEdit, AppPermissions.ProformaEdit },
                 "change inquiry status");
+            ReadOnlyGate.Demand("change inquiry status");
             next = InquiryStatuses.Normalize(next);
             if (!CanTransition(current, next)) throw new InvalidOperationException($"Inquiry cannot move from {current} to {next}.");
             bool changed = await _repository.ChangeStatusAsync(id, next, AuditService.CurrentUsername, ct).ConfigureAwait(false);
@@ -93,6 +97,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryCreate, AppPermissions.ProformaCreate },
                 "duplicate an inquiry");
+            ReadOnlyGate.Demand("duplicate an inquiry");
             var clone = await _repository.DuplicateAsync(sourceId, ct).ConfigureAwait(false);
             AuditService.Log(AuditSections.Proforma, "Inquiry duplicated",
                 $"Cloned from #{sourceId} → {clone.InquiryNumber}",
@@ -106,6 +111,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryDelete, AppPermissions.ProformaDelete },
                 "delete an inquiry");
+            ReadOnlyGate.Demand("delete an inquiry");
             var detail = await _repository.GetDetailAsync(id, ct).ConfigureAwait(false);
             string label = detail?.InquiryNumber ?? id.ToString();
             var result = await _repository.DeleteAsync(id, ct).ConfigureAwait(false);
@@ -121,6 +127,7 @@ namespace ProGlassAutomation.Services.Inquiry
             OperationGuard.DemandAny(
                 new[] { AppPermissions.InquiryEdit, AppPermissions.ProformaEdit },
                 "change inquiry priority");
+            ReadOnlyGate.Demand("change inquiry priority");
             var detail = await _repository.GetDetailAsync(id, ct).ConfigureAwait(false);
             if (detail == null) return false;
             string normalized = NormalizePriority(priority);

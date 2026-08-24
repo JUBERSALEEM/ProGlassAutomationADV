@@ -157,6 +157,27 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     }
 
     /// <summary>
+    /// Per-field visibility flags for the Inquiry editor.
+    /// Same design contract as <see cref="ProformaInvoiceFeatureFlags"/>:
+    ///   • Only OPTIONAL fields are here. DB-required
+    ///     (CustomerName, ProjectName) never toggle.
+    ///   • Defaults ALL TRUE → byte-identical upgrade.
+    ///   • Hidden fields keep their DB value; re-enabling reveals it.
+    /// The wizard binds via <see cref="Services.Features.InquiryFieldVisibility"/>.
+    /// </summary>
+    public class InquiryFeatureFlags
+    {
+        public bool ShowInquiryReference { get; set; } = true;
+        public bool ShowCustomerLocation { get; set; } = true;
+        public bool ShowProjectDescription { get; set; } = true;
+        public bool ShowSalesman { get; set; } = true;
+        public bool ShowPreparedBy { get; set; } = true;
+        public bool ShowPriority { get; set; } = true;
+        public bool ShowInquiryValue { get; set; } = true;
+        public bool ShowNotes { get; set; } = true;
+    }
+
+    /// <summary>
     /// Root config container persisted to disk as JSON.
     ///
     /// SECURITY (v2): API keys never reach the JSON file. They live in
@@ -179,6 +200,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public ProformaInvoiceFeatureFlags ProformaInvoiceFields { get; set; }
             = new ProformaInvoiceFeatureFlags();
+
+        /// <summary>
+        /// Per-field visibility flags for the Inquiry editor. Same
+        /// design contract as <see cref="ProformaInvoiceFieldFlagsDoc"/>:
+        /// defaults ALL true (byte-identical upgrade), only optional
+        /// fields toggleable, hidden fields keep their stored value.
+        /// </summary>
+        public InquiryFeatureFlags InquiryFields { get; set; }
+            = new InquiryFeatureFlags();
 
         /// <summary>
         /// Last signed-in username. Never a password. Restored on the

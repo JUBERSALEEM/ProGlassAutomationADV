@@ -143,6 +143,35 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ProformaInvoiceFeaturesViewModel ProformaFeatures { get; }
             = new ProformaInvoiceFeaturesViewModel();
 
+        /// <summary>
+        /// Per-field visibility toggles for the Inquiry editor.
+        /// Same design as <see cref="ProformaFeatures"/>: a non-coder
+        /// operator can hide fields they never fill in without
+        /// touching XAML.
+        /// </summary>
+        public InquiryFeaturesViewModel InquiryFeatures { get; }
+            = new InquiryFeaturesViewModel();
+
+        /// <summary>
+        /// Sign the current operator out and clear the "Skip login
+        /// until update" DPAPI blob. Exposed here so the Settings ►
+        /// Features page can host the affordance without depending on
+        /// the main shell's DataContext.
+        /// See <see cref="Services.Security.AuthSessionService"/>.
+        /// </summary>
+        public ICommand SignOutCommand { get; } = new Commands.RelayCommand(_ =>
+            Utilities.AsyncUtility.SafeFireAndForget(
+                Services.Security.AuthSessionService.SignOutAsync,
+                "Settings SignOut"));
+
+        /// <summary>
+        /// Revoke the auto-sign-in credentials on this device WITHOUT
+        /// ending the current session. Bound to the "Forget this
+        /// device" affordance in Settings.
+        /// </summary>
+        public ICommand ForgetThisDeviceCommand { get; } = new Commands.RelayCommand(_ =>
+            Services.Security.AuthSessionService.ClearSavedCredentials());
+
         public SettingsViewModel()
         {
             // v2 shell: navigation between the settings pages.

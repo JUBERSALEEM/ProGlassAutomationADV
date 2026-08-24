@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.Licensing;         // ReadOnlyGate
 using ProGlassAutomation.Services.ProformaInvoice;   // InquiryLinkSync
 using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using System;
@@ -171,6 +172,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             OperationGuard.Demand(
                 AppPermissions.ProformaCreate, "create a proforma invoice");
 
+            // Licensing (Aug 2026 refactor): read-only mode blocks new
+            // writes so an expired trial / grace period cannot silently
+            // accumulate more data. The banner in the shell tells the
+            // operator why, and this throw surfaces the same message
+            // to the ViewModel dialog.
+            ReadOnlyGate.Demand("create a proforma invoice");
+
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
@@ -262,6 +270,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaEdit, "update a proforma invoice");
+
+            ReadOnlyGate.Demand("update a proforma invoice");
 
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
@@ -437,6 +447,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // but this is the boundary that cannot be bypassed.
             OperationGuard.Demand(
                 AppPermissions.ProformaDelete, "delete a proforma invoice");
+
+            ReadOnlyGate.Demand("delete a proforma invoice");
 
             using var db = new ProformaInvoicesDbContext();
             var entity = await db.ProformaInvoices.FindAsync(id);

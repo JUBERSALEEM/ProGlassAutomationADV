@@ -17,6 +17,7 @@
          wizard reacts live thanks to ProformaFieldVisibility.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsFeaturesSection"
+             x:Name="SettingsFeaturesRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -79,7 +80,50 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32" DataContext="{Binding ProformaFeatures}">
+            <StackPanel Margin="32,0,32,32">
+
+                <!-- ══════════════ SESSION ══════════════
+                     Sign out and forget-device affordances. Bound to
+                     the parent SettingsViewModel via ElementName since
+                     the descendant Proforma toggles below re-scope
+                     their DataContext to ProformaFeatures. Sits above
+                     Proforma so a shift-change operator sees it
+                     without scrolling. -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Session"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Sign out for a shift handover, or forget the auto-sign-in credentials on this device without ending your session."
+                                       Style="{StaticResource ToggleRowHintStyle}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Forget this device"
+                                    Command="{Binding DataContext.ForgetThisDeviceCommand,
+                                        ElementName=SettingsFeaturesRoot}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Margin="0,0,8,0"
+                                    ToolTip="Clear the Skip-login vault entry on this machine without signing out. Next launch will show the login form."/>
+                            <Button Content="Sign out"
+                                    Command="{Binding DataContext.SignOutCommand,
+                                        ElementName=SettingsFeaturesRoot}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    ToolTip="End your session, clear the Skip-login vault entry, and return to the login screen."/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════ PROFORMA INVOICE FIELD VISIBILITY ══════════════
+                     The rest of this page re-scopes DataContext to
+                     ProformaFeatures so the descendant pill toggles
+                     bind cleanly. -->
+                <StackPanel DataContext="{Binding ProformaFeatures}">
 
                 <!-- ── HEADER + BULK ACTIONS ─────────────────────── -->
                 <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
@@ -338,6 +382,127 @@
                     </StackPanel>
                 </Border>
 
+                </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
+
+                <!-- ══════════════ INQUIRY FIELD VISIBILITY ══════════════
+                     Sibling of the Proforma toggles above. Re-scopes
+                     DataContext to InquiryFeatures for the same reason
+                     — the descendant pill IsChecked bindings resolve
+                     against the flags VM. Customer Name and Project
+                     Name are DB-required and stay always visible. -->
+                <StackPanel DataContext="{Binding DataContext.InquiryFeatures,
+                                ElementName=SettingsFeaturesRoot}">
+
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="Inquiry"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Show or hide optional fields on the Inquiry editor. Customer Name and Project Name cannot be hidden — the database needs them."
+                                       Style="{StaticResource ToggleRowHintStyle}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Content="Enable all"
+                                    Command="{Binding EnableAllCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Margin="0,0,8,0"/>
+                            <Button Content="Hide all optional"
+                                    Command="{Binding DisableAllOptionalCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Margin="0,0,8,0"/>
+                            <Button Content="Reset defaults"
+                                    Command="{Binding ResetToDefaultsCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="Inquiry editor" Style="{StaticResource StepHeaderStyle}"/>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Inquiry reference" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Short customer-facing reference line for the inquiry." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryReference}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Customer location" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Emirate / city — carried over to the Proforma billing address." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCustomerLocation}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Project description" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Longer free-text description of the project scope." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProjectDescription}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Salesman" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Sales representative who owns the inquiry." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSalesman}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Prepared by" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Operator who first typed up the inquiry." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPreparedBy}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Priority" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Urgent / High / Normal / Low triage bucket." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPriority}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Estimated value" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Rough AED estimate of the potential order." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInquiryValue}"/>
+                        </Grid>
+
+                        <Grid Style="{StaticResource ToggleRowGridStyle}">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="Notes" Style="{StaticResource ToggleRowLabelStyle}"/>
+                                <TextBlock Text="Freeform notes stored with the inquiry record." Style="{StaticResource ToggleRowHintStyle}"/>
+                            </StackPanel>
+                            <ToggleButton Grid.Column="1" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
+                        </Grid>
+
+                    </StackPanel>
+                </Border>
+
+                </StackPanel>   <!-- close DataContext=InquiryFeatures scope -->
             </StackPanel>
         </ScrollViewer>
     </Grid>

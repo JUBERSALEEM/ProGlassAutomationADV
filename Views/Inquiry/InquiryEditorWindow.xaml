@@ -15,6 +15,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
+        xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
         Title="Inquiry workspace"
         Width="1180" Height="790" MinWidth="980" MinHeight="640"
         WindowStartupLocation="CenterOwner"
@@ -362,7 +363,10 @@
                                               ContextMenu="{StaticResource EditorFieldContextMenu}"
                                               ToolTip="Type a new customer or pick a saved client"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
+                                <StackPanel Grid.Column="2"
+                                            Visibility="{Binding Path=ShowCustomerLocation,
+                                                Source={x:Static features:InquiryFieldVisibility.Instance},
+                                                Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Location" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <!-- Editable ComboBox: shows the saved addresses for
                                          the currently-typed customer, but the user can still
@@ -398,13 +402,19 @@
                                     <TextBox Text="{Binding ProjectName, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
+                                <StackPanel Grid.Column="2"
+                                            Visibility="{Binding Path=ShowInquiryReference,
+                                                Source={x:Static features:InquiryFieldVisibility.Instance},
+                                                Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Inquiry reference" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <TextBox Text="{Binding Reference, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource ModernTextBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
-                            <StackPanel Margin="0,12,0,0">
+                            <StackPanel Margin="0,12,0,0"
+                                        Visibility="{Binding Path=ShowProjectDescription,
+                                            Source={x:Static features:InquiryFieldVisibility.Instance},
+                                            Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Description / subject" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox Text="{Binding ProjectDescription, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource ModernTextBoxStyle}" Height="66" AcceptsReturn="True"
@@ -436,7 +446,10 @@
                                     <TextBlock Text="{Binding ReceivedHint, Mode=OneWay}"
                                                Style="{StaticResource InqHintStyle}" Margin="2,5,0,0"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="2">
+                                <StackPanel Grid.Column="2"
+                                            Visibility="{Binding Path=ShowSalesman,
+                                                Source={x:Static features:InquiryFieldVisibility.Instance},
+                                                Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Salesman" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Salesmen}"
                                               Text="{Binding SalesmanName, UpdateSourceTrigger=PropertyChanged}"
@@ -445,13 +458,19 @@
                                               ContextMenu="{StaticResource EditorFieldContextMenu}"
                                               ToolTip="Pick a saved salesman or type a new name — it will be saved to master data"/>
                                 </StackPanel>
-                                <StackPanel Grid.Column="4">
+                                <StackPanel Grid.Column="4"
+                                            Visibility="{Binding Path=ShowPriority,
+                                                Source={x:Static features:InquiryFieldVisibility.Instance},
+                                                Converter={StaticResource BoolToVis}}">
                                     <TextBlock Text="Priority" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                     <ComboBox ItemsSource="{Binding Priorities}" SelectedItem="{Binding Priority}"
                                               Style="{StaticResource ModernComboBoxStyle}"/>
                                 </StackPanel>
                             </Grid>
-                            <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left">
+                            <StackPanel Margin="0,12,0,0" MaxWidth="260" HorizontalAlignment="Left"
+                                        Visibility="{Binding Path=ShowInquiryValue,
+                                            Source={x:Static features:InquiryFieldVisibility.Instance},
+                                            Converter={StaticResource BoolToVis}}">
                                 <TextBlock Text="Inquiry value (AED)" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <TextBox x:Name="ValueInput"
                                          Text="{Binding ValueText, UpdateSourceTrigger=PropertyChanged}"
@@ -476,7 +495,10 @@
                     </Border>
 
                     <!-- Notes -->
-                    <Border Style="{StaticResource SectionCardStyle}">
+                    <Border Style="{StaticResource SectionCardStyle}"
+                            Visibility="{Binding Path=ShowNotes,
+                                Source={x:Static features:InquiryFieldVisibility.Instance},
+                                Converter={StaticResource BoolToVis}}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <TextBlock Text="NOTES" Style="{StaticResource ModuleColumnHeaderStyle}"/>

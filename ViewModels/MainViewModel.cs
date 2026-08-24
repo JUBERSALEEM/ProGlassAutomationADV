@@ -407,6 +407,24 @@ namespace ProGlassAutomation.ViewModels
         /// </summary>
         public ICommand OpenLicenseSettingsCommand { get; }
 
+        /// <summary>
+        /// Signs the current operator out, clears the "Skip login until
+        /// update" DPAPI credentials, and asks the shell to restart the
+        /// splash / login flow. Bound to a menu affordance in the shell
+        /// so a shop-floor terminal can be handed off cleanly at shift
+        /// change. See <see cref="AuthSessionService.SignOutAsync"/> for
+        /// the exact cleanup sequence.
+        /// </summary>
+        public ICommand SignOutCommand { get; }
+
+        /// <summary>
+        /// Revokes the auto-sign-in credentials for this device without
+        /// signing out the current session. Bound to a "Forget this
+        /// device" affordance in Settings so a user who armed the pill
+        /// by accident can revoke it without ending their work.
+        /// </summary>
+        public ICommand ForgetThisDeviceCommand { get; }
+
         // ── Parameterless ctor for XAML backward compat — uses App.ServiceProvider fallback ──
         public MainViewModel() : this(App.ServiceProvider ?? Services.DependencyInjection.ServiceRegistration.BuildProGlassProvider())
         {
@@ -758,6 +776,25 @@ namespace ProGlassAutomation.ViewModels
             ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
             ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
             OpenLicenseSettingsCommand = new RelayCommand(_ => OpenSettingsPage("License"));
+
+            // Senior-audit fix (Aug 2026): sign-out + forget-this-device
+            // give the shell a clean shift-handover path and a
+            // self-service way to revoke the "Skip login until update"
+            // auto-sign-in blob. Fire-and-forget: the helper is
+            // exception-safe and the shell just closes the menu.
+            SignOutCommand = new RelayCommand(_ =>
+            {
+                IsMenuOpen = false;
+                IsSettingsOpen = false;
+                Utilities.AsyncUtility.SafeFireAndForget(
+                    Services.Security.AuthSessionService.SignOutAsync,
+                    "MainVM SignOut");
+            });
+            ForgetThisDeviceCommand = new RelayCommand(_ =>
+            {
+                Services.Security.AuthSessionService.ClearSavedCredentials();
+                IsSettingsOpen = false;
+            });
             ShowUserSwitchCommand = new RelayCommand(_ => IsUserSwitchOpen = !IsUserSwitchOpen);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsOpen = !IsSettingsOpen);
             ToggleNotificationsCommand = new RelayCommand(_ => IsNotificationsOpen = !IsNotificationsOpen);

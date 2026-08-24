@@ -53,6 +53,41 @@ namespace ProGlassAutomation.Utilities
                 if (work == null) return;
                 await work().ConfigureAwait(true);
             }
+            catch (Services.Licensing.ReadOnlyModeException roEx)
+            {
+                // User-visible: the licence is in read-only mode and a
+                // write was refused. Log AND show a dialog so the
+                // operator understands why "nothing happened" when they
+                // clicked Save / Delete / etc. Aug 2026 senior audit —
+                // before this branch, ReadOnlyGate.Demand throws were
+                // silently swallowed by the fire-and-forget catch,
+                // leaving the user staring at an unchanged form.
+                var ctx = new LogContext
+                {
+                    Operation = "SafeFireAndForget",
+                    CorrelationId = corrId,
+                    Extra = logMessage ?? ""
+                };
+                AppLogService.Warning(
+                    "Read-only mode blocked: " + (logMessage ?? "unknown"), ctx);
+                ShowUserDialog(roEx.UserMessage, "Read-only mode");
+            }
+            catch (Services.Audit.PermissionDeniedException pdEx)
+            {
+                // User-visible: the current role lacks the required
+                // permission. Same rationale as above — a silent no-op
+                // is worse than a friendly dialog.
+                var ctx = new LogContext
+                {
+                    Operation = "SafeFireAndForget",
+                    CorrelationId = corrId,
+                    Extra = logMessage ?? ""
+                };
+                AppLogService.Warning(
+                    "Permission denied: " + pdEx.Permission +
+                    " for " + pdEx.Operation, ctx);
+                ShowUserDialog(pdEx.UserMessage, "Permission denied");
+            }
             catch (Exception ex)
             {
                 var ctx = new LogContext
@@ -62,6 +97,44 @@ namespace ProGlassAutomation.Utilities
                     Extra = logMessage ?? ""
                 };
                 AppLogService.Error(logMessage ?? "Fire-and-forget task failed", ex, ctx);
+            }
+        }
+
+        /// <summary>
+        /// Best-effort UI dialog for the well-known "user-visible"
+        /// exceptions caught above. Runs on the WPF Dispatcher when
+        /// available; falls back to a silent no-op in a headless test
+        /// host. Never throws.
+        /// </summary>
+        private static void ShowUserDialog(string message, string title)
+        {
+            try
+            {
+                var app = System.Windows.Application.Current;
+                if (app == null) return;
+                var dispatcher = app.Dispatcher;
+                if (dispatcher == null) return;
+
+                if (dispatcher.CheckAccess())
+                {
+                    System.Windows.MessageBox.Show(
+                        message, title,
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
+                else
+                {
+                    dispatcher.BeginInvoke(new Action(() =>
+                        System.Windows.MessageBox.Show(
+                            message, title,
+                            System.Windows.MessageBoxButton.OK,
+                            System.Windows.MessageBoxImage.Warning)));
+                }
+            }
+            catch
+            {
+                // MessageBox / Dispatcher issues must never re-crash
+                // the fire-and-forget handler.
             }
         }
 

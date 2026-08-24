@@ -127,6 +127,7 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.Appearance ??= new AppearanceSettings();
                 config.Ai ??= new AiSettings();
                 config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
+                config.InquiryFields ??= new InquiryFeatureFlags();
 
                 // v2: migrate legacy plain-text keys out of config.json
                 // into the encrypted vault, then hydrate from the vault.

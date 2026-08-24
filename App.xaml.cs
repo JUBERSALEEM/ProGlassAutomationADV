@@ -836,6 +836,18 @@ namespace ProGlassAutomation
             MainWindow = mainWindow;
             ShutdownMode = ShutdownMode.OnLastWindowClose;
 
+            // Senior audit (Aug 2026): sign-out from the shell.
+            // AuthSessionService has already cleared the pill vault +
+            // audit-logged; all we do here is close the main window
+            // and shut the process down. The user re-launches to sign
+            // in as another operator. A full "restart splash without
+            // process exit" flow would be nicer, but the ShutdownMode
+            // = OnLastWindowClose path we already use is the least
+            // risky teardown that guarantees per-session state cannot
+            // bleed between operators.
+            Services.Security.AuthSessionService.SignOutRequested -= OnSignOutRequested;
+            Services.Security.AuthSessionService.SignOutRequested += OnSignOutRequested;
+
             mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Show();
             await WaitForWindowReadyAsync(mainWindow);
@@ -881,6 +893,53 @@ namespace ProGlassAutomation
                 new Action(() => frame.TrySetResult(true)),
                 System.Windows.Threading.DispatcherPriority.Render);
             await frame.Task;
+        }
+
+        /// <summary>
+        /// Handles a sign-out request from
+        /// <see cref="Services.Security.AuthSessionService.SignOutRequested"/>.
+        /// Closes the main window on the UI thread so the standard
+        /// OnLastWindowClose shutdown mode runs. The user re-launches
+        /// the app to sign in as another operator; the auto-sign-in
+        /// blob and skip-login flags have already been cleared by
+        /// AuthSessionService.SignOutAsync before the event fires,
+        /// so the next launch always shows the login form.
+        /// </summary>
+        private static void OnSignOutRequested(object? sender, EventArgs e)
+        {
+            try
+            {
+                var app = Current;
+                if (app == null) return;
+
+                app.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    try
+                    {
+                        app.MainWindow?.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "Sign-out main-window close failed: " + ex.Message,
+                            new LogContext
+                            {
+                                Module = "Auth",
+                                Operation = "OnSignOutRequested"
+                            });
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "OnSignOutRequested dispatch failed: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Auth",
+                        Operation = "OnSignOutRequested"
+                    });
+            }
         }
 
         // Phase 4: Named handler for static event — detachable, no lambda leak
