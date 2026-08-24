@@ -109,6 +109,31 @@ namespace ProGlassAutomation.Views.Licensing
             // process) update the view without the user
             // having to click anything.
             LicenseService.StatusChanged += OnLicenseStatusChanged;
+
+            // Unloaded subscription (instead of an
+            // OnUnloaded override) detaches the static
+            // event handler when the view is detached
+            // from the visual tree — the modal window
+            // closes, the host page navigates away, etc.
+            //
+            // Why an event subscription and not the
+            // conventional OnUnloaded virtual: the
+            // override requires the WPF
+            // FrameworkElement.OnUnloaded(RoutedEventArgs)
+            // signature, which only resolves if the
+            // project compiles against
+            // PresentationFramework. Some hosts
+            // (including the in-app shell overlay
+            // pattern used by MainWindow) build against
+            // trimmed WPF references where the virtual
+            // is not visible, and the override fails
+            // with CS0115 ("no suitable method found
+            // to override"). The Unloaded event is the
+            // same hook with a portable signature, and
+            // adding / removing the handler is symmetric
+            // so the subscription is balanced.
+            Unloaded += OnLicenseViewUnloaded;
+
             RefreshFromService();
 
             HintText.Text =
@@ -122,22 +147,24 @@ namespace ProGlassAutomation.Views.Licensing
         }
 
         /// <summary>
-        /// WPF fires Unloaded when the control is
-        /// detached from the visual tree (the modal
-        /// window closes, or the host page navigates
-        /// away). Detach the static event subscription
-        /// here so the view can be collected. Without
-        /// this, the static <see cref="LicenseService"/>
-        /// holds a reference to the dead view via the
-        /// event delegate, and every modal that ever
-        /// opened stays in memory for the lifetime of
-        /// the process.
+        /// Detaches the static <see cref="LicenseService.StatusChanged"/>
+        /// subscription when the view is detached from
+        /// the visual tree. Without this, the static
+        /// <see cref="LicenseService"/> holds a reference
+        /// to the dead view via the event delegate, and
+        /// every modal that ever opened stays in memory
+        /// for the lifetime of the process.
+        ///
+        /// See the constructor for why this is an event
+        /// handler subscription rather than an
+        /// OnUnloaded override.
         /// </summary>
-        protected override void OnUnloaded(System.Windows.RoutedEventArgs e)
+        private void OnLicenseViewUnloaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 LicenseService.StatusChanged -= OnLicenseStatusChanged;
+                Unloaded -= OnLicenseViewUnloaded;
             }
             catch
             {
@@ -145,7 +172,6 @@ namespace ProGlassAutomation.Views.Licensing
                 // throw, which would mask the real
                 // reason the view is being unloaded.
             }
-            base.OnUnloaded(e);
         }
 
         private void OnLicenseStatusChanged(object? sender, LicenseVerificationResult e)
