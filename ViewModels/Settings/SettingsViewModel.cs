@@ -74,7 +74,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     value != "Agent" && value != "Voice" &&
                     value != "Updates" && value != "Data" &&
                     value != "Demo" && value != "License" &&
-                    value != "About")
+                    value != "Features" && value != "About")
                     return;
 
                 if (_settingsPage == value) return;
@@ -89,6 +89,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged(nameof(IsAboutPage));
                 OnPropertyChanged(nameof(IsDemoPage));
                 OnPropertyChanged(nameof(IsLicensePage));
+                OnPropertyChanged(nameof(IsFeaturesPage));
             }
         }
 
@@ -114,6 +115,15 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// </summary>
         public bool IsLicensePage    => SettingsPage == "License";
 
+        /// <summary>
+        /// Per-module feature-flag page (Settings → Features).
+        /// Right now it hosts the Proforma Invoice field-visibility
+        /// toggles (Steps 1-3). Future modules with hideable UI can
+        /// plug into the same section so non-coders never need XAML
+        /// edits for minor layout preferences.
+        /// </summary>
+        public bool IsFeaturesPage   => SettingsPage == "Features";
+
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }
 
@@ -122,6 +132,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         // ══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Nested VM for the Settings ‣ Features ‣ Proforma Invoice
+        /// page. Owns the pill toggles that show / hide individual
+        /// fields in the Proforma Invoice wizard's Steps 1-3.
+        /// Exposed as a public property so the XAML section can
+        /// bind directly to <c>ProformaFeatures.ShowXxx</c>.
+        /// </summary>
+        public ProformaInvoiceFeaturesViewModel ProformaFeatures { get; }
+            = new ProformaInvoiceFeaturesViewModel();
 
         public SettingsViewModel()
         {

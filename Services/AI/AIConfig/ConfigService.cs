@@ -118,6 +118,16 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                     config.Ai.Model = CurrentDefaultModel;
                 }
 
+                // Backward-compat: fields added after v2.0.0 must be
+                // rehydrated when an older config.json doesn't have
+                // them yet. JSON deserialization leaves absent
+                // reference properties as null; the wizard code
+                // dereferences these on every render so a null here
+                // is a crash surface.
+                config.Appearance ??= new AppearanceSettings();
+                config.Ai ??= new AiSettings();
+                config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
+
                 // v2: migrate legacy plain-text keys out of config.json
                 // into the encrypted vault, then hydrate from the vault.
                 MigrateLegacyKeys(config);

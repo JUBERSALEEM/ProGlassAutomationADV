@@ -1,10 +1,15 @@
-﻿<!-- Step 1 — flat industrial form. No cards. -->
+<!-- Step 1 — flat industrial form. No cards.
+     Optional fields bind Visibility to Services.Features.ProformaFieldVisibility
+     so a non-coder operator can hide any field from Settings → Features →
+     Proforma Invoice without touching XAML. Company Name and Proforma ID
+     are DB-required and stay always visible. -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup.CompanySetupView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
              FontFamily="{DynamicResource AppFontFamily}"
              UseLayoutRounding="True" SnapsToDevicePixels="True">
 
@@ -69,7 +74,10 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="2"
+                                Visibility="{Binding Path=ShowCompanyTrn,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="FEDERAL TRN" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"/>
                         <TextBlock Text="{Binding TrnValidationMessage}">
@@ -85,7 +93,10 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="4"
+                                Visibility="{Binding Path=ShowCompanyLocation,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="HEADQUARTERS" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -97,15 +108,23 @@
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+                    <StackPanel Visibility="{Binding Path=ShowRepresentative,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="REPRESENTATIVE" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="2"
+                                Visibility="{Binding Path=ShowRepresentativeMobile,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="MOBILE" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="4"
+                                Visibility="{Binding Path=ShowCompanyEmail,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="EMAIL" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
@@ -115,11 +134,16 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel>
+                    <StackPanel Visibility="{Binding Path=ShowBankName,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="BANK" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="2"
+                                Visibility="{Binding Path=ShowAccountNumber,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="ACCOUNT / IBAN" Style="{StaticResource PiFieldLabelStyle}"/>
                         <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
                     </StackPanel>
@@ -152,15 +176,24 @@
                             </TextBlock.Style>
                         </TextBlock>
                     </StackPanel>
-                    <StackPanel Grid.Column="2">
+                    <StackPanel Grid.Column="2"
+                                Visibility="{Binding Path=ShowIssueDate,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="ISSUE DATE" Style="{StaticResource PiFieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding IssueDate}" Style="{StaticResource PiDatePickerStyle}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="4">
+                    <StackPanel Grid.Column="4"
+                                Visibility="{Binding Path=ShowValidUntil,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="VALID UNTIL" Style="{StaticResource PiFieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ValidUntil}" Style="{StaticResource PiDatePickerStyle}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="6">
+                    <StackPanel Grid.Column="6"
+                                Visibility="{Binding Path=ShowProformaStatus,
+                                    Source={x:Static features:ProformaFieldVisibility.Instance},
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="STATUS" Style="{StaticResource PiFieldLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding ProformaStatus}" Style="{StaticResource PiComboBoxStyle}"/>
                     </StackPanel>

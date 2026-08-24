@@ -227,6 +227,28 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- FEATURES — per-module UI toggles. Right now it
+                         hosts the Proforma Invoice field-visibility pills
+                         so a non-coder operator can hide fields they
+                         never fill in. -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Features">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFeaturesPage}" Value="True">
+                                        <Setter Property="Tag" Value="Active"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE762;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Features"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- LICENSE — Settings-level licensing surface
                          (the old startup License overlay was removed;
                           this is the ONLY place users see licensing). -->
@@ -325,6 +347,11 @@
             <sections:SettingsDemoSection
                 Panel.ZIndex="2"
                 Visibility="{Binding DataContext.IsDemoPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+            <sections:SettingsFeaturesSection
+                Visibility="{Binding DataContext.IsFeaturesPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>

@@ -102,6 +102,61 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     }
 
     /// <summary>
+    /// Per-field visibility flags for the Proforma Invoice wizard.
+    ///
+    /// ─── DESIGN CONTRACT ───────────────────────────────────────────
+    /// • Every optional field in Steps 1 (Company), 2 (Client) and 3
+    ///   (Project) has a boolean here. TRUE = show, FALSE = hide.
+    /// • DB-required fields are NOT here — Company Name, Customer
+    ///   Name and Proforma ID are always visible. Hiding them would
+    ///   leave the operator unable to save a record.
+    /// • Defaults are ALL TRUE so an existing install is byte-identical
+    ///   to the previous release the first time it launches: the user
+    ///   opts OUT of showing a field, they don't opt in.
+    /// • The wizard code paths, validators, save serializers and DB
+    ///   columns all keep working with the underlying properties;
+    ///   hiding a field only stops it appearing in the UI. If the
+    ///   field had a value before it was hidden, the value is
+    ///   preserved on disk and reappears when the user re-enables it.
+    /// • Bindings in the Step 1-3 XAML consume the singleton
+    ///   ProGlassAutomation.Services.Features.ProformaFieldVisibility.
+    ///   That helper mirrors these flags and raises PropertyChanged
+    ///   on every save so the toggle animates fields in / out live
+    ///   without an app restart.
+    /// ────────────────────────────────────────────────────────────────
+    /// </summary>
+    public class ProformaInvoiceFeatureFlags
+    {
+        // ── Step 1: Company ────────────────────────────────────────
+        public bool ShowCompanyTrn { get; set; } = true;
+        public bool ShowCompanyLocation { get; set; } = true;
+        public bool ShowRepresentative { get; set; } = true;
+        public bool ShowRepresentativeMobile { get; set; } = true;
+        public bool ShowCompanyEmail { get; set; } = true;
+        public bool ShowBankName { get; set; } = true;
+        public bool ShowAccountNumber { get; set; } = true;
+        public bool ShowIssueDate { get; set; } = true;
+        public bool ShowValidUntil { get; set; } = true;
+        public bool ShowProformaStatus { get; set; } = true;
+
+        // ── Step 2: Client ─────────────────────────────────────────
+        public bool ShowCustomerTrn { get; set; } = true;
+        public bool ShowCustomerReferenceCode { get; set; } = true;
+        public bool ShowSalesRepresentative { get; set; } = true;
+        public bool ShowDocumentPreparedBy { get; set; } = true;
+        public bool ShowAttentionExecutive { get; set; } = true;
+        public bool ShowClientContactPhone { get; set; } = true;
+        public bool ShowBillingAddress { get; set; } = true;
+
+        // ── Step 3: Project ────────────────────────────────────────
+        public bool ShowProjectName { get; set; } = true;
+        public bool ShowProjectReference { get; set; } = true;
+        public bool ShowContractNo { get; set; } = true;
+        public bool ShowLpoNumber { get; set; } = true;
+        public bool ShowSiteDeliveryLocation { get; set; } = true;
+    }
+
+    /// <summary>
     /// Root config container persisted to disk as JSON.
     ///
     /// SECURITY (v2): API keys never reach the JSON file. They live in
@@ -114,6 +169,16 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public AiSettings Ai { get; set; } = new AiSettings();
         public bool OnlineFeaturesEnabled { get; set; } = true;
         public AppearanceSettings Appearance { get; set; } = new();
+
+        /// <summary>
+        /// Per-field visibility flags for the Proforma Invoice
+        /// wizard (Steps 1-3). Lets a non-coder operator turn off
+        /// fields they never fill in without touching XAML. See
+        /// <see cref="ProformaInvoiceFeatureFlags"/> for the
+        /// design contract.
+        /// </summary>
+        public ProformaInvoiceFeatureFlags ProformaInvoiceFields { get; set; }
+            = new ProformaInvoiceFeatureFlags();
 
         /// <summary>
         /// Last signed-in username. Never a password. Restored on the
