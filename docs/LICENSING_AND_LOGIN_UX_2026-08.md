@@ -28,15 +28,24 @@ industrial app should not ship with:
 
 - Unchanged animation.
 - After the terms gate, the splash decides between three paths:
-  1. **First-run** (no users in DB) → `FirstRunSetupPanel` creates
-     the first administrator and **auto-arms the skip-login pill**
-     so the user is not asked to re-type their brand-new password
-     on the very next launch.
+  1. **First boot ever** (no users in DB) → `FirstRunSetupPanel`
+     creates the first administrator and the splash then silently
+     calls `AuditService.SwitchUserAsync` with the credentials the
+     operator just typed. **No login prompt on this boot** — the
+     shell opens straight after setup. The auto-login pill is
+     deliberately NOT armed here (no consent yet).
   2. **Returning user with skip-login armed** → `TryAutoLoginAsync`
      verifies the DPAPI-encrypted password from `SecretVault` and,
      on success, signs in without ever mounting the login form.
-  3. **Returning user without skip-login (or after an update)** →
-     the classic `LoginPanel` is shown.
+  3. **Every other subsequent boot** → the classic `LoginPanel` is
+     shown, with the last-used username pre-filled and the pill
+     visible so the user can opt in on their own terms.
+
+Effective flows:
+
+- First boot:  Splash → Setup → Main
+- Second boot (default): Splash → Login → Main
+- Second+ boot (pill armed): Splash → Main
 
 ### Login
 

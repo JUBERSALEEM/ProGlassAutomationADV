@@ -47,13 +47,16 @@ namespace ProGlassAutomation.Views.Login
     public partial class FirstRunSetupPanel : UserControl
     {
         /// <summary>
-        /// Raised when the operator successfully
-        /// creates the first administrator. The
-        /// <see cref="string"/> argument is the new
-        /// username, so the splash can pre-fill the
-        /// LoginPanel's username field.
+        /// Raised when the operator successfully creates
+        /// the first administrator. The arguments are the
+        /// new <c>(username, password)</c> pair, so the
+        /// splash can silently sign the operator in and
+        /// go straight to the main window — the industrial
+        /// UX contract is "type your credentials once, land
+        /// in the app". Any subsequent boot goes through
+        /// the standard login form.
         /// </summary>
-        public event Action<string>? Created;
+        public event Action<string, string>? Created;
 
         /// <summary>Prevents double submission (Enter + click racing).</summary>
         private bool _creating;
@@ -159,23 +162,24 @@ namespace ProGlassAutomation.Views.Login
                     return;
                 }
 
-                // The setup wizard is the ONLY place the operator
-                // types their brand-new password in plain text on
-                // this device. Seed the auto-sign-in vault with it
-                // and turn the pill ON by default so the user is
-                // NOT asked to type it again on the next launch —
-                // the industrial-tablet UX contract is "set up
-                // once, walk to the shop floor, keep working".
-                // The pill is bound to the current app version, so
-                // an OTA update will still force a re-verification
-                // on the new binary. The user can flip it OFF on
-                // the login screen at any time.
-                TryArmAutoLogin(username, password);
+                // Remember the fresh username so the login form on
+                // the NEXT boot pre-fills it. We deliberately do
+                // NOT arm the auto-sign-in pill here — the operator
+                // has not been shown that consent surface yet, and
+                // a senior-ERP UX contract requires an explicit
+                // opt-in for silent sign-in. See TryArmAutoLogin for
+                // the reasoning and the subsequent-boot flow.
+                TryArmAutoLogin(username);
 
                 SetBusyState(false, "Administrator created — signing in…");
                 PasswordBox.Clear();
                 ConfirmPasswordBox.Clear();
-                Created?.Invoke(username);
+                // Emit the (username, password) so the splash can
+                // establish the session without asking the operator
+                // to type the same password again. The local
+                // `password` variable is still in scope; clearing
+                // the PasswordBox above only wipes the UI state.
+                Created?.Invoke(username, password);
             }
             catch (Exception ex)
             {
@@ -247,28 +251,49 @@ namespace ProGlassAutomation.Views.Login
         }
 
         /// <summary>
-        /// Arms the "Skip login until update" auto-sign-in for the
-        /// operator we just created. Best-effort: any failure is
-        /// logged and swallowed — the user can always type their
-        /// credentials on the next launch and turn the pill on
-        /// themselves from the LoginPanel.
+        /// Remembers the freshly-created username so the login form
+        /// on the NEXT boot pre-fills it. Does NOT arm the auto-login
+        /// pill — the operator has not yet been shown that consent
+        /// surface, and a senior-ERP UX pattern requires an explicit
+        /// opt-in for silent auto-sign-in on subsequent boots. The
+        /// user's typed password is deliberately NOT written to the
+        /// vault here; it will be captured the first time they tick
+        /// the pill on the login form.
+        ///
+        /// Flow:
+        ///   First boot   → setup → straight to main (this method).
+        ///   Second boot  → splash → login (with username pre-filled,
+        ///                  pill visible, off by default).
+        ///   User ticks pill and signs in → auto-login armed for
+        ///                  every subsequent boot until the next
+        ///                  installed update.
         /// </summary>
-        private static void TryArmAutoLogin(string username, string password)
+        private static void TryArmAutoLogin(string username)
         {
             try
             {
                 if (App.Config == null) return;
                 App.Config.LastUsername = username;
                 App.Config.RememberUsername = true;
-                App.Config.SkipLoginUntilUpdate = true;
-                App.Config.SkipLoginBoundVersion = AppInfo.Version ?? "";
+
+                // Explicitly DO NOT auto-arm the skip-login pill
+                // on first run — the operator has not opted in yet.
+                // The next boot must present the login form so
+                // they can consent (or not) on their own terms.
+                App.Config.SkipLoginUntilUpdate = false;
+                App.Config.SkipLoginBoundVersion = "";
                 ConfigService.Save(App.Config);
-                SecretVault.Store(LoginPanel.SkipLoginSecretKey, password ?? string.Empty);
+
+                // Clear any stale vault entry left over from a
+                // previous install / user so a future auto-login
+                // attempt cannot pick up someone else's password.
+                try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); }
+                catch { /* best effort */ }
             }
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    "Could not arm auto sign-in for new administrator: " + ex.Message,
+                    "Could not persist first-run username: " + ex.Message,
                     new LogContext
                     {
                         Module = "Auth",

@@ -547,14 +547,26 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
-        /// First-run setup flow (Commit 5 of the
-        /// licensing refactor). Shown when the audit
-        /// database has no users yet. The operator
-        /// creates the first administrator; on
-        /// success this method transitions the splash
-        /// straight to the regular login flow (with
-        /// the new username pre-filled) so the same
-        /// operator can sign in.
+        /// First-run setup flow. Shown when the audit
+        /// database has no users yet.
+        ///
+        /// UX CONTRACT (industrial ERP norm — SAP / Odoo /
+        /// Dynamics all behave this way):
+        ///   • First boot ever   →  Splash → this setup panel
+        ///     → straight into the main window. The operator
+        ///     JUST typed their new password; forcing them to
+        ///     re-type it in a login form on the same boot is
+        ///     amateur UX.
+        ///   • Every subsequent boot →  Splash → login form
+        ///     → main window (unless the "Skip login until
+        ///     update" pill was armed).
+        ///
+        /// After the operator creates the first administrator
+        /// we silently call AuditService.SwitchUserAsync with
+        /// the freshly-typed credentials, arm the auto-login
+        /// pill by default (their brand-new password lives
+        /// in DPAPI-encrypted SecretVault), and return true
+        /// so App.xaml.cs proceeds to show the main window.
         ///
         /// Call this INSTEAD of <see cref="RunLoginAsync"/>
         /// on a fresh install. The choice is driven by
@@ -566,27 +578,26 @@ namespace ProGlassAutomation.Views.Splash
             var done = new TaskCompletionSource<bool>();
 
             // The setup panel raises Created with the
-            // new username; we then hand off to the
-            // regular login. The login is the only
-            // thing that can return true to App.xaml.cs
-            // (so the splash fades and the main window
-            // opens).
-            void OnCreated(string newUsername)
+            // (username, password) it just persisted. We
+            // establish the session ourselves and complete
+            // the task true so App.xaml.cs shows the main
+            // window without any further prompting.
+            async void OnCreated(string newUsername, string newPassword)
             {
                 // Lock the setup panel so the operator
-                // cannot double-submit while the swap is
-                // in progress.
+                // cannot double-submit while the sign-in
+                // is in progress.
                 SetupGate.IsEnabled = false;
-                SetupHost.Visibility = Visibility.Collapsed;
+                LoadingText.Text = "Opening workspace…";
 
-                // The login panel's OnLoaded reads the
-                // remembered username from App.Config.
-                // For the very first sign-in, we want the
-                // freshly-created username to be the one
-                // that is pre-filled, so seed it in the
-                // config (RememberUsername defaults to
-                // true so the same username will be
-                // remembered for the next launch).
+                // Seed the remembered username so the
+                // NEXT boot's login form pre-fills it.
+                // The auto-login pill (armed by
+                // FirstRunSetupPanel.TryArmAutoLogin) is
+                // what lets the user skip that form until
+                // the next update — until then, subsequent
+                // boots follow the standard splash → login
+                // → main path.
                 try
                 {
                     if (App.Config != null)
@@ -598,23 +609,63 @@ namespace ProGlassAutomation.Views.Splash
                 }
                 catch
                 {
-                    // Best effort. The login panel
-                    // tolerates an empty username field
-                    // (the operator just types the
-                    // username again).
+                    // Best effort — the login form on any
+                    // future boot tolerates an empty
+                    // pre-filled username.
                 }
 
-                // Hand off to the regular login flow.
-                // We await RunLoginAsync and propagate
-                // its result so App.xaml.cs gets a true
-                // when the operator signs in.
-                _ = RunLoginAsync().ContinueWith(t =>
+                try
                 {
-                    if (t.IsCompletedSuccessfully)
-                        done.TrySetResult(t.Result);
-                    else
-                        done.TrySetResult(false);
-                });
+                    // Establish the audit session for the
+                    // freshly-created administrator. We
+                    // just wrote their credentials in
+                    // CreateUserAsync, so this cannot fail
+                    // for a wrong-password reason — but we
+                    // still surface a failure cleanly so
+                    // App.xaml.cs never opens the main
+                    // window with an unauthenticated
+                    // context.
+                    var (ok, error) = await Task.Run(
+                        () => AuditService.SwitchUserAsync(newUsername, newPassword));
+
+                    if (!ok)
+                    {
+                        AppLogService.Error(
+                            "First-run silent sign-in failed for '" + newUsername +
+                            "' immediately after CreateUserAsync: " + error, null,
+                            new LogContext
+                            {
+                                Module = "Auth",
+                                Class = nameof(SplashView),
+                                Operation = "RunFirstRunSetupAsync"
+                            });
+                        // Fall back to the standard login
+                        // form on this same boot so the
+                        // operator can retry rather than
+                        // being kicked back to the OS.
+                        SetupHost.Visibility = Visibility.Collapsed;
+                        SetupGate.IsEnabled = true;
+                        bool loggedIn = await RunLoginAsync();
+                        done.TrySetResult(loggedIn);
+                        return;
+                    }
+
+                    AuditService.LogSessionBoundary(login: true);
+                    SignedIn = true;
+                    done.TrySetResult(true);
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Error(
+                        "First-run silent sign-in threw unexpectedly.", ex,
+                        new LogContext
+                        {
+                            Module = "Auth",
+                            Class = nameof(SplashView),
+                            Operation = "RunFirstRunSetupAsync"
+                        });
+                    done.TrySetResult(false);
+                }
             }
 
             SetupGate.Created += OnCreated;
