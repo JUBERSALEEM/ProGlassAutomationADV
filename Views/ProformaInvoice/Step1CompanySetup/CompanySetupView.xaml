@@ -79,7 +79,9 @@
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="FEDERAL TRN" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"/>
+                        <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}" MaxLength="15"
+                                 AutomationProperties.AutomationId="ProformaInvoice.CompanyTrn"
+                                 AutomationProperties.Name="Company TRN"/>
                         <TextBlock Text="{Binding TrnValidationMessage}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
@@ -98,7 +100,9 @@
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="HEADQUARTERS" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.AutomationId="ProformaInvoice.CompanyLocation"
+                                 AutomationProperties.Name="Company headquarters"/>
                     </StackPanel>
                 </Grid>
 
@@ -112,21 +116,27 @@
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="REPRESENTATIVE" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.AutomationId="ProformaInvoice.Representative"
+                                 AutomationProperties.Name="Representative"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2"
                                 Visibility="{Binding Path=ShowRepresentativeMobile,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="MOBILE" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.AutomationId="ProformaInvoice.RepresentativeMobile"
+                                 AutomationProperties.Name="Representative mobile"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4"
                                 Visibility="{Binding Path=ShowCompanyEmail,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="EMAIL" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.AutomationId="ProformaInvoice.CompanyEmail"
+                                 AutomationProperties.Name="Company email"/>
                     </StackPanel>
                 </Grid>
 
@@ -138,14 +148,18 @@
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="BANK" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"/>
+                        <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.AutomationId="ProformaInvoice.BankName"
+                                 AutomationProperties.Name="Bank name"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2"
                                 Visibility="{Binding Path=ShowAccountNumber,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="ACCOUNT / IBAN" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
+                        <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"
+                                 AutomationProperties.AutomationId="ProformaInvoice.AccountNumber"
+                                 AutomationProperties.Name="Account or IBAN"/>
                     </StackPanel>
                 </Grid>
 
@@ -162,7 +176,9 @@
                         <TextBlock Style="{StaticResource PiFieldLabelStyle}">
                             <Run Text="PROFORMA ID"/><Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                         </TextBlock>
-                        <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"/>
+                        <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}" FontFamily="Consolas"
+                                 AutomationProperties.AutomationId="ProformaInvoice.ProformaId"
+                                 AutomationProperties.Name="Proforma ID"/>
                         <TextBlock Text="{Binding ProformaIdValidationMessage}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock" BasedOn="{StaticResource ModuleInlineWarningStyle}">
@@ -181,21 +197,27 @@
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="ISSUE DATE" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <DatePicker SelectedDate="{Binding IssueDate}" Style="{StaticResource PiDatePickerStyle}"/>
+                        <DatePicker SelectedDate="{Binding IssueDate}" Style="{StaticResource PiDatePickerStyle}"
+                                    AutomationProperties.AutomationId="ProformaInvoice.IssueDate"
+                                    AutomationProperties.Name="Issue date"/>
                     </StackPanel>
                     <StackPanel Grid.Column="4"
                                 Visibility="{Binding Path=ShowValidUntil,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="VALID UNTIL" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <DatePicker SelectedDate="{Binding ValidUntil}" Style="{StaticResource PiDatePickerStyle}"/>
+                        <DatePicker SelectedDate="{Binding ValidUntil}" Style="{StaticResource PiDatePickerStyle}"
+                                    AutomationProperties.AutomationId="ProformaInvoice.ValidUntil"
+                                    AutomationProperties.Name="Valid until"/>
                     </StackPanel>
                     <StackPanel Grid.Column="6"
                                 Visibility="{Binding Path=ShowProformaStatus,
                                     Source={x:Static features:ProformaFieldVisibility.Instance},
                                     Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="STATUS" Style="{StaticResource PiFieldLabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding ProformaStatus}" Style="{StaticResource PiComboBoxStyle}"/>
+                        <ComboBox ItemsSource="{Binding StatusOptions}" SelectedItem="{Binding ProformaStatus}" Style="{StaticResource PiComboBoxStyle}"
+                                  AutomationProperties.AutomationId="ProformaInvoice.ProformaStatus"
+                                  AutomationProperties.Name="Proforma status"/>
                     </StackPanel>
                 </Grid>
 

@@ -64,7 +64,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="CONTRACT NO" Style="{StaticResource PiFieldLabelStyle}"/>
                     <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. 428 IMAD HABIB" Margin="0,0,0,12"/>
+                             ToolTip="e.g. 428 IMAD HABIB" Margin="0,0,0,12"
+                             AutomationProperties.AutomationId="ProformaInvoice.ContractNo"
+                             AutomationProperties.Name="Contract number"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowLpoNumber,
@@ -72,7 +74,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="LPO / PO NUMBER" Style="{StaticResource PiFieldLabelStyle}"/>
                     <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. 2680" Margin="0,0,0,12"/>
+                             ToolTip="e.g. 2680" Margin="0,0,0,12"
+                             AutomationProperties.AutomationId="ProformaInvoice.LpoNumber"
+                             AutomationProperties.Name="LPO / PO number"/>
                 </StackPanel>
 
                 <StackPanel Visibility="{Binding Path=ShowSiteDeliveryLocation,
@@ -80,7 +84,9 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="SITE / DELIVERY LOCATION" Style="{StaticResource PiFieldLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. AJMAN" Margin="0,0,0,12"/>
+                             ToolTip="e.g. AJMAN" Margin="0,0,0,12"
+                             AutomationProperties.AutomationId="ProformaInvoice.SiteDeliveryLocation"
+                             AutomationProperties.Name="Site / delivery location"/>
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" Margin="0,4,0,0">

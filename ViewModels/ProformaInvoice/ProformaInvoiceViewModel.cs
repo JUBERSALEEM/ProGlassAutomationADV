@@ -30,7 +30,8 @@ using System.Windows.Input;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
 {
     public class ProformaInvoiceViewModel : ViewModelBase,
-        ProGlassAutomation.Agent.Context.IAgentContextAware
+        ProGlassAutomation.Agent.Context.IAgentContextAware,
+        IDisposable
     {
         public string Title { get; } = "Proforma Invoice Builder";
 
@@ -266,6 +267,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 AsyncUtility.SafeFireAndForget(() => RestoreSnapshotIntoWizardAsync(json), "PI RestoreSnapshot");
 
             Step2VM.PropertyChanged += OnStep2PropertyChanged;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  IDISPOSABLE — event-handler cleanup (P2 fix, senior audit)
+        //
+        //  The two subscriptions in the ctor (Step8VM.AttachmentUploaded
+        //  and Step2VM.PropertyChanged) don't leak in the currently
+        //  shipping app because parent + children share the app
+        //  lifetime, but they DO leak if a caller ever constructs a
+        //  short-lived instance (multi-window / tests / preview panes).
+        //  Dispose() unhooks them symmetrically; the child VMs stay
+        //  alive on their own (they don't own the parent).
+        //
+        //  Safe to call more than once — the _disposed guard makes
+        //  redundant Dispose() calls a no-op, matching the standard
+        //  IDisposable contract.
+        // ══════════════════════════════════════════════════════════════
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            try { Step2VM.PropertyChanged -= OnStep2PropertyChanged; }
+            catch { /* best-effort teardown */ }
+
+            try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
+            catch { /* best-effort teardown */ }
+
+            GC.SuppressFinalize(this);
         }
 
         private void OnStep2PropertyChanged(object? sender, PropertyChangedEventArgs e)

@@ -70,7 +70,14 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 {
-    public class ProfitLossStepViewModel : ViewModelBase
+    // PARTIAL CLASS (senior audit — future safe extraction seam)
+    // ─────────────────────────────────────────────────────────
+    // Declared partial so a follow-up PR can move regions into
+    // sibling files (ProfitLossStepViewModel.Cost.cs,
+    // ProfitLossStepViewModel.Rollup.cs, ProfitLossStepViewModel
+    // .Serialization.cs) without disturbing this file's audit
+    // history. See notes on SpecGroup for the same rationale.
+    public partial class ProfitLossStepViewModel : ViewModelBase
     {
         public string Title { get; } = "PROFIT & LOSS";
 

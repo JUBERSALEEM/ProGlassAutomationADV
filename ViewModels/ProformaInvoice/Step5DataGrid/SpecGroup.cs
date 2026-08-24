@@ -29,7 +29,16 @@ using System.Windows.Threading;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
-    public class SpecGroup : ViewModelBase, IExcelPasteable
+    // PARTIAL CLASS (senior audit — future safe extraction seam)
+    // ─────────────────────────────────────────────────────────
+    // Declared partial so a follow-up PR can move regions into
+    // sibling files (SpecGroup.Paste.cs, SpecGroup.FindReplace.cs,
+    // SpecGroup.Selection.cs, SpecGroup.Rendering.cs) without
+    // touching this file's git blame or its 700+ commits of
+    // audit history. Splitting today would move blocks whose
+    // semantics are stable; the file's real cost is search,
+    // not risk.
+    public partial class SpecGroup : ViewModelBase, IExcelPasteable
     {
         private readonly ObservableCollection<SavedSpecification> _specSource = new();
         private ICollectionView _filteredSpecsView;
