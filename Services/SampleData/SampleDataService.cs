@@ -37,6 +37,7 @@ using System;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.SampleData
 {
@@ -327,7 +328,7 @@ namespace ProGlassAutomation.Services.SampleData
             }
 
             if (added)
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         private static SavedClient Client(string name, DateTime now, int uses) => new()

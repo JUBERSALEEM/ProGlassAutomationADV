@@ -285,7 +285,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             entity.CreatedAt = DateTime.Now;
             entity.UpdatedAt = DateTime.Now;
             ctx.TaxInvoices.Add(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
             return entity;
         }
@@ -310,7 +310,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             entity.Attachments.Clear();
 
             ctx.TaxInvoices.Update(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
         }
 
@@ -333,7 +333,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             string? proformaId = entity.ProformaId;
 
             ctx.TaxInvoices.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
 
             await ClearLinkedDeliveryNotesAsync(invoiceNumber);
 
@@ -399,7 +399,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
             entity.Status = newStatus;
             entity.UpdatedAt = DateTime.Now;
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ── Attachments ───────────────────────────────────────────────────
@@ -428,7 +428,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             using var ctx = new TaxInvoiceDbContext();
             entity.UploadedAt = DateTime.Now;
             ctx.TaxInvoiceAttachments.Add(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return entity;
         }
 
@@ -445,7 +445,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             if (entity == null) return;
 
             ctx.TaxInvoiceAttachments.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         public async Task<int> GetAttachmentCountAsync(string invoiceNumber)

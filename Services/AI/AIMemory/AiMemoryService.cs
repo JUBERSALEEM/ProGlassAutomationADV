@@ -21,6 +21,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.AI.AIMemory
 {
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
                     RelatedEntityId = relatedEntityId ?? ""
                 });
 
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
                 await TrimAsync(db);
             }
             catch (Exception ex)
@@ -175,7 +176,7 @@ namespace ProGlassAutomation.Services.AI.AIMemory
                 .ToListAsync();
 
             db.Memories.RemoveRange(oldest);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         private static string Truncate(string value, int max)

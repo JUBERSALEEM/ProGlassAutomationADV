@@ -210,7 +210,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 db.ProformaInvoices.Add(invoice);
                 try
                 {
-                    await db.SaveChangesAsync().ConfigureAwait(false);
+                    await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync()).ConfigureAwait(false);
                 }
                 catch (DbUpdateException ex)
                     when (IsUniqueViolation(ex) && attempt < 4)
@@ -244,18 +244,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         }
 
         /// <summary>
-        /// Match SQLite's unique-index violation text. Aligned with
-        /// <c>InquiryRepository.IsUniqueViolation</c> so both retry
-        /// loops respond to the same signal — a follow-up refactor
-        /// can hoist a single helper into <c>Services.Database</c>.
-        /// The narrower "UNIQUE constraint failed" phrase avoids
-        /// false-positives on unrelated error messages that happen
-        /// to mention "UNIQUE".
+        /// Detect a UNIQUE / PRIMARY-KEY violation on the SqliteException
+        /// wrapped inside a DbUpdateException. Delegates to the shared
+        /// <see cref="SqliteErrorClassifier.IsUnique"/> which uses the
+        /// SqliteExtendedErrorCode (2067 = UNIQUE, 1555 = PRIMARYKEY)
+        /// instead of matching the error-message string — that string
+        /// changed between Microsoft.Data.Sqlite 6.x and 8.x and would
+        /// silently miss a real collision on a future upgrade.
         /// </summary>
         private static bool IsUniqueViolation(DbUpdateException ex) =>
-            ex.InnerException?.Message?.Contains(
-                "UNIQUE constraint failed",
-                StringComparison.OrdinalIgnoreCase) == true;
+            ProGlassAutomation.Services.Database.SqliteErrorClassifier.IsUnique(ex);
 
         /// <summary>
         /// Updates an existing invoice or creates a new one if missing.
@@ -291,7 +289,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 invoice.UpdatedAt = DateTime.Now;
 
                 db.ProformaInvoices.Add(invoice);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
                 RaiseChanged();
 
                 // Senior audit fix — write the PI back-link so the
@@ -317,7 +315,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             existing.FullSnapshotJson = invoice.FullSnapshotJson;
             existing.UpdatedAt = DateTime.Now;
 
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             RaiseChanged();
 
             // Senior audit fix — the update may have re-pointed the PI at
@@ -465,7 +463,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             };
 
             db.ProformaInvoices.Remove(entity);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             RaiseChanged();
 
             // Senior audit fix — clear the PI back-link on the source
@@ -515,7 +513,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 snap.Company.ProformaStatus = "Rejected";
             entity.FullSnapshotJson = ProformaInvoiceMapper.SerializeSnapshot(snap);
 
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             RaiseChanged();
             return true;
         }

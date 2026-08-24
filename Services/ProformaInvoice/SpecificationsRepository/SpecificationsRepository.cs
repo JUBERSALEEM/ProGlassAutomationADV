@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 {
@@ -71,7 +72,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                 existing.PricePerSqm = pricePerSqm;
                 existing.LastUsedAt = DateTime.Now;
                 existing.UsageCount += 1;
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
                 return existing;
             }
 
@@ -87,7 +88,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             };
 
             db.Specifications.Add(newSpec);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             return newSpec;
         }
 
@@ -99,7 +100,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             {
                 spec.LastUsedAt = DateTime.Now;
                 spec.UsageCount += 1;
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             }
         }
 
@@ -115,7 +116,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
             if (spec != null)
             {
                 db.Specifications.Remove(spec);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             }
         }
     }

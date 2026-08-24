@@ -67,7 +67,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             jobOrder.CreatedAt = DateTime.Now;
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Add(jobOrder);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             DocumentLifecycle.Raise();
             return jobOrder;
         }
@@ -82,7 +82,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             using var db = new JobOrdersDbContext();
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Update(jobOrder);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             DocumentLifecycle.Raise();
         }
 
@@ -101,7 +101,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             string? jobOrderId = job.JobOrderId;
 
             db.JobOrders.Remove(job);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
             await DeleteMasterDnQuietlyAsync(jobOrderId);
 

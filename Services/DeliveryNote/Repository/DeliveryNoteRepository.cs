@@ -137,7 +137,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             };
 
             ctx.DeliveryNotes.Add(masterDn);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return masterDn;
         }
 
@@ -201,7 +201,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             masterDn.Attachments.Clear();
             ctx.DeliveryNotes.Update(masterDn);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         public async Task<string> BuildMasterDnIdAsync(string jobOrderId)
@@ -253,7 +253,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             entity.TaxInvoiceId = taxInvoiceId;
             entity.UpdatedAt = DateTime.Now;
 
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
         }
 
@@ -309,7 +309,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (anyChanged)
             {
-                await ctx.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 DocumentLifecycle.Raise();
             }
         }
@@ -340,7 +340,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 entity.UpdatedAt = now;
             }
 
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
         }
 
@@ -770,7 +770,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             entity.CreatedAt = DateTime.Now;
             entity.UpdatedAt = DateTime.Now;
             ctx.DeliveryNotes.Add(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
             return entity;
         }
@@ -793,7 +793,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             entity.Attachments.Clear();
 
             ctx.DeliveryNotes.Update(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             DocumentLifecycle.Raise();
         }
 
@@ -816,7 +816,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             bool isMaster = entity.IsMasterDn;
 
             ctx.DeliveryNotes.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
 
             // Master DNs are internal trackers — they do not participate
             // in the PI display status. A real DN delete may cancel the
@@ -871,7 +871,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             entity.UploadedAt = DateTime.Now;
             ctx.DeliveryNoteAttachments.Add(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return entity;
         }
 
@@ -888,7 +888,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             if (entity == null) return;
 
             ctx.DeliveryNoteAttachments.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         public async Task<int> GetAttachmentCountAsync(string deliveryNoteId)

@@ -24,6 +24,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Agent.Teaching
 {
@@ -64,7 +65,7 @@ namespace ProGlassAutomation.Agent.Teaching
                 };
 
                 db.TeachingRules.Add(rule);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching("", "Rule proposed",
                     $"#{rule.Id} '{rule.Trigger}' → {rule.Action} (awaiting approval)");
@@ -89,7 +90,7 @@ namespace ProGlassAutomation.Agent.Teaching
 
                 rule.IsApproved = true;
                 rule.ApprovedBy = Cap(approvedBy ?? "", 60);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching(approvedBy ?? "", "Rule approved",
                     $"#{rule.Id} '{rule.Trigger}' → {rule.Action}");
@@ -113,7 +114,7 @@ namespace ProGlassAutomation.Agent.Teaching
                 if (rule == null) return false;
 
                 db.TeachingRules.Remove(rule);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching("", "Rule revoked",
                     $"#{id} '{rule.Trigger}' → {rule.Action}");
@@ -175,7 +176,7 @@ namespace ProGlassAutomation.Agent.Teaching
                 int count = await db.TeachingRules.CountAsync();
 
                 db.TeachingRules.RemoveRange(db.TeachingRules);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching("", "Teaching cleared", $"{count} rule(s) removed");
             }

@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.MasterData.Repository
 {
@@ -136,7 +137,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
-                await ctx.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
 
@@ -146,7 +147,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             company.LastUsedAt = now;
 
             ctx.Companies.Add(company);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return company;
         }
 
@@ -186,7 +187,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             if (entity == null) return;
 
             ctx.Companies.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -223,7 +224,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
-                await ctx.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
 
@@ -233,7 +234,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             client.LastUsedAt = now;
 
             ctx.Clients.Add(client);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return client;
         }
 
@@ -273,7 +274,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             if (entity == null) return;
 
             ctx.Clients.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -308,7 +309,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
-                await ctx.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
 
@@ -318,7 +319,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             project.LastUsedAt = now;
 
             ctx.Projects.Add(project);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return project;
         }
 
@@ -374,7 +375,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             if (entity == null) return;
 
             ctx.Projects.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -408,7 +409,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 existing.UsageCount += 1;
                 existing.LastUsedAt = now;
 
-                await ctx.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
                 return existing;
             }
 
@@ -418,7 +419,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             salesman.LastUsedAt = now;
 
             ctx.Salesmen.Add(salesman);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return salesman;
         }
 
@@ -458,7 +459,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             if (entity == null) return;
 
             ctx.Salesmen.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ══════════════════════════════════════════════════════════════════

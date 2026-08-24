@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Agent.Knowledge
 {
@@ -71,7 +72,7 @@ namespace ProGlassAutomation.Agent.Knowledge
                     CreatedAtUtc = DateTime.UtcNow
                 });
 
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             }
             catch (Exception ex)
             {
@@ -199,7 +200,7 @@ namespace ProGlassAutomation.Agent.Knowledge
                     stored++;
                 }
 
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Security(
                     Services.Audit.AuditService.CurrentUsername,
@@ -223,7 +224,7 @@ namespace ProGlassAutomation.Agent.Knowledge
                 int count = await db.KnowledgeItems.CountAsync();
 
                 db.KnowledgeItems.RemoveRange(db.KnowledgeItems);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Security("", "Knowledge cleared", $"{count} item(s) removed");
             }
@@ -264,7 +265,7 @@ namespace ProGlassAutomation.Agent.Knowledge
                     });
                 }
 
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             }
             catch (Exception ex)
             {

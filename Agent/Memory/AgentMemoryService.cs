@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Agent.Memory
 {
@@ -77,7 +78,7 @@ namespace ProGlassAutomation.Agent.Memory
                     CreatedAtUtc = DateTime.UtcNow
                 });
 
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching(
                     Services.Audit.AuditService.CurrentUsername,
@@ -144,7 +145,7 @@ namespace ProGlassAutomation.Agent.Memory
                 int count = await db.MemoryItems.CountAsync();
 
                 db.MemoryItems.RemoveRange(db.MemoryItems);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 _audit?.Teaching("", "Memory cleared", $"{count} saved item(s) removed");
             }

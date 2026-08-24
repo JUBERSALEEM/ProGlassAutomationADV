@@ -103,7 +103,7 @@ namespace ProGlassAutomation.Services.SheetStore
                 sheet.LastPurchaseDate = DateTime.Now;
 
             db.GlassSheets.Add(sheet);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             return sheet;
         }
 
@@ -117,7 +117,7 @@ namespace ProGlassAutomation.Services.SheetStore
             using var db = new AppDbContext();
             sheet.LastUpdated = DateTime.Now;
             db.GlassSheets.Update(sheet);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         public async Task DeleteAsync(int id)
@@ -132,7 +132,7 @@ namespace ProGlassAutomation.Services.SheetStore
             if (sheet != null)
             {
                 db.GlassSheets.Remove(sheet);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
             }
         }
 
@@ -151,7 +151,7 @@ namespace ProGlassAutomation.Services.SheetStore
             if (newPurchasePrice.HasValue && newPurchasePrice.Value > 0)
                 sheet.PurchasePricePerSqm = newPurchasePrice.Value;
 
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         public async Task UseStockAsync(int sheetId, int quantity)
@@ -168,7 +168,7 @@ namespace ProGlassAutomation.Services.SheetStore
 
             sheet.Used += quantity;
             sheet.LastUpdated = DateTime.Now;
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         public async Task<List<string>> GetCategoriesAsync()

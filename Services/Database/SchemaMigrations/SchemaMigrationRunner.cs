@@ -156,8 +156,28 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
 
         private static SqliteConnection Open(string dbPath)
         {
-            var connection = new SqliteConnection($"Data Source={dbPath}");
+            // Senior audit (Aug 2026): route through SqliteResilience.
+            // BuildConnectionString so schema migrations run with the same
+            // Mode=ReadWriteCreate + Cache=Shared + pool settings the EF
+            // path uses. Then apply the pragma script manually — a raw
+            // SqliteConnection does not invoke the EF interceptor, and
+            // migrations that run without busy_timeout will fail with
+            // SQLITE_BUSY if another process holds the file briefly.
+            var connection = new SqliteConnection(
+                SqliteResilience.BuildConnectionString(dbPath));
             connection.Open();
+            try
+            {
+                using var cmd = connection.CreateCommand();
+                cmd.CommandText = SqliteResilience.PragmaScript;
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                // Non-fatal — migrations still run without WAL, they
+                // just risk a BUSY on very heavy contention. See
+                // SqliteResilience.PragmaScript for detail.
+            }
             return connection;
         }
 

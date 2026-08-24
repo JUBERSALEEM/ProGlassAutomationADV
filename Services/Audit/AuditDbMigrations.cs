@@ -105,9 +105,37 @@ namespace ProGlassAutomation.Services.Audit
 
         internal static SqliteConnection Open()
         {
+            // Senior audit (Aug 2026): route this direct-ADO connection
+            // through SqliteResilience.BuildConnectionString so the
+            // audit database's migration path gets the same
+            // ReadWriteCreate + Shared-cache + pool settings as the
+            // EF path. PRAGMAs (WAL, busy_timeout, FK=ON) are then
+            // applied manually since raw SqliteConnection doesn't run
+            // the EF DbConnectionInterceptor. Losing an audit write to
+            // a transient lock during migration is a compliance risk,
+            // so this must match the DbContext hardening exactly.
             var connection = new SqliteConnection(
-                $"Data Source={AuditDbContext.DatabaseFilePath}");
+                ProGlassAutomation.Services.Database.SqliteResilience
+                    .BuildConnectionString(AuditDbContext.DatabaseFilePath));
             connection.Open();
+
+            // Manually apply the same pragma batch the EF interceptor
+            // would. On a shared-cache pooled connection the pragmas
+            // are per-connection, so this must run every time.
+            try
+            {
+                using var cmd = connection.CreateCommand();
+                cmd.CommandText = ProGlassAutomation.Services.Database
+                    .SqliteResilience.PragmaScript;
+                cmd.ExecuteNonQuery();
+            }
+            catch
+            {
+                // Best-effort: read-only media or a stale schema may
+                // reject one pragma. The connection is still usable
+                // with reduced guarantees; the migration path already
+                // handles ordinary errors defensively.
+            }
             return connection;
         }
 

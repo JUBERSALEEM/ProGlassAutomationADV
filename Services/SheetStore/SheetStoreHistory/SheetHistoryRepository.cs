@@ -43,7 +43,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStoreHistory
                 UserName = Environment.UserName
             };
             db.SheetHistories.Add(entry);
-            await db.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
 
         public async Task<DateTime?> GetLastUpdatedAsync()

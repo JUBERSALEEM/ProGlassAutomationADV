@@ -32,6 +32,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.Audit
 {
@@ -248,7 +249,7 @@ namespace ProGlassAutomation.Services.Audit
             {
                 using var db = new AuditDbContext();
                 db.ActivityLog.Add(entry);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 RaiseOnUi(() =>
                     ActivityLogged?.Invoke(
@@ -447,7 +448,7 @@ namespace ProGlassAutomation.Services.Audit
                 user.CreatedAtUtc = DateTime.UtcNow;
 
                 db.Users.Add(user);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 Log(AuditSections.Users, "User created",
                     $"{displayName} ({username}) — role {role}",
@@ -480,7 +481,7 @@ namespace ProGlassAutomation.Services.Audit
                 }
 
                 user.IsActive = isActive;
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 Log(AuditSections.Users,
                     isActive ? "User activated" : "User deactivated",
@@ -533,7 +534,7 @@ namespace ProGlassAutomation.Services.Audit
                             DateTime.UtcNow.AddMinutes(LockoutMinutes);
                         user.FailedAttemptCount = 0;
                     }
-                    await db.SaveChangesAsync();
+                    await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
                     return (false, "Incorrect password.");
                 }
 
@@ -545,7 +546,7 @@ namespace ProGlassAutomation.Services.Audit
                 }
 
                 user.LastActiveAtUtc = DateTime.UtcNow;
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 // A-2: silently migrate a legacy SHA-256 hash now that
                 // the plaintext has been proven correct. Runs after the
@@ -616,7 +617,7 @@ namespace ProGlassAutomation.Services.Audit
 
                 user.PasswordHash =
                     Security.PasswordHasher.Hash(newPassword ?? "");
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 // The password itself is never logged — only the fact of
                 // the change, so the audit trail stays useful without
@@ -694,7 +695,7 @@ namespace ProGlassAutomation.Services.Audit
                     Security.PasswordHasher.Hash(newPassword ?? "");
                 target.FailedAttemptCount = 0;
                 target.LockedUntilUtc = null;
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 Log(AuditSections.Users, "Password reset",
                     $"Password reset for {target.DisplayName} " +
@@ -873,7 +874,7 @@ namespace ProGlassAutomation.Services.Audit
             try
             {
                 user.PasswordHash = Security.PasswordHasher.Hash(password);
-                await db.SaveChangesAsync();
+                await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
 
                 Logging.AppLogService.Info(
                     $"Password hash upgraded to PBKDF2 for '{user.Username}'.",

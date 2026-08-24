@@ -41,6 +41,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.Statement.Repository
 {
@@ -233,7 +234,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             // EF cascade-inserts LineItems automatically
             // because entity.LineItems is populated before Add()
             ctx.Statements.Add(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
             return entity;
         }
 
@@ -262,7 +263,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
             // Update parent entity
             ctx.Statements.Update(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         public async Task DeleteAsync(int id)
@@ -282,7 +283,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             // Cascade-delete removes LineItems automatically
             // (configured in StatementDbContext.OnModelCreating)
             ctx.Statements.Remove(entity);
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ── Existence checks ──────────────────────────────────────────────
@@ -316,7 +317,7 @@ namespace ProGlassAutomation.Services.Statement.Repository
             entity.HasAttachments = hasAttachments;
             entity.UpdatedAt = DateTime.UtcNow;
 
-            await ctx.SaveChangesAsync();
+            await SqliteResilience.SaveWithRetryAsync(_ => ctx.SaveChangesAsync());
         }
 
         // ── Private helpers ───────────────────────────────────────────────
