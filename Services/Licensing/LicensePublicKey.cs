@@ -102,8 +102,28 @@ namespace ProGlassAutomation.Services.Licensing
         /// is irrelevant: this field is read once per license
         /// verification, not in a hot loop.
         /// </summary>
+        // ─────────────────────────────────────────────────────────
+        //  EMBEDDED PRODUCTION PUBLIC KEY (Aug 2026 senior audit fix)
+        //
+        //  Real RSA-2048 public key generated so the verifier no
+        //  longer short-circuits to `NotActivated` on every launch
+        //  because the placeholder string was still shipped. The
+        //  matching PRIVATE key was NOT written to the source tree;
+        //  it lives on the vendor's build machine and is used by
+        //  Tools/LicenseGenerator to sign customer .lic files. A
+        //  determined adversary who forges a payload with their
+        //  own key pair cannot sign a valid production license
+        //  against this modulus without the private half.
+        //
+        //  The trial subsystem below carries its OWN pair (both
+        //  halves embedded) so the app can self-sign a 30-day
+        //  trial on first launch without vendor involvement.
+        // ─────────────────────────────────────────────────────────
         public static string PublicKeyXml { get; private set; } =
-            "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML";
+            "<RSAKeyValue>" +
+            "<Modulus>2rJQoH/RW4j+V5IPCsgmEfOH2yi8Ow09LE6Cgoe6h+ernjT52/SXFCEUCHAjYJppXWIvtGhR/F2d9HpcDWFlCZgIGCtFmO3TAW9/0b/Q4d4i9eYCyAfSgyuRevk8jFzkPnR17uNnkqmpYnQE9Y5aYoEGJq64xjmRJNy/I9w1otHmxLVRA6My+Yeab6Vye5PMwWBQioxW+wz05oDfxWTsgSENdGavqdMOD3/HoaC2D3IsIifWle45c9EBmoPUGjaGYJHT+qrt190lOr7nIqFQYI5LgdIm5ZrDUKSgSxi6ZoFFsTdXPZle5rdoxOf3bMYvYDqGNm9xv2IsUuBJy0AlHw==</Modulus>" +
+            "<Exponent>AQAB</Exponent>" +
+            "</RSAKeyValue>";
 
         /// <summary>
         /// True while the embedded public key is the placeholder.
@@ -184,8 +204,25 @@ namespace ProGlassAutomation.Services.Licensing
         /// when the payload's <c>TrialSource</c> field is
         /// non-empty (see <see cref="LicensePayload.TrialSource"/>).
         /// </summary>
+        // ─────────────────────────────────────────────────────────
+        //  EMBEDDED TRIAL PUBLIC KEY (Aug 2026 senior audit fix)
+        //
+        //  Real RSA-2048 public key generated so the verifier
+        //  accepts payloads self-signed by the trial subsystem
+        //  on first launch. Paired with TrialPrivateKeyXml
+        //  below — both halves ship in the binary. This is a
+        //  soft cryptographic constraint: a determined user
+        //  who unpacks the DLL with ILSpy can extract the
+        //  private key and forge trials, but the 30-day window
+        //  enforcement lives in LicenseService.EnforceTrialExpiry
+        //  and the AutoTrialWasIssued flag in AppConfig, not
+        //  in the signature.
+        // ─────────────────────────────────────────────────────────
         public static string TrialPublicKeyXml { get; private set; } =
-            "PLACEHOLDER_TRIAL_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML";
+            "<RSAKeyValue>" +
+            "<Modulus>8lEKV8E6fNZabc0DG02/WwCHEEUnOUKWQF0OpHuxjDsInJIT4EVMTPu9CMPAJnJIV94cNTsJXQJ0x59x1B19k2m2vsP/5sx7i0Vkj7xyksIQu9N/0jfXvjZ5XraWSl4U1XQb7w8Z+dEdKxSJC4+8Sh1cyRmtE1F0x8gks9zoXznS0671I+vb6VSQrkMjSha+HVDAdEWYYkO7PEa8LTrSkWygxkXKIw0sFI9FVhiO//KULh0g0XN6ILjQgXsx0FdV1kNiU03x/Yr4XGAF9ZfKQWIK/OraMto6nbVhNHrbhqU6rk0bxNZ02WgLxoqU6Pjn0zoP2q82vS9z8vRdVQnqMQ==</Modulus>" +
+            "<Exponent>AQAB</Exponent>" +
+            "</RSAKeyValue>";
 
         /// <summary>
         /// RSA-2048 private key for the auto-issued trial
@@ -196,7 +233,16 @@ namespace ProGlassAutomation.Services.Licensing
         /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
         public static string TrialPrivateKeyXml { get; private set; } =
-            "PLACEHOLDER_TRIAL_REPLACE_WITH_REAL_RSA2048_PRIVATE_KEY_XML";
+            "<RSAKeyValue>" +
+            "<Modulus>8lEKV8E6fNZabc0DG02/WwCHEEUnOUKWQF0OpHuxjDsInJIT4EVMTPu9CMPAJnJIV94cNTsJXQJ0x59x1B19k2m2vsP/5sx7i0Vkj7xyksIQu9N/0jfXvjZ5XraWSl4U1XQb7w8Z+dEdKxSJC4+8Sh1cyRmtE1F0x8gks9zoXznS0671I+vb6VSQrkMjSha+HVDAdEWYYkO7PEa8LTrSkWygxkXKIw0sFI9FVhiO//KULh0g0XN6ILjQgXsx0FdV1kNiU03x/Yr4XGAF9ZfKQWIK/OraMto6nbVhNHrbhqU6rk0bxNZ02WgLxoqU6Pjn0zoP2q82vS9z8vRdVQnqMQ==</Modulus>" +
+            "<Exponent>AQAB</Exponent>" +
+            "<P>/IQ9a6XlRPPZ2DkGWj9FMzHYhtWgIN/CirLh2SDgPDg4TMnJB2djWkCJJ7lnZnKtwvn7gvj6svKDKwSKtg+Cv3ZGj56PBNPM/KfycL7woj3YMiZStQzihU494Qg293jPBJgQAkVjQpmmq1FVJmo1/sK5fLLCeLFlSI5YVXBGBws=</P>" +
+            "<Q>9ajHflkzAsnpN/7faFEcePbYiw1//J2KKVJcce6gxYvG5zJ9QACrdISB0iCRMZj8YHdwondbK9ytapmflgjSX7gqPKwN67Job4+m0K21sg62Fz2K1vF1xTYPIQbwgK0T905iV1u0mZgKeCNxiZgnNrZrwSUBgFjirpZpv/55aTM=</Q>" +
+            "<DP>gVPFFUYA10DA2JHUJBJ1gZPM3rm4aj3PqDOXohnJXm44v3M1R1p3MvkMhdDaGUkwn0RiwSB9XXsBHN4VoMru3tpXpyTBAOrs+JWXgJD6M03TVVP1Vg7EURvSa1dGt5YjCKpMwK0C+lAxYVqlbqhFATZ/w1LWcPQB+JgWu6Nl6iM=</DP>" +
+            "<DQ>QvYmqsIVrYTsFV9b9ktlv3NJw12CrZEjv++7UzMAj9hx90ND8NY95hzYZjaKXUKeSI1GHoL6TxJwEsadQYBWF9FTcgZUJRMUdJRrnCY9iLOJ3vvfhId82qzJou8JT4neD2NGWxmcOOHAuM6wfBkFV1ySMqurpRiVcZF+cd8jqRE=</DQ>" +
+            "<InverseQ>HlCE3T/u6nLlWguXGEptzrzIEict/XYTkFPyE+jIfYCMwFzupPhG/cUqRNVFjr5KwocNLxhd6bPDlNvm7wtchMHEX/IClExjXL8qdBizMi47kOsCOEToDk9QLkQLW3UavsN+CvnIKDZc34sG9U94vs2NXCdeu0jo1q4RNHwIvic=</InverseQ>" +
+            "<D>XrujHQK8kHCm4tVrGQIQxQ2UQB6hAohPQHOBFXoMRCQSLlAHuD6vYUtrsGEDHqTANqXthjwB4ZxjtmVV9ZTf8sE6AiOTSJJ53E1xTqZgbpKzQxMhHjjZvhIC6i3c3M8iOv8NKq1PPPTtf9mj6GK1vI31J+PDX9GRI8fR3YWITS2FxPKmr6uN+miEfgHsnj21etrwvusVvCz9Y50HyBTMlntotCIR5HQsW7l/X1QJ0p/9fy9735BZGAt35kXKwWEQKBUytcwppBNMWlZhIJ6xvFkLD4B9qhaAnRZKWEfdCsd2DuEt1BagDLV75vd8ZlHJbOFF54E7WlWY2+4ZYOWN/w==</D>" +
+            "</RSAKeyValue>";
 
         /// <summary>
         /// True when the trial key pair is still the
