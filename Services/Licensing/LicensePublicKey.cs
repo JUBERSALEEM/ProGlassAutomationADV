@@ -231,18 +231,31 @@ namespace ProGlassAutomation.Services.Licensing
         /// <see cref="LicenseService"/> to sign a 7-day
         /// trial on first launch.
         /// </summary>
+        // Backing field for test overrides. In production this stays
+        // null and the property below returns the XOR-shard-reassembled
+        // key from TrialKeyVault. Tests call SetTrialKeysForTest to
+        // swap in a synthetic pair; the swap wins over the vault.
+        private static string? _trialPrivateKeyXmlOverride;
+
+        /// <summary>
+        /// RSA-2048 private key for the auto-issued trial subsystem.
+        ///
+        /// SENIOR-AUDIT HARDENING (Aug 2026): the plaintext XML is no
+        /// longer embedded as a public string literal. It is stored in
+        /// <see cref="TrialKeyVault"/> as four XOR-masked byte-array
+        /// shards and reassembled on first access. `strings.exe` on
+        /// the shipped DLL returns random bytes instead of a copy-
+        /// paste-friendly `&lt;RSAKeyValue&gt;`. ILSpy still recovers
+        /// the value after a small amount of work — the industrial
+        /// norm for shipped desktop apps (Adobe / Autodesk / SAP GUI
+        /// all use this same pattern). The 30-day window enforcement
+        /// lives in <see cref="TrialLedger"/>, not in the signature.
+        /// </summary>
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public static string TrialPrivateKeyXml { get; private set; } =
-            "<RSAKeyValue>" +
-            "<Modulus>8lEKV8E6fNZabc0DG02/WwCHEEUnOUKWQF0OpHuxjDsInJIT4EVMTPu9CMPAJnJIV94cNTsJXQJ0x59x1B19k2m2vsP/5sx7i0Vkj7xyksIQu9N/0jfXvjZ5XraWSl4U1XQb7w8Z+dEdKxSJC4+8Sh1cyRmtE1F0x8gks9zoXznS0671I+vb6VSQrkMjSha+HVDAdEWYYkO7PEa8LTrSkWygxkXKIw0sFI9FVhiO//KULh0g0XN6ILjQgXsx0FdV1kNiU03x/Yr4XGAF9ZfKQWIK/OraMto6nbVhNHrbhqU6rk0bxNZ02WgLxoqU6Pjn0zoP2q82vS9z8vRdVQnqMQ==</Modulus>" +
-            "<Exponent>AQAB</Exponent>" +
-            "<P>/IQ9a6XlRPPZ2DkGWj9FMzHYhtWgIN/CirLh2SDgPDg4TMnJB2djWkCJJ7lnZnKtwvn7gvj6svKDKwSKtg+Cv3ZGj56PBNPM/KfycL7woj3YMiZStQzihU494Qg293jPBJgQAkVjQpmmq1FVJmo1/sK5fLLCeLFlSI5YVXBGBws=</P>" +
-            "<Q>9ajHflkzAsnpN/7faFEcePbYiw1//J2KKVJcce6gxYvG5zJ9QACrdISB0iCRMZj8YHdwondbK9ytapmflgjSX7gqPKwN67Job4+m0K21sg62Fz2K1vF1xTYPIQbwgK0T905iV1u0mZgKeCNxiZgnNrZrwSUBgFjirpZpv/55aTM=</Q>" +
-            "<DP>gVPFFUYA10DA2JHUJBJ1gZPM3rm4aj3PqDOXohnJXm44v3M1R1p3MvkMhdDaGUkwn0RiwSB9XXsBHN4VoMru3tpXpyTBAOrs+JWXgJD6M03TVVP1Vg7EURvSa1dGt5YjCKpMwK0C+lAxYVqlbqhFATZ/w1LWcPQB+JgWu6Nl6iM=</DP>" +
-            "<DQ>QvYmqsIVrYTsFV9b9ktlv3NJw12CrZEjv++7UzMAj9hx90ND8NY95hzYZjaKXUKeSI1GHoL6TxJwEsadQYBWF9FTcgZUJRMUdJRrnCY9iLOJ3vvfhId82qzJou8JT4neD2NGWxmcOOHAuM6wfBkFV1ySMqurpRiVcZF+cd8jqRE=</DQ>" +
-            "<InverseQ>HlCE3T/u6nLlWguXGEptzrzIEict/XYTkFPyE+jIfYCMwFzupPhG/cUqRNVFjr5KwocNLxhd6bPDlNvm7wtchMHEX/IClExjXL8qdBizMi47kOsCOEToDk9QLkQLW3UavsN+CvnIKDZc34sG9U94vs2NXCdeu0jo1q4RNHwIvic=</InverseQ>" +
-            "<D>XrujHQK8kHCm4tVrGQIQxQ2UQB6hAohPQHOBFXoMRCQSLlAHuD6vYUtrsGEDHqTANqXthjwB4ZxjtmVV9ZTf8sE6AiOTSJJ53E1xTqZgbpKzQxMhHjjZvhIC6i3c3M8iOv8NKq1PPPTtf9mj6GK1vI31J+PDX9GRI8fR3YWITS2FxPKmr6uN+miEfgHsnj21etrwvusVvCz9Y50HyBTMlntotCIR5HQsW7l/X1QJ0p/9fy9735BZGAt35kXKwWEQKBUytcwppBNMWlZhIJ6xvFkLD4B9qhaAnRZKWEfdCsd2DuEt1BagDLV75vd8ZlHJbOFF54E7WlWY2+4ZYOWN/w==</D>" +
-            "</RSAKeyValue>";
+        public static string TrialPrivateKeyXml
+        {
+            get => _trialPrivateKeyXmlOverride ?? TrialKeyVault.GetPrivateKeyXml();
+        }
 
         /// <summary>
         /// True when the trial key pair is still the
@@ -271,7 +284,11 @@ namespace ProGlassAutomation.Services.Licensing
             string publicXml, string privateXml)
         {
             TrialPublicKeyXml = publicXml;
-            TrialPrivateKeyXml = privateXml;
+            _trialPrivateKeyXmlOverride = privateXml;
+            // Bust the vault cache so a future test that clears the
+            // override immediately re-materialises the real embedded
+            // key on the next read.
+            TrialKeyVault.ResetCacheForTests();
         }
     }
 }

@@ -52,8 +52,10 @@ namespace ProGlassAutomation.Views.Licensing
         public static string StatusDescription(LicenseStatus status) => status switch
         {
             LicenseStatus.NotActivated =>
-                "No license file was found in the data folder. " +
-                "Activate a license or start the 30-day trial.",
+                "No licence is currently active on this machine. " +
+                "If your 30-day trial has already ended, only a full " +
+                "licence key can re-activate the app — the trial is " +
+                "one-time per machine.",
             LicenseStatus.Invalid =>
                 "The license file is present but its signature " +
                 "could not be verified. The file may be corrupt, " +

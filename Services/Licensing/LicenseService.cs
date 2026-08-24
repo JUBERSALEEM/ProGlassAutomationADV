@@ -220,19 +220,54 @@ namespace ProGlassAutomation.Services.Licensing
                 _licensePath = ResolveLicensePath(dataRoot);
                 _current = LicenseVerifier.Verify(_licensePath ?? string.Empty);
 
-                // Strict 7-day trial expiry: an auto-issued
-                // trial that has aged past TrialExpiresAt is
-                // deleted from disk and reported as
-                // TrialExpired. The user must activate a real
-                // license to continue. See the comment on
-                // EnforceTrialExpiry for the why.
+                // ── STRICT INDUSTRIAL LEDGER (Aug 2026 senior audit) ──
+                //
+                // Beat the ledger heartbeat FIRST — this both detects
+                // clock rollback and rewrites LastSeenUtc across all
+                // four anchors. A rollback verdict hard-expires any
+                // active trial below.
+                bool clockRollbackDetected = false;
+                try
+                {
+                    var beat = TrialLedger.Heartbeat();
+                    clockRollbackDetected = beat.ClockRollbackDetected;
+                }
+                catch
+                {
+                    // A dead ledger must not gate the app — the standard
+                    // expiry check on the payload's TrialExpiresAt still
+                    // runs below.
+                }
+
+                // If the file says we're inside a trial BUT the ledger
+                // caught a clock rollback, treat the trial as expired.
+                // Same UX as EnforceTrialExpiry — read-only mode, data
+                // preserved, banner shows.
+                if (clockRollbackDetected
+                    && _current.Payload != null
+                    && !string.IsNullOrEmpty(_current.Payload.TrialSource))
+                {
+                    _current = new LicenseVerificationResult
+                    {
+                        Status = LicenseStatus.TrialExpired,
+                        Payload = _current.Payload,
+                        ErrorDetail =
+                            "System clock rollback detected. The trial is treated as expired. " +
+                            "Activate a real licence in Settings → License to continue editing."
+                    };
+                }
+
+                // Strict trial expiry (unchanged path). See EnforceTrialExpiry
+                // for the file-preservation rationale.
                 _current = EnforceTrialExpiry(_current, dataRoot);
 
-                // First-launch auto-trial: NotActivated on a
-                // fresh machine with no prior trial ⇒ issue
-                // a 7-day trial. This runs AFTER
-                // EnforceTrialExpiry so a TrialExpired state
-                // is never accidentally re-issued.
+                // First-launch auto-trial: NotActivated on a fresh
+                // machine with no prior trial ⇒ issue a trial. This
+                // runs AFTER EnforceTrialExpiry so a TrialExpired
+                // state is never accidentally re-issued. The ledger
+                // read below is what makes the "one trial per machine"
+                // rule strict — deleting %AppData% alone is no longer
+                // enough to reset it.
                 if (_current.Status == LicenseStatus.NotActivated)
                 {
                     _current = IssueAutoTrialIfEligible(dataRoot);
@@ -623,35 +658,67 @@ namespace ProGlassAutomation.Services.Licensing
                 };
             }
 
-            // 2) One trial per machine. We look at
-            //    App.Config.AutoTrialWasIssued. If the
-            //    config is not loaded yet (tests, weird
-            //    startup order), default to "not eligible"
-            //    so we never accidentally double-issue.
+            // 2) One trial per machine — STRICT, MULTI-ANCHOR.
             //
-            //    ALSO: if App.Config is null, we are
-            //    almost certainly in a test environment.
-            //    Auto-issuing a trial during a unit test
-            //    would write to whatever folder
-            //    TestDataFolderOverride points at and
-            //    pollute the test fixture for every
-            //    subsequent test in the assembly. Treat
-            //    null Config the same as "trial already
-            //    issued" — refuse the auto-trial.
-            if (App.Config == null
-                || App.Config.AutoTrialWasIssued)
+            //    The old check consulted only App.Config
+            //    .AutoTrialWasIssued, which lives in
+            //    %AppData%\ProGlassAutomation\config.json. A user
+            //    could delete that folder and get another free
+            //    trial. The new check consults FOUR independent
+            //    anchors (config, %ProgramData% ledger, HKLM
+            //    registry, DPAPI blob) via TrialLedger.Read().
+            //    If ANY anchor says "issued", refuse.
+            //
+            //    A determined user with an elevated cmd.exe can
+            //    still wipe all four — at that point they own the
+            //    machine and can install anything. What this
+            //    stops is the casual "reset by deleting AppData"
+            //    workflow that industrial ERP users learn from
+            //    forums within a week of trial expiry.
+            //
+            //    Test-environment shortcut kept: null App.Config
+            //    means we're in a headless unit test where the
+            //    real anchors would pollute the developer's
+            //    machine, so we still refuse the auto-trial there.
+            if (App.Config == null)
             {
                 return new LicenseVerificationResult
                 {
                     Status = LicenseStatus.NotActivated,
-                    ErrorDetail = App.Config == null
-                        ? "App.Config is not loaded; " +
-                          "auto-trial is disabled (likely " +
-                          "a test environment)."
-                        : "No license file found. A 7-day " +
-                          "trial was previously issued on " +
-                          "this machine. Activate a full " +
-                          "license to use the app."
+                    ErrorDetail = "App.Config is not loaded; auto-trial is disabled " +
+                                  "(likely a test environment)."
+                };
+            }
+
+            TrialLedgerSnapshot ledger;
+            try { ledger = TrialLedger.Read(); }
+            catch { ledger = new TrialLedgerSnapshot { IsIssued = false }; }
+
+            if (App.Config.AutoTrialWasIssued || ledger.IsIssued)
+            {
+                string evidence = ledger.IsIssued && !string.IsNullOrEmpty(ledger.AnchorEvidence)
+                    ? "anchors=" + ledger.AnchorEvidence.TrimEnd(';')
+                    : "config-only";
+
+                try
+                {
+                    AuditService.Log(
+                        AuditSections.Settings,
+                        "Auto-trial refused — machine already used one",
+                        evidence +
+                        (ledger.FirstIssuedUtc.HasValue
+                            ? "; firstIssued=" + ledger.FirstIssuedUtc.Value.ToString("u")
+                            : ""));
+                }
+                catch { /* audit must not gate the refusal */ }
+
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.NotActivated,
+                    ErrorDetail =
+                        "A trial was previously issued on this machine (" + evidence +
+                        "). Only one auto-trial per machine is permitted. " +
+                        "Activate a full licence in Settings → License to continue."
                 };
             }
 
@@ -711,13 +778,44 @@ namespace ProGlassAutomation.Services.Licensing
                 };
             }
 
-            // 5) Persist the one-per-machine flag so this
-            //    never re-issues. We save the config even
-            //    if the file save later fails — the worst
-            //    case is one extra trial, not zero.
+            // 5) Persist the one-per-machine flag ACROSS ALL FOUR
+            //    ANCHORS via TrialLedger.RecordIssuance. Under the
+            //    hood the ledger writes:
+            //      • %AppData%\ProGlassAutomation\config.json
+            //      • %ProgramData%\ProGlassAutomation\trial-ledger.json
+            //      • HKLM\SOFTWARE\ProGlassAutomation\Trial (or HKCU
+            //        fallback when the app is running non-elevated)
+            //      • DPAPI-encrypted blob in %ProgramData%
+            //    Every anchor a user has to wipe raises the bar. The
+            //    ledger is best-effort — any single unreachable
+            //    anchor is logged but does not fail the ledger write.
             try
             {
-                if (App.Config != null)
+                string fp = "";
+                try { fp = MachineFingerprint.ComputeCurrent(); } catch { /* silence */ }
+                TrialLedger.RecordIssuance(fp);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "TrialLedger.RecordIssuance threw: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "IssueAutoTrialIfEligible"
+                    });
+            }
+
+            // Config anchor kept in a second try/catch for
+            // symmetry with legacy code that reads
+            // AutoTrialWasIssued directly (Duplicate flow, sample
+            // data seeding, upgrade migrations). TrialLedger.
+            // RecordIssuance already writes this, so the second
+            // write is idempotent.
+            try
+            {
+                if (App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
                     ConfigService.Save(App.Config);
