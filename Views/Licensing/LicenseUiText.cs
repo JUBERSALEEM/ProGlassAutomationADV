@@ -34,12 +34,13 @@ namespace ProGlassAutomation.Views.Licensing
             LicenseStatus.Trial => "Trial",
             LicenseStatus.MachineMismatch => "Wrong machine",
             LicenseStatus.ActivationLimit => "Activation limit reached",
-            // Auto-issued 7-day trial that has expired. The
-            // license file is gone; the user must activate a
-            // real license to continue. Wording deliberately
-            // matches "License expired" so the message in
-            // the UI is unambiguous.
-            LicenseStatus.TrialExpired => "Trial expired",
+            // Auto-issued 30-day trial that has ended. The
+            // .lic file is preserved (customer data is never
+            // touched); the app runs in read-only mode until
+            // the user activates a real license. The badge
+            // is deliberately explicit so it stands out from
+            // the paid "License expired" state.
+            LicenseStatus.TrialExpired => "Trial ended · read-only",
             _ => status.ToString()
         };
 
@@ -52,7 +53,7 @@ namespace ProGlassAutomation.Views.Licensing
         {
             LicenseStatus.NotActivated =>
                 "No license file was found in the data folder. " +
-                "Activate a license or start the 7-day trial.",
+                "Activate a license or start the 30-day trial.",
             LicenseStatus.Invalid =>
                 "The license file is present but its signature " +
                 "could not be verified. The file may be corrupt, " +
@@ -75,14 +76,15 @@ namespace ProGlassAutomation.Views.Licensing
                 "The license is valid and all licensed features " +
                 "are available.",
             LicenseStatus.Trial =>
-                "A 7-day trial is active. The trial expires " +
-                "automatically; activate a full license before " +
-                "then to avoid interruption.",
+                "A 30-day trial is active. Every module is " +
+                "unlocked while the trial runs; activate a full " +
+                "license before it ends to keep creating and " +
+                "editing records without interruption.",
             LicenseStatus.TrialExpired =>
-                "The 7-day trial has expired and the trial " +
-                "license has been removed from this machine. " +
-                "Activate a full license to continue using " +
-                "ProGlass Automation.",
+                "The 30-day trial has ended. All your data is " +
+                "preserved, but the app is now in read-only mode " +
+                "— activate a full license from Settings → License " +
+                "to continue creating and editing records.",
             LicenseStatus.MachineMismatch =>
                 "This license is bound to a different machine. " +
                 "Ask the vendor to re-issue the license for this " +

@@ -1,0 +1,119 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsLicenseSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — LICENSE page
+
+     A thin wrapper that hosts the shared LicenseActivationView so
+     licence management lives INSIDE the settings shell rather than
+     as a full-screen startup overlay. Also renders a compact
+     summary strip (status badge + edition + days remaining) above
+     the activation view so the user can see their state before
+     scrolling into the details.
+
+     The activation view is the single source of truth for the
+     Start-trial / Install-file / Machine-fingerprint UI — this
+     section deliberately does not duplicate that surface.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsLicenseSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vmLicensing="clr-namespace:ProGlassAutomation.ViewModels.Licensing"
+             xmlns:viewsLicensing="clr-namespace:ProGlassAutomation.Views.Licensing"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="{DynamicResource AppFontFamily}"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="32,26,32,14">
+            <TextBlock Text="License" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="Start or extend a trial, install a licence file, and see the state of your activation."
+                       Style="{StaticResource PageSubtitleStyle}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="32,0,32,32"
+                        DataContext="{x:Static vmLicensing:LicenseStatusViewModel.Instance}">
+
+                <!-- ── STATUS SUMMARY STRIP ─────────────────────────
+                     Compact one-liner: badge · edition · days.
+                     Auto-updates on LicenseService.StatusChanged. -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,0,0,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Status badge chip -->
+                        <Border Grid.Column="0"
+                                Padding="12,6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Background="{DynamicResource AccentBrush}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="{Binding StatusBadge}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Border>
+
+                        <StackPanel Grid.Column="1" Margin="16,0,0,0"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{Binding EditionDisplay}"
+                                       FontSize="16" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="{Binding StatusDescription}"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       TextWrapping="Wrap"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DaysRemainingDisplay}"
+                                       FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="remaining"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ── ACTIVATION HOST ─────────────────────────────
+                     Reuses the same UserControl the main window
+                     used to show as a full-screen overlay. Because
+                     it lives inside a ScrollViewer here, IsClosable
+                     stays false (there is nothing to close — you
+                     navigate away from the settings page instead). -->
+                <viewsLicensing:LicenseActivationView IsClosable="False"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

@@ -396,6 +396,14 @@ namespace ProGlassAutomation.ViewModels
         public ICommand ShowSettingsCommand { get; }
         public ICommand ShowUserSwitchCommand { get; }
 
+        /// <summary>
+        /// Opens Settings and selects the License page. Bound to the
+        /// "Activate license" button on the read-only banner so a
+        /// single click takes the user from anywhere in the app to
+        /// the activation surface — no manual nav-rail hunting.
+        /// </summary>
+        public ICommand OpenLicenseSettingsCommand { get; private set; } = null!;
+
         // ── Parameterless ctor for XAML backward compat — uses App.ServiceProvider fallback ──
         public MainViewModel() : this(App.ServiceProvider ?? Services.DependencyInjection.ServiceRegistration.BuildProGlassProvider())
         {
@@ -746,6 +754,7 @@ namespace ProGlassAutomation.ViewModels
             });
             ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
             ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
+            OpenLicenseSettingsCommand = new RelayCommand(_ => OpenSettingsPage("License"));
             ShowUserSwitchCommand = new RelayCommand(_ => IsUserSwitchOpen = !IsUserSwitchOpen);
             ToggleSettingsCommand = new RelayCommand(_ => IsSettingsOpen = !IsSettingsOpen);
             ToggleNotificationsCommand = new RelayCommand(_ => IsNotificationsOpen = !IsNotificationsOpen);

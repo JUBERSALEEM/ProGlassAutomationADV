@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — SHELL (navigation rail + section hosts)
@@ -227,6 +227,27 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- LICENSE — Settings-level licensing surface
+                         (the old startup License overlay was removed;
+                          this is the ONLY place users see licensing). -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="License">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLicensePage}" Value="True">
+                                        <Setter Property="Tag" Value="Active"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE192;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="License"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- ABOUT & HELP -->
                     <Button Command="{Binding SwitchSettingsPageCommand}"
                             CommandParameter="About">
@@ -304,6 +325,11 @@
             <sections:SettingsDemoSection
                 Panel.ZIndex="2"
                 Visibility="{Binding DataContext.IsDemoPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+            <sections:SettingsLicenseSection
+                Visibility="{Binding DataContext.IsLicensePage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>

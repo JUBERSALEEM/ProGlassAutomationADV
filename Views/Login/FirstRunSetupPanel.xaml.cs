@@ -31,9 +31,11 @@
 //     in pre-populated with the same username.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Updates;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -157,6 +159,19 @@ namespace ProGlassAutomation.Views.Login
                     return;
                 }
 
+                // The setup wizard is the ONLY place the operator
+                // types their brand-new password in plain text on
+                // this device. Seed the auto-sign-in vault with it
+                // and turn the pill ON by default so the user is
+                // NOT asked to type it again on the next launch —
+                // the industrial-tablet UX contract is "set up
+                // once, walk to the shop floor, keep working".
+                // The pill is bound to the current app version, so
+                // an OTA update will still force a re-verification
+                // on the new binary. The user can flip it OFF on
+                // the login screen at any time.
+                TryArmAutoLogin(username, password);
+
                 SetBusyState(false, "Administrator created — signing in…");
                 PasswordBox.Clear();
                 ConfirmPasswordBox.Clear();
@@ -229,6 +244,38 @@ namespace ProGlassAutomation.Views.Login
             if (element == null) return;
             element.Focus();
             Keyboard.Focus(element);
+        }
+
+        /// <summary>
+        /// Arms the "Skip login until update" auto-sign-in for the
+        /// operator we just created. Best-effort: any failure is
+        /// logged and swallowed — the user can always type their
+        /// credentials on the next launch and turn the pill on
+        /// themselves from the LoginPanel.
+        /// </summary>
+        private static void TryArmAutoLogin(string username, string password)
+        {
+            try
+            {
+                if (App.Config == null) return;
+                App.Config.LastUsername = username;
+                App.Config.RememberUsername = true;
+                App.Config.SkipLoginUntilUpdate = true;
+                App.Config.SkipLoginBoundVersion = AppInfo.Version ?? "";
+                ConfigService.Save(App.Config);
+                SecretVault.Store(LoginPanel.SkipLoginSecretKey, password ?? string.Empty);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not arm auto sign-in for new administrator: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Auth",
+                        Class = nameof(FirstRunSetupPanel),
+                        Operation = "TryArmAutoLogin"
+                    });
+            }
         }
     }
 }

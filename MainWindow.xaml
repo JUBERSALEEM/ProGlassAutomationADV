@@ -1395,18 +1395,84 @@
             </Border>
 
             <!-- ═══════════════════════════════════════════════════════
+                 READ-ONLY BANNER (trial ended / grace period)
+
+                 A slim, top-anchored strip that appears whenever
+                 LicenseService.Current.ReadOnly is true — i.e. the
+                 30-day auto-trial has ended OR a paid licence is
+                 in its post-expiry grace period. The app is still
+                 fully navigable (all data preserved), but write
+                 commands are gated by ReadOnlyGate.
+                 The banner links straight to Settings → License so
+                 the user can activate without hunting for the page.
+                 ZIndex 90 sits below the AI/Agent overlays (200/210)
+                 but above the module content so it is always visible.
+            ═══════════════════════════════════════════════════════════ -->
+            <Border x:Name="ReadOnlyBanner"
+                    Panel.ZIndex="90"
+                    Margin="16,16,16,0"
+                    VerticalAlignment="Top"
+                    Padding="16,10"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Background="#FFF6C244"
+                    BorderBrush="#FFB8860B"
+                    BorderThickness="1"
+                    SnapsToDevicePixels="True"
+                    Visibility="{Binding IsReadOnly,
+                        Source={x:Static vmLicensing:LicenseStatusViewModel.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="&#xE7BA;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="18"
+                               Foreground="#FF3D2C00"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="Read-only mode — your data is safe."
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="#FF3D2C00"/>
+                        <TextBlock FontSize="12"
+                                   Foreground="#FF3D2C00"
+                                   TextWrapping="Wrap"
+                                   Text="{Binding StatusDescription,
+                                          Source={x:Static vmLicensing:LicenseStatusViewModel.Instance}}"/>
+                    </StackPanel>
+
+                    <Button Grid.Column="2"
+                            Content="Activate license"
+                            Padding="14,6"
+                            VerticalAlignment="Center"
+                            Command="{Binding OpenLicenseSettingsCommand}"
+                            Background="#FF3D2C00"
+                            Foreground="White"
+                            BorderThickness="0"
+                            Cursor="Hand"/>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════
                  LICENSE ACTIVATION OVERLAY (Commit 4 of the
                  licensing refactor)
 
-                 Shown when LicenseService.Current.CanRun is
-                 false. Blocks the content area (the user cannot
-                 do productive work without a license) but
-                 leaves the top bar and sidebar visible so the
-                 user can still reach About / Settings to see
-                 the status. The AI chat + agent overlays sit
-                 ABOVE this one (ZIndex 200 / 210) so a user
-                 can still ask the agent to help with a
-                 licensing question while the overlay is up.
+                 Shown ONLY when LicenseStatusViewModel.IsLicenseRequired
+                 is true — i.e. the licence is in a hard-broken state
+                 (invalid signature, machine-mismatch, exceeded
+                 activations, an expired paid licence, or a fresh
+                 install where the auto-trial could not be issued).
+                 The 30-day auto-trial and its read-only expiry
+                 aftermath deliberately do NOT trigger this overlay
+                 — nobody wants their first sight of the app to be
+                 a licensing form. See LicenseStatusViewModel for
+                 the exact rules.
 
                  Visibility is bound to
                  LicenseStatusViewModel.Instance.IsLicenseRequired

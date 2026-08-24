@@ -30,7 +30,11 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Updates;
+using ProGlassAutomation.Views.Login;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -373,12 +377,134 @@ namespace ProGlassAutomation.Views.Splash
         }
 
         /// <summary>
+        /// AUTO-SIGN-IN — the runtime side of the "Skip login until
+        /// update" pill in LoginPanel. Returns true when the splash
+        /// managed to sign the user in without showing the login
+        /// form; returns false when any prerequisite is missing (no
+        /// saved credentials, an app update reset the bound version,
+        /// the saved password no longer verifies, etc.) — the caller
+        /// then falls through to the normal login flow.
+        ///
+        /// Why this lives on SplashView and not App.xaml.cs: the
+        /// splash is the UI surface that would otherwise show the
+        /// login form, and it already owns the LoadingText / status
+        /// pill we want to keep alive during the auto-sign-in
+        /// round-trip.
+        /// </summary>
+        private static async Task<bool> TryAutoLoginAsync()
+        {
+            var cfg = App.Config;
+            if (cfg == null) return false;
+            if (!cfg.SkipLoginUntilUpdate) return false;
+
+            // Version binding — an update ships new binaries and
+            // we want the user to re-verify on the new build. The
+            // stored version is set when the pill is armed; if it
+            // does not equal AppInfo.Version now, one of the two
+            // has moved on and we cannot auto-sign-in.
+            string running = AppInfo.Version ?? "";
+            string bound = cfg.SkipLoginBoundVersion ?? "";
+            if (string.IsNullOrEmpty(bound) ||
+                !string.Equals(running, bound, StringComparison.Ordinal))
+            {
+                AppLogService.Info(
+                    "Auto sign-in skipped: app version changed " +
+                    $"(bound={bound}, running={running}).",
+                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                return false;
+            }
+
+            string username = (cfg.LastUsername ?? "").Trim();
+            if (username.Length == 0) return false;
+
+            if (!SecretVault.TryRetrieve(LoginPanel.SkipLoginSecretKey, out string password)
+                || string.IsNullOrEmpty(password))
+            {
+                return false;
+            }
+
+            try
+            {
+                int remaining = await Task.Run(
+                    () => AuditService.LockoutRemainingSecondsAsync(username));
+                if (remaining > 0) return false;
+
+                var (ok, error) = await Task.Run(
+                    () => AuditService.SwitchUserAsync(username, password));
+                if (!ok)
+                {
+                    // Saved credentials no longer verify — most
+                    // likely because the operator changed their
+                    // password. Clear the stale blob so we never
+                    // retry it and fall through to the login form.
+                    AppLogService.Warning(
+                        "Auto sign-in failed for saved user '" + username +
+                        "': " + error + ". Clearing saved credentials.",
+                        new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch { }
+                    try
+                    {
+                        cfg.SkipLoginUntilUpdate = false;
+                        cfg.SkipLoginBoundVersion = "";
+                        ConfigService.Save(cfg);
+                    }
+                    catch { }
+                    return false;
+                }
+
+                // Force-password-change users must NEVER auto-sign-in
+                // without proving they know the new password first.
+                if (await Task.Run(
+                    () => AuditService.IsUsingDefaultPasswordAsync(username)))
+                {
+                    AuditService.LogSessionBoundary(login: false);
+                    return false;
+                }
+
+                AuditService.LogSessionBoundary(login: true);
+                AppLogService.Info(
+                    "Auto sign-in succeeded for '" + username + "' (skip-login pill).",
+                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Auto sign-in threw: " + ex.Message,
+                    new LogContext { Module = "Auth", Class = nameof(SplashView) });
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Replaces the loading strip with the sign-in form on THIS window.
         /// Never opens a second maximized window — that is what kept
         /// desyncing splash and login (Topmost fight + desktop flash).
+        ///
+        /// First tries <see cref="TryAutoLoginAsync"/>; if that succeeds
+        /// the login form is never even mounted and the splash proceeds
+        /// straight to the "opening workspace" fade. If it returns false
+        /// the regular sign-in form is shown as before.
         /// </summary>
-        public Task<bool> RunLoginAsync()
+        public async Task<bool> RunLoginAsync()
         {
+            // ── AUTO-SIGN-IN FAST PATH ────────────────────────────────
+            //
+            // A returning user who armed the "Skip login until update"
+            // pill last session never sees the sign-in form again on
+            // this device until we push an update. LoadingText stays
+            // as "Signing you in…" for the microsecond it takes to
+            // verify, then App.xaml.cs takes over.
+            StopLoadingIndicators();
+            LoadingText.Text = "Signing you in…";
+            LoadingDots.Text = "";
+
+            if (await TryAutoLoginAsync())
+            {
+                SignedIn = true;
+                return true;
+            }
+
             var done = new TaskCompletionSource<bool>();
 
             void Finish(bool signedIn)
@@ -417,7 +543,7 @@ namespace ProGlassAutomation.Views.Splash
             Dispatcher.BeginInvoke(new Action(() => LoginGate.FocusInitialFieldDeferred()),
                 DispatcherPriority.Input);
 
-            return done.Task;
+            return await done.Task;
         }
 
         /// <summary>

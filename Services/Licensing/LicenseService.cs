@@ -455,43 +455,59 @@ namespace ProGlassAutomation.Services.Licensing
         // we have deleted it on day 8.
 
         /// <summary>
-        /// How long an auto-issued trial runs. 7 days is
-        /// the product decision (commit-2 of the licensing
-        /// refactor): long enough for a real evaluation,
-        /// short enough that the user has to engage with
-        /// licensing on a meaningful timeline.
+        /// How long an auto-issued trial runs. 30 days is the
+        /// updated product decision: it matches the industry norm
+        /// for evaluation software (Microsoft 365, Adobe, Autodesk
+        /// all default to 30 days), gives an operations team a
+        /// full month-end billing cycle to try the app in real
+        /// production, and leaves plenty of headroom for the
+        /// vendor to close the sale before the app is locked out.
+        ///
+        /// After this window the app switches to read-only mode
+        /// (see <see cref="EnforceTrialExpiry"/>) — user data
+        /// is preserved, but no new inquiries / invoices / job
+        /// orders can be created until a real license is
+        /// installed. No customer data is ever destroyed by the
+        /// licensing subsystem.
         /// </summary>
-        public const int AutoTrialDays = 7;
+        public const int AutoTrialDays = 30;
 
         /// <summary>
         /// Marker that goes into <see cref="LicensePayload.TrialSource"/>
         /// for an auto-issued trial. The verifier switches
         /// to the trial public key when this marker is
-        /// non-empty. The value is also the audit-trail
-        /// handle: the operator can grep for "auto-7d" in
-        /// the audit log to see every machine that ever
-        /// self-issued.
+        /// non-empty. The value is a stable disk identifier
+        /// (kept as "auto-7d" for backwards compatibility with
+        /// pre-existing installs even though the trial is now
+        /// <see cref="AutoTrialDays"/> days long); the operator
+        /// can grep for this token in the audit log to find
+        /// every machine that ever self-issued a trial.
         /// </summary>
         public const string AutoTrialSourceMarker = "auto-7d";
 
         /// <summary>
         /// Check the loaded license for an expired auto-trial.
         /// If the payload is a trial (TrialSource non-empty)
-        /// and the current time is past TrialExpiresAt, delete
-        /// the .lic file from disk and return a new result
-        /// with <see cref="LicenseStatus.TrialExpired"/>. The
-        /// payload is preserved in the result so the UI can
-        /// still show "your trial expired on YYYY-MM-DD" with
-        /// the correct date, even though the file is gone.
+        /// and the current time is past TrialExpiresAt, return
+        /// a new result with <see cref="LicenseStatus.TrialExpired"/>.
+        /// The payload — and the .lic file — are preserved so
+        /// the UI can still show "your trial expired on
+        /// YYYY-MM-DD" and the read-only overlay can offer a
+        /// one-click activation path without the user losing
+        /// any of their own data.
         ///
-        /// Why delete: a real customer license has a renewable
-        /// signature; an auto-trial has a self-signing one. If
-        /// we kept the file around, a user could copy it to
-        /// another machine and the 7-day window would
-        /// effectively be ignored. By deleting the file we
-        /// force the user to either activate a real license
-        /// (which has cryptographic protection) or accept
-        /// that the trial is over on this specific machine.
+        /// PRODUCT DECISION (data preservation):
+        /// Earlier versions of this method DELETED the trial
+        /// .lic file on expiry to prevent a user from copying
+        /// it to another machine. The new licensing contract
+        /// makes trial expiry a soft, read-only lock instead:
+        /// customer inquiries / invoices / job orders are
+        /// never touched by the licensing subsystem. The
+        /// AutoTrialWasIssued flag in <see cref="AppConfig"/>
+        /// remains the one-per-machine gate (a user who
+        /// deletes the .lic themselves does not get a fresh
+        /// trial), and CanRun=true / ReadOnly=true is the
+        /// runtime enforcement.
         /// </summary>
         private static LicenseVerificationResult EnforceTrialExpiry(
             LicenseVerificationResult input, string dataRoot)
@@ -506,56 +522,17 @@ namespace ProGlassAutomation.Services.Licensing
                 return input; // still valid
             }
 
-            // Trial has expired. Delete the file so a fresh
-            // launch starts from NotActivated (and IssueAutoTrial
-            // refuses to re-issue because Config.AutoTrialWasIssued
-            // is now true).
-            //
-            // TEST-ENVIRONMENT SAFEGUARD: if App.Config is null
-            // we are in a unit test. The "expired trial → delete
-            // file" behaviour would silently nuke the test
-            // fixture on every test that loads a trial with a
-            // past TrialExpiresAt. Refuse to delete the file
-            // when there is no persisted config to enforce the
-            // one-per-machine rule; the test can still observe
-            // the TrialExpired status, but the file is left
-            // alone so the next test starts from the same
-            // state.
-            bool testEnvironment = App.Config == null;
+            // Trial expired. Do NOT delete the .lic file —
+            // the read-only lock is enforced by returning
+            // TrialExpired below, and preserving the payload
+            // means the UI can still render "trial started
+            // on X, expired on Y" without a second round-trip.
+            // The AutoTrialWasIssued flag prevents re-issue
+            // on the next launch.
 
-            if (!testEnvironment)
-            {
-                try
-                {
-                    string path = Path.Combine(dataRoot, DefaultLicenseFileName);
-                    if (File.Exists(path)) File.Delete(path);
-                }
-                catch (Exception ex)
-                {
-                    // Refusing to start is more important than
-                    // failing to delete the file. Log and move
-                    // on — the verifier still returns TrialExpired
-                    // because the payload's TrialExpiresAt is in
-                    // the past, regardless of file presence.
-                    AppLogService.Warning(
-                        "Could not delete expired trial license: " + ex.Message,
-                        new LogContext
-                        {
-                            Module = "Licensing",
-                            Class = nameof(LicenseService),
-                            Operation = "EnforceTrialExpiry"
-                        });
-                }
-            }
-
-            // Mark the trial as fully used so we never re-issue.
-            // The flag is set on disk via the persisted
-            // AppConfig; this matters because the .lic file is
-            // gone, so the next launch will see NotActivated
-            // and (without this flag) auto-issue a new trial.
             try
             {
-                if (App.Config != null)
+                if (App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
                     ConfigService.Save(App.Config);
@@ -563,11 +540,10 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch
             {
-                // Best effort. If we cannot save the
-                // config, the worst case is the next launch
-                // re-issues a trial and the user gets a
-                // second 7-day window — annoying, not
-                // catastrophic, and only happens on a
+                // Best effort. If we cannot save the config,
+                // the worst case is the next launch re-issues
+                // a trial (a second 30-day window) — annoying,
+                // not catastrophic, and only happens on a
                 // permission-locked profile.
             }
 
@@ -575,12 +551,11 @@ namespace ProGlassAutomation.Services.Licensing
             {
                 AuditService.Log(
                     AuditSections.Settings,
-                    testEnvironment
-                        ? "Auto-trial expired (test env; file preserved)"
-                        : "Auto-trial expired; trial file deleted",
+                    "Auto-trial expired; app entering read-only mode",
                     "licenseId=" + p.LicenseId + "; " +
                     "trialSource=" + p.TrialSource + "; " +
-                    "trialExpiresAt=" + p.TrialExpiresAt.ToString("u"));
+                    "trialExpiresAt=" + p.TrialExpiresAt.ToString("u") + "; " +
+                    "dataPreserved=true");
             }
             catch { /* audit must not block startup */ }
 
@@ -589,10 +564,12 @@ namespace ProGlassAutomation.Services.Licensing
                 Status = LicenseStatus.TrialExpired,
                 Payload = p,
                 ErrorDetail =
-                    "The 7-day trial has expired. The trial " +
-                    "license was removed from this machine on " +
-                    p.TrialExpiresAt.ToString("yyyy-MM-dd") + ". " +
-                    "Activate a full license to continue."
+                    "Your " + AutoTrialDays + "-day trial ended on " +
+                    p.TrialExpiresAt.ToLocalTime().ToString("yyyy-MM-dd") + ". " +
+                    "All your data is preserved. The app is now in " +
+                    "read-only mode — activate a full license in " +
+                    "Settings → License to continue creating and " +
+                    "editing records."
             };
         }
 
@@ -688,14 +665,16 @@ namespace ProGlassAutomation.Services.Licensing
                 IssuedAt = now,
                 ExpiresAt = now.AddDays(AutoTrialDays),
                 MaxActivations = 1,
-                Features = new[]
-                {
-                    "Inquiry.*", "Proforma.*", "JobOrder.*",
-                    "DeliveryNote.*", "TaxInvoice.*", "Statement.*",
-                    "MasterData.*", "SheetStore.*"
-                },
+                // Auto-trial: every module unlocked out of the box.
+                // Product decision — nobody evaluates an industrial
+                // suite by clicking on a locked padlock. The 30-day
+                // countdown is the constraint, not the feature set.
+                // Real Business / Factory / Enterprise licences will
+                // narrow this per SKU; the trial is deliberately the
+                // full experience.
+                Features = new[] { "*" },
                 MachineFingerprint = null,    // portable
-                Notes = "Auto-issued 7-day trial.",
+                Notes = "Auto-issued " + AutoTrialDays + "-day trial (all modules).",
                 TrialSource = AutoTrialSourceMarker,
                 TrialExpiresAt = now.AddDays(AutoTrialDays)
             };
@@ -817,12 +796,10 @@ namespace ProGlassAutomation.Services.Licensing
                 IssuedAt = DateTime.UtcNow,
                 ExpiresAt = DateTime.UtcNow.AddDays(days),
                 MaxActivations = 1,
-                Features = new[]
-                {
-                    "Inquiry.*", "Proforma.*", "JobOrder.*",
-                    "DeliveryNote.*", "TaxInvoice.*", "Statement.*",
-                    "MasterData.*", "SheetStore.*"
-                },
+                // Developer-issued trial: same "all modules" contract
+                // as the auto-trial so QA / demo builds behave like a
+                // real evaluation.
+                Features = new[] { "*" },
                 MachineFingerprint = null,    // portable trial
                 Notes = "Trial issued by LicenseService."
             };

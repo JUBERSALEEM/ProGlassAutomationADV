@@ -189,6 +189,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
             // every status change without needing the host
             // to wire anything.
             OnPropertyChanged(nameof(IsLicenseRequired));
+            OnPropertyChanged(nameof(IsReadOnly));
+            OnPropertyChanged(nameof(IsTrialExpiredReadOnly));
         }
 
         private void OnLicenseChanged(object? sender, LicenseVerificationResult e)
@@ -248,24 +250,76 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public bool CanRunFullUi => IsValid || IsTrial;
 
         /// <summary>
-        /// True when the app is loaded but the license
-        /// is in a state that requires the user to
-        /// install / fix a license before any productive
-        /// work is possible. Used by the main window's
-        /// overlay to show the LicenseActivationView.
+        /// True ONLY when the app is in a hard-broken
+        /// licensing state that the user cannot navigate
+        /// past — invalid signature, machine-mismatch,
+        /// exceeded activations, an expired paid license,
+        /// or a fresh install where the auto-trial could
+        /// not be issued (placeholder key pair). In every
+        /// one of those cases the app boots into the
+        /// LicenseActivationView because no productive
+        /// work is possible.
         ///
-        /// The negation of <see cref="LicenseService.Current"/>
-        /// <c>.CanRun</c>, but exposed on this VM so the
-        /// binding path is uniform with the rest of the
-        /// license surface (no per-binding static
-        /// bridge). When this flips from true to false
-        /// (e.g. the user installed a valid license), the
-        /// main window's overlay hides automatically via
-        /// the existing StatusChanged → Refresh pipeline.
+        /// EXPLICITLY excluded from this flag:
+        ///   • <see cref="LicenseStatus.Trial"/>
+        ///   • <see cref="LicenseStatus.TrialExpired"/> (read-only)
+        ///   • <see cref="LicenseStatus.Valid"/> /
+        ///     <see cref="LicenseStatus.ExpiringSoon"/> /
+        ///     <see cref="LicenseStatus.GracePeriod"/>
+        ///
+        /// PRODUCT DECISION:
+        /// The old behaviour showed the LicenseActivationView
+        /// as the default main screen on every fresh launch
+        /// until a licence was accepted. That defeats the
+        /// point of an out-of-the-box trial — nobody wants
+        /// their industrial app to greet them with a
+        /// licensing form. The 30-day auto-trial (see
+        /// <see cref="LicenseService.AutoTrialDays"/>) covers
+        /// the fresh-install case; TrialExpired flips the app
+        /// to read-only and shows a slim banner, not a full
+        /// overlay. The Settings → License page is where the
+        /// user manages activation on their own schedule.
         /// </summary>
-        public bool IsLicenseRequired =>
-            !LicenseService.Current.CanRun
-            || IsPlaceholder;
+        public bool IsLicenseRequired
+        {
+            get
+            {
+                var status = LicenseService.Current.Status;
+                switch (status)
+                {
+                    // Runnable — never force the overlay.
+                    case LicenseStatus.Valid:
+                    case LicenseStatus.ExpiringSoon:
+                    case LicenseStatus.Trial:
+                    case LicenseStatus.GracePeriod:
+                    case LicenseStatus.TrialExpired:
+                        return false;
+                    // Hard broken — no productive work is
+                    // possible until the user acts.
+                    default:
+                        return true;
+                }
+            }
+        }
+
+        /// <summary>
+        /// True when the app is running but is not permitted
+        /// to make new writes / exports / prints. The main
+        /// window shows a slim, dismissable "read-only —
+        /// activate to continue editing" banner while this is
+        /// true. See <see cref="LicenseVerificationResult.ReadOnly"/>.
+        /// </summary>
+        public bool IsReadOnly => LicenseService.Current.ReadOnly;
+
+        /// <summary>
+        /// True when the app is in read-only mode BECAUSE the
+        /// auto-trial ended. The read-only banner uses this to
+        /// pick the right copy ("Your trial ended — activate to
+        /// keep editing") vs. the paid grace-period copy
+        /// ("Your licence has expired — renew to keep editing").
+        /// </summary>
+        public bool IsTrialExpiredReadOnly =>
+            LicenseService.Current.Status == LicenseStatus.TrialExpired;
 
         // ── Helpers ─────────────────────────────────────────────
 

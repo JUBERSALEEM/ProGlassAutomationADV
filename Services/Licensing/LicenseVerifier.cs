@@ -70,11 +70,15 @@ namespace ProGlassAutomation.Services.Licensing
             LicenseStatus.ExpiringSoon => true,
             LicenseStatus.Trial => true,
             LicenseStatus.GracePeriod => true,   // read-only
-            // Auto-issued 7-day trial that has expired is a
-            // hard block — no read-only escape hatch. The
-            // license file has already been deleted by
-            // LicenseService.Reload() before we get here.
-            LicenseStatus.TrialExpired => false,
+            // Auto-issued 30-day trial that has expired drops the
+            // app into read-only mode — the user can still open
+            // every screen and browse every record, but new
+            // writes / exports / prints are blocked until a real
+            // license is installed. Customer data is preserved on
+            // disk (the licensing subsystem never deletes it) so
+            // switching from Trial to a paid Business / Factory
+            // license mid-workflow is lossless.
+            LicenseStatus.TrialExpired => true,
             // Anything else (NotActivated, Invalid,
             // MachineMismatch, ActivationLimit, Expired) is
             // also a non-runnable state. Explicit list here
@@ -89,8 +93,13 @@ namespace ProGlassAutomation.Services.Licensing
         };
 
         /// <summary>True when the app must operate in read-only
-        /// mode (no writes, no exports, no prints).</summary>
-        public bool ReadOnly => Status == LicenseStatus.GracePeriod;
+        /// mode (no writes, no exports, no prints). Trial expiry
+        /// and post-expiry grace period both land here — the
+        /// customer keeps their data but cannot make new changes
+        /// until they activate a license.</summary>
+        public bool ReadOnly =>
+            Status == LicenseStatus.GracePeriod
+            || Status == LicenseStatus.TrialExpired;
     }
 
     /// <summary>

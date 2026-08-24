@@ -124,6 +124,40 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>When false the last username is cleared on sign-in.</summary>
         public bool RememberUsername { get; set; } = true;
 
+        // ── Skip-login until next update (Auth-2 pill toggle) ──────────
+        //
+        // Behavioural contract (mirrors iOS "Face ID / stay signed in"
+        // toggles): while this flag is on AND the current app version
+        // still equals SkipLoginBoundVersion, the splash bypasses the
+        // sign-in form entirely and auto-signs in with the saved
+        // credentials. As soon as the app updates (AppInfo.Version
+        // changes) the bound version no longer matches, so the next
+        // launch shows the login form again — the user re-confirms
+        // their credentials on the new build, at which point the pill
+        // can be re-armed for the new version.
+        //
+        // The password itself is NEVER stored in this config file. It
+        // lives in SecretVault (DPAPI, CurrentUser scope) under the
+        // key SecretKeys.AutoLoginPassword. Deleting the vault or
+        // signing in as a different user clears it automatically.
+
+        /// <summary>
+        /// When true, the splash skips the sign-in form on next launch
+        /// as long as <see cref="SkipLoginBoundVersion"/> still equals
+        /// the running app version. Cleared automatically on sign-out
+        /// or when the user flips the pill off.
+        /// </summary>
+        public bool SkipLoginUntilUpdate { get; set; } = false;
+
+        /// <summary>
+        /// The app version (<c>AppInfo.Version</c>) that armed the
+        /// skip-login pill. When the app updates to a newer version
+        /// the pill deliberately stops working so the user re-enters
+        /// their password on the new build. Empty when the pill has
+        /// never been armed.
+        /// </summary>
+        public string SkipLoginBoundVersion { get; set; } = "";
+
         // ── Auto-trial bookkeeping (commit 2 of the licensing refactor) ──
         //
         // The shipped app issues a 7-day trial on first launch when

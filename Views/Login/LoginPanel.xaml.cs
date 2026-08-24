@@ -22,6 +22,8 @@
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Security;
+using ProGlassAutomation.Services.Updates;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,6 +34,31 @@ namespace ProGlassAutomation.Views.Login
 {
     public partial class LoginPanel : UserControl
     {
+        // ══════════════════════════════════════════════════════════════
+        //  AUTO-SIGN-IN CONTRACT (skip-login pill)
+        //
+        //  When the user toggles "Skip login until update" ON and signs
+        //  in successfully, this control:
+        //    1. Stores the password DPAPI-encrypted (CurrentUser scope)
+        //       in SecretVault under SkipLoginSecretKey. DPAPI means
+        //       the blob is unreadable by any OTHER Windows account,
+        //       even on the same machine.
+        //    2. Records the current AppInfo.Version into
+        //       AppConfig.SkipLoginBoundVersion. The next launch
+        //       compares this to the running version; a fresh install
+        //       or an OTA update invalidates the auto-sign-in so the
+        //       user re-verifies on the new binary.
+        //    3. Sets AppConfig.SkipLoginUntilUpdate = true and persists.
+        //
+        //  SplashView.TryAutoLoginAsync consumes those three fields on
+        //  the next startup. If any one of them fails to line up the
+        //  regular login form is shown — never fall through silently
+        //  to a signed-in state without a matched credential.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>SecretVault key for the DPAPI-encrypted saved password.</summary>
+        public const string SkipLoginSecretKey = "auth.skiploginpassword";
+
         /// <summary>True only after a verified sign-in.</summary>
         public bool SignedIn { get; private set; }
 
@@ -82,6 +109,15 @@ namespace ProGlassAutomation.Views.Login
                 bool remember = App.Config?.RememberUsername ?? true;
                 string saved = (App.Config?.LastUsername ?? "").Trim();
                 RememberUserCheck.IsChecked = remember;
+
+                // Restore the skip-login pill state so a user who
+                // previously armed it sees the same choice, even
+                // when the auto-login itself was skipped (e.g. after
+                // an update reset SkipLoginBoundVersion). The pill's
+                // current value drives whether we RE-arm it on the
+                // next successful sign-in — not whether we already
+                // are.
+                SkipLoginPill.IsChecked = App.Config?.SkipLoginUntilUpdate ?? false;
 
                 if (remember && saved.Length > 0)
                 {
@@ -218,6 +254,7 @@ namespace ProGlassAutomation.Views.Login
                 }
 
                 PersistRememberedUsername(username);
+                PersistSkipLoginChoice(username, password);
 
                 bool usingDefault = await Task.Run(
                     () => AuditService.IsUsingDefaultPasswordAsync(username));
@@ -284,6 +321,57 @@ namespace ProGlassAutomation.Views.Login
             }
         }
 
+        /// <summary>
+        /// Persists (or clears) the "skip login until update"
+        /// auto-sign-in credentials for this device. Called AFTER
+        /// AuditService has verified the username/password combo,
+        /// so we never write bad credentials to disk.
+        ///
+        /// When the pill is OFF this method actively CLEARS any
+        /// previously stored blob and unbinds the version so a
+        /// user who once opted in can also cleanly opt out.
+        /// </summary>
+        private void PersistSkipLoginChoice(string username, string password)
+        {
+            try
+            {
+                if (App.Config == null) return;
+                bool skip = SkipLoginPill.IsChecked == true;
+
+                if (skip)
+                {
+                    // Bind the auto-sign-in to the running app
+                    // version. An update ships new binaries, so
+                    // the auto-sign-in is deliberately voided
+                    // and the user re-verifies on the new build.
+                    App.Config.SkipLoginUntilUpdate = true;
+                    App.Config.SkipLoginBoundVersion = AppInfo.Version ?? "";
+                    // Store password in the DPAPI-encrypted vault —
+                    // never in the plain-text config JSON.
+                    SecretVault.Store(SkipLoginSecretKey, password ?? string.Empty);
+                }
+                else
+                {
+                    App.Config.SkipLoginUntilUpdate = false;
+                    App.Config.SkipLoginBoundVersion = "";
+                    SecretVault.Remove(SkipLoginSecretKey);
+                }
+
+                ConfigService.Save(App.Config);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Could not persist skip-login choice: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Auth",
+                        Class = nameof(LoginPanel),
+                        Operation = "PersistSkipLoginChoice"
+                    });
+            }
+        }
+
         private void ShowError(string message)
         {
             ErrorText.Text = message;
@@ -312,6 +400,7 @@ namespace ProGlassAutomation.Views.Login
             UsernameBox.IsEnabled = enable;
             PasswordBox.IsEnabled = enable;
             RememberUserCheck.IsEnabled = enable;
+            SkipLoginPill.IsEnabled = enable;
             ForgotPasswordButton.IsEnabled = enable;
             ExitButton.IsEnabled = enable;
             SignInButton.IsEnabled = enable;

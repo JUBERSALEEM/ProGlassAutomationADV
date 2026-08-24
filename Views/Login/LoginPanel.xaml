@@ -180,6 +180,49 @@
                                         HorizontalAlignment="Right"/>
                             </Grid>
 
+                            <!-- ── SKIP-LOGIN PILL (iPhone-style ON/OFF) ──
+                                 When ON, this device auto-signs in with the
+                                 saved credentials on every launch until the
+                                 next installed update. The pill deliberately
+                                 resets on update so a fresh binary always
+                                 re-verifies the user (Auth-2 contract).
+                                 Password is DPAPI-encrypted in SecretVault;
+                                 the pill is bound to
+                                 App.Config.SkipLoginUntilUpdate. -->
+                            <Border Margin="2,14,2,0" Padding="14,10"
+                                    CornerRadius="12"
+                                    Background="#26FFFFFF"
+                                    BorderBrush="#33FFFFFF"
+                                    BorderThickness="1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="Skip login until update"
+                                                   FontSize="12.5"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{StaticResource Ice}"/>
+                                        <TextBlock Text="Auto sign-in on this device. Resets on the next app update."
+                                                   FontSize="10.5"
+                                                   Foreground="{StaticResource Frost}"
+                                                   Opacity="0.75"
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                    <ToggleButton x:Name="SkipLoginPill"
+                                                  Grid.Column="1"
+                                                  Style="{StaticResource PiToggleSwitch}"
+                                                  IsChecked="False"
+                                                  VerticalAlignment="Center"
+                                                  Margin="12,0,0,0"
+                                                  ToolTip="Auto-sign-in with these credentials on the next launch (resets on app update)."
+                                                  AutomationProperties.Name="Skip login until update"/>
+                                </Grid>
+                            </Border>
+
                             <!-- ── ERROR PANEL ───────────────────────── -->
                             <Border x:Name="ErrorPanel"
                                     Margin="0,14,0,0" Padding="13,10"

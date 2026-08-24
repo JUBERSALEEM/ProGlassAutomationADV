@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (value != "Appearance" && value != "AI" &&
                     value != "Agent" && value != "Voice" &&
                     value != "Updates" && value != "Data" &&
-                    value != "Demo" &&
+                    value != "Demo" && value != "License" &&
                     value != "About")
                     return;
 
@@ -88,6 +88,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged(nameof(IsDataPage));
                 OnPropertyChanged(nameof(IsAboutPage));
                 OnPropertyChanged(nameof(IsDemoPage));
+                OnPropertyChanged(nameof(IsLicensePage));
             }
         }
 
@@ -102,6 +103,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         public bool IsDataPage       => SettingsPage == "Data";
         public bool IsAboutPage      => SettingsPage == "About";
         public bool IsDemoPage       => SettingsPage == "Demo";
+
+        /// <summary>
+        /// License management page (Settings → License).
+        /// Hosts the shared <c>LicenseActivationView</c> so
+        /// the user can start a trial, install a .lic file,
+        /// or inspect their current activation. This is the
+        /// ONLY place in the shell where licensing lives now
+        /// — the old startup licence gate is gone.
+        /// </summary>
+        public bool IsLicensePage    => SettingsPage == "License";
 
         /// <summary>Switches the active settings page (nav rail).</summary>
         public ICommand SwitchSettingsPageCommand { get; private set; }
