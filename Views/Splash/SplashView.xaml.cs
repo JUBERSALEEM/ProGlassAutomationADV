@@ -29,6 +29,7 @@
 //   • All brushes frozen; all animations one-shot.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
