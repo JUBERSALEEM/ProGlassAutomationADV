@@ -38,6 +38,7 @@ namespace ProGlassAutomation.Tests.Licensing
     /// test sets up a fresh key pair and a temp working
     /// folder so the suite is hermetic.
     /// </summary>
+    [Collection("LicensePublicKey")]
     public sealed class LicenseServiceTests : IDisposable
     {
         private readonly string _tempFolder;
@@ -101,7 +102,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── feature gating ───────────────────────────────────────
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void FeatureAllowed_returns_false_when_no_license()
         {
             // With no license file at all, FeatureAllowed
@@ -111,7 +112,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.False(LicenseService.FeatureAllowed("*"));
         }
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void FeatureAllowed_respects_granted_features()
         {
             string privateKey = InstallFreshKeyPair();
@@ -133,7 +134,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.False(LicenseService.FeatureAllowed("CuttingOptimization.*"));
         }
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void FeatureAllowed_wildcard_grants_everything()
         {
             string privateKey = InstallFreshKeyPair();
@@ -154,7 +155,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── file install ─────────────────────────────────────────
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void InstallFile_copies_to_default_path_and_reloads()
         {
             string privateKey = InstallFreshKeyPair();
@@ -176,7 +177,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.True(File.Exists(destPath));
         }
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void InstallFile_rejects_missing_source()
         {
             var result = LicenseService.InstallFile(
@@ -186,7 +187,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── trial install — needs the keys file ─────────────────
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void InstallTrial_fails_when_keys_file_missing()
         {
             // No license-keys.json in the data folder.
@@ -196,7 +197,7 @@ namespace ProGlassAutomation.Tests.Licensing
                 result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
         }
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void InstallTrial_succeeds_with_valid_keys_file()
         {
             (string publicXml, string privateKey) = LicenseSigner.GenerateKeyPair();
@@ -212,7 +213,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── status broadcast ────────────────────────────────────
 
-        [Fact(Skip = "LicenseService.InstallTrial returns Invalid, FeatureAllowed_wildcard_grants_everything returns false, InstallFile_copies_to_default_path_and_reloads returns NotActivated. Same root cause as LicenseSignerTests: the in-memory public key swap via SetForTest is not being seen by the verify/gate/feature-check paths. Likely the public key is being read at a different time or from a different source than the test expects.")]
+        [Fact]
         public void StatusChanged_fires_on_reload()
         {
             bool fired = false;

@@ -22,6 +22,7 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Licensing
 {
+    [Collection("LicensePublicKey")]
     public sealed class LicenseStatusViewModelTests : IDisposable
     {
         private readonly string _tempFolder;
@@ -51,7 +52,7 @@ namespace ProGlassAutomation.Tests.Licensing
             catch { /* best effort */ }
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_reflects_no_license_when_folder_is_empty()
         {
             LicenseService.Reload();
@@ -62,7 +63,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("—", vm.EditionDisplay);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_reflects_business_license_with_days_remaining()
         {
             WriteLicense(new LicensePayload
@@ -86,7 +87,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("355 days", vm.DaysRemainingDisplay);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_reflects_trial_license_with_trial_badge()
         {
             WriteLicense(new LicensePayload
@@ -105,7 +106,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal(15, vm.DaysRemaining);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_shows_read_only_for_grace_period()
         {
             WriteLicense(new LicensePayload
@@ -123,7 +124,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("grace period", vm.DaysRemainingDisplay);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_shows_expired_when_past_grace()
         {
             WriteLicense(new LicensePayload
@@ -141,7 +142,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("expired", vm.DaysRemainingDisplay);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_shows_expiring_soon_within_14_days()
         {
             WriteLicense(new LicensePayload
@@ -159,7 +160,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal(5, vm.DaysRemaining);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_surfaces_machine_fingerprint_field()
         {
             WriteLicense(new LicensePayload
@@ -177,7 +178,7 @@ namespace ProGlassAutomation.Tests.Licensing
                 vm.MachineFingerprint);
         }
 
-        [Fact(Skip = "VM_reflects_business_license_with_days_returning returns false for IsValid, VM_surfaces_machine_fingerprint_field returns the '—' placeholder, VM_shows_expiring_soon_within_14_days returns false, etc. Same root cause as the other license test classes: the test's SetForTest + WriteLicense + Reload sequence does not produce a state that the VM sees.")]
+        [Fact]
         public void VM_shows_portable_when_no_machine_fingerprint()
         {
             WriteLicense(new LicensePayload

@@ -21,6 +21,7 @@ using Xunit;
 
 namespace ProGlassAutomation.Tests.Licensing
 {
+    [Collection("LicensePublicKey")]
     public sealed class LicenseGateTests : IDisposable
     {
         private readonly string _tempFolder;
@@ -52,7 +53,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── no gating ─────────────────────────────────────────
 
-        [Theory(Skip = "Cutting_modules_allowed_when_Cutting_granted returns the denial reason 'Your current license does not grant the Cutting.* feature set.' even after the test installs a license with Cutting.*. Same root cause as LicenseServiceTests: the in-memory public key swap is not visible to the gate's license-read path.")]
+        [Theory]
         [InlineData("Dashboard")]
         [InlineData("Inquiry")]
         [InlineData("ProformaInvoice")]
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.Tests.Licensing
 
         // ── Cutting / Optimization gated ──────────────────────
 
-        [Theory(Skip = "Cutting_modules_allowed_when_Cutting_granted returns the denial reason 'Your current license does not grant the Cutting.* feature set.' even after the test installs a license with Cutting.*. Same root cause as LicenseServiceTests: the in-memory public key swap is not visible to the gate's license-read path.")]
+        [Theory]
         [InlineData("Cutting")]
         [InlineData("HolesCutouts")]
         [InlineData("Polish")]
@@ -102,7 +103,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("Factory", result.RequiredEdition);
         }
 
-        [Theory(Skip = "Cutting_modules_allowed_when_Cutting_granted returns the denial reason 'Your current license does not grant the Cutting.* feature set.' even after the test installs a license with Cutting.*. Same root cause as LicenseServiceTests: the in-memory public key swap is not visible to the gate's license-read path.")]
+        [Theory]
         [InlineData("Cutting")]
         [InlineData("HolesCutouts")]
         [InlineData("Polish")]
@@ -128,7 +129,7 @@ namespace ProGlassAutomation.Tests.Licensing
                 "Cutting.* feature, but got: " + result.Reason);
         }
 
-        [Fact(Skip = "Cutting_modules_allowed_when_Cutting_granted returns the denial reason 'Your current license does not grant the Cutting.* feature set.' even after the test installs a license with Cutting.*. Same root cause as LicenseServiceTests: the in-memory public key swap is not visible to the gate's license-read path.")]
+        [Fact]
         public void Wildcard_feature_grants_everything()
         {
             WriteLicense(new LicensePayload
@@ -145,7 +146,7 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.True(LicenseGate.CanNavigate("JobProfitability").Allowed);
         }
 
-        [Fact(Skip = "Cutting_modules_allowed_when_Cutting_granted returns the denial reason 'Your current license does not grant the Cutting.* feature set.' even after the test installs a license with Cutting.*. Same root cause as LicenseServiceTests: the in-memory public key swap is not visible to the gate's license-read path.")]
+        [Fact]
         public void Partial_feature_grant_does_not_unlock_gated_module()
         {
             // The user has Proforma but not Cutting.
