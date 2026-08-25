@@ -801,15 +801,16 @@ namespace ProGlassAutomation.Services.Theme
 
             stage.Freeze();
 
-            // RelativeToViewport + Stretch.Fill scales the scene's
-            // bounds to whatever size the window has (Viewport 0..1 =
-            // the whole window). Note: the enum here is BrushMappingMode
-            // (Absolute / RelativeToViewport), NOT MappingMode
-            // (RelativeToBoundingBox) which belongs to gradient brushes.
+            // Deliberately NO Viewport / ViewportUnits here: with the
+            // default (empty) viewport a TileBrush stretches its
+            // drawing over the ENTIRE area of whatever element it fills
+            // — the window, at whatever size it has. Stretch.Fill maps
+            // the scene's bounds onto that whole area, so coverage is
+            // complete and the orbs stay anchored at the corners.
+            // (This also keeps us off the BrushMappingMode enum, whose
+            // members do not compile in this project's reference set.)
             var brush = new DrawingBrush(stage)
             {
-                Viewport = new Rect(0, 0, 1, 1),
-                ViewportUnits = BrushMappingMode.RelativeToViewport,
                 Stretch = Stretch.Fill
             };
             brush.Freeze();
