@@ -92,4 +92,90 @@
             <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         </Style>
 
+        <!-- ═══════════════════════════════════════════════════════════════
+             COMPACT FORM TILES (Job Order production — Aug 2026)
+
+             The production panel used to stack full-width fields in one
+             endless column. Each field now lives in its own small tile and
+             the tiles reflow in a WrapPanel (like the Settings design), so
+             on a wide monitor the width is filled by two/three fields per
+             row instead of empty padding. The whole panel is also capped
+             to a MaxWidth so it never stretches across a huge screen.
+
+             JoFieldTileStyle  - the rounded surface around one field.
+             JoFieldTitleStyle - a big tile label (used for the section).
+             JoCompactLabelStyle - the small field label above the input.
+             JoCompactInputStyle - TextBox with tight, even spacing.
+             JoCompactMultiInputStyle - multiline variant for notes.
+             JoCompactComboStyle - ComboBox matching the compact input.
+             JoCompactDateStyle - DatePicker matching the compact input.
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="JoFieldTileStyle" TargetType="Border">
+            <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="Padding"             Value="12,10"/>
+            <Setter Property="Margin"              Value="0,0,12,12"/>
+            <Setter Property="MinWidth"            Value="220"/>
+            <Setter Property="MaxWidth"            Value="360"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+        </Style>
+
+        <Style x:Key="JoFieldTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"          Value="14"/>
+            <Setter Property="FontWeight"        Value="Bold"/>
+            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="IsHitTestVisible"  Value="False"/>
+        </Style>
+
+        <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="10.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,3"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+
+        <Style x:Key="JoCompactInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="Padding"     Value="8,6"/>
+            <Setter Property="Margin"      Value="0,0,0,0"/>
+            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground"  Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="JoCompactMultiInputStyle" TargetType="TextBox"
+               BasedOn="{StaticResource JoCompactInputStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="TextWrapping"  Value="Wrap"/>
+            <Setter Property="MinHeight"     Value="52"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+        </Style>
+
+        <Style x:Key="JoCompactComboStyle" TargetType="ComboBox">
+            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="Padding"     Value="6,4"/>
+            <Setter Property="Margin"      Value="0,0,0,0"/>
+            <Setter Property="Height"      Value="30"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+        </Style>
+
+        <Style x:Key="JoCompactDateStyle" TargetType="DatePicker">
+            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="Padding"     Value="6,4"/>
+            <Setter Property="Margin"      Value="0,0,0,0"/>
+            <Setter Property="Height"      Value="30"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+        </Style>
+
 </ResourceDictionary>

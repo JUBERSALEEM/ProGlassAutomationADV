@@ -3,19 +3,23 @@
 // PROJECT: ProGlassAutomation.Tests
 // MODULE: Job Order — Production panel redesign (senior audit — Aug 2026)
 //
-// Hermetic source-file tests that lock in the JoProductionSection redesign.
+// Hermetic source-file tests that lock in the Job Order detail unification.
 // They do NOT run WPF, a DB, or touch the filesystem beyond reading the
 // XAML relative to the project root (same LocateProjectRoot walk used by
 // the Settings coverage tests):
 //
-//   1. JoProductionSection.xaml and JoSectionStyles.xaml still parse.
-//   2. JoSectionStyles.xaml exposes the new JoFormCardStyle / JoActionBarStyle.
-//   3. The production panel still binds to all 19 ViewModel properties /
-//      commands it bound to before the redesign.
-//   4. No element sets the same property both inline and as a property-
+//   1. The JobOrderDetailView.xaml + both sections + styles all parse.
+//   2. JoSectionStyles.xaml exposes the new compact tile styles.
+//   3. The production panel binds to every ViewModel property it used to
+//      (13 production fields) — no binding dropped in the tile rewrite.
+//   4. The action buttons (Create DN / PDF / Excel / CSV / Save / Back /
+//      Master DN) moved UP to the detail header action bar, so the
+//      production panel no longer owns them (the "too much space for
+//      small buttons" fix).
+//   5. The product form is a compact tile grid (WrapPanel + tiles) host
+//      above the glass-panels grid — production appears before the grid.
+//   6. No element sets the same property both inline and as a property-
 //      element child (XLS0501 / MC3024 anti-pattern).
-//   5. The panel actually uses the grouped-card layout and a compact
-//      action bar (so the "too much space for small buttons" fix sticks).
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -30,24 +34,33 @@ namespace ProGlassAutomation.Tests.JobOrder
 {
     public class JobOrderProductionRedesignTests
     {
-        private const string SectionPath = "Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml";
-        private const string StylesPath  = "Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml";
+        private const string DetailPath    = "Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml";
+        private const string SectionPath   = "Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml";
+        private const string OverviewPath  = "Views/JobOrder/JobOrderDetail/Sections/JoOverviewSection.xaml";
+        private const string StylesPath    = "Views/JobOrder/JobOrderDetail/Sections/JoSectionStyles.xaml";
 
-        private static readonly string[] ExpectedBindings =
+        private static readonly string[] ProductionBindings =
         {
             "StatusOptions", "SelectedStatus", "PriorityOptions", "SelectedPriority",
             "DeliveryDate", "SiteDeliveryContact", "SiteDeliveryPhone",
             "SiteDeliveryAddress", "AssignedTo", "CuttingInstructions",
             "DrawingReference", "InternalNotes", "LastEditedDisplay",
-            "CreateDeliveryNoteCommand", "BackToListCommand", "ExportPdfCommand",
-            "ExportExcelCommand", "ExportCsvCommand", "SaveCommand",
+        };
+
+        // Every action button must appear in the detail HEADER, not the
+        // production panel. If any of these stop binding in the header,
+        // the user cannot save/export/create a DN without scrolling.
+        private static readonly string[] HeaderActions =
+        {
+            "BackToListCommand", "CreateDeliveryNoteCommand", "OpenMasterDnCommand",
+            "ExportPdfCommand", "ExportExcelCommand", "ExportCsvCommand", "SaveCommand",
         };
 
         [Fact]
-        public void Production_section_and_styles_parse()
+        public void Detail_view_sections_and_styles_parse()
         {
             var root = LocateProjectRoot();
-            foreach (var rel in new[] { SectionPath, StylesPath })
+            foreach (var rel in new[] { DetailPath, SectionPath, OverviewPath, StylesPath })
             {
                 var path = Path.Combine(root, rel);
                 Assert.True(File.Exists(path), $"Missing: {rel}");
@@ -57,12 +70,21 @@ namespace ProGlassAutomation.Tests.JobOrder
         }
 
         [Fact]
-        public void Section_styles_expose_the_production_form_cards()
+        public void Section_styles_expose_the_compact_form_tiles()
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root, StylesPath));
-            Assert.Contains("x:Key=\"JoFormCardStyle\"", src);
-            Assert.Contains("x:Key=\"JoActionBarStyle\"", src);
+            foreach (var key in new[]
+            {
+                "JoFieldTileStyle", "JoFieldTitleStyle", "JoCompactLabelStyle",
+                "JoCompactInputStyle", "JoCompactMultiInputStyle",
+                "JoCompactComboStyle", "JoCompactDateStyle",
+                "JoFormCardStyle", "JoActionBarStyle",
+            })
+            {
+                Assert.True(src.Contains($"x:Key=\"{key}\""),
+                    $"JoSectionStyles.xaml is missing the '{key}' Style.");
+            }
         }
 
         [Theory]
@@ -79,12 +101,6 @@ namespace ProGlassAutomation.Tests.JobOrder
         [InlineData("DrawingReference")]
         [InlineData("InternalNotes")]
         [InlineData("LastEditedDisplay")]
-        [InlineData("CreateDeliveryNoteCommand")]
-        [InlineData("BackToListCommand")]
-        [InlineData("ExportPdfCommand")]
-        [InlineData("ExportExcelCommand")]
-        [InlineData("ExportCsvCommand")]
-        [InlineData("SaveCommand")]
         public void Production_section_still_binds_to(string binding)
         {
             var root = LocateProjectRoot();
@@ -92,32 +108,66 @@ namespace ProGlassAutomation.Tests.JobOrder
             var pattern = @"\{Binding\s+(?:Path\s*=\s*)?" + Regex.Escape(binding) + @"\s*[,}\s]";
             Assert.True(Regex.IsMatch(src, pattern),
                 $"Binding '{binding}' vanished from JoProductionSection.xaml. " +
-                "The redesign must not drop a ViewModel binding.");
+                "The tile redesign must not drop a ViewModel binding.");
         }
 
-        [Fact]
-        public void Production_section_uses_the_grouped_field_layout()
+        [Theory]
+        [InlineData("BackToListCommand")]
+        [InlineData("CreateDeliveryNoteCommand")]
+        [InlineData("OpenMasterDnCommand")]
+        [InlineData("ExportPdfCommand")]
+        [InlineData("ExportExcelCommand")]
+        [InlineData("ExportCsvCommand")]
+        [InlineData("SaveCommand")]
+        public void Action_buttons_live_in_the_header_action_bar(string command)
         {
             var root = LocateProjectRoot();
-            var src = File.ReadAllText(Path.Combine(root, SectionPath));
+            var detail = File.ReadAllText(Path.Combine(root, DetailPath));
+            var pattern = @"\{Binding\s+(?:Path\s*=\s*)?" + Regex.Escape(command) + @"\s*[,}\s]";
 
-            Assert.Contains("JoFormCardStyle", src);
-            Assert.Contains("JoActionBarStyle", src);
-            // Two-column reflow grid appears in the form cards.
-            Assert.Contains("ColumnDefinition Width=\"*\"", src);
-            // "small buttons" fix: the action bar docks the primary actions
-            // to the right rather than scattering them across the width.
-            Assert.Contains("DockPanel.Dock=\"Right\"", src);
-            Assert.Contains("Content=\"CREATE DN\"", src);
+            // The action bound in the header:
+            Assert.True(Regex.IsMatch(detail, pattern),
+                $"{command} no longer binds in JobOrderDetailView.xaml. " +
+                "Action buttons were supposed to move UP into the header.");
+
+            // And the production panel must NOT own the toolbar anymore:
+            var prod = File.ReadAllText(Path.Combine(root, SectionPath));
+            Assert.False(Regex.IsMatch(prod, pattern),
+                $"{command} still binds inside JoProductionSection.xaml. " +
+                "Create DN / PDF / Excel / CSV / Save must live in the header, not the panel.");
         }
 
         [Fact]
-        public void No_production_xaml_sets_the_same_property_twice()
+        public void Production_panel_is_compact_tiles_and_renders_before_the_grid()
+        {
+            var root = LocateProjectRoot();
+            var prod = File.ReadAllText(Path.Combine(root, SectionPath));
+            var overview = File.ReadAllText(Path.Combine(root, OverviewPath));
+
+            // Compact tile grid, not full-width stacked cards.
+            Assert.Contains("<WrapPanel", prod);
+            Assert.Contains("JoFieldTileStyle", prod);
+            Assert.Contains("JoActionBarStyle", prod);   // still available (harmless)
+
+            // The full-width action row is GONE from the panel.
+            Assert.DoesNotContain("DockPanel.Dock=\"Right\"", prod);
+
+            // The production form is hosted INSIDE the overview page, above
+            // the glass-panels identity strip + grid.
+            Assert.Contains("sections:JoProductionSection", overview);
+            Assert.Contains("GLASS PANELS", overview);
+            Assert.True(overview.IndexOf("sections:JoProductionSection") <
+                        overview.IndexOf("GLASS PANELS"),
+                "The production form must render ABOVE the glass-panels grid.");
+        }
+
+        [Fact]
+        public void No_job_order_xaml_sets_the_same_property_twice()
         {
             var root = LocateProjectRoot();
             var failures = new List<string>();
 
-            foreach (var rel in new[] { SectionPath, StylesPath })
+            foreach (var rel in new[] { DetailPath, SectionPath, OverviewPath, StylesPath })
             {
                 var path = Path.Combine(root, rel);
                 var xdoc = new XmlDocument();

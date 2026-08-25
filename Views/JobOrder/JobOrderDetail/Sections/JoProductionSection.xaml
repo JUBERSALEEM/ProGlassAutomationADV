@@ -1,31 +1,32 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Job Order — PRODUCTION panel (senior redesign Aug 2026)
+     MODULE: Job Order — PRODUCTION panel (compact tile-grid redesign Aug 2026)
 
      REDESIGN
-       Was: one single-column stack where every ComboBox / DatePicker /
-       TextBox stretched the full width of the pane, and the bottom
-       action row spread tiny pill buttons (BACK / PDF / EXCEL / CSV /
-       SAVE) across a fixed Grid with large gaps, plus a full-width
-       CREATE DN button above them. On a wide window the field column
-       was a "tall, thin ribbon of wasted space" and the small buttons
-       looked lost on screen.
+       Was: one full-width column of stacked controls with a big action
+       row at the bottom. The user asked to tighten it like the Settings
+       pages and to move the action buttons (Create DN / PDF / Excel /
+       CSV / Save) up into the detail header, and to lift the production
+       form ABOVE the glass-panels data grid.
 
-       Now: the panel is grouped into four labelled form cards and the
-       fields reflow into a two-column grid, so the width is used by
-       the controls not by empty padding. Action buttons live in a
-       single compact bar: BACK docked left; CREATE DN + the export
-       trio (PDF / EXCEL / CSV) + SAVE docked right, so they read as
-       one professional toolbar instead of scattered across the width.
+       Now: each production field lives in its own small JoFieldTileStyle
+       tile and the tiles reflow in a WrapPanel, so two or three fields
+       sit side by side on a wide window. The action buttons are gone
+       from here — they now live in the JobOrderDetailView action bar.
+       All 19 ViewModel bindings / commands preserved.
 
-       All bindings / commands / handlers are preserved:
          StatusOptions, SelectedStatus, PriorityOptions, SelectedPriority,
          DeliveryDate, SiteDeliveryContact, SiteDeliveryPhone,
          SiteDeliveryAddress, AssignedTo, CuttingInstructions,
-         DrawingReference, InternalNotes, LastEditedDisplay,
-         CreateDeliveryNoteCommand, BackToListCommand, ExportPdfCommand,
-         ExportExcelCommand, ExportCsvCommand, SaveCommand.
+         DrawingReference, InternalNotes, LastEditedDisplay.
+
+     Layout contract:
+       • Compact, even 12px gutters so the grid reads calm, not dense.
+       • No hard-coded widths — the WrapPanel + the tile MinWidth /
+         MaxWidth do all reflow.
+       • Multi-line notes keep a reasonable min height so they do not
+         inflate the whole form.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections.JoProductionSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -43,187 +44,127 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  PanningMode="VerticalOnly"
-                  Focusable="True"
-                  FocusVisualStyle="{x:Null}"
-                  behaviors:SmoothScrollBehavior.IsEnabled="True">
-    <StackPanel Margin="0,0,8,8">
 
-        <!-- Page header -->
-        <TextBlock Text="PRODUCTION DETAILS"
-                   Style="{StaticResource SectionTitleStyle}"
-                   Margin="0,0,0,4"/>
-        <TextBlock Text="Set the production status, priority and delivery details for this job order."
-                   FontSize="11"
-                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                   TextWrapping="Wrap"
-                   Margin="0,0,0,16"/>
+    <StackPanel MaxWidth="1180" HorizontalAlignment="Left">
 
-        <!-- ══════ STATUS & DELIVERY ══════ -->
-        <Border Style="{StaticResource JoFormCardStyle}">
-            <StackPanel>
-                <TextBlock Text="STATUS &amp; DELIVERY"
-                           Style="{StaticResource CardLabelStyle}"
-                           Margin="0,0,0,12"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+        <!-- Section header -->
+        <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
+            <TextBlock Text="PRODUCTION DETAILS"
+                       Style="{StaticResource SectionTitleStyle}"
+                       VerticalAlignment="Center"
+                       Margin="0,0,10,0"/>
+            <TextBlock Text="Status, priority, delivery and shop-floor instructions. Saving goes through the top bar."
+                       FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Center"/>
+        </StackPanel>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding StatusOptions}"
-                                  SelectedItem="{Binding SelectedStatus}"
-                                  FontSize="13" Padding="8,6"
-                                  Height="{DynamicResource DensityInputHeight}"
-                                  VerticalContentAlignment="Center"/>
-                    </StackPanel>
+        <WrapPanel>
 
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding PriorityOptions}"
-                                  SelectedItem="{Binding SelectedPriority}"
-                                  FontSize="13" Padding="8,6"
-                                  Height="{DynamicResource DensityInputHeight}"
-                                  VerticalContentAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
+            <!-- Status -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="STATUS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding SelectedStatus}"
+                              Style="{StaticResource JoCompactComboStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Text="Delivery Date" Style="{StaticResource FieldLabelStyle}"
-                           Margin="0,16,0,4"/>
-                <DatePicker SelectedDate="{Binding DeliveryDate}"
-                            FontSize="13" Padding="8,6"
-                            Height="{DynamicResource DensityInputHeight}"/>
-            </StackPanel>
-        </Border>
+            <!-- Priority -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="PRIORITY" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding PriorityOptions}"
+                              SelectedItem="{Binding SelectedPriority}"
+                              Style="{StaticResource JoCompactComboStyle}"/>
+                </StackPanel>
+            </Border>
 
-        <!-- ══════ SITE DELIVERY ══════ -->
-        <Border Style="{StaticResource JoFormCardStyle}">
-            <StackPanel>
-                <TextBlock Text="SITE DELIVERY"
-                           Style="{StaticResource CardLabelStyle}"
-                           Margin="0,0,0,12"/>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+            <!-- Delivery date -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="DELIVERY DATE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <DatePicker SelectedDate="{Binding DeliveryDate}"
+                                Style="{StaticResource JoCompactDateStyle}"/>
+                </StackPanel>
+            </Border>
 
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Contact Name" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInputStyle}"/>
-                    </StackPanel>
+            <!-- Assigned to -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="ASSIGNED TO" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Contact Phone" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInputStyle}"/>
-                    </StackPanel>
-                </Grid>
+            <!-- Site delivery contact -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="SITE DELIVERY · CONTACT" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Text="Delivery Address" Style="{StaticResource FieldLabelStyle}"
-                           Margin="0,0,0,4"/>
-                <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource MultiLineInputStyle}"/>
-            </StackPanel>
-        </Border>
+            <!-- Site delivery phone -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="SITE DELIVERY · PHONE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-        <!-- ══════ ASSIGNMENT & FACTORY FLOOR ══════ -->
-        <Border Style="{StaticResource JoFormCardStyle}">
-            <StackPanel>
-                <TextBlock Text="ASSIGNMENT"
-                           Style="{StaticResource CardLabelStyle}"
-                           Margin="0,0,0,12"/>
+            <!-- Drawing reference -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="DRAWING REFERENCE" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Text="Assigned To" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource FieldInputStyle}"/>
+            <!-- Site delivery address (wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="360" MaxWidth="480">
+                <StackPanel>
+                    <TextBlock Text="SITE DELIVERY ADDRESS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Text="FACTORY FLOOR"
-                           Style="{StaticResource CardLabelStyle}"
-                           Margin="0,8,0,12"/>
+            <!-- Cutting instructions (wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="360" MaxWidth="480">
+                <StackPanel>
+                    <TextBlock Text="CUTTING INSTRUCTIONS" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactMultiInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <TextBlock Text="Cutting Instructions" Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource MultiLineInputStyle}"/>
+            <!-- Internal notes (wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="360" MaxWidth="480">
+                <StackPanel>
+                    <TextBlock Text="INTERNAL NOTES" Style="{StaticResource JoCompactLabelStyle}"/>
+                    <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource JoCompactMultiInputStyle}"/>
+                </StackPanel>
+            </Border>
 
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="16"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Drawing Reference" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInputStyle}"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="Internal Notes" Style="{StaticResource FieldLabelStyle}"/>
-                        <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
-                                 Style="{StaticResource FieldInputStyle}"/>
-                    </StackPanel>
-                </Grid>
-            </StackPanel>
-        </Border>
+        </WrapPanel>
 
+        <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"
                    FontSize="10" FontStyle="Italic"
                    Foreground="{DynamicResource MutedForegroundBrush}"
-                   Margin="0,0,0,14"/>
-
-        <!-- ══════ ACTION BAR ══════
-             BACK docked left; CREATE DN + export trio + SAVE docked
-             right so the row reads as one tight toolbar rather than
-             small buttons scattered across the full width. -->
-        <Border Style="{StaticResource JoActionBarStyle}">
-            <DockPanel LastChildFill="False">
-                <Button DockPanel.Dock="Left"
-                        Style="{StaticResource OutlinedPillButton}"
-                        Tag="&#xE72B;" Content="BACK"
-                        ToolTip="Back to the job order list"
-                        Command="{Binding BackToListCommand}"
-                        VerticalAlignment="Center"/>
-
-                <StackPanel DockPanel.Dock="Right"
-                            Orientation="Horizontal"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Right">
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE7F4;" Content="CREATE DN"
-                            ToolTip="Create a new Delivery Note for this Job Order"
-                            Command="{Binding CreateDeliveryNoteCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE8A5;" Content="PDF"
-                            ToolTip="Export PDF"
-                            Command="{Binding ExportPdfCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE9F9;" Content="EXCEL"
-                            ToolTip="Export Excel"
-                            Command="{Binding ExportExcelCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE72D;" Content="CSV"
-                            ToolTip="Export CSV"
-                            Command="{Binding ExportCsvCommand}"
-                            Margin="0,0,8,0"/>
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="SAVE"
-                            ToolTip="Save the job order"
-                            Command="{Binding SaveCommand}"/>
-                </StackPanel>
-            </DockPanel>
-        </Border>
+                   Margin="2,0,0,0"
+                   IsHitTestVisible="False"/>
 
     </StackPanel>
-    </ScrollViewer>
 </UserControl>

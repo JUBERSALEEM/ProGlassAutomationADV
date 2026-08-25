@@ -77,6 +77,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                         $"jo={jo.DetailVM.JobOrderId} pi={jo.DetailVM.SourceProformaId}",
                         DemoWalk.HoldMs, ct).ConfigureAwait(false);
 
+                    // The detail view is now a single page — the production
+                    // form sits above the glass-panels grid, so there is no
+                    // separate "Production" tab to switch to. Keep the command
+                    // call (harmless) so the narration timing is unchanged.
                     await DemoWalk.TryCommandAsync(
                         jo.DetailVM.SwitchDetailTabCommand, "Production", ct)
                         .ConfigureAwait(false);
@@ -99,7 +103,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
                     await DemoWalk.PresentAsync(events, "production",
                         "Production sheet",
-                        "The Production tab is where the factory manager plans the work. We assigned this job to Hassan on cutting bay 2 — that name will appear on his daily task list. We entered the site engineer Mariam as the delivery contact so the driver can reach her when the truck arrives. The cutting instruction 'polish all edges, temper 6 mm partitions before delivery' becomes the operator's cheat-sheet on the shop floor. The drawing reference links the physical shop drawing to this job, and the delivery date sets the deadline the whole floor works against. Nowhere on this page do we mention money.",
+                        "The production section sits right at the top of this job sheet, before the glass panel list, and it is where the factory manager plans the work. We assigned this job to Hassan on cutting bay 2 — that name will appear on his daily task list. We entered the site engineer Mariam as the delivery contact so the driver can reach her when the truck arrives. The cutting instruction 'polish all edges, temper 6 mm partitions before delivery' becomes the operator's cheat-sheet on the shop floor. The drawing reference links the physical shop drawing to this job, and the delivery date sets the deadline the whole floor works against. Nowhere on this page do we mention money.",
                         $"assigned={jo.DetailVM.AssignedTo} drawing={jo.DetailVM.DrawingReference}",
                         DemoWalk.HoldMs, ct).ConfigureAwait(false);
                 }
