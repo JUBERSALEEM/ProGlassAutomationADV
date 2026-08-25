@@ -278,15 +278,23 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             try
             {
-                // DispatcherPriority.Background ensures user input events
-                // are always processed before frame capture. Normal priority
-                // caused the app to freeze because RenderTargetBitmap.Render
-                // forces a full re-layout on every capture.
+                // 2026-08-25 senior fix — capture ran at Background
+                // priority, which queues every frame behind ALL normal
+                // UI work. While the demo workflow drives navigation at
+                // normal priority, captures waited indefinitely — the
+                // recorded video lagged behind the actions on screen
+                // ("not recording live as per input").
+                //
+                // Loaded sits above Background/DataBind but BELOW Input,
+                // so user input and demo interactions still win, yet
+                // frames are captured promptly instead of whenever the
+                // UI goes idle. RenderTargetBitmap.Render still forces
+                // layout, so we never raise it to Input/Normal.
                 var shot = await disp.InvokeAsync(() =>
                 {
                     ct.ThrowIfCancellationRequested();
                     return CaptureOnUi();
-                }, DispatcherPriority.Background, ct).Task.ConfigureAwait(false);
+                }, DispatcherPriority.Loaded, ct).Task.ConfigureAwait(false);
 
                 return shot;
             }

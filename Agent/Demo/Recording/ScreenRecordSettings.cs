@@ -104,13 +104,20 @@ namespace ProGlassAutomation.Agent.Demo.Recording
             }
             : OutputSize;
 
+        // 2026-08-25 senior fix — 94–98 was overkill for live capture:
+        // JPEG encoding is the recorder's hot path, and at q96+ each
+        // frame takes 2–3x longer, the pending-encode queue fills and
+        // captures get skipped (laggy, jumpy recordings). 84–88 is
+        // visually indistinguishable for screen content and keeps the
+        // encoder ahead of the capture loop. The final MP4 re-encode at
+        // STOP still uses full-quality x264 (EncodeCrf).
         public int JpegQualityFor => Quality switch
         {
-            ScreenRecordQuality.Hd720 => 94,
-            ScreenRecordQuality.FullHd => 96,
-            ScreenRecordQuality.Qhd2K => 97,
-            ScreenRecordQuality.Uhd4K => 98,
-            _ => 96
+            ScreenRecordQuality.Hd720 => 84,
+            ScreenRecordQuality.FullHd => 86,
+            ScreenRecordQuality.Qhd2K => 87,
+            ScreenRecordQuality.Uhd4K => 88,
+            _ => 86
         };
 
         public int EncodeCrf => Quality switch
