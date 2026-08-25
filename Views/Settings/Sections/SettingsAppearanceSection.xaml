@@ -374,7 +374,7 @@
                 <!-- One card per row (Columns=1): Global Wallpaper fills the
                      full width, then Per-Module Wallpapers fills the full
                      width below it with its own three-column grid. -->
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
 
                     <!-- Global wallpaper — one card, all controls on one line -->
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
@@ -513,7 +513,7 @@
                         </StackPanel>
                     </Border>
 
-                </UniformGrid>
+                </StackPanel>
 
             </StackPanel>
         </ScrollViewer>

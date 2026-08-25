@@ -65,7 +65,7 @@
                 <TextBlock Text="Your running version against the latest published release."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <!-- Version row: current vs latest -->
@@ -192,7 +192,7 @@
                             </ProgressBar>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -202,7 +202,7 @@
                 <TextBlock Text="What this release changes, straight from the publisher."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -244,7 +244,7 @@
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -254,7 +254,7 @@
                 <TextBlock Text="Every check, download and failure recorded on this machine."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel>
@@ -344,7 +344,7 @@
                                        Text="Installed builds update in place via Velopack and restart automatically. Portable builds download the installer to your Downloads folder — you decide when to install."/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
             </StackPanel>
         </ScrollViewer>

@@ -162,7 +162,7 @@
                 <TextBlock Text="New here? Load a small linked demo dataset to explore every module — only on an empty database."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -190,7 +190,7 @@
                                        Text="Done testing? Use CLEAR ALL DATA to wipe the demo dataset in one step and start entering real data."/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -204,7 +204,7 @@
                 <TextBlock Text="Probes every ProGlass Automation database file. The auto-migration on next app start handles most drift; rebuild is the nuclear option for a file too broken to open."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
 
@@ -300,7 +300,7 @@
                                        Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
             </StackPanel>
         </ScrollViewer>

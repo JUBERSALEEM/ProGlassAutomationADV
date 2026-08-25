@@ -147,7 +147,7 @@
                 <TextBlock Text="Keys are encrypted with Windows DPAPI for your user account and are never written to a settings file."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -192,7 +192,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -202,7 +202,7 @@
                 <TextBlock Text="A taught phrase does nothing until you approve it here."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <DockPanel LastChildFill="False" Margin="0,0,0,8">
@@ -287,7 +287,7 @@
                                     Command="{Binding ClearTeachingCommand}"/>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -297,7 +297,7 @@
                 <TextBlock Text="Saved memory and the knowledge base live in the agent's own database, separate from your business data."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -347,7 +347,7 @@
                             </TextBlock>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <!-- Status line -->
                 <TextBlock Text="{Binding Status}"

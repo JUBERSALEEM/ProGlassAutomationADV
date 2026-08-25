@@ -163,7 +163,7 @@
                 <TextBlock Text="Only the ACTIVE provider processes your requests. Keys are encrypted at rest with DPAPI."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
 
                     <!-- ── Gemini tile ─────────────────────────── -->
                     <Border>
@@ -393,7 +393,7 @@
                         </StackPanel>
                     </Border>
 
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 

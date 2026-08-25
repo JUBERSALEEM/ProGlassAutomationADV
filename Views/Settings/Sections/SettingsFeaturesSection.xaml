@@ -168,7 +168,7 @@
                 <TextBlock Text="Sign out for a shift handover, or forget the auto-sign-in credentials on this device without ending your session."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -192,7 +192,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <!-- ═══════════ PROFORMA INVOICE FIELD VISIBILITY ═══════════
                      The rest of the proforma toggles re-scope DataContext.
@@ -209,7 +209,7 @@
                 <TextBlock Text="Show or hide optional fields in Steps 1 – 3 of the invoice wizard. Company Name, Customer Name and Proforma ID cannot be hidden — the database needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -237,7 +237,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                 <TextBlock Text="STEP 1 · COMPANY"
@@ -546,7 +546,7 @@
                 <TextBlock Text="Turn optional fields on the Inquiry editor on or off. Customer Name and Project Name cannot be hidden — the database needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -569,7 +569,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <TextBlock Text="INQUIRY EDITOR"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
@@ -691,7 +691,7 @@
                 <TextBlock Text="Turn optional production fields on or off. Status, Priority and Delivery Date cannot be hidden — the workflow needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -714,7 +714,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <TextBlock Text="PRODUCTION PANEL"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
@@ -823,7 +823,7 @@
                 <TextBlock Text="Turn optional dispatch fields on or off. Status cannot be hidden — it drives the delivery workflow."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -846,7 +846,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <TextBlock Text="DELIVERY DETAILS"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
@@ -931,7 +931,7 @@
                 <TextBlock Text="Turn optional accounting fields on or off. Issue Date cannot be hidden — it anchors the invoice."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -954,7 +954,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <TextBlock Text="INVOICE DETAILS"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"

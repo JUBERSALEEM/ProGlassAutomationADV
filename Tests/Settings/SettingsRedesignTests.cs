@@ -236,10 +236,17 @@ namespace ProGlassAutomation.Tests.Settings
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/Settings/Sections", sectionFile));
 
-            // The tile host must be a UniformGrid (not a WrapPanel) so the
-            // tiles stretch to fill the full content width — no leftover
-            // empty space on the right of every row.
-            Assert.Contains("<UniformGrid", src);
+            // The tiles must fill the full content width — no leftover empty
+            // space on the right. A multi-column group uses a UniformGrid; a
+            // single-card section (e.g. License) uses a StackPanel host with a
+            // FullRow tile. Whichever it uses, a Settings*TileStyle must be
+            // present and the host must not be a WrapPanel.
+            Assert.True(
+                src.Contains("<UniformGrid") || src.Contains("<StackPanel"),
+                $"{sectionFile} uses no full-width host (UniformGrid/StackPanel).");
+            Assert.False(src.Contains("<WrapPanel"),
+                $"{sectionFile} uses a WrapPanel tile host — that leaves empty "
+                + "space on the right of each row.");
             Assert.True(
                 src.Contains("SettingsTileStyle") ||
                 src.Contains("SettingsWideTileStyle") ||
@@ -264,11 +271,15 @@ namespace ProGlassAutomation.Tests.Settings
             foreach (var rel in SectionFiles)
             {
                 var src = File.ReadAllText(Path.Combine(root, rel));
-                // No leftover: the tile groups are UniformGrid hosts, and the
-                // standard/wide/full-row tiles all stretch (no fixed MaxWidth cap).
-                Assert.True(src.Contains("<UniformGrid"),
-                    $"{rel}: tile groups must use a UniformGrid host, not a WrapPanel, "
-                    + "so tiles fill the full content width.");
+                // No leftover: the tile groups use a full-width host
+                // (UniformGrid for multi-column, StackPanel for a single
+                // full-row section like License), and never a WrapPanel.
+                Assert.True(src.Contains("<UniformGrid") || src.Contains("<StackPanel"),
+                    $"{rel}: tile groups must use a full-width host (UniformGrid/"
+                    + "StackPanel), not a WrapPanel, so tiles fill the content width.");
+                Assert.False(src.Contains("<WrapPanel"),
+                    $"{rel} still uses a WrapPanel tile host — that leaves empty "
+                    + "space on the right of each row.");
             }
 
             var styles = File.ReadAllText(Path.Combine(root, StylesPath));
@@ -276,6 +287,30 @@ namespace ProGlassAutomation.Tests.Settings
             // The tiles must not be hard-capped to 320/380 (which caused the gap).
             Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"380\"", styles);
             Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"1280\"", styles);
+        }
+
+        /// <summary>
+        /// A UniformGrid gives EVERY cell the same size. When a short card
+        /// (Global Wallpaper) is stacked above a tall card (Per-Module list)
+        /// in a UniformGrid Columns="1", the short card is forced up to the
+        /// tall card's height — the huge empty space the user reported. The
+        /// fix is that any single-column host that stacks cards must be a
+        /// StackPanel (natural height), while full-width is preserved by the
+        /// tile Stretch. This locks that rule across every Settings section so
+        /// a future edit cannot silently reintroduce a Columns="1" UniformGrid.
+        /// </summary>
+        [Fact]
+        public void No_settings_section_forces_equal_card_heights()
+        {
+            var root = LocateProjectRoot();
+            foreach (var rel in SectionFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+                Assert.DoesNotContain("<UniformGrid Columns=\"1\"", src,
+                    $"{rel} uses UniformGrid Columns=1, which forces every card "
+                    + "to the same height and creates empty space when a short "
+                    + "card is stacked over a tall one. Use a StackPanel instead.");
+            }
         }
 
         /// <summary>
@@ -553,10 +588,12 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("<UniformGrid Columns=\"3\"", src);
             Assert.Contains("ItemsSource=\"{Binding ModuleWallpaperRows}\"", src);
 
-            // Both cards span the FULL width: the wallpaper group is a single
-            // column and Global Wallpaper + Per-Module are both FullRow tiles,
-            // so neither sits in a half-width cell with empty space beside it.
-            Assert.Contains("<UniformGrid Columns=\"1\"", src);
+            // Both cards span the FULL width but keep their NATURAL heights:
+            // the wallpaper group is a StackPanel (not a UniformGrid), so the
+            // short Global card is not forced up to the tall Per-Module card's
+            // height. UniformGrid Columns=1 would have equalised them, which
+            // created the huge empty space the user reported.
+            Assert.DoesNotContain("<UniformGrid Columns=\"1\"", src);
             Assert.Contains("SettingsFullRowTileStyle", src);
         }
 

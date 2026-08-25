@@ -61,7 +61,7 @@
                 <TextBlock Text="The product and the version running on this machine."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="1" Margin="0,0,0,6">
+                <StackPanel Margin="0,0,0,6">
                     <!-- Version card -->
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <DockPanel>
@@ -80,7 +80,7 @@
                             </StackPanel>
                         </DockPanel>
                     </Border>
-                </UniformGrid>
+                </StackPanel>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
