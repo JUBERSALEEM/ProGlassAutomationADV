@@ -17,15 +17,28 @@ namespace ProGlassAutomation.Agent.Demo
         private readonly Queue<string> _pending = new();
         private bool _pumping;
 
+        // 2026-08-25: Record-All cancel. DemoDirector.Cancel sets this;
+        // the pump drops everything still queued instead of starting the
+        // next module after the current one stops.
+        private bool _stopAll;
+
         public int PendingCount
         {
             get { lock (_gate) return _pending.Count; }
+        }
+
+        /// <summary>Stops the batch: no further queued jobs will start.</summary>
+        public void StopAll()
+        {
+            lock (_gate) _stopAll = true;
         }
 
         public Task EnqueueAsync(string? argument)
         {
             lock (_gate)
             {
+                // A fresh Generate press re-arms the batch.
+                _stopAll = false;
                 foreach (string item in Expand(argument))
                     _pending.Enqueue(item);
                 if (_pumping) return Task.CompletedTask;
@@ -52,16 +65,22 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 while (true)
                 {
-                    string next;
-                    lock (_gate)
+                string next;
+                lock (_gate)
+                {
+                    if (_stopAll)
                     {
-                        if (_pending.Count == 0)
-                        {
-                            _pumping = false;
-                            return;
-                        }
-                        next = _pending.Dequeue();
+                        _pending.Clear();
+                        _pumping = false;
+                        return;
                     }
+                    if (_pending.Count == 0)
+                    {
+                        _pumping = false;
+                        return;
+                    }
+                    next = _pending.Dequeue();
+                }
 
                     try
                     {

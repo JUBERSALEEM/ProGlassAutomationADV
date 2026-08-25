@@ -66,7 +66,14 @@ namespace ProGlassAutomation.Agent.Demo
 
         private CancellationTokenSource? _cts;
 
-        public void Cancel() => _cts?.Cancel();
+        // 2026-08-25: Cancel stops the WHOLE batch. Previously only the
+        // current job's token was cancelled, so a Record-All run kept
+        // starting the next module even after the user pressed Cancel.
+        public void Cancel()
+        {
+            DemoJobQueue.Shared.StopAll();
+            _cts?.Cancel();
+        }
 
         public async Task<string> RunAsync(string? argument)
         {
@@ -139,11 +146,17 @@ namespace ProGlassAutomation.Agent.Demo
                     DemoRecordingChrome.UpdateStage(msg);
                 };
 
-                IReadOnlyList<VerifiedEvent> events;
-                try
-                {
-                    events = await runner.RunAsync(ct).ConfigureAwait(false);
-                }
+            // 2026-08-25: Record-All robustness — start every workflow
+            // from a clean home screen. Without this, state left by the
+            // previous job (an open PI wizard, a pending picker) leaked
+            // into the next module and broke the batch recording.
+            await ResetUiStateAsync(ct).ConfigureAwait(false);
+
+            IReadOnlyList<VerifiedEvent> events;
+            try
+            {
+                events = await runner.RunAsync(ct).ConfigureAwait(false);
+            }
                 finally
                 {
                     DemoStage.Report = null;
@@ -407,6 +420,53 @@ namespace ProGlassAutomation.Agent.Demo
                 // private work area/log, never beside deliverables.
                 Fail(LastArgument ?? "", "Demo stopped: " + ex.Message, log, folder: null);
                 return Status;
+            }
+        }
+
+        /// <summary>
+        /// Returns the live UI to a neutral state before each recorded
+        /// workflow: closes a wizard the previous job may have left open
+        /// and navigates to the dashboard (the home screen every module
+        /// navigation can reach). Never throws — a failed reset must not
+        /// cancel the recording.
+        /// </summary>
+        private static async Task ResetUiStateAsync(CancellationToken ct)
+        {
+            try
+            {
+                var disp = System.Windows.Application.Current?.Dispatcher;
+                if (disp == null) return;
+
+                await disp.InvokeAsync(() =>
+                {
+                    try
+                    {
+                        if (System.Windows.Application.Current?.MainWindow?.DataContext
+                                is ViewModels.MainViewModel main)
+                        {
+                            var pi = main.ProformaInvoiceVM;
+                            if (pi != null && pi.IsWizardView &&
+                                pi.BackToListCommand.CanExecute(null))
+                            {
+                                pi.BackToListCommand.Execute(null);
+                            }
+                        }
+
+                        ProGlassAutomation.Agent.Core.AgentHost.Navigate?.Invoke("Dashboard");
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Debug(
+                            "[DemoDirector] UI reset skipped: " + ex.Message);
+                    }
+                }).Task.ConfigureAwait(false);
+
+                await Task.Delay(500, ct).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[DemoDirector] ResetUiState skipped: " + ex.Message);
             }
         }
 

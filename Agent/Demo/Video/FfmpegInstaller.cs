@@ -56,11 +56,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
         /// <summary>
         /// Full one-click install. Reports human-readable stages through
-        /// <paramref name="progress"/> (may be invoked on a background
-        /// thread — marshal before touching the UI).
+        /// <paramref name="progress"/> and the download percentage 0–100
+        /// through <paramref name="percent"/> (both may be invoked on a
+        /// background thread — marshal before touching the UI).
         /// </summary>
         public static async Task<Result<string>> DownloadAndInstallAsync(
             Action<string>? progress = null,
+            Action<double>? percent = null,
             CancellationToken ct = default)
         {
             string corrId = CorrelationContext.NewId();
@@ -71,6 +73,8 @@ namespace ProGlassAutomation.Agent.Demo.Video
 
             try
             {
+                percent?.Invoke(0);
+
                 // ── 1. Re-validate the URL, even though the constant is ours ──
                 string url = FfmpegMp4Composer.WindowsEssentialsZipUrl;
                 if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
@@ -134,16 +138,26 @@ namespace ProGlassAutomation.Agent.Demo.Video
                             if (total > 0)
                             {
                                 long pct = copied * 100 / total;
-                                if (pct != lastPct && pct % 5 == 0)
+                                if (pct != lastPct)
                                 {
                                     lastPct = pct;
-                                    progress?.Invoke(
-                                        $"Downloading ffmpeg essentials zip… {pct}%");
+                                    // Numeric percent drives the progress bar
+                                    // in Settings; the text line updates every
+                                    // 5% so it does not churn.
+                                    percent?.Invoke(pct);
+                                    if (pct % 5 == 0)
+                                    {
+                                        progress?.Invoke(
+                                            $"Downloading ffmpeg essentials zip… {pct}%");
+                                    }
                                 }
                             }
                         }
                     }
                 }
+
+                percent?.Invoke(100);
+                progress?.Invoke("Download complete — verifying the zip…");
 
                 // ── 3. Verify it really is a zip before trusting it ──────────
                 using (var probe = File.OpenRead(tempZip))

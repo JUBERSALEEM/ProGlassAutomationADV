@@ -27,6 +27,30 @@ namespace ProGlassAutomation.Agent.Demo
         // also drives InstallFfmpegCommand's CanExecute.
         private bool _installingFfmpeg;
 
+        private double _ffmpegDownloadPercent;
+
+        /// <summary>0–100 download progress shown on the FFMPEG card.</summary>
+        public double FfmpegDownloadPercent
+        {
+            get => _ffmpegDownloadPercent;
+            private set
+            {
+                _ffmpegDownloadPercent = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>True while the one-click installer is running.</summary>
+        public bool IsInstallingFfmpeg
+        {
+            get => _installingFfmpeg;
+            private set
+            {
+                _installingFfmpeg = value;
+                OnPropertyChanged();
+            }
+        }
+
         public DemoCenterViewModel()
         {
             _director = CreateDemoPackageTool.SharedDirector;
@@ -76,7 +100,7 @@ namespace ProGlassAutomation.Agent.Demo
             // downloads, verifies, extracts and installs by itself.
             InstallFfmpegCommand = new RelayCommand(
                 async _ => await InstallFfmpegAsync().ConfigureAwait(true),
-                _ => !_installingFfmpeg);
+                _ => !IsInstallingFfmpeg);
 
             OpenFfmpegPageCommand = new RelayCommand(_ =>
                 OpenUrl(FfmpegOfficialUrl));
@@ -399,11 +423,10 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 Alert("ffmpeg is missing",
                     "Generate cannot run — ffmpeg is not installed, so no MP4 can be written.\n\n" +
-                    "1. Click DOWNLOAD FFMPEG (WINDOWS ZIP) on this page.\n" +
-                    "2. Unzip it and copy ffmpeg.exe and ffprobe.exe into:\n" +
-                    FfmpegToolsPath + "\n" +
-                    "3. Click RECHECK, then Generate Selected again.\n\n" +
-                    "Direct link:\n" + FfmpegDownloadUrl,
+                    "1. Click DOWNLOAD & INSTALL (AUTOMATIC) on this page and watch the progress bar.\n" +
+                    "2. When it finishes, click RECHECK.\n" +
+                    "3. Press Generate again.\n\n" +
+                    "Direct link (manual fallback):\n" + FfmpegDownloadUrl,
                     MessageBoxImage.Warning);
                 return;
             }
@@ -486,22 +509,29 @@ namespace ProGlassAutomation.Agent.Demo
         private async Task InstallFfmpegAsync()
         {
             if (_installingFfmpeg) return;
-            _installingFfmpeg = true;
+            IsInstallingFfmpeg = true;
+            FfmpegDownloadPercent = 0;
             CommandManager.InvalidateRequerySuggested();
 
             try
             {
                 var dispatcher = Application.Current?.Dispatcher;
-                Action<string> progress = message =>
+                void OnUi(Action action)
                 {
                     // FfmpegInstaller reports from background threads.
                     if (dispatcher != null && !dispatcher.CheckAccess())
-                        dispatcher.BeginInvoke(new Action(() => SetLocalStatus(message)));
+                        dispatcher.BeginInvoke(action);
                     else
-                        SetLocalStatus(message);
-                };
+                        action();
+                }
 
-                var result = await FfmpegInstaller.DownloadAndInstallAsync(progress)
+                Action<string> progress = message =>
+                    OnUi(() => SetLocalStatus(message));
+
+                Action<double> percent = value =>
+                    OnUi(() => FfmpegDownloadPercent = Math.Clamp(value, 0, 100));
+
+                var result = await FfmpegInstaller.DownloadAndInstallAsync(progress, percent)
                     .ConfigureAwait(true);
 
                 if (result.IsSuccess)
@@ -523,7 +553,7 @@ namespace ProGlassAutomation.Agent.Demo
             }
             finally
             {
-                _installingFfmpeg = false;
+                IsInstallingFfmpeg = false;
                 // Whatever happened, re-probe so the FFMPEG card flips to
                 // the ready state automatically when the files landed.
                 FfmpegMp4Composer.InvalidateCache();

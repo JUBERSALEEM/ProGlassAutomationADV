@@ -34,41 +34,57 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
         public IReadOnlyList<string> DeepEvidenceIds { get; } =
         [
-            "new_invoice", "company", "sgu_calc", "dgu_calc", "lam_calc", "dgu_lam_calc",
-            "line", "preview", "step8", "step9", "saved"
+            "dummy_inquiry", "new_invoice", "company", "sgu_calc", "dgu_calc",
+            "lam_calc", "dgu_lam_calc", "line", "preview", "step8", "step9", "saved"
         ];
 
         public async Task<IReadOnlyList<VerifiedEvent>> RunAsync(CancellationToken ct)
         {
             var events = new List<VerifiedEvent>();
 
-            if (!Navigate("ProformaInvoice"))
-                return events;
-
-            await WpfUiDriver.WaitReadyAsync(400, ct).ConfigureAwait(false);
-            await WpfUiDriver.WaitForIdAsync(
-                "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
-
-            await PresentAsync(events, "opened_list",
-                "Invoice list",
-                "The Proforma Invoice module is your quotation desk. Every customer quote starts here — from a simple glass sheet to a full curtain wall. Saved quotes are listed with their status so you know which ones are drafts, which were sent, and which the customer confirmed.",
-                "Navigate ProformaInvoice", BeatMs, ct).ConfigureAwait(false);
-
             var pi = await ResolvePiAsync(ct).ConfigureAwait(false);
             if (pi == null) return events;
 
-            await StartNewInvoiceAsync(pi, ct).ConfigureAwait(false);
-            if (!await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct).ConfigureAwait(false))
+            // ── 2026-08-25: start from the seeded dummy inquiry ────────
+            // The walkthrough now begins where real work begins: a
+            // Confirmed customer inquiry is picked and converted into the
+            // quotation, with customer and project pre-filled. If anything
+            // in that act fails (module hidden, empty list, conversion
+            // refused) we fall back to the classic New Invoice path, so a
+            // broken inquiry can never kill the recording.
+            bool startedFromInquiry =
+                await TryStartFromInquiryAsync(events, pi, ct).ConfigureAwait(false);
+
+            if (!startedFromInquiry)
             {
-                DemoStage.Now("New Invoice did not open the wizard.");
-                return events;
+                if (!Navigate("ProformaInvoice"))
+                    return events;
+
+                await WpfUiDriver.WaitReadyAsync(400, ct).ConfigureAwait(false);
+                await WpfUiDriver.WaitForIdAsync(
+                    "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
+
+                await PresentAsync(events, "opened_list",
+                    "Invoice list",
+                    "The Proforma Invoice module is your quotation desk. Every customer quote starts here — from a simple glass sheet to a full curtain wall. Saved quotes are listed with their status so you know which ones are drafts, which were sent, and which the customer confirmed.",
+                    "Navigate ProformaInvoice", BeatMs, ct).ConfigureAwait(false);
+
+                await StartNewInvoiceAsync(pi, ct).ConfigureAwait(false);
+                if (!await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct).ConfigureAwait(false))
+                {
+                    DemoStage.Now("New Invoice did not open the wizard.");
+                    return events;
+                }
             }
 
             await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct).ConfigureAwait(false);
             await PresentAsync(events, "new_invoice",
-                "New invoice",
-                "Creating a new quotation opens the nine-step wizard. Each step handles one part of the quote: company details, customer information, project specs, glass pricing, line items, charges, the preview, attachments, and finally the profit and loss view. It is the same workflow our team follows every day.",
-                "TriggerNewInvoice", BeatMs, ct).ConfigureAwait(false);
+                startedFromInquiry ? "Quotation started from the inquiry" : "New invoice",
+                startedFromInquiry
+                    ? "The wizard opened directly from the confirmed inquiry — the customer, the project and the references came across automatically, so nobody retypes what the sales desk already captured. From here the nine steps carry the quote home: company details, customer information, project specs, glass pricing, line items, charges, the preview, attachments, and finally the profit and loss view."
+                    : "Creating a new quotation opens the nine-step wizard. Each step handles one part of the quote: company details, customer information, project specs, glass pricing, line items, charges, the preview, attachments, and finally the profit and loss view. It is the same workflow our team follows every day.",
+                startedFromInquiry ? "StartFromInquiry" : "TriggerNewInvoice",
+                BeatMs, ct).ConfigureAwait(false);
 
             // ── 1 Company ────────────────────────────────────────────
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
@@ -591,6 +607,82 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 var dc = Application.Current?.MainWindow?.DataContext;
                 return dc is MainViewModel main ? main.ProformaInvoiceVM : null;
             }, ct);
+
+        /// <summary>
+        /// 2026-08-25: opens the quotation from the seeded dummy inquiry.
+        /// Navigates to the Inquiry module, picks the Confirmed demo
+        /// inquiry and converts it — MainViewModel's
+        /// CreateProformaRequested handler then starts the wizard with
+        /// customer/project pre-filled and navigates to ProformaInvoice.
+        /// Returns false (caller falls back to New Invoice) on ANY miss —
+        /// the recording must never depend on one path succeeding.
+        /// </summary>
+        private static async Task<bool> TryStartFromInquiryAsync(
+            List<VerifiedEvent> events, ProformaInvoiceViewModel pi,
+            CancellationToken ct)
+        {
+            try
+            {
+                if (!Navigate("Inquiry")) return false;
+                await WpfUiDriver.WaitReadyAsync(800, ct).ConfigureAwait(false);
+
+                var inquiryVm = await WpfUiDriver.OnUiAsync(() =>
+                {
+                    var dc = Application.Current?.MainWindow?.DataContext;
+                    return dc is MainViewModel main ? main.InquiryVM : null;
+                }, ct).ConfigureAwait(false);
+                if (inquiryVm == null) return false;
+
+                // Give the list a fair window to load its rows.
+                bool hasRows = await WaitUntilAsync(
+                    () => inquiryVm.Inquiries.Count > 0, 8000, ct)
+                    .ConfigureAwait(false);
+                if (!hasRows) return false;
+
+                await PresentAsync(events, "dummy_inquiry",
+                    "It starts with a customer inquiry",
+                    "Every job in this factory starts as an inquiry. This confirmed inquiry from Al Noor Glazing Contracting LLC for the Al Zahia Tower podium glazing is already in the system — customer, project and value captured by the sales desk. Instead of retyping any of it, we convert the inquiry straight into a proforma invoice and the details travel across on their own.",
+                    "Inquiries=" + inquiryVm.Inquiries.Count,
+                    BeatMs, ct).ConfigureAwait(false);
+
+                // Pick a convertible inquiry — the seeded Confirmed demo
+                // inquiry first; any convertible row otherwise.
+                bool selected = await WpfUiDriver.OnUiAsync(() =>
+                {
+                    var row = inquiryVm.Inquiries.FirstOrDefault(r => r.CanConvert)
+                        ?? inquiryVm.Inquiries.FirstOrDefault();
+                    if (row == null) return false;
+                    inquiryVm.SelectedInquiry = row;
+                    return true;
+                }, ct).ConfigureAwait(false);
+                if (!selected) return false;
+
+                DemoStage.Now("Converting the inquiry into a proforma invoice.");
+                bool executed = await WpfUiDriver.OnUiAsync(() =>
+                {
+                    if (!inquiryVm.ConvertToPiCommand.CanExecute(null)) return false;
+                    inquiryVm.ConvertToPiCommand.Execute(null);
+                    return true;
+                }, ct).ConfigureAwait(false);
+                if (!executed) return false;
+
+                // The host handler opens the wizard and navigates to
+                // ProformaInvoice. Wait for both to land.
+                bool wizardOpen = await WaitUntilAsync(
+                    () => pi.IsWizardView, 15_000, ct).ConfigureAwait(false);
+                if (!wizardOpen) return false;
+
+                await WpfUiDriver.WaitReadyAsync(600, ct).ConfigureAwait(false);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[ProformaInvoiceWorkflow] Inquiry start failed; falling " +
+                    "back to New Invoice: " + ex.Message);
+                return false;
+            }
+        }
 
         private static async Task<bool> WaitUntilAsync(
             Func<bool> test, int timeoutMs, CancellationToken ct)

@@ -78,6 +78,30 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,0,0,8"/>
+                        <!-- Live download progress while the one-click
+                             installer runs; hidden otherwise. -->
+                        <Grid Margin="0,0,0,8"
+                              Visibility="{Binding IsInstallingFfmpeg,
+                                  Converter={StaticResource BoolToVisibilityConverter},
+                                  FallbackValue=Collapsed}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ProgressBar Grid.Column="0"
+                                         Height="8"
+                                         Minimum="0" Maximum="100"
+                                         Value="{Binding FfmpegDownloadPercent, Mode=OneWay}"
+                                         Foreground="{DynamicResource AccentBrush}"
+                                         VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1"
+                                       Margin="10,0,0,0"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
+                                           StringFormat={}{0:0}%}"/>
+                        </Grid>
                         <TextBlock Text="{Binding FfmpegInstallHint}"
                                    Style="{StaticResource SettingsTileFooterHintStyle}"/>
                         <!-- Full-width action row: buttons stretch evenly. -->

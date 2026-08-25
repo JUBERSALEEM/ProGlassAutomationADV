@@ -128,6 +128,40 @@ namespace ProGlassAutomation.Services.SampleData
             await App.Invoices.InsertAsync(pi2);
             await App.Invoices.InsertAsync(pi3);
 
+            // ── 2b. Customer Inquiry — where the PI demo starts ────────
+            //     The recorded Proforma Invoice walkthrough converts THIS
+            //     Confirmed inquiry into a fresh quotation (customer and
+            //     project pre-filled), so the chain the viewer watches
+            //     begins at the real start of the pipeline: Inquiry → PI.
+            //     Best-effort: if the inquiry store is unavailable the
+            //     rest of the demo data still seeds.
+            try
+            {
+                var demoInquiry = new ProGlassAutomation.Models.Inquiry.InquiryRecord
+                {
+                    InquiryNumber = $"INQ-{year}-001",
+                    InquiryReference = "Podium glazing quotation request",
+                    CustomerName = "Al Noor Glazing Contracting LLC",
+                    CustomerLocation = "Sharjah, UAE",
+                    ProjectName = "Al Zahia Tower — Podium Glazing",
+                    ProjectDescription =
+                        "Supply of clear tempered glass for the tower podium facade.",
+                    SalesmanName = "Demo Sales",
+                    Status = ProGlassAutomation.Models.Inquiry.InquiryStatuses.Confirmed,
+                    Priority = "High",
+                    InquiryValue = 42_000m,
+                    ReceivedAt = today.AddDays(-2),
+                    PreparedAt = today.AddDays(-1),
+                    Notes = "Seeded demo inquiry — convert to Proforma Invoice.",
+                };
+                await App.Inquiries.CreateAsync(demoInquiry);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[SampleData] Demo inquiry seed skipped: " + ex.Message);
+            }
+
             // ── 3. Job Orders (real snapshots from the PIs) ───────────
             var jo1 = BuildJob(pi1, $"JOB-{year}-001", "Released", "High", today.AddDays(6));
             var jo2 = BuildJob(pi2, $"JOB-{year}-002", "InProduction", "High", today.AddDays(12));
