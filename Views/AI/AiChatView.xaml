@@ -932,51 +932,12 @@
         </Border>
         </Canvas>
 
-        <!-- Floating toggle button — v2: draggable.
-             Click (no movement) toggles the chat; dragging moves the
-             bot around the window. Position handled via TranslateTransform
-             in the code-behind. -->
-        <Button x:Name="FloatingBot"
-                HorizontalAlignment="Right"
-                VerticalAlignment="Bottom"
-                Margin="0,0,25,25"
-                Width="60" Height="60"
-                Cursor="Hand"
-                BorderThickness="0"
-                ToolTip="AI Assistant — click to open, drag to move">
-            <Button.RenderTransform>
-                <TranslateTransform x:Name="FloatingBotTransform"/>
-            </Button.RenderTransform>
-            <Button.Template>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="bd"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Background="{StaticResource ChatBrand}"
-                            Effect="{StaticResource BtnShadow}"
-                            SnapsToDevicePixels="True"
-                            UseLayoutRounding="True">
-                        <TextBlock x:Name="icon"
-                                   Text="&#xE99A;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="26"
-                                   Foreground="White"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   IsHitTestVisible="False"/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd"
-                                    Property="Opacity" Value="0.9"/>
-                        </Trigger>
-                        <DataTrigger Binding="{Binding IsOpen}" Value="True">
-                            <Setter TargetName="icon" Property="Text" Value="&#xE711;"/>
-                            <Setter TargetName="icon" Property="FontSize" Value="20"/>
-                        </DataTrigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Button.Template>
-        </Button>
+        <!-- 2026-08-25: the bottom-right FloatingBot was REMOVED. Its
+             custom mouse-capture drag code crashed the app for some
+             users and the transform clamp made it look immovable. The
+             AI bot now lives in the top panel (AiBotButton in
+             MainWindow.xaml, before the AI AGENT pill) and toggles the
+             exact same chat via AiChatVM.ToggleChatCommand. -->
 
     </Grid>
 </UserControl>

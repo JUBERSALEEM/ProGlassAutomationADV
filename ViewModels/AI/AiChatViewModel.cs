@@ -330,8 +330,18 @@ namespace ProGlassAutomation.ViewModels.AI
 
                 // v3 JARVIS: greet once when the panel first opens so
                 // the user is never staring at an empty box.
+                // 2026-08-25: guarded — the greeting builds screen-context
+                // text and touches provider metadata; if ANY of that throws
+                // the toggle must still open the panel, never crash.
                 if (IsOpen && Messages.Count == 0)
-                    AddGreeting();
+                {
+                    try { AddGreeting(); }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "[AiChatVM] Greeting failed: " + ex.Message);
+                    }
+                }
             });
 
             CloseChatCommand = new RelayCommand(_ =>

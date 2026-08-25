@@ -39,17 +39,12 @@ namespace ProGlassAutomation.Views.AI
             // v3 draggable AI service window (panel drag via header).
             HookPanelPositioning();
 
-            // v2 draggable bot: Button marks MouseLeftButton* as handled,
-            // so attach with handledEventsToo to still receive them.
-            FloatingBot.AddHandler(
-                UIElement.MouseLeftButtonDownEvent,
-                new MouseButtonEventHandler(FloatingBot_MouseLeftButtonDown),
-                handledEventsToo: true);
-            FloatingBot.AddHandler(
-                UIElement.MouseLeftButtonUpEvent,
-                new MouseButtonEventHandler(FloatingBot_MouseLeftButtonUp),
-                handledEventsToo: true);
-            FloatingBot.MouseMove += FloatingBot_MouseMove;
+            // 2026-08-25: the v2 FloatingBot (bottom-right draggable
+            // button) was removed — its mouse-capture drag handlers were
+            // the app-crash source and it would not visually move. The
+            // bot toggle now sits in the MainWindow top panel as a plain
+            // button bound to AiChatVM.ToggleChatCommand, which cannot
+            // crash the shell.
         }
 
         private void AiChatView_DataContextChanged(
@@ -109,96 +104,6 @@ namespace ProGlassAutomation.Views.AI
                 if (vm.SuggestionCommand.CanExecute(suggestionText))
                     vm.SuggestionCommand.Execute(suggestionText);
             }
-        }
-
-        // ══════════════════════════════════════════════════════════════
-        //  v2 — DRAGGABLE FLOATING BOT
-        //
-        //  A short press with no movement toggles the chat (click).
-        //  Moving past a small threshold drags the bot; the offset is
-        //  applied via TranslateTransform and clamped so the bot always
-        //  stays fully visible inside the view.
-        // ══════════════════════════════════════════════════════════════
-
-        private const double DragThreshold = 5.0;
-
-        private bool _botDragging;
-        private bool _botMoved;
-        private Point _botDragStartMouse;
-        private Point _botDragStartOffset;
-
-        private void FloatingBot_MouseLeftButtonDown(
-            object sender, MouseButtonEventArgs e)
-        {
-            if (sender is not FrameworkElement bot) return;
-
-            _botDragging = true;
-            _botMoved = false;
-            _botDragStartMouse = e.GetPosition(this);
-
-            var t = GetBotTransform(bot);
-            _botDragStartOffset = new Point(t.X, t.Y);
-
-            bot.CaptureMouse();
-        }
-
-        private void FloatingBot_MouseMove(
-            object sender, MouseEventArgs e)
-        {
-            if (!_botDragging || sender is not FrameworkElement bot) return;
-
-            var mouse = e.GetPosition(this);
-            double dx = mouse.X - _botDragStartMouse.X;
-            double dy = mouse.Y - _botDragStartMouse.Y;
-
-            if (!_botMoved &&
-                (System.Math.Abs(dx) > DragThreshold ||
-                 System.Math.Abs(dy) > DragThreshold))
-            {
-                _botMoved = true;
-            }
-
-            if (!_botMoved) return;
-
-            var t = GetBotTransform(bot);
-
-            // Bot sits bottom-right with a 25px margin; negative offsets
-            // move it left/up. Clamp so it never leaves the view.
-            double minX = -(System.Math.Max(0, ActualWidth - bot.ActualWidth - 25));
-            double minY = -(System.Math.Max(0, ActualHeight - bot.ActualHeight - 25));
-
-            t.X = System.Math.Clamp(_botDragStartOffset.X + dx, minX, 25);
-            t.Y = System.Math.Clamp(_botDragStartOffset.Y + dy, minY, 25);
-        }
-
-        private void FloatingBot_MouseLeftButtonUp(
-            object sender, MouseButtonEventArgs e)
-        {
-            if (!_botDragging || sender is not FrameworkElement bot) return;
-
-            _botDragging = false;
-            bot.ReleaseMouseCapture();
-
-            // A press with no movement is a click → toggle the chat.
-            if (!_botMoved && DataContext is AiChatViewModel vm)
-            {
-                if (vm.ToggleChatCommand.CanExecute(null))
-                    vm.ToggleChatCommand.Execute(null);
-            }
-
-            e.Handled = true;
-        }
-
-        private static System.Windows.Media.TranslateTransform
-            GetBotTransform(FrameworkElement bot)
-        {
-            if (bot.RenderTransform is not
-                System.Windows.Media.TranslateTransform t)
-            {
-                t = new System.Windows.Media.TranslateTransform();
-                bot.RenderTransform = t;
-            }
-            return t;
         }
 
         // ══════════════════════════════════════════════════════════════

@@ -33,7 +33,12 @@ namespace ProGlassAutomation.Agent.Demo.Recording
         // Absorbs bursts: JPEG encode runs on background threads, so a short
         // UI stall should queue frames instead of dropping them. 4 was too
         // tight and turned a busy dispatcher into visible frame drops (lag).
-        private const int MaxPendingEncodes = 8;
+        // 2026-08-25: raised 8 -> 16. When the JPEG encoders fell behind
+        // (busy module transitions), captures were skipped and the
+        // recording visibly "jumped" over workspace activity. A deeper
+        // queue absorbs the burst; the concat-demuxer compose in
+        // FfmpegMp4Composer handles whatever still drops.
+        private const int MaxPendingEncodes = 16;
 
         private readonly List<RecordedFrame> _frames = new();
         private readonly object _framesGate = new();

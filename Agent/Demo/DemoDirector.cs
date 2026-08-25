@@ -327,12 +327,47 @@ namespace ProGlassAutomation.Agent.Demo
                         $"{outW}×{outH} @ {actualFps:F1} fps — composing from {jpegs.Count} captured frames.");
                     recorder.EncodeStage = "Composing video from captured frames…";
                     recorder.EncodePercent = 50;
+
+                    // 2026-08-25: the concat-demuxer encode survives
+                    // dropped frames (holes in the f%05d sequence used to
+                    // truncate/kill the encode — "ffmpeg ran but did not
+                    // leave a valid MP4"). The numbered-pattern encode
+                    // stays as a fallback only.
                     produced = await FfmpegMp4Composer
-                        .ComposeFramesAudioAsync(
-                            framesDir, "f%05d.jpg", audioForMux, mp4,
+                        .ComposeFrameListAudioAsync(
+                            jpegs, audioForMux, mp4,
                             (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
                         .ConfigureAwait(false);
+
+                    if (produced == null)
+                    {
+                        log.AppendLine("Concat encode failed — retrying with the numbered-pattern encoder.");
+                        produced = await FfmpegMp4Composer
+                            .ComposeFramesAudioAsync(
+                                framesDir, "f%05d.jpg", audioForMux, mp4,
+                                (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
+                            .ConfigureAwait(false);
+                    }
+
                     log.AppendLine($"Composed from {jpegs.Count} JPEG frames at {actualFps:F1} actual fps.");
+                }
+
+                // 2026-08-25: last-resort path — the recorder also feeds a
+                // live H.264 pipe (live.h264.mp4). When the JPEG route
+                // produced nothing usable but the live encode exists, remux
+                // it with the audio instead of reporting failure.
+                if (produced == null && haveLiveVideo)
+                {
+                    Set(DemoJobState.Rendering, "Remuxing the live-encoded video with audio…");
+                    recorder.EncodeStage = "Remuxing live encode…";
+                    produced = await FfmpegMp4Composer
+                        .MuxCopyVideoAudioAsync(recorder.LiveVideoPath!, audioForMux, mp4, ct)
+                        .ConfigureAwait(false);
+                    if (produced != null && !FfmpegMp4Composer.IsValidMp4(produced))
+                        produced = null;
+                    log.AppendLine(produced != null
+                        ? "Remuxed live H.264 encode into the MP4."
+                        : "Live-encode remux failed too.");
                 }
 
                 log.AppendLine(

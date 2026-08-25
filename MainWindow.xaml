@@ -806,6 +806,31 @@
                         </Button.Style>
                     </Button>
 
+                    <!-- AI BOT ICON — opens the floating AI chat.
+                         2026-08-25: moved here from the bottom-right
+                         FloatingBot. That button's custom mouse-capture
+                         drag code crashed the app on some machines and
+                         its translate-transform clamp made it look
+                         "fixed" (it never moved). As a top-panel button
+                         it cannot crash the shell or get lost, and it
+                         sits right before the AI AGENT pill. -->
+                    <Button x:Name="AiBotButton"
+                            Margin="0,0,10,0"
+                            ToolTip="ProGlass AI — floating chat assistant"
+                            Command="{Binding AiChatVM.ToggleChatCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource TopIconButton}">
+                                <Setter Property="Content" Value="&#xE99A;"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AiChatVM.IsOpen}" Value="True">
+                                        <Setter Property="Content" Value="&#xE711;"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
                     <!-- AI AGENT PILL — a real Button (theme-based accent) -->
                     <Button Style="{StaticResource TopAiPillStyle}"
                             Margin="0,0,10,0"

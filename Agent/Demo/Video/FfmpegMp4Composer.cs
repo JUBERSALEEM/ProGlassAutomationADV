@@ -181,6 +181,108 @@ namespace ProGlassAutomation.Agent.Demo.Video
         }
 
         /// <summary>
+        /// JPEG list + optional WAV → H.264/AAC MP4, using the CONCAT
+        /// demuxer instead of the f%05d.jpg image2 pattern.
+        /// <para>
+        /// 2026-08-25 FIX — "ffmpeg ran but did not leave a valid MP4":
+        /// dropped captures leave holes in the f00000.jpg, f00001.jpg…
+        /// sequence, and the image2 demuxer STOPS at the first missing
+        /// number (or errors out entirely when frame zero is absent).
+        /// The result was a truncated or empty encode that failed the
+        /// ftyp validation. The concat demuxer reads an explicit list of
+        /// the files that actually exist, so dropped frames are simply
+        /// skipped and every captured frame reaches the video.
+        /// </para>
+        /// </summary>
+        public static async Task<string?> ComposeFrameListAudioAsync(
+            System.Collections.Generic.IReadOnlyList<string> frameFiles,
+            string? wavPath, string mp4Path,
+            int fps, int width, int height, CancellationToken ct,
+            int crf = 16)
+        {
+            string? ffmpeg = Find();
+            if (ffmpeg == null || frameFiles == null || frameFiles.Count == 0)
+                return null;
+
+            fps = Math.Clamp(fps, 1, 60);
+            crf = Math.Clamp(crf, 12, 23);
+            int w = Math.Max(2, width) & ~1;
+            int h = Math.Max(2, height) & ~1;
+            bool hasAudio = wavPath != null && File.Exists(wavPath);
+
+            // ── Build the concat list from the frames that exist ──────
+            string listPath;
+            try
+            {
+                string? dir = Path.GetDirectoryName(Path.GetFullPath(frameFiles[0] ?? ""));
+                if (string.IsNullOrEmpty(dir)) return null;
+                listPath = Path.Combine(dir, "concat-" + Guid.NewGuid().ToString("N") + ".txt");
+
+                double dur = 1.0 / fps;
+                var sb = new System.Text.StringBuilder();
+                string? lastEntry = null;
+                foreach (var f in frameFiles)
+                {
+                    if (string.IsNullOrEmpty(f) || !File.Exists(f)) continue;
+                    string entry = "file '" + f.Replace("'", "'\\''") + "'";
+                    sb.AppendLine(entry);
+                    sb.AppendLine("duration " + dur.ToString("0.00000", CultureInfo.InvariantCulture));
+                    lastEntry = entry;
+                }
+                // Repeat the final frame so its duration is honoured —
+                // concat drops the duration of the very last entry.
+                if (lastEntry != null) sb.AppendLine(lastEntry);
+
+                File.WriteAllText(listPath, sb.ToString());
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[ffmpeg concat-list] " + ex.Message);
+                return null;
+            }
+
+            try
+            {
+                string vf =
+                    $"scale={w}:{h}:flags=lanczos:force_original_aspect_ratio=decrease," +
+                    $"pad={w}:{h}:(ow-iw)/2:(oh-ih)/2," +
+                    "unsharp=5:5:0.8:5:5:0.0,format=yuv420p" +
+                    (hasAudio ? ",tpad=stop_mode=clone:stop_duration=600" : "");
+
+                Directory.CreateDirectory(Path.GetDirectoryName(mp4Path)!);
+
+                string packingPath = mp4Path + ".packing.mp4";
+                try { if (File.Exists(packingPath)) File.Delete(packingPath); }
+                catch (Exception ex) { AppLogService.Debug("[FfmpegMp4Composer] Stale packing-file delete failed: " + ex.Message); }
+
+                string args = hasAudio
+                    ? $"-y -f concat -safe 0 -i \"{listPath}\" -i \"{wavPath}\" " +
+                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                      $"-c:a aac -b:a 320k -ar 48000 -shortest -movflags +faststart \"{packingPath}\""
+                    : $"-y -f concat -safe 0 -i \"{listPath}\" " +
+                      $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
+                      $"-movflags +faststart \"{packingPath}\"";
+
+                string? packed = await RunComposeAsync(ffmpeg, args, packingPath, ct)
+                    .ConfigureAwait(false);
+                if (packed == null) return null;
+
+                File.Move(packingPath, mp4Path, overwrite: true);
+                return IsValidMp4(mp4Path) ? mp4Path : null;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug("[ffmpeg concat publish] " + ex.Message);
+                return null;
+            }
+            finally
+            {
+                try { if (File.Exists(listPath)) File.Delete(listPath); }
+                catch (Exception ex) { AppLogService.Debug("[ffmpeg concat-list cleanup] " + ex.Message); }
+            }
+        }
+
+        /// <summary>
         /// Mix loopback + microphone into one WAV. Returns the mixed path
         /// or the single surviving input. Null if neither file is usable.
         /// </summary>
