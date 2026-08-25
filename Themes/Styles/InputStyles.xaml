@@ -287,4 +287,65 @@
         </Setter>
     </Style>
 
+    <!-- ══════════════════════════════════════════════════════════════
+         IMPLICIT DROPDOWN STYLES — global dark-mode contrast fix
+         (2026-08-25)
+
+         BUG: ~142 ComboBox instances in the app; many carried NO
+         explicit Style, so WPF's DEFAULT system chrome rendered them.
+         On the dark theme their foreground followed the app's light
+         text while the default box/popup background stayed system
+         light — white text on white background, invisible.
+
+         FIX: implicit styles route EVERY ComboBox into the themed
+         Modern chrome, and every ComboBoxItem into a template whose
+         foreground, background, hover and selection colours are all
+         DynamicResources that follow the active theme and accent —
+         text auto-adapts to whatever it sits on, in light AND dark,
+         and on every theme/accent switch. No view edits needed;
+         explicitly-styled controls still override these.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}"/>
+
+    <Style TargetType="ComboBoxItem">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="12,8"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBoxItem">
+                    <Border x:Name="ItemBd"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            Margin="0,1"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ItemBd" Property="Background"
+                                    Value="{DynamicResource MenuHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="ItemBd" Property="Background"
+                                    Value="{DynamicResource MenuHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemBd" Property="Background"
+                                    Value="{DynamicResource TintIndigoBrush}"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>
