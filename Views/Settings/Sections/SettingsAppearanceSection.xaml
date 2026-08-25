@@ -63,6 +63,19 @@
                 <TextBlock Text="Overall look, card weight and density."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
+                <!-- 2026-08-25: one-tap factory reset for everything the
+                     Appearance module owns (theme, accent, gradients, card
+                     shape, density, zoom, font, wallpapers, PDF layout). -->
+                <Button Style="{StaticResource SettingsActionButtonStyle}"
+                        Content="RESET APPEARANCE TO DEFAULTS"
+                        Tag="&#xE777;"
+                        Command="{Binding ResetAppearanceCommand}"
+                        AutomationProperties.AutomationId="Appearance.ResetDefaults"
+                        ToolTip="Restore theme, accent, card shape, density, zoom, font and wallpapers to factory defaults"
+                        HorizontalAlignment="Left"
+                        Padding="18,8"
+                        Margin="0,2,0,10"/>
+
                 <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Visual theme -->
@@ -481,10 +494,14 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <CheckBox Grid.Column="0"
-                                                          IsChecked="{Binding Enabled, Mode=TwoWay}"
-                                                          VerticalAlignment="Center"
-                                                          Margin="0,0,6,0"/>
+                                                <!-- 2026-08-25: checkmark replaced with an
+                                                     iOS-style on/off pill (ModernToggleSwitch). -->
+                                                <ToggleButton Grid.Column="0"
+                                                              Style="{StaticResource ModernToggleSwitch}"
+                                                              IsChecked="{Binding Enabled, Mode=TwoWay}"
+                                                              VerticalAlignment="Center"
+                                                              ToolTip="Enable this module's wallpaper"
+                                                              Margin="0,0,8,0"/>
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding Label}"

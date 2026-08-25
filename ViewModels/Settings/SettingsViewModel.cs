@@ -438,6 +438,11 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCustomAccentCommand = new RelayCommand(_ => ApplyCustomAccent());
             InitializeAccentPalette();
 
+            // 2026-08-25 — one-tap factory reset for everything the
+            // Appearance module owns (theme, accent, gradients, card
+            // shape, density, zoom, font, wallpapers, PDF layout).
+            ResetAppearanceCommand = new RelayCommand(_ => ResetAppearanceToDefaults());
+
             // Global font engine (system-wide UI font)
             InitializeFontSettings();
 
@@ -650,6 +655,9 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public ICommand ApplyAccentCommand { get; private set; }
 
+        /// <summary>One-tap factory reset for the whole Appearance module.</summary>
+        public ICommand ResetAppearanceCommand { get; private set; }
+
         public ICommand ApplyCustomAccentCommand { get; private set; }
 
         /// <summary>One option on the Settings accent palette.</summary>
@@ -768,6 +776,86 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(CustomAccentHex));
             OnPropertyChanged(nameof(CustomAccentSwatch));
             OnPropertyChanged(nameof(CustomAccentStatus));
+        }
+
+        // ── Factory reset for the whole Appearance module ────────────
+        //
+        // 2026-08-25: one tap restores every appearance preference to its
+        // factory default — visual theme, accent, gradients, card edge /
+        // radius, display density, UI zoom, font family / weight / style,
+        // the global wallpaper and every per-module wallpaper, and the PDF
+        // layout. It goes through the SAME apply-path methods each
+        // individual control uses, so the whole app restyles live instead
+        // of waiting for a restart, and no setting is missed.
+        private void ResetAppearanceToDefaults()
+        {
+            var ap = App.Config?.Appearance;
+            if (ap == null) return;
+
+            // 1) Reset the persisted values to factory defaults.
+            ap.VisualTheme = "Normal";
+            ap.UseDefinedOutline = false;
+            ap.UseGradientSurfaces = true;
+            ap.CardBorderThickness = 1.5;
+            ap.CardCornerRadius = 12;
+            ap.DisplayDensity = "Compact";
+            ap.UiScale = 1.0;
+            ap.WallpaperPath = "";
+            ap.WallpaperOpacity = 0.85;
+            ap.ModuleWallpapers.Clear();
+            ap.AccentPreset =
+                ProGlassAutomation.Services.Theme.AccentPresets.GlassBlue;
+            ap.CustomAccentHex = "";
+            ap.PdfLayoutId = "ClassicNavy";
+            ap.FontFamilyName = "Segoe UI";
+            ap.FontWeightName = "Normal";
+            ap.FontStyleName = "Normal";
+            SaveConfig();
+
+            // 2) Push each one through the same apply-path the matching
+            //    control uses, so the UI restyles immediately.
+            ThemeManager.ApplyGradientPreference(true);
+            ThemeManager.ApplyOutline(false);
+            ThemeManager.ApplyCardBorderThickness(1.5);
+            ThemeManager.ApplyCardCornerRadius(12);
+            ThemeManager.ApplyDisplayDensity("Compact");
+            ThemeManager.ApplyUiScale(1.0);
+            ThemeManager.ApplyAccent(null);      // null = theme default (Glass Blue)
+            ApplyVisualTheme();                  // Normal family, wallpaper cleared
+            FontService.ResetToDefault();
+
+            // 3) Resync the bound controls to the restored values.
+            ReloadFontOptions();
+            var defFont = FontOptions.FirstOrDefault(f =>
+                string.Equals(f.Name, FontService.DefaultFontFamily,
+                    StringComparison.OrdinalIgnoreCase));
+            if (defFont != null) { _selectedFont = defFont; }
+            _selectedFontWeight = "Regular";
+            _selectedFontStyle = "Normal";
+            _customAccentHex = "";
+            foreach (var row in ModuleWallpaperRows) row.Enabled = false;
+
+            OnPropertyChanged(nameof(SelectedVisualTheme));
+            OnPropertyChanged(nameof(UseDefinedOutline));
+            OnPropertyChanged(nameof(UseGradientSurfaces));
+            OnPropertyChanged(nameof(CardBorderThickness));
+            OnPropertyChanged(nameof(CardCornerRadius));
+            OnPropertyChanged(nameof(DisplayDensity));
+            OnPropertyChanged(nameof(UiScale));
+            OnPropertyChanged(nameof(UiScalePercent));
+            OnPropertyChanged(nameof(WallpaperOpacity));
+            OnPropertyChanged(nameof(WallpaperStatus));
+            OnPropertyChanged(nameof(SelectedFont));
+            OnPropertyChanged(nameof(SelectedFontWeight));
+            OnPropertyChanged(nameof(SelectedFontStyle));
+            OnPropertyChanged(nameof(FontStatus));
+            OnPropertyChanged(nameof(CustomAccentHex));
+            OnPropertyChanged(nameof(CustomAccentSwatch));
+            OnPropertyChanged(nameof(CustomAccentStatus));
+
+            ProGlassAutomation.Services.Audit.AuditService.Log(
+                ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                "Appearance reset to factory defaults", "");
         }
 
         // ── Gradient surfaces (adaptive-theme depth option) ───────────
