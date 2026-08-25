@@ -27,10 +27,10 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <!-- 2026-08-25: status chart gets its own full-width
-                         row; recent deliveries moved below, full width. -->
-                    <RowDefinition Height="280" MinHeight="220"/>
-                    <RowDefinition Height="Auto"/>
+                    <!-- 2026-08-25 rev 2: balanced bento restored — chart
+                         keeps the wide slot, the recent-deliveries list
+                         column is widened (1* -> 1.2*), row is taller. -->
+                    <RowDefinition Height="300" MinHeight="240"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,16">
@@ -145,76 +145,85 @@
                     </Border>
                 </Grid>
 
-                <!-- ROW: status distribution — full width -->
-                <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
-                    <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                            <TextBlock Text="Status distribution"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Delivery note count"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-                        <Grid>
-                            <Border Style="{StaticResource SoftChartWellStyle}"
-                                    Visibility="{Binding HasStatusData,
-                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                <trend:TrendChartControl
-                                    Points="{Binding StatusBars}"
-                                    SeriesKind="Bar"
-                                    EmptyMessage="Delivery note count by status — no data yet."
-                                    SeriesBrush="{DynamicResource AccentBrush}"
-                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                    GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-                            </Border>
+                <!-- ROW: status chart (wide) + recent deliveries (widened
+                     list column — 1.2* instead of 1*) -->
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Status distribution"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Delivery note count"
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Points="{Binding StatusBars}"
+                                        SeriesKind="Bar"
+                                        EmptyMessage="Delivery note count by status — no data yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
+                                <Border Padding="0,40"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE806;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No delivery notes yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Recent deliveries"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Latest activity"
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          Visibility="{Binding HasRecentFeed,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding RecentFeed}"
+                                              ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
+                            </ScrollViewer>
                             <Border Padding="0,40"
-                                    Visibility="{Binding HasStatusData,
+                                    Visibility="{Binding HasRecentFeed,
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE806;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
                                     <TextBlock Text="No delivery notes yet"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="Create a delivery note from a Job Order."
+                                               Style="{StaticResource SoftMetaStyle}"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               Margin="0,6,0,0"/>
                                 </StackPanel>
                             </Border>
-                        </Grid>
-                    </DockPanel>
-                </Border>
-
-                <!-- ROW: recent deliveries — FULL WIDTH (2026-08-25: was
-                     squeezed into a 1/3 column and read as left-aligned) -->
-                <Border Grid.Row="4" Style="{StaticResource SoftCardStyle}" Margin="0,16,0,0">
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Recent deliveries"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
-                                   Margin="0,0,0,8"/>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      MaxHeight="380"
-                                      behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
-                                      Visibility="{Binding HasRecentFeed,
-                                          Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl ItemsSource="{Binding RecentFeed}"
-                                          ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
-                        </ScrollViewer>
-                        <Border Padding="0,40"
-                                Visibility="{Binding HasRecentFeed,
-                                    Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="&#xE806;"
-                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                <TextBlock Text="No delivery notes yet"
-                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                <TextBlock Text="Create a delivery note from a Job Order."
-                                           Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Center"
-                                           TextAlignment="Center"
-                                           Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </DockPanel>
-                </Border>
+                        </DockPanel>
+                    </Border>
+                </Grid>
             </Grid>
         </ScrollViewer>
     </Grid>

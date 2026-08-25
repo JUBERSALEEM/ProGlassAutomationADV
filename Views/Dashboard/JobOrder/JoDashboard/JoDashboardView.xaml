@@ -27,10 +27,12 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <!-- 2026-08-25: workload chart gets its own full-width
-                         row; recent job orders moved below, full width. -->
-                    <RowDefinition Height="280" MinHeight="220"/>
-                    <RowDefinition Height="Auto"/>
+                    <!-- 2026-08-25 rev 2: balanced bento restored. The
+                         full-width-card experiment read as ugly; the real
+                         ask was a wider DATA LIST. Chart keeps the wide
+                         slot, the recent-jobs list column is widened from
+                         1* to 1.2* and the row is taller (300 vs 220). -->
+                    <RowDefinition Height="300" MinHeight="240"/>
                 </Grid.RowDefinitions>
 
                 <!-- HERO STRIP -->
@@ -147,76 +149,85 @@
                     </Border>
                 </Grid>
 
-                <!-- ROW: workload by status — full width -->
-                <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
-                    <DockPanel>
-                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                            <TextBlock Text="Workload by status"
-                                       Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Job order count"
-                                       Style="{StaticResource SoftMetaStyle}"
-                                       HorizontalAlignment="Right"/>
-                        </Grid>
-                        <Grid>
-                            <Border Style="{StaticResource SoftChartWellStyle}"
-                                    Visibility="{Binding HasStatusData,
-                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                <trend:TrendChartControl
-                                    Points="{Binding StatusBars}"
-                                    SeriesKind="Bar"
-                                    EmptyMessage="Job order count by status — no data yet."
-                                    SeriesBrush="{DynamicResource AccentBrush}"
-                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                    GridBrush="{DynamicResource DividerBrush}"
-                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-                            </Border>
+                <!-- ROW: workload chart (wide) + recent job orders (widened
+                     list column — 1.2* instead of 1*) -->
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.6*"/>
+                        <ColumnDefinition Width="1.2*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Workload by status"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Job order count"
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Points="{Binding StatusBars}"
+                                        SeriesKind="Bar"
+                                        EmptyMessage="Job order count by status — no data yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
+                                <Border Padding="0,40"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE9F9;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No job orders yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </DockPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
+                        <DockPanel>
+                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Recent job orders"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Latest activity"
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Right"/>
+                            </Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          Visibility="{Binding HasRecentFeed,
+                                              Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ItemsControl ItemsSource="{Binding RecentFeed}"
+                                              ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
+                            </ScrollViewer>
                             <Border Padding="0,40"
-                                    Visibility="{Binding HasStatusData,
+                                    Visibility="{Binding HasRecentFeed,
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE9F9;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
                                     <TextBlock Text="No job orders yet"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="Convert an approved proforma into a job order."
+                                               Style="{StaticResource SoftMetaStyle}"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               Margin="0,6,0,0"/>
                                 </StackPanel>
                             </Border>
-                        </Grid>
-                    </DockPanel>
-                </Border>
-
-                <!-- ROW: recent job orders — FULL WIDTH (2026-08-25: was
-                     squeezed into a 1/3 column and read as left-aligned) -->
-                <Border Grid.Row="4" Style="{StaticResource SoftCardStyle}" Margin="0,16,0,0">
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="Recent job orders"
-                                   Style="{StaticResource SoftSectionTitleStyle}"
-                                   Margin="0,0,0,8"/>
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      HorizontalScrollBarVisibility="Disabled"
-                                      MaxHeight="380"
-                                      behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
-                                      Visibility="{Binding HasRecentFeed,
-                                          Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl ItemsSource="{Binding RecentFeed}"
-                                          ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
-                        </ScrollViewer>
-                        <Border Padding="0,40"
-                                Visibility="{Binding HasRecentFeed,
-                                    Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="&#xE9F9;"
-                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                <TextBlock Text="No job orders yet"
-                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                <TextBlock Text="Convert an approved proforma into a job order."
-                                           Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Center"
-                                           TextAlignment="Center"
-                                           Margin="0,6,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </DockPanel>
-                </Border>
+                        </DockPanel>
+                    </Border>
+                </Grid>
             </Grid>
         </ScrollViewer>
     </Grid>

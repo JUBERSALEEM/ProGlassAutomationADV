@@ -199,11 +199,12 @@
                     </StackPanel>
                 </Grid>
 
-                <!-- ROW: trend + activity -->
+                <!-- ROW: trend + activity (2026-08-25 rev 2: activity
+                     column widened 1* -> 1.2* so feed rows breathe) -->
                 <Grid Grid.Row="3" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="1.8*"/>
+                        <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
