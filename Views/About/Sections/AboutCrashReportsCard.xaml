@@ -78,11 +78,32 @@
                                 <TextBlock Grid.Row="0" Grid.Column="1"
                                            TextTrimming="CharacterEllipsis"
                                            Margin="0,0,8,0">
-                                    <Run Text="{Binding ErrorId, FallbackValue='(no id)'}"
+                                    <!--
+                                      Mode=OneWay is MANDATORY on these
+                                      Run bindings (same convention as
+                                      DeliveryNoteDetailView /
+                                      DnOverviewSection /
+                                      WorkflowWarningDialog): Run.Text
+                                      binds TwoWay by default, and a
+                                      TwoWay binding on the read-only
+                                      CrashReportEntry.ErrorId /
+                                      TopExceptionType properties throws
+                                      XamlParseException the moment the
+                                      About page's bindings connect —
+                                      AFTER InitializeComponent returned,
+                                      so the AboutView ctor's try/catch
+                                      can never see it. That was the
+                                      "About page crashes on open" bug.
+                                    -->
+                                    <Run Text="{Binding ErrorId,
+                                         Mode=OneWay,
+                                         FallbackValue='(no id)'}"
                                          FontWeight="Bold"
                                          Foreground="{StaticResource GlassSnow}"/>
                                     <Run Text="  "/>
-                                    <Run Text="{Binding TopExceptionType, FallbackValue=''}"
+                                    <Run Text="{Binding TopExceptionType,
+                                         Mode=OneWay,
+                                         FallbackValue=''}"
                                          Foreground="{StaticResource GlassMuted}"/>
                                 </TextBlock>
                                 <Button Grid.Row="0" Grid.Column="2"
