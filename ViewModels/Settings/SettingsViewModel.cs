@@ -34,6 +34,7 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 
 namespace ProGlassAutomation.ViewModels.Settings
@@ -431,6 +432,12 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyAccentCommand = new RelayCommand(param =>
                 ApplyAccentPreset(param as string ?? "GlassBlue"));
 
+            // 2026-08-25 — colour palette expansion: free-pick custom
+            // colour + palette generated from AccentPresets.All so the
+            // swatches shown ARE the colours applied.
+            ApplyCustomAccentCommand = new RelayCommand(_ => ApplyCustomAccent());
+            InitializeAccentPalette();
+
             // Global font engine (system-wide UI font)
             InitializeFontSettings();
 
@@ -643,9 +650,166 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public ICommand ApplyAccentCommand { get; private set; }
 
+        public ICommand ApplyCustomAccentCommand { get; private set; }
+
+        /// <summary>One option on the Settings accent palette.</summary>
+        public sealed class AccentOption
+        {
+            public AccentOption(string key, string name, Color swatch)
+            {
+                Key = key;
+                DisplayName = name;
+                var brush = new SolidColorBrush(swatch);
+                brush.Freeze();
+                Swatch = brush;
+            }
+
+            public string Key { get; }
+            public string DisplayName { get; }
+            public Brush Swatch { get; }
+        }
+
+        /// <summary>
+        /// The accent palette shown in Appearance. Generated from
+        /// AccentPresets.All, so the swatch the user sees is the exact
+        /// colour that ApplyAccent receives — the old hand-copied XAML
+        /// hexes could drift from the code values, this cannot.
+        /// </summary>
+        public ObservableCollection<AccentOption> AccentPalette { get; } = new();
+
+        private void InitializeAccentPalette()
+        {
+            AccentPalette.Clear();
+            foreach (var (key, name) in
+                ProGlassAutomation.Services.Theme.AccentPresets.All)
+            {
+                AccentPalette.Add(new AccentOption(
+                    key, name,
+                    ProGlassAutomation.Services.Theme.AccentPresets.SwatchFor(key)));
+            }
+
+            _customAccentHex = App.Config?.Appearance?.CustomAccentHex ?? "";
+            OnPropertyChanged(nameof(CustomAccentHex));
+            OnPropertyChanged(nameof(CustomAccentSwatch));
+        }
+
+        // ── Free-pick custom colour ────────────────────────────────────
+
+        private string _customAccentHex = "";
+
+        /// <summary>Hex (or named CSS colour) the user types in.</summary>
+        public string CustomAccentHex
+        {
+            get => _customAccentHex;
+            set
+            {
+                _customAccentHex = value ?? "";
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CustomAccentSwatch));
+                OnPropertyChanged(nameof(CustomAccentStatus));
+            }
+        }
+
+        /// <summary>Live preview dot next to the hex field.</summary>
+        public Brush CustomAccentSwatch
+        {
+            get
+            {
+                var c = ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_customAccentHex);
+                if (c == null) return Brushes.Transparent;
+                var brush = new SolidColorBrush(c.Value);
+                brush.Freeze();
+                return brush;
+            }
+        }
+
+        /// <summary>Validation hint under the hex field.</summary>
+        public string CustomAccentStatus
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_customAccentHex))
+                    return "Type a colour like #7C3AED and press APPLY.";
+                return ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_customAccentHex) != null
+                    ? "Ready — every surface, tint and Monet glass will adapt to this colour."
+                    : "Not a recognised colour — use #RGB or #RRGGBB.";
+            }
+        }
+
+        private void ApplyCustomAccent()
+        {
+            var color = ProGlassAutomation.Services.Theme.AccentPresets
+                .TryParseHex(_customAccentHex);
+            if (color == null)
+            {
+                OnPropertyChanged(nameof(CustomAccentStatus));
+                return;
+            }
+
+            ThemeManager.ApplyAccent(color.Value);
+
+            if (App.Config?.Appearance != null)
+            {
+                App.Config.Appearance.AccentPreset =
+                    ProGlassAutomation.Services.Theme.AccentPresets.Custom;
+                App.Config.Appearance.CustomAccentHex =
+                    $"#{color.Value.R:X2}{color.Value.G:X2}{color.Value.B:X2}";
+                _customAccentHex = App.Config.Appearance.CustomAccentHex;
+                SaveConfig();
+            }
+
+            ProGlassAutomation.Services.Audit.AuditService.Log(
+                ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                "Accent changed",
+                "Custom colour " + App.Config?.Appearance?.CustomAccentHex);
+
+            OnPropertyChanged(nameof(CustomAccentHex));
+            OnPropertyChanged(nameof(CustomAccentSwatch));
+            OnPropertyChanged(nameof(CustomAccentStatus));
+        }
+
+        // ── Gradient surfaces (adaptive-theme depth option) ───────────
+
+        /// <summary>
+        /// Gradient support for Monet/adaptive surfaces. Off = flat
+        /// palette, On = accent-derived gradients (richer depth).
+        /// </summary>
+        public bool UseGradientSurfaces
+        {
+            get => App.Config?.Appearance?.UseGradientSurfaces ?? true;
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                if (App.Config.Appearance.UseGradientSurfaces == value) return;
+
+                App.Config.Appearance.UseGradientSurfaces = value;
+                ThemeManager.ApplyGradientPreference(value);
+
+                // Rebuild the active visual family so surfaces restyle now.
+                ApplyVisualTheme();
+                SaveConfig();
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Gradient surfaces changed",
+                    value ? "Gradients on" : "Gradients off");
+
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>Applies a named accent preset. Parameter = preset key.</summary>
         public void ApplyAccentPreset(string presetKey)
         {
+            // The Custom chip resolves through the hex field instead.
+            if (presetKey == ProGlassAutomation.Services.Theme.AccentPresets.Custom)
+            {
+                ApplyCustomAccent();
+                return;
+            }
+
             var color = ProGlassAutomation.Services.Theme.AccentPresets
                 .ColorFor(presetKey);
 

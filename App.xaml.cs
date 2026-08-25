@@ -602,17 +602,29 @@ namespace ProGlassAutomation
 
             // 9d) Visual theme family + wallpaper
             //     (Normal / Monet / Professional).
+            //
+            //     The gradient-surface preference is restored FIRST:
+            //     Monet's glass/window surfaces read it while building.
+            ProGlassAutomation.Services.ThemeManager.ApplyGradientPreference(
+                Config.Appearance?.UseGradientSurfaces ?? true);
+
             VisualThemeEngine.Apply(
                 Config.Appearance?.VisualTheme ?? "Normal",
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
-            // 9e) Restore the persisted accent preset — re-derives the
-            //     full accent family (hover/tint/contrast) from the
-            //     saved colour so the UI keeps it between sessions.
+            // 9e) Restore the persisted accent — preset palette key OR
+            //     the free-pick custom hex — and re-derive the full
+            //     accent family (hover/tint/contrast) from it so the UI
+            //     keeps the colour between sessions.
+            string persistedPreset = Config.Appearance?.AccentPreset ?? "GlassBlue";
+            System.Windows.Media.Color? persistedAccent =
+                persistedPreset == ProGlassAutomation.Services.Theme.AccentPresets.Custom
+                    ? ProGlassAutomation.Services.Theme.AccentPresets.TryParseHex(
+                        Config.Appearance?.CustomAccentHex)
+                    : ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(persistedPreset);
             ProGlassAutomation.Services.ThemeManager.ApplyAccent(
-                ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(
-                    Config.Appearance?.AccentPreset ?? "GlassBlue"),
+                persistedAccent,
                 raiseEvent: false);
 
             // 9f) Restore the persisted card/pill outline choice. Must run

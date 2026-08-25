@@ -104,6 +104,29 @@
                         </Grid>
                     </Border>
 
+                    <!-- Gradient surfaces (adaptive-theme depth) -->
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7F4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Gradient Surfaces"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Renders Monet glass, cards and the window background as accent-derived gradients for a richer adaptive look. Off = the same palette, flat."/>
+                            <ToggleButton Grid.Row="3"
+                                          HorizontalAlignment="Left"
+                                          IsChecked="{Binding UseGradientSurfaces, Mode=TwoWay}"
+                                          Style="{StaticResource ModernToggleSwitch}"/>
+                        </Grid>
+                    </Border>
+
                     <!-- Card border thickness -->
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <StackPanel>
@@ -249,50 +272,52 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Buttons, tints, hover states and Monet glass surfaces are all derived from this. Your choice is saved and restored on every start."/>
-                            <WrapPanel Margin="0,4,0,0">
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#0369A1" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Glass Blue" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#059669" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Emerald" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Amber" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#D97706" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Amber" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Rose" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#E11D48" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Rose" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Violet" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#7C3AED" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Violet" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Teal" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#0D9488" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Teal" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                                <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Black" Style="{StaticResource AccentChipStyle}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <Ellipse Width="11" Height="11" Fill="#111827" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                        <TextBlock Text="Black" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
-                            </WrapPanel>
+                            <!-- Palette chips generated from SettingsViewModel.AccentPalette
+                                 (single source of truth: AccentPresets.All) — the swatch
+                                 shown IS the exact colour that gets applied. -->
+                            <ItemsControl ItemsSource="{Binding AccentPalette}" Margin="0,4,0,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ApplyAccentCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}"
+                                                Style="{StaticResource AccentChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- Free-pick colour: type any hex, the whole adaptive palette
+                                 (Monet glass, tints, keylines) re-derives from it. -->
+                            <Border Margin="0,12,0,0" Padding="10,8" CornerRadius="8"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                    HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="14" Height="14"
+                                             Fill="{Binding CustomAccentSwatch}"
+                                             Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="110" Padding="8,6" FontSize="13"
+                                             FontFamily="Consolas"
+                                             VerticalAlignment="Center"/>
+                                    <Button Command="{Binding ApplyCustomAccentCommand}"
+                                            Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0">
+                                        <TextBlock Text="APPLY CUSTOM COLOUR"/>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Text="{Binding CustomAccentStatus}" Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
 

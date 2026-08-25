@@ -390,6 +390,25 @@ namespace ProGlassAutomation.Services
 
         private static bool _definedOutline;
 
+        // 2026-08-25: gradient surface support. VisualThemeEngine reads
+        // this when it builds Monet glass / window surfaces: true =
+        // accent-derived gradients (richer depth), false = flat colour.
+        // Default true. Persisted in AppearanceSettings.UseGradientSurfaces.
+        private static bool _useGradients = true;
+
+        /// <summary>Whether adaptive surfaces render as gradients.</summary>
+        public static bool UseGradients => _useGradients;
+
+        /// <summary>
+        /// Sets the gradient-surface preference. The caller re-applies
+        /// the active visual family afterwards so the surfaces rebuild
+        /// with the new style.
+        /// </summary>
+        public static void ApplyGradientPreference(bool useGradients)
+        {
+            _useGradients = useGradients;
+        }
+
         /// <summary>
         /// True when rounded pills and cards draw a strong, near-black
         /// definition edge instead of the subtle default hairline.

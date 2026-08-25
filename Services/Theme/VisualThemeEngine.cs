@@ -408,17 +408,28 @@ namespace ProGlassAutomation.Services.Theme
             }
             else
             {
+                // 2026-08-25: saturation caps eased up a touch so the
+                // background visibly belongs to the chosen accent.
                 Color from = dark
-                    ? ColorMath.FromHsl(h, Math.Min(s, 0.35), 0.14)
-                    : ColorMath.FromHsl(h, Math.Min(s, 0.60), 0.94);
+                    ? ColorMath.FromHsl(h, Math.Min(s, 0.42), 0.14)
+                    : ColorMath.FromHsl(h, Math.Min(s, 0.70), 0.94);
                 Color to = dark
-                    ? ColorMath.FromHsl(h + 26, Math.Min(s, 0.32), 0.10)
-                    : ColorMath.FromHsl(h + 26, Math.Min(s, 0.55), 0.88);
+                    ? ColorMath.FromHsl(h + 26, Math.Min(s, 0.38), 0.10)
+                    : ColorMath.FromHsl(h + 26, Math.Min(s, 0.62), 0.88);
 
-                var soft = new LinearGradientBrush(
-                    from, to, new Point(0, 0), new Point(1, 1));
-                soft.Freeze();
-                resources["WindowBackgroundBrush"] = soft;
+                if (ThemeManager.UseGradients)
+                {
+                    var soft = new LinearGradientBrush(
+                        from, to, new Point(0, 0), new Point(1, 1));
+                    soft.Freeze();
+                    resources["WindowBackgroundBrush"] = soft;
+                }
+                else
+                {
+                    var flat = new SolidColorBrush(from);
+                    flat.Freeze();
+                    resources["WindowBackgroundBrush"] = flat;
+                }
             }
 
             // Glass surfaces — the active base theme's colours tinted
@@ -486,16 +497,37 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// Builds one Monet glass surface: theme colour → gently tinted
-        /// with the accent hue → translucent.
+        /// Builds one Monet glass surface: theme colour → tinted with
+        /// the accent hue → translucent.
+        /// <para>
+        /// 2026-08-25 (richness fix): the tint ratios were raised from
+        /// 0.12/0.18 to 0.18/0.26 — at the old values the glass barely
+        /// carried the chosen colour and Monet read as "too light".
+        /// When gradient surfaces are enabled (the Appearance toggle)
+        /// the surface is a diagonal gradient from the tint to a lifted
+        /// tint, which gives Material-You style depth without any
+        /// hard-coded colour.
+        /// </para>
         /// </summary>
-        private static SolidColorBrush GlassSurface(
+        private static Brush GlassSurface(
             ResourceDictionary resources, string key, Color accent,
             Color fallback, double opacity, bool dark)
         {
             Color baseColor = ThemeManager.GetThemeColor(key, fallback);
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.18 : 0.12);
+                dark ? 0.26 : 0.18);
+
+            if (ThemeManager.UseGradients)
+            {
+                Color lifted = ColorMath.Lighten(tinted, dark ? 0.04 : 0.05);
+                var gradient = new LinearGradientBrush(
+                    tinted, lifted, new Point(0, 0), new Point(1, 1))
+                {
+                    Opacity = opacity,
+                };
+                gradient.Freeze();
+                return gradient;
+            }
 
             var brush = new SolidColorBrush(tinted) { Opacity = opacity };
             brush.Freeze();

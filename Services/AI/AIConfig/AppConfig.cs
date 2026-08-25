@@ -71,11 +71,30 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         { get; set; } = new();
 
         /// <summary>
-        /// Accent preset key ("GlassBlue" | "Emerald" | "Amber" |
-        /// "Rose" | "Violet" | "Teal"). Re-applied on startup so the
+        /// Accent preset key ("GlassBlue" | "RoyalBlue" | "Sky" | "Cyan"
+        /// | "Teal" | "Emerald" | "Lime" | "Gold" | "Amber" | "Orange" |
+        /// "Crimson" | "Rose" | "Fuchsia" | "Violet" | "Indigo" |
+        /// "Slate" | "Black" | "Custom"). Re-applied on startup so the
         /// whole UI keeps the chosen colour between sessions.
         /// </summary>
         public string AccentPreset { get; set; } = "GlassBlue";
+
+        /// <summary>
+        /// Free-pick accent colour ("#RRGGBB"). Used when AccentPreset
+        /// is "Custom"; ignored otherwise. Lets users choose any colour
+        /// the palette chips do not offer — Monet and every derived
+        /// brush adapt to it through ThemeManager.ApplyAccent.
+        /// </summary>
+        public string CustomAccentHex { get; set; } = "";
+
+        /// <summary>
+        /// Gradient surface support for the adaptive theme engine.
+        /// When true (default) Monet glass surfaces, cards and the
+        /// window background render as accent-derived gradients — a
+        /// richer Material-You style depth. When false the same palette
+        /// renders flat, which reads calmer on busy wallpapers.
+        /// </summary>
+        public bool UseGradientSurfaces { get; set; } = true;
 
         /// <summary>
         /// Print layout id: ClassicNavy | ModernTeal | EditorialInk |
