@@ -242,13 +242,43 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         {
             await WpfUiDriver.ClickAsync("ProformaInvoice.NewInvoiceButton", ct)
                 .ConfigureAwait(false);
-            await WpfUiDriver.OnUiAsync(() =>
+
+            // 2026-08-25 senior fix — TriggerNewInvoice routes through
+            // StartNewInvoiceWithPromptAsync, which awaits
+            // AskStartFromInquiryRequested. Interactively that shows the
+            // 3-way MessageBox ("start from inquiry / blank / cancel") —
+            // during a recording it BLOCKS the demo forever. Swap the
+            // callback for a prompt-free Skip (which opens the blank
+            // wizard directly) for the duration of the demo start, and
+            // restore the real interactive callback afterwards.
+            var savedPrompt = pi.AskStartFromInquiryRequested;
+            pi.AskStartFromInquiryRequested = () => Task.FromResult(
+                ProformaInvoiceViewModel.NewProformaStartChoice.Skip);
+            try
             {
-                try { pi.TriggerNewInvoice(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
-                if (pi.NewInvoiceCommand.CanExecute(null))
-                    pi.NewInvoiceCommand.Execute(null);
-                return true;
-            }, ct).ConfigureAwait(false);
+                await WpfUiDriver.OnUiAsync(() =>
+                {
+                    try { pi.TriggerNewInvoice(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+                    if (pi.NewInvoiceCommand.CanExecute(null))
+                        pi.NewInvoiceCommand.Execute(null);
+                    return true;
+                }, ct).ConfigureAwait(false);
+
+                // TriggerNewInvoice is fire-and-forget inside the VM; the
+                // swapped callback must stay in place until the wizard is
+                // actually open, or the async start could still reach the
+                // restored interactive prompt.
+                await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct)
+                    .ConfigureAwait(false);
+            }
+            finally
+            {
+                await WpfUiDriver.OnUiAsync(() =>
+                {
+                    pi.AskStartFromInquiryRequested = savedPrompt;
+                    return true;
+                }, ct).ConfigureAwait(false);
+            }
         }
 
         private static async Task<bool> FillCompanyAsync(
@@ -647,14 +677,35 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
                 // Pick a convertible inquiry — the seeded Confirmed demo
                 // inquiry first; any convertible row otherwise.
-                bool selected = await WpfUiDriver.OnUiAsync(() =>
+                bool selected = await SelectConvertibleRowAsync(inquiryVm, ct)
+                    .ConfigureAwait(false);
+
+                // 2026-08-25 senior fix — after the first recording the
+                // seeded inquiry is LINKED to the PI it created, so no row
+                // is convertible anymore and every later run fell through
+                // to the interactive start prompt (the popup the demo must
+                // never show). Create a fresh dummy inquiry per run so the
+                // demo always starts from an inquiry with zero operator
+                // input.
+                if (!selected)
                 {
-                    var row = inquiryVm.Inquiries.FirstOrDefault(r => r.CanConvert)
-                        ?? inquiryVm.Inquiries.FirstOrDefault();
-                    if (row == null) return false;
-                    inquiryVm.SelectedInquiry = row;
-                    return true;
-                }, ct).ConfigureAwait(false);
+                    DemoStage.Now("Preparing a fresh dummy inquiry.");
+                    if (await CreateDemoInquiryAsync(ct).ConfigureAwait(false))
+                    {
+                        await WpfUiDriver.OnUiAsync(() =>
+                        {
+                            if (inquiryVm.RefreshCommand.CanExecute(null))
+                                inquiryVm.RefreshCommand.Execute(null);
+                            return true;
+                        }, ct).ConfigureAwait(false);
+
+                        selected = await WaitUntilAsync(() =>
+                        {
+                            return SelectConvertibleRow(inquiryVm);
+                        }, 8000, ct).ConfigureAwait(false);
+                    }
+                }
+
                 if (!selected) return false;
 
                 DemoStage.Now("Converting the inquiry into a proforma invoice.");
@@ -680,6 +731,74 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 AppLogService.Debug(
                     "[ProformaInvoiceWorkflow] Inquiry start failed; falling " +
                     "back to New Invoice: " + ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>Selects a convertible row on the UI thread.</summary>
+        private static Task<bool> SelectConvertibleRowAsync(
+            ViewModels.Inquiry.InquiryListViewModel inquiryVm, CancellationToken ct) =>
+            WpfUiDriver.OnUiAsync(() => SelectConvertibleRow(inquiryVm), ct);
+
+        /// <summary>
+        /// Pure selector: first convertible (Confirmed + unconverted) row,
+        /// null when none exists. Runs on whatever thread calls it.
+        /// </summary>
+        private static bool SelectConvertibleRow(
+            ViewModels.Inquiry.InquiryListViewModel inquiryVm)
+        {
+            var row = inquiryVm.Inquiries.FirstOrDefault(r => r.CanConvert);
+            if (row == null) return false;
+            inquiryVm.SelectedInquiry = row;
+            return true;
+        }
+
+        /// <summary>
+        /// Creates a fresh Confirmed dummy inquiry in the DEMO database so
+        /// the recorded walkthrough always has something to convert —
+        /// including on repeat runs where the seeded inquiry is already
+        /// linked to a PI. Uses the same customer/project identity as the
+        /// rest of the demo so the story stays consistent. Never throws.
+        /// </summary>
+        private static async Task<bool> CreateDemoInquiryAsync(CancellationToken ct)
+        {
+            try
+            {
+                var repo = App.Inquiries;
+                if (repo == null) return false;
+
+                int year = DateTime.Now.Year;
+                var stamp = DateTime.Now.ToString("HHmmss");
+
+                var inquiry = new Models.Inquiry.InquiryRecord
+                {
+                    InquiryNumber = $"INQ-{year}-D{stamp}",
+                    InquiryReference = "Demo walkthrough inquiry",
+                    CustomerName = Customer,
+                    CustomerLocation = "Sharjah, UAE",
+                    ProjectName = Project,
+                    ProjectDescription =
+                        "Demo quotation generated automatically by the recorded walkthrough.",
+                    SalesmanName = "Demo Sales",
+                    Status = Models.Inquiry.InquiryStatuses.Confirmed,
+                    Priority = "High",
+                    InquiryValue = 42_000m,
+                    ReceivedAt = DateTime.Now,
+                    PreparedAt = DateTime.Now,
+                    Notes = "Auto-created for the recorded demo.",
+                };
+
+                await repo.CreateAsync(inquiry, ct).ConfigureAwait(false);
+                AppLogService.Debug(
+                    "[ProformaInvoiceWorkflow] Created demo inquiry " +
+                    inquiry.InquiryNumber + " for the recorded walkthrough.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Debug(
+                    "[ProformaInvoiceWorkflow] Demo inquiry create failed: " +
+                    ex.Message);
                 return false;
             }
         }
