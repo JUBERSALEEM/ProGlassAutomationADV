@@ -62,7 +62,15 @@ namespace ProGlassAutomation.Views.Shared
         public RecordOverlayWindow()
         {
             InitializeComponent();
-            _timer = new DispatcherTimer(DispatcherPriority.Background)
+
+            // 2026-08-25 senior fix — the HUD clock stayed at 0:00 during
+            // recordings. The timer ran at DispatcherPriority.Background,
+            // the LOWEST priority — while a demo is recording the UI
+            // thread has a constant stream of higher-priority work
+            // (captures, workflow dispatch, animations), so the tick was
+            // starved and the elapsed time never visibly advanced.
+            // Render priority ticks reliably yet still yields to input.
+            _timer = new DispatcherTimer(DispatcherPriority.Render)
             {
                 Interval = TimeSpan.FromMilliseconds(250)
             };

@@ -147,6 +147,22 @@ namespace ProGlassAutomation.Agent.Demo
                 log.AppendLine("MP4 output: " + outputFolder);
 
                 var rec = (RecordSettings ?? new ScreenRecordSettings()).Clone().Clamp();
+
+                // 2026-08-25 senior fix — screen sync. The UI used to be
+                // reset AFTER the recorder started (and to the Dashboard,
+                // of all places), so the opening seconds of every video
+                // showed the Settings page text / the Dashboard while the
+                // workflow was still resolving. Users read that as "the
+                // screen is not synced with the narration".
+                //
+                // Now: close leftover wizards and land DIRECTLY on the
+                // workflow's own module BEFORE the first frame is
+                // captured. Recording starts already on the right page.
+                await ResetUiStateAsync(
+                    ct,
+                    DemoWorkflowCatalog.Find(module)?.NavigateTarget)
+                    .ConfigureAwait(false);
+
                 Set(DemoJobState.Recording,
                     "Recording the live " + module + " window at " + rec.Summary + ".");
                 var framesDir = Path.Combine(folder, "frames");
@@ -159,12 +175,6 @@ namespace ProGlassAutomation.Agent.Demo
                     Set(DemoJobState.Recording, msg);
                     DemoRecordingChrome.UpdateStage(msg);
                 };
-
-            // 2026-08-25: Record-All robustness — start every workflow
-            // from a clean home screen. Without this, state left by the
-            // previous job (an open PI wizard, a pending picker) leaked
-            // into the next module and broke the batch recording.
-            await ResetUiStateAsync(ct).ConfigureAwait(false);
 
             IReadOnlyList<VerifiedEvent> events;
             try
@@ -547,12 +557,27 @@ namespace ProGlassAutomation.Agent.Demo
         /// navigation can reach). Never throws — a failed reset must not
         /// cancel the recording.
         /// </summary>
-        private static async Task ResetUiStateAsync(CancellationToken ct)
+        /// <summary>
+        /// Returns the live UI to a ready state before a recorded
+        /// workflow: closes a wizard the previous job may have left open
+        /// and lands DIRECTLY on the workflow's own module (passed in
+        /// <paramref name="navigateTarget"/>), so the first captured
+        /// frame already shows the right page. 2026-08-25: previously
+        /// this navigated to the Dashboard after the recorder started —
+        /// the "stays on the dashboard / Settings text in the video"
+        /// complaint.
+        /// </summary>
+        private static async Task ResetUiStateAsync(
+            CancellationToken ct, string? navigateTarget = null)
         {
             try
             {
                 var disp = System.Windows.Application.Current?.Dispatcher;
                 if (disp == null) return;
+
+                string target = string.IsNullOrWhiteSpace(navigateTarget)
+                    ? "Dashboard"
+                    : navigateTarget.Trim();
 
                 await disp.InvokeAsync(() =>
                 {
@@ -569,7 +594,7 @@ namespace ProGlassAutomation.Agent.Demo
                             }
                         }
 
-                        ProGlassAutomation.Agent.Core.AgentHost.Navigate?.Invoke("Dashboard");
+                        ProGlassAutomation.Agent.Core.AgentHost.Navigate?.Invoke(target);
                     }
                     catch (Exception ex)
                     {
