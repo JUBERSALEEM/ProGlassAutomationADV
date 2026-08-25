@@ -68,8 +68,9 @@
                                    FontSize="13" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
-                            <Run Text="Generate will not start until ffmpeg is installed. Download the Windows essentials zip, copy "/>
-                            <Run Text="ffmpeg.exe"/><Run Text=" and "/><Run Text="ffprobe.exe"/><Run Text=" into the tools folder, then Recheck."/>
+                            <Run Text="Generate will not start until ffmpeg is installed. Click DOWNLOAD &amp; INSTALL — "/>
+                            <Run Text="the app fetches the Windows essentials zip, checks it, extracts it and places "/>
+                            <Run Text="ffmpeg.exe"/><Run Text=" and "/><Run Text="ffprobe.exe"/><Run Text=" into the tools folder automatically. Then RECHECK."/>
                         </TextBlock>
                         <TextBlock Text="{Binding FfmpegDownloadUrl}"
                                    FontSize="12"
@@ -82,8 +83,8 @@
                         <!-- Full-width action row: buttons stretch evenly. -->
                         <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
                             <Button Style="{StaticResource SettingsActionButtonStyle}"
-                                    Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
-                                    Command="{Binding OpenFfmpegDownloadCommand}"
+                                    Content="DOWNLOAD &amp; INSTALL (AUTOMATIC)"
+                                    Command="{Binding InstallFfmpegCommand}"
                                     AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
                                     HorizontalAlignment="Stretch"/>
                             <Button Style="{StaticResource SettingsActionButtonStyle}"

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -21,6 +22,10 @@ namespace ProGlassAutomation.Agent.Demo
     public sealed class DemoCenterViewModel : ViewModelBase
     {
         private readonly DemoDirector _director;
+
+        // Guards re-entry while the one-click ffmpeg install is running;
+        // also drives InstallFfmpegCommand's CanExecute.
+        private bool _installingFfmpeg;
 
         public DemoCenterViewModel()
         {
@@ -64,6 +69,14 @@ namespace ProGlassAutomation.Agent.Demo
 
             OpenFfmpegDownloadCommand = new RelayCommand(_ =>
                 OpenUrl(FfmpegDownloadUrl));
+
+            // 2026-08-25: one-click installer — the old button only opened
+            // the zip URL in the system browser, which failed on locked-down
+            // machines and still required a manual unzip + copy. This one
+            // downloads, verifies, extracts and installs by itself.
+            InstallFfmpegCommand = new RelayCommand(
+                async _ => await InstallFfmpegAsync().ConfigureAwait(true),
+                _ => !_installingFfmpeg);
 
             OpenFfmpegPageCommand = new RelayCommand(_ =>
                 OpenUrl(FfmpegOfficialUrl));
@@ -306,6 +319,7 @@ namespace ProGlassAutomation.Agent.Demo
         public ICommand CancelCommand { get; }
         public ICommand OpenOutputCommand { get; }
         public ICommand OpenFfmpegDownloadCommand { get; }
+        public ICommand InstallFfmpegCommand { get; }
         public ICommand OpenFfmpegPageCommand { get; }
         public ICommand CopyFfmpegLinkCommand { get; }
         public ICommand RecheckFfmpegCommand { get; }
@@ -464,6 +478,59 @@ namespace ProGlassAutomation.Agent.Demo
                 "gyan.dev", "www.gyan.dev",       // ffmpeg.org-listed Windows builds (direct zip)
                 "github.com", "www.github.com",   // BtbN / GyanD release pages
             };
+
+        // 2026-08-25: one-click ffmpeg install — download the essentials
+        // zip, verify it, extract it and place ffmpeg.exe + ffprobe.exe
+        // into the tools folder. The user clicks once, then RECHECK (or
+        // waits for the automatic flag refresh below) and is ready.
+        private async Task InstallFfmpegAsync()
+        {
+            if (_installingFfmpeg) return;
+            _installingFfmpeg = true;
+            CommandManager.InvalidateRequerySuggested();
+
+            try
+            {
+                var dispatcher = Application.Current?.Dispatcher;
+                Action<string> progress = message =>
+                {
+                    // FfmpegInstaller reports from background threads.
+                    if (dispatcher != null && !dispatcher.CheckAccess())
+                        dispatcher.BeginInvoke(new Action(() => SetLocalStatus(message)));
+                    else
+                        SetLocalStatus(message);
+                };
+
+                var result = await FfmpegInstaller.DownloadAndInstallAsync(progress)
+                    .ConfigureAwait(true);
+
+                if (result.IsSuccess)
+                {
+                    SetLocalStatus(
+                        "ffmpeg installed into " + result.Value +
+                        " — MP4 generation is ready.");
+                }
+                else
+                {
+                    SetLocalStatus(
+                        "ffmpeg install failed: " + result.Error +
+                        " You can still use COPY LINK / OFFICIAL PAGE for a manual install.");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetLocalStatus("ffmpeg install failed: " + ex.Message);
+            }
+            finally
+            {
+                _installingFfmpeg = false;
+                // Whatever happened, re-probe so the FFMPEG card flips to
+                // the ready state automatically when the files landed.
+                FfmpegMp4Composer.InvalidateCache();
+                RaiseFlags();
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
 
         private void OpenUrl(string url)
         {
