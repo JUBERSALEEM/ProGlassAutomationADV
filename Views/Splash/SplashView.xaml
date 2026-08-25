@@ -39,7 +39,7 @@
         WindowStyle="None"
         ResizeMode="NoResize"
         AllowsTransparency="True"
-        Background="#040B1C"
+        Background="{DynamicResource WindowBackgroundBrush}"
         ShowInTaskbar="False"
         Topmost="True"
         behaviors:ViewportFitBehavior.DisableZoom="True"
@@ -54,6 +54,12 @@
         SnapsToDevicePixels="True">
 
     <Window.Resources>
+
+        <!-- 2026-08-25 redesign: aurora orbs + logo halo are filled with the
+         ACTIVE AccentBrush (theme/accent adaptive), softened by these
+         blurs — no more hard-coded blue radial gradients. -->
+        <BlurEffect x:Key="OrbBlur"  Radius="80" RenderingBias="Performance"/>
+        <BlurEffect x:Key="HaloBlur" Radius="26" RenderingBias="Performance"/>
 
         <!-- ═══ PALETTE (frozen once) — blueish glass spectrum ═══ -->
         <SolidColorBrush x:Key="Azure"    Color="#60A5FA" po:Freeze="True"/>
@@ -92,7 +98,7 @@
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="#FFFFFF" Offset="0.0"/>
             <GradientStop Color="#BFDBFE" Offset="0.45"/>
-            <GradientStop Color="#93C5FD" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- ═══ ICON HALO + GLASS ═══ -->
@@ -120,7 +126,7 @@
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0.0"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.55"/>
-            <GradientStop Color="#93C5FD" Offset="1.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
         <!-- ═══ GLASS SHADOWS ═══ -->
@@ -139,7 +145,7 @@
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
-            <Setter Property="BorderBrush" Value="#66B8D8FF"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="17"/>
             <Setter Property="Height" Value="38"/>
@@ -152,7 +158,7 @@
         <Style x:Key="ChipGlyphStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
             <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Foreground" Value="{StaticResource Ice}"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
@@ -160,7 +166,7 @@
         <Style x:Key="ChipTextStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11.5"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource Ice}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -175,17 +181,12 @@
                     Padding="12,0"
                     CornerRadius="8"
                     HorizontalAlignment="Stretch"
-                    BorderBrush="#2EFFFFFF"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
+                    Background="{DynamicResource MenuHoverBrush}"
                     SnapsToDevicePixels="True"
                     UseLayoutRounding="True"
                     IsHitTestVisible="False">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#1CFFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#08FFFFFF" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Border.Background>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -202,7 +203,7 @@
                                Text="{Binding Label}"
                                FontSize="11.5"
                                FontWeight="SemiBold"
-                               Foreground="{StaticResource Frost}"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                TextWrapping="NoWrap"/>
@@ -214,14 +215,14 @@
         <Style x:Key="TermsDeclineButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="{StaticResource Frost}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                BorderBrush="#40FFFFFF"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
@@ -230,7 +231,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#22FFFFFF"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -276,18 +277,18 @@
 
     </Window.Resources>
 
-    <Grid Background="{StaticResource PageBg}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
 
         <Ellipse Width="420" Height="420"
-                 Fill="{StaticResource OrbRight}"
+                 Fill="{DynamicResource AccentBrush}" Opacity="0.20" Effect="{StaticResource OrbBlur}"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-140,-120,0" IsHitTestVisible="False"/>
         <Ellipse Width="340" Height="340"
-                 Fill="{StaticResource OrbLeft}"
+                 Fill="{DynamicResource AccentBrush}" Opacity="0.15" Effect="{StaticResource OrbBlur}"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-100,0,0,-100" IsHitTestVisible="False"/>
         <Ellipse Width="480" Height="480"
-                 Fill="{StaticResource OrbCore}"
+                 Fill="{DynamicResource AccentBrush}" Opacity="0.10" Effect="{StaticResource OrbBlur}"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
                  Margin="0,-60,0,0" IsHitTestVisible="False"/>
 
@@ -350,9 +351,9 @@
                         <ScaleTransform x:Name="LogoScale" ScaleX="0.92" ScaleY="0.92"/>
                     </Border.RenderTransform>
                     <Grid>
-                        <Ellipse Width="136" Height="136" Fill="{StaticResource IconHalo}"/>
+                        <Ellipse Width="136" Height="136" Fill="{DynamicResource AccentBrush}" Opacity="0.28" Effect="{StaticResource HaloBlur}"/>
                         <Ellipse Width="126" Height="126"
-                                 Stroke="#884F8EF7" StrokeThickness="1.5"
+                                 Stroke="{DynamicResource AccentBrush}" Opacity="0.6" StrokeThickness="1.5"
                                  StrokeDashArray="4 8"/>
                         <Border Width="96" Height="96" CornerRadius="22"
                                 Effect="{StaticResource IconShadow}"
@@ -382,7 +383,7 @@
                            FontSize="28" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,18,0,0"
-                           Foreground="{StaticResource NameGradient}"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
                            Opacity="0">
                     <TextBlock.RenderTransform>
                         <TranslateTransform x:Name="AppNameTranslate" Y="12"/>
@@ -394,7 +395,7 @@
                            FontSize="13.5"
                            HorizontalAlignment="Center"
                            Margin="0,7,0,0"
-                           Foreground="{StaticResource Cerulean}"
+                           Foreground="{DynamicResource AccentBrush}"
                            Opacity="0"/>
 
                 <!-- Module chips — one clean industrial row, uniform widths -->
@@ -406,7 +407,7 @@
                               Opacity="0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="9"
+                            <UniformGrid Columns="6"
                                          HorizontalAlignment="Center"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
@@ -416,7 +417,7 @@
                 <Grid x:Name="ProgressTrack"
                       MaxWidth="340" Height="4"
                       Margin="0,22,0,0" HorizontalAlignment="Stretch">
-                    <Border Height="4" CornerRadius="2" Background="#22FFFFFF"/>
+                    <Border Height="4" CornerRadius="2" Background="{DynamicResource BorderBrush}"/>
                     <Border x:Name="ProgressFill"
                             Height="4" Width="0"
                             HorizontalAlignment="Left"
@@ -428,23 +429,18 @@
                 <Border CornerRadius="10" Padding="14,7"
                         HorizontalAlignment="Center"
                         Margin="0,12,0,0"
-                        BorderBrush="#3DFFFFFF"
-                        BorderThickness="1">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#24FFFFFF" Offset="0.0"/>
-                            <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="1"
+                        Background="{DynamicResource MenuHoverBrush}">
                     <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
                         <TextBlock x:Name="LoadingText"
                                    Text="Starting workspace"
                                    FontSize="11"
-                                   Foreground="{StaticResource Frost}"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock x:Name="LoadingDots"
                                    Text=""
                                    FontSize="11" FontWeight="Bold"
-                                   Foreground="{StaticResource Azure}"/>
+                                   Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
@@ -455,16 +451,11 @@
                     Margin="0,0,0,8"
                     Padding="18,8"
                     CornerRadius="10"
-                    BorderBrush="#2EFFFFFF"
-                    BorderThickness="1">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#16FFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#08FFFFFF" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Border.Background>
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="1"
+                    Background="{DynamicResource MenuHoverBrush}">
                 <TextBlock FontSize="11"
-                           Foreground="{StaticResource Frost}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Opacity="0.8"
                            HorizontalAlignment="Center">
                     <Run Text="© 2026 ProGlass Automation"/>
@@ -498,7 +489,7 @@
 
         <!-- ═══ TERMS GATE — FULL PAGE (glass scrim) ═══ -->
         <Grid x:Name="TermsPanel"
-              Background="#E60A1428"
+              Background="{DynamicResource WindowBackgroundBrush}"
               Visibility="Collapsed"
               Opacity="0"
               Panel.ZIndex="10">
@@ -514,9 +505,9 @@
                 <TextBlock Text="TERMS OF USE"
                            FontSize="26" FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Foreground="White">
+                           Foreground="{DynamicResource PrimaryForegroundBrush}">
                     <TextBlock.Effect>
-                        <DropShadowEffect Color="#3B82F6" BlurRadius="14"
+                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="14"
                                           ShadowDepth="0" Opacity="0.6"/>
                     </TextBlock.Effect>
                 </TextBlock>
@@ -524,9 +515,9 @@
                            FontSize="12.5"
                            HorizontalAlignment="Center"
                            Margin="0,6,0,0"
-                           Foreground="{StaticResource Frost}"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 <Rectangle Height="1" Width="360" Margin="0,18,0,0"
-                           Opacity="0.25" Fill="{StaticResource Azure}"/>
+                           Opacity="0.5" Fill="{DynamicResource AccentBrush}"/>
             </StackPanel>
 
             <!-- Glass terms card -->
@@ -535,54 +526,49 @@
                     Margin="60,26,60,10"
                     Padding="42,34"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    BorderBrush="#33FFFFFF"
-                    BorderThickness="1">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#18FFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Border.Background>
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="1"
+                    Background="{DynamicResource ElevatedSurfaceBrush}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto"
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
-                    <TextBlock Foreground="{StaticResource Frost}"
+                    <TextBlock Foreground="{DynamicResource SecondaryForegroundBrush}"
                                FontSize="13.5"
                                LineHeight="25"
                                TextWrapping="Wrap">
-                        <Run Text="1. Tax compliance is yours, not the software's." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="1. Tax compliance is yours, not the software's." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="This software assists with preparing tax invoices and records. Federal Decree-Law No. 8 of 2017 on Value Added Tax and Federal Decree-Law No. 28 of 2022 on Tax Procedures place the obligation to issue correct tax invoices, apply the correct VAT treatment, and retain records for the periods required by the Federal Tax Authority on YOU, the taxable person. You must verify every figure before issuing, filing or relying on it."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="2. Record retention." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="2. Record retention." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="UAE tax law requires accounting records and tax invoices to be retained for the statutory period — generally five years, and longer for real-estate records. All data is stored locally on this computer only. Maintaining backups sufficient to meet that obligation is your responsibility."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="3. Electronic records and signatures." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="3. Electronic records and signatures." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="Federal Decree-Law No. 46 of 2021 on Electronic Transactions and Trust Services governs electronic records in the UAE. Documents produced here are electronic records; you are responsible for their integrity, storage, and any signature requirements applicable to your business."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="4. Personal data protection." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="4. Personal data protection." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data applies to personal data you enter, such as customer and contact details. You act as the data controller. If you enable the optional AI assistant with real business data, customer names, project names and amounts are transmitted to a third-party AI provider outside this device. That feature is optional and can be switched off at any time in Settings."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="5. Intellectual property and licence." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="5. Intellectual property and licence." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="You are granted a non-transferable licence to use this software for your business. The software, its design and its source remain the property of the author. You may not resell, sublicense, or redistribute it."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="6. Acceptable use." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="6. Acceptable use." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="You agree not to use this software to produce false, misleading or fraudulent invoices or records, or for any purpose unlawful under UAE federal or emirate law."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="7. No warranty and limitation of liability." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="7. No warranty and limitation of liability." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="The software is provided 'as is', without warranty of any kind, express or implied. Pricing, costing, VAT and profit calculations are aids, not professional advice. To the maximum extent permitted by law, no liability is accepted for any direct, indirect or consequential loss arising from use of, or reliance on, its output. Consult a qualified tax adviser regarding your obligations."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="8. Updates." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="8. Updates." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="Updates may be offered from time to time. Installing them is your choice; continuing to use an outdated version may affect compliance with changing tax rules."/>
                         <LineBreak/><LineBreak/>
-                        <Run Text="9. Governing law." FontWeight="Bold" Foreground="White"/>
+                        <Run Text="9. Governing law." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <LineBreak/>
                         <Run Text="These terms are governed by the laws of the United Arab Emirates and of the Emirate in which you operate. Disputes are subject to the competent UAE courts."/>
                     </TextBlock>
@@ -591,15 +577,10 @@
 
             <!-- Glass accept bar -->
             <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
-                    BorderBrush="#30FFFFFF"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
-                    Padding="60,20">
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#1EFFFFFF" Offset="0.0"/>
-                        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
-                    </LinearGradientBrush>
-                </Border.Background>
+                    Padding="60,20"
+                    Background="{DynamicResource MenuHoverBrush}">
                 <DockPanel LastChildFill="True" MaxWidth="980">
                     <StackPanel DockPanel.Dock="Right"
                                 Orientation="Horizontal"
@@ -620,7 +601,7 @@
                     </StackPanel>
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
-                              Foreground="{StaticResource Frost}"
+                              Foreground="{DynamicResource SecondaryForegroundBrush}"
                               FontSize="12.5"
                               Cursor="Hand"
                               Margin="0,8,0,0"

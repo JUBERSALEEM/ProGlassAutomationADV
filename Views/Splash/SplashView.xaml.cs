@@ -82,24 +82,47 @@ namespace ProGlassAutomation.Views.Splash
                 return brush;
             }
 
-            var frost = Frozen(0xBF, 0xDB, 0xFE); // #BFDBFE
-            var cerulean = Frozen(0x93, 0xC5, 0xFD); // #93C5FD
-            var azure = Frozen(0x60, 0xA5, 0xFA); // #60A5FA
-            var sapphire = Frozen(0x3B, 0x82, 0xF6); // #3B82F6
-            var royal = Frozen(0x1D, 0x4E, 0xD8); // #1D4ED8
-            var navy = Frozen(0x1E, 0x3A, 0x8A); // #1E3A8A
+            // 2026-08-25 redesign: module glyphs follow the ACTIVE accent
+            // instead of a hard-coded blue ramp, so the splash adapts to
+            // whatever theme/accent the operator chose. The type is first
+            // touched when App builds the splash (after themes apply), so
+            // the lookup is safe here.
+            static System.Windows.Media.Brush AccentGlyph()
+            {
+                if (System.Windows.Application.Current?.TryFindResource("AccentBrush")
+                        is System.Windows.Media.Brush b)
+                {
+                    if (b.IsFrozen) return b;
+                    if (b.CanFreeze)
+                    {
+                        var c = b.Clone();
+                        c.Freeze();
+                        return c;
+                    }
+                    return b;
+                }
+                return Frozen(0x60, 0xA5, 0xFA); // brand blue fallback
+            }
 
+            var glyph = AccentGlyph();
+
+            // 12 modules — rendered as a 6×2 uniform grid (see
+            // FeaturePanel in the XAML) so every chip is the same width
+            // and the block stays perfectly aligned.
             return new[]
             {
-                new FeatureItem("\uE9F9", "Dashboard",    frost),
-                new FeatureItem("\uE8A5", "Proforma",     cerulean),
-                new FeatureItem("\uEA37", "Sheet Store",  azure),
-                new FeatureItem("\uE9D9", "Job Orders",   sapphire),
-                new FeatureItem("\uE7B8", "Delivery",     royal),
-                new FeatureItem("\uE8C7", "Tax Invoice",  navy),
-                new FeatureItem("\uE8F7", "Statements",   sapphire),
-                new FeatureItem("\uE8C8", "Reports",      azure),
-                new FeatureItem("\uE8F2", "AI Assistant", royal),
+                new FeatureItem("\uE9F9", "Dashboard",    glyph),
+                new FeatureItem("\uE721", "Inquiry",      glyph),
+                new FeatureItem("\uE8A5", "Proforma",     glyph),
+                new FeatureItem("\uE9D9", "Job Orders",   glyph),
+                new FeatureItem("\uE7B8", "Delivery",     glyph),
+                new FeatureItem("\uE8C7", "Tax Invoice",  glyph),
+                new FeatureItem("\uE8F7", "Statements",   glyph),
+                new FeatureItem("\uE8C8", "Reports",      glyph),
+                new FeatureItem("\uEA37", "Sheet Store",  glyph),
+                new FeatureItem("\uE9CE", "Optimization", glyph),
+                new FeatureItem("\uE8F2", "AI Assistant", glyph),
+                new FeatureItem("\uE713", "Settings",     glyph),
             };
         }
 

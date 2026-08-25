@@ -866,11 +866,27 @@ namespace ProGlassAutomation
 
             if (splash.IsVisible)
             {
-                var faded = new TaskCompletionSource<bool>();
-                splash.FadeOutAndClose(() => faded.TrySetResult(true));
-                await faded.Task;
+                // 2026-08-25 senior fix — launch sync. The old code resumed
+                // the startup from FadeOutAndClose's progress callback,
+                // which fires BEFORE the splash's Close() executes. The
+                // Activate() below then raced the close of a fullscreen
+                // transparent Topmost window, and Windows' foreground
+                // handoff glitched — the shell landed minimized/inactive
+                // after the splash. Waiting for the real Closed event
+                // gives the handoff a settled state to work with.
+                var closed = new TaskCompletionSource<bool>();
+                splash.Closed += (_, __) => closed.TrySetResult(true);
+                splash.FadeOutAndClose(() => { });
+                await closed.Task;
             }
 
+            // Claim the foreground on an idle tick AFTER the splash is
+            // fully gone, and defend against the minimized/inactive
+            // landing state explicitly.
+            await Dispatcher.Yield(
+                System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            if (mainWindow.WindowState == WindowState.Minimized)
+                mainWindow.WindowState = WindowState.Maximized;
             mainWindow.Activate();
             mainWindow.Focus();
 
