@@ -55,10 +55,12 @@
         </ResourceDictionary>
     </UserControl.Resources>
     <Border Background="{DynamicResource BackgroundBrush}"
-            Padding="36">
+            Padding="28,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <StackPanel MaxWidth="680" HorizontalAlignment="Stretch"
+            <!-- Full width: no MaxWidth cap, so the activation cards span the
+                 whole settings content column (no empty right side). -->
+            <StackPanel HorizontalAlignment="Stretch"
                         VerticalAlignment="Top">
 
                 <!-- Title + headline -->
@@ -162,7 +164,7 @@
                         <Button Style="{StaticResource PrimaryPillButton}"
                                 Content="APPLY PASTED LICENSE"
                                 Click="PasteApplyButton_Click"
-                                HorizontalAlignment="Left"/>
+                                HorizontalAlignment="Stretch"/>
                     </StackPanel>
                 </Border>
 
@@ -182,7 +184,7 @@
                         <Button Style="{StaticResource OutlinedPillButton}"
                                 Content="BROWSE FOR .LIC FILE…"
                                 Click="BrowseButton_Click"
-                                HorizontalAlignment="Left"/>
+                                HorizontalAlignment="Stretch"/>
                     </StackPanel>
                 </Border>
 

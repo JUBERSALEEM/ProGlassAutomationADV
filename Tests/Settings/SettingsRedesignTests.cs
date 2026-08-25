@@ -552,6 +552,12 @@ namespace ProGlassAutomation.Tests.Settings
             Assert.Contains("Per-Module Wallpapers", src);
             Assert.Contains("<UniformGrid Columns=\"3\"", src);
             Assert.Contains("ItemsSource=\"{Binding ModuleWallpaperRows}\"", src);
+
+            // Both cards span the FULL width: the wallpaper group is a single
+            // column and Global Wallpaper + Per-Module are both FullRow tiles,
+            // so neither sits in a half-width cell with empty space beside it.
+            Assert.Contains("<UniformGrid Columns=\"1\"", src);
+            Assert.Contains("SettingsFullRowTileStyle", src);
         }
 
         /// <summary>

@@ -371,10 +371,13 @@
                 <TextBlock Text="One image behind every module, plus per-module overrides for individual screens."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <UniformGrid Columns="2" Margin="0,0,0,6">
+                <!-- One card per row (Columns=1): Global Wallpaper fills the
+                     full width, then Per-Module Wallpapers fills the full
+                     width below it with its own three-column grid. -->
+                <UniformGrid Columns="1" Margin="0,0,0,6">
 
                     <!-- Global wallpaper — one card, all controls on one line -->
-                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xEB9F;"/>
