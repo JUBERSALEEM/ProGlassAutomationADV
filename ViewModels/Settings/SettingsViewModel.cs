@@ -2526,24 +2526,116 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         /// <summary>Relaunches the exe and closes this instance (used
-        /// after a backup restore, which only loads after a restart).</summary>
+        /// after a backup restore / rebuild, which only load after a
+        /// restart).
+        ///
+        /// 2026-08-25 SENIOR FIX — "restart leaves the app closed":
+        /// the old code ran the running exe through
+        /// ProcessStartGuard.IsPathInsideAllowedRoot before launching.
+        /// That allow-list is AppData/Temp/Downloads — an installed
+        /// app's folder is none of those, so the launch was silently
+        /// SKIPPED while Shutdown() still ran: the app closed and never
+        /// came back (exactly what happened after backup restore).
+        ///
+        /// The restart now:
+        ///   1. resolves the exe robustly (Environment.ProcessPath with
+        ///      MainModule fallback),
+        ///   2. uses a SELF-IDENTITY check — only this process's own exe
+        ///      is allowed, which is strictly stronger than a folder
+        ///      allow-list,
+        ///   3. shuts down ONLY after the new instance actually started,
+        ///   4. on ANY failure keeps the app OPEN and tells the user,
+        ///      so a failed restart can never strand them closed.
+        /// </summary>
         private static void RestartApplication()
         {
             try
             {
-                var exe = System.Diagnostics.Process
+                // 1) Resolve our own executable robustly.
+                string? exe = Environment.ProcessPath;
+                if (string.IsNullOrWhiteSpace(exe))
+                {
+                    exe = System.Diagnostics.Process
+                        .GetCurrentProcess().MainModule?.FileName;
+                }
+
+                if (string.IsNullOrWhiteSpace(exe) || !System.IO.File.Exists(exe))
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                        "[SettingsViewModel] Restart aborted: could not resolve the running executable.");
+                    System.Windows.MessageBox.Show(
+                        "Restart could not find the application executable.\n" +
+                        "Save your work and start the app manually.",
+                        "Restart unavailable",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return; // never close without launching
+                }
+
+                // 2) Self-identity check: only this process's own exe.
+                string? own = System.Diagnostics.Process
                     .GetCurrentProcess().MainModule?.FileName;
-                if (string.IsNullOrEmpty(exe)) return;
+                bool isSelf = !string.IsNullOrWhiteSpace(own)
+                    && string.Equals(
+                        System.IO.Path.GetFullPath(exe),
+                        System.IO.Path.GetFullPath(own),
+                        StringComparison.OrdinalIgnoreCase);
 
-                            // Phase 8: Restart via guard — validate exe is inside app folder
-            if (ProcessStartGuard.IsPathInsideAllowedRoot(exe)) Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = exe, UseShellExecute = true });
+                if (!isSelf && !ProcessStartGuard.IsPathInsideAllowedRoot(exe))
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                        "[SettingsViewModel] Restart blocked by security check: " + exe);
+                    System.Windows.MessageBox.Show(
+                        "Restart was blocked by the security guard.\n" +
+                        "Save your work and start the app manually.",
+                        "Restart blocked",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return; // never close without launching
+                }
 
+                // 3) Launch FIRST — only exit once the new instance
+                //    actually started.
+                var started = System.Diagnostics.Process.Start(
+                    new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = exe,
+                        UseShellExecute = true
+                    });
+
+                if (started == null)
+                {
+                    System.Windows.MessageBox.Show(
+                        "Restart failed to start a new instance.\n" +
+                        "Save your work and start the app manually.",
+                        "Restart failed",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return; // never close without launching
+                }
+                started.Dispose();
+
+                // Give the OS a moment to bring the new process up
+                // before this instance tears down.
+                System.Threading.Thread.Sleep(400);
                 System.Windows.Application.Current.Shutdown();
             }
             catch (System.Exception ex)
             {
-                // Restart is a convenience — never crash for it.
-                ProGlassAutomation.Services.Logging.AppLogService.Warning("[SettingsViewModel] Restart failed: " + ex.Message);
+                // Restart is a convenience — never crash for it, and
+                // never strand the user: on failure the app stays OPEN.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[SettingsViewModel] Restart failed: " + ex.Message);
+                try
+                {
+                    System.Windows.MessageBox.Show(
+                        "Restart failed (" + ex.Message + ").\n" +
+                        "Save your work and start the app manually.",
+                        "Restart failed",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
+                catch { /* the dialog itself must never crash */ }
             }
         }
     }

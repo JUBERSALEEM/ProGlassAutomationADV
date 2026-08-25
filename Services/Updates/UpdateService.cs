@@ -346,7 +346,25 @@ namespace ProGlassAutomation.Services.Updates
                         return;
                     }
 
-                    ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
+                    // 2026-08-25 senior fix: the launch result was ignored
+                    // and the app shut down unconditionally 800 ms later —
+                    // if the installer never started, the user was left
+                    // closed with no update (same class of bug as the
+                    // Settings restart). Only exit when the launch
+                    // actually succeeded; otherwise report and stay open.
+                    var launched = ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
+                    if (!launched.IsSuccess)
+                    {
+                        AuditService.Log(AuditSections.Updates,
+                            "UPDATE_INSTALL_LAUNCH_FAILED",
+                            launched.Error ?? "installer did not start");
+
+                        SetState(UpdateState.Failed,
+                            "The update installer could not be started. " +
+                            "The app will stay open — launch the installer " +
+                            "manually from your Downloads folder.");
+                        return;
+                    }
 
                     // Give the installer a moment to start, then exit so
                     // application files can be replaced safely.
