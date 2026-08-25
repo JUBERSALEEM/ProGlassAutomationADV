@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/Statement/StDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Account Statement Dashboard
@@ -19,15 +19,13 @@
      Nothing here needs an inline-hex workaround, so the private styles
      are gone and the shared Soft* keys are used.
 
-     KPI CARDS ARE HAND-BUILT HERE ON PURPOSE
-     ────────────────────────────────────────
-     Unlike the other six dashboards, StDashboardViewModel exposes four
-     SCALAR properties (TotalStatements, TotalInvoicedDisplay,
-     TotalOutstandingDisplay, OverdueAmountDisplay) rather than an
-     ObservableCollection of KpiCardModel. Introducing a collection
-     would mean editing the ViewModel, which is out of scope for a
-     styling pass, so the four cards are written out using the same
-     Soft* primitives. They are pixel-identical to the templated ones.
+     KPI CARDS USE THE SHARED TEMPLATE (Aug 2026)
+     ────────────────────────────────────────────
+     StDashboardViewModel now exposes a KpiCards ObservableCollection of
+     KpiCardModel, built from the four scalar KPIs, so this page renders
+     through the SAME SoftKpiCardTemplate as every other module dashboard
+     — no more hand-written scalar cards. The scalar display properties
+     (TotalInvoicedDisplay etc.) are retained for the summary text/rows.
 
      DEVIATIONS FROM THE PASTED REFERENCE, EACH FORCED
      ─────────────────────────────────────────────────
@@ -263,42 +261,28 @@
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- KPI stat cards — same shared template as every other
+                         module dashboard (SoftKpiCardTemplate), built from the
+                         KpiCards collection so the Statement page matches the
+                         rest of the suite. -->
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,10,0" MinHeight="168">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="OUTSTANDING"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
-                                         StretchDirection="DownOnly" Margin="0,8,12,4">
-                                    <TextBlock Text="{Binding TotalOutstandingDisplay}"
-                                               Style="{StaticResource SoftKpiValueStyle}"
-                                               Margin="0"
-                                               Foreground="{DynamicResource WarningBrush}"/>
-                                </Viewbox>
-                                <TextBlock Text="Awaiting payment across all statements"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                                <TextBlock Margin="0,12,0,0"
-                                           Style="{StaticResource SoftKpiLabelStyle}"
-                                           Text="TOTAL INVOICED"/>
-                                <TextBlock Text="{Binding TotalInvoicedDisplay}"
-                                           Style="{StaticResource SoftKpiValueStyle}"
-                                           FontSize="22"/>
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+                                <TextBlock Text="Statement pulse"
+                                           Style="{StaticResource SoftSectionTitleStyle}"/>
+                                <TextBlock Text="Statements, invoiced, outstanding and overdue"
+                                           Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" Margin="16,0,0,0">
-                                <TextBlock Text="STATEMENTS"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding TotalStatements}"
-                                           Style="{StaticResource SoftKpiValueStyle}"
-                                           Foreground="{DynamicResource InfoBrush}"/>
-                                <TextBlock Text="Generated to date"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                            </StackPanel>
-                        </Grid>
+                            <ItemsControl ItemsSource="{Binding KpiCards}"
+                                          ItemTemplate="{StaticResource SoftKpiCardTemplate}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="2"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                        </DockPanel>
                     </Border>
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"

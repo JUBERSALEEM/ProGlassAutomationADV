@@ -108,6 +108,60 @@ namespace ProGlassAutomation.Tests.Dashboard
             }
         }
 
+        /// <summary>
+        /// The Overview bottom section (Sales / Production / Sheet store) now
+        /// renders its 4 KPI tiles as a 2×2 grid (Rows=2) so each tile is
+        /// larger and the label/value are legible, instead of four thin tiles
+        /// crammed into a single row.
+        /// </summary>
+        [Fact]
+        public void Overview_kpi_band_uses_a_two_row_grid()
+        {
+            var root = LocateProjectRoot();
+            var styles = File.ReadAllText(Path.Combine(root, "Styles/DashboardStyles.xaml"));
+            Assert.Contains("<UniformGrid Rows=\"2\"/>", styles);
+        }
+
+        /// <summary>
+        /// The Overview "Recent documents" feed must be a mouse-wheel scroller
+        /// (bounded height + smooth scroll + smart bubbling) so the list
+        /// scrolls under the pointer instead of growing forever or being
+        /// swallowed by the outer page scroller.
+        /// </summary>
+        [Fact]
+        public void Recent_documents_is_a_mouse_wheel_scroller()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Dashboard/Overview/OverviewDashboardView.xaml"));
+
+            Assert.Contains("Recent documents", src);
+            Assert.Contains("SmartScrollBubblingBehavior.IsEnabled=\"True\"", src);
+            Assert.Contains("SmoothScrollBehavior.IsEnabled=\"True\"", src);
+            Assert.Contains("MaxHeight=\"320\"", src);
+            Assert.Contains("CanContentScroll=\"True\"", src);
+        }
+
+        /// <summary>
+        /// The Statement dashboard now matches the other modules: it exposes a
+        /// KpiCards collection (same KpiCardModel shape) and renders through
+        /// the shared SoftKpiCardTemplate instead of hand-written scalar cards.
+        /// </summary>
+        [Fact]
+        public void Statement_matches_the_other_module_dashboards()
+        {
+            var root = LocateProjectRoot();
+            var vm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/Dashboard/Statement/StDashboardViewModel.cs"));
+            var view = File.ReadAllText(Path.Combine(root,
+                "Views/Dashboard/Statement/StDashboardView.xaml"));
+
+            Assert.Contains("KpiCards", vm);
+            Assert.Contains("ObservableCollection<ProGlassAutomation.Models.Dashboard.KpiCardModel>", vm);
+            Assert.Contains("SoftKpiCardTemplate", view);
+            Assert.Contains("ItemsSource=\"{Binding KpiCards}\"", view);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

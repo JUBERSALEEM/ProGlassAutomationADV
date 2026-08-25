@@ -74,6 +74,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             = new();
 
         /// <summary>
+        /// KPI stat cards, built in the SAME KpiCardModel shape as the other
+        /// six module dashboards so the Statement page renders through the
+        /// shared SoftKpiCardTemplate (no more hand-written scalar cards).
+        /// Rebuilt whenever the underlying scalars change.
+        /// </summary>
+        public ObservableCollection<ProGlassAutomation.Models.Dashboard.KpiCardModel> KpiCards { get; }
+            = new();
+
+        /// <summary>
         /// True only after first load completes with zero statements.
         /// Uses base.IsLoading to avoid conflict with DashboardPageBase.
         /// </summary>
@@ -181,6 +190,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 _overdueAmount = totalOverdue;
                 _isLoaded = true;
                 RebuildBalanceMix();
+                RebuildKpiCards();
 
                 // Batch notification — single fire
                 OnPropertyChanged(string.Empty);
@@ -211,6 +221,54 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 RawValue = _overdueAmount,
                 ValueDisplay = OverdueAmountDisplay,
                 Accent = "Red"
+            });
+        }
+
+        /// <summary>
+        /// Rebuilds the KPI card collection from the four scalar values so the
+        /// Statement page uses the SAME SoftKpiCardTemplate as every other
+        /// module dashboard. BadgeColor/TintColor are theme-brush keys that
+        /// swap with the Light/Dark theme.
+        /// </summary>
+        private void RebuildKpiCards()
+        {
+            KpiCards.Clear();
+            KpiCards.Add(new ProGlassAutomation.Models.Dashboard.KpiCardModel
+            {
+                Icon = "\uE9D9",
+                Title = "Statements",
+                DisplayValue = _totalStatements.ToString("N0"),
+                SubLabel = "Generated to date",
+                BadgeColor = "AccentBrush",
+                TintColor = "TintBlueBrush"
+            });
+            KpiCards.Add(new ProGlassAutomation.Models.Dashboard.KpiCardModel
+            {
+                Icon = "\uE8A5",
+                Title = "Total Invoiced",
+                DisplayValue = TotalInvoicedDisplay,
+                SubLabel = "All statements",
+                BadgeColor = "SuccessBrush",
+                TintColor = "TintGreenBrush"
+            });
+            KpiCards.Add(new ProGlassAutomation.Models.Dashboard.KpiCardModel
+            {
+                Icon = "\uE7B8",
+                Title = "Outstanding",
+                DisplayValue = TotalOutstandingDisplay,
+                SubLabel = "Awaiting payment",
+                BadgeColor = "WarningBrush",
+                TintColor = "TintAmberBrush"
+            });
+            KpiCards.Add(new ProGlassAutomation.Models.Dashboard.KpiCardModel
+            {
+                Icon = _overdueAmount > 0 ? "\uE7BA" : "\uE73E",
+                Title = "Overdue",
+                DisplayValue = OverdueAmountDisplay,
+                SubLabel = "Past payment terms",
+                BadgeColor = _overdueAmount > 0 ? "DangerBrush" : "NeutralBrush",
+                TintColor = _overdueAmount > 0 ? "TintRedBrush" : "TintGrayBrush",
+                IsAlert = _overdueAmount > 0
             });
         }
     }

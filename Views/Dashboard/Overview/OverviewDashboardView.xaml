@@ -232,8 +232,22 @@
                             <TextBlock DockPanel.Dock="Top" Text="Recent documents"
                                        Style="{StaticResource SoftSectionTitleStyle}"
                                        Margin="0,0,0,8"/>
+                            <!-- Mouse-wheel scroller. The page ScrollViewer above
+                                 owns vertical scrolling, so this inner list is
+                                 bounded (so it doesn't grow forever) and uses
+                                 SmartScrollBubblingBehavior to grab the wheel
+                                 when the pointer is over it and hand the event
+                                 back to the outer scroller at the boundary —
+                                 no more "stuck" / no-scroll Recent documents. -->
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled">
+                                          HorizontalScrollBarVisibility="Disabled"
+                                          CanContentScroll="True"
+                                          PanningMode="VerticalOnly"
+                                          MaxHeight="320"
+                                          behaviors:SmoothScrollBehavior.IsEnabled="True"
+                                          behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                          Focusable="False"
+                                          FocusVisualStyle="{x:Null}">
                                 <ItemsControl ItemsSource="{Binding RecentActivity}"
                                               ItemTemplate="{StaticResource SoftFeedRowTemplate}"/>
                             </ScrollViewer>

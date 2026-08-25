@@ -902,11 +902,21 @@
          IsAlert). Accent is a WORD (Green|Blue|Amber|Red), not a brush
          key, so the cap colour comes from triggers instead. -->
     <DataTemplate x:Key="SoftKpiTileTemplate">
-        <Border Style="{StaticResource SoftTileStyle}" Margin="5,0,5,0">
+        <!-- Margin 5,0,5,6: equal horizontal gutter plus a small vertical
+             gap so the 2×2 KPI band reads as separate cards. MinHeight keeps
+             the label + value + icon slot from colliding when the band is
+             narrowed. -->
+        <Border Style="{StaticResource SoftTileStyle}"
+                Margin="5,0,5,6"
+                MinHeight="82">
             <Grid>
                 <StackPanel Margin="0,0,48,0">
                     <TextBlock Text="{Binding Label}"
-                               Style="{StaticResource SoftKpiLabelStyle}"/>
+                               Style="{StaticResource SoftKpiLabelStyle}"
+                               TextWrapping="Wrap"
+                               TextTrimming="CharacterEllipsis"
+                               FontSize="12"
+                               LineHeight="15"/>
                     <Viewbox HorizontalAlignment="Left"
                              Stretch="Uniform"
                              StretchDirection="DownOnly"
@@ -949,9 +959,11 @@
 
     <!-- KPI row host: equal columns, reference's 10px gutter handled by
          the card margin below. UniformGrid keeps columns equal at any
-         width, which is what makes the row read as one band. -->
+         width, which is what makes the row read as one band.
+         Two rows (Rows="2") so a 4-tile band becomes a 2×2 grid of larger,
+         more legible tiles rather than 4 thin tiles crammed in one line. -->
     <ItemsPanelTemplate x:Key="SoftKpiRowPanel">
-        <UniformGrid Rows="1"/>
+        <UniformGrid Rows="2"/>
     </ItemsPanelTemplate>
 
     <!-- ═══════════════════════════════════════════════════════════════
