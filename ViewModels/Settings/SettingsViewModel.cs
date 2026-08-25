@@ -869,13 +869,17 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private void ApplyFontColorPreset(string presetKey)
         {
-            var theme = ProGlassAutomation.Services.Theme.FontColorPresets;
-
+            // FontColorPresets is a static class — qualify with the
+            // type name, never an instance reference.
             // Auto → clear the override; preset → its exact hex.
-            string hex = theme.Auto == presetKey
+            string hex =
+                ProGlassAutomation.Services.Theme.FontColorPresets.Auto
+                    == presetKey
                 ? ""
-                : theme.ColorFor(presetKey) is Color c
-                    ? theme.ToHex(c)
+                : ProGlassAutomation.Services.Theme.FontColorPresets
+                    .ColorFor(presetKey) is Color c
+                    ? ProGlassAutomation.Services.Theme.FontColorPresets
+                        .ToHex(c)
                     : "";
 
             SelectedFontColor = hex;
