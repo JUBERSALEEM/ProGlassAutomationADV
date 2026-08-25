@@ -66,17 +66,23 @@ namespace ProGlassAutomation.Agent.Demo
 
         private CancellationTokenSource? _cts;
 
+        // 2026-08-25 senior fix: STOP on the recording HUD means "stop
+        // capturing and SAVE what was recorded" — standard recorder
+        // behaviour. The flag lets RunAsync distinguish a user stop
+        // (finalize + save the partial MP4) from a real failure.
+        private volatile bool _stopRequested;
+
         // 2026-08-25: Cancel stops the WHOLE batch. Previously only the
         // current job's token was cancelled, so a Record-All run kept
         // starting the next module even after the user pressed Cancel.
         public void Cancel()
         {
             DemoJobQueue.Shared.StopAll();
+            _stopRequested = true;
 
-            // 2026-08-25 senior fix: STOP must feel instant. The teardown
-            // (final JPEG encodes, audio close) legitimately takes a few
-            // seconds — until this line the HUD gave no feedback at all
-            // during that window, so users reported STOP "did not respond".
+            // STOP must feel instant. The teardown (final JPEG encodes,
+            // audio close) legitimately takes a few seconds — the HUD
+            // says so instead of looking dead.
             DemoRecordingChrome.UpdateStage("Stop requested — finishing capture…");
 
             _cts?.Cancel();
@@ -87,6 +93,7 @@ namespace ProGlassAutomation.Agent.Demo
             _cts?.Cancel();
             _cts = new CancellationTokenSource();
             var ct = _cts.Token;
+            _stopRequested = false;
             var log = new StringBuilder();
             LastArgument = argument;
             LastMp4Path = null;
@@ -164,6 +171,16 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 events = await runner.RunAsync(ct).ConfigureAwait(false);
             }
+            catch (OperationCanceledException)
+            {
+                // STOP mid-walk. The workflow's partial event list is
+                // lost with the throw — that is fine: the captured
+                // frames are on disk and they are what matters now.
+                // (Many workflow helpers also swallow the cancel and
+                // return normally; _stopRequested covers both shapes.)
+                _stopRequested = true;
+                events = Array.Empty<VerifiedEvent>();
+            }
                 finally
                 {
                     DemoStage.Report = null;
@@ -180,11 +197,25 @@ namespace ProGlassAutomation.Agent.Demo
                     }), new JsonSerializerOptions { WriteIndented = true }));
                 log.AppendLine($"Verified events: {events.Count}");
 
+                // 2026-08-25 senior fix — STOP now SAVES the recording.
+                // The finalize token is FRESH: STOP cancels the capture
+                // token (ct), and if the mix/encode steps reused it their
+                // very first await would throw — which is exactly how
+                // users got "ffmpeg ran but did not leave a valid MP4"
+                // every time they pressed STOP: the encode never really
+                // ran, but the failure message blamed ffmpeg.
+                using var finalizeCts =
+                    new CancellationTokenSource(TimeSpan.FromMinutes(15));
+                var ft = _stopRequested ? finalizeCts.Token : ct;
+
                 var deep = new HashSet<string>(
                     runner.DeepEvidenceIds ?? Array.Empty<string>(),
                     StringComparer.Ordinal);
                 bool walkedWizard = events.Any(e => deep.Contains(e.Id));
-                if (events.Count == 0 || deep.Count == 0 || !walkedWizard)
+                // A user STOP legitimately ends the walk early — the
+                // partial capture is still real footage and gets saved.
+                // The deep-evidence gate only polices uninterrupted runs.
+                if (!_stopRequested && (events.Count == 0 || deep.Count == 0 || !walkedWizard))
                 {
                     Fail(module,
                         "The workflow did not run. Only a screen change is not a demo. " +
@@ -204,6 +235,24 @@ namespace ProGlassAutomation.Agent.Demo
                     $"Frames captured: {recorder.EncodedFrames} (jpeg files={jpegs.Count}, live encode={haveLiveVideo})");
                 if (recorder.EncodedFrames == 0 && !haveLiveVideo)
                 {
+                    if (_stopRequested)
+                    {
+                        // Stopped before anything was captured — a clean
+                        // cancel, not a recording failure.
+                        Set(DemoJobState.Cancelled,
+                            "Stopped before any frames were captured.");
+                        Remember(new DemoJobRecord
+                        {
+                            Module = module,
+                            State = nameof(DemoJobState.Cancelled),
+                            Status = Status,
+                            Folder = LastOutputFolder
+                        });
+                        DemoRecordingChrome.ShowCancelled(
+                            "Stopped before any frames were captured.");
+                        return Status;
+                    }
+
                     Fail(module,
                         "The recorder captured no frames. There is no video to encode.",
                         log, folder);
@@ -217,8 +266,10 @@ namespace ProGlassAutomation.Agent.Demo
                 string? liveWav = recorder.LiveAudioPath;
                 string? micWav = recorder.MicAudioPath;
                 string mixedWav = Path.Combine(folder, "mixed.wav");
+                // ft (not ct): on a user STOP the capture token is dead;
+                // the mix must still run so the saved MP4 keeps its audio.
                 string? liveMix = await FfmpegMp4Composer
-                    .MixAudioAsync(liveWav, micWav, mixedWav, ct)
+                    .MixAudioAsync(liveWav, micWav, mixedWav, ft)
                     .ConfigureAwait(false);
                 TimeSpan liveDur = TimeSpan.Zero;
                 if (!string.IsNullOrEmpty(liveMix) && File.Exists(liveMix))
@@ -241,6 +292,16 @@ namespace ProGlassAutomation.Agent.Demo
                         (recorder.LiveAudioStarted ? " internal" : "") +
                         (recorder.MicAudioStarted ? " mic" : "") +
                         " — skipping post-walk TTS because speech was already captured in sync.");
+                }
+                else if (_stopRequested)
+                {
+                    // 2026-08-25: the user stopped the recording. Skip
+                    // post-walk narration entirely — the capture token is
+                    // dead (TTS would fail on its first await) and a
+                    // partial recording does not need synthesized speech.
+                    // With no live audio the MP4 is saved silent.
+                    log.AppendLine(
+                        "Stopped by user — skipping post-walk narration.");
                 }
                 else
                 {
@@ -308,8 +369,10 @@ namespace ProGlassAutomation.Agent.Demo
                     ? $"live mix {liveDur.TotalSeconds:0.00}s" +
                       (recorder.LiveAudioStarted ? " internal" : "") +
                       (recorder.MicAudioStarted ? " mic" : "")
-                    : "TTS WAV (live mix unused: " +
-                      (recorder.AudioError ?? "silent or off") + ")";
+                    : _stopRequested
+                        ? "stopped by user before narration"
+                        : "TTS WAV (live mix unused: " +
+                          (recorder.AudioError ?? "silent or off") + ")";
 
                 CaptionWriter.Write(folder, beats);
 
@@ -317,7 +380,10 @@ namespace ProGlassAutomation.Agent.Demo
                 string baseName = Path.GetFileNameWithoutExtension(runner.OutputFileName);
                 string mp4Name = baseName + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".mp4";
                 string mp4 = Path.Combine(outputFolder, mp4Name);
-                string audioForMux = liveOk ? liveMix! : narrationWav!;
+                // Stopped recordings with no live audio mux silent.
+                string? audioForMux = liveOk
+                    ? liveMix
+                    : (_stopRequested ? null : narrationWav);
                 string? produced = null;
 
                 // Calculate actual achieved framerate — the nominal rec.Fps
@@ -340,10 +406,13 @@ namespace ProGlassAutomation.Agent.Demo
                     // truncate/kill the encode — "ffmpeg ran but did not
                     // leave a valid MP4"). The numbered-pattern encode
                     // stays as a fallback only.
+                    // ft (not ct): on a user STOP the capture token is
+                    // already cancelled — encoding with it dies at the
+                    // first await and the user loses their recording.
                     produced = await FfmpegMp4Composer
                         .ComposeFrameListAudioAsync(
                             jpegs, audioForMux, mp4,
-                            (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
+                            (int)Math.Round(actualFps), outW, outH, ft, rec.EncodeCrf)
                         .ConfigureAwait(false);
 
                     if (produced == null)
@@ -352,7 +421,7 @@ namespace ProGlassAutomation.Agent.Demo
                         produced = await FfmpegMp4Composer
                             .ComposeFramesAudioAsync(
                                 framesDir, "f%05d.jpg", audioForMux, mp4,
-                                (int)Math.Round(actualFps), outW, outH, ct, rec.EncodeCrf)
+                                (int)Math.Round(actualFps), outW, outH, ft, rec.EncodeCrf)
                             .ConfigureAwait(false);
                     }
 
@@ -368,7 +437,7 @@ namespace ProGlassAutomation.Agent.Demo
                     Set(DemoJobState.Rendering, "Remuxing the live-encoded video with audio…");
                     recorder.EncodeStage = "Remuxing live encode…";
                     produced = await FfmpegMp4Composer
-                        .MuxCopyVideoAudioAsync(recorder.LiveVideoPath!, audioForMux, mp4, ct)
+                        .MuxCopyVideoAudioAsync(recorder.LiveVideoPath!, audioForMux, mp4, ft)
                         .ConfigureAwait(false);
                     if (produced != null && !FfmpegMp4Composer.IsValidMp4(produced))
                         produced = null;
