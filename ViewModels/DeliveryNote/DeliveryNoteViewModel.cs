@@ -471,7 +471,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     await App.DeliveryNotes.UpdateMasterDnAsync(
                         jobOrder.JobOrderId, "");
                 }
-                catch { /* display still works from heal */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Master-DN clear during heal failed; display still works from heal: " + ex.Message); }
 
                 var masterDn = await App.DeliveryNotes
                     .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId);
@@ -743,7 +743,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId)
                     ?? masterDn;
             }
-            catch { /* use the in-memory Master if persist is denied */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Master-DN persist denied; using in-memory Master: " + ex.Message); }
 
             int nextSeq = await App.DeliveryNotes
                 .GetNextSequenceAsync(jobOrder.JobOrderId);
