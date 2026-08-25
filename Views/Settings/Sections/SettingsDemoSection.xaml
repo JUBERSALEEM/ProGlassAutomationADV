@@ -309,12 +309,14 @@
                             <!-- 2026-08-25 senior fix: the dropdown showed
                                  "ProGlassAutomation.Agent.Demo.DemoWorkflow"
                                  type names. DisplayMemberPath alone proved
-                                 fragile (implicit combo styles / stale
-                                 checkouts dropped it); an explicit
-                                 ItemTemplate always renders the Title. -->
+                                 fragile, so an explicit ItemTemplate renders
+                                 the Title. NOTE: DisplayMemberPath and
+                                 ItemTemplate must NOT both be set — WPF
+                                 throws InvalidOperationException at item
+                                 generation when they are, which killed the
+                                 whole Settings page (blank screen). -->
                             <ComboBox ItemsSource="{Binding Modules}"
                                       SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
-                                      DisplayMemberPath="Title"
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="260"
                                       Padding="10,7"
