@@ -123,6 +123,14 @@ namespace ProGlassAutomation.Views.AI
         private Point _panelDragStartMouse;
         private Point _panelDragStartOffset;
 
+        // 2026-08-25 senior fix: the panel carries a DropShadowEffect.
+        // WPF re-runs the shadow's pixel shader for the whole panel on
+        // EVERY position change, so dragging it forced a full software
+        // composite per mouse move — the UI visibly froze ("as soon as
+        // I try to drag it, it force-sticks the UI"). The effect is
+        // suspended for the drag and restored on release.
+        private System.Windows.Media.Effect? _panelDragEffect;
+
         private void HookPanelPositioning()
         {
             ChatPanel.IsVisibleChanged += (_, _) =>
@@ -187,6 +195,12 @@ namespace ProGlassAutomation.Views.AI
             if (double.IsNaN(top)) top = 0;
             _panelDragStartOffset = new Point(left, top);
 
+            // Suspend the expensive shadow + cache the panel bitmap while
+            // it moves; both are restored in MouseLeftButtonUp.
+            _panelDragEffect = ChatPanel.Effect;
+            ChatPanel.Effect = null;
+            ChatPanel.CacheMode = new System.Windows.Media.Imaging.BitmapCache();
+
             ChatPanel.CaptureMouse();
             e.Handled = true;
         }
@@ -214,6 +228,12 @@ namespace ProGlassAutomation.Views.AI
 
             _panelDragging = false;
             ChatPanel.ReleaseMouseCapture();
+
+            // Restore the shadow and drop the drag-time cache.
+            ChatPanel.Effect = _panelDragEffect;
+            _panelDragEffect = null;
+            ChatPanel.CacheMode = null;
+
             e.Handled = true;
         }
 
