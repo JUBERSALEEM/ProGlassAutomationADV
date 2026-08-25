@@ -71,6 +71,26 @@ namespace ProGlassAutomation.Services.Theme
             "WallpaperOpacityValue",
             "ModuleWallpaperBrush",
 
+            // Status-tint cards/chips (InfoCard + the BrushKeyConverter
+            // chips in dashboards/lists). Glassy renders these as
+            // see-through hue glass (hue kept, alpha dropped), so the
+            // overrides must be cleaned up on family switch exactly like
+            // the surfaces above.
+            "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush",
+            "TintRedBrush", "TintAmberBrush", "TintPurpleBrush",
+            "TintGrayBrush",
+
+            // Dashboard glass + ambient layer, and the shell (top bar)
+            // glass — Glassy re-skins these to the About-page glass.
+            "DashGlassSurfaceBrush", "DashAmbientBrush",
+            "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
+            "ShellGlassBrush", "SidebarCardBrush",
+
+            // Glassy typography: the About page's own text palette
+            // (GlassSnow / GlassCerulean / GlassMuted) is applied so
+            // text auto-adapts when every card goes transparent.
+            "PrimaryForegroundBrush",
+
             // The card keyline. Monet and Professional recolour every
             // surface, so a keyline fixed by the base theme stops
             // relating to the surface it outlines and the cards read as
@@ -662,70 +682,200 @@ namespace ProGlassAutomation.Services.Theme
         // ── GLASSY — the About page's look, app-wide ─────────────────
         //
         // The About view earned the "glass page" identity: a rich
-        // diagonal stage, two soft light orbs, and frosted cards with
-        // the stage reading through them. Glassy moves that identity
-        // from one page to the whole application:
+        // diagonal stage, two soft light orbs, and cards filled with
+        // the near-transparent GlassCard ramp (dark theme: #2E→#0D
+        // alpha = 0.18 → 0.05) using the About text palette
+        // (GlassSnow / GlassCerulean / GlassMuted). Glassy moves that
+        // identity from one page to the WHOLE application:
         //
         //   * WindowBackgroundBrush becomes the About stage itself
-        //     (navy/ice diagonal + the same two radial light orbs the
-        //     About page draws), so the window reads as one glass scene.
-        //   * Every surface (module, elevated, side menu, hover) turns
-        //     into translucent frosted glass, so the stage — or the
-        //     wallpaper on top of it — shows through all views. That is
-        //     the "everything stays transparent" behaviour the About
-        //     page had.
-        //   * Typography contrast is strengthened (theme-aware) because
-        //     text over frosted glass loses contrast — the same rule the
-        //     wallpaper layer applies.
+        //     (navy/ice diagonal + the same two radial light orbs), so
+        //     the window reads as one glass scene.
+        //   * EVERY card surface in the UI — module cards, elevated
+        //     tiles, the top bar, side menu, sidebar cards, dashboard
+        //     glass, shell glass, hover, and DataGrid rows (which ride
+        //     ModuleBackgroundBrush / MenuHoverBrush) — becomes that
+        //     same near-transparent accent-tinted glass, so the stage
+        //     or wallpaper reads through everything, inside and outside
+        //     the cards alike.
+        //   * Status tint cards/chips (TintIndigo/Blue/Green/Red/
+        //     Amber/Purple/Gray — used directly and through
+        //     BrushKeyConverter in VM-driven templates, which
+        //     re-resolves keys live) keep their hue but drop to glass
+        //     alpha, so status colour is preserved while fills go
+        //     transparent.
+        //   * Typography auto-adapts: the About page's own text palette
+        //     is applied as Primary/Secondary/MutedForeground, read
+        //     from the ACTIVE theme's Glass* keys — so a Light/Dark
+        //     swap re-reads the matching palette and text can never sit
+        //     invisible over the transparent cards (muted #64748B on
+        //     navy is exactly the case this fixes).
 
         private static void ApplyGlassy(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             var accent = ThemeManager.AccentColor;
 
-            // Window = the About stage. When a wallpaper is configured,
-            // Apply() overwrites this brush with the image afterwards,
-            // exactly like every other family — the frost surfaces then
-            // sit on the picture instead of the gradient.
+            // ── 1) WINDOW — the About stage ──────────────────────────
+            // When a wallpaper is configured, Apply() overwrites this
+            // brush with the image afterwards, exactly like every other
+            // family — the glass surfaces then sit on the picture.
             resources["WindowBackgroundBrush"] =
                 BuildGlassStageBrush(dark, accent);
 
-            // Frosted surfaces — translucent so the stage (or wallpaper)
-            // reads through every card. Dark mode is the boldest look
-            // (the About page's own stage is dark); light mode keeps
-            // the same glass construction over the ice stage with
-            // higher alphas so dense content stays readable.
-            resources["ModuleBackgroundBrush"] = FrostSurface(
-                resources, "ModuleBackgroundBrush", accent,
-                Colors.White, dark,
-                dark ? 0.34 : 0.82, dark ? 0.18 : 0.60);
-            resources["ElevatedSurfaceBrush"] = FrostSurface(
-                resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, dark,
-                dark ? 0.42 : 0.88, dark ? 0.26 : 0.72);
-            resources["SideMenuBackgroundBrush"] = FrostSurface(
-                resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, dark,
-                dark ? 0.46 : 0.90, dark ? 0.32 : 0.76);
-            resources["MenuHoverBrush"] = FrostSurface(
-                resources, "MenuHoverBrush", accent,
-                Color.FromRgb(0xF3, 0xF4, 0xF6), dark,
-                dark ? 0.20 : 0.30, dark ? 0.20 : 0.30);
+            // ── 2) CARD SURFACES — About-GlassCard transparency ───────
+            // Main cards use the About page's exact dark GlassCard ramp
+            // (0.18 → 0.05). Slightly nested levels get a touch more
+            // alpha for hierarchy while staying fully see-through.
+            resources["ModuleBackgroundBrush"] = GlassFill(
+                accent, 0.18, 0.05);          // main cards + DataGrid bg/rows
+            resources["ElevatedSurfaceBrush"] = GlassFill(
+                accent, 0.24, 0.08);          // tiles / inner cards
+            resources["SideMenuBackgroundBrush"] = GlassFill(
+                accent, 0.30, 0.10);          // top bar + drawer
+            resources["MenuHoverBrush"] = GlassFill(
+                accent, 0.20, 0.10);          // hover + alternating rows
+            resources["SidebarCardBrush"] = GlassFill(
+                accent, 0.22, 0.08);          // sidebar nested cards
+            resources["ShellGlassBrush"] = GlassFill(
+                accent, 0.26, 0.08);          // shell / top-bar glass
+            resources["DashGlassSurfaceBrush"] = GlassFill(
+                accent, 0.20, 0.08);          // dashboard glass panels
 
+            // ── 3) DASHBOARD AMBIENT — blend into the stage ──────────
+            // The dashboard paints its own navy ambient + blobs behind
+            // its cards; in Glassy that would hide the window stage, so
+            // it becomes a faint accent glow that merges with it.
+            resources["DashAmbientBrush"] = GlassFill(
+                accent, dark ? 0.14 : 0.10, dark ? 0.06 : 0.04);
+            resources["DashAmbientBlob1Brush"] =
+                SolidGlass(accent, dark ? 0.10 : 0.08);
+            resources["DashAmbientBlob2Brush"] =
+                SolidGlass(accent, dark ? 0.08 : 0.06);
+
+            // ── 4) STATUS TINTS — hue kept, fill made glass ──────────
+            // The tint keys drive status cards and the
+            // BrushKeyConverter chips. Keep each hue, drop the alpha:
+            // the navy stage needs little to read; the ice stage takes
+            // the same ramp (white-frost tints sit on it identically).
+            resources["TintIndigoBrush"] = HueGlass(
+                "TintIndigoBrush", 0.30, 0.14);
+            resources["TintBlueBrush"] = HueGlass(
+                "TintBlueBrush", 0.30, 0.14);
+            resources["TintGreenBrush"] = HueGlass(
+                "TintGreenBrush", 0.30, 0.14);
+            resources["TintRedBrush"] = HueGlass(
+                "TintRedBrush", 0.30, 0.14);
+            resources["TintAmberBrush"] = HueGlass(
+                "TintAmberBrush", 0.30, 0.14);
+            resources["TintPurpleBrush"] = HueGlass(
+                "TintPurpleBrush", 0.30, 0.14);
+            resources["TintGrayBrush"] = HueGlass(
+                "TintGrayBrush", 0.30, 0.14);
+
+            // ── 5) TYPOGRAPHY — the About page's text palette ────────
+            // Read from the ACTIVE theme's Glass* keys (fallbacks are
+            // those same palette values), so Light/Dark swaps — which
+            // re-run this family — auto-select the matching palette:
+            // primary = GlassSnow (near-white on the navy stage,
+            // near-black on ice), secondary = GlassCerulean, muted =
+            // GlassMuted. This is what keeps text visible when every
+            // card goes transparent.
+            resources["PrimaryForegroundBrush"] =
+                FrozenGlassText("GlassSnow",
+                    dark ? Color.FromRgb(0xF8, 0xFA, 0xFC)
+                         : Color.FromRgb(0x0F, 0x17, 0x2A));
+            resources["SecondaryForegroundBrush"] =
+                FrozenGlassText("GlassCerulean",
+                    dark ? Color.FromRgb(0x93, 0xC5, 0xFD)
+                         : Color.FromRgb(0x1D, 0x4E, 0xD8));
+            resources["MutedForegroundBrush"] =
+                FrozenGlassText("GlassMuted",
+                    dark ? Color.FromRgb(0x8F, 0xB3, 0xE6)
+                         : Color.FromRgb(0x47, 0x55, 0x69));
+
+            // ── 6) SHAPE + KEYLINE ───────────────────────────────────
             // Softer radii suit the frosted material (same as Glass).
             resources["CardCornerRadius"] = new CornerRadius(14);
             resources["CardCornerRadiusLarge"] = new CornerRadius(18);
             resources["ControlCornerRadius"] = new CornerRadius(10);
 
-            // Ice keyline for the frosted edges.
+            // ApplyKeyline is the documented no-op — the accent owns
+            // the keyline; the call keeps the family's intended edge
+            // documented, as in Glass/Professional.
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x6E, 0x8C, 0xC4)
                 : Color.FromRgb(0x94, 0xB4, 0xDE));
+        }
 
-            // Frosted surfaces steal contrast from secondary and muted
-            // text — strengthen them the same way the wallpaper layer
-            // does, so captions stay crisp over the glass.
-            AdaptTypographyForWallpaper(resources);
+        /// <summary>
+        /// One Glassy card fill: accent-tinted white glass with a
+        /// diagonal alpha fade (denser top-left, more see-through
+        /// bottom-right) — the About page's GlassCard construction.
+        /// Flat average alpha when Gradient Surfaces is off.
+        /// </summary>
+        private static Brush GlassFill(
+            Color accent, double topAlpha, double bottomAlpha)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            return FrostBrush(accent, Colors.White, dark,
+                topAlpha, bottomAlpha);
+        }
+
+        /// <summary>
+        /// A flat, accent-tinted glass at one fixed alpha (decorative
+        /// glows such as the dashboard ambient blobs).
+        /// </summary>
+        private static Brush SolidGlass(Color accent, double alpha)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            return FrostBrush(accent, Colors.White, dark,
+                alpha, alpha);
+        }
+
+        /// <summary>
+        /// Hue-preserved glass: the ACTIVE theme's colour of the key
+        /// rendered at a low alpha — status cards/chips stay coloured
+        /// (green = success, red = danger, ...) but the fill becomes
+        /// transparent. Gradient when Gradient Surfaces is on.
+        /// </summary>
+        private static Brush HueGlass(
+            string key, double topAlpha, double bottomAlpha)
+        {
+            Color hue = ThemeManager.GetThemeColor(
+                key, Colors.SlateGray);
+
+            byte topA = (byte)Math.Round(topAlpha * 255);
+            byte bottomA = (byte)Math.Round(bottomAlpha * 255);
+
+            if (ThemeManager.UseGradients)
+            {
+                var gradient = new LinearGradientBrush(
+                    Color.FromArgb(topA, hue.R, hue.G, hue.B),
+                    Color.FromArgb(bottomA, hue.R, hue.G, hue.B),
+                    new Point(0, 0), new Point(1, 1));
+                gradient.Freeze();
+                return gradient;
+            }
+
+            var flat = new SolidColorBrush(Color.FromArgb(
+                (byte)((topA + bottomA) / 2), hue.R, hue.G, hue.B));
+            flat.Freeze();
+            return flat;
+        }
+
+        /// <summary>
+        /// Frozen solid brush for one of the About page's text palette
+        /// keys (GlassSnow / GlassCerulean / GlassMuted) read from the
+        /// ACTIVE theme dictionary — falling back to the given colour
+        /// if the key is ever missing.
+        /// </summary>
+        private static Brush FrozenGlassText(string key, Color fallback)
+        {
+            var brush = new SolidColorBrush(
+                ThemeManager.GetThemeColor(key, fallback));
+            brush.Freeze();
+            return brush;
         }
 
         /// <summary>
@@ -861,18 +1011,14 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// Builds one Glassy frosted surface: the active theme colour of
-        /// the key, tinted toward the accent, rendered as a diagonal
-        /// alpha fade (denser top-left, more see-through bottom-right)
-        /// so the stage reads through the card. With gradient surfaces
-        /// off, the average alpha is used as a flat brush.
+        /// Core frost builder shared by every Glassy surface: base
+        /// colour tinted toward the accent + diagonal alpha fade.
+        /// Flat average alpha when Gradient Surfaces is off.
         /// </summary>
-        private static Brush FrostSurface(
-            ResourceDictionary resources, string key, Color accent,
-            Color fallback, bool dark,
+        private static Brush FrostBrush(
+            Color accent, Color baseColor, bool dark,
             double topAlpha, double bottomAlpha)
         {
-            Color baseColor = ThemeManager.GetThemeColor(key, fallback);
             Color tinted = ColorMath.Tint(accent, baseColor,
                 dark ? 0.22 : 0.14);
 
