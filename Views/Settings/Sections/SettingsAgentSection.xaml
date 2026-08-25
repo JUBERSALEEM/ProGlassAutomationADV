@@ -91,7 +91,7 @@
                                     Style="{StaticResource OutlinedPillButton}"
                                     Tag="&#xE72E;"
                                     Content="TOGGLE"
-                                    HorizontalAlignment="Left"/>
+                                    HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
 
@@ -108,7 +108,7 @@
                                     Style="{StaticResource OutlinedPillButton}"
                                     Tag="&#xE72E;"
                                     Content="TOGGLE"
-                                    HorizontalAlignment="Left"/>
+                                    HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -178,18 +178,21 @@
                             </Grid>
                             <TextBlock Text="{Binding KeyStatus}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
-                            <WrapPanel Margin="0,10,0,0">
+                            <!-- Full-width action row: buttons stretch evenly
+                                 across the whole card. -->
+                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource SuccessPillButton}"
                                         Tag="&#xE74E;"
                                         Content="STORE KEY"
-                                        Margin="0,0,10,8"
+                                        HorizontalAlignment="Stretch"
                                         Click="StoreKey_Click"/>
                                 <Button Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;"
                                         Content="REMOVE KEY"
-                                        Margin="0,0,0,8"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0"
                                         Command="{Binding RemoveKeyCommand}"/>
-                            </WrapPanel>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -283,7 +286,7 @@
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;"
                                     Content="CLEAR ALL TAUGHT PHRASES"
-                                    HorizontalAlignment="Left"
+                                    HorizontalAlignment="Stretch"
                                     Margin="0,14,0,0"
                                     Command="{Binding ClearTeachingCommand}"/>
                         </StackPanel>
@@ -305,30 +308,32 @@
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F7;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Agent Data"/>
                             </StackPanel>
-                            <WrapPanel>
+                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE78C;"
                                         Content="EXPORT KNOWLEDGE"
-                                        Margin="0,0,10,8"
+                                        HorizontalAlignment="Stretch"
                                         Command="{Binding ExportKnowledgeCommand}"/>
                                 <Button Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE896;"
                                         Content="IMPORT KNOWLEDGE"
-                                        Margin="0,0,0,8"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0"
                                         Command="{Binding ImportKnowledgeCommand}"/>
-                            </WrapPanel>
-                            <WrapPanel Margin="0,4,0,0">
+                            </UniformGrid>
+                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,4,0,0">
                                 <Button Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;"
                                         Content="CLEAR MEMORY"
-                                        Margin="0,0,10,8"
+                                        HorizontalAlignment="Stretch"
                                         Command="{Binding ClearMemoryCommand}"/>
                                 <Button Style="{StaticResource DangerButton}"
                                         Tag="&#xE74D;"
                                         Content="CLEAR KNOWLEDGE"
-                                        Margin="0,0,0,8"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0"
                                         Command="{Binding ClearKnowledgeCommand}"/>
-                            </WrapPanel>
+                            </UniformGrid>
 
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Margin="0,12,0,0"

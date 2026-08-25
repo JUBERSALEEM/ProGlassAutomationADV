@@ -1,20 +1,36 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderDetail/JobOrderDetailView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Job Order — DETAIL (tab layout Aug 2026)
+     MODULE: Job Order — DETAIL (unified layout Aug 2026)
 
-     LAYOUT
-       The user wants a separate button tab switch (Overview / Production)
-       — NOT a single merged page. The detail view is now:
-         • Header action bar carries ALL document actions (BACK, CREATE DN,
-           MASTER DN, PDF, EXCEL, CSV, SAVE) + invoice value.
-         • A tab strip (OVERVIEW / PRODUCTION buttons) switches the content.
-         • Overview tab = source-invoice identity + GLASS PANELS grid.
-         • Production tab = the editable auto-compact production form.
+     UNIFIED LAYOUT
+       Was: two tabs (Overview / Production). The production form lived
+       in its own tab with a big action row (Create DN / PDF / Excel /
+       CSV / Save / Back) at the bottom, and the glass-panels table on
+       the Overview tab did its own internal scroll.
 
-       Tabs use the two-button pattern (active button shows filled, inactive
-       shows outlined) via IsOverviewTab / IsProductionTab bindings. The
-       Demo Hub calls SwitchDetailTabCommand("Production") and still works.
+       Now: ONE continuous page —
+         • Header action bar carries ALL actions (BACK, CREATE DN,
+           MASTER DN, PDF, EXCEL, CSV, SAVE) plus the invoice value.
+         • The content is a single vertical scroll that shows the
+           compact production form first, then the source-invoice
+           identity strip, then the GLASS PANELS grid.
+
+       Why the tabs were removed:
+         • The user asked to move the action buttons up to the top and
+           to lift the production form above the data grid, so a single
+           scrolling overview reads like one production sheet.
+         • A page-level scroll (instead of the glass table scrolling
+           internally) is what stops the line items being clipped on a
+           1366×768 screen — the original reason the page was made
+           Grid-first. Keeping the whole sheet scrollable here is safe
+           because the production form is now compact.
+
+     NOTES
+       • IsOverviewTab / IsProductionTab / SwitchDetailTabCommand stay on
+         the ViewModel (the Demo Hub still calls SwitchDetailTabCommand);
+         the tab strip is simply no longer rendered. No code-behind of
+         this view was changed.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.JobOrderDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -40,11 +56,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════ HEADER ACTION BAR (all document actions) ══════════ -->
+        <!-- ══════════ HEADER ACTION BAR (all actions live here) ══════════ -->
         <Border Grid.Row="0"
                 Style="{StaticResource ModuleDetailActionBarStyle}">
             <Grid>
@@ -144,47 +159,9 @@
             </Border>
         </StackPanel>
 
-        <!-- ══════════ TAB STRIP (separate button tab switch) ══════════ -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,2,0,10">
-            <Button Content="OVERVIEW" Tag="&#xE8A5;"
-                    Margin="0,0,8,0"
-                    ToolTip="Source invoice snapshot"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-            <Button Content="PRODUCTION" Tag="&#xE713;"
-                    ToolTip="Editable production panel"
-                    Command="{Binding SwitchDetailTabCommand}" CommandParameter="Production">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsProductionTab}" Value="True">
-                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-            </Button>
-        </StackPanel>
-
-        <!-- ══════════ TAB CONTENT ══════════ -->
-        <Grid Grid.Row="3">
-            <sections:JoOverviewSection
-                Visibility="{Binding IsOverviewTab,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-            <sections:JoProductionSection
-                Visibility="{Binding IsProductionTab,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+        <!-- ══════════ UNIFIED CONTENT (production → identity → glass) ═══ -->
+        <Grid Grid.Row="2">
+            <sections:JoOverviewSection/>
         </Grid>
     </Grid>
 </UserControl>

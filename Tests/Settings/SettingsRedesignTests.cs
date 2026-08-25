@@ -414,6 +414,35 @@ namespace ProGlassAutomation.Tests.Settings
         }
 
         /// <summary>
+        /// The Features page is now a per-module tab switch (Aug 2026). Each
+        /// module has a tab button and its content panel only shows when the
+        /// matching IsXFeaturesModule flag is true. Lock the five tab buttons,
+        /// the SwitchFeaturesModuleCommand wiring, and the per-module
+        /// Visibility bindings so the page cannot silently collapse back into
+        /// one long stack of all five modules.
+        /// </summary>
+        [Fact]
+        public void Features_section_uses_a_per_module_tab_switch()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsFeaturesSection.xaml"));
+
+            Assert.Contains("SwitchFeaturesModuleCommand", src);
+            foreach (var module in new[]
+            {
+                "Proforma", "Inquiry", "JobOrder", "DeliveryNote", "TaxInvoice"
+            })
+            {
+                Assert.True(src.Contains($"Is{module}FeaturesModule"),
+                    $"Features page missing the '{module}' tab/visibility binding.");
+            }
+            Assert.Contains("Proforma Invoice", src);
+            Assert.Contains("Delivery Note", src);
+            Assert.Contains("Tax Invoice", src);
+        }
+
+        /// <summary>
         /// The Agent page hands its DataContext to the code-behind via the
         /// root Grid x:Name="AgentRoot", and exposes the AgentKeyBox + the
         /// StoreKey_Click handler. Without these the credentials card would

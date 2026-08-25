@@ -173,6 +173,43 @@ namespace ProGlassAutomation.ViewModels.Settings
         public TaxInvoiceFeaturesViewModel TaxInvoiceFeatures { get; }
             = new TaxInvoiceFeaturesViewModel();
 
+        // ══════════════════════════════════════════════════════════════
+        //  FEATURES — per-module tab switch (Aug 2026)
+        //
+        //  The Features page used to stack all five modules' toggles in one
+        //  long scroll. The user asked for a "module switch" so each module
+        //  is a separate tab — only the selected module's field toggles are
+        //  shown at once. This mirrors the Settings shell navigation pattern:
+        //  a string + a command + one IsX flag per module.
+        // ══════════════════════════════════════════════════════════════
+
+        private string _featuresModule = "Proforma";
+        /// <summary>Which module's feature toggles are visible on Features.</summary>
+        public string FeaturesModule
+        {
+            get => _featuresModule;
+            private set
+            {
+                if (_featuresModule == value) return;
+                _featuresModule = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsProformaFeaturesModule));
+                OnPropertyChanged(nameof(IsInquiryFeaturesModule));
+                OnPropertyChanged(nameof(IsJobOrderFeaturesModule));
+                OnPropertyChanged(nameof(IsDeliveryNoteFeaturesModule));
+                OnPropertyChanged(nameof(IsTaxInvoiceFeaturesModule));
+            }
+        }
+
+        public bool IsProformaFeaturesModule    => FeaturesModule == "Proforma";
+        public bool IsInquiryFeaturesModule     => FeaturesModule == "Inquiry";
+        public bool IsJobOrderFeaturesModule    => FeaturesModule == "JobOrder";
+        public bool IsDeliveryNoteFeaturesModule => FeaturesModule == "DeliveryNote";
+        public bool IsTaxInvoiceFeaturesModule  => FeaturesModule == "TaxInvoice";
+
+        /// <summary>Switches which module's field-toggles show on Features.</summary>
+        public ICommand SwitchFeaturesModuleCommand { get; private set; } = null!;
+
         /// <summary>
         /// Sign the current operator out and clear the "Skip login
         /// until update" DPAPI blob. Exposed here so the Settings ►
@@ -198,6 +235,10 @@ namespace ProGlassAutomation.ViewModels.Settings
             // v2 shell: navigation between the settings pages.
             SwitchSettingsPageCommand = new RelayCommand(
                 p => SettingsPage = p as string ?? "Appearance");
+
+            // Features page: switch which module's field-toggles are shown.
+            SwitchFeaturesModuleCommand = new RelayCommand(
+                p => FeaturesModule = p as string ?? "Proforma");
 
             ConfigFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

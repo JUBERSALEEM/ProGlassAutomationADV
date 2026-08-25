@@ -139,12 +139,11 @@ namespace ProGlassAutomation.Tests.JobOrder
         }
 
         [Fact]
-        public void Production_panel_is_auto_compact_and_switched_by_tabs()
+        public void Production_panel_fills_full_width_and_renders_before_the_grid()
         {
             var root = LocateProjectRoot();
             var prod = File.ReadAllText(Path.Combine(root, SectionPath));
             var overview = File.ReadAllText(Path.Combine(root, OverviewPath));
-            var detail = File.ReadAllText(Path.Combine(root, DetailPath));
 
             // Auto-compact WrapPanel: tiles re-flow into rows to fill the
             // width, and a hidden optional tile COLLAPSES so no blank spacer
@@ -158,15 +157,13 @@ namespace ProGlassAutomation.Tests.JobOrder
             // The full-width action row is GONE from the panel.
             Assert.DoesNotContain("DockPanel.Dock=\"Right\"", prod);
 
-            // The detail uses a SEPARATE button tab switch (Overview /
-            // Production) so each section is its own tab.
-            Assert.Contains("SwitchDetailTabCommand", detail);
-            Assert.Contains("IsOverviewTab", detail);
-            Assert.Contains("IsProductionTab", detail);
-            // The overview tab is pure source-invoice + glass grid (no longer
-            // embeds the production panel).
-            Assert.DoesNotContain("sections:JoProductionSection", overview);
+            // The production form is hosted INSIDE the overview page, above
+            // the glass-panels identity strip + grid.
+            Assert.Contains("sections:JoProductionSection", overview);
             Assert.Contains("GLASS PANELS", overview);
+            Assert.True(overview.IndexOf("sections:JoProductionSection") <
+                        overview.IndexOf("GLASS PANELS"),
+                "The production form must render ABOVE the glass-panels grid.");
         }
 
         [Fact]

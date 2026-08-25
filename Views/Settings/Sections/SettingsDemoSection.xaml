@@ -131,26 +131,39 @@
                                        Style="{StaticResource SettingsTileCaptionStyle}"/>
                             <TextBlock Text="{Binding SessionRecordStatus}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
-                            <WrapPanel Margin="0,10,0,0">
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                            <!-- Full-width primary action row. The two conditional
+                                 buttons are auto columns that collapse to 0 when
+                                 hidden, so the visible button(s) fill the row. -->
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource OutlinedPillButton}"
                                         Content="START RECORDING"
                                         Command="{Binding StartSessionRecordCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
                                         Visibility="{Binding IsSessionIdle,
                                             Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource OutlinedPillButton}"
                                         Content="STOP AND SAVE"
                                         Command="{Binding StopSessionRecordCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
                                         Visibility="{Binding IsSessionRecording,
                                             Converter={StaticResource BoolToVisibilityConverter}}"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Margin="10,0,0,0"
+                                        HorizontalAlignment="Stretch"/>
+                                <Button Grid.Column="2"
+                                        Style="{StaticResource RowOutlinedButton}"
                                         Content="OPEN RECORDINGS"
                                         Command="{Binding OpenRecordingsCommand}"
-                                        Margin="0,0,10,8"/>
-                            </WrapPanel>
+                                        Margin="10,0,0,0"
+                                        HorizontalAlignment="Stretch"/>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -277,30 +290,32 @@
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
                             <TextBlock Text="{Binding WorkflowHint}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
-                            <WrapPanel Margin="0,12,0,0">
+                            <!-- Full-width action row: buttons stretch evenly. -->
+                            <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
                                 <Button Style="{StaticResource OutlinedPillButton}"
                                         Content="GENERATE SELECTED"
                                         Command="{Binding GenerateSelectedCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource OutlinedPillButton}"
                                         Content="GENERATE ALL MODULES"
                                         Command="{Binding GenerateAllCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.GenerateAll"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="RETRY LAST"
                                         Command="{Binding RetryCommand}"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="CANCEL"
                                         Command="{Binding CancelCommand}"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="OPEN OUTPUT"
                                         Command="{Binding OpenOutputCommand}"
-                                        Margin="0,0,10,8"/>
-                            </WrapPanel>
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -322,20 +337,22 @@
                             </StackPanel>
                             <TextBlock Text="{Binding IsolationText}"
                                        Style="{StaticResource SettingsTileCaptionStyle}"/>
-                            <WrapPanel Margin="0,10,0,0">
+                            <!-- Full-width action row: buttons stretch evenly. -->
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="ENTER DEMO MODE"
                                         Command="{Binding EnterDemoCommand}"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="EXIT DEMO MODE"
                                         Command="{Binding ExitDemoCommand}"
-                                        Margin="0,0,10,8"/>
+                                        HorizontalAlignment="Stretch"/>
                                 <Button Style="{StaticResource RowOutlinedButton}"
                                         Content="RESET DEMO FOLDER"
                                         Command="{Binding ResetDemoCommand}"
-                                        Margin="0,0,10,8"/>
-                            </WrapPanel>
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0"/>
+                            </UniformGrid>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."/>
                         </StackPanel>

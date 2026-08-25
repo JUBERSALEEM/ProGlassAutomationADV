@@ -55,6 +55,99 @@
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
+        <!-- ═══════════ MODULE TAB SWITCH ═══════════
+             Only the selected module's field-toggles are shown, so the
+             page is not a long stack of five modules. Anchored to the
+             shell DataContext via ElementName (feature sections re-scope
+             their own DataContext, so a plain {Binding} here would break).
+             This mirrors the Settings shell navigation pattern. -->
+        <WrapPanel Grid.Row="0" Margin="32,4,32,0">
+            <Button Content="Proforma Invoice" Margin="0,0,8,8" MinWidth="130"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="Proforma">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsProformaFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="Inquiry" Margin="0,0,8,8" MinWidth="110"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="Inquiry">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsInquiryFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="Job Order" Margin="0,0,8,8" MinWidth="120"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="JobOrder">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsJobOrderFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="Delivery Note" Margin="0,0,8,8" MinWidth="130"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="DeliveryNote">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsDeliveryNoteFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+
+            <Button Content="Tax Invoice" Margin="0,0,8,8" MinWidth="120"
+                    Command="{Binding DataContext.SwitchFeaturesModuleCommand,
+                                ElementName=SettingsFeaturesRoot}"
+                    CommandParameter="TaxInvoice">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsTaxInvoiceFeaturesModule,
+                                ElementName=SettingsFeaturesRoot}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </WrapPanel>
+
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
@@ -101,14 +194,16 @@
                     </Border>
                 </WrapPanel>
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-
                 <!-- ═══════════ PROFORMA INVOICE FIELD VISIBILITY ═══════════
                      The rest of the proforma toggles re-scope DataContext.
                      Company Name, Customer Name and Proforma ID cannot be
                      hidden — the database needs them. -->
-                <StackPanel DataContext="{Binding ProformaFeatures}">
+                <StackPanel DataContext="{Binding ProformaFeatures}"
+                            Visibility="{Binding DataContext.IsProformaFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
 
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
                 <TextBlock Text="PROFORMA INVOICE"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Show or hide optional fields in Steps 1 – 3 of the invoice wizard. Company Name, Customer Name and Proforma ID cannot be hidden — the database needs them."
@@ -435,15 +530,17 @@
 
                 </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-
                 <!-- ═══════════ INQUIRY FIELD VISIBILITY ═══════════
                      Sibling of the Proforma toggles. Re-scopes DataContext
                      to InquiryFeatures for the same reason. Customer Name
                      and Project Name are DB-required and always visible. -->
                 <StackPanel DataContext="{Binding DataContext.InquiryFeatures,
-                                ElementName=SettingsFeaturesRoot}">
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsInquiryFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
 
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
                 <TextBlock Text="INQUIRY"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Turn optional fields on the Inquiry editor on or off. Customer Name and Project Name cannot be hidden — the database needs them."
@@ -578,15 +675,17 @@
 
                 </StackPanel>   <!-- close DataContext=InquiryFeatures scope -->
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-
                 <!-- ═══════════ JOB ORDER FIELD VISIBILITY ═══════════
                      Re-scopes DataContext to JobOrderFeatures. Only the
                      optional production fields toggle; Status / Priority /
                      Delivery Date (workflow controls) stay visible. -->
                 <StackPanel DataContext="{Binding DataContext.JobOrderFeatures,
-                                ElementName=SettingsFeaturesRoot}">
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsJobOrderFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
 
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
                 <TextBlock Text="JOB ORDER"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Turn optional production fields on or off. Status, Priority and Delivery Date cannot be hidden — the workflow needs them."
@@ -709,14 +808,16 @@
 
                 </StackPanel>   <!-- close DataContext=JobOrderFeatures scope -->
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-
                 <!-- ═══════════ DELIVERY NOTE FIELD VISIBILITY ═══════════
                      Re-scopes DataContext to DeliveryNoteFeatures. Only
                      the optional dispatch fields toggle; Status stays. -->
                 <StackPanel DataContext="{Binding DataContext.DeliveryNoteFeatures,
-                                ElementName=SettingsFeaturesRoot}">
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsDeliveryNoteFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
 
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
                 <TextBlock Text="DELIVERY NOTE"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Turn optional dispatch fields on or off. Status cannot be hidden — it drives the delivery workflow."
@@ -815,14 +916,16 @@
 
                 </StackPanel>   <!-- close DataContext=DeliveryNoteFeatures scope -->
 
-                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
-
                 <!-- ═══════════ TAX INVOICE FIELD VISIBILITY ═══════════
                      Re-scopes DataContext to TaxInvoiceFeatures. Only the
                      optional accounting fields toggle; Issue Date stays. -->
                 <StackPanel DataContext="{Binding DataContext.TaxInvoiceFeatures,
-                                ElementName=SettingsFeaturesRoot}">
+                                ElementName=SettingsFeaturesRoot}"
+                            Visibility="{Binding DataContext.IsTaxInvoiceFeaturesModule,
+                                ElementName=SettingsFeaturesRoot,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
 
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}" Margin="0,0,0,10"/>
                 <TextBlock Text="TAX INVOICE"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
                 <TextBlock Text="Turn optional accounting fields on or off. Issue Date cannot be hidden — it anchors the invoice."
