@@ -168,7 +168,7 @@
                 <TextBlock Text="Sign out for a shift handover, or forget the auto-sign-in credentials on this device without ending your session."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -192,7 +192,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- ═══════════ PROFORMA INVOICE FIELD VISIBILITY ═══════════
                      The rest of the proforma toggles re-scope DataContext.
@@ -209,7 +209,7 @@
                 <TextBlock Text="Show or hide optional fields in Steps 1 – 3 of the invoice wizard. Company Name, Customer Name and Proforma ID cannot be hidden — the database needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -237,7 +237,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- ── STEP 1 · COMPANY ─────────────────────── -->
                 <TextBlock Text="STEP 1 · COMPANY"
@@ -246,7 +246,7 @@
                 <TextBlock Text="Company Name and Proforma ID stay visible (required by the database)."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="4" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -366,7 +366,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowProformaStatus}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- ── STEP 2 · CLIENT ─────────────────────── -->
                 <TextBlock Text="STEP 2 · CLIENT"
@@ -375,7 +375,7 @@
                 <TextBlock Text="Customer Name stays visible (required by the database)."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="4" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -459,14 +459,14 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowBillingAddress}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- ── STEP 3 · PROJECT ─────────────────────── -->
                 <TextBlock Text="STEP 3 · PROJECT"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -526,7 +526,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryLocation}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 </StackPanel>   <!-- close DataContext=ProformaFeatures scope -->
 
@@ -546,7 +546,7 @@
                 <TextBlock Text="Turn optional fields on the Inquiry editor on or off. Customer Name and Project Name cannot be hidden — the database needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -569,13 +569,13 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <TextBlock Text="INQUIRY EDITOR"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="4" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -671,7 +671,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 </StackPanel>   <!-- close DataContext=InquiryFeatures scope -->
 
@@ -691,7 +691,7 @@
                 <TextBlock Text="Turn optional production fields on or off. Status, Priority and Delivery Date cannot be hidden — the workflow needs them."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -714,13 +714,13 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <TextBlock Text="PRODUCTION PANEL"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="4" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -804,7 +804,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 </StackPanel>   <!-- close DataContext=JobOrderFeatures scope -->
 
@@ -823,7 +823,7 @@
                 <TextBlock Text="Turn optional dispatch fields on or off. Status cannot be hidden — it drives the delivery workflow."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -846,13 +846,13 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <TextBlock Text="DELIVERY DETAILS"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -912,7 +912,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 </StackPanel>   <!-- close DataContext=DeliveryNoteFeatures scope -->
 
@@ -931,7 +931,7 @@
                 <TextBlock Text="Turn optional accounting fields on or off. Issue Date cannot be hidden — it anchors the invoice."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -954,13 +954,13 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <TextBlock Text="INVOICE DETAILS"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"
                            Margin="0,18,0,0"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>
                             <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
@@ -1020,7 +1020,7 @@
                             <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSwiftCode}"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 </StackPanel>   <!-- close DataContext=TaxInvoiceFeatures scope -->
             </StackPanel>

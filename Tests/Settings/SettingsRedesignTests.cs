@@ -236,13 +236,65 @@ namespace ProGlassAutomation.Tests.Settings
             var src = File.ReadAllText(Path.Combine(root,
                 "Views/Settings/Sections", sectionFile));
 
-            Assert.Contains("<WrapPanel", src);
+            // The tile host must be a UniformGrid (not a WrapPanel) so the
+            // tiles stretch to fill the full content width — no leftover
+            // empty space on the right of every row.
+            Assert.Contains("<UniformGrid", src);
             Assert.True(
                 src.Contains("SettingsTileStyle") ||
                 src.Contains("SettingsWideTileStyle") ||
                 src.Contains("SettingsFullRowTileStyle"),
                 $"{sectionFile} does not consume any of the new tile styles.");
             Assert.Contains("SettingsGroupHeaderTextStyle", src);
+        }
+
+        /// <summary>
+        /// The user repeatedly reported "ugly empty space" across every
+        /// Settings section. Root cause: tiles lived in a WrapPanel with a
+        /// hard MaxWidth (320/380), so a WrapPanel never stretched them to
+        /// fill the leftover row width — every row left a big blank right
+        /// region. The fix makes the tile host a UniformGrid and the tiles
+        /// Stretch so they always fill the full content width. This locks the
+        /// container choice + the tile restyle so the gap cannot return.
+        /// </summary>
+        [Fact]
+        public void Settings_tiles_stretch_to_fill_full_width()
+        {
+            var root = LocateProjectRoot();
+            foreach (var rel in SectionFiles)
+            {
+                var src = File.ReadAllText(Path.Combine(root, rel));
+                // No leftover: the tile groups are UniformGrid hosts, and the
+                // standard/wide/full-row tiles all stretch (no fixed MaxWidth cap).
+                Assert.True(src.Contains("<UniformGrid"),
+                    $"{rel}: tile groups must use a UniformGrid host, not a WrapPanel, "
+                    + "so tiles fill the full content width.");
+            }
+
+            var styles = File.ReadAllText(Path.Combine(root, StylesPath));
+            Assert.Contains("HorizontalAlignment\" Value=\"Stretch\"", styles);
+            // The tiles must not be hard-capped to 320/380 (which caused the gap).
+            Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"380\"", styles);
+            Assert.DoesNotContain("<Setter Property=\"MaxWidth\"            Value=\"1280\"", styles);
+        }
+
+        /// <summary>
+        /// Settings action buttons must be full width and share one modern
+        /// 12px-rounded shape. Locks the SettingsActionButtonStyle template +
+        /// the Shared_styles exposure of it so a future edit cannot revert the
+        /// buttons to the old pill look or silently stop stretching.
+        /// </summary>
+        [Fact]
+        public void Settings_action_buttons_are_modern_and_full_width()
+        {
+            var root = LocateProjectRoot();
+            var styles = File.ReadAllText(Path.Combine(root, StylesPath));
+
+            Assert.Contains("x:Key=\"SettingsActionButtonStyle\"", styles);
+            Assert.Contains("CornerRadius=\"{DynamicResource CardCornerRadius}\"", styles);
+            Assert.Contains("<Setter Property=\"HorizontalAlignment\" Value=\"Stretch\"/>", styles);
+            // The modern template uses a ControlTemplate (real shape + hover).
+            Assert.Contains("<ControlTemplate TargetType=\"Button\">", styles);
         }
 
         /// <summary>

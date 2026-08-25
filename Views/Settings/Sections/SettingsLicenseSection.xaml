@@ -67,7 +67,7 @@
                 <TextBlock Text="Auto-updates on LicenseService.StatusChanged."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -113,7 +113,7 @@
                             </StackPanel>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 

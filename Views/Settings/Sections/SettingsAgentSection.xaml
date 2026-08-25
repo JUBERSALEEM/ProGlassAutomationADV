@@ -77,7 +77,7 @@
                 <TextBlock Text="Control whether the agent talks to the internet, and what it is allowed to say."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="2" Margin="0,0,0,6">
                     <!-- Local only -->
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <StackPanel>
@@ -88,10 +88,9 @@
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="When on, the agent never contacts the internet. This is the default."/>
                             <Button Command="{Binding ToggleLocalOnlyCommand}"
-                                    Style="{StaticResource OutlinedPillButton}"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE72E;"
-                                    Content="TOGGLE"
-                                    HorizontalAlignment="Stretch"/>
+                                    Content="TOGGLE"/>
                         </StackPanel>
                     </Border>
 
@@ -105,13 +104,12 @@
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="A separate, explicit agreement to send questions to an online provider. Turning Local-Only back on clears it."/>
                             <Button Command="{Binding ToggleCloudConsentCommand}"
-                                    Style="{StaticResource OutlinedPillButton}"
+                                    Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE72E;"
-                                    Content="TOGGLE"
-                                    HorizontalAlignment="Stretch"/>
+                                    Content="TOGGLE"/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- Plain-English summary -->
                 <Border Style="{StaticResource SettingsFullRowTileStyle}">
@@ -149,7 +147,7 @@
                 <TextBlock Text="Keys are encrypted with Windows DPAPI for your user account and are never written to a settings file."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -186,16 +184,15 @@
                                         Content="STORE KEY"
                                         HorizontalAlignment="Stretch"
                                         Click="StoreKey_Click"/>
-                                <Button Style="{StaticResource DangerButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
                                         Content="REMOVE KEY"
-                                        HorizontalAlignment="Stretch"
                                         Margin="0"
                                         Command="{Binding RemoveKeyCommand}"/>
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -205,13 +202,13 @@
                 <TextBlock Text="A taught phrase does nothing until you approve it here."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <DockPanel LastChildFill="False" Margin="0,0,0,8">
                                 <Button DockPanel.Dock="Right"
                                         Command="{Binding RefreshRulesCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE72C;"
                                         Content="REFRESH"
                                         VerticalAlignment="Center"/>
@@ -283,15 +280,14 @@
                                        Visibility="{Binding HasRules,
                                            Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
 
-                            <Button Style="{StaticResource DangerButton}"
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Tag="&#xE74D;"
                                     Content="CLEAR ALL TAUGHT PHRASES"
-                                    HorizontalAlignment="Stretch"
                                     Margin="0,14,0,0"
                                     Command="{Binding ClearTeachingCommand}"/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -301,7 +297,7 @@
                 <TextBlock Text="Saved memory and the knowledge base live in the agent's own database, separate from your business data."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -309,12 +305,12 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Agent Data"/>
                             </StackPanel>
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE78C;"
                                         Content="EXPORT KNOWLEDGE"
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding ExportKnowledgeCommand}"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE896;"
                                         Content="IMPORT KNOWLEDGE"
                                         HorizontalAlignment="Stretch"
@@ -322,12 +318,12 @@
                                         Command="{Binding ImportKnowledgeCommand}"/>
                             </UniformGrid>
                             <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}" Margin="0,4,0,0">
-                                <Button Style="{StaticResource DangerButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
                                         Content="CLEAR MEMORY"
                                         HorizontalAlignment="Stretch"
                                         Command="{Binding ClearMemoryCommand}"/>
-                                <Button Style="{StaticResource DangerButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74D;"
                                         Content="CLEAR KNOWLEDGE"
                                         HorizontalAlignment="Stretch"
@@ -351,7 +347,7 @@
                             </TextBlock>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <!-- Status line -->
                 <TextBlock Text="{Binding Status}"

@@ -63,7 +63,7 @@
                 <TextBlock Text="Overall look, card weight and density."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Visual theme -->
                     <Border Style="{StaticResource SettingsTileStyle}">
@@ -228,7 +228,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -238,7 +238,7 @@
                 <TextBlock Text="Colour identity and typography — applied across every screen."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- Accent palette (wide) -->
                     <Border Style="{StaticResource SettingsWideTileStyle}">
@@ -361,7 +361,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -371,7 +371,7 @@
                 <TextBlock Text="One image behind every module, plus per-module overrides for individual screens."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="2" Margin="0,0,0,6">
 
                     <!-- Global wallpaper — one card, all controls on one line -->
                     <Border Style="{StaticResource SettingsWideTileStyle}">
@@ -510,7 +510,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
             </StackPanel>
         </ScrollViewer>

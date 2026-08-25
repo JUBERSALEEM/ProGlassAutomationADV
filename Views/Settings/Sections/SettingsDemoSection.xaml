@@ -79,31 +79,33 @@
                                    Margin="0,0,0,8"/>
                         <TextBlock Text="{Binding FfmpegInstallHint}"
                                    Style="{StaticResource SettingsTileFooterHintStyle}"/>
-                        <WrapPanel Margin="0,12,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
+                        <!-- Full-width action row: buttons stretch evenly. -->
+                        <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
                                     Command="{Binding OpenFfmpegDownloadCommand}"
                                     AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Content="OFFICIAL FFMPEG PAGE"
                                     Command="{Binding OpenFfmpegPageCommand}"
                                     AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Content="COPY LINK"
                                     Command="{Binding CopyFfmpegLinkCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Content="OPEN TOOLS FOLDER"
                                     Command="{Binding OpenToolsFolderCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource SettingsActionButtonStyle}"
                                     Content="RECHECK"
                                     Command="{Binding RecheckFfmpegCommand}"
                                     AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
-                                    Margin="0,0,10,8"/>
-                        </WrapPanel>
+                                    HorizontalAlignment="Stretch"
+                                    Margin="0"/>
+                        </UniformGrid>
                         <TextBlock Text="ffmpeg is ready. Generate Selected will record the module and write a verified MP4."
                                    Style="{StaticResource SettingsTileFooterHintStyle}"
                                    Visibility="{Binding IsFfmpegReady,
@@ -120,7 +122,7 @@
                 <TextBlock Text="Record the running app window without a module workflow — capture anything on screen."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -141,7 +143,7 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="START RECORDING"
                                         Command="{Binding StartSessionRecordCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
@@ -149,7 +151,7 @@
                                             Converter={StaticResource BoolToVisibilityConverter}}"
                                         HorizontalAlignment="Stretch"/>
                                 <Button Grid.Column="1"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="STOP AND SAVE"
                                         Command="{Binding StopSessionRecordCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
@@ -158,7 +160,7 @@
                                         Margin="10,0,0,0"
                                         HorizontalAlignment="Stretch"/>
                                 <Button Grid.Column="2"
-                                        Style="{StaticResource RowOutlinedButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="OPEN RECORDINGS"
                                         Command="{Binding OpenRecordingsCommand}"
                                         Margin="10,0,0,0"
@@ -166,7 +168,7 @@
                             </Grid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -176,7 +178,7 @@
                 <TextBlock Text="Captures only this running app window — not the desktop, not other programs."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -258,7 +260,7 @@
                                           AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
                         </Grid>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <TextBlock Text="{Binding RecordHint}"
                            Style="{StaticResource SettingsGroupCaptionStyle}"
@@ -272,7 +274,7 @@
                 <TextBlock Text="Pick a module to auto-record it from start to finish, with live human narration."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -292,25 +294,25 @@
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
                             <!-- Full-width action row: buttons stretch evenly. -->
                             <UniformGrid Columns="5" Style="{StaticResource SettingsActionRowStyle}" Margin="0,12,0,0">
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="GENERATE SELECTED"
                                         Command="{Binding GenerateSelectedCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="GENERATE ALL MODULES"
                                         Command="{Binding GenerateAllCommand}"
                                         AutomationProperties.AutomationId="DemoCenter.GenerateAll"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="RETRY LAST"
                                         Command="{Binding RetryCommand}"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="CANCEL"
                                         Command="{Binding CancelCommand}"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="OPEN OUTPUT"
                                         Command="{Binding OpenOutputCommand}"
                                         HorizontalAlignment="Stretch"
@@ -318,7 +320,7 @@
                             </UniformGrid>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -328,7 +330,7 @@
                 <TextBlock Text="Demo Mode keeps production data untouched while you record."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -339,15 +341,15 @@
                                        Style="{StaticResource SettingsTileCaptionStyle}"/>
                             <!-- Full-width action row: buttons stretch evenly. -->
                             <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}" Margin="0,10,0,0">
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="ENTER DEMO MODE"
                                         Command="{Binding EnterDemoCommand}"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="EXIT DEMO MODE"
                                         Command="{Binding ExitDemoCommand}"
                                         HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Content="RESET DEMO FOLDER"
                                         Command="{Binding ResetDemoCommand}"
                                         HorizontalAlignment="Stretch"
@@ -357,7 +359,7 @@
                                        Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -367,7 +369,7 @@
                 <TextBlock Text="What the last run did and where its output is."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="2" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -396,7 +398,7 @@
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -406,7 +408,7 @@
                 <TextBlock Text="A ledger of every recording job run on this machine."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <TextBlock Text="No jobs yet. Generate Selected or Generate All to start a recording."
@@ -434,7 +436,7 @@
                             </ItemsControl>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
             </StackPanel>
         </ScrollViewer>

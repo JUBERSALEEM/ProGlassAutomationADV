@@ -65,7 +65,7 @@
                 <TextBlock Text="Your running version against the latest published release."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <!-- Version row: current vs latest -->
@@ -161,7 +161,7 @@
                                         </Style.Triggers>
                                     </Style>
                                 </StackPanel.Style>
-                                <Button Style="{StaticResource SuccessPillButton}"
+                                <Button Style="{StaticResource SettingsActionButtonStyle}"
                                         Tag="&#xE74E;" Content="INSTALL &amp; RESTART"
                                         Command="{Binding InstallUpdateCommand}"/>
                                 <TextBlock Text="…or install later — the file stays in your Downloads folder."
@@ -192,7 +192,7 @@
                             </ProgressBar>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -202,7 +202,7 @@
                 <TextBlock Text="What this release changes, straight from the publisher."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -244,7 +244,7 @@
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -254,7 +254,7 @@
                 <TextBlock Text="Every check, download and failure recorded on this machine."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel>
@@ -344,7 +344,7 @@
                                        Text="Installed builds update in place via Velopack and restart automatically. Portable builds download the installer to your Downloads folder — you decide when to install."/>
                         </StackPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
             </StackPanel>
         </ScrollViewer>

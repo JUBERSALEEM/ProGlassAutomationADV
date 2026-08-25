@@ -60,7 +60,7 @@
                 <TextBlock Text="Pick a model size and download it once. Larger models are more accurate but bigger and slower."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
 
                     <!-- Model picker (full row) -->
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
@@ -136,7 +136,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -146,7 +146,7 @@
                 <TextBlock Text="Where the selected model stands — download, cancel, delete."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
 
                     <!-- Model status (full row) -->
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
@@ -340,7 +340,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
             </StackPanel>
         </ScrollViewer>

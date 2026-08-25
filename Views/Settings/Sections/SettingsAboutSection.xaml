@@ -61,7 +61,7 @@
                 <TextBlock Text="The product and the version running on this machine."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="1" Margin="0,0,0,6">
                     <!-- Version card -->
                     <Border Style="{StaticResource SettingsWideTileStyle}">
                         <DockPanel>
@@ -80,7 +80,7 @@
                             </StackPanel>
                         </DockPanel>
                     </Border>
-                </WrapPanel>
+                </UniformGrid>
 
                 <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
@@ -90,7 +90,7 @@
                 <TextBlock Text="Short explainers on the theme system, the AI assistant, your privacy and the voice models."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <WrapPanel Margin="0,0,0,6">
+                <UniformGrid Columns="3" Margin="0,0,0,6">
 
                     <!-- About the Theme System -->
                     <Border Style="{StaticResource SettingsWideTileStyle}">
@@ -172,7 +172,7 @@
                         </StackPanel>
                     </Border>
 
-                </WrapPanel>
+                </UniformGrid>
 
             </StackPanel>
         </ScrollViewer>
