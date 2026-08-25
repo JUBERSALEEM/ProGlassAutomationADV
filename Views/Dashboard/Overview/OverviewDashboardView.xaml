@@ -1,4 +1,4 @@
-﻿<!-- LAYOUT-03 BENTO MOSAIC — Overview. Bindings unchanged. -->
+<!-- LAYOUT-03 BENTO MOSAIC — Overview. Bindings unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -83,32 +83,63 @@
                         <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,10,0" MinHeight="168">
+                    <!-- FACTORY PULSE — modern blue-gradient hero card (the
+                         "latest app" look). Brand-blue gradient background,
+                         white text, subtle glass circle deco, and a light
+                         sparkline. Reads as the page's hero number. -->
+                    <Border Grid.Column="0"
+                            Margin="0,0,10,0"
+                            MinHeight="168"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
+                            ClipToBounds="True"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
+                            SnapsToDevicePixels="True">
+                        <Border.Background>
+                            <DynamicResource ResourceKey="DashHeroBlueBrush"/>
+                        </Border.Background>
                         <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="140"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel>
-                                <TextBlock Text="FACTORY PULSE"
-                                           Style="{StaticResource SoftKpiLabelStyle}"/>
-                                <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
-                                         StretchDirection="DownOnly" Margin="0,8,12,4">
-                                    <TextBlock Text="{Binding PulseDisplay}"
-                                               Style="{StaticResource SoftKpiValueStyle}"
-                                               Margin="0"/>
-                                </Viewbox>
-                                <TextBlock Text="{Binding PulseHint}"
-                                           Style="{StaticResource SoftKpiFootStyle}"/>
-                            </StackPanel>
-                            <mini:MiniBarChartControl Grid.Column="1"
-                                                      Height="72"
-                                                      VerticalAlignment="Bottom"
-                                                      Margin="0,24,0,0"
-                                                      Values="{Binding PulseSpark}"
-                                                      BarBrush="{DynamicResource AccentBrush}"
-                                                      HighlightBrush="{DynamicResource InfoBrush}"/>
+                            <Ellipse Width="200" Height="200"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Top"
+                                     Margin="0,-70,-60,0"
+                                     Fill="White" Opacity="0.10"
+                                     IsHitTestVisible="False"/>
+                            <Ellipse Width="140" Height="140"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Bottom"
+                                     Margin="0,0,-30,-50"
+                                     Fill="White" Opacity="0.08"
+                                     IsHitTestVisible="False"/>
+                            <Grid Margin="18,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="130"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="FACTORY PULSE"
+                                               FontSize="10" FontWeight="Bold"
+                                               Foreground="#CCFFFFFF"
+                                               IsHitTestVisible="False"/>
+                                    <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
+                                             StretchDirection="DownOnly" Margin="0,8,12,4">
+                                        <TextBlock Text="{Binding PulseDisplay}"
+                                                   Foreground="White"
+                                                   FontSize="30" FontWeight="Bold"
+                                                   Margin="0"/>
+                                    </Viewbox>
+                                    <TextBlock Text="{Binding PulseHint}"
+                                               FontSize="11"
+                                               Foreground="#DDFFFFFF"/>
+                                </StackPanel>
+                                <mini:MiniBarChartControl Grid.Column="1"
+                                                          Height="72"
+                                                          VerticalAlignment="Bottom"
+                                                          Margin="0,24,0,0"
+                                                          Values="{Binding PulseSpark}"
+                                                          BarBrush="White"
+                                                          HighlightBrush="#B3FFFFFF"/>
+                            </Grid>
                         </Grid>
                     </Border>
 
@@ -189,6 +220,7 @@
                                     ValuePrefix="AED "
                                     EmptyMessage="No revenue recorded yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>

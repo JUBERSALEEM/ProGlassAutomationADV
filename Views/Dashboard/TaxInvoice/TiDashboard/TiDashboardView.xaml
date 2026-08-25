@@ -517,6 +517,7 @@
                                         ValuePrefix="AED "
                                         EmptyMessage="No revenue recorded yet."
                                         SeriesBrush="{DynamicResource AccentBrush}"
+                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                         GridBrush="{DynamicResource DividerBrush}"
                                         LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                                 </Border>

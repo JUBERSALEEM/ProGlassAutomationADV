@@ -134,6 +134,7 @@
                                     SeriesKind="Bar"
                                     EmptyMessage="No type data yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>
@@ -165,6 +166,7 @@
                                         SeriesKind="Bar"
                                         EmptyMessage="Delivery note count by status — no data yet."
                                         SeriesBrush="{DynamicResource AccentBrush}"
+                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                         GridBrush="{DynamicResource DividerBrush}"
                                         LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                                 </Border>

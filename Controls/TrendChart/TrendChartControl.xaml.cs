@@ -124,6 +124,50 @@ namespace ProGlassAutomation.Controls.TrendChart
                 nameof(SeriesBrush), typeof(Brush), typeof(TrendChartControl),
                 new PropertyMetadata(null, OnDataChanged));
 
+        /// <summary>
+        /// Optional bottom colour for a modern vertical gradient fill.
+        /// When non-null and SeriesBrush is a SolidColorBrush, the series
+        /// (bars or area) is painted with a top→bottom LinearGradientBrush
+        /// from SeriesBrush to SeriesEndBrush — the gradient-bar look in
+        /// modern analytics apps. When null, the series uses SeriesBrush
+        /// verbatim, so existing single-colour usage is unchanged.
+        /// </summary>
+        public Brush SeriesEndBrush
+        {
+            get => (Brush)GetValue(SeriesEndBrushProperty);
+            set => SetValue(SeriesEndBrushProperty, value);
+        }
+
+        public static readonly DependencyProperty SeriesEndBrushProperty =
+            DependencyProperty.Register(
+                nameof(SeriesEndBrush), typeof(Brush), typeof(TrendChartControl),
+                new PropertyMetadata(null, OnDataChanged));
+
+        /// <summary>
+        /// Resolves the effective series brush. If a SeriesEndBrush is set,
+        /// builds a top→bottom gradient from the primary brush to the end
+        /// brush; otherwise returns the primary brush unchanged. The custom
+        /// Redraw path calls this so bars / area / line all share it.
+        /// </summary>
+        private Brush ResolveSeriesBrush()
+        {
+            var primary = SeriesBrush ?? Res("AccentBrush", Brushes.SteelBlue);
+            var end = SeriesEndBrush;
+            if (end == null || primary is not SolidColorBrush sb)
+                return primary;
+
+            return new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1),
+                GradientStops =
+                {
+                    new GradientStop(sb.Color, 0.0),
+                    new GradientStop(((SolidColorBrush)end).Color, 1.0)
+                }
+            };
+        }
+
         public Brush GridBrush
         {
             get => (Brush)GetValue(GridBrushProperty);
@@ -321,7 +365,7 @@ namespace ProGlassAutomation.Controls.TrendChart
 
             if (!hasData || _plotW < 20 || _plotH < 20) return;
 
-            var series = SeriesBrush ?? Res("AccentBrush", Brushes.SteelBlue);
+            var series = ResolveSeriesBrush();
             var grid = GridBrush ?? Res("DividerBrush", Brushes.LightGray);
             var label = LabelBrush ?? Res("MutedForegroundBrush", Brushes.Gray);
 
@@ -569,7 +613,7 @@ namespace ProGlassAutomation.Controls.TrendChart
         /// </summary>
         private void ShowIndicator(Pt p)
         {
-            var accent = SeriesBrush ?? Res("AccentBrush", Brushes.SteelBlue);
+            var accent = ResolveSeriesBrush();
 
             if (_crosshair == null)
             {

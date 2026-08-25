@@ -198,6 +198,16 @@
         <GradientStop Color="#DBEAFE" Offset="1.0"/>
     </LinearGradientBrush>
 
+    <!-- Bold blue brand gradient for dashboard hero cards / high-emphasis
+         visuals (the "modern app" accent). Light theme: deep -> bright blue. -->
+    <LinearGradientBrush x:Key="DashHeroBlueBrush"
+                         StartPoint="0,0" EndPoint="1,1"
+                         po:Freeze="True">
+        <GradientStop Color="#0369A1" Offset="0.0"/>
+        <GradientStop Color="#0EA5E9" Offset="0.6"/>
+        <GradientStop Color="#38BDF8" Offset="1.0"/>
+    </LinearGradientBrush>
+
     <!-- Top-right accent blob — 22% alpha blue glow. -->
     <RadialGradientBrush x:Key="DashAmbientBlob1Brush"
                          Center="0.85,0.15"

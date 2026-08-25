@@ -137,6 +137,7 @@
                                     SeriesKind="Bar"
                                     EmptyMessage="Stock by category — no data yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>

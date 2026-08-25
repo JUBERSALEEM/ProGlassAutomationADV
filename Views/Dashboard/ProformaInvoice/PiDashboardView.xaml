@@ -134,6 +134,7 @@
                                     SeriesKind="Bar"
                                     EmptyMessage="Invoice count by status — no data yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>
@@ -160,6 +161,7 @@
                                     ValuePrefix="AED "
                                     EmptyMessage="Revenue by customer — no data yet."
                                     SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
                                     GridBrush="{DynamicResource DividerBrush}"
                                     LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                             </Border>
