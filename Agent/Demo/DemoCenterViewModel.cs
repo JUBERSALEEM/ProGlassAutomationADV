@@ -446,12 +446,36 @@ namespace ProGlassAutomation.Agent.Demo
             }
         }
 
+        // 2026-08-25 FIX: the DOWNLOAD FFMPEG button opens the direct
+        // Windows essentials zip, which lives on gyan.dev — the build
+        // source that ffmpeg.org/download.html itself lists. The old
+        // allow-list (substring "ffmpeg.org" or "github.com") did not
+        // include it, so the direct-download button was silently
+        // blocked with "Blocked untrusted URL" and users could not get
+        // ffmpeg for demo recording from Settings.
+        //
+        // Exact-host matching also closes the old substring hole where
+        // a URL such as "https://evil.example/ffmpeg.org" would have
+        // passed the Phase-8 check.
+        private static readonly System.Collections.Generic.HashSet<string> AllowedDownloadHosts =
+            new(System.StringComparer.OrdinalIgnoreCase)
+            {
+                "ffmpeg.org", "www.ffmpeg.org",   // official project page
+                "gyan.dev", "www.gyan.dev",       // ffmpeg.org-listed Windows builds (direct zip)
+                "github.com", "www.github.com",   // BtbN / GyanD release pages
+            };
+
         private void OpenUrl(string url)
         {
             try
             {
-                                // Phase 8: Validate URL before opening — only https and allow-list
-                if (url.StartsWith("https://", System.StringComparison.OrdinalIgnoreCase) && (url.Contains("ffmpeg.org") || url.Contains("github.com")))
+                // Phase 8: Validate URL before opening — HTTPS + exact-host allow-list
+                bool allowed =
+                    System.Uri.TryCreate(url, UriKind.Absolute, out var uri) &&
+                    uri.Scheme == System.Uri.UriSchemeHttps &&
+                    AllowedDownloadHosts.Contains(uri.Host);
+
+                if (allowed)
                     Process.Start(new ProcessStartInfo { FileName = url, UseShellExecute = true });
                 else
                     SetLocalStatus($"Blocked untrusted URL: {url}");
