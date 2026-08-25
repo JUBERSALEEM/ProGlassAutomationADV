@@ -1,10 +1,20 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsAboutSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — ABOUT & HELP page
+     MODULE: Settings v2 — ABOUT & HELP page (tile-grid redesign Aug 2026)
 
-     Product knowledge cards: theme system · AI assistant · privacy ·
-     voice models — plus the running version.
+     REDESIGN
+       Was: one version strip plus four full-width InfoCard boxes
+       stacked vertically. On a wide monitor each info card stretched
+       the whole pane with its bullet list, so 60% of horizontal space
+       was empty and the page was a very long scroll.
+
+       Now: the four knowledge cards become 660-wide tiles that reflow
+       into two per row in the WrapPanel. Each keeps its glyph badge +
+       title + paragraph + bullets so the same information is legible,
+       just arranged professionally instead of stacked. The version
+       card stays at the top as a wide tile. All one binding
+       (CurrentVersionDisplay) preserved.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAboutSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -45,145 +55,124 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="32,0,32,32">
 
-                <!-- ── VERSION CARD ───────────────────────────────── -->
-                <Border Style="{StaticResource SettingsFullRowTileStyle}">
-                    <DockPanel>
-                        <Border Style="{StaticResource InfoGlyphBadgeStyle}">
-                            <TextBlock Text="&#xE946;" Style="{StaticResource InfoGlyphTextStyle}"/>
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="ProGlass Automation"
-                                       Style="{StaticResource RowTitleStyle}"/>
-                            <TextBlock FontSize="11" Margin="0,2,0,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                <Run Text="Installed version"/>
-                                <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"
-                                     FontWeight="Bold"/>
-                                <Run Text="— built for UAE glass fabricators."/>
+                <!-- ═══════ GROUP: APPLICATION ═══════ -->
+                <TextBlock Text="APPLICATION"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="The product and the version running on this machine."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <!-- Version card -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <DockPanel>
+                            <Border Style="{StaticResource InfoGlyphBadgeStyle}" DockPanel.Dock="Left">
+                                <TextBlock Text="&#xE946;" Style="{StaticResource InfoGlyphTextStyle}"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="ProGlass Automation"
+                                           Style="{StaticResource SettingsTileTitleStyle}"/>
+                                <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                           Margin="0,2,0,0">
+                                    <Run Text="Installed version"/><Run Text=" "/>
+                                    <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}" FontWeight="Bold"/>
+                                    <Run Text=" — built for UAE glass fabricators."/>
+                                </TextBlock>
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: LEARN MORE ═══════ -->
+                <TextBlock Text="LEARN MORE"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Short explainers on the theme system, the AI assistant, your privacy and the voice models."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+
+                    <!-- About the Theme System -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
+                                </Border>
+                                <TextBlock Text="About the Theme System"
+                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                                <Run Text="ProGlass Automation ships with"/><Run Text=" two hand-crafted themes" FontWeight="Bold"/><Run Text=" — Light (default) and Dark."/>
                             </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Light theme — optimized for daylight factory floor use.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Dark theme — easier on the eyes during late-night shifts.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Instant swap — no restart required.</TextBlock>
                         </StackPanel>
-                    </DockPanel>
-                </Border>
+                    </Border>
 
-                <!-- ── ABOUT THE THEME SYSTEM ─────────────────────── -->
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Style="{StaticResource InfoGlyphBadgeStyle}">
-                                <TextBlock Text="&#xE790;" Style="{StaticResource InfoGlyphTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="About the Theme System"
-                                       Style="{StaticResource InfoCardTitleStyle}"/>
+                    <!-- About the AI Assistant -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
+                                </Border>
+                                <TextBlock Text="About the AI Assistant"
+                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                                <Run Text="The optional AI Assistant supports"/><Run Text=" Google Gemini, Groq, and Cohere" FontWeight="Bold"/><Run Text=" — all free tiers. Tailored for UAE glass manufacturing."/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• 100% opt-in — uses your own API key.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Context-aware — knows glass types, VAT rules, app modules.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Voice input via Whisper — offline, 95%+ accuracy.</TextBlock>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                            <Run Text="ProGlass Automation ships with"/>
-                            <Run Text=" two hand-crafted themes" FontWeight="Bold"/>
-                            <Run Text=" — Light (default) and Dark."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Light theme — optimized for daylight factory floor use."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Dark theme — easier on the eyes during late-night shifts."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Instant swap — no restart required."/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- ── ABOUT THE AI ASSISTANT ─────────────────────── -->
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Style="{StaticResource InfoGlyphBadgeStyle}">
-                                <TextBlock Text="&#xE8F2;" Style="{StaticResource InfoGlyphTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="About the AI Assistant"
-                                       Style="{StaticResource InfoCardTitleStyle}"/>
+                    <!-- About Your API Key & Privacy -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
+                                </Border>
+                                <TextBlock Text="About Your API Key &amp; Privacy"
+                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                                <Run Text="Your API key is stored"/><Run Text=" only on your local machine" FontWeight="Bold"/><Run Text=" in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider."/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Stored at %AppData%\ProGlassAutomation\config.json.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• No telemetry — zero analytics sent anywhere.</TextBlock>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                            <Run Text="The optional AI Assistant supports"/>
-                            <Run Text=" Google Gemini, Groq, and Cohere" FontWeight="Bold"/>
-                            <Run Text=" — all free tiers. Tailored for UAE glass manufacturing."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" 100% opt-in — uses your own API key."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Context-aware — knows glass types, VAT rules, app modules."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Voice input via Whisper — offline, 95%+ accuracy."/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- ── ABOUT YOUR API KEY & PRIVACY ───────────────── -->
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Style="{StaticResource InfoGlyphBadgeStyle}">
-                                <TextBlock Text="&#xE72E;" Style="{StaticResource InfoGlyphTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="About Your API Key &amp; Privacy"
-                                       Style="{StaticResource InfoCardTitleStyle}"/>
+                    <!-- About Voice Models -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <Border Style="{StaticResource InfoGlyphBadgeStyle}" Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
+                                </Border>
+                                <TextBlock Text="About Voice Models"
+                                           Style="{StaticResource SettingsTileTitleStyle}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                                <Run Text="Three Whisper model sizes are available."/><Run Text=" Base is recommended" FontWeight="Bold"/><Run Text=" for most users — fast, accurate, only 142 MB."/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Base (142 MB) — 95%+ accuracy. Best for daily use.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Medium (1.5 GB) — 97%+ accuracy. Noisy environments.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• Large v3 (3.1 GB) — 99%+ accuracy. Maximum quality.</TextBlock>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}">• All models run fully OFFLINE — no internet after download.</TextBlock>
                         </StackPanel>
-                        <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                            <Run Text="Your API key is stored"/>
-                            <Run Text=" only on your local machine" FontWeight="Bold"/>
-                            <Run Text=" in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Stored at %AppData%\ProGlassAutomation\config.json."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" No telemetry — zero analytics sent anywhere."/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                    </Border>
 
-                <!-- ── ABOUT VOICE MODELS ─────────────────────────── -->
-                <Border Style="{StaticResource InfoCardStyle}">
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Style="{StaticResource InfoGlyphBadgeStyle}">
-                                <TextBlock Text="&#xE720;" Style="{StaticResource InfoGlyphTextStyle}"/>
-                            </Border>
-                            <TextBlock Text="About Voice Models"
-                                       Style="{StaticResource InfoCardTitleStyle}"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                            <Run Text="Three Whisper model sizes are available."/>
-                            <Run Text=" Base is recommended" FontWeight="Bold"/>
-                            <Run Text=" for most users — fast, accurate, only 142 MB."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Base (142 MB) — 95%+ accuracy. Best for daily use."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Medium (1.5 GB) — 97%+ accuracy. Noisy environments."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" Large v3 (3.1 GB) — 99%+ accuracy. Maximum quality."/>
-                        </TextBlock>
-                        <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                            <Run Text="•" FontWeight="Bold"/>
-                            <Run Text=" All models run fully OFFLINE — no internet after download."/>
-                        </TextBlock>
-                    </StackPanel>
-                </Border>
+                </WrapPanel>
 
             </StackPanel>
         </ScrollViewer>

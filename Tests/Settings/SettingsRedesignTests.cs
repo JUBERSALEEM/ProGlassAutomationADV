@@ -223,6 +223,13 @@ namespace ProGlassAutomation.Tests.Settings
         [InlineData("SettingsAppearanceSection.xaml")]
         [InlineData("SettingsAiSection.xaml")]
         [InlineData("SettingsVoiceSection.xaml")]
+        [InlineData("SettingsDataSection.xaml")]
+        [InlineData("SettingsDemoSection.xaml")]
+        [InlineData("SettingsAgentSection.xaml")]
+        [InlineData("SettingsFeaturesSection.xaml")]
+        [InlineData("SettingsUpdatesSection.xaml")]
+        [InlineData("SettingsLicenseSection.xaml")]
+        [InlineData("SettingsAboutSection.xaml")]
         public void Rewritten_section_uses_the_new_tile_grid(string sectionFile)
         {
             var root = LocateProjectRoot();
@@ -236,6 +243,191 @@ namespace ProGlassAutomation.Tests.Settings
                 src.Contains("SettingsFullRowTileStyle"),
                 $"{sectionFile} does not consume any of the new tile styles.");
             Assert.Contains("SettingsGroupHeaderTextStyle", src);
+        }
+
+        /// <summary>
+        /// The seven sections redesigned in the second Settings pass (Data,
+        /// Demo, Agent, Features, Updates, License, About) must still bind to
+        /// every ViewModel property and command they bound to before the tile
+        /// rewrite. A pure layout change must never drop a binding.
+        /// </summary>
+        [Theory]
+        [InlineData("SettingsDataSection.xaml", "CreateBackupNowCommand")]
+        [InlineData("SettingsDataSection.xaml", "RefreshBackupsCommand")]
+        [InlineData("SettingsDataSection.xaml", "OpenBackupsFolderCommand")]
+        [InlineData("SettingsDataSection.xaml", "RestoreSelectedBackupCommand")]
+        [InlineData("SettingsDataSection.xaml", "BackupSets")]
+        [InlineData("SettingsDataSection.xaml", "SelectedBackup")]
+        [InlineData("SettingsDataSection.xaml", "BackupStatus")]
+        [InlineData("SettingsDataSection.xaml", "CreatedAt")]
+        [InlineData("SettingsDataSection.xaml", "FileCount")]
+        [InlineData("SettingsDataSection.xaml", "SizeDisplay")]
+        [InlineData("SettingsDataSection.xaml", "LoadSampleDataCommand")]
+        [InlineData("SettingsDataSection.xaml", "ClearAllDataCommand")]
+        [InlineData("SettingsDataSection.xaml", "DatabaseHealthRows")]
+        [InlineData("SettingsDataSection.xaml", "RefreshDatabaseHealthCommand")]
+        [InlineData("SettingsDataSection.xaml", "RebuildAllDatabasesCommand")]
+        [InlineData("SettingsDataSection.xaml", "DatabaseHealthStatus")]
+        [InlineData("SettingsDataSection.xaml", "DisplayName")]
+        [InlineData("SettingsDataSection.xaml", "Status")]
+        [InlineData("SettingsDataSection.xaml", "TotalRowsDisplay")]
+        [InlineData("SettingsDataSection.xaml", "FileSizeDisplay")]
+        [InlineData("SettingsDataSection.xaml", "DriftDisplay")]
+        [InlineData("SettingsDataSection.xaml", "LicenseStatus.StatusBadge")]
+        [InlineData("SettingsDataSection.xaml", "LicenseStatus.StatusDescription")]
+        [InlineData("SettingsDemoSection.xaml", "StartSessionRecordCommand")]
+        [InlineData("SettingsDemoSection.xaml", "StopSessionRecordCommand")]
+        [InlineData("SettingsDemoSection.xaml", "OpenRecordingsCommand")]
+        [InlineData("SettingsDemoSection.xaml", "SessionRecordStatus")]
+        [InlineData("SettingsDemoSection.xaml", "Qualities")]
+        [InlineData("SettingsDemoSection.xaml", "SelectedQuality")]
+        [InlineData("SettingsDemoSection.xaml", "FpsChoices")]
+        [InlineData("SettingsDemoSection.xaml", "SelectedFps")]
+        [InlineData("SettingsDemoSection.xaml", "CaptureLiveAudio")]
+        [InlineData("SettingsDemoSection.xaml", "CaptureMicrophone")]
+        [InlineData("SettingsDemoSection.xaml", "Modules")]
+        [InlineData("SettingsDemoSection.xaml", "SelectedWorkflow")]
+        [InlineData("SettingsDemoSection.xaml", "GenerateSelectedCommand")]
+        [InlineData("SettingsDemoSection.xaml", "GenerateAllCommand")]
+        [InlineData("SettingsDemoSection.xaml", "RetryCommand")]
+        [InlineData("SettingsDemoSection.xaml", "CancelCommand")]
+        [InlineData("SettingsDemoSection.xaml", "OpenOutputCommand")]
+        [InlineData("SettingsDemoSection.xaml", "EnterDemoCommand")]
+        [InlineData("SettingsDemoSection.xaml", "ExitDemoCommand")]
+        [InlineData("SettingsDemoSection.xaml", "ResetDemoCommand")]
+        [InlineData("SettingsDemoSection.xaml", "StateText")]
+        [InlineData("SettingsDemoSection.xaml", "StatusText")]
+        [InlineData("SettingsDemoSection.xaml", "VerifiedText")]
+        [InlineData("SettingsDemoSection.xaml", "LastMp4Text")]
+        [InlineData("SettingsDemoSection.xaml", "FfmpegStatus")]
+        [InlineData("SettingsDemoSection.xaml", "History")]
+        [InlineData("SettingsDemoSection.xaml", "Module")]
+        [InlineData("SettingsDemoSection.xaml", "State")]
+        [InlineData("SettingsDemoSection.xaml", "Status")]
+        [InlineData("SettingsDemoSection.xaml", "HasHistory")]
+        [InlineData("SettingsAgentSection.xaml", "LocalOnlyLabel")]
+        [InlineData("SettingsAgentSection.xaml", "ToggleLocalOnlyCommand")]
+        [InlineData("SettingsAgentSection.xaml", "CloudConsentLabel")]
+        [InlineData("SettingsAgentSection.xaml", "ToggleCloudConsentCommand")]
+        [InlineData("SettingsAgentSection.xaml", "PrivacySummary")]
+        [InlineData("SettingsAgentSection.xaml", "AllowedHostsDisplay")]
+        [InlineData("SettingsAgentSection.xaml", "HardwareAdvice")]
+        [InlineData("SettingsAgentSection.xaml", "ProviderOptions")]
+        [InlineData("SettingsAgentSection.xaml", "SelectedProvider")]
+        [InlineData("SettingsAgentSection.xaml", "KeyStatus")]
+        [InlineData("SettingsAgentSection.xaml", "RemoveKeyCommand")]
+        [InlineData("SettingsAgentSection.xaml", "Rules")]
+        [InlineData("SettingsAgentSection.xaml", "Display")]
+        [InlineData("SettingsAgentSection.xaml", "StatusDisplay")]
+        [InlineData("SettingsAgentSection.xaml", "IsApproved")]
+        [InlineData("SettingsAgentSection.xaml", "RefreshRulesCommand")]
+        [InlineData("SettingsAgentSection.xaml", "ClearTeachingCommand")]
+        [InlineData("SettingsAgentSection.xaml", "ExportKnowledgeCommand")]
+        [InlineData("SettingsAgentSection.xaml", "ImportKnowledgeCommand")]
+        [InlineData("SettingsAgentSection.xaml", "ClearMemoryCommand")]
+        [InlineData("SettingsAgentSection.xaml", "ClearKnowledgeCommand")]
+        [InlineData("SettingsAgentSection.xaml", "AgentDatabasePath")]
+        [InlineData("SettingsAgentSection.xaml", "SettingsFilePath")]
+        [InlineData("SettingsAgentSection.xaml", "HasRules")]
+        [InlineData("SettingsFeaturesSection.xaml", "DataContext.ForgetThisDeviceCommand")]
+        [InlineData("SettingsFeaturesSection.xaml", "DataContext.SignOutCommand")]
+        [InlineData("SettingsFeaturesSection.xaml", "ProformaFeatures")]
+        [InlineData("SettingsFeaturesSection.xaml", "DataContext.InquiryFeatures")]
+        [InlineData("SettingsFeaturesSection.xaml", "EnableAllCommand")]
+        [InlineData("SettingsFeaturesSection.xaml", "DisableAllOptionalCommand")]
+        [InlineData("SettingsFeaturesSection.xaml", "ResetToDefaultsCommand")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowCompanyTrn")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowRepresentative")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowAccountNumber")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowValidUntil")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowCustomerTrn")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowBillingAddress")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowProjectName")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowSiteDeliveryLocation")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowInquiryReference")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowPriority")]
+        [InlineData("SettingsFeaturesSection.xaml", "ShowNotes")]
+        [InlineData("SettingsUpdatesSection.xaml", "CheckForUpdatesCommand")]
+        [InlineData("SettingsUpdatesSection.xaml", "CurrentVersionDisplay")]
+        [InlineData("SettingsUpdatesSection.xaml", "LatestVersionDisplay")]
+        [InlineData("SettingsUpdatesSection.xaml", "DownloadUpdateCommand")]
+        [InlineData("SettingsUpdatesSection.xaml", "InstallUpdateCommand")]
+        [InlineData("SettingsUpdatesSection.xaml", "UpdateStatus")]
+        [InlineData("SettingsUpdatesSection.xaml", "IsUpdateAvailable")]
+        [InlineData("SettingsUpdatesSection.xaml", "IsUpdateReady")]
+        [InlineData("SettingsUpdatesSection.xaml", "IsDownloadingUpdate")]
+        [InlineData("SettingsUpdatesSection.xaml", "UpdateDownloadProgress")]
+        [InlineData("SettingsUpdatesSection.xaml", "HasReleaseInfo")]
+        [InlineData("SettingsUpdatesSection.xaml", "ReleaseNameDisplay")]
+        [InlineData("SettingsUpdatesSection.xaml", "ReleasePublishedDisplay")]
+        [InlineData("SettingsUpdatesSection.xaml", "ReleaseNotesPreview")]
+        [InlineData("SettingsUpdatesSection.xaml", "HasUpdateHistory")]
+        [InlineData("SettingsUpdatesSection.xaml", "UpdateHistory")]
+        [InlineData("SettingsUpdatesSection.xaml", "TimestampUtc")]
+        [InlineData("SettingsUpdatesSection.xaml", "EventType")]
+        [InlineData("SettingsUpdatesSection.xaml", "Version")]
+        [InlineData("SettingsUpdatesSection.xaml", "ReleaseName")]
+        [InlineData("SettingsUpdatesSection.xaml", "Detail")]
+        [InlineData("SettingsLicenseSection.xaml", "StatusBadge")]
+        [InlineData("SettingsLicenseSection.xaml", "EditionDisplay")]
+        [InlineData("SettingsLicenseSection.xaml", "StatusDescription")]
+        [InlineData("SettingsLicenseSection.xaml", "DaysRemainingDisplay")]
+        [InlineData("SettingsAboutSection.xaml", "CurrentVersionDisplay")]
+        public void Second_pass_redesigned_sections_still_bind_to(string sectionFile, string binding)
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections", sectionFile));
+            var pattern = @"\{Binding\s+(?:Path\s*=\s*)?(" + Regex.Escape(binding) + @")\s*[,}\s]";
+            Assert.True(Regex.IsMatch(src, pattern),
+                $"Binding '{binding}' vanished from {sectionFile}. " +
+                "The tile redesign must not drop a ViewModel binding.");
+        }
+
+        /// <summary>
+        /// The Features page re-scopes DataContext to two separate flags VMs
+        /// (ProformaFeatures and InquiryFeatures) so the descendant field
+        /// toggles bind cleanly, and reaches the parent SettingsViewModel via
+        /// ElementName for the session commands. Lock both scopes plus the
+        /// count of PiToggleSwitch field toggles so a future edit cannot
+        /// accidentally collapse them into one scope.
+        /// </summary>
+        [Fact]
+        public void Features_section_preserves_both_data_context_scopes()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsFeaturesSection.xaml"));
+
+            Assert.Contains("DataContext=\"{Binding ProformaFeatures}\"", src);
+            Assert.Contains("DataContext=\"{Binding DataContext.InquiryFeatures,", src);
+            Assert.Contains("x:Name=\"SettingsFeaturesRoot\"", src);
+            Assert.Contains("DataContext.ForgetThisDeviceCommand,", src);
+            Assert.Contains("DataContext.SignOutCommand,", src);
+            // 30 field toggles: Step1 10 + Step2 7 + Step3 5 + Inquiry 8.
+            Assert.Equal(30, Regex.Matches(src, "<ToggleButton").Count);
+        }
+
+        /// <summary>
+        /// The Agent page hands its DataContext to the code-behind via the
+        /// root Grid x:Name="AgentRoot", and exposes the AgentKeyBox + the
+        /// StoreKey_Click handler. Without these the credentials card would
+        /// render on top of every other settings page (is-Agent-page binding
+        /// resolves against the wrong VM) and the STORE KEY button would break.
+        /// </summary>
+        [Fact]
+        public void Agent_section_preserves_the_code_behind_contract()
+        {
+            var root = LocateProjectRoot();
+            var xaml = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsAgentSection.xaml"));
+            var cs = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsAgentSection.xaml.cs"));
+
+            Assert.Contains("x:Name=\"AgentRoot\"", xaml);
+            Assert.Contains("x:Name=\"AgentKeyBox\"", xaml);
+            Assert.Contains("Click=\"StoreKey_Click\"", xaml);
+            Assert.Contains("StoreKey_Click", cs);
         }
 
         /// <summary>

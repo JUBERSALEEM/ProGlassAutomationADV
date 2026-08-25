@@ -1,6 +1,27 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsDemoSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — DEMO CENTER page (tile-grid redesign Aug 2026)
+
+     REDESIGN
+       Was: seven full-width cards stacked vertically. The RECORDING
+       card alone held Quality + Frame rate + Audio + Microphone as
+       four full-width rows, so two thirds of horizontal space was
+       wasted on a wide monitor.
+
+       Now: grouped into labelled tile groups. The four recording
+       settings each become their own 320-wide tile so they reflow
+       side-by-side; the FFMPEG troubleshooting card keeps a full row
+       (a dozen buttons need the width); STATUS becomes a compact
+       metric tile. All 46 ViewModel bindings preserved, including the
+       conditional FFMPEG visibility (card only shows while missing,
+       flips the inner ready/missing branches) and every
+       AutomationProperties.AutomationId test anchor.
+═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -22,7 +43,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Each module records a live walk — production stages, Reports Hub and all five reports, Proforma 1–9, Job Order, Delivery Note, Tax Invoice, Statements, administration and profitability — then a verified MP4."
+            <TextBlock Text="Each module records a live walk — production stages, Reports Hub, Proforma 1–9, Job Order, Delivery Note, Tax Invoice, Statements, administration and profitability — then a verified MP4."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>
@@ -32,297 +53,372 @@
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="32,0,32,32">
 
+                <!-- ═══════ GROUP: FFMPEG (conditional) ═══════ -->
                 <Border Style="{StaticResource SettingsFullRowTileStyle}"
-                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Visibility="{Binding IsFfmpegMissing,
                             Converter={StaticResource BoolToVisibilityConverter},
                             FallbackValue=Collapsed}">
                     <StackPanel>
-                        <TextBlock Text="FFMPEG" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="{Binding FfmpegStatus}"
-                                   Style="{StaticResource RowTitleStyle}"
-                                   Margin="0,4,0,6"
-                                   TextWrapping="Wrap"/>
-
-                        <StackPanel Visibility="{Binding IsFfmpegMissing,
-                                        Converter={StaticResource BoolToVisibilityConverter},
-                                        FallbackValue=Visible}">
-                            <TextBlock Text="Generate will not start until ffmpeg is installed. AVI is not accepted as an MP4. Download the Windows essentials zip, copy ffmpeg.exe and ffprobe.exe into the tools folder, then Recheck."
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       FontSize="12"
-                                       TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding FfmpegDownloadUrl}"
-                                       FontSize="12"
-                                       FontFamily="Consolas"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,12,0,0"/>
-                            <TextBlock Text="{Binding FfmpegInstallHint}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"
-                                       Margin="0,10,0,0"/>
-                            <WrapPanel Margin="0,16,0,0">
-                                <Button Style="{StaticResource OutlinedPillButton}"
-                                        Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
-                                        Command="{Binding OpenFfmpegDownloadCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
-                                        Content="OFFICIAL FFMPEG PAGE"
-                                        Command="{Binding OpenFfmpegPageCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
-                                        Content="COPY LINK"
-                                        Command="{Binding CopyFfmpegLinkCommand}"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
-                                        Content="OPEN TOOLS FOLDER"
-                                        Command="{Binding OpenToolsFolderCommand}"
-                                        Margin="0,0,10,8"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
-                                        Content="RECHECK"
-                                        Command="{Binding RecheckFfmpegCommand}"
-                                        AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
-                                        Margin="0,0,10,8"/>
-                            </WrapPanel>
+                        <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                            <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B8;"/>
+                            <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="FFMPEG"/>
                         </StackPanel>
-
-                        <TextBlock Text="ffmpeg is ready. Generate Selected will record the module and write a verified MP4."
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                        <TextBlock Text="{Binding FfmpegStatus}"
+                                   Style="{StaticResource SettingsTileCaptionStyle}"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
+                            <Run Text="Generate will not start until ffmpeg is installed. Download the Windows essentials zip, copy "/>
+                            <Run Text="ffmpeg.exe"/><Run Text=" and "/><Run Text="ffprobe.exe"/><Run Text=" into the tools folder, then Recheck."/>
+                        </TextBlock>
+                        <TextBlock Text="{Binding FfmpegDownloadUrl}"
                                    FontSize="12"
+                                   FontFamily="Consolas"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"
+                                   Margin="0,0,0,8"/>
+                        <TextBlock Text="{Binding FfmpegInstallHint}"
+                                   Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                        <WrapPanel Margin="0,12,0,0">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="DOWNLOAD FFMPEG (WINDOWS ZIP)"
+                                    Command="{Binding OpenFfmpegDownloadCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.DownloadFfmpeg"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OFFICIAL FFMPEG PAGE"
+                                    Command="{Binding OpenFfmpegPageCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.FfmpegOfficial"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="COPY LINK"
+                                    Command="{Binding CopyFfmpegLinkCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="OPEN TOOLS FOLDER"
+                                    Command="{Binding OpenToolsFolderCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="RECHECK"
+                                    Command="{Binding RecheckFfmpegCommand}"
+                                    AutomationProperties.AutomationId="DemoCenter.RecheckFfmpeg"
+                                    Margin="0,0,10,8"/>
+                        </WrapPanel>
+                        <TextBlock Text="ffmpeg is ready. Generate Selected will record the module and write a verified MP4."
+                                   Style="{StaticResource SettingsTileFooterHintStyle}"
                                    Visibility="{Binding IsFfmpegReady,
                                        Converter={StaticResource BoolToVisibilityConverter},
                                        FallbackValue=Collapsed}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="RECORD THIS SESSION" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="{Binding SessionRecordHint}"
-                                   Style="{StaticResource HintTextStyle}"
-                                   Margin="0,0,0,8"/>
-                        <TextBlock Text="{Binding SessionRecordStatus}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,4,0,0"/>
-                        <WrapPanel Margin="0,14,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="START RECORDING"
-                                    Command="{Binding StartSessionRecordCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
-                                    Visibility="{Binding IsSessionIdle,
-                                        Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="STOP AND SAVE"
-                                    Command="{Binding StopSessionRecordCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
-                                    Visibility="{Binding IsSessionRecording,
-                                        Converter={StaticResource BoolToVisibilityConverter}}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="OPEN RECORDINGS"
-                                    Command="{Binding OpenRecordingsCommand}"
-                                    Margin="0,0,10,8"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="RECORDING" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="Captures only this running app window. Not the desktop, not other programs."
-                                   Style="{StaticResource HintTextStyle}"
-                                   Margin="0,0,0,8"/>
-                        <TextBlock Text="Quality"
-                                   Style="{StaticResource RowTitleStyle}"
-                                   Margin="0,8,0,6"/>
-                        <ComboBox ItemsSource="{Binding Qualities}"
-                                  SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
-                                  DisplayMemberPath="Title"
-                                  IsSynchronizedWithCurrentItem="False"
-                                  MinWidth="260"
-                                  Padding="10,7"
-                                  FontSize="13"/>
-                        <TextBlock Text="Frame rate"
-                                   Style="{StaticResource RowTitleStyle}"
-                                   Margin="0,14,0,6"/>
-                        <ComboBox ItemsSource="{Binding FpsChoices}"
-                                  SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
-                                  DisplayMemberPath="Title"
-                                  IsSynchronizedWithCurrentItem="False"
-                                  MinWidth="180"
-                                  Padding="10,7"
-                                  FontSize="13"/>
-                        <DockPanel Margin="0,18,0,0">
-                            <TextBlock Text="Internal audio (app / narration)"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       VerticalAlignment="Center"/>
-                            <ToggleButton HorizontalAlignment="Right"
+                <!-- ═══════ GROUP: RECORD THIS SESSION ═══════ -->
+                <TextBlock Text="RECORD THIS SESSION"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Record the running app window without a module workflow — capture anything on screen."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE714;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Record a Session"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding SessionRecordHint}"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                            <TextBlock Text="{Binding SessionRecordStatus}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Content="START RECORDING"
+                                        Command="{Binding StartSessionRecordCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.StartSessionRecord"
+                                        Visibility="{Binding IsSessionIdle,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Content="STOP AND SAVE"
+                                        Command="{Binding StopSessionRecordCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.StopSessionRecord"
+                                        Visibility="{Binding IsSessionRecording,
+                                            Converter={StaticResource BoolToVisibilityConverter}}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="OPEN RECORDINGS"
+                                        Command="{Binding OpenRecordingsCommand}"
+                                        Margin="0,0,10,8"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: RECORDING SETTINGS ═══════ -->
+                <TextBlock Text="RECORDING SETTINGS"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Captures only this running app window — not the desktop, not other programs."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7F8;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Quality"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Output resolution of the recorded video."/>
+                            <ComboBox ItemsSource="{Binding Qualities}"
+                                      SelectedItem="{Binding SelectedQuality, Mode=TwoWay}"
+                                      DisplayMemberPath="Title"
+                                      IsSynchronizedWithCurrentItem="False"
+                                      MinWidth="200"
+                                      Padding="10,7"
+                                      FontSize="13"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE823;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Frame Rate"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="How many frames per second are captured."/>
+                            <ComboBox ItemsSource="{Binding FpsChoices}"
+                                      SelectedItem="{Binding SelectedFps, Mode=TwoWay}"
+                                      DisplayMemberPath="Title"
+                                      IsSynchronizedWithCurrentItem="False"
+                                      MinWidth="160"
+                                      Padding="10,7"
+                                      FontSize="13"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE767;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Internal Audio"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Capture app / narration sound from the running app."/>
+                            <ToggleButton Grid.Row="3"
+                                          HorizontalAlignment="Left"
                                           IsChecked="{Binding CaptureLiveAudio, Mode=TwoWay}"
                                           Style="{StaticResource ModernToggleSwitch}"
                                           AutomationProperties.AutomationId="DemoCenter.CaptureAudio"/>
-                        </DockPanel>
-                        <DockPanel Margin="0,14,0,0">
-                            <TextBlock Text="Microphone"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       VerticalAlignment="Center"/>
-                            <ToggleButton HorizontalAlignment="Right"
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE77B;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Microphone"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Capture live spoken narration from your microphone."/>
+                            <ToggleButton Grid.Row="3"
+                                          HorizontalAlignment="Left"
                                           IsChecked="{Binding CaptureMicrophone, Mode=TwoWay}"
                                           Style="{StaticResource ModernToggleSwitch}"
                                           AutomationProperties.AutomationId="DemoCenter.CaptureMic"/>
-                        </DockPanel>
-                        <TextBlock Text="{Binding RecordHint}"
-                                   Style="{StaticResource HintTextStyle}"
-                                   Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
+                        </Grid>
+                    </Border>
+                </WrapPanel>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="Module"
-                                   Style="{StaticResource RowTitleStyle}"
-                                   Margin="0,12,0,6"/>
-                        <ComboBox ItemsSource="{Binding Modules}"
-                                  SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
-                                  DisplayMemberPath="Title"
-                                  IsSynchronizedWithCurrentItem="False"
-                                  MinWidth="260"
-                                  Padding="10,7"
-                                  FontSize="13"/>
-                        <TextBlock Text="{Binding SelectedPurpose}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding WorkflowHint}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"/>
-                        <WrapPanel Margin="0,16,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="GENERATE SELECTED"
-                                    Command="{Binding GenerateSelectedCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="GENERATE ALL MODULES"
-                                    Command="{Binding GenerateAllCommand}"
-                                    AutomationProperties.AutomationId="DemoCenter.GenerateAll"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="RETRY LAST"
-                                    Command="{Binding RetryCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="CANCEL"
-                                    Command="{Binding CancelCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="OPEN OUTPUT"
-                                    Command="{Binding OpenOutputCommand}"
-                                    Margin="0,0,10,8"/>
-                        </WrapPanel>
-                    </StackPanel>
-                </Border>
+                <TextBlock Text="{Binding RecordHint}"
+                           Style="{StaticResource SettingsGroupCaptionStyle}"
+                           Margin="0,0,0,6"/>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="ISOLATION" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="{Binding IsolationText}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"/>
-                        <WrapPanel Margin="0,14,0,0">
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="ENTER DEMO MODE"
-                                    Command="{Binding EnterDemoCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="EXIT DEMO MODE"
-                                    Command="{Binding ExitDemoCommand}"
-                                    Margin="0,0,10,8"/>
-                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Content="RESET DEMO FOLDER"
-                                    Command="{Binding ResetDemoCommand}"
-                                    Margin="0,0,10,8"/>
-                        </WrapPanel>
-                        <TextBlock Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
-                                   TextWrapping="Wrap"
-                                   Margin="0,4,0,0"/>
-                    </StackPanel>
-                </Border>
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="STATUS" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="{Binding StateText}"
-                                   FontSize="13" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding StatusText}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding VerifiedText}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
-                                   Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding LastMp4Text}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"/>
-                        <TextBlock Text="{Binding FfmpegStatus}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="11"
-                                   TextWrapping="Wrap"
-                                   Margin="0,10,0,0"/>
-                    </StackPanel>
-                </Border>
+                <!-- ═══════ GROUP: WORKFLOW ═══════ -->
+                <TextBlock Text="WORKFLOW"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Pick a module to auto-record it from start to finish, with live human narration."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                <Border Style="{StaticResource SettingsFullRowTileStyle}" CornerRadius="{DynamicResource CardCornerRadius}">
-                    <StackPanel>
-                        <TextBlock Text="HISTORY" Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Text="No jobs yet. Generate Selected or Generate All to start a recording."
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   FontSize="12"
-                                   TextWrapping="Wrap"
-                                   Margin="0,8,0,0"
-                                   Visibility="{Binding HasHistory,
-                                       Converter={StaticResource InverseBoolToVisibilityConverter},
-                                       FallbackValue=Visible}"/>
-                        <ItemsControl ItemsSource="{Binding History}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0,0,0,10">
-                                        <TextBlock FontSize="12" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <Run Text="{Binding Module, Mode=OneWay}"/>
-                                            <Run Text=" · "/>
-                                            <Run Text="{Binding State, Mode=OneWay}"/>
-                                        </TextBlock>
-                                        <TextBlock Text="{Binding Status}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   FontSize="11"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE896;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Module"/>
+                            </StackPanel>
+                            <ComboBox ItemsSource="{Binding Modules}"
+                                      SelectedItem="{Binding SelectedWorkflow, Mode=TwoWay}"
+                                      DisplayMemberPath="Title"
+                                      IsSynchronizedWithCurrentItem="False"
+                                      MinWidth="260"
+                                      Padding="10,7"
+                                      FontSize="13"/>
+                            <TextBlock Text="{Binding SelectedPurpose}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                            <TextBlock Text="{Binding WorkflowHint}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                            <WrapPanel Margin="0,12,0,0">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Content="GENERATE SELECTED"
+                                        Command="{Binding GenerateSelectedCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.GenerateSelected"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Content="GENERATE ALL MODULES"
+                                        Command="{Binding GenerateAllCommand}"
+                                        AutomationProperties.AutomationId="DemoCenter.GenerateAll"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="RETRY LAST"
+                                        Command="{Binding RetryCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="CANCEL"
+                                        Command="{Binding CancelCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="OPEN OUTPUT"
+                                        Command="{Binding OpenOutputCommand}"
+                                        Margin="0,0,10,8"/>
+                            </WrapPanel>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: ISOLATION ═══════ -->
+                <TextBlock Text="ISOLATION"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Demo Mode keeps production data untouched while you record."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7EB;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Demo Mode"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding IsolationText}"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="ENTER DEMO MODE"
+                                        Command="{Binding EnterDemoCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="EXIT DEMO MODE"
+                                        Command="{Binding ExitDemoCommand}"
+                                        Margin="0,0,10,8"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Content="RESET DEMO FOLDER"
+                                        Command="{Binding ResetDemoCommand}"
+                                        Margin="0,0,10,8"/>
+                            </WrapPanel>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: STATUS ═══════ -->
+                <TextBlock Text="STATUS"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="What the last run did and where its output is."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE9D2;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="State"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding StateText}"
+                                       Style="{StaticResource SettingsTileHeroStyle}"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding StatusText}"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                            <TextBlock Text="{Binding VerifiedText}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7C1;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Last Output"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding LastMp4Text}"
+                                       Style="{StaticResource SettingsTileCaptionStyle}"/>
+                            <TextBlock Text="{Binding FfmpegStatus}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: HISTORY ═══════ -->
+                <TextBlock Text="HISTORY"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="A ledger of every recording job run on this machine."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <TextBlock Text="No jobs yet. Generate Selected or Generate All to start a recording."
+                                       Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Visibility="{Binding HasHistory,
+                                           Converter={StaticResource InverseBoolToVisibilityConverter},
+                                           FallbackValue=Visible}"/>
+                            <ItemsControl ItemsSource="{Binding History}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,10">
+                                            <TextBlock FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                <Run Text="{Binding Module, Mode=OneWay}"/>
+                                                <Run Text=" · "/>
+                                                <Run Text="{Binding State, Mode=OneWay}"/>
+                                            </TextBlock>
+                                            <TextBlock Text="{Binding Status}"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       FontSize="11"
+                                                       TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
             </StackPanel>
         </ScrollViewer>
     </Grid>

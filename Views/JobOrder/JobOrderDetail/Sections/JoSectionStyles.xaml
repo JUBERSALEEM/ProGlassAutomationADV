@@ -73,4 +73,23 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
+        <!-- Production form card — a light surface that groups related
+             fields (Status & Delivery / Site Delivery / Assignment /
+             Factory Floor) so the production panel reads as labelled
+             sections instead of one endless column of full-width inputs.
+             Sits on the page background (ModuleBackgroundBrush inherited)
+             with a subtle outline and the app's rounded corner. -->
+        <Style x:Key="JoFormCardStyle" TargetType="Border" BasedOn="{StaticResource SpecGroupCardStyle}">
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Action-bar chip for the compact export / save action row.
+             The row is docked right, so these stay small and tight. -->
+        <Style x:Key="JoActionBarStyle" TargetType="Border" BasedOn="{StaticResource SpecGroupCardStyle}">
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        </Style>
+
 </ResourceDictionary>

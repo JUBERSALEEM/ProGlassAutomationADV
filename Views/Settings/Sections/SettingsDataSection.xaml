@@ -1,9 +1,20 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/Sections/SettingsDataSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings v2 — DATA & BACKUP page
+     MODULE: Settings v2 — DATA & BACKUP page (tile-grid redesign Aug 2026)
 
-     Cards: backup & restore (full dataset sets) · sample data.
+     REDESIGN
+       Was: three giant full-width cards stacked vertically (Backup &
+       Restore, Sample Data, Database Health). Each card held its own
+       full-width list/grid, so on a wide monitor 60% of horizontal
+       space was empty and the page needed endless scrolling on a
+       laptop.
+
+       Now: the page is grouped into three labelled tile groups. Small,
+       independent actions (backup actions / restore) sit side-by-side
+       in 320-wide tiles; the backup set list lives in a wide tile; the
+       database health grid keeps a full-row tile because inspecting a
+       table needs the width. All 23 ViewModel bindings preserved.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDataSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -44,209 +55,244 @@
                       FocusVisualStyle="{x:Null}">
             <StackPanel Margin="32,0,32,32">
 
-                <!-- ── BACKUP & RESTORE ───────────────────────────── -->
-                <Border Style="{StaticResource SettingsFullRowTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="BACKUP &amp; RESTORE"
-                                   Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock Style="{StaticResource HintTextStyle}"
-                                   Margin="0,6,0,0"
-                                   TextWrapping="Wrap"
-                                   Text="A backup set copies every database + settings into one timestamped folder. Automatic sets are created when the app closes; restore always takes a safety snapshot first."/>
+                <!-- ═══════ GROUP: BACKUP & RESTORE ═══════ -->
+                <TextBlock Text="BACKUP &amp; RESTORE"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="A backup set copies every database + settings into one timestamped folder. Automatic sets are created when the app closes; restore always takes a safety snapshot first."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="CREATE BACKUP NOW"
-                                    Command="{Binding CreateBackupNowCommand}"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE72C;" Content="REFRESH"
-                                    Command="{Binding RefreshBackupsCommand}"
-                                    Margin="10,0,0,0"/>
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE8B7;" Content="OPEN FOLDER"
-                                    Command="{Binding OpenBackupsFolderCommand}"
-                                    Margin="10,0,0,0"/>
+                <WrapPanel Margin="0,0,0,6">
+
+                    <!-- Backup actions tile -->
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE74E;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Backup Actions"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Create a backup set now, refresh the list, or open the folder where backups are kept."/>
+                            <StackPanel>
+                                <Button Style="{StaticResource PrimaryPillButton}"
+                                        Tag="&#xE74E;" Content="CREATE BACKUP NOW"
+                                        Command="{Binding CreateBackupNowCommand}"
+                                        HorizontalAlignment="Stretch"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE72C;" Content="REFRESH"
+                                        Command="{Binding RefreshBackupsCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,8,0,0"/>
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE8B7;" Content="OPEN FOLDER"
+                                        Command="{Binding OpenBackupsFolderCommand}"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="0,8,0,0"/>
+                            </StackPanel>
                         </StackPanel>
+                    </Border>
 
-                        <ListBox ItemsSource="{Binding BackupSets}"
-                                 SelectedItem="{Binding SelectedBackup}"
-                                 Margin="0,12,0,0"
-                                 MaxHeight="190"
-                                 BorderThickness="1"
-                                 BorderBrush="{DynamicResource BorderBrush}"
-                                 Background="{DynamicResource MenuHoverBrush}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Orientation="Horizontal" Margin="2">
-                                        <TextBlock Text="&#xE968;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="12"
-                                                   Margin="0,0,8,0"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        <TextBlock VerticalAlignment="Center" FontSize="12">
-                                            <Run Text="{Binding CreatedAt, Mode=OneWay,
-                                                         StringFormat='dd MMM yyyy  HH:mm'}"/>
-                                            <Run Text="  •  "/>
-                                            <Run Text="{Binding FileCount, Mode=OneWay}"/>
-                                            <Run Text=" files  •  "/>
-                                            <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                    <!-- Restore tile -->
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE895;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Restore"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Restore always snapshots current data first, so a bad restore is never fatal."/>
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE895;" Content="RESTORE SELECTED BACKUP"
+                                    Command="{Binding RestoreSelectedBackupCommand}"
+                                    HorizontalAlignment="Stretch"/>
+                            <TextBlock Text="{Binding BackupStatus}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Backup sets list (wide tile) -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8F7;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Backup Sets"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Pick a set to restore. Selecting is enough — the restore button lights up."/>
+                            <ListBox ItemsSource="{Binding BackupSets}"
+                                     SelectedItem="{Binding SelectedBackup}"
+                                     MaxHeight="170"
+                                     BorderThickness="1"
+                                     BorderBrush="{DynamicResource OutlineBrush}"
+                                     Background="{DynamicResource MenuHoverBrush}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="2">
+                                            <TextBlock Text="&#xE968;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="12"
+                                                       Margin="0,0,8,0"
+                                                       VerticalAlignment="Center"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       IsHitTestVisible="False"/>
+                                            <TextBlock VerticalAlignment="Center" FontSize="12"
+                                                       IsHitTestVisible="False">
+                                                <Run Text="{Binding CreatedAt, Mode=OneWay,
+                                                             StringFormat='dd MMM yyyy  HH:mm'}"/>
+                                                <Run Text="  •  "/>
+                                                <Run Text="{Binding FileCount, Mode=OneWay}"/>
+                                                <Run Text=" files  •  "/>
+                                                <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </Border>
+
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: SAMPLE DATA ═══════ -->
+                <TextBlock Text="SAMPLE DATA"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="New here? Load a small linked demo dataset to explore every module — only on an empty database."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A5;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Explore with Sample Data"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="6 sheets, 3 proformas, 2 job orders, 2 delivery notes, 3 tax invoices — all linked. Your real data is never touched."/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource PrimaryPillButton}"
+                                        Tag="&#xE8A5;" Content="LOAD SAMPLE DATA"
+                                        Command="{Binding LoadSampleDataCommand}"
+                                        ToolTip="Seed the demo dataset on an empty database"/>
+                                <Button Style="{StaticResource DangerButton}"
+                                        Tag="&#xE74D;" Content="CLEAR ALL DATA"
+                                        Command="{Binding ClearAllDataCommand}"
+                                        Margin="10,0,0,0"
+                                        ToolTip="Permanently delete every record in all modules (e.g. after testing with sample data)"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Text="Done testing? Use CLEAR ALL DATA to wipe the demo dataset in one step and start entering real data."/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════ GROUP: DATABASE HEALTH ═══════
+                     Diagnostics + emergency rebuild. Probes every
+                     database file (row counts, schema version, missing /
+                     extra columns). The rebuild button is the nuclear
+                     option gated behind Manager+ and typed confirmation. -->
+                <TextBlock Text="DATABASE HEALTH"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Probes every ProGlass Automation database file. The auto-migration on next app start handles most drift; rebuild is the nuclear option for a file too broken to open."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+
+                            <!-- License status strip (compact — full card lives on the About page) -->
+                            <Border Padding="10,8"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Background="{DynamicResource MenuHoverBrush}"
+                                    Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="&#xE73E;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="13"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock FontSize="12" FontWeight="SemiBold">
+                                            <Run Text="License: "/>
+                                            <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
                                         </TextBlock>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE895;" Content="RESTORE SELECTED BACKUP"
-                                Command="{Binding RestoreSelectedBackupCommand}"
-                                Margin="0,10,0,0"/>
-
-                        <TextBlock Text="{Binding BackupStatus}"
-                                   FontSize="11" FontWeight="SemiBold"
-                                   Margin="0,10,0,0"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ── SAMPLE DATA — first-run learning aid ───────── -->
-                <Border Style="{StaticResource SettingsFullRowTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="SAMPLE DATA"
-                                   Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock FontSize="11" TextWrapping="Wrap"
-                                   Margin="0,8,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Text="New here? Load a small demo dataset (6 sheets, 3 proformas, 2 job orders, 2 delivery notes, 3 tax invoices — all linked) to explore every module. Only available on an empty database; your real data is never touched."/>
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE8A5;" Content="LOAD SAMPLE DATA"
-                                    Command="{Binding LoadSampleDataCommand}"
-                                    ToolTip="Seed the demo dataset on an empty database"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="CLEAR ALL DATA"
-                                    Command="{Binding ClearAllDataCommand}"
-                                    Margin="10,0,0,0"
-                                    ToolTip="Permanently delete every record in all modules (e.g. after testing with sample data)"/>
-                        </StackPanel>
-                        <TextBlock Style="{StaticResource HintTextStyle}"
-                                   Margin="0,8,0,0"
-                                   Text="Done testing? Use CLEAR ALL DATA to wipe the demo dataset in one step and start entering real data."/>
-                    </StackPanel>
-                </Border>
-
-                <!-- ── DATABASE HEALTH — diagnostics + emergency rebuild ───
-                     Lets the user see exactly what is in every database
-                     and, if a schema ever drifts beyond the auto-fix
-                     range, rebuild from scratch. The rebuild path is
-                     gated behind Manager+ and a typed confirmation. -->
-                <Border Style="{StaticResource SettingsFullRowTileStyle}">
-                    <StackPanel>
-                        <TextBlock Text="DATABASE HEALTH"
-                                   Style="{StaticResource SectionLabelStyle}"/>
-                        <TextBlock FontSize="11" TextWrapping="Wrap"
-                                   Margin="0,6,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Text="Probes every ProGlass Automation database file (row counts, schema version, missing / extra columns). The auto-migration on next app start handles most drift; the rebuild button below is the nuclear option for when a file is so broken it will not open."/>
-
-                        <!--
-                          License status line — a one-line
-                          summary of LicenseService.Current.
-                          Bound to the same VM as the
-                          AboutLicenseCard. The full card
-                          (customer, expiry, fingerprint)
-                          lives on the About page so this
-                          row is intentionally compact.
-                        -->
-                        <Border Margin="0,10,0,0" Padding="10,8"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource MenuHoverBrush}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0"
-                                           Text="&#xE73E;"
-                                           FontFamily="Segoe MDL2 Assets"
-                                           FontSize="13"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0"
-                                           Foreground="{DynamicResource AccentBrush}"/>
-                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                    <TextBlock FontSize="12" FontWeight="SemiBold">
-                                        <Run Text="License: "/>
-                                        <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
-                                    </TextBlock>
-                                    <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
-                                               FontSize="10"
-                                               TextWrapping="Wrap"
-                                               Margin="0,2,0,0"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Border>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE72C;" Content="REFRESH"
-                                    Command="{Binding RefreshDatabaseHealthCommand}"
-                                    ToolTip="Probe every database and refresh the row-count table"/>
-                            <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="REBUILD ALL DATABASES (EMERGENCY)"
-                                    Command="{Binding RebuildAllDatabasesCommand}"
-                                    Margin="10,0,0,0"
-                                    ToolTip="Move every .db file to MigrationBackups and recreate at the current schema. Manager+ only."/>
-                        </StackPanel>
-
-                        <ListBox ItemsSource="{Binding DatabaseHealthRows}"
-                                 Margin="0,10,0,0"
-                                 MaxHeight="240"
-                                 BorderThickness="1"
-                                 BorderBrush="{DynamicResource BorderBrush}"
-                                 Background="{DynamicResource MenuHoverBrush}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid Margin="2">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="220"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="60"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12"
-                                                   Text="{Binding DisplayName}"
-                                                   TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Text="{Binding Status}"/>
-                                        <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11"
-                                                   Text="{Binding TotalRowsDisplay}"
-                                                   TextAlignment="Right"/>
-                                        <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Text="{Binding FileSizeDisplay}"
-                                                   TextAlignment="Right"/>
-                                        <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="10"
+                                        <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
+                                                   FontSize="10"
                                                    TextWrapping="Wrap"
-                                                   Margin="8,0,0,0"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Text="{Binding DriftDisplay}"/>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                                                   Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
 
-                        <TextBlock Text="{Binding DatabaseHealthStatus}"
-                                   FontSize="11" FontWeight="SemiBold"
-                                   Margin="0,8,0,0"
-                                   TextWrapping="Wrap"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                    </StackPanel>
-                </Border>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE72C;" Content="REFRESH"
+                                        Command="{Binding RefreshDatabaseHealthCommand}"
+                                        ToolTip="Probe every database and refresh the row-count table"/>
+                                <Button Style="{StaticResource DangerButton}"
+                                        Tag="&#xE74D;" Content="REBUILD ALL DATABASES (EMERGENCY)"
+                                        Command="{Binding RebuildAllDatabasesCommand}"
+                                        Margin="10,0,0,0"
+                                        ToolTip="Move every .db file to MigrationBackups and recreate at the current schema. Manager+ only."/>
+                            </StackPanel>
+
+                            <ListBox ItemsSource="{Binding DatabaseHealthRows}"
+                                     Margin="0,10,0,0"
+                                     MaxHeight="240"
+                                     BorderThickness="1"
+                                     BorderBrush="{DynamicResource OutlineBrush}"
+                                     Background="{DynamicResource MenuHoverBrush}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid Margin="2">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="220"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="60"/>
+                                                <ColumnDefinition Width="80"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12"
+                                                       Text="{Binding DisplayName}"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Text="{Binding Status}"/>
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11"
+                                                       Text="{Binding TotalRowsDisplay}"
+                                                       TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Text="{Binding FileSizeDisplay}"
+                                                       TextAlignment="Right"/>
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="10"
+                                                       TextWrapping="Wrap"
+                                                       Margin="8,0,0,0"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Text="{Binding DriftDisplay}"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <TextBlock Text="{Binding DatabaseHealthStatus}"
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
 
             </StackPanel>
         </ScrollViewer>
