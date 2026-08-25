@@ -801,12 +801,15 @@ namespace ProGlassAutomation.Services.Theme
 
             stage.Freeze();
 
-            // RelativeToBoundingRectangle + Stretch.Fill scales the
-            // scene's bounds to whatever size the window has.
+            // RelativeToViewport + Stretch.Fill scales the scene's
+            // bounds to whatever size the window has (Viewport 0..1 =
+            // the whole window). Note: the enum here is BrushMappingMode
+            // (Absolute / RelativeToViewport), NOT MappingMode
+            // (RelativeToBoundingBox) which belongs to gradient brushes.
             var brush = new DrawingBrush(stage)
             {
                 Viewport = new Rect(0, 0, 1, 1),
-                ViewportUnits = BrushMappingMode.RelativeToBoundingRectangle,
+                ViewportUnits = BrushMappingMode.RelativeToViewport,
                 Stretch = Stretch.Fill
             };
             brush.Freeze();
