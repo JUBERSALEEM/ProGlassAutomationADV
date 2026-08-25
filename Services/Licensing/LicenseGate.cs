@@ -117,6 +117,17 @@ namespace ProGlassAutomation.Services.Licensing
             // is its own failure mode, not a licensing
             // one.
             if (string.IsNullOrEmpty(moduleKey)) return LicenseGateResult.Allow();
+
+            // 2026-08-25: an ACTIVE trial behaves exactly like premium —
+            // nothing is gated. The trial payload carries no feature list
+            // (FeatureAllowed would deny it), which used to lock Cutting /
+            // Optimization / Job Profitability behind "Upgrade required"
+            // even during the free trial. Once the trial ends the status
+            // becomes TrialExpired/ReadOnly and the normal restrictions
+            // (read-only mode + feature denials) apply automatically.
+            if (LicenseService.Current.Status == LicenseStatus.Trial)
+                return LicenseGateResult.Allow();
+
             if (!Map.TryGetValue(moduleKey, out var required)) return LicenseGateResult.Allow();
             if (required.Length == 0) return LicenseGateResult.Allow();
 

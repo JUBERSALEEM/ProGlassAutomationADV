@@ -133,6 +133,16 @@ namespace ProGlassAutomation.ViewModels.Licensing
         /// </summary>
         public void Refresh()
         {
+            // 2026-08-25 senior hardening: this method runs from the
+            // singleton CONSTRUCTOR (i.e. the moment the About page /
+            // license cards are built) and on every license StatusChanged
+            // event. If any license data shape throws here (extreme
+            // sentinel dates, corrupt payloads), the exception kills the
+            // singleton construction and takes the About page down with
+            // it. The whole computation is therefore guarded: on failure
+            // the previous values remain and the page still renders.
+            try
+            {
             var r = LicenseService.Current;
             _statusBadge = LicenseUiText.StatusBadge(r.Status);
             _statusDescription = string.IsNullOrEmpty(r.ErrorDetail)
@@ -170,10 +180,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
                     ? "—" : p.CustomerId;
                 _companyDisplay = string.IsNullOrEmpty(p.CompanyName)
                     ? "—" : p.CompanyName;
-                _issuedDisplay = p.IssuedAt.ToLocalTime()
-                    .ToString("yyyy-MM-dd HH:mm");
-                _expiresDisplay = p.ExpiresAt.ToLocalTime()
-                    .ToString("yyyy-MM-dd HH:mm");
+                _issuedDisplay = SafeLocalString(p.IssuedAt);
+                _expiresDisplay = SafeLocalString(p.ExpiresAt);
                 _licenseIdDisplay = string.IsNullOrEmpty(p.LicenseId)
                     ? "—" : p.LicenseId;
                 _machineFingerprint = string.IsNullOrEmpty(p.MachineFingerprint)
@@ -182,9 +190,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                     ? "—"
                     : string.Join(", ", p.Features);
                 _notesDisplay = p.Notes ?? "";
-                _daysRemaining = (int)Math.Max(0,
-                    (p.ExpiresAt.ToUniversalTime() - DateTime.UtcNow)
-                        .TotalDays);
+                _daysRemaining = SafeDaysRemaining(p.ExpiresAt);
             }
 
             // 2026-08-25 senior fix: the fingerprint was computed HERE,
@@ -194,6 +200,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
             // for seconds (the About page freeze). The fingerprint is now
             // computed once on a background thread at construction
             // (see EnsureFingerprintAsync) and cached by the service.
+            }
+            catch (Exception ex)
+            {
+                // Whatever the license data looks like, it must never
+                // take the About page down. Previous values remain.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[LicenseStatusVM] Refresh failed: " + ex.Message);
+            }
 
             // Whichever properties are bound by callers —
             // raise change notifications for all of them.
@@ -231,6 +245,32 @@ namespace ProGlassAutomation.ViewModels.Licensing
 
         private void OnLicenseChanged(object? sender, LicenseVerificationResult e)
             => Refresh();
+
+        /// <summary>
+        /// Formats a license date for display WITHOUT ever throwing.
+        /// ToLocalTime() overflows on extreme sentinel dates (e.g.
+        /// DateTime.MaxValue on machines east of UTC — the UAE is UTC+4),
+        /// which would otherwise crash the singleton constructor.
+        /// </summary>
+        private static string SafeLocalString(DateTime dt)
+        {
+            try { return dt.ToLocalTime().ToString("yyyy-MM-dd HH:mm"); }
+            catch { return dt.ToString("yyyy-MM-dd HH:mm"); }
+        }
+
+        /// <summary>Days-until-expiry that can never throw.</summary>
+        private static int SafeDaysRemaining(DateTime expiresAt)
+        {
+            try
+            {
+                return (int)Math.Max(0,
+                    (expiresAt.ToUniversalTime() - DateTime.UtcNow).TotalDays);
+            }
+            catch
+            {
+                return 0;
+            }
+        }
 
         // ── Properties ──────────────────────────────────────────
         //

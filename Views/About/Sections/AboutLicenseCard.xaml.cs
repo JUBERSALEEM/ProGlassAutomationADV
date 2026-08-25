@@ -30,7 +30,20 @@ namespace ProGlassAutomation.Views.About.Sections
             // the static instance, not a per-window VM.
             // That way the card refreshes automatically
             // when LicenseService.Reload() runs.
-            DataContext = LicenseStatusViewModel.Instance;
+            //
+            // 2026-08-25 senior hardening: if the singleton ever fails
+            // to construct (licensing data in an unexpected shape), the
+            // card renders unbound instead of taking the whole About
+            // page down with a XamlParseException cascade.
+            try
+            {
+                DataContext = LicenseStatusViewModel.Instance;
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "[AboutLicenseCard] License VM unavailable: " + ex.Message);
+            }
         }
 
         private void CopyFingerprintButton_Click(object sender, RoutedEventArgs e)
