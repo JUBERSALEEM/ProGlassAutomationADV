@@ -48,6 +48,13 @@ namespace ProGlassAutomation.ViewModels.AI
         private bool _isSpeakerOn;
         private bool _isProcessingVoice;
         private float _micAudioLevel;
+
+        // 2026-08-25 senior debug: AudioLevelChanged fires per audio
+        // buffer (~30-50x/second while listening). Forwarding every tick
+        // to the UI dispatcher flooded the UI thread and added visible
+        // jank. Only forward changes of at least 0.03, at most ~15/s.
+        private float _lastMicLevelApplied;
+        private DateTime _lastMicLevelUiUtc = DateTime.MinValue;
         private string _statusMessage;
         private StreamingChatMessage _activeStream;
         private CancellationTokenSource _cts;
@@ -225,6 +232,12 @@ namespace ProGlassAutomation.ViewModels.AI
 
                 whisper.AudioLevelChanged += (_, level) =>
                 {
+                    var now = DateTime.UtcNow;
+                    if (Math.Abs(level - _lastMicLevelApplied) < 0.03f &&
+                        (now - _lastMicLevelUiUtc).TotalMilliseconds < 66)
+                        return;
+                    _lastMicLevelApplied = level;
+                    _lastMicLevelUiUtc = now;
                     RunOnUi(() => MicAudioLevel = level);
                 };
 
@@ -306,15 +319,10 @@ namespace ProGlassAutomation.ViewModels.AI
             }
 
             // ── Provider change notification ──────────────────────────
-            App.AiProviderChanged += (_, __) =>
-            {
-                RunOnUi(() =>
-                {
-                    OnPropertyChanged(nameof(ActiveProviderName));
-                    OnPropertyChanged(nameof(ActiveProviderIcon));
-                    OnPropertyChanged(nameof(ActiveProviderSubtitle));
-                });
-            };
+            // 2026-08-25: named handler instead of an anonymous lambda —
+            // anonymous subscriptions to static events are invisible in
+            // audits and impossible to detach.
+            App.AiProviderChanged += OnAiProviderChanged;
 
             // ══════════════════════════════════════════════════════════
             //  TEXT COMMANDS
@@ -823,6 +831,20 @@ namespace ProGlassAutomation.ViewModels.AI
         // ══════════════════════════════════════════════════════════════
         //  HELPERS
         // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Static App event handler (named, auditable). Refreshes the
+        /// provider identity shown in the chat header.
+        /// </summary>
+        private void OnAiProviderChanged(object? sender, EventArgs e)
+        {
+            RunOnUi(() =>
+            {
+                OnPropertyChanged(nameof(ActiveProviderName));
+                OnPropertyChanged(nameof(ActiveProviderIcon));
+                OnPropertyChanged(nameof(ActiveProviderSubtitle));
+            });
+        }
 
         private static void RunOnUi(Action action)
         {

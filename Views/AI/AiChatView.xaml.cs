@@ -131,6 +131,11 @@ namespace ProGlassAutomation.Views.AI
         // suspended for the drag and restored on release.
         private System.Windows.Media.Effect? _panelDragEffect;
 
+        // Last position actually applied during the drag — moves smaller
+        // than a pixel are skipped so sub-pixel jitter does not trigger
+        // layout invalidations. (2026-08-25 senior debug.)
+        private Point _panelLastApplied;
+
         private void HookPanelPositioning()
         {
             ChatPanel.IsVisibleChanged += (_, _) =>
@@ -146,6 +151,13 @@ namespace ProGlassAutomation.Views.AI
             {
                 if (_panelPositioned) KeepPanelVisible();
             };
+
+            // 2026-08-25 senior debug: guarantee drag-state cleanup even
+            // if the capture is broken by something else (Esc, another
+            // capture, window deactivation). Without this a half-finished
+            // drag left the panel in "dragging" state with the shadow
+            // suspended and stale offsets.
+            ChatHeader.LostMouseCapture += (_, _) => EndPanelDrag();
         }
 
         private void PositionChatPanel()
@@ -194,20 +206,33 @@ namespace ProGlassAutomation.Views.AI
             if (double.IsNaN(left)) left = 0;
             if (double.IsNaN(top)) top = 0;
             _panelDragStartOffset = new Point(left, top);
+            _panelLastApplied = _panelDragStartOffset;
 
             // Suspend the expensive shadow + cache the panel bitmap while
-            // it moves; both are restored in MouseLeftButtonUp.
+            // it moves; both are restored when the drag ends.
             _panelDragEffect = ChatPanel.Effect;
             ChatPanel.Effect = null;
             ChatPanel.CacheMode = new System.Windows.Media.Imaging.BitmapCache();
 
-            ChatPanel.CaptureMouse();
+            // ── THE BUG (2026-08-25 senior debug) ───────────────────────
+            // This used to call ChatPanel.CaptureMouse(). Mouse capture
+            // routes ALL mouse events to the capturing element and its
+            // ANCESTORS — but the MouseMove / MouseLeftButtonUp handlers
+            // are attached to ChatHeader, a CHILD of the panel. The
+            // moment the button went down, the move/up events stopped
+            // reaching their handlers: the panel never moved ("fixed"),
+            // and the capture was never released, so the panel kept
+            // swallowing input — the "force stuck" freeze. Capturing the
+            // HEADER (where the handlers live) keeps the whole drag
+            // event stream flowing to them.
+            ChatHeader.CaptureMouse();
             e.Handled = true;
         }
 
         private void ChatHeader_MouseMove(object sender, MouseEventArgs e)
         {
             if (!_panelDragging || ChatPanel == null || ChatCanvas == null) return;
+            if (!ChatHeader.IsMouseCaptured) return;
 
             var mouse = e.GetPosition(ChatCanvas);
             double left = _panelDragStartOffset.X + (mouse.X - _panelDragStartMouse.X);
@@ -218,23 +243,45 @@ namespace ProGlassAutomation.Views.AI
             double minLeft = -(ChatPanel.ActualWidth - 120);
             double minTop = 0;
 
-            Canvas.SetLeft(ChatPanel, Math.Clamp(left, minLeft, maxLeft));
-            Canvas.SetTop(ChatPanel, Math.Clamp(top, minTop, maxTop));
+            left = Math.Clamp(left, minLeft, maxLeft);
+            top = Math.Clamp(top, minTop, maxTop);
+
+            // Skip sub-pixel moves — no layout churn while stationary.
+            if (Math.Abs(left - _panelLastApplied.X) < 1 &&
+                Math.Abs(top - _panelLastApplied.Y) < 1) return;
+
+            _panelLastApplied = new Point(left, top);
+            Canvas.SetLeft(ChatPanel, left);
+            Canvas.SetTop(ChatPanel, top);
         }
 
         private void ChatHeader_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            if (!_panelDragging || ChatPanel == null) return;
-
-            _panelDragging = false;
-            ChatPanel.ReleaseMouseCapture();
-
-            // Restore the shadow and drop the drag-time cache.
-            ChatPanel.Effect = _panelDragEffect;
-            _panelDragEffect = null;
-            ChatPanel.CacheMode = null;
-
+            if (!_panelDragging) return;
+            EndPanelDrag();
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// Ends the drag and restores the panel's render state. Safe when
+        /// no drag is active — LostMouseCapture uses it as belt-and-braces
+        /// cleanup so a broken capture can never leave the panel stuck in
+        /// dragging state with the shadow suspended.
+        /// </summary>
+        private void EndPanelDrag()
+        {
+            if (!_panelDragging) return;
+            _panelDragging = false;
+
+            if (ChatHeader.IsMouseCaptured)
+                ChatHeader.ReleaseMouseCapture();
+
+            if (ChatPanel != null)
+            {
+                ChatPanel.Effect = _panelDragEffect;
+                ChatPanel.CacheMode = null;
+            }
+            _panelDragEffect = null;
         }
 
         private static bool IsInsideButton(DependencyObject? d)
