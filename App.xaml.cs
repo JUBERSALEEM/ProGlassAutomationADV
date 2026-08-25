@@ -883,7 +883,11 @@ namespace ProGlassAutomation
             // Claim the foreground on an idle tick AFTER the splash is
             // fully gone, and defend against the minimized/inactive
             // landing state explicitly.
-            await Dispatcher.Yield(
+            // NOTE: Dispatcher.Yield is STATIC — the instance Dispatcher
+            // property also exposes an instance member named Yield, so
+            // calling it via the instance fails with CS0176. Qualify
+            // with the type name.
+            await System.Windows.Threading.Dispatcher.Yield(
                 System.Windows.Threading.DispatcherPriority.ApplicationIdle);
             if (mainWindow.WindowState == WindowState.Minimized)
                 mainWindow.WindowState = WindowState.Maximized;
