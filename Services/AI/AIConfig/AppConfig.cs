@@ -356,6 +356,20 @@ namespace ProGlassAutomation.Services.AI.AIConfig
             = new RecordingPreferences();
 
         /// <summary>
+        /// Demo Center recording choices (quality / fps / audio) for the
+        /// automated module recordings. Kept SEPARATE from Recording —
+        /// the manual REC overlay and the demo generator have different
+        /// jobs and must not overwrite each other.
+        /// 2026-08-25: before this existed, DemoCenterViewModel reset to
+        /// hard-coded defaults every time the Settings page rebuilt, and
+        /// users saw their demo recording settings "reset themselves".
+        /// Additive schema change — older config.json files hydrate to
+        /// defaults via ConfigService.Load's null-coalescing pass.
+        /// </summary>
+        public RecordingPreferences DemoRecording { get; set; }
+            = new RecordingPreferences();
+
+        /// <summary>
         /// Last signed-in username. Never a password. Restored on the
         /// login screen so the operator does not retype it every launch.
         /// </summary>

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -67,8 +68,19 @@ namespace ProGlassAutomation.Agent.Demo
 
             SelectedWorkflow = DemoWorkflowCatalog.Find("ProformaInvoice")
                 ?? DemoWorkflowCatalog.All[0];
-            SelectedQuality = ScreenRecordSettings.Qualities[1];
-            SelectedFps = ScreenRecordSettings.FpsOptions[0];
+            // 2026-08-25: hydrate from the persisted DemoRecording slot.
+            // Previously these were hard-coded defaults on every VM
+            // construction, and the Settings page rebuilds the VM — so
+            // the user's quality/fps/audio choices kept resetting.
+            var demoPrefs = App.Config?.DemoRecording;
+            _selectedQuality = ScreenRecordSettings.Qualities.FirstOrDefault(q =>
+                demoPrefs != null && (int)q.Quality == demoPrefs.QualityHeight)
+                ?? ScreenRecordSettings.Qualities[1];
+            _selectedFps = ScreenRecordSettings.FpsOptions.FirstOrDefault(f =>
+                demoPrefs != null && f.Fps == demoPrefs.Fps)
+                ?? ScreenRecordSettings.FpsOptions[0];
+            _captureLiveAudio = demoPrefs?.CaptureLiveAudio ?? true;
+            _captureMicrophone = demoPrefs?.CaptureMicrophone ?? true;
 
             GenerateSelectedCommand = new RelayCommand(
                 async _ => await StartAsync(SelectedModule).ConfigureAwait(true),
@@ -220,6 +232,7 @@ namespace ProGlassAutomation.Agent.Demo
                 _selectedQuality = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(RecordHint));
+                PersistRecordingChoices();
             }
         }
 
@@ -233,6 +246,7 @@ namespace ProGlassAutomation.Agent.Demo
                 _selectedFps = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(RecordHint));
+                PersistRecordingChoices();
             }
         }
 
@@ -246,6 +260,7 @@ namespace ProGlassAutomation.Agent.Demo
                 _captureLiveAudio = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(RecordHint));
+                PersistRecordingChoices();
             }
         }
 
@@ -259,6 +274,34 @@ namespace ProGlassAutomation.Agent.Demo
                 _captureMicrophone = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(RecordHint));
+                PersistRecordingChoices();
+            }
+        }
+
+        /// <summary>
+        /// Writes the current demo recording choices into
+        /// AppConfig.DemoRecording so they survive Settings-page rebuilds
+        /// and app restarts. Best-effort — a failed save never gates the
+        /// in-memory choice for this session.
+        /// </summary>
+        private void PersistRecordingChoices()
+        {
+            try
+            {
+                if (App.Config == null) return;
+                App.Config.DemoRecording ??=
+                    new ProGlassAutomation.Services.AI.AIConfig.RecordingPreferences();
+                App.Config.DemoRecording.QualityHeight =
+                    (int)(SelectedQuality?.Quality ?? ScreenRecordQuality.FullHd);
+                App.Config.DemoRecording.Fps = SelectedFps?.Fps ?? 30;
+                App.Config.DemoRecording.CaptureLiveAudio = _captureLiveAudio;
+                App.Config.DemoRecording.CaptureMicrophone = _captureMicrophone;
+                ProGlassAutomation.Services.AI.AIConfig.ConfigService.Save(App.Config);
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    "Could not persist demo recording settings: " + ex.Message);
             }
         }
 
