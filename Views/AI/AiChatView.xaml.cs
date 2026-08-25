@@ -129,7 +129,9 @@ namespace ProGlassAutomation.Views.AI
         // composite per mouse move — the UI visibly froze ("as soon as
         // I try to drag it, it force-sticks the UI"). The effect is
         // suspended for the drag and restored on release.
-        private System.Windows.Media.Effect? _panelDragEffect;
+        // global:: prefix — bullet-proofs the lookup against any local
+        // namespace shadowing of parts of the System tree.
+        private global::System.Windows.Media.Effect? _panelDragEffect;
 
         // Last position actually applied during the drag — moves smaller
         // than a pixel are skipped so sub-pixel jitter does not trigger
@@ -210,9 +212,10 @@ namespace ProGlassAutomation.Views.AI
 
             // Suspend the expensive shadow + cache the panel bitmap while
             // it moves; both are restored when the drag ends.
+            // (BitmapCache lives in System.Windows.Media — NOT .Imaging.)
             _panelDragEffect = ChatPanel.Effect;
             ChatPanel.Effect = null;
-            ChatPanel.CacheMode = new System.Windows.Media.Imaging.BitmapCache();
+            ChatPanel.CacheMode = new global::System.Windows.Media.BitmapCache();
 
             // ── THE BUG (2026-08-25 senior debug) ───────────────────────
             // This used to call ChatPanel.CaptureMouse(). Mouse capture
