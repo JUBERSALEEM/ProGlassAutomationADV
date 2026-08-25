@@ -350,7 +350,7 @@ namespace ProGlassAutomation.Views.Licensing
                 ShowError("The pasted text is neither valid JSON nor base64. " +
                     "Check the file your vendor sent and try again. " +
                     "Details: " + ex.Message);
-                try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView] Temp license-file delete failed: " + ex.Message); }
+                try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch (System.Exception cleanupEx) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView] Temp license-file delete failed: " + cleanupEx.Message); }
                 return;
             }
 
