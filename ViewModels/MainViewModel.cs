@@ -1020,6 +1020,11 @@ namespace ProGlassAutomation.ViewModels
             try { if (_connectivityHandler != null && App.Connectivity != null) App.Connectivity.ConnectivityChanged -= _connectivityHandler; } catch { }
             try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
             try { _clockTimer?.Stop(); _clockTimer = null; } catch { }
+            // Work-A-2: dispose the shell VM so its child module VMs (ListVM,
+            // ActivityVM) detach their static-event subscriptions (DocumentLifecycle,
+            // SampleData.DataSeeded, AuditService.ActivityLogged) — without this
+            // they leak and keep firing after the module is no longer in use.
+            try { JobOrderVM?.Dispose(); } catch { }
             GC.SuppressFinalize(this);
         }
     }

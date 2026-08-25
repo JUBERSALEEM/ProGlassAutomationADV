@@ -25,9 +25,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
     /// <summary>All-records overview for the Job Order module.</summary>
     public class JobOrderGodViewViewModel : ViewModelBase
     {
-        private ObservableCollection<SavedJobOrder> _allRows = new();
+        private ObservableCollection<JobOrderListRow> _allRows = new();
 
-        public ObservableCollection<SavedJobOrder> Rows { get; } = new();
+        public ObservableCollection<JobOrderListRow> Rows { get; } = new();
 
         public ObservableCollection<GodViewKpiViewModel> Kpis { get; } = new();
 
@@ -62,7 +62,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
 
             OpenCommand = new RelayCommand(param =>
             {
-                if (param is SavedJobOrder jo)
+                if (param is JobOrderListRow jo)
                     OnOpenRequested?.Invoke(jo.Id);
             });
         }
@@ -76,11 +76,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             {
                 UiDispatch.Run(() => IsLoading = true);
 
-                var items = await App.Jobs.GetAllAsync();
+                var items = await App.Jobs.GetListRowsAsync();
 
                 UiDispatch.Run(() =>
                 {
-                    _allRows = new ObservableCollection<SavedJobOrder>(
+                    _allRows = new ObservableCollection<JobOrderListRow>(
                         items.OrderByDescending(i => i.CreatedAt));
                     RebuildKpis();
                     ApplyFilter();
@@ -113,7 +113,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             }
         }
 
-        private static bool Matches(SavedJobOrder r, string filter)
+        private static bool Matches(JobOrderListRow r, string filter)
         {
             return Contains(r.JobOrderId, filter)
                 || Contains(r.SourceProformaId, filter)

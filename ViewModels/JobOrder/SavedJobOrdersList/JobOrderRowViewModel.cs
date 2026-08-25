@@ -4,26 +4,17 @@
 // MODULE: SavedJobOrdersListViewModel.cs
 //
 // JobOrderRowViewModel split out of SavedJobOrdersListViewModel.cs (Phase 11/12 God-VM split) — behaviour unchanged.
+//
+// AUG 2026 PERF: adds a lightweight JobOrderListRow constructor so the list
+// can be built from a narrow DB projection (no FullSnapshotJson blob). The
+// full-entity constructor remains for callers that already hold an entity.
+// Both funnel into one private core so display fields never drift.
 // ═══════════════════════════════════════════════════════════════════════
 
-using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
-using ProGlassAutomation.Services.Audit;
-using ProGlassAutomation.Services.Export.Core;
-using ProGlassAutomation.Services.Export.Excel;
-using ProGlassAutomation.Services.Export.Pdf;
-using ProGlassAutomation.Services.JobOrder.Export;
-using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 {
@@ -89,6 +80,34 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             _ => "NeutralBrush"
         };
 
+        /// <summary>
+        /// Lightweight constructor used by the saved list. Takes the narrow
+        /// JobOrderListRow projection (no FullSnapshotJson blob) so building
+        /// the list does not load every row's full snapshot — a real perf win.
+        /// </summary>
+        public JobOrderRowViewModel(JobOrderListRow row, int totalOrderedQty = 0, int totalDeliveredQty = 0)
+        {
+            Id = row.Id;
+            TotalOrderedQty = totalOrderedQty;
+            TotalDeliveredQty = totalDeliveredQty;
+            JobOrderId = row.JobOrderId ?? string.Empty;
+            SourceProformaId = row.SourceProformaId ?? string.Empty;
+            CustomerName = string.IsNullOrWhiteSpace(row.CustomerName) ? "—" : row.CustomerName;
+            ProjectName = string.IsNullOrWhiteSpace(row.ProjectName) ? "—" : row.ProjectName;
+            GrandTotal = row.GrandTotalVatInclusive;
+            StatusRaw = row.Status ?? "Draft";
+            PriorityRaw = row.Priority ?? "Medium";
+            DeliveryDate = row.DeliveryDate;
+            CreatedAt = row.CreatedAt;
+            UpdatedAt = row.UpdatedAt;
+
+            ResolveDisplays();
+        }
+
+        /// <summary>
+        /// Backward-compatible full-entity constructor. Used by callers that
+        /// already hold a SavedJobOrder (e.g. detail-adjacent code, tests).
+        /// </summary>
         public JobOrderRowViewModel(SavedJobOrder entity, int totalOrderedQty = 0, int totalDeliveredQty = 0)
         {
             Id = entity.Id;
@@ -96,10 +115,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             TotalDeliveredQty = totalDeliveredQty;
             JobOrderId = entity.JobOrderId ?? string.Empty;
             SourceProformaId = entity.SourceProformaId ?? string.Empty;
-            CustomerName = string.IsNullOrWhiteSpace(entity.CustomerName)
-                                   ? "—" : entity.CustomerName;
-            ProjectName = string.IsNullOrWhiteSpace(entity.ProjectName)
-                                   ? "—" : entity.ProjectName;
+            CustomerName = string.IsNullOrWhiteSpace(entity.CustomerName) ? "—" : entity.CustomerName;
+            ProjectName = string.IsNullOrWhiteSpace(entity.ProjectName) ? "—" : entity.ProjectName;
             GrandTotal = entity.GrandTotalVatInclusive;
             StatusRaw = entity.Status ?? "Draft";
             PriorityRaw = entity.Priority ?? "Medium";
@@ -107,6 +124,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             CreatedAt = entity.CreatedAt;
             UpdatedAt = entity.UpdatedAt;
 
+            ResolveDisplays();
+        }
+
+        /// <summary>
+        /// Shared display-field resolution so both constructors produce
+        /// identical output. The full body was previously duplicated; a
+        /// single private core prevents the two from ever drifting.
+        /// </summary>
+        private void ResolveDisplays()
+        {
             GrandTotalDisplay = $"AED {GrandTotal:N0}";
             CreatedDisplay = CreatedAt.ToString("dd MMM yyyy");
             DeliveryDisplay = DeliveryDate.HasValue

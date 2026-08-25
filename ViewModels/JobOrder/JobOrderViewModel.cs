@@ -27,7 +27,8 @@ using System.Windows.Input;
 namespace ProGlassAutomation.ViewModels.JobOrder
 {
     public class JobOrderViewModel : ViewModelBase,
-        ProGlassAutomation.Agent.Context.IAgentContextAware
+        ProGlassAutomation.Agent.Context.IAgentContextAware,
+        System.IDisposable
     {
         public string Title { get; } = "Job Orders";
         public string AgentContextDetail
@@ -232,6 +233,28 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                     $"[JobOrderVM] RestoreVersion failed: {ex.Message}",
                     new LogContext { Module = "JobOrder", Operation = "RestoreVersion" });
             }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  DISPOSE — detach static-event subscribers under this VM so it and
+        //  its children can be collected.
+        //  • ListVM subscribes DocumentLifecycle + SampleDataService.DataSeeded.
+        //  • ActivityVM subscribes AuditService.ActivityLogged.
+        //  Without this, switching modules or closing the window leaves these
+        //  static handlers holding the VMs alive (a real memory leak) and the
+        //  reload/feed handlers keep running for the whole session.
+        // ═════════════════════════════════════════════════════════════════
+        private bool _disposed;
+
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            ListVM?.Dispose();
+            ActivityVM?.Dispose();
+
+            GC.SuppressFinalize(this);
         }
     }
 }

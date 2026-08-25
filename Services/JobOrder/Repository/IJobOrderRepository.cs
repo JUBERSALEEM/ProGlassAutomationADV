@@ -17,6 +17,16 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         // ── CRUD ──────────────────────────────────────────────────────────
 
         Task<List<SavedJobOrder>> GetAllAsync();
+
+        /// <summary>
+        /// Lightweight projection of the indexed list columns, excluding the
+        /// FullSnapshotJson blob. The saved-job-orders list only renders
+        /// JobOrderId, customer, project, value, status, priority and dates —
+        /// none of which need the JSON. Using this avoids loading (and
+        /// deserializing nothing, but transferring) the full snapshot blob
+        /// for every row on every refresh.
+        /// </summary>
+        Task<List<JobOrderListRow>> GetListRowsAsync();
         Task<SavedJobOrder?> GetByIdAsync(int id);
         Task<SavedJobOrder?> GetByJobOrderIdAsync(string jobOrderId);
         Task<SavedJobOrder> InsertAsync(SavedJobOrder jobOrder);

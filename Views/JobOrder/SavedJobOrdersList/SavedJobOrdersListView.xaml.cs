@@ -43,7 +43,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // Open
             var openItem = new MenuItem
             {
-                Header = "📂  Open Job Order",
+                Header = "\uE8E5  Open Job Order",
                 FontWeight = FontWeights.SemiBold,
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
@@ -59,14 +59,14 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // ── Export sub-menu (Phase 9.5a-r3) ─────────────────────
             var exportMenu = new MenuItem
             {
-                Header = "📤  Export",
+                Header = "\uEDE1  Export",
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
 
             var exportPdfItem = new MenuItem
             {
-                Header = "📄  PDF — Production Sheet",
+                Header = "\uE8A5  PDF — Production Sheet",
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
@@ -86,7 +86,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             var exportExcelItem = new MenuItem
             {
-                Header = "📊  Excel — Multi-Sheet Workbook",
+                Header = "\uE9F9  Excel — Multi-Sheet Workbook",
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // production statuses (which drive the production sheet + detail).
             var statusMenu = new MenuItem
             {
-                Header = "📊  Change Status",
+                Header = "\uE8C8  Change Status",
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
@@ -145,7 +145,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // Change Priority sub-menu
             var priorityMenu = new MenuItem
             {
-                Header = "🏷️  Change Priority",
+                Header = "\uE8D4  Change Priority",
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
@@ -172,7 +172,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // Delete
             var deleteItem = new MenuItem
             {
-                Header = "🗑️  Delete Job Order",
+                Header = "\uE74D  Delete Job Order",
                 Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
                 Style = (Style)FindResource("ModernMenuItemStyle"),

@@ -47,6 +47,29 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             return await db.JobOrders.FindAsync(id);
         }
 
+        public async Task<List<JobOrderListRow>> GetListRowsAsync()
+        {
+            using var db = new JobOrdersDbContext();
+            return await db.JobOrders
+                .AsNoTracking()
+                .OrderByDescending(j => j.UpdatedAt)
+                .Select(j => new JobOrderListRow
+                {
+                    Id = j.Id,
+                    JobOrderId = j.JobOrderId ?? "",
+                    SourceProformaId = j.SourceProformaId ?? "",
+                    CustomerName = j.CustomerName ?? "",
+                    ProjectName = j.ProjectName ?? "",
+                    GrandTotalVatInclusive = j.GrandTotalVatInclusive,
+                    Status = j.Status ?? "",
+                    Priority = j.Priority ?? "",
+                    DeliveryDate = j.DeliveryDate,
+                    CreatedAt = j.CreatedAt,
+                    UpdatedAt = j.UpdatedAt
+                })
+                .ToListAsync();
+        }
+
         public async Task<SavedJobOrder?> GetByJobOrderIdAsync(string jobOrderId)
         {
             if (string.IsNullOrWhiteSpace(jobOrderId)) return null;

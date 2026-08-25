@@ -309,13 +309,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     return;
                 }
 
-                var entities = await App.Jobs.GetAllAsync();
+                // PERF (Aug 2026): use the narrow list projection so we never
+                // transfer each row's FullSnapshotJson blob just to build the
+                // list columns. JobOrderRowViewModel takes JobOrderListRow.
+                var rows = await App.Jobs.GetListRowsAsync();
 
                 // Load per-job-order delivery qty from the Delivery Notes
                 // repository so the list can show the delivery-derived status.
                 var deliveryMap = await LoadDeliveryQtyMapAsync();
 
-                _allJobs = entities
+                _allJobs = rows
                     .Select(e =>
                     {
                         deliveryMap.TryGetValue(
@@ -896,6 +899,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             if (_disposed) return;
             _disposed = true;
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            // Detach the static lifecycle subscriber too, or this VM stays
+            // alive forever and re-runs LoadJobOrdersAsync on every document
+            // change across the app even when the list is no longer in use.
+            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadJobOrdersAsync); } catch { }
             GC.SuppressFinalize(this);
         }
 
