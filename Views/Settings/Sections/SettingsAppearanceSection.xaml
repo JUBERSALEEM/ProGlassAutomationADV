@@ -86,7 +86,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Visual Theme"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Normal, Monet, Professional, Glass or Ocean — restyles the whole app instantly."/>
+                                       Text="Normal, Monet, Professional, Glass, Glassy or Ocean — restyles the whole app instantly. Glassy is the About page's frosted look, app-wide."/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       SelectedItem="{Binding SelectedVisualTheme}"
                                       HorizontalAlignment="Stretch"

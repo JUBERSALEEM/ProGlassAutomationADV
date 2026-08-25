@@ -17,7 +17,10 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     /// </summary>
     public class AppearanceSettings
     {
-        /// <summary>"Normal" | "Monet" | "Professional".</summary>
+        /// <summary>
+        /// "Normal" | "Monet" | "Professional" | "Glass" | "Glassy"
+        /// | "Ocean" — see VisualThemeEngine for what each does.
+        /// </summary>
         public string VisualTheme { get; set; } = "Normal";
 
         /// <summary>

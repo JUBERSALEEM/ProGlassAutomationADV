@@ -1568,7 +1568,8 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand RebuildAllDatabasesCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
-        //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
+        //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional /
+        //       Glass / Glassy / Ocean)
         // ══════════════════════════════════════════════════════════════
 
         public List<string> VisualThemeOptions { get; } = new()
@@ -1577,6 +1578,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Glass,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Glassy,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean
         };
 

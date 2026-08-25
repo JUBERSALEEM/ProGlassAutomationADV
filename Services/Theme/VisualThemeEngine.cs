@@ -15,6 +15,13 @@
 //   Professional  — premium corporate finish: cool slate gradient
 //                   window, crisp cooler surfaces, tighter radii,
 //                   restrained hover — visibly distinct from Normal.
+//   Glass         — frosted translucency over a cool stage.
+//   Glassy        — the About page's look, applied app-wide: the whole
+//                   window becomes the About stage (diagonal navy/ice
+//                   gradient + the two soft light orbs) and every
+//                   surface turns into translucent frosted glass so the
+//                   stage — or the wallpaper — reads through everything.
+//   Ocean         — deep teal corporate.
 //
 // SYSTEM-WIDE WALLPAPER (v3):
 //   A single global wallpaper can be set in Settings and now applies
@@ -49,6 +56,7 @@ namespace ProGlassAutomation.Services.Theme
         public const string Monet = "Monet";
         public const string Professional = "Professional";
         public const string Glass = "Glass";
+        public const string Glassy = "Glassy";
         public const string Ocean = "Ocean";
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
@@ -125,8 +133,11 @@ namespace ProGlassAutomation.Services.Theme
 
         private static void OnAccentChanged(object? sender, EventArgs e)
         {
-            if (Current != Monet) return;
-            Apply(Monet, _lastWallpaperPath, _lastWallpaperOpacity);
+            // Monet AND Glassy derive their surfaces and window stage
+            // from the active accent colour, so both must re-derive
+            // when the user changes the accent.
+            if (Current != Monet && Current != Glassy) return;
+            Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
             ApplyModule(LastRequestedModule, App.Config?.Appearance);
         }
 
@@ -163,6 +174,10 @@ namespace ProGlassAutomation.Services.Theme
 
                     case Glass:
                         ApplyGlass(resources);
+                        break;
+
+                    case Glassy:
+                        ApplyGlassy(resources);
                         break;
 
                     case Ocean:
@@ -245,6 +260,9 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                     case Glass:
                         ApplyGlass(resources);
+                        break;
+                    case Glassy:
+                        ApplyGlassy(resources);
                         break;
                     case Ocean:
                         ApplyOcean(resources);
@@ -641,6 +659,239 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0x9C, 0xB2, 0xD0));
         }
 
+        // ── GLASSY — the About page's look, app-wide ─────────────────
+        //
+        // The About view earned the "glass page" identity: a rich
+        // diagonal stage, two soft light orbs, and frosted cards with
+        // the stage reading through them. Glassy moves that identity
+        // from one page to the whole application:
+        //
+        //   * WindowBackgroundBrush becomes the About stage itself
+        //     (navy/ice diagonal + the same two radial light orbs the
+        //     About page draws), so the window reads as one glass scene.
+        //   * Every surface (module, elevated, side menu, hover) turns
+        //     into translucent frosted glass, so the stage — or the
+        //     wallpaper on top of it — shows through all views. That is
+        //     the "everything stays transparent" behaviour the About
+        //     page had.
+        //   * Typography contrast is strengthened (theme-aware) because
+        //     text over frosted glass loses contrast — the same rule the
+        //     wallpaper layer applies.
+
+        private static void ApplyGlassy(ResourceDictionary resources)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            var accent = ThemeManager.AccentColor;
+
+            // Window = the About stage. When a wallpaper is configured,
+            // Apply() overwrites this brush with the image afterwards,
+            // exactly like every other family — the frost surfaces then
+            // sit on the picture instead of the gradient.
+            resources["WindowBackgroundBrush"] =
+                BuildGlassStageBrush(dark, accent);
+
+            // Frosted surfaces — translucent so the stage (or wallpaper)
+            // reads through every card. Dark mode is the boldest look
+            // (the About page's own stage is dark); light mode keeps
+            // the same glass construction over the ice stage with
+            // higher alphas so dense content stays readable.
+            resources["ModuleBackgroundBrush"] = FrostSurface(
+                resources, "ModuleBackgroundBrush", accent,
+                Colors.White, dark,
+                dark ? 0.34 : 0.82, dark ? 0.18 : 0.60);
+            resources["ElevatedSurfaceBrush"] = FrostSurface(
+                resources, "ElevatedSurfaceBrush", accent,
+                Colors.White, dark,
+                dark ? 0.42 : 0.88, dark ? 0.26 : 0.72);
+            resources["SideMenuBackgroundBrush"] = FrostSurface(
+                resources, "SideMenuBackgroundBrush", accent,
+                Colors.White, dark,
+                dark ? 0.46 : 0.90, dark ? 0.32 : 0.76);
+            resources["MenuHoverBrush"] = FrostSurface(
+                resources, "MenuHoverBrush", accent,
+                Color.FromRgb(0xF3, 0xF4, 0xF6), dark,
+                dark ? 0.20 : 0.30, dark ? 0.20 : 0.30);
+
+            // Softer radii suit the frosted material (same as Glass).
+            resources["CardCornerRadius"] = new CornerRadius(14);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(18);
+            resources["ControlCornerRadius"] = new CornerRadius(10);
+
+            // Ice keyline for the frosted edges.
+            ApplyKeyline(resources, dark
+                ? Color.FromRgb(0x6E, 0x8C, 0xC4)
+                : Color.FromRgb(0x94, 0xB4, 0xDE));
+
+            // Frosted surfaces steal contrast from secondary and muted
+            // text — strengthen them the same way the wallpaper layer
+            // does, so captions stay crisp over the glass.
+            AdaptTypographyForWallpaper(resources);
+        }
+
+        /// <summary>
+        /// Builds the About page's stage as a single window brush:
+        /// diagonal base gradient + two soft radial light orbs, in one
+        /// DrawingBrush so the whole window paints one scene.
+        /// <para>
+        /// The colours are the About page's own — the stage gradient
+        /// that preceded the transparent-stage refactor and the exact
+        /// GlassOrbA / GlassOrbB stops from the theme files — so Glassy
+        /// makes the entire app read as the About scene instead of only
+        /// one page. The mid-stop carries a light accent tint, which is
+        /// what lets an accent change re-tint the stage (the engine
+        /// re-applies on AccentChanged).
+        /// </para>
+        /// </summary>
+        private static Brush BuildGlassStageBrush(bool dark, Color accent)
+        {
+            // Base stage: the About page's diagonal A → B → A gradient.
+            Color baseA, baseB;
+            if (dark)
+            {
+                baseA = Color.FromRgb(0x0B, 0x10, 0x26);           // deep navy
+                baseB = ColorMath.Tint(
+                    accent, Color.FromRgb(0x10, 0x2A, 0x56), 0.30);
+            }
+            else
+            {
+                baseA = Color.FromRgb(0xE9, 0xF1, 0xFB);           // ice white
+                baseB = ColorMath.Tint(
+                    accent, Color.FromRgb(0xDA, 0xE8, 0xF7), 0.35);
+            }
+
+            if (!ThemeManager.UseGradients)
+            {
+                // Flat preference: one solid tinted stage colour.
+                var flat = new SolidColorBrush(baseB);
+                flat.Freeze();
+                return flat;
+            }
+
+            var stage = new DrawingGroup();
+
+            // All geometry shares one 0..1 design space; the orbs
+            // intentionally extend past it, anchored at the corners the
+            // way the About page places them. The base rectangle is
+            // sized to the UNION of the bounds (orbs included) so that
+            // Stretch.Fill maps the whole scene — and only the scene —
+            // onto the window, giving full coverage at any size.
+            //   Orb A: (0.87, 0.10) r 0.45 → x 0.42..1.32, y -0.35..0.55
+            //   Orb B: (0.06, 0.94) r 0.36 → x -0.30..0.42, y 0.58..1.30
+            const double baseLeft = -0.30, baseTop = -0.35;
+            const double baseWidth = 1.62, baseHeight = 1.65;
+
+            // Diagonal base gradient (top-left → bottom-right), frozen.
+            var baseBrush = new LinearGradientBrush(
+                baseA, baseB, new Point(0, 0), new Point(1, 1));
+            baseBrush.Freeze();
+            stage.Children.Add(new GeometryDrawing(
+                baseBrush, null,
+                new RectangleGeometry(
+                    new Rect(baseLeft, baseTop, baseWidth, baseHeight))));
+
+            // Orb A — top-right, the About page's larger orb.
+            stage.Children.Add(new GeometryDrawing(
+                GlassOrb(dark, orbA: true), null,
+                new EllipseGeometry(new Point(0.87, 0.10), 0.45, 0.45)));
+
+            // Orb B — bottom-left, the About page's smaller orb.
+            stage.Children.Add(new GeometryDrawing(
+                GlassOrb(dark, orbA: false), null,
+                new EllipseGeometry(new Point(0.06, 0.94), 0.36, 0.36)));
+
+            stage.Freeze();
+
+            // RelativeToBoundingRectangle + Stretch.Fill scales the
+            // scene's bounds to whatever size the window has.
+            var brush = new DrawingBrush(stage)
+            {
+                Viewport = new Rect(0, 0, 1, 1),
+                ViewportUnits = BrushMappingMode.RelativeToBoundingRectangle,
+                Stretch = Stretch.Fill
+            };
+            brush.Freeze();
+            return brush;
+        }
+
+        /// <summary>
+        /// One About-stage orb: the exact radial stops the About page
+        /// uses (GlassOrbA / GlassOrbB in the theme files), frozen.
+        /// </summary>
+        private static Brush GlassOrb(bool dark, bool orbA)
+        {
+            // Stops are the XAML values verbatim (AARRGGBB in the files):
+            //   Dark  A: #4D82F6FF / #1D4ED84D / #1D4ED800
+            //   Dark  B: #60A5FA66 / #3B82F633 / #3B82F600
+            //   Light A: #3360A5FA / #1A2563EB / #002563EB
+            //   Light B: #403B82F6 / #262563EB / #002563EB
+            var (c0, c1, c2) = dark
+                ? orbA
+                    ? (Color.FromArgb(0x4D, 0x82, 0xF6, 0xFF),
+                       Color.FromArgb(0x1D, 0x4E, 0xD8, 0x4D),
+                       Color.FromArgb(0x00, 0x4E, 0xD8, 0x4D))
+                    : (Color.FromArgb(0x60, 0xA5, 0xFA, 0x66),
+                       Color.FromArgb(0x33, 0x82, 0xF6, 0x33),
+                       Color.FromArgb(0x00, 0x82, 0xF6, 0x33))
+                : orbA
+                    ? (Color.FromArgb(0x33, 0x60, 0xA5, 0xFA),
+                       Color.FromArgb(0x1A, 0x25, 0x63, 0xEB),
+                       Color.FromArgb(0x00, 0x25, 0x63, 0xEB))
+                    : (Color.FromArgb(0x40, 0x3B, 0x82, 0xF6),
+                       Color.FromArgb(0x26, 0x25, 0x63, 0xEB),
+                       Color.FromArgb(0x00, 0x25, 0x63, 0xEB));
+
+            var orb = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                RadiusX = 0.5,
+                RadiusY = 0.5,
+                GradientStops =
+                {
+                    new GradientStop(c0, 0.0),
+                    new GradientStop(c1, 0.55),
+                    new GradientStop(c2, 1.0)
+                }
+            };
+            orb.Freeze();
+            return orb;
+        }
+
+        /// <summary>
+        /// Builds one Glassy frosted surface: the active theme colour of
+        /// the key, tinted toward the accent, rendered as a diagonal
+        /// alpha fade (denser top-left, more see-through bottom-right)
+        /// so the stage reads through the card. With gradient surfaces
+        /// off, the average alpha is used as a flat brush.
+        /// </summary>
+        private static Brush FrostSurface(
+            ResourceDictionary resources, string key, Color accent,
+            Color fallback, bool dark,
+            double topAlpha, double bottomAlpha)
+        {
+            Color baseColor = ThemeManager.GetThemeColor(key, fallback);
+            Color tinted = ColorMath.Tint(accent, baseColor,
+                dark ? 0.22 : 0.14);
+
+            byte topA = (byte)Math.Round(topAlpha * 255);
+            byte bottomA = (byte)Math.Round(bottomAlpha * 255);
+
+            if (ThemeManager.UseGradients)
+            {
+                var gradient = new LinearGradientBrush(
+                    Color.FromArgb(topA, tinted.R, tinted.G, tinted.B),
+                    Color.FromArgb(bottomA, tinted.R, tinted.G, tinted.B),
+                    new Point(0, 0), new Point(1, 1));
+                gradient.Freeze();
+                return gradient;
+            }
+
+            var flat = new SolidColorBrush(
+                Color.FromArgb((byte)((topA + bottomA) / 2),
+                    tinted.R, tinted.G, tinted.B));
+            flat.Freeze();
+            return flat;
+        }
+
         // ── OCEAN — deep teal corporate ───────────────────────────────
 
         private static void ApplyOcean(ResourceDictionary resources)
@@ -723,6 +974,7 @@ namespace ProGlassAutomation.Services.Theme
                 Monet => Monet,
                 Professional => Professional,
                 Glass => Glass,
+                Glassy => Glassy,
                 Ocean => Ocean,
                 _ => Normal
             };

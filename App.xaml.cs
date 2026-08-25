@@ -601,7 +601,7 @@ namespace ProGlassAutomation
             PerformanceProfileService.Apply();
 
             // 9d) Visual theme family + wallpaper
-            //     (Normal / Monet / Professional).
+            //     (Normal / Monet / Professional / Glass / Glassy / Ocean).
             //
             //     The gradient-surface preference is restored FIRST:
             //     Monet's glass/window surfaces read it while building.
