@@ -39,6 +39,26 @@ namespace ProGlassAutomation.Views.Shared
         /// </summary>
         private bool _userMoved;
 
+        // True while a drag is in flight. DragMove() runs a NESTED message
+        // loop, so the 250 ms DispatcherTimer keeps ticking inside it —
+        // Tick()/Place() must not reposition the window mid-drag.
+        private bool _isDragging;
+
+        // Frozen brushes reused by every Tick — the old code allocated two
+        // new SolidColorBrushes every 250 ms for the whole recording.
+        private static readonly SolidColorBrush BadgePausedBrush = Frozen(Color.FromRgb(251, 191, 36));
+        private static readonly SolidColorBrush BadgeRecBrush = Frozen(Color.FromRgb(252, 165, 165));
+        private static readonly SolidColorBrush DotFailBrush = Frozen(Color.FromRgb(239, 68, 68));
+        private static readonly SolidColorBrush DotOkBrush = Frozen(Color.FromRgb(34, 197, 94));
+        private static readonly SolidColorBrush DotStopBrush = Frozen(Color.FromRgb(251, 191, 36));
+
+        private static SolidColorBrush Frozen(Color c)
+        {
+            var b = new SolidColorBrush(c);
+            b.Freeze();
+            return b;
+        }
+
         public RecordOverlayWindow()
         {
             InitializeComponent();
@@ -66,6 +86,7 @@ namespace ProGlassAutomation.Views.Shared
             HudStage.Visibility = Visibility.Collapsed;
             HudClose.Visibility = Visibility.Collapsed;
             HudStop.Visibility = Visibility.Visible;
+            HudStop.IsEnabled = true;   // re-arm after a previous stop/cancel
 
             _timer.Start();
             Tick();
@@ -84,14 +105,15 @@ namespace ProGlassAutomation.Views.Shared
             HudStage.Visibility = Visibility.Visible;
         }
 
-        public void SetFinal(string badge, string stats, string stage, bool failed)
+        public void SetFinal(string badge, string stats, string stage, bool failed, Color? dotColor = null)
         {
             _timer.Stop();
             _recorder = null;
 
             HudBadge.Text = badge;
-            HudDot.Fill = new SolidColorBrush(
-                failed ? Color.FromRgb(239, 68, 68) : Color.FromRgb(34, 197, 94));
+            HudDot.Fill = dotColor != null
+                ? Frozen(dotColor.Value)
+                : (failed ? DotFailBrush : DotOkBrush);
 
             // Final state is a single status line + a close button; the
             // full detail (path, frames, audio) is shown in the saved dialog.
@@ -161,7 +183,9 @@ namespace ProGlassAutomation.Views.Shared
         {
             // After the user has dragged the recorder, respect that position
             // instead of snapping it back to the window's bottom edge.
-            if (_userMoved) return;
+            // 2026-08-25: also stand down while a drag is in flight — the
+            // timer keeps ticking inside DragMove's nested message loop.
+            if (_userMoved || _isDragging) return;
 
             try
             {
@@ -202,9 +226,7 @@ namespace ProGlassAutomation.Views.Shared
 
             bool paused = rec?.IsPaused == true;
             HudBadge.Text = rec == null ? "IDLE" : paused ? "PAUSED" : "REC";
-            HudBadge.Foreground = paused
-                ? new SolidColorBrush(Color.FromRgb(251, 191, 36))
-                : new SolidColorBrush(Color.FromRgb(252, 165, 165));
+            HudBadge.Foreground = paused ? BadgePausedBrush : BadgeRecBrush;
             HudDot.Opacity = paused ? 0.4 : 1.0;
 
             // Pause button flips between pause (⏸) and resume (▶) glyphs.
@@ -234,6 +256,12 @@ namespace ProGlassAutomation.Views.Shared
 
         private void Stop_Click(object sender, RoutedEventArgs e)
         {
+            // 2026-08-25 senior fix: immediate feedback. The teardown
+            // (final encodes, audio close, MP4 pack) legitimately takes a
+            // few seconds; without this the HUD looked dead after STOP.
+            HudStop.IsEnabled = false;
+            SetStage("Stopping…");
+
             try { _onStop?.Invoke(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
         }
 
@@ -251,19 +279,29 @@ namespace ProGlassAutomation.Views.Shared
             // The pause / stop / close buttons must stay clickable.
             if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
 
-            if (e.ButtonState == MouseButtonState.Pressed)
-            {
-                try
-                {
-                    DragMove();
-                }
-                catch
-                {
-                    // DragMove throws if the button was already released.
-                    return;
-                }
+            if (e.ButtonState != MouseButtonState.Pressed) return;
 
-                _userMoved = true;
+            // 2026-08-25 senior fix — the laggy/fighting drag:
+            // _userMoved was only set AFTER DragMove() returned. But
+            // DragMove() runs a NESTED message loop, so the 250 ms timer
+            // kept firing INSIDE the drag and Place() kept snapping the
+            // HUD back toward the main window — the window literally
+            // fought the user's hand, which reads as heavy lag. Both
+            // flags are set BEFORE the drag so Place() stands down for
+            // the whole gesture.
+            _userMoved = true;
+            _isDragging = true;
+            try
+            {
+                DragMove();
+            }
+            catch
+            {
+                // DragMove throws if the button was already released.
+            }
+            finally
+            {
+                _isDragging = false;
             }
         }
 

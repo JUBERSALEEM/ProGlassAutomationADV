@@ -72,6 +72,13 @@ namespace ProGlassAutomation.Agent.Demo
         public void Cancel()
         {
             DemoJobQueue.Shared.StopAll();
+
+            // 2026-08-25 senior fix: STOP must feel instant. The teardown
+            // (final JPEG encodes, audio close) legitimately takes a few
+            // seconds — until this line the HUD gave no feedback at all
+            // during that window, so users reported STOP "did not respond".
+            DemoRecordingChrome.UpdateStage("Stop requested — finishing capture…");
+
             _cts?.Cancel();
         }
 
@@ -446,6 +453,12 @@ namespace ProGlassAutomation.Agent.Demo
                     Status = Status,
                     Folder = LastOutputFolder
                 });
+
+                // 2026-08-25 senior fix: the HUD used to stay stuck on
+                // "REC" after STOP because this path never gave it a
+                // terminal state. Show the clean STOPPED state.
+                DemoRecordingChrome.ShowCancelled("Recording stopped by user.");
+
                 return Status;
             }
             catch (Exception ex)

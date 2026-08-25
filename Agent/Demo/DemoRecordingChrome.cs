@@ -102,19 +102,32 @@ namespace ProGlassAutomation.Agent.Demo
                 var win = Ensure();
                 if (!win.IsVisible) win.Show();
                 win.SetFinal("FAILED", reason ?? "Recording failed.", "", failed: true);
-                try
-                {
-                    MessageBox.Show(
-                        string.IsNullOrWhiteSpace(reason)
-                            ? (IsUserKind
-                                ? "The screen recording did not produce a valid MP4."
-                                : "The demo did not produce a valid recording.")
-                            : reason,
-                        FailedTitle,
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                }
-                catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); }
+
+                // 2026-08-25 senior fix: the modal MessageBox that used to
+                // fire here BLOCKED the UI thread — the same anti-pattern
+                // already removed from ShowSaved. The HUD carries the
+                // reason; the log keeps it for diagnostics.
+                AppLogService.Warning(
+                    (IsUserKind ? "Screen recording failed: " : "Demo recording failed: ") +
+                    (reason ?? "(no reason)"));
+            });
+        }
+
+        /// <summary>
+        /// Terminal HUD state when the user pressed STOP. Not a failure —
+        /// amber badge, no dialog. 2026-08-25: before this existed the
+        /// HUD stayed stuck on "REC" after a cancel.
+        /// </summary>
+        public static void ShowCancelled(string reason)
+        {
+            _recorder = null;
+            RunOnUi(() =>
+            {
+                var win = Ensure();
+                if (!win.IsVisible) win.Show();
+                win.SetFinal("STOPPED", reason ?? "Recording stopped.", "",
+                    failed: false,
+                    dotColor: System.Windows.Media.Color.FromRgb(251, 191, 36));
             });
         }
 
