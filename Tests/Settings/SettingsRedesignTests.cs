@@ -431,6 +431,44 @@ namespace ProGlassAutomation.Tests.Settings
         }
 
         /// <summary>
+        /// The WALLPAPERS group was redesigned (Aug 2026) so it stops wasting
+        /// vertical space:
+        ///   • Global Wallpaper and its visibility slider are now ONE card
+        ///     with the controls on a single line (previously two separate
+        ///     tiles = two rows of height).
+        ///   • Per-Module Wallpapers render the 17 module rows in THREE
+        ///     columns under one card, instead of one full-width stacked list
+        ///     (~6 rows instead of 17).
+        /// Lock the shape so a future edit cannot silently bring back the tall
+        /// stack or split the global card back into two tiles.
+        /// </summary>
+        [Fact]
+        public void Appearance_wallpapers_are_combined_and_three_column()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/Settings/Sections/SettingsAppearanceSection.xaml"));
+
+            // Global wallpaper + visibility are combined into one tile: the
+            // card that holds SetWallpaperCommand must also hold the opacity
+            // slider. If they were split again into two tiles, "Wallpaper
+            // Visibility" would reappear as a separate title.
+            Assert.Contains("Global Wallpaper", src);
+            Assert.DoesNotContain("Wallpaper Visibility", src);
+            var start = src.IndexOf("Global Wallpaper", StringComparison.Ordinal);
+            var end = src.IndexOf("Per-Module Wallpapers", StringComparison.Ordinal);
+            var globalBlock = src.Substring(
+                start, end > start ? end - start : Math.Max(0, 800));
+            Assert.Contains("SetWallpaperCommand", globalBlock);
+            Assert.Contains("WallpaperOpacity", globalBlock);
+
+            // Per-module list is a 3-column UniformGrid under a single card.
+            Assert.Contains("Per-Module Wallpapers", src);
+            Assert.Contains("<UniformGrid Columns=\"3\"", src);
+            Assert.Contains("ItemsSource=\"{Binding ModuleWallpaperRows}\"", src);
+        }
+
+        /// <summary>
         /// XLS0501 / MC3024 regression lock. WPF's XAML compiler refuses
         /// any element that sets the same property twice — once as an
         /// inline attribute (Style="…") AND once as a property-element

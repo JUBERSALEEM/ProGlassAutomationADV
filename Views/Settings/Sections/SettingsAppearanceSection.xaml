@@ -373,8 +373,8 @@
 
                 <WrapPanel Margin="0,0,0,6">
 
-                    <!-- Global wallpaper -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
+                    <!-- Global wallpaper — one card, all controls on one line -->
+                    <Border Style="{StaticResource SettingsWideTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xEB9F;"/>
@@ -382,39 +382,46 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Applied system-wide behind every module. Per-module overrides win where set."/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource OutlinedPillButton}"
+                            <!-- Single line: SET / CLEAR on the left, visibility
+                                 slider on the right, so global wallpaper + its
+                                 visibility no longer take two separate tiles. -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="200"/>
+                                </Grid.ColumnDefinitions>
+                                <Button Grid.Column="0"
+                                        Style="{StaticResource OutlinedPillButton}"
                                         Tag="&#xE728;" Content="SET…"
-                                        Command="{Binding SetWallpaperCommand}"/>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Command="{Binding SetWallpaperCommand}"
+                                        VerticalAlignment="Center"/>
+                                <Button Grid.Column="1"
+                                        Style="{StaticResource RowOutlinedButton}"
                                         Tag="&#xE711;" Content="CLEAR"
                                         Command="{Binding ClearWallpaperCommand}"
-                                        Margin="10,0,0,0"/>
-                            </StackPanel>
+                                        Margin="10,0,0,0"
+                                        VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="3"
+                                           Text="Visibility"
+                                           Style="{StaticResource LabelStyle}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <Slider Grid.Column="4"
+                                        Value="{Binding WallpaperOpacity}"
+                                        Style="{StaticResource ModernSliderStyle}"
+                                        Minimum="0.3" Maximum="1"
+                                        VerticalAlignment="Center"/>
+                            </Grid>
                             <TextBlock Text="{Binding WallpaperStatus}"
-                                       FontSize="11" Margin="0,8,0,0"
-                                       TextWrapping="Wrap"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       Style="{StaticResource SettingsTileFooterHintStyle}"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Wallpaper visibility -->
-                    <Border Style="{StaticResource SettingsTileStyle}">
-                        <StackPanel>
-                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
-                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B7;"/>
-                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Wallpaper Visibility"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="How much the wallpaper shows through the module surfaces."/>
-                            <Slider Value="{Binding WallpaperOpacity}"
-                                    Style="{StaticResource ModernSliderStyle}"
-                                    Minimum="0.3" Maximum="1"
-                                    VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- Per-module wallpapers (full row) -->
+                    <!-- Per-module wallpapers — three columns under one card so
+                         the list no longer grows the page by 17 stacked rows. -->
                     <Border Style="{StaticResource SettingsFullRowTileStyle}">
                         <StackPanel>
                             <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
@@ -422,20 +429,26 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Per-Module Wallpapers"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Give any module its own background image. Surfaces become slightly transparent where the active theme supports it."/>
+                                       Text="Give any module its own background image. The list is split into three columns; per-module visibility uses the small slider, everything else follows the global value above."/>
 
                             <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="0,0,0,1"
-                                                Padding="2,9">
+                                                BorderThickness="0,0,1,1"
+                                                Padding="4,7"
+                                                Margin="0,0,8,8">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="170"/>
                                                     <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
@@ -443,42 +456,42 @@
                                                 <CheckBox Grid.Column="0"
                                                           IsChecked="{Binding Enabled, Mode=TwoWay}"
                                                           VerticalAlignment="Center"
-                                                          Margin="0,0,10,0"/>
+                                                          Margin="0,0,6,0"/>
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding Label}"
-                                                           FontSize="12" FontWeight="SemiBold"
+                                                           FontSize="11.5" FontWeight="SemiBold"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding Label}"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                           Margin="0,0,6,0"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                    <TextBlock.ToolTip>
+                                                        <StackPanel>
+                                                            <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding FileName}" FontSize="10"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        </StackPanel>
+                                                    </TextBlock.ToolTip>
+                                                </TextBlock>
 
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding FileName}"
-                                                           FontSize="11"
-                                                           VerticalAlignment="Center"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Margin="8,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                <Slider Grid.Column="2"
+                                                        Value="{Binding OpacityValue}"
+                                                        Style="{StaticResource ModernSliderStyle}"
+                                                        Minimum="0.3" Maximum="1"
+                                                        Width="76"
+                                                        ToolTip="Visibility"
+                                                        VerticalAlignment="Center"/>
 
-                                                <StackPanel Grid.Column="3"
-                                                            Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
-                                                    <Slider Value="{Binding OpacityValue}"
-                                                            Style="{StaticResource ModernSliderStyle}"
-                                                            Minimum="0.3" Maximum="1"
-                                                            Width="110"
-                                                            ToolTip="Visibility"
-                                                            VerticalAlignment="Center"/>
-                                                    <Button Style="{StaticResource RowOutlinedButton}"
-                                                            Tag="&#xE728;" Content="SET"
-                                                            Command="{Binding DataContext.SetModuleWallpaperCommand,
-                                                                                RelativeSource={RelativeSource
-                                                                                    AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding}"
-                                                            Margin="10,0,0,0"
-                                                            FontSize="11"/>
-                                                </StackPanel>
+                                                <Button Grid.Column="3"
+                                                        Style="{StaticResource RowOutlinedButton}"
+                                                        Tag="&#xE728;" Content="SET"
+                                                        Command="{Binding DataContext.SetModuleWallpaperCommand,
+                                                                            RelativeSource={RelativeSource
+                                                                                AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Margin="6,0,0,0"
+                                                        FontSize="10"
+                                                        Padding="8,2"/>
 
                                                 <Button Grid.Column="4"
                                                         Style="{StaticResource RowDangerButton}"
@@ -487,7 +500,7 @@
                                                                     RelativeSource={RelativeSource
                                                                         AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
-                                                        Margin="8,0,0,0"
+                                                        Margin="6,0,0,0"
                                                         ToolTip="Remove this module's wallpaper"/>
                                             </Grid>
                                         </Border>
