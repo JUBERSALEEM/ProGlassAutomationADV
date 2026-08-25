@@ -60,13 +60,38 @@ namespace ProGlassAutomation.Services.Licensing
     /// </summary>
     public static class MachineFingerprint
     {
+        // 2026-08-25 senior fix: the fingerprint is stable for the
+        // process lifetime (hardware does not change mid-run), yet it
+        // was recomputed on EVERY call — including on the UI thread from
+        // LicenseStatusViewModel.Refresh() when the About page opened.
+        // The NIC enumeration (GetAllNetworkInterfaces) alone can take
+        // seconds on machines with many virtual adapters, and the volume
+        // probe can stall on slow drives — that was the About-page UI
+        // freeze. Compute once, cache forever.
+        private static string? _cached;
+        private static readonly object _cacheGate = new();
+
         /// <summary>
         /// Returns the current machine's fingerprint as a 32-char
         /// lowercase hex string (first 16 bytes of SHA-256). The
         /// function is pure — it has no side effects and can be
-        /// called from any thread.
+        /// called from any thread. The result is cached for the
+        /// process lifetime, so repeated calls are free.
         /// </summary>
         public static string ComputeCurrent()
+        {
+            var existing = _cached;
+            if (existing != null) return existing;
+
+            lock (_cacheGate)
+            {
+                if (_cached == null)
+                    _cached = ComputeCore();
+                return _cached;
+            }
+        }
+
+        private static string ComputeCore()
         {
             // Order matters. The SHA-256 of the same input
             // string always produces the same output, so as long

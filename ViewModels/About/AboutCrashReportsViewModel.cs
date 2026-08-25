@@ -27,6 +27,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
@@ -89,19 +91,44 @@ namespace ProGlassAutomation.ViewModels.About
             ClearAllCommand = new RelayCommand(_ => ClearAll(),
                 _ => !IsEmpty);
             OpenFolderCommand = new RelayCommand(_ => OpenFolder());
+
+            // 2026-08-25 senior fix: the crash-folder scan used to run
+            // synchronously in this constructor — on the UI thread, the
+            // moment the About page opened. Reading and parsing the report
+            // files stalled the page. The scan now runs in the background.
             Refresh();
         }
 
-        public void Refresh()
+        /// <summary>
+        /// Fire-and-forget wrapper around the async scan. Safe from the
+        /// constructor and from the Refresh button alike.
+        /// </summary>
+        public void Refresh() => _ = RefreshAsync();
+
+        private async Task RefreshAsync()
         {
-            Reports.Clear();
-            foreach (var raw in CrashReportService.GetRecentReports(10))
+            try
             {
-                Reports.Add(new CrashReportEntry(raw));
+                var recent = await Task.Run(() =>
+                    CrashReportService.GetRecentReports(10).ToList())
+                    .ConfigureAwait(true);
+
+                Reports.Clear();
+                foreach (var raw in recent)
+                {
+                    Reports.Add(new CrashReportEntry(raw));
+                }
+                OnPropertyChanged(nameof(IsEmpty));
+                (ClearAllCommand as RelayCommand)?.RaiseCanExecuteChanged();
             }
-            OnPropertyChanged(nameof(IsEmpty));
-            (ClearAllCommand as RelayCommand)?.RaiseCanExecuteChanged();
+            catch (Exception ex)
+            {
+                // A scan failure must never take the About page down.
+                AppLogService.Debug(
+                    "[AboutCrashReports] Report scan failed: " + ex.Message);
+            }
         }
+
 
         private void ClearAll()
         {

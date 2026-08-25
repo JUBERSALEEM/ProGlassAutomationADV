@@ -63,7 +63,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
         private bool _isNotActivated;
         private bool _isPlaceholder;
         private string _machineFingerprint = "—";
-        private string _currentFingerprint = "—";
+        private string _currentFingerprint = "Computing…";
         private string _featuresDisplay = "—";
         private string _licenseIdDisplay = "—";
         private string _notesDisplay = "";
@@ -77,6 +77,52 @@ namespace ProGlassAutomation.ViewModels.Licensing
             // process lifetime.
             LicenseService.StatusChanged += OnLicenseChanged;
             Refresh();
+            EnsureFingerprintAsync();
+        }
+
+        /// <summary>
+        /// Computes the machine fingerprint exactly once, OFF the UI
+        /// thread, and publishes it when ready. The UI shows
+        /// "Computing…" until then. 2026-08-25: replaces the
+        /// synchronous compute inside Refresh() that froze the About
+        /// page on machines with many network adapters / slow drives.
+        /// </summary>
+        private void EnsureFingerprintAsync()
+        {
+            _ = System.Threading.Tasks.Task.Run(() =>
+            {
+                string fp;
+                try
+                {
+                    fp = ProGlassAutomation.Services.Licensing
+                        .MachineFingerprint.ComputeCurrent();
+                }
+                catch
+                {
+                    // Defensive: the fingerprint code can throw on
+                    // weird hardware; show "—" rather than crash.
+                    fp = "—";
+                }
+
+                var disp = System.Windows.Application.Current?.Dispatcher;
+                void Apply()
+                {
+                    _currentFingerprint = fp;
+                    OnPropertyChanged(nameof(CurrentFingerprint));
+                }
+
+                try
+                {
+                    if (disp != null && !disp.CheckAccess())
+                        disp.BeginInvoke(new Action(Apply));
+                    else
+                        Apply();
+                }
+                catch
+                {
+                    Apply();
+                }
+            });
         }
 
         /// <summary>
@@ -141,23 +187,13 @@ namespace ProGlassAutomation.ViewModels.Licensing
                         .TotalDays);
             }
 
-            try
-            {
-                // Fully-qualified because this class has a
-                // property named MachineFingerprint (the
-                // license-side fingerprint, of type string).
-                // A bare MachineFingerprint would resolve to
-                // the property, not to the static class.
-                _currentFingerprint = ProGlassAutomation
-                    .Services.Licensing.MachineFingerprint
-                    .ComputeCurrent();
-            }
-            catch
-            {
-                // Defensive: the fingerprint code can throw on
-                // weird hardware; show "—" rather than crash.
-                _currentFingerprint = "—";
-            }
+            // 2026-08-25 senior fix: the fingerprint was computed HERE,
+            // synchronously, on every Refresh — and Refresh runs when the
+            // About page opens and on every license StatusChanged event.
+            // NIC enumeration + the volume probe can stall the UI thread
+            // for seconds (the About page freeze). The fingerprint is now
+            // computed once on a background thread at construction
+            // (see EnsureFingerprintAsync) and cached by the service.
 
             // Whichever properties are bound by callers —
             // raise change notifications for all of them.

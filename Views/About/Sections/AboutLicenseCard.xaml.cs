@@ -38,7 +38,7 @@ namespace ProGlassAutomation.Views.About.Sections
             try
             {
                 string fp = LicenseStatusViewModel.Instance.CurrentFingerprint;
-                if (string.IsNullOrEmpty(fp) || fp == "—")
+                if (string.IsNullOrEmpty(fp) || fp == "—" || fp == "Computing…")
                 {
                     MessageBox.Show(
                         "The current machine fingerprint is unavailable.",

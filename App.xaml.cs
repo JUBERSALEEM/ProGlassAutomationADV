@@ -898,6 +898,16 @@ namespace ProGlassAutomation
             // Fully async + offline-safe; never delays or blocks
             // startup, never affects normal operation (spec §17).
             _ = Services.Updates.UpdateService.StartupCheckAsync();
+
+            // 2026-08-25: pre-warm the machine fingerprint OFF the UI
+            // thread. License checks and the About page all read it; the
+            // cache in MachineFingerprint makes every later call instant,
+            // so no UI-thread consumer ever pays the NIC/volume-probe cost.
+            _ = System.Threading.Tasks.Task.Run(() =>
+            {
+                try { Services.Licensing.MachineFingerprint.ComputeCurrent(); }
+                catch { /* best-effort — consumers tolerate "—" */ }
+            });
         }
 
         /// <summary>
