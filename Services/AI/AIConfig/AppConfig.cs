@@ -24,6 +24,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public string VisualTheme { get; set; } = "Normal";
 
         /// <summary>
+        /// Global font colour override (Settings → Appearance → Font
+        /// Color). "" = Auto (the active theme/visual family owns the
+        /// text palette); otherwise #RRGGBB — the VisualThemeEngine
+        /// derives the Primary/Secondary/Muted hierarchy from it so
+        /// text stays visible over transparent surfaces.
+        /// </summary>
+        public string FontColor { get; set; } = "";
+
+        /// <summary>
         /// When true, rounded pills and cards draw a strong near-black
         /// definition edge so they stay visually separate from tinted
         /// (Monet) surfaces instead of blending into them.

@@ -94,6 +94,66 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- Font Color (global text colour, 2026-08-25) -->
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE2B1;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Font Color"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="One global text colour for every view. Auto follows the theme (Glassy uses the About palette); pick a colour so text always stays visible over transparent glass."/>
+                            <!-- Chips generated from SettingsViewModel.FontColorPalette
+                                 (Auto + FontColorPresets.All) — the swatch shown IS
+                                 the exact primary colour that gets applied. -->
+                            <ItemsControl ItemsSource="{Binding FontColorPalette}" Margin="0,4,0,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.ApplyFontColorCommand,
+                                                          RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding Key}"
+                                                Style="{StaticResource AccentChipStyle}">
+                                            <StackPanel Orientation="Horizontal">
+                                                <Ellipse Width="11" Height="11" Fill="{Binding Swatch}"
+                                                         Stroke="{DynamicResource OutlineBrush}"
+                                                         StrokeThickness="1"
+                                                         VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBlock Text="{Binding DisplayName}" VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <!-- Free-pick font colour: type any hex, the whole
+                                 text hierarchy (primary/secondary/muted) re-derives. -->
+                            <Border Margin="0,10,0,0" Padding="8,6" CornerRadius="8"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1"
+                                    HorizontalAlignment="Left">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="14" Height="14"
+                                             Fill="{Binding CustomFontColorSwatch}"
+                                             Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Text="{Binding CustomFontColorHex, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="96" Padding="8,5" FontSize="13"
+                                             FontFamily="Consolas"
+                                             VerticalAlignment="Center"/>
+                                    <Button Command="{Binding ApplyCustomFontColorCommand}"
+                                            Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0">
+                                        <TextBlock Text="APPLY"/>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
+                                       Text="{Binding CustomFontColorStatus}" Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
+
                     <!-- Defined card edges -->
                     <Border Style="{StaticResource SettingsTileStyle}">
                         <Grid>

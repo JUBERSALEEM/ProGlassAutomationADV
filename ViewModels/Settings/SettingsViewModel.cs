@@ -438,6 +438,15 @@ namespace ProGlassAutomation.ViewModels.Settings
             ApplyCustomAccentCommand = new RelayCommand(_ => ApplyCustomAccent());
             InitializeAccentPalette();
 
+            // 2026-08-25 — global font colour: one user-chosen text
+            // colour for the whole UI (Auto = theme/family palette).
+            ApplyFontColorCommand = new RelayCommand(param =>
+                ApplyFontColorPreset(param as string ??
+                    ProGlassAutomation.Services.Theme.FontColorPresets.Auto));
+            ApplyCustomFontColorCommand =
+                new RelayCommand(_ => ApplyCustomFontColor());
+            InitializeFontColorPalette();
+
             // 2026-08-25 — one-tap factory reset for everything the
             // Appearance module owns (theme, accent, gradients, card
             // shape, density, zoom, font, wallpapers, PDF layout).
@@ -778,6 +787,165 @@ namespace ProGlassAutomation.ViewModels.Settings
             OnPropertyChanged(nameof(CustomAccentStatus));
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  GLOBAL FONT COLOUR — Settings → Appearance → Font Color
+        //
+        //  One colour drives the whole UI's Primary/Secondary/Muted
+        //  foregrounds (the VisualThemeEngine derives the hierarchy so
+        //  headings/captions/hints keep their contrast order). "Auto"
+        //  hands ownership back to the theme/visual family — in Glassy
+        //  that is the About page's text palette. Persists like the
+        //  accent, applies live like the accent, works in EVERY
+        //  visual family — the visibility dial for transparent UIs.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Chip list for the Font Color tile (Auto + presets).</summary>
+        public ObservableCollection<FontColorOption> FontColorPalette { get; }
+            = new();
+
+        public ICommand ApplyFontColorCommand { get; private set; }
+
+        public ICommand ApplyCustomFontColorCommand { get; private set; }
+
+        /// <summary>One option on the Settings font colour palette.</summary>
+        public sealed class FontColorOption
+        {
+            public FontColorOption(string key, string name, Color swatch)
+            {
+                Key = key;
+                DisplayName = name;
+                var brush = new SolidColorBrush(swatch);
+                brush.Freeze();
+                Swatch = brush;
+            }
+
+            public string Key { get; }
+            public string DisplayName { get; }
+            public Brush Swatch { get; }
+        }
+
+        private void InitializeFontColorPalette()
+        {
+            FontColorPalette.Clear();
+
+            // Auto = "the active theme/family owns the text" — the
+            // swatch shows the current theme's own primary colour.
+            Color autoSwatch = ProGlassAutomation.Services.ThemeManager
+                .GetThemeColor("PrimaryForegroundColor",
+                    System.Windows.Media.Color.FromRgb(0xF1, 0xF5, 0xF9));
+            FontColorPalette.Add(new FontColorOption(
+                ProGlassAutomation.Services.Theme.FontColorPresets.Auto,
+                "Auto (theme)", autoSwatch));
+
+            foreach (var (key, name, color) in
+                ProGlassAutomation.Services.Theme.FontColorPresets.All)
+            {
+                FontColorPalette.Add(new FontColorOption(key, name, color));
+            }
+        }
+
+        /// <summary>
+        /// Persisted global font colour — "" (Auto) or #RRGGBB.
+        /// Applies live through the normal visual-theme pipeline.
+        /// </summary>
+        public string SelectedFontColor
+        {
+            get => App.Config?.Appearance?.FontColor ?? "";
+            set
+            {
+                if (App.Config == null) return;
+
+                App.Config.Appearance.FontColor = value ?? "";
+                SaveConfig();
+                ApplyVisualTheme();
+                OnPropertyChanged();
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Font colour changed",
+                    string.IsNullOrEmpty(value) ? "Auto" : value);
+            }
+        }
+
+        private void ApplyFontColorPreset(string presetKey)
+        {
+            var theme = ProGlassAutomation.Services.Theme.FontColorPresets;
+
+            // Auto → clear the override; preset → its exact hex.
+            string hex = theme.Auto == presetKey
+                ? ""
+                : theme.ColorFor(presetKey) is Color c
+                    ? theme.ToHex(c)
+                    : "";
+
+            SelectedFontColor = hex;
+            _customFontColorHex = hex; // keep the hex field in sync
+            OnPropertyChanged(nameof(CustomFontColorHex));
+            OnPropertyChanged(nameof(CustomFontColorSwatch));
+            OnPropertyChanged(nameof(CustomFontColorStatus));
+        }
+
+        // ── Free-pick custom font colour ─────────────────────────────
+
+        private string _customFontColorHex = "";
+
+        /// <summary>Hex the user types for a custom font colour.</summary>
+        public string CustomFontColorHex
+        {
+            get => _customFontColorHex;
+            set
+            {
+                _customFontColorHex = value ?? "";
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CustomFontColorSwatch));
+                OnPropertyChanged(nameof(CustomFontColorStatus));
+            }
+        }
+
+        /// <summary>Live preview dot next to the hex field.</summary>
+        public Brush CustomFontColorSwatch
+        {
+            get
+            {
+                var c = ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_customFontColorHex);
+                if (c == null) return Brushes.Transparent;
+                var brush = new SolidColorBrush(c.Value);
+                brush.Freeze();
+                return brush;
+            }
+        }
+
+        /// <summary>Validation hint under the hex field.</summary>
+        public string CustomFontColorStatus
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(_customFontColorHex))
+                    return "Type a colour like #FFFFFF and press APPLY — or pick Auto to follow the theme.";
+                return ProGlassAutomation.Services.Theme.AccentPresets
+                    .TryParseHex(_customFontColorHex) != null
+                    ? "Ready — every heading, caption and hint in every view will use this colour family."
+                    : "Not a recognised colour — use #RGB or #RRGGBB.";
+            }
+        }
+
+        private void ApplyCustomFontColor()
+        {
+            var color = ProGlassAutomation.Services.Theme.AccentPresets
+                .TryParseHex(_customFontColorHex);
+            if (color == null)
+            {
+                OnPropertyChanged(nameof(CustomFontColorStatus));
+                return;
+            }
+
+            SelectedFontColor = ProGlassAutomation.Services.Theme
+                .FontColorPresets.ToHex(color.Value);
+            OnPropertyChanged(nameof(CustomFontColorSwatch));
+            OnPropertyChanged(nameof(CustomFontColorStatus));
+        }
+
         // ── Factory reset for the whole Appearance module ────────────
         //
         // 2026-08-25: one tap restores every appearance preference to its
@@ -806,6 +974,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ap.AccentPreset =
                 ProGlassAutomation.Services.Theme.AccentPresets.GlassBlue;
             ap.CustomAccentHex = "";
+            ap.FontColor = "";
             ap.PdfLayoutId = "ClassicNavy";
             ap.FontFamilyName = "Segoe UI";
             ap.FontWeightName = "Normal";
@@ -833,9 +1002,14 @@ namespace ProGlassAutomation.ViewModels.Settings
             _selectedFontWeight = "Regular";
             _selectedFontStyle = "Normal";
             _customAccentHex = "";
+            _customFontColorHex = "";
             foreach (var row in ModuleWallpaperRows) row.Enabled = false;
 
             OnPropertyChanged(nameof(SelectedVisualTheme));
+            OnPropertyChanged(nameof(SelectedFontColor));
+            OnPropertyChanged(nameof(CustomFontColorHex));
+            OnPropertyChanged(nameof(CustomFontColorSwatch));
+            OnPropertyChanged(nameof(CustomFontColorStatus));
             OnPropertyChanged(nameof(UseDefinedOutline));
             OnPropertyChanged(nameof(UseGradientSurfaces));
             OnPropertyChanged(nameof(CardBorderThickness));

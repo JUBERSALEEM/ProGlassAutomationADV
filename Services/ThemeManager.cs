@@ -274,8 +274,21 @@ namespace ProGlassAutomation.Services
                 ColorMath.Tint(core, surface, dark ? 0.14 : 0.11), 0.5));
             ambient.GradientStops.Add(new GradientStop(
                 ColorMath.Tint(core, surface, dark ? 0.20 : 0.16), 1.0));
+            // ── GLASSY GUARD ────────────────────────────────────────
+            // The Glassy visual family OWNS these four dashboard keys
+            // (it renders them as About-page glass). ApplyAccent runs
+            // AFTER the engine on every theme change (ApplyVisualTheme
+            // order), so without this guard it would repaint the whole
+            // dashboard surface OPAQUE (0.82 solid) on top of Glassy's
+            // transparency — the "dashboards don't accept the setting"
+            // bug. DashAccentTextBrush below stays accent-driven in
+            // every family.
+            bool glassyActive =
+                VisualThemeEngine.Current == VisualThemeEngine.Glassy;
+
             ambient.Freeze();
-            resources["DashAmbientBrush"] = ambient;
+            if (!glassyActive)
+                resources["DashAmbientBrush"] = ambient;
 
             // Top-right glow blob.
             var blob1 = new RadialGradientBrush();
@@ -289,7 +302,8 @@ namespace ProGlassAutomation.Services
             blob1.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, core.R, core.G, core.B), 1.0));
             blob1.Freeze();
-            resources["DashAmbientBlob1Brush"] = blob1;
+            if (!glassyActive)
+                resources["DashAmbientBlob1Brush"] = blob1;
 
             // Bottom-left deep blob.
             Color deep = LookupColor(resources, "AccentDarkBrush", core);
@@ -304,14 +318,16 @@ namespace ProGlassAutomation.Services
             blob2.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, deep.R, deep.G, deep.B), 1.0));
             blob2.Freeze();
-            resources["DashAmbientBlob2Brush"] = blob2;
+            if (!glassyActive)
+                resources["DashAmbientBlob2Brush"] = blob2;
 
             // Glass card fill.
             var glass = new SolidColorBrush(
                 ColorMath.Tint(core, surface, dark ? 0.06 : 0.03))
             { Opacity = 0.82 };
             glass.Freeze();
-            resources["DashGlassSurfaceBrush"] = glass;
+            if (!glassyActive)
+                resources["DashGlassSurfaceBrush"] = glass;
 
             // Accent text on the dashboard.
             FreezeAndSet(resources, "DashAccentTextBrush",

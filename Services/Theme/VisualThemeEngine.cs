@@ -220,6 +220,11 @@ namespace ProGlassAutomation.Services.Theme
                         resources["WindowBackgroundBrush"] = windowBrush;
                 }
 
+                // Last: the global Font Color preference (or its Auto
+                // restore) so a user-chosen text palette always wins
+                // over whatever the family/wallpaper just wrote.
+                ApplyFontPreference(resources, false);
+
                 AppLogService.Info(
                     $"Visual theme applied: {Current}",
                     new LogContext
@@ -323,19 +328,29 @@ namespace ProGlassAutomation.Services.Theme
                             ThemeManager.GetThemeColor(
                                 "ModuleBackgroundBrush", Colors.White), 0.78);
                         AdaptTypographyForWallpaper(resources);
+
+                        // Global font colour preference still wins last.
+                        ApplyFontPreference(resources, true);
                         return;
                     }
                 }
 
                 // 2) Otherwise the system-wide wallpaper shows in
                 //    every view.
+                bool systemWallpaperLayered = false;
                 if (!string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
                     File.Exists(_lastWallpaperPath))
                 {
                     LayerWallpaperBehindContent(
                         resources, _lastWallpaperPath,
                         _lastWallpaperOpacity, translucentSurface: 0.82);
+                    systemWallpaperLayered = true;
                 }
+
+                // Last: the global Font Color preference (or its Auto
+                // restore) runs after the wallpaper typography, so a
+                // user-chosen text palette always wins.
+                ApplyFontPreference(resources, systemWallpaperLayered);
             }
             catch (Exception ex)
             {
@@ -774,25 +789,9 @@ namespace ProGlassAutomation.Services.Theme
                 "TintGrayBrush", 0.30, 0.14);
 
             // ── 5) TYPOGRAPHY — the About page's text palette ────────
-            // Read from the ACTIVE theme's Glass* keys (fallbacks are
-            // those same palette values), so Light/Dark swaps — which
-            // re-run this family — auto-select the matching palette:
-            // primary = GlassSnow (near-white on the navy stage,
-            // near-black on ice), secondary = GlassCerulean, muted =
-            // GlassMuted. This is what keeps text visible when every
-            // card goes transparent.
-            resources["PrimaryForegroundBrush"] =
-                FrozenGlassText("GlassSnow",
-                    dark ? Color.FromRgb(0xF8, 0xFA, 0xFC)
-                         : Color.FromRgb(0x0F, 0x17, 0x2A));
-            resources["SecondaryForegroundBrush"] =
-                FrozenGlassText("GlassCerulean",
-                    dark ? Color.FromRgb(0x93, 0xC5, 0xFD)
-                         : Color.FromRgb(0x1D, 0x4E, 0xD8));
-            resources["MutedForegroundBrush"] =
-                FrozenGlassText("GlassMuted",
-                    dark ? Color.FromRgb(0x8F, 0xB3, 0xE6)
-                         : Color.FromRgb(0x47, 0x55, 0x69));
+            // (Also re-applied by ApplyFontPreference in Auto mode —
+            // one code path owns the Glassy text set.)
+            SetGlassTextPalette(resources, dark);
 
             // ── 6) SHAPE + KEYLINE ───────────────────────────────────
             // Softer radii suit the frosted material (same as Glass).
@@ -865,10 +864,39 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
+        /// The About page's text palette, applied as the app's
+        /// Primary/Secondary/Muted foreground: primary = GlassSnow
+        /// (near-white on the navy stage), secondary = GlassCerulean,
+        /// muted = GlassMuted — the exact colours the About page's
+        /// headings and captions use, read from the ACTIVE theme's
+        /// Glass* keys so Light/Dark swaps auto-select the match.
+        /// </summary>
+        private static void SetGlassTextPalette(
+            ResourceDictionary resources, bool dark)
+        {
+            // Light mode: GlassSnow (#0F172A) reads as "completely
+            // black" on the ice stage — use GlassFrost (#334155)
+            // instead: a soft dark slate, clearly readable, never a
+            // harsh pure black.
+            resources["PrimaryForegroundBrush"] =
+                FrozenGlassText(dark ? "GlassSnow" : "GlassFrost",
+                    dark ? Color.FromRgb(0xF8, 0xFA, 0xFC)
+                         : Color.FromRgb(0x33, 0x41, 0x55));
+            resources["SecondaryForegroundBrush"] =
+                FrozenGlassText("GlassCerulean",
+                    dark ? Color.FromRgb(0x93, 0xC5, 0xFD)
+                         : Color.FromRgb(0x1D, 0x4E, 0xD8));
+            resources["MutedForegroundBrush"] =
+                FrozenGlassText("GlassMuted",
+                    dark ? Color.FromRgb(0x8F, 0xB3, 0xE6)
+                         : Color.FromRgb(0x47, 0x55, 0x69));
+        }
+
+        /// <summary>
         /// Frozen solid brush for one of the About page's text palette
-        /// keys (GlassSnow / GlassCerulean / GlassMuted) read from the
-        /// ACTIVE theme dictionary — falling back to the given colour
-        /// if the key is ever missing.
+        /// keys (GlassSnow / GlassFrost / GlassCerulean / GlassMuted)
+        /// read from the ACTIVE theme dictionary — falling back to the
+        /// given colour if the key is ever missing.
         /// </summary>
         private static Brush FrozenGlassText(string key, Color fallback)
         {
@@ -876,6 +904,100 @@ namespace ProGlassAutomation.Services.Theme
                 ThemeManager.GetThemeColor(key, fallback));
             brush.Freeze();
             return brush;
+        }
+
+        // ── GLOBAL FONT COLOUR (Settings → Appearance → Font Color) ──
+        //
+        // One user-chosen text colour drives the WHOLE UI's
+        // Primary/Secondary/Muted foregrounds, in EVERY visual family.
+        // Secondary and muted are derived by mixing the chosen colour
+        // toward the theme's neutral slate, so the heading/caption/hint
+        // contrast order survives whatever colour is picked — this is
+        // the tool that guarantees text visibility when Glassy makes
+        // every card transparent.
+        //
+        // Called at the END of Apply and ApplyModule, so it runs after
+        // the family baseline AND after any wallpaper typography
+        // adaptation: user intent wins last.
+
+        /// <summary>
+        /// Applies (or removes) the persisted global font colour
+        /// preference. Auto (""/null) restores ownership: Glassy gets
+        /// its About-page palette, every other family gets the Light/
+        /// Dark theme defaults (with the wallpaper contrast adaptation
+        /// re-applied when a wallpaper is on screen).
+        /// </summary>
+        public static void ApplyFontPreference(
+            ResourceDictionary resources, bool wallpaperActive)
+        {
+            try
+            {
+                string hex = App.Config?.Appearance?.FontColor ?? "";
+
+                if (string.IsNullOrWhiteSpace(hex))
+                {
+                    if (Current == Glassy)
+                    {
+                        bool dark = ThemeManager.CurrentTheme ==
+                            AppTheme.Dark;
+                        SetGlassTextPalette(resources, dark);
+                    }
+                    else
+                    {
+                        resources.Remove("PrimaryForegroundBrush");
+                        resources.Remove("SecondaryForegroundBrush");
+                        resources.Remove("MutedForegroundBrush");
+
+                        // The wallpaper layer sets stronger secondary/
+                        // muted for readability over pictures — if we
+                        // just deleted them and a wallpaper is showing,
+                        // restore that adaptation.
+                        if (wallpaperActive)
+                            AdaptTypographyForWallpaper(resources);
+                    }
+                    return;
+                }
+
+                var chosen = AccentPresets.TryParseHex(hex);
+                if (chosen == null) return; // invalid persisted hex — keep current
+
+                Color primary = chosen.Value;
+                bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+                Color secNeutral = ThemeManager.GetThemeColor(
+                    "SecondaryForegroundColor",
+                    dark ? Color.FromRgb(0x94, 0xA3, 0xB8)
+                         : Color.FromRgb(0x47, 0x55, 0x69));
+                Color mutNeutral = ThemeManager.GetThemeColor(
+                    "MutedForegroundColor",
+                    dark ? Color.FromRgb(0x64, 0x74, 0x8B)
+                         : Color.FromRgb(0x64, 0x74, 0x8B));
+
+                FrozenAndSet(resources, "PrimaryForegroundBrush", primary);
+                FrozenAndSet(resources, "SecondaryForegroundBrush",
+                    ColorMath.Mix(primary, secNeutral, 0.35));
+                FrozenAndSet(resources, "MutedForegroundBrush",
+                    ColorMath.Mix(primary, mutNeutral, 0.55));
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Font colour preference apply failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Themes",
+                        Class = nameof(VisualThemeEngine)
+                    });
+            }
+        }
+
+        /// <summary>Frozen SolidColorBrush helper for the font palette.</summary>
+        private static void FrozenAndSet(
+            ResourceDictionary resources, string key, Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            resources[key] = brush;
         }
 
         /// <summary>
@@ -904,9 +1026,13 @@ namespace ProGlassAutomation.Services.Theme
             }
             else
             {
-                baseA = Color.FromRgb(0xE9, 0xF1, 0xFB);           // ice white
+                // Deeper ice than a plain light theme: if the stage is
+                // near-white, the white glass frost on top of it is
+                // invisible and Glassy reads as "settings not applied".
+                // A visibly blue stage makes the transparency obvious.
+                baseA = Color.FromRgb(0xDF, 0xEA, 0xF7);           // ice
                 baseB = ColorMath.Tint(
-                    accent, Color.FromRgb(0xDA, 0xE8, 0xF7), 0.35);
+                    accent, Color.FromRgb(0xC2, 0xD8, 0xF0), 0.42);
             }
 
             if (!ThemeManager.UseGradients)
