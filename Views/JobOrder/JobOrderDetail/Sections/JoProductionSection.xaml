@@ -1,35 +1,37 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Job Order — PRODUCTION panel (full-width grid redesign Aug 2026)
+     MODULE: Job Order — PRODUCTION panel (auto-compact redesign Aug 2026)
 
      REDESIGN
-       Was: one full-width column, then a WrapPanel of fixed-width tiles
-       that clustered on the LEFT and left a big empty gap on the right
-       of a wide window. The user asked to "fill width accordingly, don't
-       keep left align — make it full width."
+       The production form now auto-compacts against Settings ► Features
+       ► Job Order. Each optional field tile binds Visibility to
+       JobOrderFieldVisibility.Instance. When the operator turns a field
+       OFF in Settings, the tile COLLAPSES and the WrapPanel re-flows the
+       remaining tiles so the row tightens with no blank spacer — exactly
+       like the Settings pages. Required workflow controls (Status,
+       Priority, Delivery Date) are always visible and cannot be hidden.
 
-       Now: every production field is a JoFieldTileStyle tile that
-       STRETCHES to fill a responsive star-column Grid. Four equal
-       columns span the entire available width and grow/shrink with the
-       window, so the form is always full-width with no dead space on the
-       right. Action buttons remain in the JobOrderDetailView header.
+       Layout: a WrapPanel of JoFieldTileStyle tiles that wrap into rows
+       and fill the full available width. Hidden tiles vanish and the
+       rest re-flow. Action buttons remain in JobOrderDetailView header.
 
-       All 13 ViewModel bindings preserved:
+       All production bindings preserved:
          StatusOptions, SelectedStatus, PriorityOptions, SelectedPriority,
          DeliveryDate, SiteDeliveryContact, SiteDeliveryPhone,
          SiteDeliveryAddress, AssignedTo, CuttingInstructions,
          DrawingReference, InternalNotes, LastEditedDisplay.
 
-     Layout (full-width, 4 columns):
-       Row 0: Status | Priority | Delivery Date | Assigned To
-       Row 1: Site Contact | Site Phone | Drawing Ref | Site Address
-       Row 2: Cutting Instructions (half) | Internal Notes (half)
+       Optional-field visibility bindings:
+         ShowAssignedTo, ShowSiteDeliveryContact, ShowSiteDeliveryPhone,
+         ShowSiteDeliveryAddress, ShowDrawingReference,
+         ShowCuttingInstructions, ShowInternalNotes.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections.JoProductionSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:features="clr-namespace:ProGlassAutomation.Services.Features"
              FontFamily="{DynamicResource AppFontFamily}"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
@@ -58,24 +60,12 @@
                        VerticalAlignment="Center"/>
         </StackPanel>
 
-        <!-- Full-width responsive grid: four star columns that fill the
-             available width. Row spans let the wide fields use extra space. -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- Auto-compact WrapPanel: hidden optional tiles vanish and the
+             rest re-flow to fill the row. -->
+        <WrapPanel>
 
-            <!-- Status -->
-            <Border Grid.Row="0" Grid.Column="0"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Status (workflow control — always visible) -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="STATUS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
@@ -84,9 +74,8 @@
                 </StackPanel>
             </Border>
 
-            <!-- Priority -->
-            <Border Grid.Row="0" Grid.Column="1"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Priority (workflow control — always visible) -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="PRIORITY" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PriorityOptions}"
@@ -95,9 +84,8 @@
                 </StackPanel>
             </Border>
 
-            <!-- Delivery date -->
-            <Border Grid.Row="0" Grid.Column="2"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Delivery date (workflow control — always visible) -->
+            <Border Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="DELIVERY DATE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding DeliveryDate}"
@@ -105,9 +93,11 @@
                 </StackPanel>
             </Border>
 
-            <!-- Assigned to -->
-            <Border Grid.Row="0" Grid.Column="3"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Assigned to (optional) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    Visibility="{Binding Path=ShowAssignedTo,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="ASSIGNED TO" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
@@ -115,9 +105,11 @@
                 </StackPanel>
             </Border>
 
-            <!-- Site delivery contact -->
-            <Border Grid.Row="1" Grid.Column="0"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Site delivery contact (optional) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    Visibility="{Binding Path=ShowSiteDeliveryContact,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY · CONTACT" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
@@ -125,9 +117,11 @@
                 </StackPanel>
             </Border>
 
-            <!-- Site delivery phone -->
-            <Border Grid.Row="1" Grid.Column="1"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Site delivery phone (optional) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    Visibility="{Binding Path=ShowSiteDeliveryPhone,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY · PHONE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
@@ -135,9 +129,11 @@
                 </StackPanel>
             </Border>
 
-            <!-- Drawing reference -->
-            <Border Grid.Row="1" Grid.Column="2"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Drawing reference (optional) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    Visibility="{Binding Path=ShowDrawingReference,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="DRAWING REFERENCE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
@@ -145,9 +141,12 @@
                 </StackPanel>
             </Border>
 
-            <!-- Site delivery address -->
-            <Border Grid.Row="1" Grid.Column="3"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Site delivery address (optional, wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="300" MaxWidth="460"
+                    Visibility="{Binding Path=ShowSiteDeliveryAddress,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY ADDRESS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
@@ -155,9 +154,12 @@
                 </StackPanel>
             </Border>
 
-            <!-- Cutting instructions (half width) -->
-            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Cutting instructions (optional, wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="300" MaxWidth="460"
+                    Visibility="{Binding Path=ShowCuttingInstructions,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="CUTTING INSTRUCTIONS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
@@ -165,9 +167,12 @@
                 </StackPanel>
             </Border>
 
-            <!-- Internal notes (half width) -->
-            <Border Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"
-                    Style="{StaticResource JoFieldTileStyle}">
+            <!-- Internal notes (optional, wide) -->
+            <Border Style="{StaticResource JoFieldTileStyle}"
+                    MinWidth="300" MaxWidth="460"
+                    Visibility="{Binding Path=ShowInternalNotes,
+                        Source={x:Static features:JobOrderFieldVisibility.Instance},
+                        Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel>
                     <TextBlock Text="INTERNAL NOTES" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
@@ -175,7 +180,7 @@
                 </StackPanel>
             </Border>
 
-        </Grid>
+        </WrapPanel>
 
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"

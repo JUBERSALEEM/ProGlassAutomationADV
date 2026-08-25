@@ -385,15 +385,16 @@ namespace ProGlassAutomation.Tests.Settings
         }
 
         /// <summary>
-        /// The Features page re-scopes DataContext to two separate flags VMs
-        /// (ProformaFeatures and InquiryFeatures) so the descendant field
+        /// The Features page re-scopes DataContext to five separate flags
+        /// VMs (ProformaFeatures, InquiryFeatures, JobOrderFeatures,
+        /// DeliveryNoteFeatures, TaxInvoiceFeatures) so the descendant field
         /// toggles bind cleanly, and reaches the parent SettingsViewModel via
-        /// ElementName for the session commands. Lock both scopes plus the
+        /// ElementName for the session commands. Lock every scope plus the
         /// count of PiToggleSwitch field toggles so a future edit cannot
         /// accidentally collapse them into one scope.
         /// </summary>
         [Fact]
-        public void Features_section_preserves_both_data_context_scopes()
+        public void Features_section_preserves_all_data_context_scopes()
         {
             var root = LocateProjectRoot();
             var src = File.ReadAllText(Path.Combine(root,
@@ -401,11 +402,15 @@ namespace ProGlassAutomation.Tests.Settings
 
             Assert.Contains("DataContext=\"{Binding ProformaFeatures}\"", src);
             Assert.Contains("DataContext=\"{Binding DataContext.InquiryFeatures,", src);
+            Assert.Contains("DataContext=\"{Binding DataContext.JobOrderFeatures,", src);
+            Assert.Contains("DataContext=\"{Binding DataContext.DeliveryNoteFeatures,", src);
+            Assert.Contains("DataContext=\"{Binding DataContext.TaxInvoiceFeatures,", src);
             Assert.Contains("x:Name=\"SettingsFeaturesRoot\"", src);
             Assert.Contains("DataContext.ForgetThisDeviceCommand,", src);
             Assert.Contains("DataContext.SignOutCommand,", src);
-            // 30 field toggles: Step1 10 + Step2 7 + Step3 5 + Inquiry 8.
-            Assert.Equal(30, Regex.Matches(src, "<ToggleButton").Count);
+            // 47 field toggles: Proforma 22 + Inquiry 8 + Job Order 7 +
+            // Delivery Note 5 + Tax Invoice 5.
+            Assert.Equal(47, Regex.Matches(src, "<ToggleButton").Count);
         }
 
         /// <summary>

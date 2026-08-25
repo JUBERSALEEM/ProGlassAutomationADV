@@ -575,6 +575,352 @@
                 </WrapPanel>
 
                 </StackPanel>   <!-- close DataContext=InquiryFeatures scope -->
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════════ JOB ORDER FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to JobOrderFeatures. Only the
+                     optional production fields toggle; Status / Priority /
+                     Delivery Date (workflow controls) stay visible. -->
+                <StackPanel DataContext="{Binding DataContext.JobOrderFeatures,
+                                ElementName=SettingsFeaturesRoot}">
+
+                <TextBlock Text="JOB ORDER"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Turn optional production fields on or off. Status, Priority and Delivery Date cannot be hidden — the workflow needs them."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE713;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Flip every Job Order field at once."/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Enable all"
+                                        Command="{Binding EnableAllCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Hide all optional"
+                                        Command="{Binding DisableAllOptionalCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Reset defaults"
+                                        Command="{Binding ResetToDefaultsCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <TextBlock Text="PRODUCTION PANEL"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
+                           Margin="0,18,0,0"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Assigned To"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator running this job on the shop floor."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowAssignedTo}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Contact"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="On-site engineer the driver can reach."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryContact}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Phone"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Direct line for delivery coordination."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryPhone}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Site Address"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Full delivery location for the driver."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSiteDeliveryAddress}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Drawing Reference"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Links the physical shop drawing to this job."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDrawingReference}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Cutting Instructions"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Operator cheat-sheet for the cutting bay."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowCuttingInstructions}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Internal Notes"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Freeform notes for the production team."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowInternalNotes}"/>
+                        </Grid>
+                    </Border>
+                </WrapPanel>
+
+                </StackPanel>   <!-- close DataContext=JobOrderFeatures scope -->
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════════ DELIVERY NOTE FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to DeliveryNoteFeatures. Only
+                     the optional dispatch fields toggle; Status stays. -->
+                <StackPanel DataContext="{Binding DataContext.DeliveryNoteFeatures,
+                                ElementName=SettingsFeaturesRoot}">
+
+                <TextBlock Text="DELIVERY NOTE"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Turn optional dispatch fields on or off. Status cannot be hidden — it drives the delivery workflow."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE718;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Flip every Delivery Note field at once."/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Enable all"
+                                        Command="{Binding EnableAllCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Hide all optional"
+                                        Command="{Binding DisableAllOptionalCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Reset defaults"
+                                        Command="{Binding ResetToDefaultsCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <TextBlock Text="DELIVERY DETAILS"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
+                           Margin="0,18,0,0"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Driver Name"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Who delivered the load."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDriverName}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Vehicle Number"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Truck or van plate."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowVehicleNumber}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="FOC (Free of Cost)"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Mark the delivery as free / complimentary."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIsFoc}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Receiver Name"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Who signed for the goods."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowReceiverName}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Notes"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Freeform dispatch notes."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowNotes}"/>
+                        </Grid>
+                    </Border>
+                </WrapPanel>
+
+                </StackPanel>   <!-- close DataContext=DeliveryNoteFeatures scope -->
+
+                <Border Style="{StaticResource SettingsGroupSeparatorStyle}"/>
+
+                <!-- ═══════════ TAX INVOICE FIELD VISIBILITY ═══════════
+                     Re-scopes DataContext to TaxInvoiceFeatures. Only the
+                     optional accounting fields toggle; Issue Date stays. -->
+                <StackPanel DataContext="{Binding DataContext.TaxInvoiceFeatures,
+                                ElementName=SettingsFeaturesRoot}">
+
+                <TextBlock Text="TAX INVOICE"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
+                <TextBlock Text="Turn optional accounting fields on or off. Issue Date cannot be hidden — it anchors the invoice."
+                           Style="{StaticResource SettingsGroupCaptionStyle}"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsFullRowTileStyle}">
+                        <StackPanel>
+                            <StackPanel Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B8;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Bulk Actions"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
+                                       Text="Flip every Tax Invoice field at once."/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Enable all"
+                                        Command="{Binding EnableAllCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Hide all optional"
+                                        Command="{Binding DisableAllOptionalCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"
+                                        Margin="0,0,8,0"/>
+                                <Button Content="Reset defaults"
+                                        Command="{Binding ResetToDefaultsCommand}"
+                                        Style="{StaticResource OutlinedPillButton}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </WrapPanel>
+
+                <TextBlock Text="INVOICE DETAILS"
+                           Style="{StaticResource SettingsGroupHeaderTextStyle}"
+                           Margin="0,18,0,0"/>
+
+                <WrapPanel Margin="0,0,0,6">
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Due Date"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Payment due date printed on the invoice."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDueDate}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Payment Terms"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Net / credit terms the client agreed."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowPaymentTerms}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Discount %"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Percentage discount on the invoice."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowDiscountPercent}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="IBAN"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Bank account number for settlement."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowIban}"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsTileStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                            <StackPanel Grid.Row="0" Style="{StaticResource SettingsTileHeaderPanelStyle}">
+                                <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8D4;"/>
+                                <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="SWIFT"/>
+                            </StackPanel>
+                            <TextBlock Grid.Row="1" Style="{StaticResource SettingsTileCaptionStyle}" Text="Bank routing code for international transfers."/>
+                            <ToggleButton Grid.Row="3" Style="{StaticResource PiToggleSwitch}" IsChecked="{Binding ShowSwiftCode}"/>
+                        </Grid>
+                    </Border>
+                </WrapPanel>
+
+                </StackPanel>   <!-- close DataContext=TaxInvoiceFeatures scope -->
             </StackPanel>
         </ScrollViewer>
     </Grid>

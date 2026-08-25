@@ -153,6 +153,27 @@ namespace ProGlassAutomation.ViewModels.Settings
             = new InquiryFeaturesViewModel();
 
         /// <summary>
+        /// Per-field visibility toggles for the Job Order production
+        /// panel. Same opt-out design as <see cref="ProformaFeatures"/>.
+        /// </summary>
+        public JobOrderFeaturesViewModel JobOrderFeatures { get; }
+            = new JobOrderFeaturesViewModel();
+
+        /// <summary>
+        /// Per-field visibility toggles for the Delivery Note detail.
+        /// Same opt-out design as <see cref="ProformaFeatures"/>.
+        /// </summary>
+        public DeliveryNoteFeaturesViewModel DeliveryNoteFeatures { get; }
+            = new DeliveryNoteFeaturesViewModel();
+
+        /// <summary>
+        /// Per-field visibility toggles for the Tax Invoice detail.
+        /// Same opt-out design as <see cref="ProformaFeatures"/>.
+        /// </summary>
+        public TaxInvoiceFeaturesViewModel TaxInvoiceFeatures { get; }
+            = new TaxInvoiceFeaturesViewModel();
+
+        /// <summary>
         /// Sign the current operator out and clear the "Skip login
         /// until update" DPAPI blob. Exposed here so the Settings ►
         /// Features page can host the affordance without depending on

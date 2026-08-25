@@ -145,16 +145,14 @@ namespace ProGlassAutomation.Tests.JobOrder
             var prod = File.ReadAllText(Path.Combine(root, SectionPath));
             var overview = File.ReadAllText(Path.Combine(root, OverviewPath));
 
-            // Full-width responsive grid: the tiles stretch in star columns,
-            // so the form spans edge to edge (NOT a left-clamped fixed row).
-            var styles = File.ReadAllText(Path.Combine(root, StylesPath));
+            // Auto-compact WrapPanel: tiles re-flow into rows to fill the
+            // width, and a hidden optional tile COLLAPSES so no blank spacer
+            // is left behind (NOT a fixed-width left-clamped form).
             Assert.DoesNotContain("MaxWidth=\"1180\"", prod);
-            Assert.DoesNotContain("<WrapPanel", prod);
-            Assert.Contains("<Grid", prod);
-            Assert.Contains("<ColumnDefinition Width=\"*\"", prod);
-            Assert.Contains("JoFieldTileStyle", prod);
-            // The tile Style must stretch so the star columns fill the row.
-            Assert.Contains("Property=\"HorizontalAlignment\" Value=\"Stretch\"", styles);
+            Assert.Contains("<WrapPanel", prod);
+            // ShowXxx visibility bindings drive auto-compact.
+            Assert.Contains("JobOrderFieldVisibility.Instance", prod);
+            Assert.Contains("ShowAssignedTo", prod);
 
             // The full-width action row is GONE from the panel.
             Assert.DoesNotContain("DockPanel.Dock=\"Right\"", prod);

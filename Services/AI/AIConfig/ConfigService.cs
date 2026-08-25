@@ -128,6 +128,9 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 config.Ai ??= new AiSettings();
                 config.ProformaInvoiceFields ??= new ProformaInvoiceFeatureFlags();
                 config.InquiryFields ??= new InquiryFeatureFlags();
+                config.JobOrderFields ??= new JobOrderFeatureFlags();
+                config.DeliveryNoteFields ??= new DeliveryNoteFeatureFlags();
+                config.TaxInvoiceFields ??= new TaxInvoiceFeatureFlags();
                 config.Recording ??= new RecordingPreferences();
 
                 // v2: migrate legacy plain-text keys out of config.json

@@ -178,6 +178,55 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     }
 
     /// <summary>
+    /// Per-field visibility flags for the Job Order production panel.
+    /// Same design contract as <see cref="ProformaInvoiceFeatureFlags"/>:
+    ///   • Only OPTIONAL fields are here. The DB-required / workflow
+    ///     controls (Status, Priority, Delivery Date) never toggle —
+    ///     hiding them would stop the job from being planned or saved.
+    ///   • Defaults ALL TRUE → byte-identical upgrade.
+    ///   • Hidden fields keep their stored value; re-enabling reveals it.
+    /// The panel binds via <see cref="Services.Features.JobOrderFieldVisibility"/>.
+    /// </summary>
+    public class JobOrderFeatureFlags
+    {
+        public bool ShowAssignedTo { get; set; } = true;
+        public bool ShowSiteDeliveryContact { get; set; } = true;
+        public bool ShowSiteDeliveryPhone { get; set; } = true;
+        public bool ShowSiteDeliveryAddress { get; set; } = true;
+        public bool ShowDrawingReference { get; set; } = true;
+        public bool ShowCuttingInstructions { get; set; } = true;
+        public bool ShowInternalNotes { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Per-field visibility flags for the Delivery Note detail.
+    /// Same design contract: only optional delivery-detail fields are
+    /// toggleable; Status stays because it drives the dispatch workflow.
+    /// </summary>
+    public class DeliveryNoteFeatureFlags
+    {
+        public bool ShowDriverName { get; set; } = true;
+        public bool ShowVehicleNumber { get; set; } = true;
+        public bool ShowIsFoc { get; set; } = true;
+        public bool ShowReceiverName { get; set; } = true;
+        public bool ShowNotes { get; set; } = true;
+    }
+
+    /// <summary>
+    /// Per-field visibility flags for the Tax Invoice detail.
+    /// Same design contract: only optional accounting fields are
+    /// toggleable; Issue Date stays because it anchors the invoice.
+    /// </summary>
+    public class TaxInvoiceFeatureFlags
+    {
+        public bool ShowDueDate { get; set; } = true;
+        public bool ShowPaymentTerms { get; set; } = true;
+        public bool ShowDiscountPercent { get; set; } = true;
+        public bool ShowIban { get; set; } = true;
+        public bool ShowSwiftCode { get; set; } = true;
+    }
+
+    /// <summary>
     /// Persisted preferences for the in-app screen recorder. Simple
     /// primitives only so the settings survive both a config-schema
     /// bump and a JSON round-trip. Kept as int rather than the
@@ -249,6 +298,30 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public InquiryFeatureFlags InquiryFields { get; set; }
             = new InquiryFeatureFlags();
+
+        /// <summary>
+        /// Per-field visibility flags for the Job Order production panel.
+        /// Mirrors <see cref="JobOrderFeatureFlags"/>; the panel binds via
+        /// <see cref="Services.Features.JobOrderFieldVisibility"/>.
+        /// </summary>
+        public JobOrderFeatureFlags JobOrderFields { get; set; }
+            = new JobOrderFeatureFlags();
+
+        /// <summary>
+        /// Per-field visibility flags for the Delivery Note detail.
+        /// Mirrors <see cref="DeliveryNoteFeatureFlags"/>; the detail binds
+        /// via <see cref="Services.Features.DeliveryNoteFieldVisibility"/>.
+        /// </summary>
+        public DeliveryNoteFeatureFlags DeliveryNoteFields { get; set; }
+            = new DeliveryNoteFeatureFlags();
+
+        /// <summary>
+        /// Per-field visibility flags for the Tax Invoice detail.
+        /// Mirrors <see cref="TaxInvoiceFeatureFlags"/>; the detail binds
+        /// via <see cref="Services.Features.TaxInvoiceFieldVisibility"/>.
+        /// </summary>
+        public TaxInvoiceFeatureFlags TaxInvoiceFields { get; set; }
+            = new TaxInvoiceFeatureFlags();
 
         /// <summary>
         /// Persisted user preferences for the in-app screen recorder

@@ -120,10 +120,11 @@
             <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding"             Value="12,10"/>
             <Setter Property="Margin"              Value="0,0,12,12"/>
-            <!-- No fixed width: the host Grid's star columns drive this.
-                 The floor keeps inputs readable on narrow windows. -->
-            <Setter Property="MinWidth"            Value="150"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <!-- Auto-compact: tiles live in a WrapPanel so a hidden field
+                 COLLAPSES and the remaining tiles re-flow to fill the row.
+                 Min/Max width keep them even and readable on narrow panes. -->
+            <Setter Property="MinWidth"            Value="240"/>
+            <Setter Property="MaxWidth"            Value="380"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding"   Value="True"/>
         </Style>
