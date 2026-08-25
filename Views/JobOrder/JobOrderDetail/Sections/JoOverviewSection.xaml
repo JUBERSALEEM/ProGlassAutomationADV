@@ -50,7 +50,9 @@
                   Focusable="True"
                   FocusVisualStyle="{x:Null}"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel MaxWidth="1180" HorizontalAlignment="Left">
+        <!-- Full-width wrapper: no MaxWidth / left-align cap so the whole
+             production + identity + glass-panel sheet spans edge to edge. -->
+        <StackPanel>
 
             <!-- ══════════ 1. PRODUCTION FORM (compact tiles) ══════════ -->
             <sections:JoProductionSection/>

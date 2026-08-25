@@ -95,12 +95,14 @@
         <!-- ═══════════════════════════════════════════════════════════════
              COMPACT FORM TILES (Job Order production — Aug 2026)
 
-             The production panel used to stack full-width fields in one
-             endless column. Each field now lives in its own small tile and
-             the tiles reflow in a WrapPanel (like the Settings design), so
-             on a wide monitor the width is filled by two/three fields per
-             row instead of empty padding. The whole panel is also capped
-             to a MaxWidth so it never stretches across a huge screen.
+             Originally these tiles lived in a WrapPanel with a hard
+             MinWidth/MaxWidth, so on a wide window they clustered on the
+             left and left a big empty gap on the right. Each field is now
+             placed in a responsive star-column Grid and the tiles are
+             stretched to FILL the full available width, so the whole form
+             spans edge to edge and the column widths grow/shrink with the
+             window. The MinWidth below is only a floor so the inputs never
+             collapse on a very narrow window.
 
              JoFieldTileStyle  - the rounded surface around one field.
              JoFieldTitleStyle - a big tile label (used for the section).
@@ -118,8 +120,10 @@
             <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding"             Value="12,10"/>
             <Setter Property="Margin"              Value="0,0,12,12"/>
-            <Setter Property="MinWidth"            Value="220"/>
-            <Setter Property="MaxWidth"            Value="360"/>
+            <!-- No fixed width: the host Grid's star columns drive this.
+                 The floor keeps inputs readable on narrow windows. -->
+            <Setter Property="MinWidth"            Value="150"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding"   Value="True"/>
         </Style>

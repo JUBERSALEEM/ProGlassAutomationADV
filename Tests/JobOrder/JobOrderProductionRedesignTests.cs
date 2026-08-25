@@ -16,8 +16,9 @@
 //      Master DN) moved UP to the detail header action bar, so the
 //      production panel no longer owns them (the "too much space for
 //      small buttons" fix).
-//   5. The product form is a compact tile grid (WrapPanel + tiles) host
-//      above the glass-panels grid — production appears before the grid.
+//   5. The product form is a full-width tile grid (star columns + tiles)
+//      hosted above the glass-panels grid — production appears first and
+//      the form spans edge to edge, not clamped to the left.
 //   6. No element sets the same property both inline and as a property-
 //      element child (XLS0501 / MC3024 anti-pattern).
 // ═══════════════════════════════════════════════════════════════════════
@@ -138,16 +139,22 @@ namespace ProGlassAutomation.Tests.JobOrder
         }
 
         [Fact]
-        public void Production_panel_is_compact_tiles_and_renders_before_the_grid()
+        public void Production_panel_fills_full_width_and_renders_before_the_grid()
         {
             var root = LocateProjectRoot();
             var prod = File.ReadAllText(Path.Combine(root, SectionPath));
             var overview = File.ReadAllText(Path.Combine(root, OverviewPath));
 
-            // Compact tile grid, not full-width stacked cards.
-            Assert.Contains("<WrapPanel", prod);
+            // Full-width responsive grid: the tiles stretch in star columns,
+            // so the form spans edge to edge (NOT a left-clamped fixed row).
+            var styles = File.ReadAllText(Path.Combine(root, StylesPath));
+            Assert.DoesNotContain("MaxWidth=\"1180\"", prod);
+            Assert.DoesNotContain("<WrapPanel", prod);
+            Assert.Contains("<Grid", prod);
+            Assert.Contains("<ColumnDefinition Width=\"*\"", prod);
             Assert.Contains("JoFieldTileStyle", prod);
-            Assert.Contains("JoActionBarStyle", prod);   // still available (harmless)
+            // The tile Style must stretch so the star columns fill the row.
+            Assert.Contains("Property=\"HorizontalAlignment\" Value=\"Stretch\"", styles);
 
             // The full-width action row is GONE from the panel.
             Assert.DoesNotContain("DockPanel.Dock=\"Right\"", prod);

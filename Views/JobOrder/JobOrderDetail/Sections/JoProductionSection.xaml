@@ -1,32 +1,30 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/JobOrder/JobOrderDetail/Sections/JoProductionSection.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Job Order — PRODUCTION panel (compact tile-grid redesign Aug 2026)
+     MODULE: Job Order — PRODUCTION panel (full-width grid redesign Aug 2026)
 
      REDESIGN
-       Was: one full-width column of stacked controls with a big action
-       row at the bottom. The user asked to tighten it like the Settings
-       pages and to move the action buttons (Create DN / PDF / Excel /
-       CSV / Save) up into the detail header, and to lift the production
-       form ABOVE the glass-panels data grid.
+       Was: one full-width column, then a WrapPanel of fixed-width tiles
+       that clustered on the LEFT and left a big empty gap on the right
+       of a wide window. The user asked to "fill width accordingly, don't
+       keep left align — make it full width."
 
-       Now: each production field lives in its own small JoFieldTileStyle
-       tile and the tiles reflow in a WrapPanel, so two or three fields
-       sit side by side on a wide window. The action buttons are gone
-       from here — they now live in the JobOrderDetailView action bar.
-       All 19 ViewModel bindings / commands preserved.
+       Now: every production field is a JoFieldTileStyle tile that
+       STRETCHES to fill a responsive star-column Grid. Four equal
+       columns span the entire available width and grow/shrink with the
+       window, so the form is always full-width with no dead space on the
+       right. Action buttons remain in the JobOrderDetailView header.
 
+       All 13 ViewModel bindings preserved:
          StatusOptions, SelectedStatus, PriorityOptions, SelectedPriority,
          DeliveryDate, SiteDeliveryContact, SiteDeliveryPhone,
          SiteDeliveryAddress, AssignedTo, CuttingInstructions,
          DrawingReference, InternalNotes, LastEditedDisplay.
 
-     Layout contract:
-       • Compact, even 12px gutters so the grid reads calm, not dense.
-       • No hard-coded widths — the WrapPanel + the tile MinWidth /
-         MaxWidth do all reflow.
-       • Multi-line notes keep a reasonable min height so they do not
-         inflate the whole form.
+     Layout (full-width, 4 columns):
+       Row 0: Status | Priority | Delivery Date | Assigned To
+       Row 1: Site Contact | Site Phone | Drawing Ref | Site Address
+       Row 2: Cutting Instructions (half) | Internal Notes (half)
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections.JoProductionSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -45,7 +43,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <StackPanel MaxWidth="1180" HorizontalAlignment="Left">
+    <StackPanel>
 
         <!-- Section header -->
         <StackPanel Margin="0,0,0,10" Orientation="Horizontal">
@@ -60,10 +58,24 @@
                        VerticalAlignment="Center"/>
         </StackPanel>
 
-        <WrapPanel>
+        <!-- Full-width responsive grid: four star columns that fill the
+             available width. Row spans let the wide fields use extra space. -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
             <!-- Status -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="0" Grid.Column="0"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="STATUS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
@@ -73,7 +85,8 @@
             </Border>
 
             <!-- Priority -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="0" Grid.Column="1"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="PRIORITY" Style="{StaticResource JoCompactLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PriorityOptions}"
@@ -83,7 +96,8 @@
             </Border>
 
             <!-- Delivery date -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="0" Grid.Column="2"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="DELIVERY DATE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding DeliveryDate}"
@@ -92,7 +106,8 @@
             </Border>
 
             <!-- Assigned to -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="0" Grid.Column="3"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="ASSIGNED TO" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
@@ -101,7 +116,8 @@
             </Border>
 
             <!-- Site delivery contact -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="1" Grid.Column="0"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY · CONTACT" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
@@ -110,7 +126,8 @@
             </Border>
 
             <!-- Site delivery phone -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="1" Grid.Column="1"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY · PHONE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
@@ -119,7 +136,8 @@
             </Border>
 
             <!-- Drawing reference -->
-            <Border Style="{StaticResource JoFieldTileStyle}">
+            <Border Grid.Row="1" Grid.Column="2"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="DRAWING REFERENCE" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
@@ -127,9 +145,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Site delivery address (wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
-                    MinWidth="360" MaxWidth="480">
+            <!-- Site delivery address -->
+            <Border Grid.Row="1" Grid.Column="3"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="SITE DELIVERY ADDRESS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
@@ -137,9 +155,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Cutting instructions (wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
-                    MinWidth="360" MaxWidth="480">
+            <!-- Cutting instructions (half width) -->
+            <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="CUTTING INSTRUCTIONS" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
@@ -147,9 +165,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- Internal notes (wide) -->
-            <Border Style="{StaticResource JoFieldTileStyle}"
-                    MinWidth="360" MaxWidth="480">
+            <!-- Internal notes (half width) -->
+            <Border Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2"
+                    Style="{StaticResource JoFieldTileStyle}">
                 <StackPanel>
                     <TextBlock Text="INTERNAL NOTES" Style="{StaticResource JoCompactLabelStyle}"/>
                     <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
@@ -157,7 +175,7 @@
                 </StackPanel>
             </Border>
 
-        </WrapPanel>
+        </Grid>
 
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"
