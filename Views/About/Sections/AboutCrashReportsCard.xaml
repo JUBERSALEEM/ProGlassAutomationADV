@@ -48,7 +48,7 @@
                     <Button x:Name="ClearAllButton"
                             Style="{StaticResource AboutPillButtonStyle}"
                             Content="CLEAR ALL"
-                            Foreground="{StaticResource GlassMuted}"
+                            Foreground="{DynamicResource GlassMuted}"
                             Click="ClearAllButton_Click"/>
                 </StackPanel>
             </Grid>
@@ -73,7 +73,7 @@
                                 <TextBlock Grid.Row="0" Grid.Column="0"
                                            Text="{Binding TimestampDisplay}"
                                            FontSize="11"
-                                           Foreground="{StaticResource GlassCerulean}"
+                                           Foreground="{DynamicResource GlassCerulean}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1"
                                            TextTrimming="CharacterEllipsis"
@@ -99,12 +99,12 @@
                                          Mode=OneWay,
                                          FallbackValue='(no id)'}"
                                          FontWeight="Bold"
-                                         Foreground="{StaticResource GlassSnow}"/>
+                                         Foreground="{DynamicResource GlassSnow}"/>
                                     <Run Text="  "/>
                                     <Run Text="{Binding TopExceptionType,
                                          Mode=OneWay,
                                          FallbackValue=''}"
-                                         Foreground="{StaticResource GlassMuted}"/>
+                                         Foreground="{DynamicResource GlassMuted}"/>
                                 </TextBlock>
                                 <Button Grid.Row="0" Grid.Column="2"
                                         Style="{StaticResource AboutPillButtonStyle}"
@@ -115,13 +115,13 @@
                                 <TextBlock Grid.Row="1" Grid.Column="0"
                                            Text="{Binding SizeDisplay}"
                                            FontSize="10"
-                                           Foreground="{StaticResource GlassMuted}"/>
+                                           Foreground="{DynamicResource GlassMuted}"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1"
                                            Grid.ColumnSpan="2"
                                            Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
                                            FontSize="11"
                                            TextTrimming="CharacterEllipsis"
-                                           Foreground="{StaticResource GlassIce}"/>
+                                           Foreground="{DynamicResource GlassIce}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -133,7 +133,7 @@
                        Text="No crash reports on disk."
                        FontSize="11" FontStyle="Italic"
                        Margin="0,10,0,0"
-                       Foreground="{StaticResource GlassCerulean}"
+                       Foreground="{DynamicResource GlassCerulean}"
                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"/>
         </StackPanel>
     </Border>

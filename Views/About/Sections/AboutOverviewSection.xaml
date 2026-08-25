@@ -60,7 +60,7 @@
                 <TextBlock Text="OVERVIEW" Style="{StaticResource SubHeadingStyle}"/>
                 <TextBlock Style="{StaticResource BodyTextStyle}">
                     <Run Text="ProGlass Automation is a purpose-built Windows desktop application designed specifically for "/>
-                    <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold" Foreground="{StaticResource GlassSnow}"/>
+                    <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=". It replaces spreadsheet-driven workflows with a fully integrated system covering raw material inventory, quoting, production planning, delivery tracking, and financial reporting — all in one place."/>
                 </TextBlock>
 
@@ -68,20 +68,20 @@
                 <TextBlock Style="{StaticResource BodyTextStyle}">
                     <Run Text="The system is engineered around three core principles:"/>
                     <LineBreak/><LineBreak/>
-                    <Run Text="• Deterministic calculations —" FontWeight="Bold" Foreground="{StaticResource GlassSnow}"/>
+                    <Run Text="• Deterministic calculations —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=" every formula produces the same result every time, with no hidden state or race conditions. Financial and production totals are always reproducible."/>
                     <LineBreak/><LineBreak/>
-                    <Run Text="• Modular isolation —" FontWeight="Bold" Foreground="{StaticResource GlassSnow}"/>
+                    <Run Text="• Modular isolation —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=" each business domain (Sheet Store, Proforma Invoice, Job Order, Delivery Note, Tax Invoice) has its own database. A bug in one module cannot corrupt data in another."/>
                     <LineBreak/><LineBreak/>
-                    <Run Text="• AI-safe architecture —" FontWeight="Bold" Foreground="{StaticResource GlassSnow}"/>
+                    <Run Text="• AI-safe architecture —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=" strict MVVM conventions, naming rules, and code organization ensure the codebase remains extensible and maintainable for years — whether extended by a human or an AI assistant."/>
                 </TextBlock>
 
                 <TextBlock Text="FINANCIAL &amp; COMPLIANCE" Style="{StaticResource SubHeadingStyle}"/>
                 <TextBlock Style="{StaticResource BodyTextStyle}">
                     <Run Text="All monetary values are stored and displayed in "/>
-                    <Run Text="AED (UAE Dirham)" FontWeight="Bold" Foreground="{StaticResource GlassSnow}"/>
+                    <Run Text="AED (UAE Dirham)" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=" with full precision. UAE 5% VAT is built in with zero-rated export support and full audit trails on every calculation. Tax invoices comply with FTA (Federal Tax Authority) format requirements including sequential numbering, VAT registration number, and mandatory bilingual field labels."/>
                 </TextBlock>
 
@@ -130,7 +130,7 @@
         </Border>
 
         <!-- ═══ PRIVACY ═══ -->
-        <Border Background="{StaticResource GlassCard}"
+        <Border Background="{DynamicResource GlassCard}"
                 BorderBrush="#66FFFFFF"
                 BorderThickness="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
@@ -141,12 +141,12 @@
                     <TextBlock Text="&#xE72E;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="14"
-                               Foreground="{StaticResource GlassAccent}"
+                               Foreground="{DynamicResource GlassAccent}"
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Privacy"
                                FontSize="15" FontWeight="Bold"
-                               Foreground="{StaticResource GlassSnow}"/>
+                               Foreground="{DynamicResource GlassSnow}"/>
                 </StackPanel>
                 <ItemsControl ItemsSource="{Binding PrivacyLines}">
                     <ItemsControl.ItemTemplate>
@@ -155,12 +155,12 @@
                                         Margin="0,0,0,7">
                                 <TextBlock Text="•"
                                            FontSize="12" FontWeight="Bold"
-                                           Foreground="{StaticResource GlassAccent}"
+                                           Foreground="{DynamicResource GlassAccent}"
                                            Margin="0,0,9,0"/>
                                 <TextBlock Text="{Binding}"
                                            FontSize="12"
                                            TextWrapping="Wrap"
-                                           Foreground="{StaticResource GlassFrost}"/>
+                                           Foreground="{DynamicResource GlassFrost}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>

@@ -52,6 +52,68 @@
                      Color="#38BDF8"
                      po:Freeze="True"/>
 
+    <!-- ── About page glass palette (dark) ────────────────────────────
+         2026-08-25: moved from Views/About/AboutStyles.xaml into the
+         theme so the About page (all three sections) re-tints LIVE on
+         Light/Dark swap, visual-family change (Monet/Professional/
+         Glass/Ocean) and wallpaper layering. The About view now rides
+         on the same dynamic module surface as every other module
+         (ModuleBackgroundBrush + ModuleWallpaperBrush from the content
+         card) instead of painting a fixed navy stage, and every
+         Glass* reference in the About module is a DynamicResource
+         that re-resolves against whichever theme dictionary is
+         active. Light values live in LightTheme.xaml. -->
+    <SolidColorBrush x:Key="GlassIce"
+                     Color="#DBEAFE"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFrost"
+                     Color="#BFDBFE"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassCerulean"
+                     Color="#93C5FD"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSnow"
+                     Color="#F8FAFC"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccent"
+                     Color="#60A5FA"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccentDeep"
+                     Color="#3B82F6"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassMuted"
+                     Color="#8FB3E6"
+                     po:Freeze="True"/>
+    <!-- Frosted card fill + top sheen (translucent white over the
+         dark module surface). -->
+    <LinearGradientBrush x:Key="GlassCard"
+                         StartPoint="0,0" EndPoint="0,1"
+                         po:Freeze="True">
+        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassSheen"
+                         StartPoint="0,0" EndPoint="1,1"
+                         po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+    </LinearGradientBrush>
+    <!-- Decorative aurora orbs (subtle glows, see AboutView). -->
+    <RadialGradientBrush x:Key="GlassOrbA"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
+        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
+        <GradientStop Color="#1D4ED800" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlassOrbB"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#60A5FA66" Offset="0.0"/>
+        <GradientStop Color="#3B82F633" Offset="0.55"/>
+        <GradientStop Color="#3B82F600" Offset="1.0"/>
+    </RadialGradientBrush>
+
     <!-- ── Text ─────────────────────────────────────────────────────── -->
     <Color x:Key="PrimaryForegroundColor">#F1F5F9</Color>
     <Color x:Key="SecondaryForegroundColor">#94A3B8</Color>

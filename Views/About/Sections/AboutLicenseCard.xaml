@@ -54,7 +54,7 @@
                         SnapsToDevicePixels="True">
                     <TextBlock Text="{Binding StatusBadge}"
                                FontSize="12" FontWeight="Bold"
-                               Foreground="{StaticResource GlassAccent}"/>
+                               Foreground="{DynamicResource GlassAccent}"/>
                 </Border>
             </Grid>
 
@@ -62,7 +62,7 @@
                        TextWrapping="Wrap"
                        FontSize="12"
                        Margin="0,12,0,16"
-                       Foreground="{StaticResource GlassFrost}"/>
+                       Foreground="{DynamicResource GlassFrost}"/>
 
             <!--
               Full detail block — visible only when the
@@ -164,7 +164,7 @@
                            Text="{Binding MachineFingerprint}"
                            FontFamily="Consolas, Cascadia Mono, Courier New"
                            FontSize="11"
-                           Foreground="{StaticResource GlassSnow}"
+                           Foreground="{DynamicResource GlassSnow}"
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis"/>
 
@@ -176,7 +176,7 @@
                            Text="{Binding CurrentFingerprint}"
                            FontFamily="Consolas, Cascadia Mono, Courier New"
                            FontSize="11"
-                           Foreground="{StaticResource GlassSnow}"
+                           Foreground="{DynamicResource GlassSnow}"
                            VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis"
                            Margin="0,6,0,0"/>

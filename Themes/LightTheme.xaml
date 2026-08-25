@@ -56,6 +56,66 @@
                      Color="#0369A1"
                      po:Freeze="True"/>
 
+    <!-- ── About page glass palette (light) ───────────────────────────
+         2026-08-25: companion to the dark Glass* palette in
+         DarkTheme.xaml. Dark-ink text + strong blue accents so the
+         About page stays readable on the light module surface; the
+         frosted card is near-opaque white so it lifts against the
+         white surface and still frosts over a wallpaper. The About
+         module consumes these via DynamicResource, so Light/Dark
+         swap, visual-family change and wallpaper layering all re-tint
+         all three About sections live. -->
+    <SolidColorBrush x:Key="GlassIce"
+                     Color="#1E293B"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFrost"
+                     Color="#334155"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassCerulean"
+                     Color="#1D4ED8"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSnow"
+                     Color="#0F172A"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccent"
+                     Color="#2563EB"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassAccentDeep"
+                     Color="#1D4ED8"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassMuted"
+                     Color="#475569"
+                     po:Freeze="True"/>
+    <!-- Frosted card fill (near-opaque white → pale slate so the card
+         reads against the white module surface) + sheen. -->
+    <LinearGradientBrush x:Key="GlassCard"
+                         StartPoint="0,0" EndPoint="0,1"
+                         po:Freeze="True">
+        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#F1F5F9" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassSheen"
+                         StartPoint="0,0" EndPoint="1,1"
+                         po:Freeze="True">
+        <GradientStop Color="#33FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+    </LinearGradientBrush>
+    <!-- Decorative aurora orbs (soft blue glows over the light stage). -->
+    <RadialGradientBrush x:Key="GlassOrbA"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#3360A5FA" Offset="0.0"/>
+        <GradientStop Color="#1A2563EB" Offset="0.55"/>
+        <GradientStop Color="#002563EB" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="GlassOrbB"
+                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
+                         po:Freeze="True">
+        <GradientStop Color="#403B82F6" Offset="0.0"/>
+        <GradientStop Color="#262563EB" Offset="0.55"/>
+        <GradientStop Color="#002563EB" Offset="1.0"/>
+    </RadialGradientBrush>
+
     <!-- ── Text ─────────────────────────────────────────────────────── -->
     <Color x:Key="PrimaryForegroundColor">#020617</Color>
     <Color x:Key="SecondaryForegroundColor">#475569</Color>

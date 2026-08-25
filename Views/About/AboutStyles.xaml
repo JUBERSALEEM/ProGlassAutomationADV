@@ -22,48 +22,24 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
-    <!-- ═══ PALETTE — frozen ═══ -->
-    <SolidColorBrush x:Key="GlassIce"     Color="#DBEAFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassFrost"   Color="#BFDBFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassCerulean" Color="#93C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSnow"    Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassAccent"  Color="#60A5FA" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassAccentDeep" Color="#3B82F6" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassMuted"   Color="#8FB3E6" po:Freeze="True"/>
+    <!-- ═══ PALETTE — lives in the THEME dictionaries (2026-08-25) ═══
+         GlassIce / GlassFrost / GlassCerulean / GlassSnow /
+         GlassAccent / GlassAccentDeep / GlassMuted / GlassCard /
+         GlassSheen / GlassOrbA / GlassOrbB are defined in
+         Themes/DarkTheme.xaml (light-glass values) and
+         Themes/LightTheme.xaml (dark-ink values).
 
-    <!-- ═══ STAGE — deep navy aurora ═══ -->
-    <LinearGradientBrush x:Key="GlassPageBg" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#0B1026" Offset="0.0"/>
-        <GradientStop Color="#102A56" Offset="0.5"/>
-        <GradientStop Color="#0B1026" Offset="1.0"/>
-    </LinearGradientBrush>
+         They were moved out of this dictionary on purpose: a palette
+         defined HERE (merged per-view) shadows the app-level theme
+         keys, which is exactly why the About page used to stay fixed
+         navy regardless of Settings → Appearance. Every reference
+         below uses {DynamicResource Glass...} so the whole page —
+         all three sections — re-tints live on Light/Dark swap,
+         visual-family change and wallpaper layering.
 
-    <RadialGradientBrush x:Key="GlassOrbA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
-        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
-        <GradientStop Color="#1D4ED800" Offset="1.0"/>
-    </RadialGradientBrush>
-    <RadialGradientBrush x:Key="GlassOrbB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
-        <GradientStop Color="#60A5FA66" Offset="0.0"/>
-        <GradientStop Color="#3B82F633" Offset="0.55"/>
-        <GradientStop Color="#3B82F600" Offset="1.0"/>
-    </RadialGradientBrush>
-
-    <!-- ═══ GLASS CARD ═══ -->
-    <LinearGradientBrush x:Key="GlassCard" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassSheen" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
-    </LinearGradientBrush>
-    <!-- Legacy shadow — kept frozen for one-off accents only. Do NOT
-         put this on many cards: pixel-shader effects force software
-         rendering and froze the About tabs (see AboutCardStyle note). -->
-    <DropShadowEffect x:Key="GlassShadow" Color="#000000"
-                      BlurRadius="28" ShadowDepth="4" Opacity="0.4"
-                      po:Freeze="True"/>
+         (GlassPageBg was removed with the fixed stage; GlassShadow
+         was removed — pixel-shader effects forced software rendering
+         and froze the About tabs.) -->
 
     <!-- ═══ SHARED STYLES (glass) ═══ -->
     <!--
@@ -76,7 +52,7 @@
       the gradient fill + 1px light border; the shadow is removed.
     -->
     <Style x:Key="AboutCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{StaticResource GlassCard}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassCard}"/>
         <Setter Property="BorderBrush"         Value="#66FFFFFF"/>
         <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
@@ -95,14 +71,14 @@
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="19"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassSnow}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassSnow}"/>
         <Setter Property="Margin"            Value="0,0,0,4"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="12"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassCerulean}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassCerulean}"/>
         <Setter Property="Margin"            Value="0,0,0,18"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -110,7 +86,7 @@
     <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="11"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassAccent}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassAccent}"/>
         <Setter Property="Margin"            Value="0,16,0,8"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -119,14 +95,14 @@
         <Setter Property="TextWrapping"      Value="Wrap"/>
         <Setter Property="LineHeight"        Value="24"/>
         <Setter Property="FontSize"          Value="13.5"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassIce}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassIce}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="10"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassMuted}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassMuted}"/>
         <Setter Property="Margin"            Value="0,0,0,8"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -134,14 +110,14 @@
     <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="9"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassMuted}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassMuted}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="InfoValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="12"/>
         <Setter Property="FontWeight"        Value="SemiBold"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassSnow}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassSnow}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
@@ -162,7 +138,7 @@
 
     <Style x:Key="GlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="Foreground"        Value="{StaticResource GlassAccent}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassAccent}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
@@ -180,20 +156,20 @@
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="20"
-                           Foreground="{StaticResource GlassAccent}"
+                           Foreground="{DynamicResource GlassAccent}"
                            HorizontalAlignment="Center"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Value}"
                            FontSize="15" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,4,0,0"
-                           Foreground="{StaticResource GlassSnow}"
+                           Foreground="{DynamicResource GlassSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Label}"
                            FontSize="10" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,2,0,0"
-                           Foreground="{StaticResource GlassAccent}"
+                           Foreground="{DynamicResource GlassAccent}"
                            IsHitTestVisible="False"/>
             </StackPanel>
         </Border>
@@ -225,11 +201,11 @@
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Name}"
                                FontSize="14" FontWeight="Bold"
-                               Foreground="{StaticResource GlassSnow}"
+                               Foreground="{DynamicResource GlassSnow}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
                                FontSize="11"
-                               Foreground="{StaticResource GlassFrost}"
+                               Foreground="{DynamicResource GlassFrost}"
                                TextWrapping="Wrap"
                                Margin="0,2,0,0"
                                IsHitTestVisible="False"/>
@@ -241,7 +217,7 @@
                         VerticalAlignment="Center"
                         SnapsToDevicePixels="True">
                     <TextBlock Text="ACTIVE" FontSize="10" FontWeight="Bold"
-                               Foreground="{StaticResource GlassAccent}"
+                               Foreground="{DynamicResource GlassAccent}"
                                IsHitTestVisible="False"/>
                 </Border>
             </Grid>
@@ -258,7 +234,7 @@
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="17"
-                           Foreground="{StaticResource GlassAccent}"
+                           Foreground="{DynamicResource GlassAccent}"
                            VerticalAlignment="Center"
                            Margin="0,0,12,0"
                            IsHitTestVisible="False"/>
@@ -289,14 +265,14 @@
                 </Border>
                 <TextBlock Text="{Binding Title}"
                            FontSize="14" FontWeight="Bold"
-                           Foreground="{StaticResource GlassSnow}"
+                           Foreground="{DynamicResource GlassSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Margin="0,12,0,6"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
                            FontSize="11"
-                           Foreground="{StaticResource GlassFrost}"
+                           Foreground="{DynamicResource GlassFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
@@ -322,14 +298,14 @@
                 </Border>
                 <TextBlock Text="{Binding Name}"
                            FontSize="13" FontWeight="Bold"
-                           Foreground="{StaticResource GlassSnow}"
+                           Foreground="{DynamicResource GlassSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Margin="0,10,0,4"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
                            FontSize="11"
-                           Foreground="{StaticResource GlassFrost}"
+                           Foreground="{DynamicResource GlassFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
@@ -352,14 +328,14 @@
     <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize"     Value="11"/>
         <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{StaticResource GlassCerulean}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource GlassCerulean}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize"     Value="12"/>
-        <Setter Property="Foreground"   Value="{StaticResource GlassSnow}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource GlassSnow}"/>
         <Setter Property="Margin"       Value="0,0,12,4"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
@@ -373,7 +349,7 @@
     <Style x:Key="AboutPillButtonStyle" TargetType="Button">
         <Setter Property="FontSize"     Value="11"/>
         <Setter Property="FontWeight"   Value="Bold"/>
-        <Setter Property="Foreground"   Value="{StaticResource GlassAccent}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource GlassAccent}"/>
         <Setter Property="Background"   Value="Transparent"/>
         <Setter Property="BorderBrush"   Value="#66BFDBFE"/>
         <Setter Property="BorderThickness" Value="1"/>
