@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Tax Invoice Dashboard
@@ -332,11 +332,16 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="220" MinHeight="180"/>
+                    <!-- 2026-08-25 width fixes: revenue trend gets a full-
+                         width row, recent invoices moved to its own full-
+                         width row, top customers / ageing brackets keep an
+                         even two-column row with consistent gutters. -->
+                    <RowDefinition Height="280" MinHeight="220"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -414,7 +419,7 @@
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,12">
+                <Grid Grid.Row="2" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -422,7 +427,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,10,0" MinHeight="168">
+                            Margin="0,0,14,0" MinHeight="168">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Collections pulse"
@@ -442,7 +447,7 @@
                     </Border>
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,10,0">
+                            Margin="0,0,14,0">
                         <StackPanel>
                             <TextBlock Text="Ageing mix"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
@@ -457,7 +462,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,14" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="OVERDUE"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -492,82 +497,81 @@
                     </StackPanel>
                 </Grid>
 
-                <Grid Grid.Row="3" Margin="0,0,0,12">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,10,0">
-                        <DockPanel>
-                            <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
-                                <TextBlock Text="Revenue trend"
-                                           Style="{StaticResource SoftSectionTitleStyle}"/>
-                                <TextBlock Text="{Binding RevenueChartTitle}"
-                                           Style="{StaticResource SoftMetaStyle}"
-                                           HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Grid>
-                                <Border Style="{StaticResource SoftChartWellStyle}"
-                                        Visibility="{Binding HasRevenueData,
-                                            Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <trend:TrendChartControl
-                                        Points="{Binding RevenueBars}"
-                                        SeriesKind="Bar"
-                                        ValuePrefix="AED "
-                                        EmptyMessage="No revenue recorded yet."
-                                        SeriesBrush="{DynamicResource AccentBrush}"
-                                        SeriesEndBrush="{DynamicResource AccentDarkBrush}"
-                                        GridBrush="{DynamicResource DividerBrush}"
-                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-                                </Border>
-                                <Border Padding="0,40"
-                                        Visibility="{Binding HasRevenueData,
-                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                    <StackPanel HorizontalAlignment="Center">
-                                        <TextBlock Text="&#xE9D9;"
-                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                        <TextBlock Text="No revenue data yet"
-                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-                        </DockPanel>
-                    </Border>
-
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
-                        <DockPanel>
-                            <TextBlock DockPanel.Dock="Top" Text="Recent invoices"
-                                       Style="{StaticResource SoftSectionTitleStyle}"
-                                       Margin="0,0,0,8"/>
-                            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                          HorizontalScrollBarVisibility="Disabled"
-                                          Visibility="{Binding HasRecentInvoices,
-                                              Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding RecentInvoices}"
-                                              ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"/>
-                            </ScrollViewer>
+                <!-- ROW: revenue trend — full width -->
+                <Border Grid.Row="3" Style="{StaticResource SoftCardStyle}">
+                    <DockPanel>
+                        <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
+                            <TextBlock Text="Revenue trend"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="{Binding RevenueChartTitle}"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </Grid>
+                        <Grid>
+                            <Border Style="{StaticResource SoftChartWellStyle}"
+                                    Visibility="{Binding HasRevenueData,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                <trend:TrendChartControl
+                                    Points="{Binding RevenueBars}"
+                                    SeriesKind="Bar"
+                                    ValuePrefix="AED "
+                                    EmptyMessage="No revenue recorded yet."
+                                    SeriesBrush="{DynamicResource AccentBrush}"
+                                    SeriesEndBrush="{DynamicResource AccentDarkBrush}"
+                                    GridBrush="{DynamicResource DividerBrush}"
+                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                            </Border>
                             <Border Padding="0,40"
-                                    Visibility="{Binding HasRecentInvoices,
+                                    Visibility="{Binding HasRevenueData,
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE8EF;"
+                                    <TextBlock Text="&#xE9D9;"
                                                Style="{StaticResource DashEmptyStateGlyphStyle}"/>
-                                    <TextBlock Text="No invoices yet"
+                                    <TextBlock Text="No revenue data yet"
                                                Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>
-                        </DockPanel>
-                    </Border>
-                </Grid>
+                        </Grid>
+                    </DockPanel>
+                </Border>
 
-                <Grid Grid.Row="4">
+                <!-- ROW: recent invoices — FULL WIDTH (2026-08-25: was a
+                     narrow 1/3 column) -->
+                <Border Grid.Row="4" Style="{StaticResource SoftCardStyle}" Margin="0,16,0,0">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" Text="Recent invoices"
+                                   Style="{StaticResource SoftSectionTitleStyle}"
+                                   Margin="0,0,0,8"/>
+                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      MaxHeight="380"
+                                      behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
+                                      Visibility="{Binding HasRecentInvoices,
+                                          Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ItemsControl ItemsSource="{Binding RecentInvoices}"
+                                          ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"/>
+                        </ScrollViewer>
+                        <Border Padding="0,40"
+                                Visibility="{Binding HasRecentInvoices,
+                                    Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="&#xE8EF;"
+                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                <TextBlock Text="No invoices yet"
+                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </DockPanel>
+                </Border>
+
+                <!-- ROW: top customers + ageing brackets — even split -->
+                <Grid Grid.Row="5" Margin="0,16,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,8,0">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Top customers"
@@ -595,7 +599,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="8,0,0,0">
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="14,0,0,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Ageing brackets"

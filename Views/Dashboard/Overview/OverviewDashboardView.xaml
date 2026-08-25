@@ -28,12 +28,14 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="220" MinHeight="180"/>
+                    <!-- 2026-08-25: revenue trend + recent documents row
+                         expanded 220 -> 320 so both cards breathe. -->
+                    <RowDefinition Height="320" MinHeight="240"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- HERO STRIP -->
-                <Grid Grid.Row="0" Margin="0,0,0,12">
+                <Grid Grid.Row="0" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -76,7 +78,7 @@
                 </Border>
 
                 <!-- ROW: pulse | mix | in-prod / overdue / pending -->
-                <Grid Grid.Row="2" Margin="0,0,0,12">
+                <Grid Grid.Row="2" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -88,7 +90,7 @@
                          white text, subtle glass circle deco, and a light
                          sparkline. Reads as the page's hero number. -->
                     <Border Grid.Column="0"
-                            Margin="0,0,10,0"
+                            Margin="0,0,14,0"
                             MinHeight="168"
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             ClipToBounds="True"
@@ -144,7 +146,7 @@
                     </Border>
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,10,0">
+                            Margin="0,0,14,0">
                         <StackPanel>
                             <TextBlock Text="Delivery mix"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
@@ -159,7 +161,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,14" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="IN PRODUCTION"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -168,7 +170,7 @@
                                            Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,10" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,14" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="OVERDUE"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -198,13 +200,13 @@
                 </Grid>
 
                 <!-- ROW: trend + activity -->
-                <Grid Grid.Row="3" Margin="0,0,0,12">
+                <Grid Grid.Row="3" Margin="0,0,0,16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,10,0">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Revenue trend"
@@ -243,7 +245,7 @@
                                           HorizontalScrollBarVisibility="Disabled"
                                           CanContentScroll="True"
                                           PanningMode="VerticalOnly"
-                                          MaxHeight="320"
+                                          MaxHeight="480"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True"
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Focusable="False"
@@ -262,7 +264,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,8,0">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
                         <StackPanel>
                             <TextBlock Text="Sales" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding SalesTiles}"
@@ -270,7 +272,7 @@
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="4,0">
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}">
                         <StackPanel>
                             <TextBlock Text="Production" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding ProductionTiles}"
@@ -278,7 +280,7 @@
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="8,0,0,0">
+                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="14,0,0,0">
                         <StackPanel>
                             <TextBlock Text="Sheet store" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding InventoryTiles}"
