@@ -28,6 +28,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -85,6 +86,14 @@ namespace ProGlassAutomation.ViewModels.About
         public ICommand ClearAllCommand { get; }
         public ICommand OpenFolderCommand { get; }
 
+        /// <summary>
+        /// 2026-08-25 "not updating dynamically" fix: tracks the scan
+        /// currently in flight. A new Refresh() supersedes the old one,
+        /// and the superseded scan's continuation is discarded below
+        /// instead of running Reports.Clear() over the newer results.
+        /// </summary>
+        private int _scanGeneration;
+
         public AboutCrashReportsViewModel()
         {
             RefreshCommand = new RelayCommand(_ => Refresh());
@@ -101,17 +110,35 @@ namespace ProGlassAutomation.ViewModels.About
 
         /// <summary>
         /// Fire-and-forget wrapper around the async scan. Safe from the
-        /// constructor and from the Refresh button alike.
+        /// constructor and from the Refresh button alike. A new call
+        /// supersedes any scan still in flight (see _scanGeneration).
         /// </summary>
-        public void Refresh() => _ = RefreshAsync();
+        public void Refresh()
+        {
+            // Bump the generation: the previous scan (if still running)
+            // will see a stale generation when it returns and drop its
+            // results instead of clearing the list the new scan filled.
+            int generation = Interlocked.Increment(ref _scanGeneration);
+            _ = RefreshAsync(generation);
+        }
 
-        private async Task RefreshAsync()
+        private async Task RefreshAsync(int generation)
         {
             try
             {
                 var recent = await Task.Run(() =>
                     CrashReportService.GetRecentReports(10).ToList())
                     .ConfigureAwait(true);
+
+                // A newer Refresh() started while this scan was running
+                // (open page + REFRESH click, or a double REFRESH). The
+                // newer scan owns the list now — this one must NOT
+                // Clear() over its results. Without this guard two
+                // overlapping scans interleaved Clear()/Add() and the
+                // list ended up empty or stale — the "the card is not
+                // updating dynamically" symptom.
+                if (generation != Volatile.Read(ref _scanGeneration))
+                    return;
 
                 Reports.Clear();
                 foreach (var raw in recent)

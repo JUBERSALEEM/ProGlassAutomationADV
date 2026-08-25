@@ -128,14 +128,26 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>
     /// Index of the visible tab (0 = About, 1 = Modules, 2 = Developer).
     /// Raises PropertyChanged so the section views can switch visibility.
+    ///
+    /// 2026-08-25 freeze/blank-page fix: the value is CLAMPED to the tab
+    /// range. The section views default to Collapsed and only become
+    /// visible through DataTriggers on the values 0 / 1 / 2 — so if the
+    /// TwoWay SelectedIndex binding ever pushed -1 (the ListBox's
+    /// "no selection" state) or any out-of-range value, EVERY section
+    /// stayed collapsed: a hero with an empty tab strip and a content
+    /// area that never rendered or updated. Clamping guarantees exactly
+    /// one section is always visible, so the page can never go blank.
     /// </summary>
     public int SelectedTabIndex
     {
         get => _selectedTabIndex;
         set
         {
-            if (_selectedTabIndex == value) return;
-            _selectedTabIndex = value;
+            int clamped = value < 0
+                ? 0
+                : Math.Min(value, Tabs.Count - 1);
+            if (_selectedTabIndex == clamped) return;
+            _selectedTabIndex = clamped;
             OnPropertyChanged();
         }
     }
