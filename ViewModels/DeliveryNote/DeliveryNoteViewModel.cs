@@ -138,8 +138,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         {
             if (_disposed) return;
             _disposed = true;
+            // Detach the static subscribers under this VM and dispose the
+            // children, or they leak and re-run after the module is gone.
+            // (The previous code unsubscribed DataSeeded twice — a bug — and
+            // never disposed ListVM/ActivityVM.)
             try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
+            try { ListVM?.Dispose(); } catch { }
+            try { ActivityVM?.Dispose(); } catch { }
             GC.SuppressFinalize(this);
         }
 

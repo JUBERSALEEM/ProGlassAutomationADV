@@ -1662,7 +1662,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (totalBalance <= 0)
                 {
                     MessageBox.Show(
-                        "✅  Dispatched successfully!\n\n" +
+                        "Dispatched successfully!\n\n" +
                         "All items fully delivered.\n" +
                         "Master DN now shows no remaining balance.\n\n" +
                         invoiceNote,
@@ -1675,7 +1675,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
 
                 var nextDn = MessageBox.Show(
-                    $"✅  Dispatched successfully!\n\n" +
+                    $"Dispatched successfully!\n\n" +
                     $"This delivery     :  {deliveredThisDn} pcs\n" +
                     $"Balance remaining :  {totalBalance} pcs " +
                     $"({balanceItemCount} items)\n" +

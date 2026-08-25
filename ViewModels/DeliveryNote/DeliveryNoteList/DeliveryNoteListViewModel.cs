@@ -31,10 +31,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     ///   • TypeFilterOptions keeps "Dummy" removed (Master DN internal)
     ///   • DeleteAsync guards against Master DN deletion (safety)
     /// </summary>
-    public class DeliveryNoteListViewModel : ViewModelBase
+    public class DeliveryNoteListViewModel : ViewModelBase, System.IDisposable
     {
         private int _loadingFlag = 0;
         private int _reloadQueued = 0;
+        private bool _disposed;
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
@@ -1064,6 +1065,19 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
+        }
+
+        /// <summary>
+        /// Detaches the static DocumentLifecycle subscriber so this VM is not
+        /// held alive (and not re-run) for the whole session after it is no
+        /// longer in use. Without this it is a memory leak.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadAsync); } catch { }
+            GC.SuppressFinalize(this);
         }
     }
 }

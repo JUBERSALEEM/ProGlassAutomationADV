@@ -27,6 +27,41 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
+        /// <summary>
+        /// Shared, EF-translatable projection to the list item. Every list
+        /// method uses it so the FullSnapshotJson blob column is never read
+        /// for a list query. This is the single source of truth for the list
+        /// shape (mirrors ToListItem, but runs at the SQL level).
+        /// </summary>
+        private static readonly System.Linq.Expressions.Expression<
+            Func<SavedDeliveryNote, DeliveryNoteListItem>> ToListItemProjection =
+            x => new DeliveryNoteListItem
+            {
+                Id = x.Id,
+                DeliveryNoteId = x.DeliveryNoteId,
+                JobOrderId = x.JobOrderId,
+                ProformaId = x.ProformaId,
+                CustomerName = x.CustomerName,
+                ProjectName = x.ProjectName,
+                Status = x.Status,
+                DeliveryType = x.DeliveryType,
+                IsFoc = x.IsFoc,
+                IsMasterDn = x.IsMasterDn,
+                DriverName = x.DriverName,
+                VehicleNumber = x.VehicleNumber,
+                TotalOrderedQty = x.TotalOrderedQty,
+                TotalDeliveredQty = x.TotalDeliveredQty,
+                TotalBalanceQty = x.TotalBalanceQty,
+                TotalPreviouslyDeliveredQty = x.TotalPreviouslyDeliveredQty,
+                SequenceNumber = x.SequenceNumber,
+                DeliveryDate = x.DeliveryDate,
+                DeliveryTime = x.DeliveryTime,
+                CreatedAt = x.CreatedAt,
+                UpdatedAt = x.UpdatedAt,
+                TaxInvoiceId = x.TaxInvoiceId,
+                HasTaxInvoice = x.HasTaxInvoice
+            };
+
         public async Task InitializeAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
@@ -76,11 +111,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<List<DeliveryNoteListItem>> GetMasterDnsAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: project to the list item at the SQL level so the
+            // FullSnapshotJson blob is never read for a list query.
+            return await ctx.DeliveryNotes
                 .Where(x => x.IsMasterDn)
+                .AsNoTracking()
                 .OrderByDescending(x => x.UpdatedAt)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<SavedDeliveryNote?> CreateMasterDnAsync(
@@ -349,40 +387,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<List<DeliveryNoteListItem>> GetAllAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            // PERF: project straight to the list item at the SQL level so the
-            // FullSnapshotJson blob column is never read. Behaviourally
-            // identical to materialising the entity then calling ToListItem,
-            // but the blobs never cross the wire.
+            // PERF: SQL-level projection so the FullSnapshotJson blob column
+            // is never read for a list query.
             return await ctx.DeliveryNotes
                 .Where(x => !x.IsMasterDn)
                 .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
-                .Select(x => new DeliveryNoteListItem
-                {
-                    Id = x.Id,
-                    DeliveryNoteId = x.DeliveryNoteId,
-                    JobOrderId = x.JobOrderId,
-                    ProformaId = x.ProformaId,
-                    CustomerName = x.CustomerName,
-                    ProjectName = x.ProjectName,
-                    Status = x.Status,
-                    DeliveryType = x.DeliveryType,
-                    IsFoc = x.IsFoc,
-                    IsMasterDn = x.IsMasterDn,
-                    DriverName = x.DriverName,
-                    VehicleNumber = x.VehicleNumber,
-                    TotalOrderedQty = x.TotalOrderedQty,
-                    TotalDeliveredQty = x.TotalDeliveredQty,
-                    TotalBalanceQty = x.TotalBalanceQty,
-                    TotalPreviouslyDeliveredQty = x.TotalPreviouslyDeliveredQty,
-                    SequenceNumber = x.SequenceNumber,
-                    DeliveryDate = x.DeliveryDate,
-                    DeliveryTime = x.DeliveryTime,
-                    CreatedAt = x.CreatedAt,
-                    UpdatedAt = x.UpdatedAt,
-                    TaxInvoiceId = x.TaxInvoiceId,
-                    HasTaxInvoice = x.HasTaxInvoice
-                })
+                .Select(ToListItemProjection)
                 .ToListAsync();
         }
 
@@ -390,37 +401,43 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             string jobOrderId)
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: SQL-level projection so no snapshot blob is read.
+            return await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId &&
                             !x.IsMasterDn)
+                .AsNoTracking()
                 .OrderBy(x => x.SequenceNumber)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<DeliveryNoteListItem>> GetPreparedAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: SQL-level projection so no snapshot blob is read.
+            return await ctx.DeliveryNotes
                 .Where(x => !x.IsMasterDn &&
                             (x.Status == "Draft" ||
                              x.Status == "Dispatching"))
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<DeliveryNoteListItem>> GetDeliveredAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: SQL-level projection so no snapshot blob is read.
+            return await ctx.DeliveryNotes
                 .Where(x => (x.Status == "Delivered" ||
                              x.Status == "Signed" ||
                              x.Status == "Received") &&
                             !x.IsMasterDn)
+                .AsNoTracking()
                 .OrderByDescending(x => x.DeliveryDate)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<PendingQtySummary>> GetPendingQtyJobsAsync()
@@ -442,11 +459,35 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .GroupBy(i => i.JobOrderId)
                 .ToList();
 
+            // PERF (remove N+1): load the latest real DN per job order in ONE
+            // query rather than running a FirstOrDefaultAsync per job order
+            // inside the loop. SQLite numbers are small but a large backlog
+            // should not hammer the DB with a query per job.
+            var joIds = grouped.Select(g => g.Key!).Where(k => !string.IsNullOrWhiteSpace(k)).ToList();
+            var latestByJo = new Dictionary<string, SavedDeliveryNote>(StringComparer.OrdinalIgnoreCase);
+
+            if (joIds.Count > 0)
+            {
+                var latestList = await ctx.DeliveryNotes
+                    .Where(x => joIds.Contains(x.JobOrderId) && !x.IsMasterDn)
+                    .AsNoTracking()
+                    .OrderByDescending(x => x.SequenceNumber)
+                    .ToListAsync();
+
+                foreach (var dn in latestList)
+                {
+                    if (dn.JobOrderId == null) continue;
+                    if (!latestByJo.ContainsKey(dn.JobOrderId))
+                        latestByJo[dn.JobOrderId] = dn;
+                }
+            }
+
             var result = new List<PendingQtySummary>();
 
             foreach (var joGroup in grouped)
             {
                 string joId = joGroup.Key!;
+                if (string.IsNullOrWhiteSpace(joId)) continue;
 
                 var itemGroups = joGroup
                     .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber });
@@ -457,10 +498,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
                 if (totalBalance == 0) continue;
 
-                var latestDn = await ctx.DeliveryNotes
-                    .Where(x => x.JobOrderId == joId && !x.IsMasterDn)
-                    .OrderByDescending(x => x.SequenceNumber)
-                    .FirstOrDefaultAsync();
+                latestByJo.TryGetValue(joId, out var latestDn);
 
                 result.Add(new PendingQtySummary
                 {
@@ -480,21 +518,25 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<List<DeliveryNoteListItem>> GetReworkAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: SQL-level projection so no snapshot blob is read.
+            return await ctx.DeliveryNotes
                 .Where(x => x.DeliveryType == "Rework")
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<DeliveryNoteListItem>> GetReturnedAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: SQL-level projection so no snapshot blob is read.
+            return await ctx.DeliveryNotes
                 .Where(x => x.DeliveryType == "Return")
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
+                .Select(ToListItemProjection)
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         // ── Delivery history ─────────────────────────────────────────────
@@ -940,34 +982,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         }
 
         // ── Private helpers ──────────────────────────────────────────────
-
-        private static DeliveryNoteListItem ToListItem(SavedDeliveryNote e) =>
-            new()
-            {
-                Id = e.Id,
-                DeliveryNoteId = e.DeliveryNoteId,
-                JobOrderId = e.JobOrderId,
-                ProformaId = e.ProformaId,
-                CustomerName = e.CustomerName,
-                ProjectName = e.ProjectName,
-                Status = e.Status,
-                DeliveryType = e.DeliveryType,
-                IsFoc = e.IsFoc,
-                IsMasterDn = e.IsMasterDn,
-                DriverName = e.DriverName,
-                VehicleNumber = e.VehicleNumber,
-                TotalOrderedQty = e.TotalOrderedQty,
-                TotalDeliveredQty = e.TotalDeliveredQty,
-                TotalBalanceQty = e.TotalBalanceQty,
-                TotalPreviouslyDeliveredQty = e.TotalPreviouslyDeliveredQty,
-                SequenceNumber = e.SequenceNumber,
-                DeliveryDate = e.DeliveryDate,
-                DeliveryTime = e.DeliveryTime,
-                CreatedAt = e.CreatedAt,
-                UpdatedAt = e.UpdatedAt,
-                TaxInvoiceId = e.TaxInvoiceId,
-                HasTaxInvoice = e.HasTaxInvoice
-            };
+        // (ToListItem removed — every list method now uses the EF-translatable
+        // ToListItemProjection above so the snapshot blob never crosses the
+        // wire. Keeping an unused in-memory mapper invites drift between the
+        // SQL projection and any future caller.)
 
         // ═══════════════════════════════════════════════════════════════
         //  PHASE 2 — Result Pattern with CorrelationId
