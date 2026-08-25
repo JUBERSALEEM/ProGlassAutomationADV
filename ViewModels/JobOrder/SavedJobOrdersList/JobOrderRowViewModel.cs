@@ -32,20 +32,24 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
 
-        public string GrandTotalDisplay { get; }
-        public string DeliveryDisplay { get; }
-        public string CreatedDisplay { get; }
+        // These values are resolved by ResolveDisplays after the raw fields
+        // have been populated by either constructor. Keep the setters private
+        // so the row remains read-only to consumers while the shared resolver
+        // can assign the values legally.
+        public string GrandTotalDisplay { get; private set; } = string.Empty;
+        public string DeliveryDisplay { get; private set; } = string.Empty;
+        public string CreatedDisplay { get; private set; } = string.Empty;
 
-        public string StatusLabel { get; }
-        public string StatusBrushKey { get; }
-        public string StatusTintKey { get; }
+        public string StatusLabel { get; private set; } = string.Empty;
+        public string StatusBrushKey { get; private set; } = string.Empty;
+        public string StatusTintKey { get; private set; } = string.Empty;
 
-        public string PriorityLabel { get; }
-        public string PriorityBrushKey { get; }
-        public string PriorityPillStyleKey { get; }
+        public string PriorityLabel { get; private set; } = string.Empty;
+        public string PriorityBrushKey { get; private set; } = string.Empty;
+        public string PriorityPillStyleKey { get; private set; } = string.Empty;
 
-        public bool IsOverdue { get; }
-        public string OverdueDisplay { get; }
+        public bool IsOverdue { get; private set; }
+        public string OverdueDisplay { get; private set; } = string.Empty;
 
         // ── delivery-derived list status ────────────────────────────────
         // Populated from the Delivery Notes repository so the list shows the
