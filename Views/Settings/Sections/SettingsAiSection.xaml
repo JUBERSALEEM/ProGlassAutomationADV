@@ -223,7 +223,7 @@
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="SAVE &amp; TEST"
                                     Command="{Binding TestGeminiCommand}"
-                                    HorizontalAlignment="Left"
+                                    HorizontalAlignment="Stretch"
                                     Height="32"
                                     FontSize="11"/>
                             <TextBlock Text="{Binding GeminiTestStatus}"
@@ -293,7 +293,7 @@
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="SAVE &amp; TEST"
                                     Command="{Binding TestGroqCommand}"
-                                    HorizontalAlignment="Left"
+                                    HorizontalAlignment="Stretch"
                                     Height="32"
                                     FontSize="11"/>
                             <TextBlock Text="{Binding GroqTestStatus}"
@@ -363,7 +363,7 @@
                             <Button Style="{StaticResource PrimaryPillButton}"
                                     Tag="&#xE74E;" Content="SAVE &amp; TEST"
                                     Command="{Binding TestCohereCommand}"
-                                    HorizontalAlignment="Left"
+                                    HorizontalAlignment="Stretch"
                                     Height="32"
                                     FontSize="11"/>
                             <TextBlock Text="{Binding CohereTestStatus}"
@@ -440,7 +440,7 @@
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;" Content="REMOVE KEYS"
                                     Command="{Binding RemoveSavedKeysCommand}"
-                                    HorizontalAlignment="Left"/>
+                                    HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
 
@@ -456,7 +456,7 @@
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;" Content="CLEAR MEMORY"
                                     Command="{Binding ClearAiMemoryCommand}"
-                                    HorizontalAlignment="Left"/>
+                                    HorizontalAlignment="Stretch"/>
                         </StackPanel>
                     </Border>
 

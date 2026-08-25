@@ -82,19 +82,21 @@
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE77B;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Session Security"/>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal">
+                            <!-- Full-width action row: buttons stretch evenly
+                                 across the whole card (no left-cramped gap). -->
+                            <UniformGrid Columns="2" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Forget this device"
                                         Command="{Binding DataContext.ForgetThisDeviceCommand,
                                             ElementName=SettingsFeaturesRoot}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         ToolTip="Clear the Skip-login vault entry on this machine without signing out. Next launch will show the login form."/>
                                 <Button Content="Sign out"
                                         Command="{Binding DataContext.SignOutCommand,
                                             ElementName=SettingsFeaturesRoot}"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"
                                         ToolTip="End your session, clear the Skip-login vault entry, and return to the login screen."/>
-                            </StackPanel>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -121,22 +123,23 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Flip every optional field at once, or restore the out-of-the-box layout."/>
-                            <StackPanel Orientation="Horizontal">
+                            <!-- Full-width action row: buttons stretch evenly
+                                 across the whole card (no left-cramped gap). -->
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Enable all"
                                         Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         ToolTip="Show every optional field in the wizard."/>
                                 <Button Content="Hide all optional"
                                         Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
                                         ToolTip="Collapse every optional field. The three DB-required fields stay visible."/>
                                 <Button Content="Reset defaults"
                                         Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"
                                         ToolTip="Restore the out-of-the-box layout (every field visible)."/>
-                            </StackPanel>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -455,19 +458,18 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Flip every Inquiry field at once."/>
-                            <StackPanel Orientation="Horizontal">
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Enable all"
                                         Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Hide all optional"
                                         Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Reset defaults"
                                         Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"/>
-                            </StackPanel>
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -599,19 +601,18 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Flip every Job Order field at once."/>
-                            <StackPanel Orientation="Horizontal">
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Enable all"
                                         Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Hide all optional"
                                         Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Reset defaults"
                                         Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"/>
-                            </StackPanel>
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -730,19 +731,18 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Flip every Delivery Note field at once."/>
-                            <StackPanel Orientation="Horizontal">
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Enable all"
                                         Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Hide all optional"
                                         Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Reset defaults"
                                         Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"/>
-                            </StackPanel>
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>
@@ -837,19 +837,18 @@
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Flip every Tax Invoice field at once."/>
-                            <StackPanel Orientation="Horizontal">
+                            <UniformGrid Columns="3" Style="{StaticResource SettingsActionRowStyle}">
                                 <Button Content="Enable all"
                                         Command="{Binding EnableAllCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Hide all optional"
                                         Command="{Binding DisableAllOptionalCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Margin="0,0,8,0"/>
+                                        Style="{StaticResource SettingsActionButtonStyle}"/>
                                 <Button Content="Reset defaults"
                                         Command="{Binding ResetToDefaultsCommand}"
-                                        Style="{StaticResource OutlinedPillButton}"/>
-                            </StackPanel>
+                                        Style="{StaticResource SettingsActionButtonStyle}"
+                                        Margin="0"/>
+                            </UniformGrid>
                         </StackPanel>
                     </Border>
                 </WrapPanel>

@@ -722,6 +722,23 @@
         <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
     </Style>
 
+    <!-- Full-width action row — an even row of buttons that STRETCH so they
+         span the whole card. Each Button in the UniformGrid gets an equal
+         share of the width (set Columns per row). This fixes the "buttons
+         left-aligned leaving a big empty gap on the right" complaint. -->
+    <Style x:Key="SettingsActionRowStyle" TargetType="UniformGrid">
+        <Setter Property="Rows"    Value="1"/>
+        <Setter Property="Margin"  Value="0,10,0,0"/>
+    </Style>
+
+    <!-- A single button used inside SettingsActionRowStyle: stretch to fill
+         its cell so the grouped buttons never appear left-cramped. -->
+    <Style x:Key="SettingsActionButtonStyle" TargetType="Button">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Margin" Value="0,0,8,0"/>
+    </Style>
+
     <!-- ═══════════════════════════════════════════════════════════════
          MODERN SLIDER — iPhone-style pill slider: a tall rounded pill
          track with an accent-coloured fill that shows the current level,
