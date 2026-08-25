@@ -58,10 +58,23 @@
         <GradientStop Color="#26FFFFFF" Offset="0.0"/>
         <GradientStop Color="#00FFFFFF" Offset="0.5"/>
     </LinearGradientBrush>
+    <!-- Legacy shadow — kept frozen for one-off accents only. Do NOT
+         put this on many cards: pixel-shader effects force software
+         rendering and froze the About tabs (see AboutCardStyle note). -->
     <DropShadowEffect x:Key="GlassShadow" Color="#000000"
-                      BlurRadius="28" ShadowDepth="4" Opacity="0.4"/>
+                      BlurRadius="28" ShadowDepth="4" Opacity="0.4"
+                      po:Freeze="True"/>
 
     <!-- ═══ SHARED STYLES (glass) ═══ -->
+    <!--
+      2026-08-25 senior fix — the Modules/Developer tab freeze:
+      every About card carried a DropShadowEffect (BlurRadius 28).
+      Pixel-shader effects force WPF to software-render those
+      subtrees, and a fresh tab realises ~15-20 shadowed cards in one
+      layout pass — on GPUs without headroom that is a multi-second
+      UI freeze on every tab click. The glass identity survives via
+      the gradient fill + 1px light border; the shadow is removed.
+    -->
     <Style x:Key="AboutCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{StaticResource GlassCard}"/>
         <Setter Property="BorderBrush"         Value="#66FFFFFF"/>
@@ -69,7 +82,6 @@
         <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"             Value="30,26"/>
         <Setter Property="Margin"              Value="0,0,0,20"/>
-        <Setter Property="Effect"              Value="{StaticResource GlassShadow}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
     </Style>

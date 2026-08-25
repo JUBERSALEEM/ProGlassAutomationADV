@@ -135,8 +135,7 @@
                 BorderThickness="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Padding="26,20"
-                Margin="0,0,0,16"
-                Effect="{StaticResource GlassShadow}">
+                Margin="0,0,0,16">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <TextBlock Text="&#xE72E;"

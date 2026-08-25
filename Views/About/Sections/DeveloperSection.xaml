@@ -147,8 +147,7 @@
                     BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="28,18"
-                    Margin="0,8,0,0"
-                    Effect="{StaticResource GlassShadow}">
+                    Margin="0,8,0,0">
                 <StackPanel>
                     <TextBlock Text="ProGlass Automation — Enterprise ERP for UAE glass manufacturing"
                                FontSize="12" FontWeight="Bold"
