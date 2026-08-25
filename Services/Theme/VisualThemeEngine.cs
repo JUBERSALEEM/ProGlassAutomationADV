@@ -961,17 +961,20 @@ namespace ProGlassAutomation.Services.Theme
                 var chosen = AccentPresets.TryParseHex(hex);
                 if (chosen == null) return; // invalid persisted hex — keep current
 
+                // (isDark, not dark — that name is already taken by the
+                // Glassy branch above; overlapping scopes may not
+                // redeclare a local name in C#.)
                 Color primary = chosen.Value;
-                bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+                bool isDark = ThemeManager.CurrentTheme == AppTheme.Dark;
 
                 Color secNeutral = ThemeManager.GetThemeColor(
                     "SecondaryForegroundColor",
-                    dark ? Color.FromRgb(0x94, 0xA3, 0xB8)
-                         : Color.FromRgb(0x47, 0x55, 0x69));
+                    isDark ? Color.FromRgb(0x94, 0xA3, 0xB8)
+                           : Color.FromRgb(0x47, 0x55, 0x69));
                 Color mutNeutral = ThemeManager.GetThemeColor(
                     "MutedForegroundColor",
-                    dark ? Color.FromRgb(0x64, 0x74, 0x8B)
-                         : Color.FromRgb(0x64, 0x74, 0x8B));
+                    isDark ? Color.FromRgb(0x64, 0x74, 0x8B)
+                           : Color.FromRgb(0x64, 0x74, 0x8B));
 
                 FrozenAndSet(resources, "PrimaryForegroundBrush", primary);
                 FrozenAndSet(resources, "SecondaryForegroundBrush",
