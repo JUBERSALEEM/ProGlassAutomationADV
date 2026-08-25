@@ -123,20 +123,15 @@ namespace ProGlassAutomation.Views.AI
         private Point _panelDragStartMouse;
         private Point _panelDragStartOffset;
 
-        // 2026-08-25 senior fix: the panel carries a DropShadowEffect.
-        // WPF re-runs the shadow's pixel shader for the whole panel on
-        // EVERY position change, so dragging it forced a full software
-        // composite per mouse move — the UI visibly froze ("as soon as
-        // I try to drag it, it force-sticks the UI"). The effect is
-        // suspended for the drag and restored on release.
-        // global:: prefix — bullet-proofs the lookup against any local
-        // namespace shadowing of parts of the System tree.
-        private global::System.Windows.Media.Effect? _panelDragEffect;
-
         // Last position actually applied during the drag — moves smaller
         // than a pixel are skipped so sub-pixel jitter does not trigger
         // layout invalidations. (2026-08-25 senior debug.)
         private Point _panelLastApplied;
+
+        // Resource key of the panel's shadow (defined in this view's
+        // resources). Drag uses ClearValue / SetResourceReference on
+        // EffectProperty so the code-behind never names the Effect type.
+        private const string PanelShadowResourceKey = "PanelShadow";
 
         private void HookPanelPositioning()
         {
@@ -210,12 +205,12 @@ namespace ProGlassAutomation.Views.AI
             _panelDragStartOffset = new Point(left, top);
             _panelLastApplied = _panelDragStartOffset;
 
-            // Suspend the expensive shadow + cache the panel bitmap while
-            // it moves; both are restored when the drag ends.
-            // (BitmapCache lives in System.Windows.Media — NOT .Imaging.)
-            _panelDragEffect = ChatPanel.Effect;
-            ChatPanel.Effect = null;
-            ChatPanel.CacheMode = new global::System.Windows.Media.BitmapCache();
+            // Suspend the expensive drop-shadow for the drag. The shadow
+            // is a pixel shader WPF re-runs for the whole panel on every
+            // position change (the freeze). ClearValue removes it WITHOUT
+            // the code-behind ever touching the Effect type; the drag-end
+            // re-binds the original PanelShadow resource.
+            ChatPanel.ClearValue(UIElement.EffectProperty);
 
             // ── THE BUG (2026-08-25 senior debug) ───────────────────────
             // This used to call ChatPanel.CaptureMouse(). Mouse capture
@@ -281,10 +276,10 @@ namespace ProGlassAutomation.Views.AI
 
             if (ChatPanel != null)
             {
-                ChatPanel.Effect = _panelDragEffect;
-                ChatPanel.CacheMode = null;
+                // Re-bind the original shadow resource (see drag start).
+                ChatPanel.SetResourceReference(
+                    UIElement.EffectProperty, PanelShadowResourceKey);
             }
-            _panelDragEffect = null;
         }
 
         private static bool IsInsideButton(DependencyObject? d)
