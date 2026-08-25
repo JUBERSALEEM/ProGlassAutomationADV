@@ -415,9 +415,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
                         SalesmanOptions.Add(s.Name);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Silent — user can still type salesman name manually
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[ClientProfileViewModel] Salesman options load failed; manual entry still works: " + ex.Message);
             }
             finally
             {

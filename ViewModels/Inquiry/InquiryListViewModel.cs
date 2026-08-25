@@ -814,7 +814,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 row.IsDetailLoaded = true;
                 OnPropertyChanged(nameof(SelectedInquiry));
             }
-            catch (OperationCanceledException) { }
+            catch (OperationCanceledException) { /* Superseded load — quiet by design (SilentCatchAuditTests). */ }
             catch (Exception ex) { SetStatus("Detail unavailable: " + ExceptionMessages.Deep(ex)); }
         }
 

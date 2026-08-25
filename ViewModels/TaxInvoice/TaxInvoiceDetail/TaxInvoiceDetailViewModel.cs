@@ -1630,9 +1630,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         $"'{DeliveryNoteReference}' were not marked invoiced. " +
                         "Re-save to repair.");
                 }
-                catch
+                catch (System.Exception ex)
                 {
                     // Audit failure must not mask the original problem.
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning("[TaxInvoiceDetailViewModel] Audit write failed after TI save: " + ex.Message);
                 }
             }
         }

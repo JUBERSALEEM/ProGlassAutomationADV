@@ -117,7 +117,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     _wave.Dispose();
                 }
             }
-            catch { /* already stopped */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WasapiMicRecorder] StopCore: already stopped: " + ex.Message); }
             _wave = null;
 
             lock (_gate)

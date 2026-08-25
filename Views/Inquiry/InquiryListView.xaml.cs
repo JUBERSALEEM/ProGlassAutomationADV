@@ -195,7 +195,7 @@ namespace ProGlassAutomation.Views.Inquiry
             {
                 if (shellNavigate == null || shellVm == null) return;
                 try { shellNavigate.Invoke(shellVm, new object[] { target }); }
-                catch { /* shell method may not be available — never crash the editor */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryListView.xaml] WireEditor: shell method may not be available — never crash the editor: " + ex.Message); }
             }
             vm.EditRequested = async record =>
             {

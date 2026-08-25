@@ -116,9 +116,10 @@ namespace ProGlassAutomation.Services.Export.Pdf
                                 UseShellExecute = true
                             });
                     }
-                    catch
+                    catch (System.Exception ex)
                     {
                         // File saved OK — couldn't launch viewer. Non-fatal.
+                        ProGlassAutomation.Services.Logging.AppLogService.Warning("[PdfExportEngine] Viewer launch failed after save: " + ex.Message);
                     }
                 }
 
@@ -241,9 +242,10 @@ namespace ProGlassAutomation.Services.Export.Pdf
                         if (File.Exists(tempPath))
                             File.Delete(tempPath);
                     }
-                    catch
+                    catch (System.Exception ex)
                     {
                         // Non-fatal — temp folder will clean up eventually
+                        ProGlassAutomation.Services.Logging.AppLogService.Debug("[PdfExportEngine] Temp-file cleanup failed: " + ex.Message);
                     }
                 });
             }

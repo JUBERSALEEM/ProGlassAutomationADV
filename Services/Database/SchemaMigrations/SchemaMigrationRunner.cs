@@ -93,7 +93,7 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                     }
                     catch (Exception applyEx)
                     {
-                        try { tx.Rollback(); } catch { /* rollback is best-effort */ }
+                        try { tx.Rollback(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SchemaMigrationRunner] Upgrade: rollback is best-effort: " + ex.Message); }
                         AppLogService.Error(
                             $"Schema migration FAILED for {Path.GetFileName(dbPath)}. " +
                             $"Schema unchanged. Pre-migration backup: {backupPath}",
@@ -172,11 +172,12 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 cmd.CommandText = SqliteResilience.PragmaScript;
                 cmd.ExecuteNonQuery();
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Non-fatal — migrations still run without WAL, they
                 // just risk a BUSY on very heavy contention. See
                 // SqliteResilience.PragmaScript for detail.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SchemaMigrationRunner] WAL pragma skipped: " + ex.Message);
             }
             return connection;
         }

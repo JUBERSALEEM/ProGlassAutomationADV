@@ -262,10 +262,11 @@ namespace ProGlassAutomation.Behaviors
                 if (VirtualizingPanel.GetScrollUnit(sv) == ScrollUnit.Pixel)
                     return false;
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Attached property unavailable on this element — fall
                 // back to the classic interpretation.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SmoothScrollBehavior] ScrollUnit probe failed; staying in pixel mode: " + ex.Message);
             }
 
             return true;

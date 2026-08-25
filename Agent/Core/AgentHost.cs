@@ -195,7 +195,7 @@ namespace ProGlassAutomation.Agent.Core
             {
                 _built = false;
                 // Proper resource cleanup before clearing references.
-                try { Voice?.StopSpeaking(); } catch { /* best-effort */ }
+                try { Voice?.StopSpeaking(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AgentHost] Invalidate: best-effort: " + ex.Message); }
                 AI = null;
                 CommandRouter = null;
                 TaskAdapter = null;

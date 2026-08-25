@@ -407,7 +407,7 @@ namespace ProGlassAutomation.Services.Fonts
         private static void BroadcastFontChange()
         {
             try { PostMessage(HWND_BROADCAST, WM_FONTCHANGE, IntPtr.Zero, IntPtr.Zero); }
-            catch { /* broadcast is best-effort */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FontService] BroadcastFontChange: broadcast is best-effort: " + ex.Message); }
         }
 
         private static void RaiseFontChanged()
@@ -420,7 +420,7 @@ namespace ProGlassAutomation.Services.Fonts
                 else
                     FontChanged?.Invoke();
             }
-            catch { /* UI must never break the font engine */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[FontService] RaiseFontChanged: UI must never break the font engine: " + ex.Message); }
         }
     }
 }

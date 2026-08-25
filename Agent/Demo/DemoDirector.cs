@@ -498,7 +498,7 @@ namespace ProGlassAutomation.Agent.Demo
                 Services.Database.AppDataRoot.DemoFolder, ".recording-work");
             string dir = Path.Combine(root, safe + "_" + DateTime.Now.ToString("yyyyMMdd_HHmmss_fff"));
             Directory.CreateDirectory(dir);
-            try { new DirectoryInfo(root).Attributes |= FileAttributes.Hidden; } catch { }
+            try { new DirectoryInfo(root).Attributes |= FileAttributes.Hidden; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoDirector] Could not hide recording work folder: " + ex.Message); }
             return dir;
         }
 
@@ -545,7 +545,7 @@ namespace ProGlassAutomation.Agent.Demo
                     File.WriteAllText(Path.Combine(folder, "director.log"), log.ToString());
                     File.WriteAllText(Path.Combine(folder, "RESULT.txt"), "FAILED\n" + message + "\n");
                 }
-                catch { /* best effort */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoDirector] Fail: best effort: " + ex.Message); }
             }
             Remember(new DemoJobRecord
             {
@@ -571,7 +571,7 @@ namespace ProGlassAutomation.Agent.Demo
                 }
                 PushHistory(rec);
             }
-            catch { /* history is informational */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoDirector] Remember: history is informational: " + ex.Message); }
         }
 
         private void PushHistory(DemoJobRecord rec)
@@ -602,13 +602,13 @@ namespace ProGlassAutomation.Agent.Demo
                     disp.Invoke(() =>
                     {
                         try { Changed?.Invoke(); }
-                        catch { /* a subscriber must never break the director */ }
+                        catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DemoDirector] Set: a subscriber must never break the director: " + ex.Message); }
                     });
                     return;
                 }
                 Changed?.Invoke();
             }
-            catch { /* UI must not break the director */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DemoDirector] Set: UI must not break the director: " + ex.Message); }
         }
     }
 }

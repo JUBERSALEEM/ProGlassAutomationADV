@@ -250,11 +250,12 @@ namespace ProGlassAutomation.Services.Licensing
                     var beat = TrialLedger.Heartbeat();
                     clockRollbackDetected = beat.ClockRollbackDetected;
                 }
-                catch
+                catch (System.Exception ex)
                 {
                     // A dead ledger must not gate the app — the standard
                     // expiry check on the payload's TrialExpiresAt still
                     // runs below.
+                    ProGlassAutomation.Services.Logging.AppLogService.Warning("[LicenseService] Trial ledger unreadable; continuing without heartbeat: " + ex.Message);
                 }
 
                 // If the file says we're inside a trial BUT the ledger
@@ -600,13 +601,14 @@ namespace ProGlassAutomation.Services.Licensing
                     ConfigService.Save(App.Config);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Best effort. If we cannot save the config,
                 // the worst case is the next launch re-issues
                 // a trial (a second 30-day window) — annoying,
                 // not catastrophic, and only happens on a
                 // permission-locked profile.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseService] Auto-trial config persist failed: " + ex.Message);
             }
 
             try

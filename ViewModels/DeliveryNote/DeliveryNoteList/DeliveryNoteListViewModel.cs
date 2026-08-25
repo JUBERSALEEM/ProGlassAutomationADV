@@ -1076,7 +1076,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadAsync); } catch { }
+            try { ProGlassAutomation.Services.Database.DocumentLifecycle.Unsubscribe(LoadAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteListViewModel] Dispose detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
     }

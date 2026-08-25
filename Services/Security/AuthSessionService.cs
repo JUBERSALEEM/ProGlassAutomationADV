@@ -143,7 +143,7 @@ namespace ProGlassAutomation.Services.Security
                                 auditReason,
                                 "auto-sign-in disarmed; vault entry removed");
                         }
-                        catch { /* audit must not block security cleanup */ }
+                        catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[AuthSessionService] ClearSavedCredentialsCore: audit must not block security cleanup: " + ex.Message); }
                     }
                 }
             }

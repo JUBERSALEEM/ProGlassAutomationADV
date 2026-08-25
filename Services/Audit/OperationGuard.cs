@@ -141,9 +141,10 @@ namespace ProGlassAutomation.Services.Audit
                     $"({(string.IsNullOrEmpty(role) ? "?" : role)}) " +
                     $"tried {operation} without {permission}");
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Auditing must never suppress the denial itself.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning("[OperationGuard] Audit write for permission denial failed: " + ex.Message);
             }
 
             throw new PermissionDeniedException(permission, operation, role);

@@ -20,6 +20,7 @@
 | 2026-08-21 | **Phase 8: Security Hardening v2** | **9.9/10** | +0.1 | ProcessStartGuard sandbox for 32 Process.Start, AttachmentValidationService MIME sniffing + 10MB cap + IVirusScanner hook, SecretVault CheckHealth+Rotate, 2 new security test files (22 tests) |
 | 2026-08-21 | **Phase 9: Performance & Virtualization** | **9.95/10** | +0.05 | SpecificationMatcherCache 93% faster (10K LRU), ReportingCacheService 99% faster (30s expiry + lifecycle invalidation), IndexingService 30 indexes across 6 DBs, 130 virtualization occurrences, startup <2s |
 | 2026-08-21 | **Phase 10: Production Hardening** | **10.0/10** | +0.05 | OTA Authenticode signature verification (WinVerifyTrust + Code Signing EKU) at download+launch, backup restore drill (SHA-256 + PRAGMA integrity_check), OTel-compatible PI→JO→DN→TI tracing with CorrelationId, CI + signed release pipelines, runbook, fixed CS0718 + CS1501 build blockers |
+| 2026-08-25 | **Empty-Catch Sweep (verification fix)** | — | — | Re-measurement found the "0 empty catches" claim was false: **87 truly-empty + 83 block-comment silent catches** remained, and `SilentCatchAuditTests` only scanned 3 of 13 production folders. Swept all 170 sites to `AppLogService` (Warning/Debug) or documented policy-silence; extended the Roslyn audit to the **entire production tree**; result: **0 empty catches, 0 disallowed silent catches**. See `Docs/EMPTY_CATCH_SWEEP_2026-08-25.md` |
 
 ## Scorecard Evolution
 

@@ -722,7 +722,7 @@ namespace ProGlassAutomation.Services.Database
                     "Emergency database rebuild",
                     $"All DBs moved to {backupRoot} and recreated at current schema.");
             }
-            catch { /* audit must not block rebuild */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SchemaHealthService] RebuildAllAsync: audit must not block rebuild: " + ex.Message); }
 
             AppLogService.Info(
                 $"[SchemaHealth] emergency rebuild complete. Backups: {backupRoot}",

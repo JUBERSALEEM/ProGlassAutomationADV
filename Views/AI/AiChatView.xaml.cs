@@ -320,7 +320,7 @@ namespace ProGlassAutomation.Views.AI
 
                 DependencyObject? parent = null;
                 try { parent = System.Windows.Media.VisualTreeHelper.GetParent(d); }
-                catch { /* template boundary */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AiChatView.xaml] IsInsideButton: template boundary: " + ex.Message); }
                 if (parent == null && d is FrameworkElement fe && fe.TemplatedParent != null)
                     parent = fe.TemplatedParent;
                 d = parent;

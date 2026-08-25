@@ -425,7 +425,7 @@ namespace ProGlassAutomation.Agent.Demo
             {
                 MessageBox.Show(message, title, MessageBoxButton.OK, icon);
             }
-            catch { /* status line still updated */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoCenterViewModel] Alert: status line still updated: " + ex.Message); }
         }
 
         private void OpenOutput()

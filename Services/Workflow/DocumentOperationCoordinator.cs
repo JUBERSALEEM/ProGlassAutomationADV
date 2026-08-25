@@ -160,7 +160,7 @@ namespace ProGlassAutomation.Services.Workflow
                             string.Equals(dn.TaxInvoiceId, invoice.InvoiceNumber, StringComparison.OrdinalIgnoreCase))
                             verified++;
                     }
-                    catch { }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DocumentOperationCoordinator] DN verification probe failed: " + ex.Message); }
                 }
 
                 AppLogService.Info(

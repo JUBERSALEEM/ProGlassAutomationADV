@@ -61,7 +61,7 @@ namespace ProGlassAutomation.Services.Reporting
             {
                 DocumentLifecycle.Changed += OnDocumentChanged;
             }
-            catch { }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ReportingCacheService] Document-change subscription failed; cache may serve stale data: " + ex.Message); }
         }
 
         private void OnDocumentChanged()
@@ -173,7 +173,7 @@ namespace ProGlassAutomation.Services.Reporting
                         _cache.TryRemove(kvp.Key, out _);
                 }
             }
-            catch { }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ReportingCacheService] Cache prune failed: " + ex.Message); }
         }
 
         public (int Count, int Expired) GetStats()
@@ -189,8 +189,8 @@ namespace ProGlassAutomation.Services.Reporting
         {
             if (_disposed) return;
             _disposed = true;
-            try { DocumentLifecycle.Changed -= OnDocumentChanged; } catch { }
-            try { _pruneTimer?.Dispose(); } catch { }
+            try { DocumentLifecycle.Changed -= OnDocumentChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ReportingCacheService] DocumentLifecycle detach failed: " + ex.Message); }
+            try { _pruneTimer?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ReportingCacheService] Prune-timer dispose failed: " + ex.Message); }
             _cache.Clear();
         }
     }

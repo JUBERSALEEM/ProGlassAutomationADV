@@ -87,7 +87,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     if (pick.Balance + 2 > 0)
                         await repo.UseStockAsync(pick.Id, 1).ConfigureAwait(false);
                 }
-                catch { /* persist must not kill the walk */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SheetStoreWorkflow] RunAsync: persist must not kill the walk: " + ex.Message); }
 
                 await DemoWalk.TryCommandAsync(store.ClearFiltersCommand, null, ct)
                     .ConfigureAwait(false);

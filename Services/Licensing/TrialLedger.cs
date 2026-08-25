@@ -179,7 +179,7 @@ namespace ProGlassAutomation.Services.Licensing
                     evidence.Append("config;");
                 }
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
             // Anchor 2 — %ProgramData% ledger file
             try
@@ -199,7 +199,7 @@ namespace ProGlassAutomation.Services.Licensing
                         issuingFp = f.IssuingFingerprint;
                 }
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
             // Anchor 3 — HKLM registry. Skipped in tests so a stale
             // registry key left behind by a previous developer session
@@ -223,7 +223,7 @@ namespace ProGlassAutomation.Services.Licensing
                     evidence.Append("registry;");
                 }
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
             // Anchor 4 — DPAPI machine-scoped blob
             try
@@ -239,7 +239,7 @@ namespace ProGlassAutomation.Services.Licensing
                     evidence.Append("dpapi;");
                 }
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
             return new TrialLedgerSnapshot
             {
@@ -350,7 +350,7 @@ namespace ProGlassAutomation.Services.Licensing
                     "fingerprint=" + (machineFingerprint ?? "unknown") +
                     "; time=" + now.ToString("u"));
             }
-            catch { /* audit must not break the ledger */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] RecordIssuance: audit must not break the ledger: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -396,7 +396,7 @@ namespace ProGlassAutomation.Services.Licensing
                         "; nowUtc=" + now.ToString("u") +
                         "; delta=" + (prev.Value - now).TotalHours.ToString("0.0") + "h");
                 }
-                catch { /* silence */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Heartbeat: best-effort operation failed: " + ex.Message); }
             }
 
             // ONLY move LastSeenUtc forwards. On rollback we do NOT
@@ -419,13 +419,13 @@ namespace ProGlassAutomation.Services.Licensing
                     existing.FirstIssuedUtc = prev.Value;
                 WriteProgramDataLedger(existing);
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Heartbeat: best-effort operation failed: " + ex.Message); }
 
             // Anchor 3 — registry
             if (!SkipRegistryAnchorForTests)
             {
                 try { RegistryAnchor.UpdateLastSeen(toWrite); }
-                catch { /* silence */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Heartbeat: best-effort operation failed: " + ex.Message); }
             }
 
             // Anchor 4 — DPAPI
@@ -438,7 +438,7 @@ namespace ProGlassAutomation.Services.Licensing
                     WriteDpapiAnchor(existing);
                 }
             }
-            catch { /* silence */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Heartbeat: best-effort operation failed: " + ex.Message); }
 
             return new HeartbeatResult(rollback, prev, now);
         }

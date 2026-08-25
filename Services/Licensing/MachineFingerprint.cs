@@ -92,11 +92,12 @@ namespace ProGlassAutomation.Services.Licensing
                 GetVolumeInformation(sysDrive, null, 0, out serial,
                     out _, out _, null, 0);
             }
-            catch
+            catch (System.Exception ex)
             {
                 // WMI not available, or the call failed for any
                 // other reason. serial stays 0 — the fingerprint
                 // is still derived from the other sources.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[MachineFingerprint] Volume-serial probe failed: " + ex.Message);
             }
             sb.Append("vol=").Append(serial.ToString("X8")).Append(';');
 

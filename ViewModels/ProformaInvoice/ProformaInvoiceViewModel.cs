@@ -292,10 +292,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             _disposed = true;
 
             try { Step2VM.PropertyChanged -= OnStep2PropertyChanged; }
-            catch { /* best-effort teardown */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
 
             try { Step8VM.AttachmentUploaded -= OnStep8AttachmentUploaded; }
-            catch { /* best-effort teardown */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
 
             // Follow-up audit pass (Aug 2026): SavedInvoicesListViewModel
             // is IDisposable and subscribes to static DocumentLifecycle
@@ -304,7 +304,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // tears down cleanly on shutdown / test hosts. Best-effort:
             // a partially-constructed child never blocks teardown.
             try { SavedInvoicesListVM?.Dispose(); }
-            catch { /* best-effort teardown */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
 
             GC.SuppressFinalize(this);
         }

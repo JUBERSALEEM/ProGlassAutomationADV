@@ -303,7 +303,7 @@ namespace ProGlassAutomation.Services.Export
                         window.UpdateLayout();
                         sv.ScrollToVerticalOffset(savedOffset);
                     }
-                    catch { /* restore is best-effort */ }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ScreenshotService] StitchFullPage: restore is best-effort: " + ex.Message); }
                 }
             }
         }

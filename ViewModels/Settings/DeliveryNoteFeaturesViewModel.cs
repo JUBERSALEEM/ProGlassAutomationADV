@@ -71,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Delivery Note field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
 
             DeliveryNoteFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -109,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Delivery Note field visibility bulk change",
                     "value=" + value);
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DeliveryNoteFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
 
             DeliveryNoteFieldVisibility.Instance.Refresh();
             RaiseAll();

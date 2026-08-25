@@ -142,9 +142,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             // children, or they leak and re-run after the module is gone.
             // (The previous code unsubscribed DataSeeded twice — a bug — and
             // never disposed ListVM/ActivityVM.)
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { ListVM?.Dispose(); } catch { }
-            try { ActivityVM?.Dispose(); } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
+            try { ListVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ListVM teardown failed: " + ex.Message); }
+            try { ActivityVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Dispose: ActivityVM teardown failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

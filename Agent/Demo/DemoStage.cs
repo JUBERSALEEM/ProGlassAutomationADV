@@ -9,7 +9,7 @@ namespace ProGlassAutomation.Agent.Demo
 
         public static void Now(string message)
         {
-            try { Report?.Invoke(message); } catch { /* UI must not break the walk */ }
+            try { Report?.Invoke(message); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoStage] Now: UI must not break the walk: " + ex.Message); }
         }
     }
 }

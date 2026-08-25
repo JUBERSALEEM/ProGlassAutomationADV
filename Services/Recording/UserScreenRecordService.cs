@@ -303,7 +303,7 @@ namespace ProGlassAutomation.Services.Recording
                     File.WriteAllText(Path.Combine(folder, "RESULT.txt"),
                         "COMPLETED\n" + mp4 + "\n" + durationNote + "\n");
                 }
-                catch { /* sidecar is optional */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserScreenRecordService] StopAndSaveAsync: sidecar is optional: " + ex.Message); }
 
                 DemoRecordingChrome.ShowSaved(
                     mp4,
@@ -398,7 +398,7 @@ namespace ProGlassAutomation.Services.Recording
                 if (!string.IsNullOrEmpty(_jobFolder))
                     File.WriteAllText(Path.Combine(_jobFolder, "RESULT.txt"), "FAILED\n" + message + "\n");
             }
-            catch { /* sidecar is optional */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserScreenRecordService] Fail: sidecar is optional: " + ex.Message); }
             DemoRecordingChrome.ShowFailed(message);
         }
 
@@ -433,7 +433,7 @@ namespace ProGlassAutomation.Services.Recording
                 {
                     string path = System.IO.Path.Combine(folder, file);
                     try { if (File.Exists(path)) File.Delete(path); }
-                    catch { /* best-effort */ }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserScreenRecordService] CleanupFolderForDemo: best-effort: " + ex.Message); }
                 }
             }
             catch (Exception ex)
@@ -452,7 +452,7 @@ namespace ProGlassAutomation.Services.Recording
                 else
                     Changed?.Invoke();
             }
-            catch { /* UI must not break the recorder */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[UserScreenRecordService] RaiseChanged: UI must not break the recorder: " + ex.Message); }
         }
     }
 }

@@ -27,9 +27,10 @@ namespace ProGlassAutomation.Agent.AI
                     // Currently, the router handles empty lists gracefully (falls back).
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Bridge must never break the agent.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning("[AIProviderBridge] Provider bridge init failed; agent falls back: " + ex.Message);
             }
 
             return providers.AsReadOnly();

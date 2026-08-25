@@ -111,7 +111,7 @@ namespace ProGlassAutomation.Services.Logging
                     if (!string.IsNullOrWhiteSpace(ambient))
                         context.CorrelationId = ambient;
                 }
-                catch { }
+                catch { /* Logger must never throw — see file header. */ }
             }
             if (context != null && string.IsNullOrWhiteSpace(context.DocumentId))
             {
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.Services.Logging
                     if (!string.IsNullOrWhiteSpace(docId))
                         context.DocumentId = docId;
                 }
-                catch { }
+                catch { /* Logger must never throw — see file header. */ }
             }
             if (context != null && string.IsNullOrWhiteSpace(context.DocumentType))
             {
@@ -131,7 +131,7 @@ namespace ProGlassAutomation.Services.Logging
                     if (!string.IsNullOrWhiteSpace(docType))
                         context.DocumentType = docType;
                 }
-                catch { }
+                catch { /* Logger must never throw — see file header. */ }
             }
 
             var entry = new LogEntry

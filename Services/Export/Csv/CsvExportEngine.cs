@@ -145,9 +145,10 @@ namespace ProGlassAutomation.Services.Export.Csv
                     {
                                     ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
                     }
-                    catch
+                    catch (System.Exception ex)
                     {
                         // File saved OK — non-fatal if launcher fails
+                        ProGlassAutomation.Services.Logging.AppLogService.Warning("[CsvExportEngine] Viewer launch failed after save: " + ex.Message);
                     }
                 }
 

@@ -357,11 +357,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             {
                 await App.DeliveryNotes.ClearInvoicedByTaxInvoiceAsync(invoiceNumber);
             }
-            catch
+            catch (System.Exception ex)
             {
                 // TI is already gone. A leftover DN badge is repaired
                 // the next time this invoice number is written or the
                 // user re-saves the delivery note.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[TaxInvoiceRepository] Linked-DN badge cleanup failed: " + ex.Message);
             }
         }
 

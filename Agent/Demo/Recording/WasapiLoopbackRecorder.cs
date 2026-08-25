@@ -105,7 +105,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     _capture.Dispose();
                 }
             }
-            catch { /* already stopped */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WasapiLoopbackRecorder] StopCore: already stopped: " + ex.Message); }
             _capture = null;
 
             lock (_gate)

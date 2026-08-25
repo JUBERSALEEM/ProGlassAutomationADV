@@ -120,7 +120,7 @@ namespace ProGlassAutomation.Services.Theme
 
         public static void Unsubscribe()
         {
-            try { ThemeManager.AccentChanged -= _accentChangedHandler; } catch { }
+            try { ThemeManager.AccentChanged -= _accentChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[VisualThemeEngine] AccentChanged detach failed: " + ex.Message); }
         }
 
         private static void OnAccentChanged(object? sender, EventArgs e)

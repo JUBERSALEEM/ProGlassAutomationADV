@@ -68,7 +68,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     if (!p.WaitForExit(1500)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
                 }
-                catch { /* try next */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] FindCore: try next: " + ex.Message); }
             }
 
             return null;
@@ -95,7 +95,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     if (!p.WaitForExit(4000)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } continue; }
                     if (p.ExitCode == 0) return name;
                 }
-                catch { /* try next */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] FindProbe: try next: " + ex.Message); }
             }
 
             string local = Path.Combine(ToolsFolder, "ffprobe.exe");
@@ -157,7 +157,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
             // frames, which looked like an unpacked recording and was unsafe
             // to open/copy. Only a completely validated ISO-BMFF is exposed.
             string packingPath = mp4Path + ".packing.mp4";
-            try { if (File.Exists(packingPath)) File.Delete(packingPath); } catch { }
+            try { if (File.Exists(packingPath)) File.Delete(packingPath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] Stale packing-file delete failed: " + ex.Message); }
             string args = wavPath != null && File.Exists(wavPath)
                 ? $"-y -framerate {fps} -i \"{input}\" -i \"{wavPath}\" " +
                   $"-vf \"{vf}\" -c:v libx264 -preset slow -tune animation -crf {crf} -profile:v high -level:v 5.2 " +
@@ -337,7 +337,7 @@ namespace ProGlassAutomation.Agent.Demo.Video
                     // A cancelled encode must not leave ffmpeg running and
                     // holding the output file open.
                     try { if (!p.HasExited) p.Kill(entireProcessTree: true); }
-                    catch { /* already gone */ }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] RunComposeAsync: already gone: " + ex.Message); }
                     throw;
                 }
 
@@ -418,13 +418,13 @@ namespace ProGlassAutomation.Agent.Demo.Video
                 string text = p.StandardOutput.ReadToEnd();
 
                 if (!p.WaitForExit(5000)) { try { p.Kill(); } catch (Exception ex) { AppLogService.Warning($"Suppressed exception: {ex.Message}"); } return null; }
-                try { errTask.Wait(500); } catch { /* drained or gone */ }
+                try { errTask.Wait(500); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] TryReadDurationSeconds: drained or gone: " + ex.Message); }
                 text = (text ?? "").Trim();
                 if (double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double sec)
                     && sec > 0)
                     return sec;
             }
-            catch { /* unmeasured */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[FfmpegMp4Composer] TryReadDurationSeconds: unmeasured: " + ex.Message); }
             return null;
         }
     }

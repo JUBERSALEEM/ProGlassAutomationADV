@@ -71,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Tax Invoice field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[TaxInvoiceFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
 
             TaxInvoiceFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -109,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Tax Invoice field visibility bulk change",
                     "value=" + value);
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[TaxInvoiceFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
 
             TaxInvoiceFieldVisibility.Instance.Refresh();
             RaiseAll();

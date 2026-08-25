@@ -2355,9 +2355,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             if (_disposed) return;
             _disposed = true;
-            try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch { }
-            try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch { }
-            try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch { }
+            try { ThemeManager.ThemeChanged -= _themeChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: ThemeChanged detach failed: " + ex.Message); }
+            try { ThemeManager.UiScaleChanged -= _uiScaleChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UiScaleChanged detach failed: " + ex.Message); }
+            try { Services.Updates.UpdateService.StateChanged -= OnUpdateServiceStateChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SettingsViewModel] Dispose: UpdateService detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 
@@ -2376,9 +2376,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 System.Windows.Application.Current.Shutdown();
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Restart is a convenience — never crash for it.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning("[SettingsViewModel] Restart failed: " + ex.Message);
             }
         }
     }

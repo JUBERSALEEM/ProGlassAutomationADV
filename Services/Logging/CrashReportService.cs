@@ -630,7 +630,7 @@ namespace ProGlassAutomation.Services.Logging
                 int removed = 0;
                 foreach (var f in dir.GetFiles("crash-*.txt"))
                 {
-                    try { f.Delete(); removed++; } catch { }
+                    try { f.Delete(); removed++; } catch { /* Crash reporter must never throw. */ }
                 }
                 return removed;
             }

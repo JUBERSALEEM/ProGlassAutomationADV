@@ -430,7 +430,7 @@ namespace ProGlassAutomation.Agent.UI
             // not just suppress the next one.
             if (IsMuted)
             {
-                try { voice?.StopSpeaking(); } catch { /* best effort */ }
+                try { voice?.StopSpeaking(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AgentChatViewModel] ToggleMute: best effort: " + ex.Message); }
                 IsSpeaking = false;
             }
 

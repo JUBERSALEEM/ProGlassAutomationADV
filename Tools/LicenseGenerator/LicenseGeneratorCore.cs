@@ -97,10 +97,11 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
                         return ks;
                     }
                 }
-                catch
+                catch (System.Exception ex)
                 {
                     // Fall through to recreate. The bad file
                     // is left on disk for forensic recovery.
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseGenerator] Key-store file unreadable; recreating: " + ex.Message);
                 }
             }
 

@@ -511,7 +511,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await pi.Step8VM.LoadAsync().ConfigureAwait(true);
             }
-            catch { /* empty step is honest */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceWorkflow] ShowAttachmentsAsync: empty step is honest: " + ex.Message); }
             await WpfUiDriver.DwellAsync(400, ct).ConfigureAwait(false);
         }
 
@@ -523,7 +523,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await pi.Step9VM.RecalculateAsync().ConfigureAwait(true);
             }
-            catch { /* P&L never breaks the walk */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceWorkflow] RecalculateProfitAsync: P&L never breaks the walk: " + ex.Message); }
 
             await WaitUntilAsync(() => !pi.Step9VM.IsBusy, 8000, ct).ConfigureAwait(false);
             await WpfUiDriver.DwellAsync(500, ct).ConfigureAwait(false);

@@ -265,7 +265,7 @@ namespace ProGlassAutomation.Services.Security
                     string toolFull = Path.GetFullPath(sanitized);
                     isFromTools = toolFull.StartsWith(toolsFull, StringComparison.OrdinalIgnoreCase);
                 }
-                catch { }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProcessStartGuard] Tool-path resolution failed: " + ex.Message); }
 
                 bool isSystemTool = !Path.IsPathRooted(sanitized) &&
                                     (sanitized.Equals("ffmpeg", StringComparison.OrdinalIgnoreCase) ||

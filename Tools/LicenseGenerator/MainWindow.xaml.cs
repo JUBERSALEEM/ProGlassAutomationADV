@@ -378,10 +378,11 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
                     UseShellExecute = true
                 });
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Non-fatal: the status bar already tells
                 // the user where the file is.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseGenerator] Explorer reveal failed: " + ex.Message);
             }
         }
 

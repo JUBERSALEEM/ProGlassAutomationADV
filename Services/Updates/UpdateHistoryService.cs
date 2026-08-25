@@ -131,9 +131,10 @@ namespace ProGlassAutomation.Services.Updates
 
                 WriteFile(entries);
             }
-            catch
+            catch (System.Exception ex)
             {
                 // History is a convenience — never block updates on it.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[UpdateHistoryService] Update-history write failed: " + ex.Message);
             }
         }
 

@@ -70,7 +70,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Inquiry field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
 
             InquiryFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -111,7 +111,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Inquiry field visibility bulk change",
                     "value=" + value);
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[InquiryFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
 
             InquiryFieldVisibility.Instance.Refresh();
             RaiseAll();

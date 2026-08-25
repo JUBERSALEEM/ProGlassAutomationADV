@@ -162,7 +162,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             if (_disposed) return;
             _disposed = true;
-            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DashboardViewModel] Dispose detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
     }

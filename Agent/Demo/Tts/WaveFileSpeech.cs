@@ -44,7 +44,7 @@ namespace ProGlassAutomation.Agent.Demo.Tts
             {
                 if (File.Exists(wavPath))
                 {
-                    try { File.Delete(wavPath); } catch { /* overwrite below */ }
+                    try { File.Delete(wavPath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WaveFileSpeech] SpeakOnce: overwrite below: " + ex.Message); }
                 }
 
                 using var synth = new SpeechSynthesizer();
@@ -80,7 +80,7 @@ namespace ProGlassAutomation.Agent.Demo.Tts
                 }
                 if (en != null) synth.SelectVoice(en.VoiceInfo.Name);
             }
-            catch { /* default voice */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WaveFileSpeech] SelectEnglish: default voice: " + ex.Message); }
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace ProGlassAutomation.Agent.Demo.Tts
                 if (reader.TotalTime > TimeSpan.Zero)
                     return reader.TotalTime;
             }
-            catch { /* fall through to chunk walk */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WaveFileSpeech] WavDuration: fall through to chunk walk: " + ex.Message); }
 
             return DurationFromChunks(path);
         }

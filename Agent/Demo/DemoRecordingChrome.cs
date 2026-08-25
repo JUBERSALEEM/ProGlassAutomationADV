@@ -73,7 +73,7 @@ namespace ProGlassAutomation.Agent.Demo
                     autoClose = ProGlassAutomation.App.Config?.Recording?
                         .AutoCloseHudAfterSave ?? true;
                 }
-                catch { /* stick with default true */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoRecordingChrome] ShowSaved: stick with default true: " + ex.Message); }
 
                 if (autoClose)
                 {
@@ -86,7 +86,7 @@ namespace ProGlassAutomation.Agent.Demo
                     timer.Tick += (s, e) =>
                     {
                         timer.Stop();
-                        try { _overlay?.Close(); } catch { /* silence */ }
+                        try { _overlay?.Close(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoRecordingChrome] ShowSaved: best-effort operation failed: " + ex.Message); }
                         _overlay = null;
                     };
                     timer.Start();

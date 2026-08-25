@@ -153,10 +153,11 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                 if (master != null)
                     await App.DeliveryNotes.DeleteAsync(master.Id);
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Best-effort cleanup. A leftover Master DN is hidden
                 // from every public list and does not keep the PI open.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderRepository] Master-DN quiet cleanup failed: " + ex.Message);
             }
         }
 

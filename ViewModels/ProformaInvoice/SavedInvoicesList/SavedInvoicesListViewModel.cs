@@ -1187,8 +1187,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (_disposed) return;
             _disposed = true;
-            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch { }
-            try { DocumentLifecycle.Unsubscribe(LoadInvoicesAsync); } catch { }
+            try { ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded -= _dataSeededHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DataSeeded detach failed: " + ex.Message); }
+            try { DocumentLifecycle.Unsubscribe(LoadInvoicesAsync); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SavedInvoicesListViewModel] Dispose: DocumentLifecycle detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
 

@@ -129,12 +129,13 @@ namespace ProGlassAutomation.Services.Audit
                     .SqliteResilience.PragmaScript;
                 cmd.ExecuteNonQuery();
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Best-effort: read-only media or a stale schema may
                 // reject one pragma. The connection is still usable
                 // with reduced guarantees; the migration path already
                 // handles ordinary errors defensively.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[AuditDbMigrations] Pragma tune skipped: " + ex.Message);
             }
             return connection;
         }

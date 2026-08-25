@@ -99,7 +99,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
 
                 return count;
@@ -129,7 +129,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
                 return count;
             }
@@ -162,7 +162,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
                 return count;
             }
@@ -192,7 +192,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
                 return count;
             }
@@ -220,7 +220,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
                 return count;
             }
@@ -248,7 +248,7 @@ namespace ProGlassAutomation.Services.Database
                 int count = 0;
                 foreach (var sql in sqls)
                 {
-                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch { }
+                    try { await db.Database.ExecuteSqlRawAsync(sql).ConfigureAwait(false); count++; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug($"[IndexingService] Index statement failed ({sql}): {ex.Message}"); }
                 }
                 return count;
             }

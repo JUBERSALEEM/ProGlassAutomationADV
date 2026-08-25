@@ -56,7 +56,7 @@ namespace ProGlassAutomation.Services.Updates
                     return v.ToString(3);
                 }
             }
-            catch { /* fall through to the fallback */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppInfo] ResolveVersion: fall through to the fallback: " + ex.Message); }
 
             return FallbackVersion;
         }
@@ -69,7 +69,7 @@ namespace ProGlassAutomation.Services.Updates
                 if (!string.IsNullOrEmpty(path) && File.Exists(path))
                     return File.GetLastWriteTime(path).ToString("yyyy.MM.dd");
             }
-            catch { /* fall through */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppInfo] ResolveBuildLabel: fall through: " + ex.Message); }
 
             return DateTime.Now.ToString("yyyy.MM.dd");
         }

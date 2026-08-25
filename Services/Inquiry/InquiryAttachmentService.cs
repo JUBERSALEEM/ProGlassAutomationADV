@@ -206,13 +206,13 @@ namespace ProGlassAutomation.Services.Inquiry
             await SaveManifestAsync(attachment.InquiryId, manifest).ConfigureAwait(false);
             MirrorDelete(hit);
             // Delete every candidate location; failures are non-fatal.
-            try { if (File.Exists(hit.StoragePath)) File.Delete(hit.StoragePath); } catch { }
+            try { if (File.Exists(hit.StoragePath)) File.Delete(hit.StoragePath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryAttachmentService] Attachment file delete skipped: " + ex.Message); }
             try
             {
                 string fallback = Path.Combine(StorageFolder(hit.InquiryId), Path.GetFileName(hit.StoragePath));
                 if (File.Exists(fallback)) File.Delete(fallback);
             }
-            catch { }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryAttachmentService] Attachment fallback delete skipped: " + ex.Message); }
             AuditService.Log(AuditSections.Proforma, "Inquiry attachment deleted",
                 hit.FileName, "INQ", hit.InquiryId.ToString());
             return true;

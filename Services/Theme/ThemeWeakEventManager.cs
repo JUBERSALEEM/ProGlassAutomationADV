@@ -125,7 +125,7 @@ namespace ProGlassAutomation.Services.Theme
             {
                 if (weak.TryGetTarget(out var handler))
                 {
-                    try { handler(sender, e); } catch { }
+                    try { handler(sender, e); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ThemeWeakEventManager] Theme subscriber threw: " + ex.GetType().Name + ": " + ex.Message); }
                 }
             }
 
@@ -145,7 +145,7 @@ namespace ProGlassAutomation.Services.Theme
             {
                 if (weak.TryGetTarget(out var handler))
                 {
-                    try { handler(sender, e); } catch { }
+                    try { handler(sender, e); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ThemeWeakEventManager] Theme subscriber threw: " + ex.GetType().Name + ": " + ex.Message); }
                 }
             }
 
@@ -165,7 +165,7 @@ namespace ProGlassAutomation.Services.Theme
             {
                 if (weak.TryGetTarget(out var handler))
                 {
-                    try { handler(sender, e); } catch { }
+                    try { handler(sender, e); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ThemeWeakEventManager] Theme subscriber threw: " + ex.GetType().Name + ": " + ex.Message); }
                 }
             }
 

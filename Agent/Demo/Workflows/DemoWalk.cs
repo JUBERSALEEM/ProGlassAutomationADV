@@ -92,7 +92,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public static void SpeakLive(string text)
         {
             try { App.TextToSpeech?.SpeakAsync(text); }
-            catch { /* live voice optional */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoWalk] SpeakLive: live voice optional: " + ex.Message); }
         }
 
         /// <summary>
@@ -107,7 +107,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (tts == null || !tts.IsAvailable || string.IsNullOrWhiteSpace(text))
                 return TimeSpan.Zero;
 
-            try { tts.Stop(); } catch { /* cancel previous beat */ }
+            try { tts.Stop(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DemoWalk] SpeakAndWaitAsync: cancel previous beat: " + ex.Message); }
             var started = DateTime.UtcNow;
             try { tts.SpeakAsync(text); }
             catch { return TimeSpan.Zero; }
@@ -162,7 +162,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     if (command.CanExecute(parameter))
                         command.Execute(parameter);
                 }
-                catch { /* command must not kill the walk */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[DemoWalk] TryCommandAsync: command must not kill the walk: " + ex.Message); }
                 return true;
             }, ct).ConfigureAwait(false);
         }

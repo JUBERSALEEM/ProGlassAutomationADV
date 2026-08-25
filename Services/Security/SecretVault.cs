@@ -79,7 +79,7 @@ namespace ProGlassAutomation.Services.Security
                             var plain = ProtectedData.Unprotect(cipher, EntropyV1, DataProtectionScope.CurrentUser);
                             if (plain.Length > 0) valid++;
                         }
-                        catch { }
+                        catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SecretVault] Health-check: legacy-entropy unprotect failed for one entry: " + ex.Message); }
                     }
                 }
 
@@ -149,7 +149,7 @@ namespace ProGlassAutomation.Services.Security
                             plainText = Encoding.UTF8.GetString(plain);
                             migrated++;
                         }
-                        catch { }
+                        catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SecretVault] Legacy key migration skipped for one entry: " + ex.Message); }
                     }
 
                     if (!string.IsNullOrEmpty(plainText))

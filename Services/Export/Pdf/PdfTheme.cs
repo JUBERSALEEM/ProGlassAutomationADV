@@ -246,7 +246,7 @@ namespace ProGlassAutomation.Services.Export.Pdf
         {
             string? id = null;
             try { id = App.Config?.Appearance?.PdfLayoutId; }
-            catch { /* config not ready */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[PdfTheme] ApplySaved: config not ready: " + ex.Message); }
             DocumentStyle.Apply(Resolve(id));
         }
     }

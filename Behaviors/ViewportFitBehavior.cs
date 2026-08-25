@@ -84,15 +84,16 @@ namespace ProGlassAutomation.Behaviors
                                 ViewportService.CapWindowToWorkArea(w);
                                 ApplyUserScale(w);
                             }
-                            catch { /* closing window */ }
+                            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] Install: closing window: " + ex.Message); }
                         }
                     }));
                 };
                 SystemEvents.DisplaySettingsChanged += _displaySettingsHandler;
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Session 0 / no interactive desktop.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] Display-settings subscription failed: " + ex.Message);
             }
         }
 
@@ -103,12 +104,12 @@ namespace ProGlassAutomation.Behaviors
 
             if (_uiScaleHandler != null)
             {
-                try { ThemeManager.UiScaleChanged -= _uiScaleHandler; } catch { }
+                try { ThemeManager.UiScaleChanged -= _uiScaleHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] UiScaleChanged detach failed: " + ex.Message); }
                 _uiScaleHandler = null;
             }
             if (_displaySettingsHandler != null)
             {
-                try { SystemEvents.DisplaySettingsChanged -= _displaySettingsHandler; } catch { }
+                try { SystemEvents.DisplaySettingsChanged -= _displaySettingsHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] DisplaySettingsChanged detach failed: " + ex.Message); }
                 _displaySettingsHandler = null;
             }
         }
@@ -153,7 +154,7 @@ namespace ProGlassAutomation.Behaviors
             foreach (Window w in app.Windows)
             {
                 try { ApplyUserScale(w); }
-                catch { /* closing */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] ApplyScaleToOpenWindows: closing: " + ex.Message); }
             }
         }
 
@@ -299,9 +300,10 @@ namespace ProGlassAutomation.Behaviors
                     ConfigService.Save(App.Config);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Zoom must still work if config is mid-load.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[ViewportFitBehavior] Zoom config persist failed: " + ex.Message);
             }
         }
     }

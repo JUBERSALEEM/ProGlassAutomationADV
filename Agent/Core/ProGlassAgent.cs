@@ -57,7 +57,7 @@ namespace ProGlassAutomation.Agent.Core
             State = state;
 
             try { StateChanged?.Invoke(this, state); }
-            catch { /* a UI handler must never break the agent */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProGlassAgent] SetState: a UI handler must never break the agent: " + ex.Message); }
         }
 
         // ══════════════════════════════════════════════════════════════

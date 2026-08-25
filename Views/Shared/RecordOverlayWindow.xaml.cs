@@ -191,7 +191,7 @@ namespace ProGlassAutomation.Views.Shared
                     Top = top;
                 }
             }
-            catch { /* last position is fine */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] Place: last position is fine: " + ex.Message); }
         }
 
         private void Tick()
@@ -274,7 +274,7 @@ namespace ProGlassAutomation.Views.Shared
                 if (d is System.Windows.Controls.Primitives.ButtonBase) return true;
 
                 DependencyObject? parent = null;
-                try { parent = VisualTreeHelper.GetParent(d); } catch { /* template boundary */ }
+                try { parent = VisualTreeHelper.GetParent(d); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[RecordOverlayWindow.xaml] IsInsideButton: template boundary: " + ex.Message); }
                 if (parent == null && d is FrameworkElement fe && fe.TemplatedParent != null)
                     parent = fe.TemplatedParent;
                 d = parent;

@@ -159,16 +159,16 @@ namespace ProGlassAutomation.Agent.Demo.Recording
 
             Duration = Elapsed;
             try { await _audio.StopAsync().ConfigureAwait(false); }
-            catch { /* loopback is optional */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: loopback is optional: " + ex.Message); }
             try { await _mic.StopAsync().ConfigureAwait(false); }
-            catch { /* mic is optional */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: mic is optional: " + ex.Message); }
 
             if (_pipe != null)
             {
                 EncodeStage = "Closing live encoder…";
                 EncodePercent = 40;
                 try { await _pipe.FinishAsync(CancellationToken.None).ConfigureAwait(false); }
-                catch { /* fallback JPEG encode still available */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] StopAsync: fallback JPEG encode still available: " + ex.Message); }
             }
             EncodePercent = 55;
         }
@@ -364,7 +364,7 @@ namespace ProGlassAutomation.Agent.Demo.Recording
                     cy = (int)Math.Round((pos.Y - origin.Y) / pxH * capH);
                 }
             }
-            catch { /* cursor overlay is optional */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[WindowScreenRecorder] CaptureOnUi: cursor overlay is optional: " + ex.Message); }
 
             DrawPointer(pixels, capW, capH, cx, cy);
 

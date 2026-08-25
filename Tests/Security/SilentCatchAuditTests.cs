@@ -43,6 +43,19 @@
 //   existing 6 DISALLOWED silent catches (audit S-5 is the
 //   place for those decisions). It stops the bleeding; it
 //   does not heal existing wounds.
+//
+// 2026-08-25 EMPTY-CATCH SWEEP
+//   The 87 truly-empty catches measured on 2026-08-25 were
+//   swept: every best-effort catch now routes to
+//   AppLogService (Warning for user-visible degradation,
+//   Debug for probes/teardown). What remains silent is ONLY
+//   the structural set — the logger itself, the crash
+//   reporter, last-chance handlers, the fire-and-forget
+//   sink, and documented benign paths (superseded-load
+//   cancellation, network-poll resilience). Each remaining
+//   site is on the allow list below with a one-line reason,
+//   and the audit now scans the ENTIRE production tree, not
+//   just Services/ViewModels/App.xaml.cs.
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.CodeAnalysis;
@@ -106,6 +119,12 @@ namespace ProGlassAutomation.Tests.Security
             // throw or it cascades into the catch handler.
             ("AppLogService.cs",                    "*",                   "Logger must never throw"),
 
+            // LogEntry — logging infrastructure; calling the
+            // logger from inside the log-entry factory risks
+            // recursion, so the ambient-context probe stays
+            // silent by design. (2026-08-25 empty-catch sweep.)
+            ("LogEntry.cs",                         "*",                   "Logger infrastructure must never throw"),
+
             // ThemeWeakEventManager + VisualThemeEngine —
             // dispose/teardown must not throw.
             ("ThemeWeakEventManager.cs",            "*",                   "Weak-event teardown must never throw"),
@@ -120,6 +139,18 @@ namespace ProGlassAutomation.Tests.Security
             // exists ONLY to swallow the inner exception after
             // logging it.
             ("AsyncUtility.cs",                     "*",                   "Fire-and-forget sink by design"),
+
+            // RelayCommand — the inner catch guards the log
+            // call itself; logging about a logging failure
+            // must never mask the original command failure.
+            // (2026-08-25 empty-catch sweep.)
+            ("RelayCommand.cs",                     "Execute",             "Logging guard must never mask the original failure"),
+
+            // DemoJobQueue — the demo director already records
+            // the Failed state for the job; a second log here
+            // would duplicate it. The queue must keep moving.
+            // (2026-08-25 empty-catch sweep.)
+            ("DemoJobQueue.cs",                     "*",                   "Director already records failures; keep the queue moving"),
 
             // ConnectivityService — the network poll loop
             // catches each transient failure individually so a
@@ -387,11 +418,27 @@ namespace ProGlassAutomation.Tests.Security
         // Folders we audit. Add new ones here when new code is
         // organised under a new top-level directory; do NOT
         // add Tests/ to keep the audit self-non-recursive.
+        //
+        // 2026-08-25: extended from {Services, ViewModels,
+        // App.xaml.cs} to the ENTIRE production tree. Views,
+        // Behaviors, Commands, Agent and Utilities previously
+        // sat outside the audit, which is exactly where silent
+        // catches were accumulating unseen.
         private static readonly string[] AuditedFolders =
         {
+            "Agent",
+            "Behaviors",
+            "Commands",
+            "Controls",
+            "Converters",
+            "Models",
             "Services",
+            "Tools",
+            "Utilities",
             "ViewModels",
+            "Views",
             "App.xaml.cs",
+            "MainWindow.xaml.cs",
         };
 
         [Fact]

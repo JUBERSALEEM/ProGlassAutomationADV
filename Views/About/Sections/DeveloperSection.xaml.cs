@@ -37,9 +37,10 @@ namespace ProGlassAutomation.Views.About.Sections
                         UseShellExecute = true
                     });
                 }
-                catch
+                catch (System.Exception ex)
                 {
                     // mailto handler unavailable — silent fail (Rule E01 with reason)
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeveloperSection] mailto launch failed: " + ex.Message);
                 }
             }
         }

@@ -201,9 +201,10 @@ namespace ProGlassAutomation
                         });
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Allow close on error
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainWindow] Shutdown audit/cleanup failed: " + ex.Message);
             }
         }
 

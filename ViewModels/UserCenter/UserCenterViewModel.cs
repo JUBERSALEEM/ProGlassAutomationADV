@@ -312,7 +312,7 @@ namespace ProGlassAutomation.ViewModels.UserCenter
         {
             if (_disposed) return;
             _disposed = true;
-            try { AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
+            try { AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UserCenterViewModel] Dispose: user-changed detach failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
     }

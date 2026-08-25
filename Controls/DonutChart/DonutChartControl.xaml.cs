@@ -140,7 +140,7 @@ namespace ProGlassAutomation.Controls.DonutChart
                 {
                     return (Brush)new BrushConverter().ConvertFromString(slice.SliceColor)!;
                 }
-                catch { /* fall through to accent */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DonutChartControl.xaml] ResolveBrush: fall through to accent: " + ex.Message); }
             }
 
             string key = slice.Accent switch

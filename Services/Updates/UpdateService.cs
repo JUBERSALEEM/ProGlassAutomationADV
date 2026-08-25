@@ -403,7 +403,7 @@ namespace ProGlassAutomation.Services.Updates
 
                 await CheckNowAsync();
             }
-            catch { /* OTA must never affect the running app */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[UpdateService] StartupCheckAsync: OTA must never affect the running app: " + ex.Message); }
         }
 
         /// <summary>
@@ -624,7 +624,7 @@ namespace ProGlassAutomation.Services.Updates
 
                     // Best-effort delete of the partial file.
                     try { if (File.Exists(targetPath)) File.Delete(targetPath); }
-                    catch { /* partial file cleanup is best-effort */ }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UpdateService] DownloadUpdateAsync: partial file cleanup is best-effort: " + ex.Message); }
 
                     return (false, "",
                         "The update download was incomplete and was discarded. " +
@@ -653,7 +653,7 @@ namespace ProGlassAutomation.Services.Updates
                         $"v{update.LatestVersion}: {verdict.Reason}");
 
                     try { if (File.Exists(targetPath)) File.Delete(targetPath); }
-                    catch { /* cleanup is best-effort */ }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[UpdateService] DownloadUpdateAsync: cleanup is best-effort: " + ex.Message); }
 
                     return (false, "",
                         "This update failed signature verification and was " +

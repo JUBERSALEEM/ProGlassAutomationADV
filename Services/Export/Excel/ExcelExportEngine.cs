@@ -87,9 +87,10 @@ namespace ProGlassAutomation.Services.Export.Excel
                     {
                                     ProcessStartGuard.TryOpenFile(path, CorrelationContext.NewId());
                     }
-                    catch
+                    catch (System.Exception ex)
                     {
                         // File saved OK — non-fatal if launcher fails
+                        ProGlassAutomation.Services.Logging.AppLogService.Warning("[ExcelExportEngine] Viewer launch failed after save: " + ex.Message);
                     }
                 }
 

@@ -105,7 +105,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Proforma field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
 
             // Push the change into the wizard immediately.
             ProformaFieldVisibility.Instance.Refresh();
@@ -164,7 +164,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Proforma field visibility bulk change",
                     "value=" + value);
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[ProformaInvoiceFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
 
             ProformaFieldVisibility.Instance.Refresh();
             RaiseAll();

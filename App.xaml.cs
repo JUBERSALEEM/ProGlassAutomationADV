@@ -1120,7 +1120,7 @@ namespace ProGlassAutomation
         protected override void OnExit(ExitEventArgs e)
         {
             // Phase 4: Detach static events — no leak
-            try { AuditService.CurrentUserChanged -= OnCurrentUserChanged; } catch { }
+            try { AuditService.CurrentUserChanged -= OnCurrentUserChanged; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[App] OnExit event-detach failed: " + ex.Message); }
 
             // Record shutdown in the audit trail (bounded wait — the
             // app must still exit promptly even if the DB is locked).

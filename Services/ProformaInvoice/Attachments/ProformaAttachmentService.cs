@@ -239,9 +239,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
                     Directory.Delete(invoiceFolder);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Best-effort pruning only; the manifest may already be gone.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaAttachmentService] Manifest pruning failed: " + ex.Message);
             }
 
             return cleared;

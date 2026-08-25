@@ -211,7 +211,7 @@ namespace ProGlassAutomation.ViewModels
                 ProGlassAutomation.Services.AI.AIContext.AiScreenContext.Set(PrettyModuleName(raw), detail);
                 ProGlassAutomation.Agent.Context.AgentScreenContext.CurrentViewModelProvider = () => _currentViewModel;
             }
-            catch { }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] AI screen-context update failed: " + ex.Message); }
         }
 
         private static string PrettyModuleName(string raw)
@@ -367,7 +367,7 @@ namespace ProGlassAutomation.ViewModels
                 {
                     foreach (var f in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
                     {
-                        try { bytes += new FileInfo(f).Length; } catch { }
+                        try { bytes += new FileInfo(f).Length; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Storage walk skipped a file: " + ex.Message); }
                     }
                 }
                 double mb = bytes / (1024d * 1024d);
@@ -436,9 +436,9 @@ namespace ProGlassAutomation.ViewModels
             _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
             // Try resolve reporting services via DI, fallback to App statics
-            try { _reportingService = serviceProvider.GetService<IReportingDataService>(); } catch { }
-            try { _dashboardMetrics = serviceProvider.GetService<IDashboardMetricsService>(); } catch { }
-            try { _dashboardFilter = serviceProvider.GetService<IDashboardFilterService>(); } catch { }
+            try { _reportingService = serviceProvider.GetService<IReportingDataService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IReportingDataService; using App statics: " + ex.Message); }
+            try { _dashboardMetrics = serviceProvider.GetService<IDashboardMetricsService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardMetricsService; using App statics: " + ex.Message); }
+            try { _dashboardFilter = serviceProvider.GetService<IDashboardFilterService>(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] DI resolve failed for IDashboardFilterService; using App statics: " + ex.Message); }
 
             // Resolve all module VMs via DI — Phase 5: no `new ViewModel()` 
             // Each GetService falls back to `new` if not registered (migration safety)
@@ -771,7 +771,7 @@ namespace ProGlassAutomation.ViewModels
             NewProformaInvoiceCommand = new RelayCommand(_ =>
             {
                 Navigate("ProformaInvoice");
-                try { ProformaInvoiceVM.TriggerNewInvoice(); } catch { }
+                try { ProformaInvoiceVM.TriggerNewInvoice(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] TriggerNewInvoice after navigation failed: " + ex.Message); }
             });
             ShowAboutCommand = new RelayCommand(_ => { CurrentModuleKey = "About"; CurrentViewModel = AboutVM; IsMenuOpen = false; });
             ShowSettingsCommand = new RelayCommand(_ => { CurrentModuleKey = "Settings"; CurrentViewModel = SettingsVM; IsMenuOpen = false; });
@@ -844,7 +844,7 @@ namespace ProGlassAutomation.ViewModels
                     if (svc != null) return svc;
                 }
             }
-            catch { }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[MainViewModel] DI resolve failed; falling back to Activator: " + ex.Message); }
             // Fallback — during migration, allow `new` if DI not ready
             try { return Activator.CreateInstance<T>(); } catch { return null!; }
         }
@@ -1017,18 +1017,18 @@ namespace ProGlassAutomation.ViewModels
         {
             if (_disposed) return;
             _disposed = true;
-            try { if (_connectivityHandler != null && App.Connectivity != null) App.Connectivity.ConnectivityChanged -= _connectivityHandler; } catch { }
-            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch { }
-            try { _clockTimer?.Stop(); _clockTimer = null; } catch { }
+            try { if (_connectivityHandler != null && App.Connectivity != null) App.Connectivity.ConnectivityChanged -= _connectivityHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: connectivity detach failed: " + ex.Message); }
+            try { Services.Audit.AuditService.CurrentUserChanged -= _currentUserChangedHandler; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: user-changed detach failed: " + ex.Message); }
+            try { _clockTimer?.Stop(); _clockTimer = null; } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: clock timer stop failed: " + ex.Message); }
             // Work-A-2: dispose the shell VMs so their child module VMs (ListVM,
             // DetailVM, ActivityVM) detach their static-event subscriptions
             // (DocumentLifecycle, SampleData.DataSeeded,
             // AuditService.ActivityLogged) — without this they leak and keep
             // firing after the module is no longer in use.
-            try { JobOrderVM?.Dispose(); } catch { }
-            try { DeliveryNoteVM?.Dispose(); } catch { }
-            try { ProformaInvoiceVM?.Dispose(); } catch { }
-            try { TaxInvoiceVM?.Dispose(); } catch { }
+            try { JobOrderVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: JobOrderVM teardown failed: " + ex.Message); }
+            try { DeliveryNoteVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DeliveryNoteVM teardown failed: " + ex.Message); }
+            try { ProformaInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: ProformaInvoiceVM teardown failed: " + ex.Message); }
+            try { TaxInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: TaxInvoiceVM teardown failed: " + ex.Message); }
             GC.SuppressFinalize(this);
         }
     }

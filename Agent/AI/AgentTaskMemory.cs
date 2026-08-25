@@ -37,9 +37,10 @@ namespace ProGlassAutomation.Agent.AI
                         "task_memory", $"Task: {taskId}, Completed: {completed}, Result: {result}").ConfigureAwait(false);
                 }
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Memory sync must not break task execution.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[AgentTaskMemory] Task-memory sync skipped: " + ex.Message);
             }
         }
 

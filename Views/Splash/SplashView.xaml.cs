@@ -441,14 +441,14 @@ namespace ProGlassAutomation.Views.Splash
                         "Auto sign-in failed for saved user '" + username +
                         "': " + error + ". Clearing saved credentials.",
                         new LogContext { Module = "Auth", Class = nameof(SplashView) });
-                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch { }
+                    try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Clearing stale skip-login credential failed: " + ex.Message); }
                     try
                     {
                         cfg.SkipLoginUntilUpdate = false;
                         cfg.SkipLoginBoundVersion = "";
                         ConfigService.Save(cfg);
                     }
-                    catch { }
+                    catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[SplashView] Skip-login reset persist failed: " + ex.Message); }
                     return false;
                 }
 
@@ -544,7 +544,7 @@ namespace ProGlassAutomation.Views.Splash
             // controls in an inactive window ignore Focus(). Without this
             // the caret never lands in the field, so typing/Enter does
             // nothing until the user clicks.
-            try { Activate(); } catch { /* window may be closing */ }
+            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunLoginAsync: window may be closing: " + ex.Message); }
 
             // Focus now, then re-arm once the fade + layout settle so the
             // caret is guaranteed in the field the moment the page appears.
@@ -624,11 +624,12 @@ namespace ProGlassAutomation.Views.Splash
                         ConfigService.Save(App.Config);
                     }
                 }
-                catch
+                catch (System.Exception ex)
                 {
                     // Best effort — the login form on any
                     // future boot tolerates an empty
                     // pre-filled username.
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView] Remember-username persist failed: " + ex.Message);
                 }
 
                 try
@@ -717,7 +718,7 @@ namespace ProGlassAutomation.Views.Splash
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
 
-            try { Activate(); } catch { /* window may be closing */ }
+            try { Activate(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[SplashView.xaml] RunFirstRunSetupAsync: window may be closing: " + ex.Message); }
             Dispatcher.BeginInvoke(new Action(() => SetupGate.Focus()),
                 DispatcherPriority.Input);
 

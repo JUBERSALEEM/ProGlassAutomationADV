@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Job Order field visibility changed",
                     propertyName + " → " + (GetType().GetProperty(propertyName)?.GetValue(this) ?? "?"));
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] PersistAndNotify: audit must not block settings: " + ex.Message); }
 
             JobOrderFieldVisibility.Instance.Refresh();
             OnPropertyChanged(propertyName);
@@ -113,7 +113,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Job Order field visibility bulk change",
                     "value=" + value);
             }
-            catch { /* audit must not block settings */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[JobOrderFeaturesViewModel] SetAll: audit must not block settings: " + ex.Message); }
 
             JobOrderFieldVisibility.Instance.Refresh();
             RaiseAll();

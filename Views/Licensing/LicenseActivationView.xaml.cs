@@ -166,11 +166,12 @@ namespace ProGlassAutomation.Views.Licensing
                 LicenseService.StatusChanged -= OnLicenseStatusChanged;
                 Unloaded -= OnLicenseViewUnloaded;
             }
-            catch
+            catch (System.Exception ex)
             {
                 // Defensive: never let the cleanup
                 // throw, which would mask the real
                 // reason the view is being unloaded.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView] View cleanup failed: " + ex.Message);
             }
         }
 
@@ -349,7 +350,7 @@ namespace ProGlassAutomation.Views.Licensing
                 ShowError("The pasted text is neither valid JSON nor base64. " +
                     "Check the file your vendor sent and try again. " +
                     "Details: " + ex.Message);
-                try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch { }
+                try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView] Temp license-file delete failed: " + ex.Message); }
                 return;
             }
 
@@ -383,7 +384,7 @@ namespace ProGlassAutomation.Views.Licensing
                 // paste is not contaminated by an old
                 // .lic in %TEMP%.
                 try { if (File.Exists(path)) File.Delete(path); }
-                catch { /* best effort */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] TryInstallFromFile: best effort: " + ex.Message); }
             }
 
             if (!result.CanRun)
@@ -394,7 +395,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
 
             try { Activated?.Invoke(this, EventArgs.Empty); }
-            catch { /* host should still close */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] TryInstallFromFile: host should still close: " + ex.Message); }
         }
 
         private void ShowError(string message)
@@ -414,7 +415,7 @@ namespace ProGlassAutomation.Views.Licensing
         private void RaiseClosed()
         {
             try { Closed?.Invoke(this, EventArgs.Empty); }
-            catch { /* host should still close */ }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] RaiseClosed: host should still close: " + ex.Message); }
         }
     }
 }

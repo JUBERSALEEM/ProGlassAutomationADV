@@ -262,11 +262,12 @@ namespace ProGlassAutomation.Services.Database.SchemaMigrations
                 SchemaMigrationSql.CreateIndexIfNotExists(connection,
                     "CREATE UNIQUE INDEX IF NOT EXISTS \"IX_Inquiries_InquiryNumber\" ON \"Inquiries\" (\"InquiryNumber\");");
             }
-            catch (SqliteException)
+            catch (SqliteException ex)
             {
                 // Non-fatal on purpose: the register still works without the
                 // constraint, and the repository's number generator already
                 // regenerates on unique collisions.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[AppSchemaMigrations] Unique-index creation skipped: " + ex.Message);
             }
         }
 

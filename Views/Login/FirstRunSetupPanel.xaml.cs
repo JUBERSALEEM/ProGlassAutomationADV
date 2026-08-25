@@ -288,7 +288,7 @@ namespace ProGlassAutomation.Views.Login
                 // previous install / user so a future auto-login
                 // attempt cannot pick up someone else's password.
                 try { SecretVault.Remove(LoginPanel.SkipLoginSecretKey); }
-                catch { /* best effort */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Warning("[FirstRunSetupPanel.xaml] PersistFirstRunUsername: best effort: " + ex.Message); }
             }
             catch (Exception ex)
             {

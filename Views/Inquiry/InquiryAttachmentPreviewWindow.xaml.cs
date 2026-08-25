@@ -76,7 +76,7 @@ namespace ProGlassAutomation.Views.Inquiry
             if (PdfPreview.Visibility == Visibility.Visible)
             {
                 try { PdfPreview.Navigate("about:blank"); }
-                catch { /* browser already torn down */ }
+                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[InquiryAttachmentPreviewWindow.xaml] OnClosed: browser already torn down: " + ex.Message); }
             }
         }
     }

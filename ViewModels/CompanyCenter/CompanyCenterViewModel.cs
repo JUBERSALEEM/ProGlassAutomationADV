@@ -392,9 +392,10 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                 AccountNumber = entity.AccountNumber ?? "";
                 BankName = entity.BankName ?? "";
             }
-            catch
+            catch (System.Exception ex)
             {
                 // editor stays partially filled — harmless
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[CompanyCenterViewModel] Company profile partial-fill failed: " + ex.Message);
             }
         }
 
