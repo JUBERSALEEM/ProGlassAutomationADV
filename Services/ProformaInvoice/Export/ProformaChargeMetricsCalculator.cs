@@ -50,6 +50,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     || g.SelectedGlassType == "DGU+LAM";
 
                 int factor = g.SelectedGlassType == "LAM" ? 4 : 2;
+                int paneFactor = g.SelectedGlassType == "DGU+LAM"
+                    ? 3
+                    : isDoubleGlass ? 2 : 1;
 
                 foreach (var r in g.ItemRows)
                 {
@@ -79,7 +82,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                     if (isDoubleGlass)
                     {
-                        m.DoubleGlassPieces += r.Qty * 2;
+                        m.DoubleGlassPieces += r.Qty * paneFactor;
                         if (r.W1 > 0 && r.H1 > 0)
                         {
                             decimal sqm1 = SqmCalculator.CalculatePanel(r.W1, r.H1);
@@ -238,7 +241,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 "AllSidePolish" => ((decimal)w + h) / 1000m * 2m,
                 "AllSidePolishAsPerDwg" => ((decimal)w + h) / 1000m * 2m,
                 "BothHeightSide" => (decimal)h / 1000m * 2m,
+                "BothHeightSideAsPerDwg" => (decimal)h / 1000m * 2m,
                 "BothWidthSide" => (decimal)w / 1000m * 2m,
+                "BothWidthSideAsPerDwg" => (decimal)w / 1000m * 2m,
+                "BothHeightOneWidth" => ((decimal)h * 2m + w) / 1000m,
+                "BothHeightOneWidthAsPerDwg" => ((decimal)h * 2m + w) / 1000m,
+                "OneHeightOneWidth" => ((decimal)h + w) / 1000m,
+                "OneHeightOneWidthAsPerDwg" => ((decimal)h + w) / 1000m,
+                "OneHeightSide" => (decimal)h / 1000m,
+                "OneWidthSide" => (decimal)w / 1000m,
                 _ => 0m
             };
         }

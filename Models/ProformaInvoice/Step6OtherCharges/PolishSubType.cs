@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 {
@@ -43,9 +43,21 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             },
             new PolishSubTypeMeta
             {
+                Type = PolishSubType.AllSidePolishAsPerDwg,
+                DisplayLabel = "All Side Polish As Per DWG",
+                FormulaHint = "(W+H)/1000 × 2 × Qty (As Per DWG)"
+            },
+            new PolishSubTypeMeta
+            {
                 Type = PolishSubType.BothHeightSide,
                 DisplayLabel = "Both Height Side",
                 FormulaHint = "H/1000 × 2 × Qty"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.BothHeightSideAsPerDwg,
+                DisplayLabel = "Both Height Side As Per DWG",
+                FormulaHint = "H/1000 × 2 × Qty (As Per DWG)"
             },
             new PolishSubTypeMeta
             {
@@ -55,9 +67,45 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             },
             new PolishSubTypeMeta
             {
-                Type = PolishSubType.AllSidePolishAsPerDwg,
-                DisplayLabel = "All Side Polish As Per DWG",
-                FormulaHint = "(W+H)/1000 × 2 × Qty (As Per DWG)"
+                Type = PolishSubType.BothWidthSideAsPerDwg,
+                DisplayLabel = "Both Width Side As Per DWG",
+                FormulaHint = "W/1000 × 2 × Qty (As Per DWG)"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.BothHeightOneWidth,
+                DisplayLabel = "Both Height + One Width Side Polish",
+                FormulaHint = "(H×2 + W)/1000 × Qty"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.BothHeightOneWidthAsPerDwg,
+                DisplayLabel = "Both Height + One Width Side Polish As Per DWG",
+                FormulaHint = "(H×2 + W)/1000 × Qty (As Per DWG)"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.OneHeightOneWidth,
+                DisplayLabel = "One Height + One Width Side Polish",
+                FormulaHint = "(H + W)/1000 × Qty"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.OneHeightOneWidthAsPerDwg,
+                DisplayLabel = "One Height + One Width Side Polish As Per DWG",
+                FormulaHint = "(H + W)/1000 × Qty (As Per DWG)"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.OneHeightSide,
+                DisplayLabel = "One Height Side Polish",
+                FormulaHint = "H/1000 × Qty"
+            },
+            new PolishSubTypeMeta
+            {
+                Type = PolishSubType.OneWidthSide,
+                DisplayLabel = "One Width Side Polish",
+                FormulaHint = "W/1000 × Qty"
             },
             new PolishSubTypeMeta
             {

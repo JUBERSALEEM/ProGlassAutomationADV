@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 6 — Charges. Approved mockup composition:
     one workbench, KPI strip, then three table bands:
     Predefined · Wastage · Custom. Bindings and popups unchanged.
@@ -140,6 +140,31 @@
                                    Style="{StaticResource PiStationHintStyle}"/>
                     </StackPanel>
                 </Border>
+
+                <Grid Margin="0,0,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                      IsChecked="{Binding UseAdvancedAutomation}"
+                                      AutomationProperties.Name="Advanced other-charge automation"/>
+                        <TextBlock Text="Advanced auto-charge mode"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="10,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding AutomationModeLabel}"
+                               FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"
+                               Margin="18,0,0,0"/>
+                </Grid>
                 <TextBlock Text="IMPORTED FROM DATA GRID"
                            Style="{StaticResource PiSectionLabelStyle}"
                            Margin="0,0,0,4"/>

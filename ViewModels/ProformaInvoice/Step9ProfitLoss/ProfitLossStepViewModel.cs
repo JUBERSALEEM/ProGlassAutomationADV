@@ -59,6 +59,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguPar
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -507,6 +508,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             WatchPanel(_sguVm);
             WatchPanel(_lamVm);
             WatchPanel(_dguLamVm);
+            WatchPanel(_otherChargesVm);
         }
 
         private void WatchPanel(INotifyPropertyChanged? panel)
@@ -1059,6 +1061,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
                 }
 
+                AppendStep6Costs(rows, ref productionCost);
+
                 // ── Publish rows ──────────────────────────────────────────
                 Rows.Clear();
                 foreach (var r in rows) Rows.Add(r);
@@ -1085,7 +1089,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 foreach (var bySpec in rows
                              .GroupBy(r => r.SpecNumber)
-                             .OrderBy(g => g.Key))
+                             .OrderBy(g => g.Key <= 0 ? int.MaxValue : g.Key))
                 {
                     var first = bySpec.First();
 
@@ -1184,12 +1188,177 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
                 $"glass costed at {CostBasisLabel} · " +
                 $"SGU glass = required SQM + {WastagePercent:0.#}% wastage, cutting and tempering separate · " +
+                $"active Step 6 charges are included as cost lines · " +
                 $"multi-pane builds still round to whole sheets · VAT stripped at 5%.";
 
             return skipped > 0
                 ? basis + $" {skipped} pane(s) shown unpriced — not in Sheet Store and no Step 4 rate; not included in profit."
                 : basis;
         }
+
+        private void AppendStep6Costs(
+            List<ProfitLossRow> rows,
+            ref decimal productionCost)
+        {
+            if (_otherChargesVm == null) return;
+
+            foreach (var charge in _otherChargesVm.ChargeRows.Where(r => r.IsActive))
+                AppendPredefinedChargeRows(rows, ref productionCost, charge);
+
+            foreach (var wastage in _otherChargesVm.WastagesSection.WastageRows.Where(r => r.IsActive))
+                AppendWastageRows(rows, ref productionCost, wastage);
+
+            foreach (var custom in _otherChargesVm.CustomChargesSection.AddedCharges.Where(r => r.IsActive))
+                AppendInvoiceWideCharge(rows, ref productionCost,
+                    custom.ChargeName ?? "Custom charge",
+                    custom.Qty,
+                    custom.Rate,
+                    custom.Unit.ToString().ToUpperInvariant());
+        }
+
+        private void AppendPredefinedChargeRows(
+            List<ProfitLossRow> rows,
+            ref decimal productionCost,
+            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge)
+        {
+            if (charge.IsDeliveryRow)
+            {
+                AppendInvoiceWideCharge(rows, ref productionCost,
+                    charge.ChargeName,
+                    1m,
+                    charge.Rate,
+                    "TRIP");
+                return;
+            }
+
+            if (charge.TargetSelection == null) return;
+
+            foreach (var spec in charge.TargetSelection.AvailableSpecs.Where(s => s.IsChecked))
+            {
+                decimal qty = charge.IsPolishRow
+                    ? ComputePolishQtyForSpec(spec.SpecGroupNumber, charge)
+                    : spec.GetMetricValue(charge.TargetSelection.SelectedMetric?.Key ?? "");
+
+                if (qty <= 0m) continue;
+
+                decimal amount = Math.Round(qty * charge.Rate, 2);
+                rows.Add(new ProfitLossRow
+                {
+                    Kind = "Production",
+                    SpecNumber = spec.SpecGroupNumber,
+                    SpecName = FindSpecName(spec.SpecGroupNumber),
+                    Description = PnLMeasurement.BuildRowDescription(
+                        FindSpecGroup(spec.SpecGroupNumber),
+                        charge.ChargeName,
+                        $"{qty:0.###} {charge.Unit.ToString().ToUpperInvariant()}"),
+                    Quantity = Math.Round(qty, 3),
+                    PricePerSqm = charge.Rate,
+                    UnitLabel = charge.Unit.ToString().ToUpperInvariant(),
+                    Amount = amount
+                });
+                productionCost += amount;
+            }
+        }
+
+        private void AppendWastageRows(
+            List<ProfitLossRow> rows,
+            ref decimal productionCost,
+            Models.ProformaInvoice.Step6OtherCharges.Wastages.WastageRow wastage)
+        {
+            foreach (var src in wastage.AvailableSources.Where(s => s.IsChecked && s.SqmValue > 0m))
+            {
+                decimal qty = Math.Round(src.SqmValue, 3);
+                decimal amount = Math.Round(qty * wastage.Rate, 2);
+                rows.Add(new ProfitLossRow
+                {
+                    Kind = "Production",
+                    SpecNumber = src.SpecNumber,
+                    SpecName = FindSpecName(src.SpecNumber),
+                    Description = PnLMeasurement.BuildRowDescription(
+                        FindSpecGroup(src.SpecNumber),
+                        string.IsNullOrWhiteSpace(wastage.ColorName) ? "Wastage" : wastage.ColorName,
+                        $"{src.SideLabel} · {qty:0.###} SQM"),
+                    Quantity = qty,
+                    PricePerSqm = wastage.Rate,
+                    Amount = amount
+                });
+                productionCost += amount;
+            }
+        }
+
+        private void AppendInvoiceWideCharge(
+            List<ProfitLossRow> rows,
+            ref decimal productionCost,
+            string label,
+            decimal qty,
+            decimal rate,
+            string unit)
+        {
+            if (qty <= 0m || rate <= 0m) return;
+
+            decimal amount = Math.Round(qty * rate, 2);
+            rows.Add(new ProfitLossRow
+            {
+                Kind = "Production",
+                SpecNumber = 0,
+                SpecName = "Invoice-wide other charges",
+                Description = $"{label} · {qty:0.###} {unit}",
+                Quantity = Math.Round(qty, 3),
+                PricePerSqm = rate,
+                UnitLabel = unit,
+                Amount = amount
+            });
+            productionCost += amount;
+        }
+
+        private decimal ComputePolishQtyForSpec(
+            int specNumber,
+            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge)
+        {
+            if (_dataGrid == null
+                || charge.SelectedPolishSubType == null
+                || charge.SelectedPolishSubType.Type == Models.ProformaInvoice.Step6OtherCharges.PolishSubType.Custom)
+                return 0m;
+
+            var group = _dataGrid.SpecGroups.FirstOrDefault(g => g.GroupNumber == specNumber);
+            if (group == null) return 0m;
+
+            var snapshot = new SpecGroupSnapshot
+            {
+                GroupNumber = group.GroupNumber,
+                GroupName = group.GroupName ?? "",
+                SelectedGlassType = group.SelectedGlassType ?? "",
+                SelectedSpecName = group.SelectedSpecName ?? "",
+                OuterGlassColor = group.OuterGlassColor ?? "",
+                InnerGlassColor = group.InnerGlassColor ?? ""
+            };
+
+            foreach (var row in group.ItemRows)
+            {
+                snapshot.ItemRows.Add(new GlassItemRowSnapshot
+                {
+                    SerialNumber = row.SerialNumber,
+                    GlassRef = row.GlassRef ?? "",
+                    W1 = row.W1,
+                    H1 = row.H1,
+                    W2 = row.W2,
+                    H2 = row.H2,
+                    Qty = row.Qty
+                });
+            }
+
+            return Services.ProformaInvoice.Export.ProformaChargeMetricsCalculator.ComputePolishLm(
+                new List<SpecGroupSnapshot> { snapshot },
+                charge.SelectedPolishSubType.Type.ToString(),
+                matchedSameGlassOnly: charge.IsMatchedLamPolishRow);
+        }
+
+        private SpecGroup? FindSpecGroup(int specNumber) =>
+            _dataGrid?.SpecGroups.FirstOrDefault(g => g.GroupNumber == specNumber);
+
+        private string FindSpecName(int specNumber) =>
+            FindSpecGroup(specNumber)?.SelectedSpecName ??
+            (specNumber > 0 ? $"SPEC {specNumber}" : "Invoice-wide other charges");
 
         // ══════════════════════════════════════════════════════════════
         //  HELPERS

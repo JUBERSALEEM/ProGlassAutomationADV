@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/ProformaInvoice/Step6OtherCharges/SpecCheckOption.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 17 — NEW FILE
@@ -37,7 +37,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         public decimal SqmCombined => Sqm1 + Sqm2;
 
         public int Qty { get; set; }
-        public int PhysicalPanes => IsDoubleGlass ? Qty * 2 : Qty;
+        public int PhysicalPanes => Qty * (PaneFactor <= 0 ? 1 : PaneFactor);
 
         // ── Check state ─────────────────────────────────────────────────
 

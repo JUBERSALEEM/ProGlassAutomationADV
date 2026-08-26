@@ -198,6 +198,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
     public class OtherChargesSnapshot
     {
+        /// <summary>
+        /// True = Step 6 advanced mode auto-detects charges from Step 4 /
+        /// Step 5. False = manual mode.
+        /// </summary>
+        public bool UseAdvancedAutomation { get; set; } = true;
+
         public List<PredefinedChargeSnapshot> PredefinedCharges { get; set; } = new();
         public List<WastageRowSnapshot> Wastages { get; set; } = new();
         public List<CustomChargeSnapshot> CustomCharges { get; set; } = new();
@@ -381,8 +387,11 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>Sheets consumed (glass) or units of the charge.</summary>
         public decimal Quantity { get; set; }
 
-        /// <summary>Applied unit price (AED per SQM, or per LM for spacers).</summary>
+        /// <summary>Applied unit price.</summary>
         public decimal PricePerSqm { get; set; }
+
+        /// <summary>Display unit for the price (SQM / LM / QTY / TRIP).</summary>
+        public string UnitLabel { get; set; } = "SQM";
 
         /// <summary>Extended line cost in AED.</summary>
         public decimal Amount { get; set; }

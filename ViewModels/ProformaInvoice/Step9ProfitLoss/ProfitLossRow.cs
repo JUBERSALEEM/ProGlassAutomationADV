@@ -54,8 +54,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         public decimal Quantity { get; set; }
 
-        /// <summary>Unit price actually applied (AED / SQM, or / LM for spacers).</summary>
+        /// <summary>Unit price actually applied.</summary>
         public decimal PricePerSqm { get; set; }
+
+        /// <summary>
+        /// Display unit for <see cref="PricePerSqm"/>: SQM, LM, QTY, TRIP,
+        /// etc. Defaults to SQM for all existing glass and spacer rows.
+        /// </summary>
+        public string UnitLabel { get; set; } = "SQM";
 
         /// <summary>Extended amount in AED.</summary>
         public decimal Amount { get; set; }

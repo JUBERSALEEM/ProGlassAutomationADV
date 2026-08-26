@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
@@ -12,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
@@ -48,6 +50,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         public WastagesSectionViewModel WastagesSection { get; }
         public CustomChargesSectionViewModel CustomChargesSection { get; }
+
+        private bool _useAdvancedAutomation = true;
+        private bool _isApplyingAdvancedAutomation;
+
+        /// <summary>
+        /// Advanced = Step 4 / Step 5 auto-detect and preselect matching
+        /// Step 6 rows. Manual = leave the rows entirely under the user's
+        /// control.
+        /// </summary>
+        public bool UseAdvancedAutomation
+        {
+            get => _useAdvancedAutomation;
+            set
+            {
+                if (_useAdvancedAutomation == value) return;
+                _useAdvancedAutomation = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsManualMode));
+                OnPropertyChanged(nameof(AutomationModeLabel));
+                if (_useAdvancedAutomation)
+                    ApplyAdvancedSuggestions();
+            }
+        }
+
+        public bool IsManualMode => !UseAdvancedAutomation;
+
+        public string AutomationModeLabel => UseAdvancedAutomation
+            ? "Advanced mode — Step 4 / Step 5 drive the charge selection automatically."
+            : "Manual mode — no auto-triggering; all Step 6 rows stay user-controlled.";
+
+        public ICommand SelectAdvancedModeCommand { get; }
+        public ICommand SelectManualModeCommand { get; }
 
         // ── Total ──────────────────────────────────────────────────────────
 
@@ -88,11 +122,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             CustomChargesSection = new CustomChargesSectionViewModel();
             CustomChargesSection.PropertyChanged += OnSubSectionChanged;
 
+            SelectAdvancedModeCommand = new RelayCommand(_ => UseAdvancedAutomation = true);
+            SelectManualModeCommand = new RelayCommand(_ => UseAdvancedAutomation = false);
+
             _dataGridVM.SpecGroups.CollectionChanged += OnSpecGroupsCollectionChanged;
             foreach (var g in _dataGridVM.SpecGroups)
                 HookSpecGroup(g);
 
             RecalculatePolishRowsImmediate();
+            ApplyAdvancedSuggestions();
         }
 
         public void BindLaminationEditors(
@@ -163,6 +201,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             MetricHub.Refresh();
             RequestPolishRecalculation();
+            if (UseAdvancedAutomation)
+                ApplyAdvancedSuggestions();
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -185,6 +225,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     SpecGroupNumber = specMetric.SpecGroupNumber,
                     DisplayName = specMetric.SpecDisplayName,
                     IsDoubleGlass = specMetric.IsDoubleGlass,
+                    PaneFactor = specMetric.PaneFactor,
                     Lm1 = specMetric.Lm1,
                     Lm2 = specMetric.Lm2,
                     Sqm1 = specMetric.Sqm1,
@@ -248,6 +289,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         // Update metric values (preserves IsChecked)
                         existing.DisplayName = specMetric.SpecDisplayName;
                         existing.IsDoubleGlass = specMetric.IsDoubleGlass;
+                        existing.PaneFactor = specMetric.PaneFactor;
                         existing.Lm1 = specMetric.Lm1;
                         existing.Lm2 = specMetric.Lm2;
                         existing.Sqm1 = specMetric.Sqm1;
@@ -280,19 +322,123 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             RecalculateTotal();
         }
 
+        private void RefreshWastageSelectionSurface()
+        {
+            if (UseAdvancedAutomation)
+                ApplyAdvancedSuggestions();
+            else
+                WastagesSection?.SyncAllWastageSources();
+        }
+
+        private void ApplyAdvancedSuggestions()
+        {
+            if (!UseAdvancedAutomation || _isApplyingAdvancedAutomation)
+                return;
+
+            _isApplyingAdvancedAutomation = true;
+            try
+            {
+                SyncTargetSelectionsFromHub();
+
+                var metricsByGroup = MetricHub.PerSpecMetrics
+                    .ToDictionary(x => x.SpecGroupNumber);
+
+                var desiredRows = new Dictionary<string, (HashSet<int> Specs, string MetricKey, PolishSubType? Polish)>(StringComparer.OrdinalIgnoreCase);
+                var wastage = new List<AutoWastageSuggestion>();
+
+                foreach (var group in _dataGridVM.SpecGroups)
+                {
+                    metricsByGroup.TryGetValue(group.GroupNumber, out var metric);
+
+                    foreach (var suggestion in OtherChargeAutomationRules.GetChargeSuggestions(
+                        group.SelectedGlassType,
+                        group.SelectedSpecName,
+                        metric?.IsMatchedSameGlass ?? false))
+                    {
+                        if (!desiredRows.TryGetValue(suggestion.TemplateKey, out var plan))
+                            plan = (new HashSet<int>(), suggestion.MetricKey, suggestion.PolishSubType);
+
+                        plan.Specs.Add(group.GroupNumber);
+                        if (!string.IsNullOrWhiteSpace(suggestion.MetricKey))
+                            plan.MetricKey = suggestion.MetricKey;
+                        if (suggestion.PolishSubType.HasValue)
+                            plan.Polish = suggestion.PolishSubType;
+
+                        desiredRows[suggestion.TemplateKey] = plan;
+                    }
+
+                    wastage.AddRange(OtherChargeAutomationRules.GetWastageSuggestions(
+                        group.GroupNumber,
+                        group.SelectedGlassType,
+                        group.SelectedSpecName,
+                        group.OuterGlassColor,
+                        group.InnerGlassColor));
+                }
+
+                foreach (var row in ChargeRows)
+                {
+                    if (row.IsDeliveryRow)
+                        continue;
+
+                    if (!desiredRows.TryGetValue(row.TemplateKey, out var desired))
+                    {
+                        if (row.TargetSelection != null)
+                        {
+                            foreach (var spec in row.TargetSelection.AvailableSpecs)
+                                spec.IsChecked = false;
+                            row.TargetSelection.RaiseComputed();
+                        }
+                        row.IsActive = false;
+                        continue;
+                    }
+
+                    if (row.TargetSelection != null)
+                    {
+                        var selectedMetric = MetricOption.FindForUnit(row.Unit, desired.MetricKey);
+                        if (selectedMetric != null)
+                            row.TargetSelection.SelectedMetric = selectedMetric;
+
+                        foreach (var spec in row.TargetSelection.AvailableSpecs)
+                            spec.IsChecked = desired.Specs.Contains(spec.SpecGroupNumber);
+
+                        row.TargetSelection.RaiseComputed();
+                    }
+
+                    if (row.IsPolishRow && desired.Polish.HasValue)
+                    {
+                        var subType = row.AvailablePolishSubTypes
+                            .FirstOrDefault(x => x.Type == desired.Polish.Value);
+                        if (subType != null)
+                            row.SelectedPolishSubType = subType;
+                    }
+
+                    row.IsActive = desired.Specs.Count > 0;
+                }
+
+                WastagesSection?.ApplyAdvancedSuggestions(wastage);
+                RecalculatePolishRowsImmediate();
+                RecalculateTotal();
+            }
+            finally
+            {
+                _isApplyingAdvancedAutomation = false;
+            }
+        }
+
         // ── Hub property changed → sync ─────────────────────────────────
 
         private void OnHubPropertyChanged(
             object? sender, PropertyChangedEventArgs e)
         {
             SyncTargetSelectionsFromHub();
-            WastagesSection?.SyncAllWastageSources();
+            RefreshWastageSelectionSurface();
         }
 
         private void OnPerSpecMetricsChanged(
             object? sender, NotifyCollectionChangedEventArgs e)
         {
             SyncTargetSelectionsFromHub();
+            RefreshWastageSelectionSurface();
         }
 
         // ── Charge rows ────────────────────────────────────────────────────
@@ -473,7 +619,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     HookSpecGroup(g);
 
             RequestPolishRecalculation();
-            WastagesSection?.SyncAllWastageSources();
+            RefreshWastageSelectionSurface();
         }
 
         private void HookSpecGroup(SpecGroup group)
@@ -501,14 +647,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(SpecGroup.InnerGlassColor))
             {
                 RequestPolishRecalculation();
-                WastagesSection?.SyncAllWastageSources();
+                RefreshWastageSelectionSurface();
             }
 
             if (e.PropertyName is nameof(SpecGroup.FooterTotalSqm)
                 or nameof(SpecGroup.FooterTotalSqm2)
                 or nameof(SpecGroup.GroupName))
             {
-                WastagesSection?.SyncAllWastageSources();
+                RefreshWastageSelectionSurface();
             }
         }
 
@@ -524,6 +670,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     r.PropertyChanged += OnItemRowPropertyChanged;
 
             RequestPolishRecalculation();
+            RefreshWastageSelectionSurface();
         }
 
         private void OnItemRowPropertyChanged(
@@ -536,6 +683,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(GlassItemRow.Qty))
             {
                 RequestPolishRecalculation();
+                RefreshWastageSelectionSurface();
             }
         }
 
@@ -565,7 +713,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             MetricHub.Refresh();
             SyncTargetSelectionsFromHub();
             RecalculatePolishRowsImmediate();
-            WastagesSection?.SyncAllWastageSources();
+            RefreshWastageSelectionSurface();
             RecalculateTotal();
         }
 
@@ -580,6 +728,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             BuildChargeRows();
 
+            UseAdvancedAutomation = true;
             WastagesSection.WastageRows.Clear();
             WastagesSection.RefreshTotal();
 
@@ -588,6 +737,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             RecalculatePolishRowsImmediate();
             RecalculateTotal();
+            ApplyAdvancedSuggestions();
         }
     }
 }

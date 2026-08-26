@@ -1,6 +1,8 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -58,6 +60,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         public void SyncAllWastageSources()
         {
             foreach (var row in WastageRows) SyncSourcesForRow(row);
+            RecalculateTotal();
+        }
+
+        /// <summary>
+        /// Advanced Step 6 mode: rebuild wastage rows from the glass sides the
+        /// current specification set requires. Existing rates are preserved by
+        /// display name so an operator's invoice-specific price survives a
+        /// refresh even while the source selection is auto-managed.
+        /// </summary>
+        public void ApplyAdvancedSuggestions(IEnumerable<AutoWastageSuggestion> suggestions)
+        {
+            var previousRates = WastageRows
+                .GroupBy(r => r.ColorName ?? "", System.StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.First().Rate, System.StringComparer.OrdinalIgnoreCase);
+
+            WastageRows.Clear();
+
+            foreach (var group in suggestions
+                .GroupBy(x => x.DisplayName, System.StringComparer.OrdinalIgnoreCase)
+                .OrderBy(x => x.Key, System.StringComparer.OrdinalIgnoreCase))
+            {
+                var row = new WastageRow
+                {
+                    IsActive = true,
+                    ColorName = group.Key,
+                    Rate = previousRates.TryGetValue(group.Key, out var rate) ? rate : 40m
+                };
+
+                PopulateSourcesForRestoredRow(row);
+
+                var selectedKeys = group
+                    .Select(x => $"{x.SpecGroupNumber}-{x.SourceSideLabel}")
+                    .ToHashSet(System.StringComparer.OrdinalIgnoreCase);
+
+                foreach (var src in row.AvailableSources)
+                {
+                    string key = $"{src.SpecNumber}-{src.SideLabel}";
+                    src.IsChecked = selectedKeys.Contains(key);
+                }
+
+                WastageRows.Add(row);
+            }
+
             RecalculateTotal();
         }
 

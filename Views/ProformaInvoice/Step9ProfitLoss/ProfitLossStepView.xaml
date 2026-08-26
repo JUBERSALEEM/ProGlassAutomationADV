@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 9 — P&amp;L. Approved mockup:
     one workbench, KPI strip, always-visible build-order layers, rate-check row.
     Bindings and calculations unchanged.
@@ -125,7 +125,7 @@
                         </Border>
                         <Border Grid.Column="3" Style="{StaticResource PiKpiCellStyle}">
                             <StackPanel>
-                                <TextBlock Text="PRODUCTION · ASP" Style="{StaticResource PiKpiCaptionStyle}"/>
+                                <TextBlock Text="PRODUCTION · ASP · EXTRAS" Style="{StaticResource PiKpiCaptionStyle}"/>
                                 <TextBlock Text="{Binding ProductionCostDisplay}" Style="{StaticResource PiKpiValueStyle}"/>
                             </StackPanel>
                         </Border>
@@ -262,7 +262,8 @@
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
 
-                                <Grid Margin="0,8,0,0">
+                                <Grid Margin="0,8,0,0"
+                                      Visibility="{Binding CanRateCheck, Converter={StaticResource BoolToVisibilityConverter}}">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="110"/>

@@ -42,6 +42,20 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             }
         }
 
+        private int _paneFactor = 1;
+        /// <summary>1 = SGU, 2 = DGU/LAM, 3 = DGU+LAM hybrid.</summary>
+        public int PaneFactor
+        {
+            get => _paneFactor;
+            set
+            {
+                if (_paneFactor == value) return;
+                _paneFactor = value <= 0 ? 1 : value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PhysicalPanes));
+            }
+        }
+
         private bool _isMatchedSameGlass;
         public bool IsMatchedSameGlass
         {

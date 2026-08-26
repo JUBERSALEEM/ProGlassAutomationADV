@@ -194,7 +194,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step4VM.SguVM,
                 () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive,
                 Step4VM.LamVM,
-                Step4VM.DguLamVM);
+                Step4VM.DguLamVM,
+                Step6VM);
 
             Step7VM.PrintableInvoice.ProfitLoss = Step9VM;
 

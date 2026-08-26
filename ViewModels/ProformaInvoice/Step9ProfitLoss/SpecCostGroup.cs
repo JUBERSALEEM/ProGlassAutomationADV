@@ -172,12 +172,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         /// <summary>Header caption: "SPEC 1 · 12.40 SQM · cost 130.88/SQM".</summary>
-        public string HeaderDisplay =>
-            HasQuoteBasis
-                ? $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · quote basis {CostPerSqm:N2}/SQM"
-                : $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · materials {CostPerSqm:N2}/SQM";
+        public string HeaderDisplay
+        {
+            get
+            {
+                if (SpecNumber <= 0)
+                    return "INVOICE-WIDE OTHER CHARGES";
+
+                return HasQuoteBasis
+                    ? $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · quote basis {CostPerSqm:N2}/SQM"
+                    : $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · materials {CostPerSqm:N2}/SQM";
+            }
+        }
 
         public string TotalCostDisplay => $"AED {TotalCost:N2}";
+
+        public bool CanRateCheck => SpecNumber > 0;
 
         /// <summary>Raised after the rows are filled so computed values refresh.</summary>
         public void NotifyTotalsChanged()

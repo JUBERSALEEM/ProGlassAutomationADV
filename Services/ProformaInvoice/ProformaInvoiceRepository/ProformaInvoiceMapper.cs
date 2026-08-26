@@ -304,8 +304,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 snap.SpecGroups.Add(g);
             }
 
-            // Step 6 — predefined charges
-            //
+            // Step 6 — automation mode + predefined charges
+            snap.OtherCharges.UseAdvancedAutomation =
+                otherCharges.UseAdvancedAutomation;
+
             // CHAT 20: SelectedMetricKey and CheckedSpecGroupNumbers are
             // written from row.TargetSelection. Delivery rows and rows
             // without a TargetSelection get empty defaults.
@@ -581,6 +583,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             ProformaInvoiceSnapshot snap, OtherChargesViewModel otherCharges)
         {
             if (snap.OtherCharges == null) return;
+
+            otherCharges.UseAdvancedAutomation =
+                snap.OtherCharges.UseAdvancedAutomation;
 
             if (snap.OtherCharges.PredefinedCharges != null)
             {

@@ -212,6 +212,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     g.SelectedGlassType == "DGU" ||
                     g.SelectedGlassType == "LAM" ||
                     g.SelectedGlassType == "DGU+LAM";
+                int paneFactor = g.SelectedGlassType == "DGU+LAM"
+                    ? 3
+                    : isDoubleGlass ? 2 : 1;
 
                 currentGroupNumbers.Add(g.GroupNumber);
 
@@ -228,6 +231,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     existing.SpecDisplayName = BuildSpecDisplayName(g);
                     existing.GlassType = g.SelectedGlassType ?? "";
                     existing.IsDoubleGlass = isDoubleGlass;
+                    existing.PaneFactor = paneFactor;
                     existing.OuterGlassColor = g.OuterGlassColor ?? "";
                     existing.InnerGlassColor = g.InnerGlassColor ?? "";
                     existing.IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
@@ -249,6 +253,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                         SpecDisplayName = BuildSpecDisplayName(g),
                         GlassType = g.SelectedGlassType ?? "",
                         IsDoubleGlass = isDoubleGlass,
+                        PaneFactor = paneFactor,
                         OuterGlassColor = g.OuterGlassColor ?? "",
                         InnerGlassColor = g.InnerGlassColor ?? "",
                         IsMatchedSameGlass = LaminateGlassMatcher.IsMatchedSameGlass(
@@ -272,7 +277,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
                 if (isDoubleGlass)
                 {
-                    doubleQty += g.FooterTotalQty * 2;
+                    doubleQty += g.FooterTotalQty * paneFactor;
                     dguArea += g.FooterTotalSqm;
                 }
                 else
