@@ -114,6 +114,28 @@
         <GradientStop Color="#3B82F600" Offset="1.0"/>
     </RadialGradientBrush>
 
+    <!-- About interactive chrome tokens. ThemeManager rewrites these at
+         runtime from the active accent; these defaults guarantee the
+         About page still renders correctly before the dynamic engine runs. -->
+    <SolidColorBrush x:Key="AboutInteractiveBrush"
+                     Color="#14FFFFFF"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveHoverBrush"
+                     Color="#20FFFFFF"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderBrush"
+                     Color="#4093C5FD"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush"
+                     Color="#6693C5FD"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutCardBorderBrush"
+                     Color="#6693C5FD"
+                     po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutDividerBrush"
+                     Color="#2293C5FD"
+                     po:Freeze="True"/>
+
     <!-- ── Text ─────────────────────────────────────────────────────── -->
     <Color x:Key="PrimaryForegroundColor">#F1F5F9</Color>
     <Color x:Key="SecondaryForegroundColor">#94A3B8</Color>

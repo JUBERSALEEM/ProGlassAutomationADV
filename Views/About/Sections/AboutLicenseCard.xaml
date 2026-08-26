@@ -48,9 +48,9 @@
                         VerticalAlignment="Top"
                         Padding="10,5"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="#26FFFFFF"
-                        BorderBrush="#66BFDBFE"
-                        BorderThickness="1"
+                        Background="{DynamicResource AboutInteractiveHoverBrush}"
+                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         SnapsToDevicePixels="True">
                     <TextBlock Text="{Binding StatusBadge}"
                                FontSize="12" FontWeight="Bold"

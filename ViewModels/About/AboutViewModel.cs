@@ -7,7 +7,7 @@
 // CHANGES vs v2.9:
 //   ✓ REMOVED `Stats` IReadOnlyList collection
 //     Reason: it duplicated the hero LeftPillars/RightPillars metrics
-//     (both showed "8 MODULES", "5 DATABASES", "AI"). Two consecutive
+//     (both showed "11 MODULES", "5 DATABASES", "AI"). Two consecutive
 //     sections with the same numbers = amateur ERP design.
 //     Hero pillars are the single source of at-a-glance metrics now.
 //   ✓ REMOVED `StatTile` record (no longer consumed by any view)
@@ -24,7 +24,7 @@
 //   • Dynamic copyright year (2026 floor)
 //   • LeftPillars / RightPillars (hero triptych)
 //   • SalesCycle / ProductionStages / DispatchBilling (workflow)
-//   • Modules (8 module chips)
+//   • Modules (11 module chips)
 //   • TechStack (8 tech items)
 //   • CapabilitiesTop / CapabilitiesBottom (split capability rows)
 //   • All records except StatTile: HeroPillar, WorkflowStage,
@@ -206,7 +206,7 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<HeroPillar> LeftPillars { get; } = new[]
     {
-        new HeroPillar("\uE9F9", "8",      "MODULES"),
+        new HeroPillar("\uE9F9", ActiveModuleCatalog.Length.ToString(), "MODULES"),
         // E909 (Globe), NOT the India flag emoji. HeroPillarTemplate renders
         // this through FontFamily="Segoe MDL2 Assets", which contains no
         // emoji glyphs, so a flag would fall back to .notdef boxes on
@@ -291,8 +291,10 @@ public sealed class AboutViewModel : ViewModelBase
     /// Live modules shipped in the current release.
     /// Each entry renders as a chip in the "Active Modules" card.
     /// Ordered by user-facing importance (Sales → Production → Dispatch).
+    /// Backed by <see cref="ActiveModuleCatalog"/> so the hero metric
+    /// stays numerically aligned with the actual list.
     /// </summary>
-    public ObservableCollection<ModuleInfo> Modules { get; } = new()
+    private static readonly ModuleInfo[] ActiveModuleCatalog =
     {
         new ModuleInfo("\uE7B8", "Sheet Store",
             "Raw glass inventory · SQM pricing · Buy/Use tracking"),
@@ -317,6 +319,8 @@ public sealed class AboutViewModel : ViewModelBase
         new ModuleInfo("\uE790", "Light + Dark Themes",
             "Instant swap · 25 brushes · Design system foundation"),
     };
+
+    public ObservableCollection<ModuleInfo> Modules { get; } = new(ActiveModuleCatalog);
 
     // ══════════════════════════════════════════════════════════════════
     //  TECHNOLOGY STACK (Chat 23 v2.6)

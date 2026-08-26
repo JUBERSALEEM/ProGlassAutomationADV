@@ -35,8 +35,8 @@
                     <TextBlock Text="The last 10 crash files on disk. Share the error ID with support."
                                Style="{StaticResource SectionSubtitleStyle}"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                            VerticalAlignment="Top">
+                <WrapPanel Grid.Column="1" Orientation="Horizontal"
+                           VerticalAlignment="Top" ItemHeight="32">
                     <Button Style="{StaticResource AboutPillButtonStyle}"
                             Content="REFRESH"
                             Margin="0,0,8,0"
@@ -50,14 +50,14 @@
                             Content="CLEAR ALL"
                             Foreground="{DynamicResource GlassMuted}"
                             Click="ClearAllButton_Click"/>
-                </StackPanel>
+                </WrapPanel>
             </Grid>
 
             <ItemsControl ItemsSource="{Binding Reports}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border Margin="0,8,0,0" Padding="12,8"
-                                BorderBrush="#22BFDBFE" BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource AboutDividerBrush}" BorderThickness="0,0,0,1"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>

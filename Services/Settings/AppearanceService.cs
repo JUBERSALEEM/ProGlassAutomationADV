@@ -31,6 +31,13 @@ namespace ProGlassAutomation.Services.Settings
                     App.Config?.Appearance?.WallpaperPath ?? "",
                     App.Config?.Appearance?.WallpaperOpacity ?? 0.85);
 
+                // Re-derive every accent-dependent surface AGAIN after the
+                // visual family has rebuilt its own module brushes. This is
+                // the same ordering guarantee used by SettingsViewModel:
+                // theme → family surfaces → accent family → outline.
+                ThemeManager.ApplyAccent(ThemeManager.AccentColor, raiseEvent: false);
+                ThemeManager.ReapplyOutlinePreference();
+
                 AppLogService.Info($"Theme applied: {(isDark ? "Dark" : "Light")}",
                     new LogContext { Module = "Settings", Operation = "ApplyTheme", CorrelationId = corrId });
 

@@ -43,9 +43,9 @@
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"
-                            Background="#26FFFFFF"
-                            BorderBrush="#66BFDBFE"
-                            BorderThickness="1">
+                            Background="{DynamicResource AboutInteractiveHoverBrush}"
+                            BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
+                            BorderThickness="{DynamicResource CardBorderThickness}">
                         <Border Width="64" Height="64"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 ClipToBounds="True">
@@ -80,9 +80,9 @@
                         HorizontalAlignment="Center"
                         Cursor="Hand"
                         SnapsToDevicePixels="True"
-                        Background="#14FFFFFF"
-                        BorderBrush="#66BFDBFE"
-                        BorderThickness="1"
+                        Background="{DynamicResource AboutInteractiveBrush}"
+                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         MouseLeftButtonDown="Email_MouseLeftButtonDown">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE715;"
@@ -105,11 +105,11 @@
                     <Border Background="{DynamicResource GlassAccentDeep}"
                             CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,8"
                             Margin="0,0,8,0"
-                            BorderBrush="#66BFDBFE" BorderThickness="1"
+                            BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                             SnapsToDevicePixels="True">
                         <TextBlock Text="{Binding Version}"
                                    FontSize="12" FontWeight="Bold"
-                                   Foreground="White"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    IsHitTestVisible="False"/>
                     </Border>
                     <Border Style="{StaticResource ChipStyle}" Margin="0,0,8,0">
@@ -119,7 +119,7 @@
                                    IsHitTestVisible="False"/>
                     </Border>
                     <Border Style="{StaticResource ChipStyle}">
-                        <TextBlock Text="Enterprise Edition"
+                        <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
                                    FontSize="12" FontWeight="Bold"
                                    Foreground="{DynamicResource GlassAccent}"
                                    IsHitTestVisible="False"/>
@@ -139,7 +139,7 @@
                               ItemTemplate="{StaticResource TechItemTemplate}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Rows="2" Columns="4"/>
+                            <WrapPanel HorizontalAlignment="Center"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
@@ -149,8 +149,8 @@
         <!-- ═══ COPYRIGHT FOOTER ═══ -->
         <StackPanel HorizontalAlignment="Center" Margin="0,10,0,20">
             <Border Background="{DynamicResource GlassCard}"
-                    BorderBrush="#66FFFFFF"
-                    BorderThickness="1"
+                    BorderBrush="{DynamicResource AboutCardBorderBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="28,18"
                     Margin="0,8,0,0">

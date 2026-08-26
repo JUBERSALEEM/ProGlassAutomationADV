@@ -236,6 +236,13 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "DividerBrush",
                 ColorMath.Mix(keyline, surface, 0.62));
 
+            // ── About / Glassy palette — accent-aware, never hard-coded ──
+            // The About page and the Glassy visual family share the
+            // Glass* palette. Re-publish it from the current accent so
+            // About finally follows custom accents, theme-family swaps
+            // and live Settings changes instead of staying fixed to one accent.
+            PublishAboutPalette(resources, core, surface, dark, h, s, l);
+
             // ── Dashboard ambience — derived, never hard-coded ──────
             // The dashboards consume these via DynamicResource, so the
             // whole analytics surface follows the theme AND the accent.
@@ -246,12 +253,122 @@ namespace ProGlassAutomation.Services
         }
 
         /// <summary>
-        /// Derives the dashboard ambience family (ambient gradient,
-        /// accent blobs, glass surfaces, accent text) from the active
-        /// accent + theme. Published at application level so every
-        /// dashboard's DynamicResource references update instantly and
-        /// stay correct across light/dark swaps and accent changes.
+        /// Re-derives the About / Glassy palette from the active accent.
+        /// This keeps the About module's glass chrome, tab strip, chips,
+        /// orbs and shared Glassy family resources aligned with live accent
+        /// changes instead of freezing them to the theme's original blue.
         /// </summary>
+        private static void PublishAboutPalette(
+            ResourceDictionary resources,
+            Color core,
+            Color surface,
+            bool dark,
+            double h,
+            double s,
+            double l)
+        {
+            Color accent = dark
+                ? ColorMath.Lighten(core, 0.08)
+                : ColorMath.FromHsl(h, Math.Max(0.42, s * 0.88), Math.Min(0.46, Math.Max(0.34, l)));
+            Color accentDeep = dark
+                ? ColorMath.FromHsl(h, Math.Min(1.0, s + 0.04), Math.Max(0.42, l - 0.05))
+                : ColorMath.FromHsl(h, Math.Min(1.0, s + 0.06), Math.Max(0.28, l - 0.14));
+            Color cerulean = dark
+                ? ColorMath.Lighten(core, 0.18)
+                : ColorMath.FromHsl(h, Math.Max(0.34, s * 0.58), Math.Min(0.40, Math.Max(0.28, l - 0.12)));
+
+            FreezeAndSet(resources, "GlassAccent", accent);
+            FreezeAndSet(resources, "GlassAccentDeep", accentDeep);
+            FreezeAndSet(resources, "GlassCerulean", cerulean);
+
+            var card = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1)
+            };
+            if (dark)
+            {
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.14), 0x34), 0.0));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Tint(accentDeep, Color.FromRgb(255, 255, 255), 0.08), 0x16), 1.0));
+            }
+            else
+            {
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.12), 0.0));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.Tint(accentDeep, Color.FromRgb(255, 255, 255), 0.05), 1.0));
+            }
+            FreezeAndSetBrush(resources, "GlassCard", card);
+
+            var sheen = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            sheen.GradientStops.Add(new GradientStop(
+                ColorMath.WithAlpha(dark ? cerulean : accent, dark ? (byte)0x34 : (byte)0x18), 0.0));
+            sheen.GradientStops.Add(new GradientStop(Color.FromArgb(0, accent.R, accent.G, accent.B), 0.65));
+            FreezeAndSetBrush(resources, "GlassSheen", sheen);
+
+            var orbA = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                GradientOrigin = new Point(0.5, 0.5),
+                RadiusX = 0.5,
+                RadiusY = 0.5
+            };
+            orbA.GradientStops.Add(new GradientStop(
+                ColorMath.WithAlpha(dark ? ColorMath.Lighten(accent, 0.10) : accent, dark ? (byte)0x54 : (byte)0x30), 0.0));
+            orbA.GradientStops.Add(new GradientStop(
+                ColorMath.WithAlpha(accentDeep, dark ? (byte)0x2A : (byte)0x16), 0.55));
+            orbA.GradientStops.Add(new GradientStop(
+                Color.FromArgb(0, accentDeep.R, accentDeep.G, accentDeep.B), 1.0));
+            FreezeAndSetBrush(resources, "GlassOrbA", orbA);
+
+            var orbB = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                GradientOrigin = new Point(0.5, 0.5),
+                RadiusX = 0.5,
+                RadiusY = 0.5
+            };
+            orbB.GradientStops.Add(new GradientStop(
+                ColorMath.WithAlpha(dark ? cerulean : ColorMath.Lighten(accent, 0.08), dark ? (byte)0x46 : (byte)0x2E), 0.0));
+            orbB.GradientStops.Add(new GradientStop(
+                ColorMath.WithAlpha(accent, dark ? (byte)0x24 : (byte)0x12), 0.55));
+            orbB.GradientStops.Add(new GradientStop(
+                Color.FromArgb(0, accent.R, accent.G, accent.B), 1.0));
+            FreezeAndSetBrush(resources, "GlassOrbB", orbB);
+
+            Color panelFill = dark
+                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.20), 0x24)
+                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.08);
+            Color panelHover = dark
+                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.28), 0x32)
+                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.14);
+            Color panelBorder = dark
+                ? ColorMath.WithAlpha(accent, 0x58)
+                : ColorMath.Tint(accent, surface, 0.42);
+            Color panelBorderStrong = dark
+                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.08), 0x84)
+                : ColorMath.FromHsl(h, Math.Max(0.48, s * 0.82), Math.Min(0.58, Math.Max(0.46, l + 0.02)));
+            Color cardBorder = dark
+                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.12), 0x78)
+                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.26);
+            Color divider = dark
+                ? ColorMath.WithAlpha(accent, 0x2C)
+                : ColorMath.Tint(accent, surface, 0.22);
+
+            FreezeAndSet(resources, "AboutInteractiveBrush", panelFill);
+            FreezeAndSet(resources, "AboutInteractiveHoverBrush", panelHover);
+            FreezeAndSet(resources, "AboutInteractiveBorderBrush", panelBorder);
+            FreezeAndSet(resources, "AboutInteractiveBorderStrongBrush", panelBorderStrong);
+            FreezeAndSet(resources, "AboutCardBorderBrush", cardBorder);
+            FreezeAndSet(resources, "AboutDividerBrush", divider);
+        }
+
         private static void PublishDashAmbience(
             ResourceDictionary resources,
             Color core, bool dark)
@@ -632,6 +749,13 @@ namespace ProGlassAutomation.Services
         {
             var brush = new SolidColorBrush(color);
             brush.Freeze();                 // frozen = thread-safe + fast
+            resources[key] = brush;
+        }
+
+        private static void FreezeAndSetBrush(
+            ResourceDictionary resources, string key, Brush brush)
+        {
+            if (brush.CanFreeze) brush.Freeze();
             resources[key] = brush;
         }
     }

@@ -48,7 +48,7 @@
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
                         </ItemsPanelTemplate>
                     </Setter.Value>
                 </Setter>
@@ -66,9 +66,9 @@
                     <Setter.Value>
                         <ControlTemplate TargetType="ListBoxItem">
                             <Border x:Name="TabBg"
-                                    Background="#14FFFFFF"
-                                    BorderBrush="#40BFDBFE"
-                                    BorderThickness="1"
+                                    Background="{DynamicResource AboutInteractiveBrush}"
+                                    BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="18,9"
                                     SnapsToDevicePixels="True">
@@ -77,12 +77,12 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background" Value="#26FFFFFF"/>
+                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource GlassAccentDeep}"/>
                                     <Setter TargetName="TabBg" Property="BorderBrush" Value="{DynamicResource GlassAccent}"/>
-                                    <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -147,6 +147,10 @@
                                 IsHitTestVisible="False"/>
 
                         <Grid Margin="30,26">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
@@ -154,16 +158,16 @@
                             </Grid.ColumnDefinitions>
 
                             <!-- App icon -->
-                            <Grid Grid.Column="0" Margin="0,0,24,0">
+                            <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,24,0">
                                 <Ellipse Width="104" Height="104"
                                          Stroke="{DynamicResource GlassAccent}"
                                          StrokeThickness="1" StrokeDashArray="4 6"
                                          Opacity="0.5" IsHitTestVisible="False"/>
                                 <Border Width="84" Height="84"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Background="#26FFFFFF"
-                                        BorderBrush="#66BFDBFE"
-                                        BorderThickness="1"
+                                        Background="{DynamicResource AboutInteractiveHoverBrush}"
+                                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
                                         SnapsToDevicePixels="True">
                                     <Border Width="76" Height="76"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -185,7 +189,7 @@
                             </Grid>
 
                             <!-- Identity -->
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding AppName}"
                                            FontSize="30" FontWeight="Bold"
                                            Foreground="{DynamicResource GlassSnow}"
@@ -198,16 +202,16 @@
                             </StackPanel>
 
                             <!-- Version / build / edition -->
-                            <StackPanel Grid.Column="2" VerticalAlignment="Center"
+                            <StackPanel Grid.Row="0" Grid.Column="2" VerticalAlignment="Center"
                                         HorizontalAlignment="Right">
                                 <Border Background="{DynamicResource GlassAccentDeep}"
                                         CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,8"
                                         HorizontalAlignment="Right"
-                                        BorderBrush="#66BFDBFE" BorderThickness="1"
+                                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                         SnapsToDevicePixels="True">
                                     <TextBlock Text="{Binding Version}"
                                                FontSize="12" FontWeight="Bold"
-                                               Foreground="White"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
                                 <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
@@ -238,6 +242,37 @@
                                                IsHitTestVisible="False"/>
                                 </Border>
                             </StackPanel>
+
+                            <!-- Hero metrics restored: bind the shared pillar collections
+                                 so the header once again exposes module count, databases,
+                                 offline-first posture and AI readiness. -->
+                            <Grid Grid.Row="1" Grid.ColumnSpan="3" Margin="0,22,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ItemsControl Grid.Column="0"
+                                              ItemsSource="{Binding LeftPillars}"
+                                              ItemTemplate="{StaticResource HeroPillarTemplate}">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+
+                                <ItemsControl Grid.Column="1"
+                                              ItemsSource="{Binding RightPillars}"
+                                              ItemTemplate="{StaticResource HeroPillarTemplate}"
+                                              HorizontalAlignment="Right">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                </ItemsControl>
+                            </Grid>
                         </Grid>
                     </Grid>
                 </Border>
