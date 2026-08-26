@@ -234,7 +234,6 @@ namespace ProGlassAutomation.Tests.Security
             // best-effort (falls back to manual paste). Tools/
             // is scanned by the audit, so allow the intentional
             // best-effort catches.
-            ("AppLogServiceStub.cs",                "*",                   "Dev-tool logger must never throw"),
             ("LicenseGeneratorCore.cs",             "*",                   "Best-effort repo locate / key write in dev tool"),
 
             // AIContextBuilder — DB / external-resource

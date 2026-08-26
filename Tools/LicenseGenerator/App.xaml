@@ -5,16 +5,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!--
-                  Self-contained dark theme. The tool does
-                  NOT reference the main app's theme files
-                  (pack://application:,,,/Themes/... would
-                  not resolve in a separate assembly), so
-                  the few brushes the tool needs are
-                  defined inline. The values match the
-                  main app's LightTheme + DarkTheme for
-                  visual consistency.
-                -->
+                <!-- Professional LIGHT theme for the generator tool.
+                     The tool has no dependency on the main app's theme. -->
                 <ResourceDictionary Source="Theme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

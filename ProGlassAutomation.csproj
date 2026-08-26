@@ -164,6 +164,18 @@
 		<Resource Include="Resources/Glass3D/dgulam-3d.png" />
 	</ItemGroup>
 
+	<!--
+	  The permanent licensing contract. ProGlassAutomation verifies
+	  .proglasslicense files through ProGlass.Licensing. This is the ONLY
+	  place license format/signature logic lives; the app NEVER re-implements
+	  signing/verification and NEVER contains a private signing key.
+	  The LicenseGenerator (a separate project) signs against the SAME
+	  library; the two do not reference each other.
+	-->
+	<ItemGroup>
+		<ProjectReference Include="Licensing\ProGlass.Licensing.csproj" />
+	</ItemGroup>
+
 	<!-- ═══════════════════════════════════════════════════════════════
 	     Phase 8.3 — Explicit registration for Controls folder
 	═══════════════════════════════════════════════════════════════ -->

@@ -96,8 +96,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using ProGlassAutomation.Services.Logging;
 
+// MachineFingerprint is a PURE licensing primitive. It intentionally does
+// NOT reference AppLogService / Audit / CorrelationContext / any app
+// service — a fingerprint probe must never fail and must never couple to
+// application logging. See Licensing/MachineFingerprint contract notes.
 namespace ProGlassAutomation.Services.Licensing
 {
     /// <summary>
@@ -251,7 +254,8 @@ namespace ProGlassAutomation.Services.Licensing
                 // the fingerprint is still derived from the other
                 // sources; the degenerate-guard below catches the
                 // case where EVERY deep source fails.
-                AppLogService.Debug("[MachineFingerprint] Volume-serial probe failed: " + ex.Message);
+                // best-effort — a missing/denied volume probe just skips that input.
+                _ = ex;
             }
             sb.Append("vol=").Append(serial.ToString("X8")).Append(';');
             if (serial != 0)
@@ -278,16 +282,8 @@ namespace ProGlassAutomation.Services.Licensing
                 string? firstMac = FirstMacAddress();
                 sb.Append("mac=").Append(firstMac ?? "none").Append(';');
                 sb.Append("cores=").Append(Environment.ProcessorCount).Append(';');
-                AppLogService.Warning(
-                    $"[MachineFingerprint] Degenerate hardware probe: only " +
-                    $"{deepInputs} deep input(s) available (guid/cpu/board/disk/vol); " +
-                    "MAC + core count added as dispersion inputs.",
-                    new LogContext
-                    {
-                        Module = "Licensing",
-                        Class = nameof(MachineFingerprint),
-                        Operation = "ComputeCore"
-                    });
+                // Degenerate-guard is documented; the probe is best-effort and
+                // never logs (a fingerprint must not couple to app services).
             }
 
             // SHA-256, take the first 16 bytes (32 hex chars).
@@ -367,9 +363,8 @@ namespace ProGlassAutomation.Services.Licensing
             {
                 // WMI disabled, class missing, access denied, timeout
                 // — any of these just means "this input is missing".
-                AppLogService.Debug(
-                    $"[MachineFingerprint] WMI {wmiClass}.{property} " +
-                    $"unavailable: {ex.Message}");
+                // WMI unavailable → this input is simply "missing".
+                _ = ex;
             }
             return "";
         }
@@ -425,8 +420,8 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch (System.Exception ex)
             {
-                AppLogService.Debug(
-                    "[MachineFingerprint] MachineGuid read failed: " + ex.Message);
+                // Registry read denied → MachineGuid is "missing".
+                _ = ex;
                 return "";
             }
         }
