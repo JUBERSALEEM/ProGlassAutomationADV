@@ -93,7 +93,7 @@
                 <TextBlock Text="EXTENSIBILITY &amp; FUTURE" Style="{StaticResource SubHeadingStyle}"/>
                 <TextBlock Style="{StaticResource BodyTextStyle}">
                     <Run Text="The current release ships with "/>
-                    <Run Text="{Binding Modules.Count}" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                    <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
                     <Run Text=" active modules covering the full production lifecycle. Upcoming production-stage modules (Cutting, Holes/Cutouts, Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/DGU) will slot into the existing shell without any database migration. Optional AI Assistant (Google Gemini) provides in-app glass-industry expertise and workflow guidance — fully user-controlled, disable-able, and using only user-provided API keys."/>
                 </TextBlock>
             </StackPanel>

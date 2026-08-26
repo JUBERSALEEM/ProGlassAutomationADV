@@ -168,6 +168,16 @@ namespace ProGlassAutomation.Tests.About
         }
 
         [Fact]
+        public void AboutOverview_read_only_count_binding_is_explicitly_one_way()
+        {
+            var root = LocateProjectRoot();
+            var src = File.ReadAllText(Path.Combine(root,
+                "Views/About/Sections/AboutOverviewSection.xaml"));
+
+            Assert.Contains("{Binding Modules.Count, Mode=OneWay}", src);
+        }
+
+        [Fact]
         public void AboutViewModel_selected_tab_index_is_clamped()
         {
             var vm = new AboutViewModel();
