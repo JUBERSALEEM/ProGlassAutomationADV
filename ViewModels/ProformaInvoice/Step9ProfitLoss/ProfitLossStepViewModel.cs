@@ -1730,7 +1730,3 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
     }
 }
-}
-    }
-}
-}
