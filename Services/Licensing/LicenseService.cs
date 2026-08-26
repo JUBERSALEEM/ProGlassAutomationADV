@@ -907,8 +907,8 @@ namespace ProGlassAutomation.Services.Licensing
                     ? "anchors=" + ledger.AnchorEvidence.TrimEnd(';')
                     : "config-only";
 
-                bool trialConsumed = !ledger.FirstIssuedUtc.HasValue
-                    || (DateTime.UtcNow - ledger.FirstIssuedUtc.Value).TotalDays >= AutoTrialDays;
+                bool trialConsumed = ledger.FirstIssuedUtc.HasValue
+                    && (DateTime.UtcNow - ledger.FirstIssuedUtc.Value).TotalDays >= AutoTrialDays;
 
                 if (trialConsumed)
                 {

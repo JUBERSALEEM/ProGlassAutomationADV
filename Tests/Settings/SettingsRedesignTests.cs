@@ -306,10 +306,14 @@ namespace ProGlassAutomation.Tests.Settings
             foreach (var rel in SectionFiles)
             {
                 var src = File.ReadAllText(Path.Combine(root, rel));
-                Assert.DoesNotContain("<UniformGrid Columns=\"1\"", src,
-                    $"{rel} uses UniformGrid Columns=1, which forces every card "
-                    + "to the same height and creates empty space when a short "
-                    + "card is stacked over a tall one. Use a StackPanel instead.");
+                // Assert.DoesNotContain has no xUnit overload that takes a
+                // custom message string, so wrap the condition in Assert.True
+                // to keep the diagnostic message.
+                var culprit = $"{rel} uses UniformGrid Columns=1, which forces " +
+                              "every card to the same height and creates empty " +
+                              "space when a short card is stacked over a tall " +
+                              "one. Use a StackPanel instead.";
+                Assert.True(!src.Contains("<UniformGrid Columns=\"1\""), culprit);
             }
         }
 
