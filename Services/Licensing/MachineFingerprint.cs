@@ -51,6 +51,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace ProGlassAutomation.Services.Licensing
 {
@@ -60,6 +61,23 @@ namespace ProGlassAutomation.Services.Licensing
     /// </summary>
     public static class MachineFingerprint
     {
+        // 2026-08-26 senior fix (activation-limit incident): the v1
+        // fingerprint mixed in VOLATILE inputs — RuntimeInformation.
+        // OSDescription (contains the Windows build/UBR, which changes
+        // with every cumulative Windows update) and FrameworkDescription
+        // (changes with every .NET patch). A single Windows update made
+        // the fingerprint "new", the activation ledger added a second
+        // entry, and a MaxActivations=1 or 2 license flipped to
+        // ActivationLimit — the overlay covering the screen.
+        //
+        // v2 keeps only machine-stable inputs (OS name + edition,
+        // volume serial, NIC MAC, CPU count) and strips the build
+        // token from the OS string. The version constant is stored in
+        // the activation ledger: on first load after an algorithm
+        // bump the ledger resets instead of counting phantom entries
+        // from the old algorithm.
+        public const int FingerprintAlgorithmVersion = 2;
+
         // 2026-08-25 senior fix: the fingerprint is stable for the
         // process lifetime (hardware does not change mid-run), yet it
         // was recomputed on EVERY call — including on the UI thread from
@@ -99,9 +117,19 @@ namespace ProGlassAutomation.Services.Licensing
             // the same order, the fingerprint is stable.
             var sb = new StringBuilder(512);
             sb.Append("cpu=").Append(Environment.ProcessorCount).Append(';');
-            sb.Append("os=").Append(RuntimeInformation.OSDescription).Append(';');
+
+            // v2: OS name + edition only. RuntimeInformation.OSDescription
+            // on Windows looks like
+            //   "Microsoft Windows 11 Pro 10.0.26100.2605"
+            // — the trailing build/UBR changes with every cumulative
+            // update, so it is stripped. The regex removes a trailing
+            // " 10.0.xxxx.xxxx" (or similar) token; if the format ever
+            // changes and nothing matches, the full string is kept —
+            // deterministic either way.
+            string osDesc = RuntimeInformation.OSDescription;
+            sb.Append("os=").Append(
+                Regex.Replace(osDesc, @"\s+\d+\.\d+[\d.]*$", "")).Append(';');
             sb.Append("arch=").Append(RuntimeInformation.OSArchitecture).Append(';');
-            sb.Append("framework=").Append(RuntimeInformation.FrameworkDescription).Append(';');
 
             // Volume serial number for %SystemDrive%. Win32
             // GetVolumeInformation returns the 32-bit volume
@@ -126,24 +154,36 @@ namespace ProGlassAutomation.Services.Licensing
             }
             sb.Append("vol=").Append(serial.ToString("X8")).Append(';');
 
-            // First non-loopback, non-tunnel, operational NIC.
-            // The MAC address of a NIC is a stable 48-bit
-            // identifier. We pick the first one alphabetically so
-            // the choice is deterministic on the same machine
-            // across reboots (NetworkInterface ordering is not
-            // guaranteed stable between boots; the LINQ
-            // OrderBy(string) makes it so).
+            // First stable NIC MAC. v2 hardening:
+            //   • GetPhysicalAddress() can throw on some virtual
+            //     adapters — probe each adapter individually so one
+            //     bad NIC cannot zero the whole MAC source.
+            //   • Adapters whose MAC comes back empty are skipped
+            //     (v1 happily used "" as the identifier).
+            //   • Physical Ethernet is preferred over Wi-Fi and other
+            //     types (a machine with both has a stable choice even
+            //     when the cable is unplugged), then deterministic
+            //     OrderBy Id within the preferred class.
             try
             {
-                var firstMac = NetworkInterface
+                string? firstMac = null;
+                foreach (var nic in NetworkInterface
                     .GetAllNetworkInterfaces()
                     .Where(n =>
                         n.OperationalStatus == OperationalStatus.Up
                         && n.NetworkInterfaceType != NetworkInterfaceType.Loopback
                         && n.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
-                    .OrderBy(n => n.Id, StringComparer.Ordinal)
-                    .Select(n => n.GetPhysicalAddress().ToString())
-                    .FirstOrDefault();
+                    .OrderBy(n => n.NetworkInterfaceType == NetworkInterfaceType.Ethernet
+                        ? 0 : 1)
+                    .ThenBy(n => n.Id, StringComparer.Ordinal))
+                {
+                    string mac;
+                    try { mac = nic.GetPhysicalAddress().ToString(); }
+                    catch { continue; }
+                    if (string.IsNullOrEmpty(mac)) continue;
+                    firstMac = mac;
+                    break;
+                }
                 sb.Append("mac=").Append(firstMac ?? "none").Append(';');
             }
             catch

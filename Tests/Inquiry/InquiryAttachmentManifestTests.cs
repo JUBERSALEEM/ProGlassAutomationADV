@@ -57,6 +57,8 @@ namespace ProGlassAutomation.Tests.Inquiry
                 => Task.FromResult(DeleteInquiryResult.NotFound());
             public Task<InquiryRecord> DuplicateAsync(int sourceId, CancellationToken ct = default)
                 => throw new NotSupportedException();
+            public Task<bool> SetProformaLinkAsync(int inquiryId, int? proformaInvoiceId, string proformaNumber, CancellationToken ct = default)
+                => throw new NotSupportedException();
             public void InvalidateLifecycle(int inquiryId) { /* no-op */ }
         }
 

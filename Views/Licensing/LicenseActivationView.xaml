@@ -188,6 +188,31 @@
                     </StackPanel>
                 </Border>
 
+                <!-- Developer-only: appears only when the status is an
+                     activation limit AND this machine holds a signing
+                     key pair (vendor / developer machine). One tap
+                     clears the activation ledger so this machine
+                     re-registers — the recovery path for the
+                     "activation limit reached" lockout caused by
+                     stale fingerprint entries. -->
+                <Border x:Name="DevResetCard"
+                        Style="{StaticResource SectionCardStyle}"
+                        Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="DEVELOPER RECOVERY"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                                   Margin="0,6,0,12"
+                                   Foreground="{DynamicResource ForegroundBrush}"
+                                   Text="This machine holds a signing key pair, so you can clear the activation ledger and re-register this device without contacting the vendor."/>
+                        <Button Style="{StaticResource OutlinedPillButton}"
+                                Content="CLEAR ACTIVATION LEDGER + RE-REGISTER THIS MACHINE"
+                                Click="DevResetButton_Click"
+                                HorizontalAlignment="Stretch"/>
+                    </StackPanel>
+                </Border>
+
                 <!-- Footer: error label + close button -->
                 <TextBlock x:Name="ErrorText"
                            Margin="0,8,0,0"

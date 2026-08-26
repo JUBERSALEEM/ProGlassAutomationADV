@@ -199,6 +199,16 @@ namespace ProGlassAutomation.Views.Licensing
                 ? LicenseUiText.StatusDescription(current.Status)
                 : current.ErrorDetail;
 
+            // Developer-only recovery card: visible when the license is
+            // locked out AND this machine can sign (vendor/developer).
+            // See LicenseService.IsDeveloperMachine for the trust basis.
+            DevResetCard.Visibility =
+                (current.Status == LicenseStatus.ActivationLimit
+                 || current.Status == LicenseStatus.MachineMismatch)
+                && LicenseService.IsDeveloperMachine
+                    ? System.Windows.Visibility.Visible
+                    : System.Windows.Visibility.Collapsed;
+
             // Headline + subhead are tweaked per status so
             // the user is not asked to "activate" when the
             // problem is actually an expired trial.
@@ -230,12 +240,22 @@ namespace ProGlassAutomation.Views.Licensing
                 case LicenseStatus.Invalid:
                 case LicenseStatus.MachineMismatch:
                 case LicenseStatus.Expired:
-                case LicenseStatus.ActivationLimit:
                     HeadlineText.Text = "License problem";
                     SubheadText.Text =
                         "The current license is not in a runnable " +
                         "state. Install a replacement .lic file or " +
                         "paste a fresh key below.";
+                    break;
+                case LicenseStatus.ActivationLimit:
+                    HeadlineText.Text = "Activation limit reached";
+                    SubheadText.Text =
+                        "This license was already counted on its " +
+                        "maximum number of devices. If you have not " +
+                        "activated it elsewhere, stale device records " +
+                        "(old Windows / .NET versions change the " +
+                        "device identity) are the usual cause — the " +
+                        "ledger self-heals on the next start, and " +
+                        "developer machines can clear it below.";
                     break;
                 default:
                     HeadlineText.Text = "ProGlass Automation";
@@ -360,6 +380,41 @@ namespace ProGlassAutomation.Views.Licensing
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             RaiseClosed();
+        }
+
+        // ── Developer recovery ────────────────────────────────
+        //
+        // The card hosting this button is only visible on
+        // machines that hold a signing key pair (see
+        // RefreshFromService), so the confirm dialog is the
+        // only second gate — matching the InstallTrial
+        // "developer-only path" precedent in LicenseService.
+
+        private void DevResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "This clears the activation ledger (activations.json) " +
+                "and re-registers THIS machine against the current " +
+                "license.\n\n" +
+                "Only do this on your own / vendor machine. Continue?",
+                "Developer recovery",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.OK) return;
+
+            try
+            {
+                // DevResetActivations ends with a Reload, which fires
+                // StatusChanged → RefreshFromService updates the whole
+                // view (and hides this card again if the license now
+                // runs).
+                LicenseService.DevResetActivations();
+            }
+            catch (System.Exception ex)
+            {
+                ShowError("Developer reset failed: " + ex.Message);
+            }
         }
 
         // ── Install helper ──────────────────────────────────────

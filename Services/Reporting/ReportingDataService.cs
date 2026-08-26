@@ -1975,7 +1975,10 @@ namespace ProGlassAutomation.Services.Reporting
             dict["Reconciliation"] = await GetQuantityReconciliationAsync(pi, ct);
 
             var profit = await GetProfitabilityRowsAsync(new ReportingFilter { ProformaId = pi, PageSize = 5 }, ct);
-            dict["Profitability"] = profit.Items.FirstOrDefault();
+            // Intentional: a PI with no profitability rows stores a
+            // null slot in the chain dictionary (consumers already
+            // treat missing rows as "not computed").
+            dict["Profitability"] = profit.Items.FirstOrDefault()!;
 
             return dict;
         }

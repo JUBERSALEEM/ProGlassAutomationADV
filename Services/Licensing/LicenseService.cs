@@ -391,6 +391,8 @@ namespace ProGlassAutomation.Services.Licensing
 
             string fingerprint = MachineFingerprint.ComputeCurrent();
             ActivationLedger ledger = LoadLedger(payload.LicenseId);
+            ledger.AlgorithmVersion =
+                MachineFingerprint.FingerprintAlgorithmVersion;
             DateTime nowUtc = DateTime.UtcNow;
 
             // Update this machine's record. If it isn't
@@ -458,6 +460,33 @@ namespace ProGlassAutomation.Services.Licensing
                     });
                 if (ledger == null)
                     return new ActivationLedger { LicenseId = licenseId };
+
+                // 2026-08-26 (activation-limit incident): the v1
+                // fingerprint drifted on every Windows / .NET update,
+                // so old ledgers are full of phantom entries from a
+                // machine that no longer computes those fingerprints.
+                // Counting them would keep the user locked out even
+                // though only THIS machine holds the license. Entries
+                // recorded under a different algorithm version are
+                // therefore discarded: the ledger starts fresh and this
+                // machine re-registers on this call.
+                if (ledger.AlgorithmVersion !=
+                    MachineFingerprint.FingerprintAlgorithmVersion)
+                {
+                    AppLogService.Info(
+                        $"Activation ledger for '{licenseId}' reset: " +
+                        $"fingerprint algorithm v{ledger.AlgorithmVersion} " +
+                        $"-> v{MachineFingerprint.FingerprintAlgorithmVersion} " +
+                        $"({ledger.Activations.Count} stale entr" +
+                        $"{(ledger.Activations.Count == 1 ? "y" : "ies")} dropped).",
+                        new LogContext
+                        {
+                            Module = "Licensing",
+                            Class = nameof(LicenseService),
+                            Operation = "LoadLedger"
+                        });
+                    return new ActivationLedger { LicenseId = licenseId };
+                }
                 // If the ledger belongs to a different
                 // license, reset it.
                 if (!string.Equals(ledger.LicenseId, licenseId,
@@ -502,6 +531,100 @@ namespace ProGlassAutomation.Services.Licensing
                         Operation = "SaveLedger"
                     });
             }
+        }
+
+        // ── Developer self-service (activation-limit recovery) ─────
+
+        /// <summary>
+        /// True on machines that hold a local signing key pair
+        /// (license-keys.json with PrivateKeyXml) — i.e. the
+        /// vendor's / developer's own machine. Same trust basis as
+        /// <see cref="InstallTrial"/>, which is the established
+        /// developer-only path in this codebase.
+        /// </summary>
+        public static bool IsDeveloperMachine
+        {
+            get
+            {
+                try
+                {
+                    string dataRoot = TestDataFolderOverride
+                        ?? AppDataRoot.CurrentFolder;
+                    string keysFile = Path.Combine(dataRoot, "license-keys.json");
+                    if (!File.Exists(keysFile)) return false;
+                    var keys = JsonSerializer.Deserialize<KeyStore>(
+                        File.ReadAllText(keysFile),
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                    return !string.IsNullOrWhiteSpace(keys?.PrivateKeyXml);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
+        /// <summary>
+        /// DEVELOPER-ONLY: deletes the activation ledger entirely and
+        /// re-verifies. The current machine re-registers itself during
+        /// the reload, so a license that was locked out by phantom
+        /// ledger entries (fingerprint drift, stale copies) comes back
+        /// to life without contacting the vendor.
+        /// <para>
+        /// Gated on <see cref="IsDeveloperMachine"/>: end-user machines
+        /// do not hold the signing key pair, so this path is invisible
+        /// and unreachable for them — the activation UI only shows the
+        /// button on developer machines.
+        /// </para>
+        /// </summary>
+        public static LicenseVerificationResult DevResetActivations()
+        {
+            if (!IsDeveloperMachine)
+                return _current;
+
+            try
+            {
+                if (!string.IsNullOrEmpty(_activationsPath)
+                    && File.Exists(_activationsPath))
+                {
+                    File.Delete(_activationsPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Dev reset: could not delete activations.json: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "DevResetActivations"
+                    });
+            }
+
+            AppLogService.Info(
+                "Activation ledger cleared by developer reset; this " +
+                "machine re-registers on reload.",
+                new LogContext
+                {
+                    Module = "Licensing",
+                    Class = nameof(LicenseService),
+                    Operation = "DevResetActivations"
+                });
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Activation ledger reset (developer)",
+                    "activations.json cleared; machine re-registered.");
+            }
+            catch { /* audit must not block */ }
+
+            return Reload();
         }
 
         // ── Auto-trial (commit 2 of the licensing refactor) ─────────
@@ -1090,6 +1213,13 @@ namespace ProGlassAutomation.Services.Licensing
         {
             [JsonPropertyName("licenseId")]
             public string LicenseId { get; set; } = "";
+
+            // Fingerprint algorithm version that produced the stored
+            // entries (0 = pre-versioning / v1). LoadLedger resets the
+            // ledger when this does not match the current algorithm —
+            // see the incident note there.
+            [JsonPropertyName("algorithmVersion")]
+            public int AlgorithmVersion { get; set; }
 
             [JsonPropertyName("activations")]
             public List<ActivationEntry> Activations { get; set; } = new();
