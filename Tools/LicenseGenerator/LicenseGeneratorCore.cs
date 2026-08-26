@@ -309,7 +309,15 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
                     dir = dir.Parent;
                 }
             }
-            catch { /* best-effort */ }
+            catch (System.Exception ex)
+            {
+                // Best-effort locate — if we cannot find the repo we return
+                // null and the caller falls back to the manual-paste path.
+                ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                    "[LicenseGenerator] FindAppSourceFile failed: " + ex.Message);
+                return null;
+            }
+
             return null;
         }
 

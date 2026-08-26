@@ -271,8 +271,12 @@ namespace ProGlassAutomation.ViewModels.Licensing
         {
             try
             {
+                // Use Ceiling so the final partial day counts as a full day:
+                // a trial with 28.4 days shown as "28 days" would drop a day
+                // the moment any time elapses. Ceiling keeps "29 days" until
+                // the true 28-day boundary, matching how users read a countdown.
                 return (int)Math.Max(0,
-                    (expiresAt.ToUniversalTime() - DateTime.UtcNow).TotalDays);
+                    Math.Ceiling((expiresAt.ToUniversalTime() - DateTime.UtcNow).TotalDays));
             }
             catch
             {

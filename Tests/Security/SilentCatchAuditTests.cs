@@ -214,6 +214,29 @@ namespace ProGlassAutomation.Tests.Security
             // not block startup).
             ("LicenseService.cs",                   "*",                   "Startup best-effort / event-raise must not throw"),
 
+            // RelayCommand — the inner catch guards the log
+            // call itself; logging about a logging failure
+            // must never mask the original command failure.
+            // (2026-08-25 empty-catch sweep; surfaced once the
+            //  test project could compile.)
+            ("RelayCommand.cs",                     "Execute",             "Logging guard must never mask the original failure"),
+
+            // AboutView — clipboard set / environment lookups
+            // are best-effort; a failure must not crash the page.
+            ("AboutView.xaml.cs",                   "*",                   "Best-effort clipboard / env probe"),
+
+            // RecordOverlayWindow — teardown of the recording
+            // overlay must never throw on window close.
+            ("RecordOverlayWindow.xaml.cs",         "Frozen",             "Overlay teardown must never throw"),
+
+            // LicenseGenerator developer tool: its own logging
+            // stub must never throw, and source-file probing is
+            // best-effort (falls back to manual paste). Tools/
+            // is scanned by the audit, so allow the intentional
+            // best-effort catches.
+            ("AppLogServiceStub.cs",                "*",                   "Dev-tool logger must never throw"),
+            ("LicenseGeneratorCore.cs",             "*",                   "Best-effort repo locate / key write in dev tool"),
+
             // AIContextBuilder — DB / external-resource
             // probe; the context builder just falls back
             // to an empty context.

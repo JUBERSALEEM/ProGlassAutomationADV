@@ -314,10 +314,11 @@ namespace ProGlassAutomation.Services.Logging
                 return s.Status + (string.IsNullOrEmpty(s.ErrorDetail)
                     ? "" : " (" + s.ErrorDetail + ")");
             }
+            // Include the LicenseId so support can reference the exact file.
             return string.Format(
-                "{0} · {1} · customer={2} · expires={3:u} · {4}",
+                "{0} · {1} · customer={2} · expires={3:u} · id={4} · {5}",
                 s.Status, p.Edition, p.CustomerId, p.ExpiresAt,
-                p.MachineFingerprint == null
+                p.LicenseId, p.MachineFingerprint == null
                     ? "portable"
                     : "bound to " + p.MachineFingerprint);
         }

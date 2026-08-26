@@ -852,19 +852,14 @@ namespace ProGlassAutomation.Services.Licensing
             //    workflow that industrial ERP users learn from
             //    forums within a week of trial expiry.
             //
-            //    Test-environment shortcut kept: null App.Config
-            //    means we're in a headless unit test where the
-            //    real anchors would pollute the developer's
-            //    machine, so we still refuse the auto-trial there.
-            if (App.Config == null)
-            {
-                return new LicenseVerificationResult
-                {
-                    Status = LicenseStatus.NotActivated,
-                    ErrorDetail = "App.Config is not loaded; auto-trial is disabled " +
-                                  "(likely a test environment)."
-                };
-            }
+            // 2026-08-26 (trial active by default): the auto-trial no longer
+            // requires App.Config to be loaded. In production Config is always
+            // loaded; in a headless test host it may be null, and the trial
+            // should still be issued so the machinery can be exercised and so
+            // a fresh machine genuinely starts with a trial. The config ANCHOR
+            // (one-trial-per-machine) is written separately and is already
+            // null-guarded, so a null Config simply skips that one anchor —
+            // the machine-local anchors still enforce the rule.
 
             // 2026-08-26 (cross-PC trial lockout): compute THIS
             // machine's deep fingerprint once, here. It is (a) the
@@ -1313,7 +1308,13 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch { /* audit must not gate startup */ }
 
-            return IssueAutoTrialIfEligible(dataRoot);
+            // Issue the machine's own trial. The file is written to
+            // dataRoot/license.lic; re-resolve the path so the singleton
+            // state points at the fresh trial for the rest of this session.
+            LicenseVerificationResult issued = IssueAutoTrialIfEligible(dataRoot);
+            string? fresh = ResolveLicensePath(dataRoot);
+            if (fresh != null) _licensePath = fresh;
+            return issued;
         }
 
         /// <summary>

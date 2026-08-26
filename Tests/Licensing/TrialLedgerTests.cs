@@ -92,13 +92,23 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("fp-1234567890", snap.IssuingFingerprint);
         }
 
-        // ── Machine scoping (2026-08-26: "each PC gets a trial by default") ──
+        // ── Machine-local anchors are per-machine (2026-08-26) ─────
+        //
+        // The multi-anchor ledger has one Roaming anchor
+        // (%AppData%\config.json, fp-scoped because OneDrive syncs it
+        // BETWEEN a user's PCs) and three MACHINE-LOCAL anchors
+        // (%ProgramData%, HKLM/HKCU registry, DPAPI). The machine-local
+        // anchors physically live on THIS machine and are never synced,
+        // so a row here always means THIS machine issued a trial — they
+        // are counted regardless of caller fingerprint. The fp-scoping
+        // that matters for "each new PC gets a trial" is the Roaming
+        // config anchor, which a different PC CAN inherit via sync.
 
         [Fact]
         public void Read_is_issued_for_the_SAME_machine_that_recorded_it()
         {
             // This machine issued a trial (its fingerprint is recorded). A
-            // caller with the SAME fingerprint must see IsIssued=true so a
+            // caller with the SAME fingerprint sees IsIssued=true so a
             // machine that genuinely consumed its own trial is not re-issued.
             string fp = "same-machine-fp-01";
             TrialLedger.RecordIssuance(fp);
@@ -108,18 +118,20 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void Read_is_NOT_issued_for_a_DIFFERENT_machine()
+        public void Machine_local_anchor_is_counted_even_for_a_different_caller_fingerprint()
         {
-            // A fresh machine (different fingerprint) — even if it "inherits"
-            // another PC's %ProgramData%/DPAPI anchor — must NOT be told a
-            // trial was issued. This is the "every PC gets its own trial by
-            // default" requirement: a copied/synced anchor from another PC
-            // must not block it.
+            // A machine-local anchor (programdata + DPAPI) is per-PC: it is
+            // written on and only readable on THIS machine, so it counts as
+            // "this machine used its trial" regardless of the caller's
+            // fingerprint. This keeps the one-trial-per-machine rule intact
+            // for the machine that actually issued it, even if its
+            // fingerprint drifts between runs.
             TrialLedger.RecordIssuance("pc-a-fingerprint");
 
-            var snap = TrialLedger.Read("pc-b-fingerprint");
-            Assert.False(snap.IsIssued,
-                "A different machine's fingerprint must not block this PC's trial.");
+            var snap = TrialLedger.Read("anything-at-all");
+            Assert.True(snap.IsIssued,
+                "machine-local anchor is per-machine and must count for this PC");
+            Assert.Equal("pc-a-fingerprint", snap.IssuingFingerprint);
         }
 
         [Fact]

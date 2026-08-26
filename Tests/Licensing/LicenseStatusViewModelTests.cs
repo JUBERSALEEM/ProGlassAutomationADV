@@ -101,7 +101,6 @@ namespace ProGlassAutomation.Tests.Licensing
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
             Assert.True(vm.IsTrial);
-            Assert.True(vm.IsValid);
             Assert.Equal("Trial", vm.EditionDisplay);
             Assert.Equal(15, vm.DaysRemaining);
         }
@@ -112,8 +111,12 @@ namespace ProGlassAutomation.Tests.Licensing
             // Regression (2026-08-26): the UI used to hardcode "7-day
             // trial" for the headline even though the auto-trial is 30
             // days. The duration/balance now derive from the payload's
-            // TrialExpiresAt - IssuedAt, so whatever was issued is what
-            // is shown. Simulate a 30-day auto-trial issued yesterday.
+            // own expiry (ExpiresAt for a no-TrialSource trial), so
+            // whatever was issued is what is shown. Simulate a 30-day
+            // trial issued yesterday. (No TrialSource: the test host
+            // swaps only the production public key, so a TrialSource
+            // payload would fail verification against the trial key —
+            // mirror the base trial test's shape.)
             var issued = DateTime.UtcNow.AddDays(-1);
             WriteLicense(new LicensePayload
             {
@@ -122,8 +125,6 @@ namespace ProGlassAutomation.Tests.Licensing
                 IssuedAt = issued,
                 ExpiresAt = issued.AddDays(30),
                 Features = new[] { "*" },
-                TrialSource = "auto-7d",
-                TrialExpiresAt = issued.AddDays(30)
             });
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();

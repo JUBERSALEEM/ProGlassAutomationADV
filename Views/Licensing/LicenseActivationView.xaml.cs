@@ -501,7 +501,7 @@ namespace ProGlassAutomation.Views.Licensing
             try
             {
                 return Math.Max(0,
-                    (int)Math.Floor(
+                    (int)Math.Ceiling(
                         (payload.EffectiveExpiresAt - DateTime.UtcNow).TotalDays));
             }
             catch
