@@ -1105,6 +1105,49 @@ namespace ProGlassAutomation.Services.Licensing
                 && input.Status != LicenseStatus.ActivationLimit)
                 return input;
 
+            // 2026-08-26 (same-machine fingerprint drift): a
+            // MachineMismatch is NOT always a foreign PC copy. The
+            // v3 fingerprint is derived from WMI rows, and WMI does
+            // not guarantee row order — so on a multi-disk / multi-CPU
+            // host the "first" disk/CPU can shift between launches and
+            // the machine-bound trial's fingerprint DRIFTS on the SAME
+            // machine. In that case the trial's bound fingerprint still
+            // matches the fingerprint THIS machine recorded in its own
+            // machine-local anchors (programdata + DPAPI) when it issued
+            // that trial. That match is the proof it is not foreign. We
+            // must NOT delete it (deleting then refusing the re-issue
+            // because "one trial per machine" is what strands the user
+            // on the license screen with an ACTIVE trial). Instead we
+            // re-bind the SAME trial (same LicenseId, same expiry) to
+            // the current fingerprint and keep it running.
+            if (string.IsNullOrEmpty(input.Payload.MachineFingerprint) == false)
+            {
+                try
+                {
+                    var snap = TrialLedger.Read(MachineFingerprint.ComputeCurrent());
+                    if (!string.IsNullOrEmpty(snap.IssuingFingerprint)
+                        && string.Equals(
+                            snap.IssuingFingerprint,
+                            input.Payload.MachineFingerprint,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        return RebindOwnTrialToCurrentFingerprint(input, dataRoot);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    AppLogService.Warning(
+                        "[LicenseService] Own-trial fingerprint check failed; " +
+                        "treating as foreign: " + ex.Message,
+                        new LogContext
+                        {
+                            Module = "Licensing",
+                            Class = nameof(LicenseService),
+                            Operation = "ReplaceForeignTrialIfEligible"
+                        });
+                }
+            }
+
             string foreignId = input.Payload.LicenseId;
             string foreignStatus = input.Status.ToString();
 
@@ -1137,6 +1180,86 @@ namespace ProGlassAutomation.Services.Licensing
             catch { /* audit must not gate startup */ }
 
             return IssueAutoTrialIfEligible(dataRoot);
+        }
+
+        /// <summary>
+        /// 2026-08-26 (same-machine fingerprint-drift self-heal): re-sign
+        /// a machine-bound trial that THIS machine issued against the
+        /// CURRENT fingerprint, preserving the original LicenseId, issued
+        /// date and expiry so no trial time is granted or taken away.
+        ///
+        /// The trial is proven to be this machine's own when its bound
+        /// fingerprint matches the issuing fingerprint recorded in the
+        /// machine-local anchors (see
+        /// <see cref="ReplaceForeignTrialIfEligible"/>). Re-binding keeps
+        /// the exact trial window the user already had instead of the old
+        /// (broken) behaviour of deleting the trial and then refusing the
+        /// re-issue because one-trial-per-machine was already consumed —
+        /// which is what showed the license overlay over an active trial.
+        /// </summary>
+        private static LicenseVerificationResult RebindOwnTrialToCurrentFingerprint(
+            LicenseVerificationResult input, string dataRoot)
+        {
+            if (input.Payload == null) return input;
+
+            string currentFp;
+            try { currentFp = MachineFingerprint.ComputeCurrent(); }
+            catch (System.Exception ex)
+            {
+                AppLogService.Warning(
+                    "[LicenseService] Own-trial rebind skipped (fingerprint "
+                    + "unavailable): " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "RebindOwnTrialToCurrentFingerprint"
+                    });
+                return input;
+            }
+            if (string.IsNullOrEmpty(currentFp)) return input;
+
+            // Re-sign the SAME payload with the CURRENT fingerprint.
+            // LicensePayload is a record, so `with` clones it preserving
+            // LicenseId / IssuedAt / ExpiresAt / TrialExpiresAt / Features.
+            // Write over the resolved license path (the file being
+            // replaced) so a portable-install license keeps its location.
+            var rebind = input.Payload with { MachineFingerprint = currentFp };
+            string destPath = _licensePath ?? Path.Combine(dataRoot, DefaultLicenseFileName);
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(destPath)!);
+                LicenseSigner.SignToFile(
+                    rebind,
+                    LicensePublicKey.TrialPrivateKeyXml,
+                    destPath);
+            }
+            catch (System.Exception ex)
+            {
+                AppLogService.Warning(
+                    "[LicenseService] Own-trial rebind failed: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "RebindOwnTrialToCurrentFingerprint"
+                    });
+                return input;
+            }
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Own trial re-bound to current fingerprint",
+                    "licenseId=" + rebind.LicenseId + "; " +
+                    "expires=" + rebind.TrialExpiresAt.ToString("u"));
+            }
+            catch { /* audit must not gate startup */ }
+
+            // Re-verify the freshly written file; status is back to
+            // Trial (the trial window is unchanged, so no extended time).
+            return LicenseVerifier.Verify(destPath);
         }
 
         // ── Trial install ──────────────────────────────────────────

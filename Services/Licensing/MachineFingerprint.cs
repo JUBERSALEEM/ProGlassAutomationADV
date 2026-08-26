@@ -188,8 +188,10 @@ namespace ProGlassAutomation.Services.Licensing
 
             // 2) CPU chip ID (WMI Win32_Processor.ProcessorId).
             //    Unique per physical processor; survives OS
-            //    reinstalls.
-            string cpu = QueryWmiFirst("Win32_Processor", "ProcessorId");
+            //    reinstalls. Order by DeviceID (CPU0, CPU1, …) so a
+            //    multi-socket host picks the SAME chip every run.
+            string cpu = QueryWmiFirst(
+                "Win32_Processor", "ProcessorId", orderByProperty: "DeviceID");
             if (cpu.Length > 0)
             {
                 sb.Append("cpu=").Append(cpu).Append(';');
@@ -198,10 +200,13 @@ namespace ProGlassAutomation.Services.Licensing
 
             // 3) Motherboard serial (WMI Win32_BaseBoard), falling
             //    back to the BIOS serial on OEMs that only stamp
-            //    Win32_BIOS.
-            string board = QueryWmiFirst("Win32_BaseBoard", "SerialNumber");
+            //    Win32_BIOS. Order by Tag / Name so the winner is
+            //    stable when a host reports more than one row.
+            string board = QueryWmiFirst(
+                "Win32_BaseBoard", "SerialNumber", orderByProperty: "Tag");
             if (board.Length == 0)
-                board = QueryWmiFirst("Win32_BIOS", "SerialNumber");
+                board = QueryWmiFirst(
+                    "Win32_BIOS", "SerialNumber", orderByProperty: "Name");
             if (board.Length > 0)
             {
                 sb.Append("board=").Append(board).Append(';');
@@ -210,8 +215,15 @@ namespace ProGlassAutomation.Services.Licensing
 
             // 4) First physical disk serial (WMI Win32_DiskDrive).
             //    Stable across Windows reinstalls — unlike the
-            //    volume serial, which changes on every reformat.
-            string disk = QueryWmiFirst("Win32_DiskDrive", "SerialNumber");
+            //    volume serial, which changes on every reformat. Order
+            //    by Index (physical device order: PHYSICALDRIVE0,
+            //    PHYSICALDRIVE1, …) so a multi-disk machine always
+            //    picks the SAME disk regardless of WMI's row order —
+            //    otherwise a USB / second drive appearing could flip
+            //    the winner and turn a valid machine-bound trial into
+            //    a false MachineMismatch.
+            string disk = QueryWmiFirst(
+                "Win32_DiskDrive", "SerialNumber", orderByProperty: "Index");
             if (disk.Length > 0)
             {
                 sb.Append("disk=").Append(disk).Append(';');
@@ -294,21 +306,62 @@ namespace ProGlassAutomation.Services.Licensing
         /// from a WMI class. Returns "" when WMI is unavailable,
         /// the query times out, or every row is empty/placeholder.
         /// Never throws.
+        ///
+        /// DETERMINISM (2026-08-26 fix): WMI does NOT guarantee row
+        /// order, so naively taking "the first row" makes the result
+        /// nondeterministic when a class has more than one row
+        /// (multi-disk machines, multi-socket CPUs). A machine-bound
+        /// trial signed against one run's "first disk/CPU" would not
+        /// match the next launch's different "first row", flipping a
+        /// valid trial to MachineMismatch. This method therefore
+        /// collects every valid serial and picks a STABLE winner
+        /// ordered by <paramref name="orderByProperty"/> (e.g. the
+        /// disk's Index) so the fingerprint is identical across runs.
         /// </summary>
-        private static string QueryWmiFirst(string wmiClass, string property)
+        private static string QueryWmiFirst(
+            string wmiClass, string property, string? orderByProperty = null)
         {
             try
             {
+                // When an order-by column is supplied we select BOTH the
+                // value column and the sort key (e.g. a disk's Index).
+                // Otherwise select just the value column — a duplicate
+                // column in a WQL SELECT is invalid.
+                bool hasOrderBy = !string.IsNullOrEmpty(orderByProperty);
+                string selectColumns = hasOrderBy
+                    ? $"{property}, {orderByProperty}"
+                    : property;
                 using var searcher = new ManagementObjectSearcher(
-                    $"SELECT {property} FROM {wmiClass}");
+                    $"SELECT {selectColumns} FROM {wmiClass}");
                 searcher.Options.Timeout = TimeSpan.FromSeconds(5);
                 using var results = searcher.Get();
+
+                // Collect every usable value with its sort key, then
+                // sort deterministically (numeric keys first, then
+                // ordinal) and return the winner. This removes the
+                // dependence on WMI's unrecorded row order.
+                var rows = new List<(string SortKey, string Value)>();
                 foreach (ManagementObject mo in results)
                 {
                     var value = mo[property] as string;
-                    if (IsValidSerial(value))
-                        return value!.Trim().ToUpperInvariant();
+                    if (!IsValidSerial(value)) continue;
+
+                    // The sort key is normally the order-by property's
+                    // string form (numeric for a disk's Index, "CPU0" /
+                    // "CPU1" for a processor's DeviceID). If the
+                    // order-by column is absent for a row, fall back to
+                    // the value itself so the row is still comparable.
+                    string sortKey = hasOrderBy
+                        ? (mo[orderByProperty]?.ToString() ?? "").Trim()
+                        : value!.Trim().ToUpperInvariant();
+                    if (sortKey.Length == 0)
+                        sortKey = value!.Trim().ToUpperInvariant();
+
+                    rows.Add((sortKey, value!.Trim().ToUpperInvariant()));
                 }
+                if (rows.Count == 0) return "";
+                rows.Sort((a, b) => CompareSortKeys(a.SortKey, b.SortKey));
+                return rows[0].Value;
             }
             catch (System.Exception ex)
             {
@@ -319,6 +372,23 @@ namespace ProGlassAutomation.Services.Licensing
                     $"unavailable: {ex.Message}");
             }
             return "";
+        }
+
+        /// <summary>
+        /// Sorts two WMI sort keys deterministically. A key that is a
+        /// whole number (e.g. a disk's <c>Index</c>) orders numerically
+        /// so PHYSICALDRIVE0 always wins regardless of string padding;
+        /// otherwise keys compare ordinal. This keeps the fingerprint
+        /// stable across runs and across machines.
+        /// </summary>
+        private static int CompareSortKeys(string a, string b)
+        {
+            bool aNum = long.TryParse(a, out long numA);
+            bool bNum = long.TryParse(b, out long numB);
+            if (aNum && bNum) return numA.CompareTo(numB);
+            if (aNum) return -1;   // numeric keys sort before text keys
+            if (bNum) return 1;
+            return string.CompareOrdinal(a, b);
         }
 
         /// <summary>

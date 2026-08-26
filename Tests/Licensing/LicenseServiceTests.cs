@@ -431,6 +431,59 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.True(File.Exists(licPath));
         }
 
+        [Fact]
+        public void OwnTrial_fingerprintDrift_is_rebound_not_locked_out()
+        {
+            // Same-machine fingerprint-drift regression (2026-08-26): a
+            // perfectly valid machine-bound trial on the SAME machine can
+            // briefly report a DIFFERENT fingerprint (WMI row order is not
+            // guaranteed; a USB / second drive can flip "first disk"). The
+            // old self-heal deleted the trial and then refused the re-issue
+            // because one-trial-per-machine was already consumed — which is
+            // the "license overlay over an ACTIVE trial" bug. Now the
+            // self-heal detects this machine's own trial (the machine-local
+            // ledger's issuing fingerprint matches the payload) and re-binds
+            // it to the current fingerprint instead of deleting it.
+            (string trialPublic, string trialPrivate) =
+                LicenseSigner.GenerateKeyPair();
+            SetTrialKeyPairAndRestore(trialPublic, trialPrivate);
+            try
+            {
+                // A fingerprint that is almost certainly NOT this machine's
+                // real one, so the verifier below returns MachineMismatch
+                // (the drift condition). The ledger records it as THIS
+                // machine's own issuing fingerprint via RecordIssuance.
+                string boundFp = "cafebabe" + new string('0', 24);
+                TrialLedger.RecordIssuance(boundFp);
+
+                var payload = new LicensePayload
+                {
+                    LicenseId = "AUTO-OWN-DRIFT",
+                    Edition = LicenseEdition.Trial,
+                    IssuedAt = DateTime.UtcNow.AddDays(-1),
+                    ExpiresAt = DateTime.UtcNow.AddDays(29),
+                    Features = new[] { "*" },
+                    MachineFingerprint = boundFp,
+                    TrialSource = LicenseService.AutoTrialSourceMarker,
+                    TrialExpiresAt = DateTime.UtcNow.AddDays(29)
+                };
+                string licPath = Path.Combine(
+                    _tempFolder, LicenseService.DefaultLicenseFileName);
+                LicenseSigner.SignToFile(payload, trialPrivate, licPath);
+
+                var result = LicenseService.Initialize();
+
+                // The drift must NOT strand the user: status comes back as
+                // a runnable Trial (the trial window is unchanged) and the
+                // file is KEPT / re-bound, not deleted.
+                Assert.Equal(LicenseStatus.Trial, result.Status);
+                Assert.True(
+                    File.Exists(licPath),
+                    "own-trial file must be kept (re-bound), not deleted");
+            }
+            finally { RestoreTrialKeyPair(); }
+        }
+
         private static string JsonEscape(string s) =>
             s.Replace("\\", "\\\\").Replace("\"", "\\\"");
     }
