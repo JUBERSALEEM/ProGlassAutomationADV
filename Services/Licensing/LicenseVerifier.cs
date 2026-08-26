@@ -126,6 +126,36 @@ namespace ProGlassAutomation.Services.Licensing
         public static readonly TimeSpan GracePeriod = TimeSpan.FromDays(7);
 
         /// <summary>
+        /// Short hex fingerprint (first 8 bytes of SHA-256 of the
+        /// Modulus) of the embedded production public key. This lets the
+        /// error message tell the vendor WHICH key this build expects, so
+        /// a "signature does not match" is actionable instead of a dead
+        /// end. Never throws; returns a marker for the placeholder.
+        /// </summary>
+        public static string EmbeddedPublicKeyFingerprint
+        {
+            get
+            {
+                try
+                {
+                    string keyXml = LicensePublicKey.PublicKeyXml;
+                    if (LicensePublicKey.IsPlaceholder) return "PLACEHOLDER";
+                    using var rsa = RSA.Create();
+                    rsa.FromXmlString(keyXml);
+                    var p = rsa.ExportParameters(false);
+                    var hash = SHA256.HashData(p.Modulus);
+                    var hex = new StringBuilder(16);
+                    for (int i = 0; i < 8; i++) hex.Append(hash[i].ToString("x2"));
+                    return hex.ToString();
+                }
+                catch
+                {
+                    return "UNKNOWN";
+                }
+            }
+        }
+
+        /// <summary>
         /// Read the file at <paramref name="licensePath"/>,
         /// verify the signature against the embedded public key,
         /// and return the result. Never throws — every failure
@@ -279,22 +309,15 @@ namespace ProGlassAutomation.Services.Licensing
                     // exactly what to do instead of leaving a dead end.
                     string hint =
                         "Signature does not match the payload. " +
-                        "This means the license was signed with a " +
-                        "DIFFERENT key than the one this app build expects. " +
-                        "Re-issue the license with the key that matches " +
-                        "Services/Licensing/LicensePublicKey.cs (run the " +
-                        "LicenseGenerator, click WRITE PUBLIC KEY INTO APP, " +
-                        "then rebuild the app). A copied/renamed license or " +
-                        "an app rebuilt with a different public key also " +
-                        "causes this.";
-                    try
-                    {
-                        string embedded = LicensePublicKey.IsPlaceholder
-                            ? "the placeholder"
-                            : "a real key";
-                        hint += "\n(embedded app public key: " + embedded + ")";
-                    }
-                    catch { /* keep the concise hint */ }
+                        "The license was signed with a DIFFERENT key than " +
+                        "the one this app build expects. " +
+                        "A copied / renamed / stale license, or an app " +
+                        "rebuilt with a different public key, also causes " +
+                        "this.\n" +
+                        "\n" +
+                        "Send this to your vendor so they can re-issue " +
+                        "with the matching key: this app expects public-key " +
+                        "fingerprint " + EmbeddedPublicKeyFingerprint + ".";
 
                     return new LicenseVerificationResult
                     {

@@ -247,13 +247,18 @@ namespace ProGlassAutomation.Tests.Licensing
 
             var result = LicenseService.InstallFile(badPath);
 
-            // The working license is preserved (status stays Valid, the
-            // on-disk file is untouched) and the bad file is refused.
-            Assert.Equal(LicenseStatus.Valid, result.Status);
-            Assert.Equal("GOOD-KEEP-001", result.Payload!.LicenseId);
-            Assert.True(File.Exists(destPath));
-            Assert.Contains("current license was kept",
+            // The ATTEMPTED install must be reported as a FAILURE (Invalid,
+            // CanRun=false) so the activation view realises the new license
+            // was NOT applied — the old code returned the current (runnable)
+            // status and falsely fired Activated. The working license on disk
+            // is preserved and the CURRENT status stays Valid.
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.False(result.CanRun);
+            Assert.Contains("could not be verified",
                 result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+            Assert.True(File.Exists(destPath));
+            Assert.Equal(LicenseStatus.Valid, LicenseService.Current.Status);
+            Assert.Equal("GOOD-KEEP-001", LicenseService.Current.Payload!.LicenseId);
         }
 
         [Fact]

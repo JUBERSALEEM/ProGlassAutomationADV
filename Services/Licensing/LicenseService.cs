@@ -1436,25 +1436,32 @@ namespace ProGlassAutomation.Services.Licensing
             catch { sourceCheck = new LicenseVerificationResult
                 { Status = LicenseStatus.Invalid, ErrorDetail = "Could not inspect the selected file." }; }
 
-            // If the source is unverifiable (invalid signature / corrupt /
-            // unsupported envelope) AND the app currently runs fine, keep
-            // the working license — never let a bad file kill a good trial.
-            if (sourceCheck.Status == LicenseStatus.Invalid && Current.CanRun)
+            // BUG FIX (2026-08-26): this guard used to return
+            // `Status = Current.Status` when the picked file failed
+            // verification AND the current license was runnable. That made
+            // `CanRun == true`, so the activation view fired `Activated`
+            // and reported success even though the new license was NEVER
+            // applied — hence "paste / browse a license just doesn't work."
+            // The correct behaviour: keep the good license on disk (never
+            // let a bad file clobber it), but report the ATTEMPTED install
+            // as a FAILURE (Invalid, CanRun=false) so the caller surfaces
+            // the real reason instead of a false success.
+            if (sourceCheck.Status == LicenseStatus.Invalid)
             {
                 string detail = string.IsNullOrWhiteSpace(sourceCheck.ErrorDetail)
                     ? "Signature does not match the payload."
                     : sourceCheck.ErrorDetail;
                 return new LicenseVerificationResult
                 {
-                    Status = Current.Status,
+                    Status = LicenseStatus.Invalid,
                     Payload = Current.Payload,
                     ErrorDetail =
-                        "The selected file could not be verified (" + detail +
-                        "). The current license was kept — nothing was changed. " +
-                        "Re-issue the license with the key that matches " +
-                        "Services/Licensing/LicensePublicKey.cs (run the " +
-                        "LicenseGenerator, click WRITE PUBLIC KEY INTO APP, " +
-                        "then rebuild the app)."
+                        "The selected license could not be verified: " + detail +
+                        "\n\n" +
+                        "The current license was NOT touched. This is most " +
+                        "often because the file was signed with a different " +
+                        "key than this app expects. Ask your vendor to " +
+                        "re-issue the license for this app build."
                 };
             }
 

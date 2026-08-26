@@ -38,6 +38,7 @@ using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
@@ -333,7 +334,12 @@ namespace ProGlassAutomation.Views.Licensing
             var dialog = new OpenFileDialog
             {
                 Title = "Select a ProGlass Automation license file",
-                Filter = "License files (*.lic)|*.lic|All files (*.*)|*.*",
+                // Accept the canonical .lic plus common variants (a vendor
+                // email attachment or a renamed download may arrive as
+                // .lic / .json / .llc / .txt). All files is a catch-all.
+                Filter =
+                    "License files (*.lic,*.json,*.llc,*.txt)|*.lic;*.json;*.llc;*.txt|" +
+                    "All files (*.*)|*.*",
                 CheckFileExists = true,
                 Multiselect = false
             };
@@ -345,7 +351,10 @@ namespace ProGlassAutomation.Views.Licensing
 
         private void PasteApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            // Trim and strip a BOM / surrounding whitespace so a copy-paste
+            // that snuck in a leading newline or the UTF-8 BOM still works.
             string text = (PasteTextBox.Text ?? "").Trim();
+            text = text.TrimStart('\uFEFF', '\u200B', ' ', '\t', '\r', '\n');
             if (text.Length == 0)
             {
                 ShowError("Paste the license JSON your vendor sent, then click Apply.");
@@ -354,7 +363,8 @@ namespace ProGlassAutomation.Views.Licensing
 
             // Two accepted formats:
             //   1) Raw JSON envelope (starts with '{').
-            //   2) Base64 of the JSON envelope (no '{').
+            //   2) Base64 of the JSON envelope (no '{') — possibly wrapped
+            //      in a single header/footer line by the vendor.
             // We write to a temp .lic, then call
             // InstallFile so the same code path verifies
             // the signature. The temp file is deleted
@@ -374,12 +384,22 @@ namespace ProGlassAutomation.Views.Licensing
                 }
                 else
                 {
-                    // Treat as base64. Convert.FromBase64String
-                    // throws on garbage input; we catch below
-                    // and report a friendly message.
-                    byte[] bytes = Convert.FromBase64String(text);
-                    File.WriteAllText(tempPath,
-                        System.Text.Encoding.UTF8.GetString(bytes));
+                    // Not obviously JSON. Drop any common base64 armour
+                    // lines ("-----BEGIN LICENSE-----") and whitespace, then
+                    // try base64. The result must decode to JSON; if it does
+                    // not, report a friendly error.
+                    string b64 = text
+                        .Replace("-----BEGIN LICENSE-----", "")
+                        .Replace("-----END LICENSE-----", "")
+                        .Replace("-----BEGIN PROGLASS LICENSE-----", "")
+                        .Replace("-----END PROGLASS LICENSE-----", "");
+                    b64 = string.Concat(b64.Where(c => !char.IsWhiteSpace(c)));
+
+                    byte[] bytes = Convert.FromBase64String(b64);
+                    string decoded = System.Text.Encoding.UTF8.GetString(bytes);
+                    if (!decoded.TrimStart().StartsWith("{", StringComparison.Ordinal))
+                        throw new FormatException("Base64 decoded value is not a license JSON envelope.");
+                    File.WriteAllText(tempPath, decoded);
                 }
             }
             catch (Exception ex)

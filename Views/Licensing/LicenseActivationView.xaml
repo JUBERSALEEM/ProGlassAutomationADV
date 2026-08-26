@@ -20,7 +20,7 @@
   has no read-only escape hatch. The OLD "Start a 30-day
   trial" button is also gone because Commit 2's
   LicenseService.IssueAutoTrialIfEligible auto-issues a
-  7-day trial on first launch without any user action.
+  30-day trial on first launch without any user action.
 
   Visual: same SectionCardStyle / PrimaryPillButton /
   OutlinedPillButton / DangerButton chrome as
