@@ -53,11 +53,20 @@ namespace ProGlassAutomation.Services.Licensing
         private const string KeyPath = @"SOFTWARE\ProGlassAutomation\Trial";
         private const string VFirstIssuedUtc = "FirstIssuedUtc";
         private const string VLastSeenUtc    = "LastSeenUtc";
+        private const string VIssuingFp      = "IssuingFingerprint";
 
         public sealed record Record
         {
             public DateTime FirstIssuedUtc { get; init; }
             public DateTime? LastSeenUtc   { get; init; }
+            /// <summary>
+            /// Machine fingerprint that issued the trial. 2026-08-26: the
+            /// registry anchor was NOT machine-scoped, so a leftover HKLM key
+            /// from an earlier trial (or a previous developer session) wrongly
+            /// blocked a fresh machine's trial. Storing the issuing fingerprint
+            /// lets the reader scope the anchor to THIS machine only.
+            /// </summary>
+            public string IssuingFingerprint { get; init; } = "";
         }
 
         /// <summary>
@@ -84,6 +93,7 @@ namespace ProGlassAutomation.Services.Licensing
 
                 string? issued = key.GetValue(VFirstIssuedUtc) as string;
                 string? seen   = key.GetValue(VLastSeenUtc)    as string;
+                string? fp     = key.GetValue(VIssuingFp)      as string;
 
                 if (string.IsNullOrEmpty(issued)) return null;
 
@@ -101,8 +111,9 @@ namespace ProGlassAutomation.Services.Licensing
 
                 return new Record
                 {
-                    FirstIssuedUtc = firstIssued,
-                    LastSeenUtc    = lastSeen
+                    FirstIssuedUtc     = firstIssued,
+                    LastSeenUtc        = lastSeen,
+                    IssuingFingerprint = fp ?? ""
                 };
             }
             catch
@@ -140,6 +151,12 @@ namespace ProGlassAutomation.Services.Licensing
                 key.SetValue(VFirstIssuedUtc,
                     record.FirstIssuedUtc.ToString("o"),
                     Microsoft.Win32.RegistryValueKind.String);
+                if (!string.IsNullOrEmpty(record.IssuingFingerprint))
+                {
+                    key.SetValue(VIssuingFp,
+                        record.IssuingFingerprint,
+                        Microsoft.Win32.RegistryValueKind.String);
+                }
                 if (record.LastSeenUtc.HasValue)
                 {
                     key.SetValue(VLastSeenUtc,

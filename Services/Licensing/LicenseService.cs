@@ -305,6 +305,20 @@ namespace ProGlassAutomation.Services.Licensing
                 // and can never reach the trial it is entitled to.
                 _current = ReplaceForeignTrialIfEligible(_current, dataRoot);
 
+                // 2026-08-26 (broken license leaves NO active trial): if the
+                // on-disk license.lic is Invalid (signature mismatch / corrupt
+                // / wrong-key — e.g. a pasted production license signed by a
+                // key this build does NOT embed), the app currently shows the
+                // activation screen with no way to reach the trial this machine
+                // is entitled to. The verifier returns Invalid WITHOUT a
+                // payload, so the foreign-trial recovery above cannot see it.
+                // Self-heal: back the bad file up, then let this machine issue
+                // its own machine-bound trial (the one-trial anchors still gate
+                // it, so a machine that genuinely consumed its trial is not
+                // silently re-issued). This is the "each PC gets a trial by
+                // default" behaviour.
+                _current = RecoverInvalidTrialFile(_current, dataRoot);
+
                 // For non-machine-bound licenses, count this
                 // machine against MaxActivations.
                 if (_current.Payload != null
@@ -878,32 +892,64 @@ namespace ProGlassAutomation.Services.Licensing
             // machine-local anchors (%ProgramData%, registry, DPAPI)
             // keep the one-trial-per-machine rule on the same
             // machine. See TrialLedger.Read anchor 1.
+            //
+            // 2026-08-26 (trial active by default): a machine may be
+            // re-issued its trial when the on-disk license is missing /
+            // broken / mismatched, as long as its own trial window has NOT
+            // yet been consumed. The recorded FirstIssuedUtc is the proof of
+            // when the trial started; if it is still within AutoTrialDays of
+            // now, the machine has NOT finished its trial and is entitled to
+            // keep using it (a broken file must not burn the trial). Only a
+            // machine whose trial window has genuinely elapsed is refused.
             if (ledger.IsIssued)
             {
                 string evidence = ledger.IsIssued && !string.IsNullOrEmpty(ledger.AnchorEvidence)
                     ? "anchors=" + ledger.AnchorEvidence.TrimEnd(';')
                     : "config-only";
 
-                try
-                {
-                    AuditService.Log(
-                        AuditSections.Settings,
-                        "Auto-trial refused — machine already used one",
-                        evidence +
-                        (ledger.FirstIssuedUtc.HasValue
-                            ? "; firstIssued=" + ledger.FirstIssuedUtc.Value.ToString("u")
-                            : ""));
-                }
-                catch { /* audit must not gate the refusal */ }
+                bool trialConsumed = !ledger.FirstIssuedUtc.HasValue
+                    || (DateTime.UtcNow - ledger.FirstIssuedUtc.Value).TotalDays >= AutoTrialDays;
 
-                return new LicenseVerificationResult
+                if (trialConsumed)
                 {
-                    Status = LicenseStatus.NotActivated,
-                    ErrorDetail =
-                        "A trial was previously issued on this machine (" + evidence +
-                        "). Only one auto-trial per machine is permitted. " +
-                        "Activate a full licence in Settings → License to continue."
-                };
+                    try
+                    {
+                        AuditService.Log(
+                            AuditSections.Settings,
+                            "Auto-trial refused — machine already used one",
+                            evidence +
+                            (ledger.FirstIssuedUtc.HasValue
+                                ? "; firstIssued=" + ledger.FirstIssuedUtc.Value.ToString("u")
+                                : ""));
+                    }
+                    catch { /* audit must not gate the refusal */ }
+
+                    return new LicenseVerificationResult
+                    {
+                        Status = LicenseStatus.NotActivated,
+                        ErrorDetail =
+                            "A trial was already used on this machine (" + evidence +
+                            "). Only one auto-trial per machine is permitted. " +
+                            "Activate a full licence in Settings → License to continue."
+                    };
+                }
+
+                // Trial was issued on this machine but is still within its
+                // window — the on-disk copy is missing/broken. Re-issue the
+                // machine's own trial rather than stranding it on the
+                // activation screen. The ledger still records THIS machine's
+                // fingerprint, so the window is NOT reset (no free second
+                // trial); a machine whose window already elapsed falls through
+                // to the refusal above.
+                AppLogService.Info(
+                    "[LicenseService] Re-issuing machine trial (previous file " +
+                    "missing/broken, window still active). " + evidence,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "IssueAutoTrialIfEligible"
+                    });
             }
 
             // 3) Build the payload. Same feature set as the
@@ -915,7 +961,20 @@ namespace ProGlassAutomation.Services.Licensing
             //    would otherwise bypass the trial), but
             //    TrialExpiresAt is the authoritative value
             //    for an auto-issued trial.
+            //
+            // 2026-08-26 (no free second trial): if this machine is being
+            // RE-issued its trial (the ledger recorded an earlier issuance
+            // but the on-disk copy went missing/broken), preserve the
+            // original window. The expiry = the original FirstIssuedUtc +
+            // AutoTrialDays, so a machine with only a few days left does not
+            // get a fresh 30 days. On a truly fresh machine (no prior
+            // issuance) the full window is granted.
             var now = DateTime.UtcNow;
+            DateTime effectiveIssued = ledger.FirstIssuedUtc ?? now;
+            DateTime trialExpires = effectiveIssued.AddDays(AutoTrialDays);
+            if (trialExpires <= now)
+                trialExpires = now.AddDays(AutoTrialDays); // safety fallback
+
             var payload = new LicensePayload
             {
                 LicenseId = "AUTO-" + Guid.NewGuid().ToString("N"),
@@ -923,7 +982,7 @@ namespace ProGlassAutomation.Services.Licensing
                 CustomerId = "TRIAL",
                 CompanyName = "Trial user",
                 IssuedAt = now,
-                ExpiresAt = now.AddDays(AutoTrialDays),
+                ExpiresAt = trialExpires,
                 MaxActivations = 1,
                 // Auto-trial: every module unlocked out of the box.
                 // Product decision — nobody evaluates an industrial
@@ -948,7 +1007,7 @@ namespace ProGlassAutomation.Services.Licensing
                     ? null : currentFp,
                 Notes = "Auto-issued " + AutoTrialDays + "-day trial (all modules).",
                 TrialSource = AutoTrialSourceMarker,
-                TrialExpiresAt = now.AddDays(AutoTrialDays)
+                TrialExpiresAt = trialExpires
             };
 
             // 4) Sign with the embedded trial private key
@@ -1176,6 +1235,81 @@ namespace ProGlassAutomation.Services.Licensing
                     "Foreign trial replaced",
                     $"licenseId={foreignId} (status {foreignStatus} on this "
                     + "machine); issuing this machine's own trial if eligible.");
+            }
+            catch { /* audit must not gate startup */ }
+
+            return IssueAutoTrialIfEligible(dataRoot);
+        }
+
+        /// <summary>
+        /// 2026-08-26 (broken license leaves NO active trial): self-heals an
+        /// <see cref="LicenseStatus.Invalid"/> on-disk license by backing it
+        /// up and issuing THIS machine's own machine-bound trial.
+        ///
+        /// WHY: when a license file is Invalid (signature mismatch / corrupt /
+        /// wrong key — typically a production license signed by a key this
+        /// build does not embed), the verifier returns Invalid WITHOUT a
+        /// payload. Neither IssueAutoTrialIfEligible (only fires on
+        /// NotActivated) nor ReplaceForeignTrialIfEligible (only fires on
+        /// MachineMismatch / ActivationLimit) handles it, so the app used to
+        /// strand the user on the activation screen with no trial. The user
+        /// requirement is "each PC gets a trial by default", so we recover.
+        ///
+        /// SAFETY: only an Invalid (never a verified-and-mismatched license)
+        /// is cleared, and the bad file is RENAMED to a .bak, not deleted, so
+        /// nothing is ever lost. The one-trial anchors still gate the re-issue,
+        /// so a machine that genuinely consumed its own trial is not silently
+        /// granted a new one.
+        /// </summary>
+        private static LicenseVerificationResult RecoverInvalidTrialFile(
+            LicenseVerificationResult input, string dataRoot)
+        {
+            // Only act on a truly unverifiable file. A verified-but-mismatched
+            // production license (MachineMismatch/ActivationLimit/Expired)
+            // carries a PAYLOAD and is handled by the vendor path above.
+            if (input.Status != LicenseStatus.Invalid) return input;
+            if (string.IsNullOrEmpty(_licensePath) || !File.Exists(_licensePath))
+                return input;
+
+            // Rename the bad file to a backup so the operator can inspect it;
+            // never hard-delete a file that might be an important artifact.
+            try
+            {
+                string bak = _licensePath + ".invalid.bak";
+                if (File.Exists(bak)) File.Delete(bak);
+                File.Move(_licensePath, bak);
+                _licensePath = null;
+                AppLogService.Warning(
+                    "[LicenseService] On-disk license was unverifiable; backed " +
+                    "up to " + bak + " and re-issuing this machine's trial.",
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "RecoverInvalidTrialFile"
+                    });
+            }
+            catch (Exception ex)
+            {
+                // Could not clear the bad file. Leave it; the user can delete
+                // %AppData%\ProGlassAutomation\license.lic manually.
+                AppLogService.Warning(
+                    "[LicenseService] Could not back up invalid license: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "RecoverInvalidTrialFile"
+                    });
+                return input;
+            }
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Invalid license backed up; issuing machine trial",
+                    "file=" + _licensePath + "; backing to .invalid.bak");
             }
             catch { /* audit must not gate startup */ }
 

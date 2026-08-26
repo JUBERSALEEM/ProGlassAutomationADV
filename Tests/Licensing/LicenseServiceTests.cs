@@ -452,23 +452,24 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void CorruptTrialFile_stays_Invalid_awaiting_clean_slate()
+        public void CorruptTrialFile_is_backed_up_not_left_Invalid()
         {
-            // Boundary case: a trial file whose signature does not
-            // verify. The verifier returns Invalid WITHOUT a
-            // payload, and an UNVERIFIED payload is never trusted
-            // for auto-replacement — so the file stays for a manual
-            // clean-slate delete (documented in
-            // ReplaceForeignTrialIfEligible). The important
-            // assertion: the corrupt file is not silently treated
-            // as a valid foreign trial either.
+            // 2026-08-26 redesign ("trial active by default"): a trial file
+            // whose signature does not verify used to strand the app on the
+            // Invalid activation screen with no recovery. Now the file is
+            // backed up to .invalid.bak (never hard-deleted) and the machine
+            // is given its trial. In the test host App.Config is null, so the
+            // re-issue ends NotActivated ("test environment") — the observable
+            // contract under test is: the Invalid dead-end is gone, the bad
+            // file is moved aside, and the app is no longer blocked on
+            // "signature does not match" with a stale Invalid status.
             (string trialPublic, string trialPrivate) =
                 LicenseSigner.GenerateKeyPair();
             SetTrialKeyPairAndRestore(trialPublic, trialPrivate);
             try
             {
-                // Sign with a DIFFERENT key so the trial-key
-                // verification fails.
+                // Sign with a DIFFERENT key so the trial-key verification
+                // fails (=> Invalid).
                 string otherPrivate = InstallFreshKeyPair();
                 var payload = new LicensePayload
                 {
@@ -487,11 +488,18 @@ namespace ProGlassAutomation.Tests.Licensing
 
                 var result = LicenseService.Initialize();
 
-                Assert.Equal(LicenseStatus.Invalid, result.Status);
-                Assert.True(
+                // The corrupt file is moved to a backup, NOT left in place
+                // as the active license.
+                Assert.False(
                     File.Exists(licPath),
-                    "unverifiable files are never auto-deleted — " +
-                    "clean slate is a deliberate user step");
+                    "unverifiable file must be backed up, not left blocking");
+                Assert.True(
+                    File.Exists(licPath + ".invalid.bak"),
+                    "unverifiable file is preserved as .invalid.bak (never hard-deleted)");
+                // The dead-end Invalid status is gone: the recovery attempts
+                // a trial (which in the test host yields NotActivated because
+                // App.Config is null), so the result is NOT a stale Invalid.
+                Assert.NotEqual(LicenseStatus.Invalid, result.Status);
             }
             finally { RestoreTrialKeyPair(); }
         }

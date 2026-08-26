@@ -92,6 +92,48 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("fp-1234567890", snap.IssuingFingerprint);
         }
 
+        // ── Machine scoping (2026-08-26: "each PC gets a trial by default") ──
+
+        [Fact]
+        public void Read_is_issued_for_the_SAME_machine_that_recorded_it()
+        {
+            // This machine issued a trial (its fingerprint is recorded). A
+            // caller with the SAME fingerprint must see IsIssued=true so a
+            // machine that genuinely consumed its own trial is not re-issued.
+            string fp = "same-machine-fp-01";
+            TrialLedger.RecordIssuance(fp);
+
+            var snap = TrialLedger.Read(fp);
+            Assert.True(snap.IsIssued);
+        }
+
+        [Fact]
+        public void Read_is_NOT_issued_for_a_DIFFERENT_machine()
+        {
+            // A fresh machine (different fingerprint) — even if it "inherits"
+            // another PC's %ProgramData%/DPAPI anchor — must NOT be told a
+            // trial was issued. This is the "every PC gets its own trial by
+            // default" requirement: a copied/synced anchor from another PC
+            // must not block it.
+            TrialLedger.RecordIssuance("pc-a-fingerprint");
+
+            var snap = TrialLedger.Read("pc-b-fingerprint");
+            Assert.False(snap.IsIssued,
+                "A different machine's fingerprint must not block this PC's trial.");
+        }
+
+        [Fact]
+        public void Read_is_conservatively_issued_for_an_unknown_caller()
+        {
+            // No caller fingerprint (test host / degenerate) => the historic
+            // conservative default: any recorded anchor counts as issued.
+            TrialLedger.RecordIssuance("fp");
+
+            var snap = TrialLedger.Read();
+            Assert.True(snap.IsIssued);
+            Assert.Equal("fp", snap.IssuingFingerprint);
+        }
+
         // ── Clock-rollback detection ──────────────────────────────
 
         [Fact]

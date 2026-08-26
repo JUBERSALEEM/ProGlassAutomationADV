@@ -411,6 +411,65 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
             return m.Success ? m.Groups[1].Value : "";
         }
 
+        /// <summary>
+        /// True when the <paramref name="publicKeyXml"/> (the generator's
+        /// public half) matches the public key embedded in the app's
+        /// <c>Services/Licensing/LicensePublicKey.cs</c>. This is the single
+        /// check that catches the "signature does not match" bug BEFORE a
+        /// license is issued: the app only accepts licenses signed by the
+        /// matching private key, so the two must agree. When this returns
+        /// false, issuing a license is pointless — it will fail verification
+        /// on the app.
+        /// </summary>
+        public static bool PublicKeyMatchesApp(string publicKeyXml)
+        {
+            if (string.IsNullOrWhiteSpace(publicKeyXml)) return false;
+            try
+            {
+                string? path = FindAppSourceFile("LicensePublicKey.cs");
+                if (path == null) return false;   // not a repo checkout — unknown
+                string src = File.ReadAllText(path);
+                // Extract the embedded PublicKeyXml modulus from the source.
+                var m = System.Text.RegularExpressions.Regex.Match(
+                    src,
+                    @"<Modulus>([A-Za-z0-9+/=]+)</Modulus>");
+                if (!m.Success) return false;     // placeholder / unparseable
+                string embeddedMod = m.Groups[1].Value;
+
+                var my = System.Text.RegularExpressions.Regex.Match(
+                    publicKeyXml, @"<Modulus>([A-Za-z0-9+/=]+)</Modulus>");
+                return my.Success
+                    && string.Equals(my.Groups[1].Value, embeddedMod,
+                        StringComparison.Ordinal);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Short fingerprint of an RSA public-key XML (SHA-256 of the
+        /// Modulus, first 8 bytes hex). Used to display a compact, human-
+        /// comparable identifier for both the generator key and the app key
+        /// so a mismatch is obvious.
+        /// </summary>
+        public static string PublicKeyFingerprint(string publicKeyXml)
+        {
+            try
+            {
+                var m = System.Text.RegularExpressions.Regex.Match(
+                    publicKeyXml, @"<Modulus>([A-Za-z0-9+/=]+)</Modulus>");
+                if (!m.Success) return "UNKNOWN";
+                byte[] mod = Convert.FromBase64String(m.Groups[1].Value);
+                byte[] hash = System.Security.Cryptography.SHA256.HashData(mod);
+                var hex = new System.Text.StringBuilder(16);
+                for (int i = 0; i < 8; i++) hex.Append(hash[i].ToString("x2"));
+                return hex.ToString();
+            }
+            catch { return "UNKNOWN"; }
+        }
+
         // ── Internals ────────────────────────────────────────────
 
         private static string ResolveDefaultOutputPath(string companyName)

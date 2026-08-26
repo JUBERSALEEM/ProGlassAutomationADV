@@ -296,6 +296,35 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
                 return;
             }
 
+            // KEY-MATCH GUARD (2026-08-26): this is the direct cause of the
+            // "Activation failed: signature does not match the payload"
+            // reports. The app only accepts licenses signed by the private
+            // key whose public half is embedded in
+            // Services/Licensing/LicensePublicKey.cs. If this tool's signing
+            // key does not match that embedded key, every license produced
+            // here is guaranteed to fail on the app. Detect it up front and
+            // tell the vendor exactly what to do instead of issuing a file
+            // that cannot work.
+            if (!LicenseGeneratorCore.PublicKeyMatchesApp(_keys.PublicKeyXml))
+            {
+                string genFp = LicenseGeneratorCore.PublicKeyFingerprint(_keys.PublicKeyXml);
+                string appFp = LicenseGeneratorCore.PublicKeyFingerprint(
+                    ProGlassAutomation.Services.Licensing.LicensePublicKey.PublicKeyXml);
+                string msg =
+                    "The signing key does NOT match the public key embedded " +
+                    "in the app.\n\n" +
+                    "Signing key fingerprint : " + genFp + "\n" +
+                    "App embedded key        : " + appFp + "\n\n" +
+                    "Every license signed now will be REJECTED by the app " +
+                    "(\"signature does not match\").\n\n" +
+                    "Click WRITE PUBLIC KEY INTO APP (top card), then rebuild " +
+                    "the main app, then sign again.";
+                SetStatus(msg, StatusKind.Error);
+                MessageBox.Show(this, msg, "Signing key mismatch",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var request = new LicenseGeneratorCore.IssueRequest
             {
                 Edition = ParseEdition(EditionCombo),

@@ -168,29 +168,25 @@ namespace ProGlassAutomation.Services.Licensing
             string? issuingFp  = null;
             var evidence = new StringBuilder();
 
-            // Anchor 1 — AppConfig flag, MACHINE-SCOPED (2026-08-26
-            // cross-PC trial lockout). This anchor lives in
-            // %AppData%\ProGlassAutomation\config.json (Roaming),
-            // which OneDrive "known folder move" syncs BETWEEN a
-            // user's PCs. A bare boolean would therefore make PC_B
-            // inherit PC_A's "trial issued" verdict. The flag now
-            // counts only when the stored issuing fingerprint
-            // matches the CURRENT machine's fingerprint
-            // (appConfigMachineFingerprint). Legacy configs written
-            // before the fingerprint field existed cannot be
-            // attributed to any machine — with a real caller
-            // fingerprint they are treated as NOT-issued-here (the
-            // three machine-local anchors still enforce the rule on
-            // the same machine); with no caller fingerprint they are
-            // treated as issued (safe default for unknown callers).
+            // A caller fingerprint of "" means the caller could not compute
+            // its own identity (very degenerate) or is an unknown caller. In
+            // that case we cannot scope anchors to a machine, so we fall back
+            // to the historic conservative "any issued anchor counts" rule.
+            string callerFp = (appConfigMachineFingerprint ?? "").Trim();
+            bool callerKnown = callerFp.Length > 0;
+
+            // Anchor 1 — AppConfig flag, MACHINE-SCOPED. This anchor lives in
+            // %AppData%\ProGlassAutomation\config.json (Roaming), which
+            // OneDrive "known folder move" syncs BETWEEN a user's PCs. The
+            // flag now counts only when the stored issuing fingerprint matches
+            // the CURRENT machine's fingerprint.
             try
             {
                 if (App.Config != null && App.Config.AutoTrialWasIssued)
                 {
                     string cfgFp = (App.Config.AutoTrialFingerprint ?? "").Trim();
-                    string callerFp = (appConfigMachineFingerprint ?? "").Trim();
                     bool issuedOnThisMachine = cfgFp.Length == 0
-                        ? callerFp.Length == 0
+                        ? !callerKnown
                         : string.Equals(cfgFp, callerFp, StringComparison.OrdinalIgnoreCase);
                     if (issuedOnThisMachine)
                     {
@@ -203,62 +199,75 @@ namespace ProGlassAutomation.Services.Licensing
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
-            // Anchor 2 — %ProgramData% ledger file
+            // Anchor 2 — %ProgramData% ledger file (machine-local; carries fp).
             try
             {
                 var f = ReadProgramDataLedger();
-                if (f != null)
+                if (f != null && f.FirstIssuedUtc.HasValue)
                 {
-                    if (f.FirstIssuedUtc.HasValue)
+                    string fFp = (f.IssuingFingerprint ?? "").Trim();
+                    // Fingerprint-scoped only when the caller is known; an
+                    // unknown caller (test host / degenerate) falls back to
+                    // counting any recorded anchor.
+                    bool here = !callerKnown
+                        || fFp.Length == 0
+                        || string.Equals(fFp, callerFp, StringComparison.OrdinalIgnoreCase);
+                    if (here)
                     {
                         anyIssued = true;
                         MergeTimestamps(f.FirstIssuedUtc.Value, ref earliest, ref latest);
+                        if (f.LastSeenUtc.HasValue)
+                            MergeTimestamps(f.LastSeenUtc.Value, ref earliest, ref latest);
+                        if (!string.IsNullOrEmpty(fFp) && issuingFp == null) issuingFp = fFp;
+                        evidence.Append("programdata;");
                     }
-                    if (f.LastSeenUtc.HasValue)
-                        MergeTimestamps(f.LastSeenUtc.Value, ref earliest, ref latest);
-                    if (anyIssued) evidence.Append("programdata;");
-                    if (!string.IsNullOrEmpty(f.IssuingFingerprint) && issuingFp == null)
-                        issuingFp = f.IssuingFingerprint;
                 }
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
-            // Anchor 3 — HKLM registry. Skipped in tests so a stale
-            // registry key left behind by a previous developer session
-            // does not give false-positive "issued" verdicts.
+            // Anchor 3 — HKLM registry (machine-local; now carries fp).
             try
             {
-                // RegistryAnchor.Record is a record CLASS (reference type),
-                // not a struct — the nullable-annotated variable is a
-                // reference that is either null or points at an instance.
-                // Use `r is not null` rather than the .HasValue/.Value
-                // pattern that only applies to Nullable<T> value types.
                 RegistryAnchor.Record? r = SkipRegistryAnchorForTests
                     ? null
                     : RegistryAnchor.Read();
                 if (r is not null)
                 {
-                    anyIssued = true;
-                    MergeTimestamps(r.FirstIssuedUtc, ref earliest, ref latest);
-                    if (r.LastSeenUtc.HasValue)
-                        MergeTimestamps(r.LastSeenUtc.Value, ref earliest, ref latest);
-                    evidence.Append("registry;");
+                    string rFp = (r.IssuingFingerprint ?? "").Trim();
+                    bool here = !callerKnown
+                        || rFp.Length == 0
+                        || string.Equals(rFp, callerFp, StringComparison.OrdinalIgnoreCase);
+                    if (here)
+                    {
+                        anyIssued = true;
+                        MergeTimestamps(r.FirstIssuedUtc, ref earliest, ref latest);
+                        if (r.LastSeenUtc.HasValue)
+                            MergeTimestamps(r.LastSeenUtc.Value, ref earliest, ref latest);
+                        if (!string.IsNullOrEmpty(rFp) && issuingFp == null) issuingFp = rFp;
+                        evidence.Append("registry;");
+                    }
                 }
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
 
-            // Anchor 4 — DPAPI machine-scoped blob
+            // Anchor 4 — DPAPI machine-scoped blob (machine-local; carries fp).
             try
             {
                 var d = ReadDpapiAnchor();
                 if (d != null)
                 {
-                    anyIssued = true;
-                    MergeTimestamps(d.FirstIssuedUtc, ref earliest, ref latest);
-                    MergeTimestamps(d.LastSeenUtc,    ref earliest, ref latest);
-                    if (!string.IsNullOrEmpty(d.IssuingFingerprint) && issuingFp == null)
-                        issuingFp = d.IssuingFingerprint;
-                    evidence.Append("dpapi;");
+                    string dFp = (d.IssuingFingerprint ?? "").Trim();
+                    bool here = !callerKnown
+                        || dFp.Length == 0
+                        || string.Equals(dFp, callerFp, StringComparison.OrdinalIgnoreCase);
+                    if (here)
+                    {
+                        anyIssued = true;
+                        MergeTimestamps(d.FirstIssuedUtc, ref earliest, ref latest);
+                        MergeTimestamps(d.LastSeenUtc,    ref earliest, ref latest);
+                        if (!string.IsNullOrEmpty(dFp) && issuingFp == null) issuingFp = dFp;
+                        evidence.Append("dpapi;");
+                    }
                 }
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
@@ -338,8 +347,9 @@ namespace ProGlassAutomation.Services.Licensing
                 {
                     RegistryAnchor.Write(new RegistryAnchor.Record
                     {
-                        FirstIssuedUtc = now,
-                        LastSeenUtc    = now
+                        FirstIssuedUtc     = now,
+                        LastSeenUtc        = now,
+                        IssuingFingerprint = machineFingerprint ?? ""
                     });
                 }
                 catch (Exception ex)
