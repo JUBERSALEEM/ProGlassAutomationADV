@@ -16,6 +16,9 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlass.Licensing;
+using ContractLicenseService = ProGlass.Licensing.LicenseService;
+using ContractLicenseReader = ProGlass.Licensing.LicenseReader;
+using ContractLicenseValidator = ProGlass.Licensing.LicenseValidator;
 
 namespace ProGlassAutomation.Services.Licensing;
 
@@ -54,8 +57,8 @@ public static class ProGlassLicense
 
     /// <summary>Verify + validate a .proglasslicense file.</summary>
     public static LicenseValidationResult VerifyFile(string path) =>
-        LicenseService.VerifyAndValidate(
-            LicenseReader.ReadFile(path),
+        ContractLicenseService.VerifyAndValidate(
+            ContractLicenseReader.ReadFile(path),
             AppVersion,
             DateTime.UtcNow,
             TrustedLicenseKeys.All,
@@ -63,8 +66,8 @@ public static class ProGlassLicense
 
     /// <summary>Verify + validate license text (e.g. pasted a key).</summary>
     public static LicenseValidationResult VerifyText(string licenseJson) =>
-        LicenseService.VerifyAndValidate(
-            LicenseReader.Read(licenseJson),
+        ContractLicenseService.VerifyAndValidate(
+            ContractLicenseReader.Read(licenseJson),
             AppVersion,
             DateTime.UtcNow,
             TrustedLicenseKeys.All,
@@ -72,5 +75,5 @@ public static class ProGlassLicense
 
     /// <summary>Does the current license grant a feature (stable ID)?</summary>
     public static bool HasFeature(LicenseDocument? doc, string featureId) =>
-        LicenseValidator.HasFeature(doc, featureId);
+        ContractLicenseValidator.HasFeature(doc, featureId);
 }
