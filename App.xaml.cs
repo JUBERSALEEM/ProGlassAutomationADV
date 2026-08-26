@@ -747,7 +747,28 @@ namespace ProGlassAutomation
             //     LicenseStatusViewModel (used by the main
             //     window's overlay trigger) has a current value
             //     to bind against.
-            ProGlassAutomation.Services.Licensing.LicenseService.Initialize();
+            // The license check is BEST-EFFORT: it must never block or crash
+            // app startup. Licensing writes several trial-ledger anchors
+            // (config / %ProgramData% / registry / DPAPI) on this path; any
+            // of them can throw for IO / permission / corporate-policy reasons,
+            // and an unhandled throw here would cascade to HandleFatalStartup-
+            // Failure and shut the app down right after the splash — exactly
+            // the "app does not open after the splash" symptom. Guard it.
+            try
+            {
+                ProGlassAutomation.Services.Licensing.LicenseService.Initialize();
+            }
+            catch (Exception licEx)
+            {
+                AppLogService.Warning(
+                    "License check failed on startup; continuing (best-effort): " +
+                    licEx.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Operation = "StartupLicenseCheck"
+                    });
+            }
             var licenseStatus = ProGlassAutomation.Services.Licensing
                 .LicenseService.Current;
             AppLogService.Info(
@@ -829,21 +850,41 @@ namespace ProGlassAutomation
             // the shell until it fades. WPF forbids ShowActivated=false
             // on a Maximized window (InvalidOperationException).
             // Phase 5: MainViewModel resolved via DI (no `new` in XAML) — testable
-            var mainWindow = new MainWindow();
-
-            // Phase 5: Override XAML DataContext with DI-resolved MainViewModel
-            // XAML still has <vm:MainViewModel/> for designer, but at runtime we use DI
+            //
+            // SAFETY: the shell MUST appear even if the DI ViewModel cannot be
+            // resolved (or its construction throws). A failure here would
+            // otherwise cascade to HandleFatalStartupFailure and shut the app
+            // down right when the splash fades — the "app won't open" symptom.
+            // We resolve the DI VM first (so the XAML fallback instance is not
+            // constructed needlessly), then build the window; if the resolve
+            // throws, we retry via the parameterless ctor and still show.
+            ViewModels.MainViewModel? mainVm = null;
             try
             {
-                var mainVm = ServiceProvider.GetRequiredService<ViewModels.MainViewModel>();
-                mainWindow.DataContext = mainVm;
+                mainVm = ServiceProvider.GetRequiredService<ViewModels.MainViewModel>();
             }
             catch (Exception ex)
             {
                 AppLogService.Warning(
-                    $"DI MainViewModel resolve failed, using XAML fallback: {ex.Message}",
+                    $"DI MainViewModel resolve failed, using parameterless ctor: {ex.Message}",
                     new LogContext { Module = "Main", Operation = "ResolveMainViewModel" });
-                // Fallback: XAML DataContext will be used (parameterless ctor)
+            }
+
+            MainWindow mainWindow;
+            try
+            {
+                mainWindow = new MainWindow();
+                if (mainVm != null) mainWindow.DataContext = mainVm;
+            }
+            catch (Exception ex)
+            {
+                // Last resort: a fresh parameterless window. If even that
+                // throws, let it surface (nothing more we can do safely).
+                AppLogService.Warning(
+                    $"MainWindow construction failed, retrying fresh: {ex.Message}",
+                    new LogContext { Module = "Main", Operation = "ConstructMainWindow" });
+                mainWindow = new MainWindow();
+                if (mainVm != null) mainWindow.DataContext = mainVm;
             }
 
             MainWindow = mainWindow;
@@ -977,8 +1018,11 @@ namespace ProGlassAutomation
 
         /// <summary>
         /// Reliably shows, maximises and activates <paramref name="window"/>
-        /// after the splash closes, retrying across a few dispatcher ticks
-        /// so a transient foreground-lock cannot strand the shell inactive.
+        /// after the splash closes. This method NEVER blocks startup: every
+        /// await is a wall-clock Task.Delay (not a dispatcher-priority yield),
+        /// so it cannot starve on a busy UI thread. WPF's Activate()/Focus()
+        /// is complemented by forcing the Win32 foreground so a full-screen
+        /// Topmost splash close cannot leave the shell inactive or behind.
         /// </summary>
         private static async Task BringMainWindowToForegroundAsync(Window window)
         {
@@ -995,25 +1039,19 @@ namespace ProGlassAutomation
                 var hwnd = new System.Windows.Interop.WindowInteropHelper(window).Handle;
                 if (hwnd != IntPtr.Zero)
                 {
-                    // Give the dispatcher a tick so the HWND exists and the
-                    // splash teardown has settled before we grab the focus.
-                    await System.Windows.Threading.Dispatcher.Yield(
-                        System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-
                     ShowWindow(hwnd, SW_SHOWMAXIMIZED);
                     BringWindowToTop(hwnd);
 
-                    // Retry SetForegroundWindow a few times — Windows can
-                    // deny the foreground once right after another window
-                    // closes; the app that owns the foreground (our splash)
-                    // is gone by now, so a retry wins the permission.
+                    // Retry SetForegroundWindow across a few short wall-clock
+                    // delays (NOT Dispatcher.Yield, which can starve on a busy
+                    // dispatcher). Windows can deny the foreground once right
+                    // after the Topmost splash closes; the splash is gone by
+                    // now, so a retry wins the permission.
                     for (int i = 0; i < 5; i++)
                     {
                         SetForegroundWindow(hwnd);
-                        // If we own the foreground now, stop.
                         if (GetForegroundWindow() == hwnd) break;
-                        await System.Windows.Threading.Dispatcher.Yield(
-                            System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                        await Task.Delay(40);
                     }
                 }
 
