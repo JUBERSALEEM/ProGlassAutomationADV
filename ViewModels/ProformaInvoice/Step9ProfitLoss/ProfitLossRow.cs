@@ -46,7 +46,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public int SheetHeightMm { get; set; }
         public decimal SheetSqm { get; set; }
 
-        /// <summary>Sheets consumed, or units of the production charge.</summary>
+        /// <summary>
+        /// Costing quantity for the row:
+        ///   • whole sheets for multi-pane glass rows priced by stock-sheet use,
+        ///   • required SQM for SGU glass rows,
+        ///   • SQM for production / spacer charges.
+        /// </summary>
         public decimal Quantity { get; set; }
 
         /// <summary>Unit price actually applied (AED / SQM, or / LM for spacers).</summary>

@@ -24,11 +24,16 @@
 //   perimeterLm  = Σ (2·(W1+H1)/1000) · Qty
 //   sheets       = ceil( cutSqm · (1 + Wastage%/100) / sheetSqm ), min 1
 //   glass amount = round(sheetSqm · sheets · purchasePricePerSqm, 2)
+//                  for multi-pane builds costed on full stock-sheet use
+//   SGU glass    = round((cutSqm + wastage) · sheetPricePerSqm, 2)
+//                  business rule: SGU glass is priced by required SQM,
+//                  while cutting and tempering remain separate rows
 //   DGU spacer   = round(cutSqm · DguVM.SpacerPrice, 2)
 //                  ASP is quoted PER SQM in Step 4 (37.5+((w-6)/2)*2.5,
 //                  so 45.00 at 12mm) and that price already includes
 //                  cutting, tempering and production for DGU.
-//   SGU prod.    = round(cutSqm · (CuttingCostPerSqm + TemperingCostPerSqm), 2)
+//   SGU prod.    = round(cutSqm · CuttingCostPerSqm, 2)
+//                  + round(cutSqm · TemperingCostPerSqm, 2)
 //
 //   Unpriced panes are still SHOWN (so a DGU never collapses to only
 //   the air spacer) but their amount stays 0 and is excluded from profit.
@@ -762,7 +767,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                         var paneRow = await BuildGlassRowAsync(
                             group, pane.Side, pane.ThicknessMm, pane.Color,
-                            cutSqm, fallback)
+                            cutSqm, fallback,
+                            priceByRequiredArea: !isDgu && !isLam && !isDguLam)
                             .ConfigureAwait(true);
 
                         if (paneRow != null)
@@ -1010,27 +1016,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
                     else
                     {
-                        // Single glazing: cutting + tempering over the cut area.
-                        decimal rate =
-                            (_sguVm?.CuttingCostPerSqm ?? 0m) +
-                            (_sguVm?.TemperingCostPerSqm ?? 0m);
+                        // Single glazing: the business wants glass priced by
+                        // required SQM, with cutting and tempering broken out
+                        // as separate SQM-based charges rather than one merged
+                        // production line.
+                        decimal cuttingRate = _sguVm?.CuttingCostPerSqm ?? 0m;
+                        decimal temperingRate = _sguVm?.TemperingCostPerSqm ?? 0m;
 
-                        if (rate > 0m)
+                        if (cuttingRate > 0m)
                         {
-                            decimal amount = Math.Round(cutSqm * rate, 2);
-
+                            decimal amount = Math.Round(cutSqm * cuttingRate, 2);
                             rows.Add(new ProfitLossRow
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
                                 Description = PnLMeasurement.BuildRowDescription(
-                                    group, "Cutting + tempering", $"{cutSqm:0.##} SQM"),
+                                    group, "Cutting", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
-                                PricePerSqm = rate,
+                                PricePerSqm = cuttingRate,
                                 Amount = amount
                             });
+                            productionCost += amount;
+                        }
 
+                        if (temperingRate > 0m)
+                        {
+                            decimal amount = Math.Round(cutSqm * temperingRate, 2);
+                            rows.Add(new ProfitLossRow
+                            {
+                                Kind = "Production",
+                                SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
+                                Description = PnLMeasurement.BuildRowDescription(
+                                    group, "Tempering", $"{cutSqm:0.##} SQM"),
+                                Quantity = Math.Round(cutSqm, 2),
+                                PricePerSqm = temperingRate,
+                                Amount = amount
+                            });
                             productionCost += amount;
                         }
                     }
@@ -1160,8 +1183,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             string basis =
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
                 $"glass costed at {CostBasisLabel} · " +
-                $"sheets = ceil(cut area × (1 + {WastagePercent:0.#}% wastage) ÷ sheet sqm) · " +
-                $"VAT stripped at 5%.";
+                $"SGU glass = required SQM + {WastagePercent:0.#}% wastage, cutting and tempering separate · " +
+                $"multi-pane builds still round to whole sheets · VAT stripped at 5%.";
 
             return skipped > 0
                 ? basis + $" {skipped} pane(s) shown unpriced — not in Sheet Store and no Step 4 rate; not included in profit."
@@ -1399,7 +1422,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             int thicknessMm,
             string color,
             decimal cutSqm,
-            decimal fallbackRate)
+            decimal fallbackRate,
+            bool priceByRequiredArea)
         {
             int specNumber = group.GroupNumber;
             color = (color ?? "").Trim();
@@ -1463,17 +1487,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 source = $"Step 4 {CostBasisLabel} (not in Sheet Store)";
             }
 
-            decimal needed = cutSqm * (1m + (WastagePercent / 100m));
-            int sheets = (int)Math.Ceiling(needed / sheetSqm);
-            if (sheets < 1) sheets = 1;
+            decimal needed = PnLMeasurement.AreaWithWastage(cutSqm, WastagePercent);
+            int sheets = PnLMeasurement.WholeSheetsRequired(needed, sheetSqm);
 
-            decimal amount = unitRate > 0m
-                ? Math.Round(sheetSqm * sheets * unitRate, 2)
-                : 0m;
+            decimal quantity = priceByRequiredArea
+                ? Math.Round(needed, 2)
+                : sheets;
+
+            decimal amount = 0m;
+            if (unitRate > 0m)
+            {
+                amount = priceByRequiredArea
+                    ? Math.Round(needed * unitRate, 2)
+                    : Math.Round(sheetSqm * sheets * unitRate, 2);
+            }
 
             string detail = unitRate > 0m
-                ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm " +
-                  $"→ {sheets} sheet(s) · {source}"
+                ? priceByRequiredArea
+                    ? $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm · priced by required area · {source}"
+                    : $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm → {sheets} sheet(s) · {source}"
                 : "UNPRICED — not in Sheet Store and no Step 4 rate · not included in profit";
 
             return new ProfitLossRow
@@ -1489,7 +1521,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 SheetWidthMm = sheetW,
                 SheetHeightMm = sheetH,
                 SheetSqm = sheetSqm,
-                Quantity = sheets,
+                Quantity = quantity,
                 PricePerSqm = unitRate,
                 Amount = amount
             };

@@ -9,6 +9,7 @@
 
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using System;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 {
@@ -60,6 +61,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
 
             return (cutSqm, perimeterLm);
+        }
+
+        /// <summary>
+        /// Required glass area after wastage is applied. This is the SGU
+        /// costing basis requested by the business: price the glass by SQM,
+        /// then add cutting and tempering as separate SQM-based rows.
+        /// </summary>
+        public static decimal AreaWithWastage(decimal cutSqm, decimal wastagePercent)
+        {
+            if (cutSqm <= 0m) return 0m;
+            decimal wasteFactor = 1m + Math.Max(0m, wastagePercent) / 100m;
+            return Math.Round(cutSqm * wasteFactor, 4);
+        }
+
+        /// <summary>
+        /// Whole sheets required for a pane when a build is costed against
+        /// actual stock-sheet consumption rather than required SQM.
+        /// </summary>
+        public static int WholeSheetsRequired(decimal requiredSqm, decimal sheetSqm)
+        {
+            if (requiredSqm <= 0m || sheetSqm <= 0m) return 0;
+            int sheets = (int)Math.Ceiling(requiredSqm / sheetSqm);
+            return sheets < 1 ? 1 : sheets;
         }
 
         /// <summary>
