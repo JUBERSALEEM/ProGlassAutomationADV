@@ -53,6 +53,7 @@ using ProGlassAutomation.Views.Splash;
 using ProGlassAutomation.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Runtime.InteropServices;
 using Velopack;
 using System.Threading;
 using System.Threading.Tasks;
@@ -877,22 +878,35 @@ namespace ProGlassAutomation
                 var closed = new TaskCompletionSource<bool>();
                 splash.Closed += (_, __) => closed.TrySetResult(true);
                 splash.FadeOutAndClose(() => { });
-                await closed.Task;
+
+                // ROBUSTNESS (2026-08-26): a Topmost + AllowsTransparency
+                // window's fade-completed → Close() chain can occasionally
+                // fail to raise Closed (or raise it before we subscribe is
+                // impossible, but a teardown race can miss it). Never leave
+                // the shell stuck behind a phantom splash: race the Closed
+                // event against a short fallback that proceeds anyway, then
+                // explicitly close the splash if it is still around.
+                var splashGone = await Task.WhenAny(
+                    closed.Task,
+                    Task.Delay(1500));
+                if (splashGone == closed.Task)
+                    await closed.Task;
+                else
+                {
+                    try { if (splash.IsVisible) splash.Close(); }
+                    catch { /* best-effort teardown */ }
+                }
             }
 
-            // Claim the foreground on an idle tick AFTER the splash is
-            // fully gone, and defend against the minimized/inactive
-            // landing state explicitly.
-            // NOTE: Dispatcher.Yield is STATIC — the instance Dispatcher
-            // property also exposes an instance member named Yield, so
-            // calling it via the instance fails with CS0176. Qualify
-            // with the type name.
-            await System.Windows.Threading.Dispatcher.Yield(
-                System.Windows.Threading.DispatcherPriority.ApplicationIdle);
-            if (mainWindow.WindowState == WindowState.Minimized)
-                mainWindow.WindowState = WindowState.Maximized;
-            mainWindow.Activate();
-            mainWindow.Focus();
+            // Claim the foreground AFTER the splash is fully gone. This is
+            // the part that frequently failed: a full-screen Topmost +
+            // AllowsTransparency splash close races WPF's Activate()/Focus(),
+            // and the shell lands minimized, inactive, or behind the taskbar.
+            // WPF's Activate() is not reliable for this handoff, so we ALSO
+            // force the Win32 foreground (ShowWindow + SetForegroundWindow)
+            // directly on the HWND and retry across a few dispatcher ticks
+            // until the window is actually in the foreground.
+            await BringMainWindowToForegroundAsync(mainWindow);
 
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks
@@ -935,6 +949,88 @@ namespace ProGlassAutomation
                 new Action(() => frame.TrySetResult(true)),
                 System.Windows.Threading.DispatcherPriority.Render);
             await frame.Task;
+        }
+
+        // ── Win32 foreground handoff ─────────────────────────────────
+        // WPF's Window.Activate()/Focus() is unreliable for the
+        // topmost-transparent-splash → maximized-shell transition: the
+        // shell can land minimized, behind other windows, or on the
+        // taskbar without focus. These P/Invoke helpers force the HWND
+        // to the foreground/top of the z-order, which Activate() cannot
+        // guarantee. The splash-to-shell handoff in StartupCoreAsync uses
+        // them with a short retry loop so a transient foreground-lock does
+        // not leave the app invisible.
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        [DllImport("user32.dll")]
+        private static extern bool BringWindowToTop(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
+
+        private const int SW_SHOWMAXIMIZED = 3;
+
+        /// <summary>
+        /// Reliably shows, maximises and activates <paramref name="window"/>
+        /// after the splash closes, retrying across a few dispatcher ticks
+        /// so a transient foreground-lock cannot strand the shell inactive.
+        /// </summary>
+        private static async Task BringMainWindowToForegroundAsync(Window window)
+        {
+            try
+            {
+                // WPF side — make sure it is not minimized and is the active
+                // window in the app.
+                if (window.WindowState == WindowState.Minimized)
+                    window.WindowState = WindowState.Maximized;
+                window.Show();
+                window.Activate();
+
+                // Win32 side — force the HWND to the foreground, maximised.
+                var hwnd = new System.Windows.Interop.WindowInteropHelper(window).Handle;
+                if (hwnd != IntPtr.Zero)
+                {
+                    // Give the dispatcher a tick so the HWND exists and the
+                    // splash teardown has settled before we grab the focus.
+                    await System.Windows.Threading.Dispatcher.Yield(
+                        System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+
+                    ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+                    BringWindowToTop(hwnd);
+
+                    // Retry SetForegroundWindow a few times — Windows can
+                    // deny the foreground once right after another window
+                    // closes; the app that owns the foreground (our splash)
+                    // is gone by now, so a retry wins the permission.
+                    for (int i = 0; i < 5; i++)
+                    {
+                        SetForegroundWindow(hwnd);
+                        // If we own the foreground now, stop.
+                        if (GetForegroundWindow() == hwnd) break;
+                        await System.Windows.Threading.Dispatcher.Yield(
+                            System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+                    }
+                }
+
+                window.Focus();
+            }
+            catch (System.Exception ex)
+            {
+                // Never let foreground handoff break startup.
+                AppLogService.Warning(
+                    "Splash→main foreground handoff failed; continuing: " +
+                    ex.Message,
+                    new LogContext
+                    {
+                        Module = "Main",
+                        Operation = "BringMainWindowToForegroundAsync"
+                    });
+            }
         }
 
         /// <summary>
