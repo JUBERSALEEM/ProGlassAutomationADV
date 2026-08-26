@@ -124,7 +124,7 @@ public static class LicenseService
                 LicenseWriter.WriteFile(signed, outputPath);
 
             var selfCheck = VerifyAndValidate(
-                LicenseReader.ToJson(signed),
+                LicenseWriter.ToJson(signed),
                 appVersion: "1.0.0",
                 utcNow: DateTime.UtcNow,
                 productId: ProductIds.ProGlassAutomation);
