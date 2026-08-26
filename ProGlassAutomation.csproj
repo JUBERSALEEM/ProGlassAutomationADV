@@ -90,6 +90,18 @@
 		<Page Remove="Tests/**" />
 		<Resource Remove="Tests/**" />
 		<!--
+		  The licensing contract lives under Licensing/ as its OWN project
+		  (ProGlass.Licensing.csproj). SDK-style default globbing would
+		  otherwise compile Licensing/Contracts/*.cs and the xUnit test file
+		  directly into the app — dragging xUnit in and breaking the build
+		  with CS0246. The app references ProGlass.Licensing as a library
+		  (see the ProjectReference above); it never recompiles its sources.
+		-->
+		<Compile Remove="Licensing/**" />
+		<None Remove="Licensing/**" />
+		<Page Remove="Licensing/**" />
+		<Resource Remove="Licensing/**" />
+		<!--
 		  PHASE L — keep the developer-only tool out of the
 		  app project.
 

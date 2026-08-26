@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="ProGlass.Licensing.csproj" />
+    <ProjectReference Include="..\ProGlass.Licensing.csproj" />
   </ItemGroup>
 
 </Project>

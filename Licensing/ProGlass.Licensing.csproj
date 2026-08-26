@@ -42,4 +42,11 @@
     <AnalysisLevel>latest</AnalysisLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- The test project lives in a sibling folder; SDK-style default globbing
+         would otherwise compile the xUnit tests into THIS library. Exclude it. -->
+    <Compile Remove="ProGlass.Licensing.Tests/**" />
+    <None Remove="ProGlass.Licensing.Tests/**" />
+  </ItemGroup>
+
 </Project>

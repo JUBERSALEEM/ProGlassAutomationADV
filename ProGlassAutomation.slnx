@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="Licensing/ProGlass.Licensing.csproj" />
-  <Project Path="Licensing/ProGlass.Licensing.Tests.csproj" />
+  <Project Path="Licensing/ProGlass.Licensing.Tests/ProGlass.Licensing.Tests.csproj" />
   <Project Path="ProGlassAutomation.csproj" />
   <Project Path="Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj" />
   <Project Path="Tests/ProGlassAutomation.Tests.csproj" />
