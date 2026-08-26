@@ -1406,6 +1406,16 @@ namespace ProGlassAutomation.Services.Licensing
         /// file dialog. Copies the file to the default
         /// location (overwriting any existing license) and
         /// re-verifies.
+        ///
+        /// 2026-08-26 SAFETY FIX (\"signature does not match\" data loss):
+        /// the old code copied the picked file FIRST and re-verified after,
+        /// so a BAD file (e.g. a license signed by a mismatched key, or a
+        /// stale/corrupt copy) would OVERWRITE a perfectly working license
+        /// or trial and leave the app stranded on the activation overlay.
+        /// Now the source is verified BEFORE mutating anything: if the new
+        /// file cannot be verified (Invalid signature / unparseable) and
+        /// the CURRENT license is runnable, the existing license is kept
+        /// and the picked file is refused with an actionable message.
         /// </summary>
         public static LicenseVerificationResult InstallFile(string sourcePath)
         {
@@ -1415,6 +1425,36 @@ namespace ProGlassAutomation.Services.Licensing
                 {
                     Status = LicenseStatus.Invalid,
                     ErrorDetail = "Source file does not exist: " + sourcePath
+                };
+            }
+
+            // Verify the picked file WITHOUT touching what is installed.
+            // This tells us whether the file is even self-consistent before
+            // we decide to replace the current license with it.
+            LicenseVerificationResult sourceCheck;
+            try { sourceCheck = LicenseVerifier.Verify(sourcePath); }
+            catch { sourceCheck = new LicenseVerificationResult
+                { Status = LicenseStatus.Invalid, ErrorDetail = "Could not inspect the selected file." }; }
+
+            // If the source is unverifiable (invalid signature / corrupt /
+            // unsupported envelope) AND the app currently runs fine, keep
+            // the working license — never let a bad file kill a good trial.
+            if (sourceCheck.Status == LicenseStatus.Invalid && Current.CanRun)
+            {
+                string detail = string.IsNullOrWhiteSpace(sourceCheck.ErrorDetail)
+                    ? "Signature does not match the payload."
+                    : sourceCheck.ErrorDetail;
+                return new LicenseVerificationResult
+                {
+                    Status = Current.Status,
+                    Payload = Current.Payload,
+                    ErrorDetail =
+                        "The selected file could not be verified (" + detail +
+                        "). The current license was kept — nothing was changed. " +
+                        "Re-issue the license with the key that matches " +
+                        "Services/Licensing/LicensePublicKey.cs (run the " +
+                        "LicenseGenerator, click WRITE PUBLIC KEY INTO APP, " +
+                        "then rebuild the app)."
                 };
             }
 

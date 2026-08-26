@@ -207,6 +207,92 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal(LicenseStatus.Invalid, result.Status);
         }
 
+        [Fact]
+        public void InstallFile_preserves_working_license_when_new_file_is_unverifiable()
+        {
+            // Regression (2026-08-26): a "signature does not match"
+            // activation attempt used to OVERWRITE a working license /
+            // trial, stranding the app on the activation overlay. The
+            // fix verifies the picked file BEFORE mutating anything and
+            // refuses to clobber a runnable license with an unverifiable
+            // one.
+            string privateKey = InstallFreshKeyPair();
+
+            // 1) Install a runnable Business license.
+            var good = new LicensePayload
+            {
+                LicenseId = "GOOD-KEEP-001",
+                Edition = LicenseEdition.Business,
+                ExpiresAt = DateTime.UtcNow.AddYears(1),
+                Features = new[] { "*" }
+            };
+            string destPath = Path.Combine(_tempFolder, LicenseService.DefaultLicenseFileName);
+            LicenseSigner.SignToFile(good, privateKey, destPath);
+            LicenseService.Reload();
+            Assert.Equal(LicenseStatus.Valid, LicenseService.Current.Status);
+
+            // 2) A picked file signed with a DIFFERENT private key —
+            //    the embedded public key will not match, so it verifies
+            //    as Invalid ("Signature does not match the payload").
+            var bad = new LicensePayload
+            {
+                LicenseId = "BAD-KEY-001",
+                Edition = LicenseEdition.Business,
+                ExpiresAt = DateTime.UtcNow.AddYears(1),
+                Features = new[] { "*" }
+            };
+            (string otherPub, string otherPriv) = LicenseSigner.GenerateKeyPair();
+            string badPath = Path.Combine(_tempFolder, "bad.lic");
+            LicenseSigner.SignToFile(bad, otherPriv, badPath);
+
+            var result = LicenseService.InstallFile(badPath);
+
+            // The working license is preserved (status stays Valid, the
+            // on-disk file is untouched) and the bad file is refused.
+            Assert.Equal(LicenseStatus.Valid, result.Status);
+            Assert.Equal("GOOD-KEEP-001", result.Payload!.LicenseId);
+            Assert.True(File.Exists(destPath));
+            Assert.Contains("current license was kept",
+                result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void InstallFile_overwrites_when_current_license_is_not_runnable()
+        {
+            // If the current license is already broken, a picked file
+            // that verifies fine must be installable (the user is fixing
+            // a bad state). This guards the inverse of the safety rule.
+            string privateKey = InstallFreshKeyPair();
+
+            // Start with an expired business license (not runnable).
+            var dead = new LicensePayload
+            {
+                LicenseId = "DEAD-001",
+                Edition = LicenseEdition.Business,
+                ExpiresAt = DateTime.UtcNow.AddDays(-30),
+                Features = new[] { "*" }
+            };
+            string destPath = Path.Combine(_tempFolder, LicenseService.DefaultLicenseFileName);
+            LicenseSigner.SignToFile(dead, privateKey, destPath);
+            LicenseService.Reload();
+            Assert.False(LicenseService.Current.CanRun);
+
+            // A valid replacement (signed with the SAME key).
+            var good = new LicensePayload
+            {
+                LicenseId = "REPLACE-001",
+                Edition = LicenseEdition.Business,
+                ExpiresAt = DateTime.UtcNow.AddYears(1),
+                Features = new[] { "*" }
+            };
+            string goodPath = Path.Combine(_tempFolder, "replace.lic");
+            LicenseSigner.SignToFile(good, privateKey, goodPath);
+
+            var result = LicenseService.InstallFile(goodPath);
+            Assert.Equal(LicenseStatus.Valid, result.Status);
+            Assert.Equal("REPLACE-001", result.Payload!.LicenseId);
+        }
+
         // ── trial install — needs the keys file ─────────────────
 
         [Fact]

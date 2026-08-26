@@ -272,10 +272,34 @@ namespace ProGlassAutomation.Services.Licensing
 
                 if (!ok)
                 {
+                    // Actionable diagnosis. "Signature does not match" is
+                    // almost always a KEY MISMATCH: the license was signed
+                    // with a private key whose public half differs from the
+                    // one embedded in this app build. Tell the developer
+                    // exactly what to do instead of leaving a dead end.
+                    string hint =
+                        "Signature does not match the payload. " +
+                        "This means the license was signed with a " +
+                        "DIFFERENT key than the one this app build expects. " +
+                        "Re-issue the license with the key that matches " +
+                        "Services/Licensing/LicensePublicKey.cs (run the " +
+                        "LicenseGenerator, click WRITE PUBLIC KEY INTO APP, " +
+                        "then rebuild the app). A copied/renamed license or " +
+                        "an app rebuilt with a different public key also " +
+                        "causes this.";
+                    try
+                    {
+                        string embedded = LicensePublicKey.IsPlaceholder
+                            ? "the placeholder"
+                            : "a real key";
+                        hint += "\n(embedded app public key: " + embedded + ")";
+                    }
+                    catch { /* keep the concise hint */ }
+
                     return new LicenseVerificationResult
                     {
                         Status = LicenseStatus.Invalid,
-                        ErrorDetail = "Signature does not match the payload."
+                        ErrorDetail = hint
                     };
                 }
             }

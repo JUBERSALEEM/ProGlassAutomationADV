@@ -18,6 +18,10 @@
 //   • ExportPublicKeyForApp    — pretty-print the public
 //                                 key XML the developer
 //                                 pastes into the app
+//   • WritePublicKeyToSource   — one-click install of the
+//                                 public key into the app's
+//                                 LicensePublicKey.cs so the
+//                                 app and tool always agree
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -258,13 +262,153 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
         /// </summary>
         public static string FormatPublicKeyForApp(string publicKeyXml)
         {
-            // The @""-prefixed verbatim string is the
-            // canonical C# form (no escaping, no
-            // concatenation). The developer pastes the
-            // whole block — there is no risk of a
-            // mis-escaped quote breaking the build.
-            return "    public const string PublicKeyXml =\n" +
-                   "        @\"" + publicKeyXml + "\";";
+            // Matches the ACTUAL declaration shape used by
+            // Services/Licensing/LicensePublicKey.cs — a private-set
+            // auto-property with a string-literal initializer (NOT a
+            // `const`, which is a different shape and would not paste
+            // cleanly). The initializer is a single literal because the
+            // RSA XML never contains a double-quote.
+            return "    public static string PublicKeyXml { get; private set; } =\n" +
+                   "        \"" + publicKeyXml + "\";";
+        }
+
+        // ── KEY INSTALL-TO-SOURCE (foolproof public-key setup) ─────
+        //
+        // THE BUG THIS FIXES (Aug 2026): the generator and the app
+        // must agree on the SAME RSA key pair. The app verifies .lic
+        // files against the public key embedded in
+        // Services/Licensing/LicensePublicKey.cs (PublicKeyXml). The
+        // generator signs with the PRIVATE key stored in
+        // license-keys.json. If the developer forgets to paste the
+        // printed public key into LicensePublicKey.cs (or pastes a
+        // stale one), the two keys diverge and every generated
+        // license fails with "Signature does not match the payload."
+        //
+        // WritePublicKeyToSource() removes that manual, error-prone
+        // step: it rewrites PublicKeyXml inside the app's actual
+        // source file so the embedded public key ALWAYS matches the
+        // signing private key on the developer's own machine. One
+        // click, then rebuild the app.
+
+        /// <summary>
+        /// Locates <c>Services/Licensing/LicensePublicKey.cs</c> by
+        /// walking up from the running assembly to the repository
+        /// root (the folder that owns ProGlassAutomation.csproj).
+        /// Returns null when the tool is not running from a repo
+        /// checkout (e.g. a published, source-free build).
+        /// </summary>
+        public static string? FindAppSourceFile(string fileName)
+        {
+            try
+            {
+                var dir = new DirectoryInfo(AppContext.BaseDirectory);
+                while (dir != null)
+                {
+                    if (File.Exists(Path.Combine(dir.FullName, "ProGlassAutomation.csproj")))
+                        return Path.Combine(dir.FullName, "Services", "Licensing", fileName);
+                    dir = dir.Parent;
+                }
+            }
+            catch { /* best-effort */ }
+            return null;
+        }
+
+        /// <summary>
+        /// Rewrites the <c>PublicKeyXml</c> property inside
+        /// <c>Services/Licensing/LicensePublicKey.cs</c> so it
+        /// matches <paramref name="publicKeyXml"/> (the public half
+        /// of the key pair recorded in
+        /// <see cref="KeysFilePath"/>). Returns false with a
+        /// message when the source file cannot be located or the
+        /// declaration shape changed.
+        /// </summary>
+        public static bool WritePublicKeyToSource(
+            string publicKeyXml, out string error)
+        {
+            error = "";
+            if (string.IsNullOrWhiteSpace(publicKeyXml))
+            {
+                error = "No public key to write. Generate a key pair first.";
+                return false;
+            }
+
+            string? path = FindAppSourceFile("LicensePublicKey.cs");
+            if (path == null)
+            {
+                error =
+                    "Could not locate Services/Licensing/LicensePublicKey.cs.\n" +
+                    "Run this tool from a checkout of the repository " +
+                    "(the folder containing ProGlassAutomation.csproj). " +
+                    "Otherwise copy the public key below into the file manually.";
+                return false;
+            }
+
+            try
+            {
+                string src = File.ReadAllText(path);
+
+                // Match the whole declaration, including its multi-line
+                // initializer, from the property header up to the closing
+                // `</RSAKeyValue>";`. The base64 payload never contains a
+                // `;`, so a non-greedy match to the FIRST
+                // `</RSAKeyValue>";` is safe for both the placeholder and
+                // a real embedded key. The leading whitespace before
+                // `public` is outside the match, so it is preserved.
+                var rx = new System.Text.RegularExpressions.Regex(
+                    @"public\s+static\s+string\s+PublicKeyXml\s*\{\s*get;\s*private\s+set;\s*\}\s*=\s*(.*?)</RSAKeyValue>\s*""\s*;",
+                    System.Text.RegularExpressions.RegexOptions.Singleline);
+                if (!rx.IsMatch(src))
+                {
+                    error =
+                        "The PublicKeyXml declaration in LicensePublicKey.cs " +
+                        "does not match the expected shape. Restore the file " +
+                        "from source control and try again.";
+                    return false;
+                }
+
+                // Build a clean declaration from the public-key XML (no
+                // double-quotes inside it, so a single string literal is
+                // valid C#). Split Modulus/Exponent for readability.
+                string replacement =
+                    "public static string PublicKeyXml { get; private set; } =\n" +
+                    "            \"<RSAKeyValue>\" +\n" +
+                    "            \"<Modulus>" + Extract(publicKeyXml, "Modulus") + "</Modulus>\" +\n" +
+                    "            \"<Exponent>" + Extract(publicKeyXml, "Exponent") + "</Exponent>\" +\n" +
+                    "            \"</RSAKeyValue>\";";
+
+                string updated = rx.Replace(src, replacement);
+                if (updated == src)
+                {
+                    error = "PublicKeyXml is already up to date.";
+                    return false;
+                }
+
+                // Write atomically (temp + rename) so a crash mid-write
+                // never corrupts the source file.
+                string temp = path + ".tmp";
+                File.WriteAllText(temp, updated);
+                File.Delete(path);
+                File.Move(temp, path);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                error = "Could not write public key to source: " + ex.Message;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Extracts a base64 element (<c>Modulus</c> / <c>Exponent</c>)
+        /// from an RSA XML string.
+        /// </summary>
+        private static string Extract(string xml, string tag)
+        {
+            var m = System.Text.RegularExpressions.Regex.Match(
+                xml,
+                "<" + tag + ">([A-Za-z0-9+/=]+)</" + tag + ">");
+            return m.Success ? m.Groups[1].Value : "";
         }
 
         // ── Internals ────────────────────────────────────────────

@@ -59,14 +59,19 @@
                                 <TextBlock x:Name="KeyStatusDetail"
                                            Style="{StaticResource HelpText}"
                                            Margin="0,4,0,0"
-                                           Text="Click GENERATE to create a fresh RSA-2048 key pair. The private key is saved to %AppData%\ProGlassAutomation\license-keys.json (chmod 600 / admins-only). The public key is shown below — paste it into Services/Licensing/LicensePublicKey.cs."/>
+                                           Text="1. GENERATE makes a fresh RSA-2048 pair (private key to %AppData%\ProGlassAutomation\license-keys.json). 2. WRITE INTO APP stamps the matching public key straight into Services/Licensing/LicensePublicKey.cs so the app and tool always agree — then rebuild the app. No manual copy-paste, no mismatch."/>
                             </StackPanel>
-                            <Button Grid.Column="1"
-                                    x:Name="GenerateKeyButton"
-                                    Style="{StaticResource PrimaryButton}"
-                                    Content="GENERATE NEW KEY PAIR"
-                                    Click="GenerateKeyButton_Click"
-                                    VerticalAlignment="Top"/>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Top">
+                                <Button x:Name="GenerateKeyButton"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Content="GENERATE NEW KEY PAIR"
+                                        Click="GenerateKeyButton_Click"/>
+                                <Button x:Name="WriteKeyButton"
+                                        Style="{StaticResource OutlinedButton}"
+                                        Content="WRITE PUBLIC KEY INTO APP"
+                                        Click="WritePublicKeyButton_Click"
+                                        Margin="0,10,0,0"/>
+                            </StackPanel>
                         </Grid>
 
                         <Expander x:Name="PublicKeyExpander"

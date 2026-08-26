@@ -34,19 +34,23 @@ Automation license files. **Never** shipped to customers.
    found."
 3. Click **GENERATE NEW KEY PAIR**. A confirmation dialog
    warns that any old key (if present) will be replaced.
-4. The card now shows the public key. Click **REVEAL FULL
-   XML**, then **COPY TO CLIPBOARD**.
-5. Open `Services/Licensing/LicensePublicKey.cs` in
-   Visual Studio. Replace the placeholder with the
-   printed public-key XML:
+   The private key is saved to
+   `%AppData%\ProGlassAutomation\license-keys.json`.
+4. Click **WRITE PUBLIC KEY INTO APP**. The tool finds
+   `Services/Licensing/LicensePublicKey.cs` in the repo and
+   rewrites its `PublicKeyXml` to the matching public half —
+   no manual copy-paste, no chance of a key mismatch. (If
+   the tool is not run from a repo checkout it tells you to
+   paste the key manually via COPY TO CLIPBOARD.)
+5. Rebuild the main app. Future builds accept any license
+   signed with the matching private key.
 
-   ```csharp
-   public const string PublicKeyXml =
-       @"<RSAKeyValue>...</RSAKeyValue>";
-   ```
-
-6. Rebuild the main app. Future builds accept any
-   license signed with the matching private key.
+> **Why this matters:** "Activation failed: signature does not
+> match the payload" is almost always a key mismatch — the
+> public key embedded in the app does not match the private key
+> the tool signs with. The one-click **WRITE PUBLIC KEY INTO APP**
+> step makes that impossible. The tool also shows the error
+> correctly if the app was rebuilt with a different public key.
 
 ## Issuing a customer license
 

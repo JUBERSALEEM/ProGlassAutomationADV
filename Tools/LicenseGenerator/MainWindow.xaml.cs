@@ -147,6 +147,49 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
             }
         }
 
+        /// <summary>
+        /// Writes the current public key straight into
+        /// <c>Services/Licensing/LicensePublicKey.cs</c> so the embedded
+        /// public key ALWAYS matches the private key this tool signs with.
+        /// This is the one-click cure for
+        /// "Activation failed: signature does not match the payload."
+        /// </summary>
+        private void WritePublicKeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_keys == null)
+            {
+                SetStatus("No key pair. Click GENERATE NEW KEY PAIR first.",
+                          StatusKind.Error);
+                return;
+            }
+
+            bool ok = LicenseGeneratorCore.WritePublicKeyToSource(
+                _keys.PublicKeyXml, out string error);
+            if (!ok)
+            {
+                SetStatus(error, StatusKind.Error);
+                MessageBox.Show(this, error, "Write public key",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            SetStatus(
+                "✓ Public key written to " +
+                "Services/Licensing/LicensePublicKey.cs. " +
+                "Rebuild the main app so the new key is embedded.",
+                StatusKind.Success);
+            MessageBox.Show(
+                "Public key written to:\n\n" +
+                "  Services/Licensing/LicensePublicKey.cs\n\n" +
+                "It now matches the private key this tool signs with.\n" +
+                "\n" +
+                "Rebuild the main app, then sign a license and drop it " +
+                "into %AppData%\\ProGlassAutomation\\license.lic. " +
+                "Every license signed here will be accepted.",
+                "Public key installed",
+                MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
         private void CopyPublicKeyButton_Click(object sender, RoutedEventArgs e)
         {
             if (_keys == null) return;
