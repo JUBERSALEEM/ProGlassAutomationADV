@@ -277,7 +277,161 @@ namespace ProGlassAutomation.Tests.Licensing
             string original = LicensePublicKey.PublicKeyXml;
             LicensePublicKey.SetForTest(newValue);
             return original;
-        }        private static string JsonEscape(string s) =>
+        }
+
+        // ── Foreign-trial self-heal (2026-08-26, cross-PC lockout) ──
+        //
+        // Scenario: PC_B inherits PC_A's trial license.lic (manual
+        // copy, portable install, or OneDrive %AppData% Roaming
+        // sync). Before 2026-08-26 that either silently ran PC_A's
+        // trial on PC_B (portable trials) or — with the activation
+        // ledger synced too — locked PC_B out with
+        // "Activation limit reached". Now the trial is
+        // machine-bound and LicenseService.Initialize replaces a
+        // foreign trial with this machine's own trial.
+        //
+        // In the test host App.Config is null, so the re-issue ends
+        // NotActivated ("App.Config is not loaded") — the
+        // observable contract under test is: the status is NOT the
+        // foreign-license dead-end and the foreign file is gone.
+
+        private void SetTrialKeyPairAndRestore(
+            string trialPublicXml, string trialPrivateXml)
+        {
+            // Save/restore around SetTrialKeysForTest so the trial
+            // key swap cannot leak into other tests in the
+            // "LicensePublicKey" collection.
+            _savedTrialPublic  = LicensePublicKey.TrialPublicKeyXml;
+            _savedTrialPrivate = LicensePublicKey.TrialPrivateKeyXml;
+            LicensePublicKey.SetTrialKeysForTest(
+                trialPublicXml, trialPrivateXml);
+        }
+
+        private void RestoreTrialKeyPair()
+        {
+            LicensePublicKey.SetTrialKeysForTest(
+                _savedTrialPublic, _savedTrialPrivate);
+        }
+
+        private string _savedTrialPublic = "";
+        private string _savedTrialPrivate = "";
+
+        [Fact]
+        public void ForeignTrial_mismatchedFingerprint_is_replaced_not_locked()
+        {
+            // A validly signed trial whose fingerprint belongs to
+            // ANOTHER PC (the copied / synced-file scenario).
+            (string trialPublic, string trialPrivate) =
+                LicenseSigner.GenerateKeyPair();
+            SetTrialKeyPairAndRestore(trialPublic, trialPrivate);
+            try
+            {
+                var payload = new LicensePayload
+                {
+                    LicenseId = "AUTO-FOREIGN-PC",
+                    Edition = LicenseEdition.Trial,
+                    IssuedAt = DateTime.UtcNow.AddDays(-1),
+                    ExpiresAt = DateTime.UtcNow.AddDays(29),
+                    MaxActivations = 1,
+                    Features = new[] { "*" },
+                    // A different PC's fingerprint — 32 hex chars.
+                    MachineFingerprint = "cafebabe" + new string('0', 24),
+                    Notes = "Auto-issued trial (all modules).",
+                    TrialSource = LicenseService.AutoTrialSourceMarker,
+                    TrialExpiresAt = DateTime.UtcNow.AddDays(29)
+                };
+                string licPath = Path.Combine(
+                    _tempFolder, LicenseService.DefaultLicenseFileName);
+                LicenseSigner.SignToFile(payload, trialPrivate, licPath);
+
+                var result = LicenseService.Initialize();
+
+                // The self-heal replaced the foreign file and
+                // attempted this machine's own trial — the result
+                // must NOT be the foreign license's dead end.
+                Assert.NotEqual(
+                    LicenseStatus.MachineMismatch, result.Status);
+                Assert.NotEqual(
+                    LicenseStatus.ActivationLimit, result.Status);
+                Assert.False(
+                    File.Exists(licPath),
+                    "foreign trial file must be replaced, not kept");
+            }
+            finally { RestoreTrialKeyPair(); }
+        }
+
+        [Fact]
+        public void CorruptTrialFile_stays_Invalid_awaiting_clean_slate()
+        {
+            // Boundary case: a trial file whose signature does not
+            // verify. The verifier returns Invalid WITHOUT a
+            // payload, and an UNVERIFIED payload is never trusted
+            // for auto-replacement — so the file stays for a manual
+            // clean-slate delete (documented in
+            // ReplaceForeignTrialIfEligible). The important
+            // assertion: the corrupt file is not silently treated
+            // as a valid foreign trial either.
+            (string trialPublic, string trialPrivate) =
+                LicenseSigner.GenerateKeyPair();
+            SetTrialKeyPairAndRestore(trialPublic, trialPrivate);
+            try
+            {
+                // Sign with a DIFFERENT key so the trial-key
+                // verification fails.
+                string otherPrivate = InstallFreshKeyPair();
+                var payload = new LicensePayload
+                {
+                    LicenseId = "AUTO-CORRUPT-001",
+                    Edition = LicenseEdition.Trial,
+                    IssuedAt = DateTime.UtcNow.AddDays(-1),
+                    ExpiresAt = DateTime.UtcNow.AddDays(29),
+                    Features = new[] { "*" },
+                    MachineFingerprint = null,
+                    TrialSource = LicenseService.AutoTrialSourceMarker,
+                    TrialExpiresAt = DateTime.UtcNow.AddDays(29)
+                };
+                string licPath = Path.Combine(
+                    _tempFolder, LicenseService.DefaultLicenseFileName);
+                LicenseSigner.SignToFile(payload, otherPrivate, licPath);
+
+                var result = LicenseService.Initialize();
+
+                Assert.Equal(LicenseStatus.Invalid, result.Status);
+                Assert.True(
+                    File.Exists(licPath),
+                    "unverifiable files are never auto-deleted — " +
+                    "clean slate is a deliberate user step");
+            }
+            finally { RestoreTrialKeyPair(); }
+        }
+
+        [Fact]
+        public void NonTrial_mismatchedFingerprint_is_NOT_replaced()
+        {
+            // A purchased (non-trial) machine-bound license on the
+            // wrong PC must stay in MachineMismatch — the vendor
+            // re-issues it; it is never silently replaced by a
+            // trial.
+            string privateKey = InstallFreshKeyPair();
+            var payload = new LicensePayload
+            {
+                LicenseId = "BUS-FOREIGN-PC",
+                Edition = LicenseEdition.Business,
+                ExpiresAt = DateTime.UtcNow.AddYears(1),
+                Features = new[] { "*" },
+                MachineFingerprint = "cafebabe" + new string('0', 24)
+            };
+            string licPath = Path.Combine(
+                _tempFolder, LicenseService.DefaultLicenseFileName);
+            LicenseSigner.SignToFile(payload, privateKey, licPath);
+
+            var result = LicenseService.Initialize();
+
+            Assert.Equal(LicenseStatus.MachineMismatch, result.Status);
+            Assert.True(File.Exists(licPath));
+        }
+
+        private static string JsonEscape(string s) =>
             s.Replace("\\", "\\\\").Replace("\"", "\\\"");
     }
 }

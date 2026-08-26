@@ -168,15 +168,37 @@ namespace ProGlassAutomation.Services.Licensing
             string? issuingFp  = null;
             var evidence = new StringBuilder();
 
-            // Anchor 1 — AppConfig flag
+            // Anchor 1 — AppConfig flag, MACHINE-SCOPED (2026-08-26
+            // cross-PC trial lockout). This anchor lives in
+            // %AppData%\ProGlassAutomation\config.json (Roaming),
+            // which OneDrive "known folder move" syncs BETWEEN a
+            // user's PCs. A bare boolean would therefore make PC_B
+            // inherit PC_A's "trial issued" verdict. The flag now
+            // counts only when the stored issuing fingerprint
+            // matches the CURRENT machine's fingerprint
+            // (appConfigMachineFingerprint). Legacy configs written
+            // before the fingerprint field existed cannot be
+            // attributed to any machine — with a real caller
+            // fingerprint they are treated as NOT-issued-here (the
+            // three machine-local anchors still enforce the rule on
+            // the same machine); with no caller fingerprint they are
+            // treated as issued (safe default for unknown callers).
             try
             {
                 if (App.Config != null && App.Config.AutoTrialWasIssued)
                 {
-                    anyIssued = true;
-                    var t = App.Config.AutoTrialIssuedAtUtc;
-                    if (t.HasValue) MergeTimestamps(t.Value, ref earliest, ref latest);
-                    evidence.Append("config;");
+                    string cfgFp = (App.Config.AutoTrialFingerprint ?? "").Trim();
+                    string callerFp = (appConfigMachineFingerprint ?? "").Trim();
+                    bool issuedOnThisMachine = cfgFp.Length == 0
+                        ? callerFp.Length == 0
+                        : string.Equals(cfgFp, callerFp, StringComparison.OrdinalIgnoreCase);
+                    if (issuedOnThisMachine)
+                    {
+                        anyIssued = true;
+                        var t = App.Config.AutoTrialIssuedAtUtc;
+                        if (t.HasValue) MergeTimestamps(t.Value, ref earliest, ref latest);
+                        evidence.Append("config;");
+                    }
                 }
             }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[TrialLedger] Read: best-effort operation failed: " + ex.Message); }
@@ -273,12 +295,15 @@ namespace ProGlassAutomation.Services.Licensing
 
             // Anchor 1 — config (also handled by LicenseService, kept
             // here for completeness / test hosts that call the ledger
-            // directly).
+            // directly). 2026-08-26: record WHICH machine issued the
+            // trial so the (cloud-syncable) config anchor is
+            // machine-scoped on read — see Read() anchor 1.
             try
             {
                 if (App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
+                    App.Config.AutoTrialFingerprint = machineFingerprint ?? "";
                     Services.AI.AIConfig.ConfigService.Save(App.Config);
                 }
             }

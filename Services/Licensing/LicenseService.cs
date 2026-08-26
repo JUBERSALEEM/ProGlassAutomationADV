@@ -292,6 +292,19 @@ namespace ProGlassAutomation.Services.Licensing
                     _current = IssueAutoTrialIfEligible(dataRoot);
                 }
 
+                // 2026-08-26 (cross-PC trial lockout): a trial that
+                // cannot run on THIS machine — copied / OneDrive-
+                // synced / portable-install license.lic from another
+                // PC (MachineMismatch), or a stale portable trial
+                // over this machine's activation count
+                // (ActivationLimit) — is replaced with this
+                // machine's own trial when the one-trial-per-machine
+                // anchors allow it. Without this, a fresh PC that
+                // inherited another PC's license.lic +
+                // activations.json shows "Activation limit reached"
+                // and can never reach the trial it is entitled to.
+                _current = ReplaceForeignTrialIfEligible(_current, dataRoot);
+
                 // For non-machine-bound licenses, count this
                 // machine against MaxActivations.
                 if (_current.Payload != null
@@ -721,6 +734,12 @@ namespace ProGlassAutomation.Services.Licensing
                 if (App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
+                    // 2026-08-26: attribute the flag to THIS machine
+                    // so the (cloud-syncable) config anchor is
+                    // machine-scoped on read.
+                    if (string.IsNullOrEmpty(App.Config.AutoTrialFingerprint))
+                        App.Config.AutoTrialFingerprint =
+                            MachineFingerprint.ComputeCurrent();
                     ConfigService.Save(App.Config);
                 }
             }
@@ -833,11 +852,33 @@ namespace ProGlassAutomation.Services.Licensing
                 };
             }
 
+            // 2026-08-26 (cross-PC trial lockout): compute THIS
+            // machine's deep fingerprint once, here. It is (a) the
+            // machine the trial will be bound to (payload.
+            // MachineFingerprint), (b) the key that scopes the
+            // cloud-syncable config anchor in TrialLedger.Read, and
+            // (c) the value recorded in the machine-local anchors.
+            string currentFp = "";
+            try { currentFp = MachineFingerprint.ComputeCurrent(); }
+            catch { /* fingerprint is best-effort; empty falls back
+                        to a portable trial below — see payload */ }
+
             TrialLedgerSnapshot ledger;
-            try { ledger = TrialLedger.Read(); }
+            try { ledger = TrialLedger.Read(currentFp); }
             catch { ledger = new TrialLedgerSnapshot { IsIssued = false }; }
 
-            if (App.Config.AutoTrialWasIssued || ledger.IsIssued)
+            // NB: the raw App.Config.AutoTrialWasIssued flag is no
+            // longer consulted directly here. That flag lives in
+            // %AppData%\ProGlassAutomation\config.json (Roaming),
+            // which OneDrive "known folder move" syncs BETWEEN a
+            // user's PCs — a bare boolean made PC_B inherit PC_A's
+            // "trial used" verdict and refuse the trial PC_B is
+            // entitled to. TrialLedger.Read now scopes that anchor
+            // to the current machine's fingerprint, and the three
+            // machine-local anchors (%ProgramData%, registry, DPAPI)
+            // keep the one-trial-per-machine rule on the same
+            // machine. See TrialLedger.Read anchor 1.
+            if (ledger.IsIssued)
             {
                 string evidence = ledger.IsIssued && !string.IsNullOrEmpty(ledger.AnchorEvidence)
                     ? "anchors=" + ledger.AnchorEvidence.TrimEnd(';')
@@ -892,7 +933,19 @@ namespace ProGlassAutomation.Services.Licensing
                 // narrow this per SKU; the trial is deliberately the
                 // full experience.
                 Features = new[] { "*" },
-                MachineFingerprint = null,    // portable
+                // 2026-08-26: the auto-trial is MACHINE-BOUND. The
+                // fingerprint is embedded in the SIGNED payload, so
+                // a copied / OneDrive-synced / portable-install
+                // license.lic is rejected on any other PC
+                // (MachineMismatch) instead of silently running
+                // there — and LicenseService.Initialize self-heals
+                // by issuing that PC its own trial (see
+                // ReplaceForeignTrialIfEligible). An empty
+                // fingerprint (fully degenerate hardware probe)
+                // falls back to portable: a running trial beats a
+                // locked-out one.
+                MachineFingerprint = string.IsNullOrEmpty(currentFp)
+                    ? null : currentFp,
                 Notes = "Auto-issued " + AutoTrialDays + "-day trial (all modules).",
                 TrialSource = AutoTrialSourceMarker,
                 TrialExpiresAt = now.AddDays(AutoTrialDays)
@@ -934,9 +987,10 @@ namespace ProGlassAutomation.Services.Licensing
             //    anchor is logged but does not fail the ledger write.
             try
             {
-                string fp = "";
-                try { fp = MachineFingerprint.ComputeCurrent(); } catch { /* silence */ }
-                TrialLedger.RecordIssuance(fp);
+                // Reuses currentFp (computed once at the top of this
+                // method) — the ledger anchors and the signed
+                // payload must carry the SAME machine identity.
+                TrialLedger.RecordIssuance(currentFp);
             }
             catch (Exception ex)
             {
@@ -961,6 +1015,10 @@ namespace ProGlassAutomation.Services.Licensing
                 if (App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
+                    // 2026-08-26: attribute the flag to THIS machine
+                    // so the (cloud-syncable) config anchor is
+                    // machine-scoped on read — see TrialLedger.Read.
+                    App.Config.AutoTrialFingerprint = currentFp;
                     ConfigService.Save(App.Config);
                 }
             }
@@ -995,6 +1053,90 @@ namespace ProGlassAutomation.Services.Licensing
             //    trial lands in) so the rest of the
             //    startup can take the standard path.
             return LicenseVerifier.Verify(destPath);
+        }
+
+        // ── Foreign-trial self-heal (2026-08-26, cross-PC lockout) ─
+
+        /// <summary>
+        /// 2026-08-26 (cross-PC trial lockout): replaces a trial
+        /// that cannot run on THIS machine with this machine's own
+        /// trial — when the one-trial-per-machine anchors allow it.
+        ///
+        /// WHY THIS EXISTS: %AppData%\ProGlassAutomation is in
+        /// Roaming, which OneDrive "known folder move" syncs BETWEEN
+        /// a user's PCs (manual copies and portable installs do the
+        /// same). A fresh PC that inherited another PC's
+        /// license.lic used to either run that PC's trial silently
+        /// (before trials became machine-bound) or — with the
+        /// activation ledger synced too — flip to ActivationLimit
+        /// and show the red overlay with no way to reach the trial
+        /// it is entitled to. Handled statuses (both carry a
+        /// VERIFIED payload):
+        ///   • MachineMismatch — the trial's signed fingerprint is a
+        ///     different PC's;
+        ///   • ActivationLimit — a stale PORTABLE trial (pre
+        ///     machine-binding build) is over this machine's
+        ///     activation count.
+        /// The file on disk can never run here in either case, so it
+        /// is deleted and IssueAutoTrialIfEligible runs: on a truly
+        /// fresh PC the anchors are clean and the machine gets its
+        /// own machine-bound trial; on a PC that already used its
+        /// one trial, the standard "trial previously issued"
+        /// refusal is returned instead of a dead overlay.
+        ///
+        /// Two deliberate exclusions:
+        ///   • Real (non-trial) licenses are never touched — a
+        ///     MachineMismatch on a purchased license must still
+        ///     demand a re-issue from the vendor, not a silent
+        ///     replacement.
+        ///   • Invalid (corrupt file) is excluded because the
+        ///     verifier returns signature failures WITHOUT a
+        ///     payload — and an UNVERIFIED payload is never trusted
+        ///     for auto-replacement. A corrupt trial file is
+        ///     replaced by deleting license.lic (the standard
+        ///     clean-slate step).
+        /// </summary>
+        private static LicenseVerificationResult ReplaceForeignTrialIfEligible(
+            LicenseVerificationResult input, string dataRoot)
+        {
+            if (input.Payload == null) return input;
+            if (string.IsNullOrEmpty(input.Payload.TrialSource)) return input;
+            if (input.Status != LicenseStatus.MachineMismatch
+                && input.Status != LicenseStatus.ActivationLimit)
+                return input;
+
+            string foreignId = input.Payload.LicenseId;
+            string foreignStatus = input.Status.ToString();
+
+            try
+            {
+                if (!string.IsNullOrEmpty(_licensePath) && File.Exists(_licensePath))
+                    File.Delete(_licensePath);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    "Foreign-trial replace: could not delete " + _licensePath
+                    + ": " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Licensing",
+                        Class = nameof(LicenseService),
+                        Operation = "ReplaceForeignTrialIfEligible"
+                    });
+            }
+
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "Foreign trial replaced",
+                    $"licenseId={foreignId} (status {foreignStatus} on this "
+                    + "machine); issuing this machine's own trial if eligible.");
+            }
+            catch { /* audit must not gate startup */ }
+
+            return IssueAutoTrialIfEligible(dataRoot);
         }
 
         // ── Trial install ──────────────────────────────────────────
@@ -1050,7 +1192,10 @@ namespace ProGlassAutomation.Services.Licensing
                 // as the auto-trial so QA / demo builds behave like a
                 // real evaluation.
                 Features = new[] { "*" },
-                MachineFingerprint = null,    // portable trial
+                // 2026-08-26: machine-bound like the auto-trial — a
+                // copied dev-trial .lic must not run on another PC.
+                // (Empty-fingerprint fallback: see auto-trial note.)
+                MachineFingerprint = MachineFingerprint.ComputeCurrent(),
                 Notes = "Trial issued by LicenseService."
             };
 

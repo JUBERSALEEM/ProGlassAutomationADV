@@ -125,6 +125,7 @@
 		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
 		<!-- Windows DPAPI (ProtectedData) — used by Services/Security/SecretVault
 		     to keep API keys out of plain-text config files. -->
+		<PackageReference Include="System.Management" Version="8.0.0" />
 		<PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
 		<PackageReference Include="System.Speech" Version="8.0.0" />
 

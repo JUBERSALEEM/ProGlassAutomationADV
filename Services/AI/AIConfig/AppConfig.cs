@@ -445,6 +445,25 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         public DateTime? AutoTrialIssuedAtUtc { get; set; }
 
         /// <summary>
+        /// 2026-08-26 (cross-PC trial lockout): the machine
+        /// fingerprint of the PC that first issued the auto-trial,
+        /// recorded alongside <see cref="AutoTrialIssuedAtUtc"/>.
+        ///
+        /// WHY: this config file lives in %AppData% (Roaming), which
+        /// OneDrive "known folder move" syncs BETWEEN a user's PCs.
+        /// A bare boolean "trial was issued" therefore leaks across
+        /// machines: PC_B inherits PC_A's flag and is refused the
+        /// trial it is entitled to. The flag is now honoured only
+        /// when the stored fingerprint matches the CURRENT machine
+        /// (see TrialLedger.Read). Legacy configs without a
+        /// fingerprint are treated as unattributable — the other
+        /// three machine-local anchors (%ProgramData%, registry,
+        /// DPAPI) keep the one-trial-per-machine rule on the same
+        /// machine.
+        /// </summary>
+        public string AutoTrialFingerprint { get; set; } = "";
+
+        /// <summary>
         /// Convenience mirror of <see cref="AutoTrialIssuedAtUtc"/>:
         /// true iff a trial was ever issued on this machine.
         /// Kept as a separate flag so config code can read
