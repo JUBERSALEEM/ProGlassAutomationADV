@@ -1,7 +1,17 @@
 # ProGlass Automation — License Generator
 
-A developer-only **WPF** tool that issues signed ProGlass
+A **vendor-only** WPF tool that issues signed ProGlass
 Automation license files. **Never** shipped to customers.
+
+End users do NOT use this tool, and never need to.
+The 30-day **trial** is auto-issued by the app itself on
+first launch (self-signed with an embedded key), and a
+**paid** license is a `.lic` file the vendor signs here and
+sends over; the customer just drops it in
+`%AppData%\ProGlassAutomation\license.lic` (or pastes it) in
+Settings → License. Only the *vendor/developer* runs this
+tool, to generate the key pair once and to sign customer
+licenses.
 
 ## What it does
 

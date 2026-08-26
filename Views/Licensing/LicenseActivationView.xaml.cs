@@ -212,30 +212,44 @@ namespace ProGlassAutomation.Views.Licensing
             // Headline + subhead are tweaked per status so
             // the user is not asked to "activate" when the
             // problem is actually an expired trial.
+            //
+            // 2026-08-26: the trial duration is read from the ACTUAL
+            // payload (TrialExpiresAt - IssuedAt), never hardcoded. This
+            // is the fix for "it shows a 7-day trial when it is a 30-day
+            // trial" — whatever the issuer issued is exactly what shows.
+            int trialTotal = current.Payload?.TotalDays ?? 0;
+            int trialRemaining = TrialDaysRemaining(current.Payload);
+            string trialSummary = TrialSummaryText(trialTotal, trialRemaining);
+
             switch (current.Status)
             {
                 case LicenseStatus.Trial:
-                    HeadlineText.Text = "ProGlass is on a 7-day trial";
+                    HeadlineText.Text = "ProGlass is on a " + (trialTotal > 0 ? trialTotal : 30) + "-day trial";
                     SubheadText.Text =
                         "The trial unlocks every module. " +
+                        (trialSummary.Length > 0
+                            ? trialSummary + ". "
+                            : "") +
                         "Activate a full license before the trial " +
                         "ends to keep using the app.";
                     break;
                 case LicenseStatus.TrialExpired:
                     HeadlineText.Text = "Trial expired";
                     SubheadText.Text =
-                        "The 7-day trial has ended and the trial " +
-                        "license was removed from this machine. " +
-                        "Activate a full license below to continue.";
+                        "The " + (trialTotal > 0 ? trialTotal : 30) +
+                        "-day trial has ended. All your data is " +
+                        "preserved. Activate a full license below to " +
+                        "continue.";
                     break;
                 case LicenseStatus.NotActivated:
                     HeadlineText.Text = "Activate ProGlass Automation";
                     SubheadText.Text =
                         "Paste a license key from your vendor, or " +
-                        "drop a .lic file. A 7-day trial is " +
-                        "automatically issued on first launch; if " +
-                        "you do not see one, ask your vendor for a " +
-                        "key.";
+                        "drop a .lic file. A " +
+                        (LicenseService.AutoTrialDays) +
+                        "-day trial is automatically issued on first " +
+                        "launch; if you do not see one, ask your vendor " +
+                        "for a key.";
                     break;
                 case LicenseStatus.Invalid:
                 case LicenseStatus.MachineMismatch:
@@ -280,7 +294,7 @@ namespace ProGlassAutomation.Views.Licensing
                     ExpiresValue.Text =
                         p.TrialExpiresAt.ToLocalTime()
                             .ToString("yyyy-MM-dd HH:mm")
-                        + "  (auto-trial, " + p.TrialSource + ")";
+                        + "  (end of auto-trial)";
                 }
                 else
                 {
@@ -292,9 +306,12 @@ namespace ProGlassAutomation.Views.Licensing
                 LicenseIdValue.Text = string.IsNullOrEmpty(p.LicenseId)
                     ? "(none)"
                     : p.LicenseId;
+                // Keep the source label user-friendly. "auto-7d" is a
+                // legacy disk marker, not a duration; the LicenseGenerator
+                // is a vendor-only tool — neither belongs in the UI.
                 SourceValue.Text = string.IsNullOrEmpty(p.TrialSource)
-                    ? "Customer-issued (LicenseGenerator)"
-                    : "Auto-issued trial (" + p.TrialSource + ")";
+                    ? "Full license"
+                    : "Auto-issued trial (" + p.TotalDays + " days)";
                 LicenseDetailsGrid.Visibility = Visibility.Visible;
             }
             else
@@ -451,6 +468,37 @@ namespace ProGlassAutomation.Views.Licensing
 
             try { Activated?.Invoke(this, EventArgs.Empty); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] TryInstallFromFile: host should still close: " + ex.Message); }
+        }
+
+        /// <summary>
+        /// Days remaining until the payload's authoritative expiry, never
+        /// throwing. Uses <see cref="LicensePayload.EffectiveExpiresAt"/> so
+        /// a trial reports its real balance from TrialExpiresAt.
+        /// </summary>
+        private static int TrialDaysRemaining(LicensePayload? payload)
+        {
+            if (payload == null) return 0;
+            try
+            {
+                return Math.Max(0,
+                    (int)Math.Floor(
+                        (payload.EffectiveExpiresAt - DateTime.UtcNow).TotalDays));
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>
+        /// Human summary for a running trial, e.g. "29 of 30 days remaining".
+        /// Empty when there is nothing useful to say.
+        /// </summary>
+        private static string TrialSummaryText(int totalDays, int remainingDays)
+        {
+            if (remainingDays <= 0) return "";
+            int total = totalDays > 0 ? totalDays : LicenseService.AutoTrialDays;
+            return remainingDays + " of " + total + " days remaining";
         }
 
         private void ShowError(string message)

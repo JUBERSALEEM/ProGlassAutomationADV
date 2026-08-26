@@ -107,6 +107,36 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
+        public void VM_trial_days_come_from_payload_TrialExpiresAt_not_hardcoded()
+        {
+            // Regression (2026-08-26): the UI used to hardcode "7-day
+            // trial" for the headline even though the auto-trial is 30
+            // days. The duration/balance now derive from the payload's
+            // TrialExpiresAt - IssuedAt, so whatever was issued is what
+            // is shown. Simulate a 30-day auto-trial issued yesterday.
+            var issued = DateTime.UtcNow.AddDays(-1);
+            WriteLicense(new LicensePayload
+            {
+                LicenseId = "TRIAL-30D",
+                Edition = LicenseEdition.Trial,
+                IssuedAt = issued,
+                ExpiresAt = issued.AddDays(30),
+                Features = new[] { "*" },
+                TrialSource = "auto-7d",
+                TrialExpiresAt = issued.AddDays(30)
+            });
+            var vm = LicenseStatusViewModel.Instance;
+            vm.Refresh();
+
+            Assert.True(vm.IsTrial);
+            // 30-day window, ~29 days left (issued a day ago).
+            Assert.Equal(30, vm.TrialTotalDays);
+            Assert.InRange(vm.DaysRemaining, 28, 30);
+            Assert.Contains("of 30 days remaining", vm.TrialStatusText);
+            Assert.Equal("Trial", vm.EditionDisplay);
+        }
+
+        [Fact]
         public void VM_shows_read_only_for_grace_period()
         {
             WriteLicense(new LicensePayload

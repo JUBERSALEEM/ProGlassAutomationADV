@@ -280,6 +280,59 @@ namespace ProGlassAutomation.Services.Licensing
         [JsonPropertyName("trialExpiresAt")]
         public DateTime TrialExpiresAt { get; init; }
 
+        // ── Derived helpers (read-only; never serialised) ────────────
+        //
+        // These let the UI / verifier read the licence's truth from the
+        // payload itself instead of hardcoding "7 days" or "30 days". This
+        // is the fix for the "shows a 7-day trial when it is actually a
+        // 30-day trial" report: the displayed duration and balance now come
+        // from TrialExpiresAt / IssuedAt, so whatever the issuer actually
+        // issued is exactly what the user sees.
+
+        /// <summary>
+        /// True when this payload is a trial (any <c>TrialSource</c>).
+        /// </summary>
+        [JsonIgnore]
+        public bool IsTrial => !string.IsNullOrWhiteSpace(TrialSource);
+
+        /// <summary>
+        /// The authoritative expiry, in UTC. For a trial with a set
+        /// <see cref="TrialExpiresAt"/> that value is used (the strict
+        /// window); otherwise — real licenses and legacy trials with no
+        /// separate window — <see cref="ExpiresAt"/> is used. This is the
+        /// single source the UI should read for the expiry, so it can
+        /// never disagree with what the verifier enforces.
+        /// </summary>
+        [JsonIgnore]
+        public DateTime EffectiveExpiresAt =>
+            IsTrial && TrialExpiresAt != default
+                ? TrialExpiresAt.ToUniversalTime()
+                : ExpiresAt.ToUniversalTime();
+
+        /// <summary>
+        /// The total number of days this licence was issued for (the
+        /// duration window), derived from the payload: the span between
+        /// <see cref="IssuedAt"/> and <see cref="EffectiveExpiresAt"/>.
+        /// Returns 0 when the payload cannot be interpreted (default dates).
+        /// </summary>
+        [JsonIgnore]
+        public int TotalDays
+        {
+            get
+            {
+                try
+                {
+                    DateTime start = IssuedAt == default
+                        ? DateTime.UtcNow
+                        : IssuedAt.ToUniversalTime();
+                    TimeSpan span = EffectiveExpiresAt - start;
+                    int days = (int)Math.Round(span.TotalDays);
+                    return Math.Max(days, 0);
+                }
+                catch { return 0; }
+            }
+        }
+
         /// <summary>
         /// Canonical JSON of this payload, with keys sorted
         /// alphabetically and no insignificant whitespace. This is

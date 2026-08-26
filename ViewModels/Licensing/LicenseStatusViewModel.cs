@@ -55,6 +55,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
         private string _issuedDisplay = "—";
         private string _expiresDisplay = "—";
         private int _daysRemaining;
+        private int _trialTotalDays;
         private bool _isValid;
         private bool _isTrial;
         private bool _isExpired;
@@ -190,7 +191,12 @@ namespace ProGlassAutomation.ViewModels.Licensing
                     ? "—"
                     : string.Join(", ", p.Features);
                 _notesDisplay = p.Notes ?? "";
-                _daysRemaining = SafeDaysRemaining(p.ExpiresAt);
+                // Read the expiry from the payload's own authoritative
+                // value (TrialExpiresAt for trials, ExpiresAt otherwise),
+                // never from a hardcoded "7-day" / "30-day" string — that
+                // is the fix for "shows 7 days when it's a 30-day trial".
+                _daysRemaining = SafeDaysRemaining(p.EffectiveExpiresAt);
+                _trialTotalDays = p.TotalDays;
             }
 
             // 2026-08-25 senior fix: the fingerprint was computed HERE,
@@ -220,6 +226,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
             OnPropertyChanged(nameof(ExpiresDisplay));
             OnPropertyChanged(nameof(DaysRemaining));
             OnPropertyChanged(nameof(DaysRemainingDisplay));
+            OnPropertyChanged(nameof(TrialTotalDays));
+            OnPropertyChanged(nameof(TrialStatusText));
             OnPropertyChanged(nameof(IsValid));
             OnPropertyChanged(nameof(IsTrial));
             OnPropertyChanged(nameof(IsExpired));
@@ -290,6 +298,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public string IssuedDisplay => _issuedDisplay;
         public string ExpiresDisplay => _expiresDisplay;
         public int DaysRemaining => _daysRemaining;
+        /// <summary>Total trial duration in days (read from the payload).</summary>
+        public int TrialTotalDays => _trialTotalDays;
         public bool IsValid => _isValid;
         public bool IsTrial => _isTrial;
         public bool IsExpired => _isExpired;
@@ -316,6 +326,24 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 if (DaysRemaining <= 0) return "today";
                 if (DaysRemaining == 1) return "1 day";
                 return DaysRemaining + " days";
+            }
+        }
+
+        /// <summary>
+        /// Human string for a trial that states the REAL balance read from
+        /// the payload, e.g. "29 of 30 days remaining". Empty when not a
+        /// trial. Replaces the old hardcoded "7-day trial" text.
+        /// </summary>
+        public string TrialStatusText
+        {
+            get
+            {
+                if (!IsTrial) return "";
+                int total = _trialTotalDays > 0
+                    ? _trialTotalDays
+                    : ProGlassAutomation.Services.Licensing.LicenseService.AutoTrialDays;
+                if (_daysRemaining <= 0) return "trial ending today";
+                return _daysRemaining + " of " + total + " days remaining";
             }
         }
 
