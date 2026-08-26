@@ -12,6 +12,14 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         BothHeightSide,
         BothWidthSide,
         AllSidePolishAsPerDwg,
+        BothHeightSideAsPerDwg,
+        BothWidthSideAsPerDwg,
+        BothHeightOneWidth,
+        BothHeightOneWidthAsPerDwg,
+        OneHeightOneWidth,
+        OneHeightOneWidthAsPerDwg,
+        OneHeightSide,
+        OneWidthSide,
         Custom
     }
 

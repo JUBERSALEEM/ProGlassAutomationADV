@@ -26,6 +26,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>True for DGU, LAM, DGU+LAM.</summary>
         public bool IsDoubleGlass { get; set; }
 
+        /// <summary>1 = SGU, 2 = DGU/LAM, 3 = DGU+LAM hybrid.</summary>
+        public int PaneFactor { get; set; } = 1;
+
         // ── Live metric snapshot (updated by parent SpecTargetSelection) ──
 
         public decimal Lm1 { get; set; }

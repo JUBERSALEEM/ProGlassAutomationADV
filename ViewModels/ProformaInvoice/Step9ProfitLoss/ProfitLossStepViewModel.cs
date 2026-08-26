@@ -103,6 +103,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private SguParametersViewModel? _sguVm;
         private LamParametersViewModel? _lamVm;   // PHASE J
         private DguLamParametersViewModel? _dguLamVm;   // DGU+LAM hybrid
+        private OtherChargesViewModel? _otherChargesVm;
         private Func<decimal>? _grossProvider;
 
         // Spec-name grammar lives in PnLSpecParser — one definition for
@@ -442,13 +443,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SguParametersViewModel? sguVm,
             Func<decimal>? grossProvider,
             LamParametersViewModel? lamVm = null,
-            DguLamParametersViewModel? dguLamVm = null)
+            DguLamParametersViewModel? dguLamVm = null,
+            OtherChargesViewModel? otherChargesVm = null)
         {
             _dataGrid = dataGrid;
             _dguVm = dguVm;
             _sguVm = sguVm;
             _lamVm = lamVm;
             _dguLamVm = dguLamVm;
+            _otherChargesVm = otherChargesVm;
             _grossProvider = grossProvider;
 
             WireLiveRecalculation();
@@ -724,7 +727,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     //  It shows BOTH a spacer and an interlayer, which is the
                     //  only build that does. The outer/inner assumption below
                     //  costed just two of its three sheets and silently threw
-                    //  a whole pane of glass away, so panes are now taken
+                    //  a  of glass away, so panes are now taken
                     //  from the spec itself rather than assumed.
                     // ══════════════════════════════════════════════════════
                     bool isDguLam = spacerDetected && pvbDetected;
@@ -1726,4 +1729,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return snap;
         }
     }
+}
+}
+    }
+}
 }

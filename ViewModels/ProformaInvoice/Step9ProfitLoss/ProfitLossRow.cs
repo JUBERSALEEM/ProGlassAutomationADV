@@ -126,6 +126,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SheetSqm = SheetSqm,
             Quantity = Quantity,
             PricePerSqm = PricePerSqm,
+            UnitLabel = UnitLabel ?? "SQM",
             Amount = Amount,
             SheetSource = SheetSource ?? "",
             SpecName = SpecName ?? ""
