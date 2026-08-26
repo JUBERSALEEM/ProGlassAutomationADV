@@ -154,6 +154,29 @@ The tool uses its own minimal dark theme (`Theme.xaml`)
 because `pack://application:,,,/Themes/...` URIs only
 resolve inside the owning assembly.
 
+## How it stays self-contained (and builds from the CLI)
+
+The tool does **not** reference the main app project. To
+keep the shared licensing source compiling without dragging
+in the whole EF Core / ClosedXML / NAudio / Whisper graph:
+
+* `System.Management` (WMI) is referenced directly as a
+  NuGet package — `MachineFingerprint.cs` is shared verbatim
+  and needs it. It also brings `Microsoft.Win32.Registry`
+  transitively, which `ReadMachineGuid` uses.
+* `AppLogService` is provided by a tiny self-contained
+  stand-in (`AppLogServiceStub.cs`) in the tool's own
+  namespace. It has the same method signatures as the app's
+  logger but writes to its own log file under
+  `%AppData%\ProGlassAutomation\logs\` and never throws. The
+  real `AppLogService` still ships with the app — the stub is
+  compiled **only** into this project, so the shared licensing
+  files stay byte-for-byte identical on both sides.
+
+You can build the tool entirely from a command prompt
+(no Visual Studio required) with the single `dotnet build`
+command below.
+
 ## Build
 
 From the repo root:

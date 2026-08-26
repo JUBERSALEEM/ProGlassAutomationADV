@@ -305,7 +305,7 @@ namespace ProGlassAutomation.Services.Licensing
                 using var results = searcher.Get();
                 foreach (ManagementObject mo in results)
                 {
-                    var value = mo[property]?.Value as string;
+                    var value = mo[property] as string;
                     if (IsValidSerial(value))
                         return value!.Trim().ToUpperInvariant();
                 }

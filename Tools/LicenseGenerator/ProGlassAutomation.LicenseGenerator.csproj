@@ -63,4 +63,16 @@
              Link="Shared\MachineFingerprint.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!--
+      MachineFingerprint.cs (shared with the app) uses WMI
+      (System.Management). The app pulls it in as a NuGet
+      package; the tool must reference it explicitly because
+      it has NO ProjectReference to the main project.
+      System.Management 8.0.0 also brings Microsoft.Win32.Registry
+      transitively, which ReadMachineGuid needs.
+    -->
+    <PackageReference Include="System.Management" Version="8.0.0" />
+  </ItemGroup>
+
 </Project>
