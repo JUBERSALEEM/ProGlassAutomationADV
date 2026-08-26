@@ -29,6 +29,8 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using Microsoft.Extensions.DependencyInjection;
+using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
@@ -95,6 +97,11 @@ namespace ProGlassAutomation.Services.DependencyInjection
             services.AddSingleton<IReportingDataService, ReportingDataService>();
             services.AddSingleton<IDashboardMetricsService, DashboardMetricsService>();
             services.AddSingleton<IDashboardFilterService, DashboardFilterService>();
+            // TiDashboardViewModel (registered below) needs this; without
+            // the registration MS.DI throws InvalidOperationException when
+            // the dashboard is resolved.
+            services.AddSingleton<Services.Dashboard.TaxInvoiceMetrics.ITaxInvoiceMetricsService,
+                Services.Dashboard.TaxInvoiceMetrics.TaxInvoiceMetricsService>();
 
             // ── Workflow — Multi-DB Coordinator (Phase 2) ─────────────
             // DocumentOperationCoordinator is a static facade (CS0718 —
@@ -200,6 +207,22 @@ namespace ProGlassAutomation.Services.DependencyInjection
             // ── Agent (Phase 5: lazy, singleton) ──────────────────────
             // AgentHost is a static facade (CS0718 — not registrable).
             // Consumed directly.
+            //
+            // The AI / voice services are App.Ai / App.SpeechToText /
+            // App.TextToSpeech — runtime-initialised statics, NOT normally
+            // DI services. But AiChatViewModel (registered below) has a
+            // constructor that takes these interfaces, so MS.DI throws
+            // InvalidOperationException ("Unable to resolve service for
+            // IAiService...") unless they are registered. Register them as
+            // singletons whose factory reads the App static at resolve time
+            // (App sets them before MainViewModel/App chat is constructed in
+            // StartupCoreAsync, so they are non-null by then). They may be
+            // null in edge cases (no AI configured / no STT/TTS); the
+            // factory returns null and AiChatViewModel tolerates it.
+            services.AddSingleton<IAiService>(_ => global::ProGlassAutomation.App.Ai);
+            services.AddSingleton<ISpeechToTextService>(_ => global::ProGlassAutomation.App.SpeechToText);
+            services.AddSingleton<ITextToSpeechService>(_ => global::ProGlassAutomation.App.TextToSpeech);
+
             services.AddTransient<Agent.UI.AgentChatViewModel>();
             services.AddTransient<Agent.UI.AgentSettingsViewModel>();
             services.AddTransient<ViewModels.AI.AiChatViewModel>();
