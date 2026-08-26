@@ -154,6 +154,14 @@ The tool uses its own minimal dark theme (`Theme.xaml`)
 because `pack://application:,,,/Themes/...` URIs only
 resolve inside the owning assembly.
 
+Like the main app, the tool shares these licensing source
+files verbatim via `<Compile Include>` (they all compile
+in both projects without a `ProjectReference`):
+`LicensePayload.cs`, `LicenseSigner.cs`, `LicensePublicKey.cs`,
+`MachineFingerprint.cs`, and `TrialKeyVault.cs` (`TrialKeyVault`
+is referenced by `LicensePublicKey.cs` — without it the tool
+fails to compile with CS0103).
+
 ## How it stays self-contained (and builds from the CLI)
 
 The tool does **not** reference the main app project. To

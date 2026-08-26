@@ -61,6 +61,16 @@
              Link="Shared\LicensePublicKey.cs" />
     <Compile Include="..\..\Services\Licensing\MachineFingerprint.cs"
              Link="Shared\MachineFingerprint.cs" />
+    <!--
+      LicensePublicKey.cs references TrialKeyVault (the obfuscated trial
+      private-key shards). Without this file the tool fails to compile
+      with CS0103 ('TrialKeyVault' does not exist in the current context).
+      TrialKeyVault is self-contained (System / System.Text /
+      System.Threading only) and internal, so sharing it into the tool's
+      assembly is safe — it does not drag in any main-app-only dependency.
+    -->
+    <Compile Include="..\..\Services\Licensing\TrialKeyVault.cs"
+             Link="Shared\TrialKeyVault.cs" />
   </ItemGroup>
 
   <ItemGroup>
