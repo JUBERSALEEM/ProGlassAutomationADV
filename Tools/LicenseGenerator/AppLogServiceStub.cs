@@ -113,7 +113,7 @@ namespace ProGlassAutomation.Services.Logging
                 lock (_lock)
                     File.AppendAllText(LogFilePath, line + Environment.NewLine);
             }
-            catch (System.Exception ex)
+            catch (System.Exception ioEx)
             {
                 // Logging must never break the tool. Record the failure so
                 // it is not a silent catch (the dev tool's own logger).
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.Services.Logging
                 {
                     System.Diagnostics.Debug.WriteLine(
                         "[LicenseGenerator] AppLogServiceStub write failed: " +
-                        ex.Message);
+                        ioEx.Message);
                 }
                 catch { _ = true; /* Debug.WriteLine is best-effort */ }
             }
