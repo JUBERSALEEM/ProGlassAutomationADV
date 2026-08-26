@@ -3,41 +3,28 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Developer-only tool — WPF main window code-behind
 //
-// Code-behind for MainWindow.xaml. Every click handler is
-// a thin shim that builds an IssueRequest (or modifies
-// UI state) and calls the UI-free service in
-// LicenseGeneratorCore. The window holds no business
-// logic — the service is the single source of truth.
+// Code-behind for MainWindow.xaml. Thin shims over the UI-free
+// LicenseGeneratorCore. The tool's only job: generate a signing key
+// once, and produce a copy/paste license KEY the vendor sends to the
+// customer. The customer pastes it into Settings → License and it
+// activates instantly — no file, no path.
 //
 // WORKFLOW
-//   1. Window opens; on Loaded, LoadOrCreateKeyStore runs.
-//      If no key pair exists, the user is prompted to
-//      generate one (the button is also visible and
-//      always clickable, so this is just a hint).
-//   2. The Public-key card shows the current public key
-//      with copy + reveal + open-folder actions.
-//   3. The Sign-a-license card has a form. The user fills
-//      it in and clicks SIGN LICENSE & SAVE. A SaveFileDialog
-//      lets them pick the exact path; otherwise the
-//      default %USERPROFILE%\Documents\ProGlassAutomation\
-//      Licenses\<company>-<date>.lic is used.
-//   4. Every action updates the status bar at the bottom
-//      with a one-line result + a timestamp.
-//
-// NEVER THROWS
-//   Click handlers never let an exception escape. A
-//   failing operation shows a MessageBox and the status
-//   bar turns red. The App.xaml.cs
-//   DispatcherUnhandledException is the last line of
-//   defence for the truly unexpected.
+//   1. GENERATE KEY PAIR   — creates the RSA-2048 key pair (private
+//      key stored on this machine, never shared).
+//   2. INSTALL PUBLIC KEY INTO APP — stamps the public half into
+//      Services/Licensing/LicensePublicKey.cs so the app verifies
+//      keys produced by this tool. Do once, rebuild the app.
+//   3. For each customer: edition, days, features, optional hardware
+//      binding. Click GENERATE LICENSE KEY → the key string appears.
+//      COPY KEY sends it. Save-as-.lic is optional.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;          // ComboBox, TextBox, Expander
+using System.Windows.Controls;
 using Microsoft.Win32;
 using ProGlassAutomation.Services.Licensing;
 
@@ -48,11 +35,8 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
     /// </summary>
     public partial class MainWindow : Window
     {
-        // The single in-memory key store. The file
-        // version is the source of truth; this is a
-        // cached copy that survives the window's
-        // lifetime.
         private LicenseGeneratorCore.KeyStore? _keys;
+        private string? _lastKey;
 
         public MainWindow()
         {
@@ -67,62 +51,49 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
             try
             {
                 _keys = LicenseGeneratorCore.LoadOrCreateKeyStore(out bool wasCreated);
+                RefreshKeyUi();
                 if (wasCreated)
                 {
                     SetStatus(
-                        "A new key pair was generated. " +
-                        "Click REVEAL FULL XML below and paste the " +
-                        "public key into Services/Licensing/LicensePublicKey.cs.",
-                        StatusKind.Success);
+                        "New key pair created. Click INSTALL PUBLIC KEY INTO APP, " +
+                        "then rebuild the app so it verifies keys from this tool.",
+                        StatusKind.Info);
                 }
                 else
                 {
-                    SetStatus("Key pair loaded from " +
-                              LicenseGeneratorCore.KeysFilePath,
-                              StatusKind.Info);
+                    SetStatus("Signing key loaded. Ready to generate license keys.",
+                        StatusKind.Info);
                 }
-                RefreshKeyUi();
-                UpdateDefaultOutputPath();
             }
             catch (Exception ex)
             {
-                SetStatus("Could not load or create the key store: " + ex.Message,
+                SetStatus("Could not load the signing key: " + ex.Message,
                           StatusKind.Error);
             }
         }
 
-        // ── Key pair card ───────────────────────────────────────
+        // ── Key pair ────────────────────────────────────────────
 
-        private void GenerateKeyButton_Click(object sender, RoutedEventArgs e)
+        private void GenerateKeyPairButton_Click(object sender, RoutedEventArgs e)
         {
             var confirm = MessageBox.Show(
-                "Generate a brand-new RSA-2048 key pair?\n\n" +
-                "The old private key (if any) will be REPLACED. " +
-                "Any license signed with the old key will stop " +
-                "working as soon as the main app is rebuilt with " +
-                "the new public key. Existing licenses keep " +
-                "working on old builds.\n\n" +
-                "Backup the file at:\n" +
+                "Generate a new RSA-2048 signing key pair?\n\n" +
+                "The old private key (if any) is REPLACED. Any license signed " +
+                "with the old key stops working once the app is rebuilt with " +
+                "the new public key.\n\nBack up the key at:\n" +
                 LicenseGeneratorCore.KeysFilePath,
-                "Generate new key pair",
+                "Generate key pair",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning,
                 MessageBoxResult.No);
-
             if (confirm != MessageBoxResult.Yes) return;
 
             try
             {
                 _keys = LicenseGeneratorCore.LoadOrCreateKeyStore(out bool wasCreated);
-                // wasCreated is true iff no previous file
-                // existed; if a file did exist, this code
-                // path is reached after the user confirmed
-                // overwrite — but LoadOrCreateKeyStore does
-                // not overwrite. Do it explicitly here.
                 if (!wasCreated)
                 {
-                    (string publicXml, string privateXml) =
-                        LicenseSigner.GenerateKeyPair();
+                    (string publicXml, string privateXml) = LicenseSigner.GenerateKeyPair();
                     _keys = new LicenseGeneratorCore.KeyStore
                     {
                         PublicKeyXml = publicXml,
@@ -131,35 +102,21 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
                     };
                     LicenseGeneratorCore.SaveKeyStore(_keys);
                 }
-
                 RefreshKeyUi();
-                SetStatus(
-                    "New key pair generated and saved. " +
-                    "Reveal the public key below and paste it into " +
-                    "Services/Licensing/LicensePublicKey.cs, " +
-                    "then rebuild the main app.",
-                    StatusKind.Success);
+                SetStatus("New key pair generated. Install the public key into " +
+                          "the app, then rebuild.", StatusKind.Success);
             }
             catch (Exception ex)
             {
-                SetStatus("Key generation failed: " + ex.Message,
-                          StatusKind.Error);
+                SetStatus("Key generation failed: " + ex.Message, StatusKind.Error);
             }
         }
 
-        /// <summary>
-        /// Writes the current public key straight into
-        /// <c>Services/Licensing/LicensePublicKey.cs</c> so the embedded
-        /// public key ALWAYS matches the private key this tool signs with.
-        /// This is the one-click cure for
-        /// "Activation failed: signature does not match the payload."
-        /// </summary>
-        private void WritePublicKeyButton_Click(object sender, RoutedEventArgs e)
+        private void InstallPublicKeyButton_Click(object sender, RoutedEventArgs e)
         {
             if (_keys == null)
             {
-                SetStatus("No key pair. Click GENERATE NEW KEY PAIR first.",
-                          StatusKind.Error);
+                SetStatus("Generate a key pair first.", StatusKind.Error);
                 return;
             }
 
@@ -168,36 +125,142 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
             if (!ok)
             {
                 SetStatus(error, StatusKind.Error);
-                MessageBox.Show(this, error, "Write public key",
+                MessageBox.Show(this, error, "Install public key",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            SetStatus(
-                "✓ Public key written to " +
-                "Services/Licensing/LicensePublicKey.cs. " +
-                "Rebuild the main app so the new key is embedded.",
-                StatusKind.Success);
+            SetStatus("Public key written to Services/Licensing/LicensePublicKey.cs. " +
+                      "Rebuild the app.", StatusKind.Success);
             MessageBox.Show(
-                "Public key written to:\n\n" +
+                "Public key installed into:\n\n" +
                 "  Services/Licensing/LicensePublicKey.cs\n\n" +
-                "It now matches the private key this tool signs with.\n" +
-                "\n" +
-                "Rebuild the main app, then sign a license and drop it " +
-                "into %AppData%\\ProGlassAutomation\\license.lic. " +
-                "Every license signed here will be accepted.",
+                "It now matches the private key this tool signs with.\n\n" +
+                "Rebuild the main app. Every key generated here will be accepted.",
                 "Public key installed",
                 MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void CopyPublicKeyButton_Click(object sender, RoutedEventArgs e)
+        // ── Generate license key ────────────────────────────────
+
+        private void BindToHardware_Changed(object sender, RoutedEventArgs e)
         {
-            if (_keys == null) return;
+            HardwareRow.Visibility = BindToHardware.IsChecked == true
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+            if (BindToHardware.IsChecked == true && string.IsNullOrWhiteSpace(FingerprintBox.Text))
+            {
+                try
+                {
+                    FingerprintBox.Text = LicenseGeneratorCore.CurrentFingerprint();
+                }
+                catch (System.Exception hwEx)
+                {
+                    // Best-effort: leave the field blank and let the user
+                    // type a hardware ID from the customer's About page.
+                    ProGlassAutomation.Services.Logging.AppLogService.Debug(
+                        "[LicenseGenerator] Auto-fill hardware ID failed: " +
+                        hwEx.Message);
+                }
+            }
+        }
+
+        private void UseThisPcButton_Click(object sender, RoutedEventArgs e)
+        {
             try
             {
-                Clipboard.SetText(
-                    LicenseGeneratorCore.FormatPublicKeyForApp(_keys.PublicKeyXml));
-                SetStatus("Public key copied to clipboard.", StatusKind.Success);
+                string fp = LicenseGeneratorCore.CurrentFingerprint();
+                FingerprintBox.Text = fp;
+                SetStatus("Filled hardware ID from this PC: " + fp, StatusKind.Info);
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Could not read this PC's hardware ID: " + ex.Message,
+                          StatusKind.Error);
+            }
+        }
+
+        private void GenerateLicenseKeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (_keys == null)
+            {
+                SetStatus("Generate a key pair first.", StatusKind.Error);
+                return;
+            }
+
+            // KEY-MATCH GUARD: only generate if the signing key matches the
+            // app's embedded public key — otherwise the app rejects it.
+            if (!LicenseGeneratorCore.PublicKeyMatchesApp(_keys.PublicKeyXml))
+            {
+                string genFp = LicenseGeneratorCore.PublicKeyFingerprint(_keys.PublicKeyXml);
+                string appFp = LicenseGeneratorCore.PublicKeyFingerprint(
+                    ProGlassAutomation.Services.Licensing.LicensePublicKey.PublicKeyXml);
+                string msg =
+                    "The signing key does not match the public key embedded in the app.\n\n" +
+                    "Signing key : " + genFp + "\n" +
+                    "App key     : " + appFp + "\n\n" +
+                    "Keys generated now will be REJECTED by the app.\n\n" +
+                    "Click INSTALL PUBLIC KEY INTO APP (top card), rebuild the app, " +
+                    "then generate again.";
+                SetStatus(msg, StatusKind.Error);
+                MessageBox.Show(this, msg, "Signing key mismatch",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                var request = new LicenseGeneratorCore.IssueRequest
+                {
+                    Edition = ParseEdition(EditionCombo),
+                    CustomerId = CustomerIdBox.Text ?? "",
+                    CompanyName = CompanyNameBox.Text ?? "",
+                    DaysValid = ParseInt(DaysBox.Text, 365, 1, 3650, "Valid days"),
+                    MaxActivations = 1,
+                    Features = FeaturesBox.Text?.Split(
+                        new[] { '\n', ',' },
+                        StringSplitOptions.RemoveEmptyEntries)
+                        ?? Array.Empty<string>(),
+                    MachineFingerprint = BindToHardware.IsChecked == true
+                        ? (string.IsNullOrWhiteSpace(FingerprintBox.Text)
+                            ? LicenseGeneratorCore.CurrentFingerprint()
+                            : FingerprintBox.Text.Trim())
+                        : null,
+                    Notes = ""
+                };
+
+                string key = LicenseGeneratorCore.GenerateKey(request, _keys.PrivateKeyXml);
+                _lastKey = key;
+                KeyOutputBox.Text = LicenseGeneratorCore.FormatKey(key);
+                OutputCard.Visibility = Visibility.Visible;
+
+                SetStatus(
+                    "Key generated for " +
+                    (string.IsNullOrWhiteSpace(request.CompanyName)
+                        ? request.CustomerId
+                        : request.CompanyName) +
+                    ". Copy and send it to the customer.", StatusKind.Success);
+            }
+            catch (Exception ex)
+            {
+                SetStatus("Key generation failed: " + ex.Message, StatusKind.Error);
+                MessageBox.Show(this, ex.Message, "Generate key",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void CopyKeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_lastKey))
+            {
+                SetStatus("No key generated yet.", StatusKind.Warning);
+                return;
+            }
+            try
+            {
+                // Copy the raw (un-grouped) key so paste is always clean.
+                Clipboard.SetText(LicenseGeneratorCore.UnformatKey(_lastKey));
+                SetStatus("License key copied to clipboard.", StatusKind.Success);
             }
             catch (Exception ex)
             {
@@ -205,288 +268,87 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
             }
         }
 
-        private void RevealPublicKeyButton_Click(object sender, RoutedEventArgs e)
+        private void SaveKeyFileButton_Click(object sender, RoutedEventArgs e)
         {
-            if (_keys == null) return;
-            // The expander's IsExpanded is the source of
-            // truth. The reveal button is a convenience
-            // that opens it AND scrolls the public-key
-            // text into view.
-            PublicKeyExpander.IsExpanded = true;
-            PublicKeyTextBox.Focus();
-            PublicKeyTextBox.SelectAll();
-            // Bring the expander into view. The parent
-            // ScrollViewer handles the rest.
-            PublicKeyExpander.BringIntoView();
-        }
-
-        private void OpenKeysFolderButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
+            if (string.IsNullOrEmpty(_lastKey))
             {
-                string folder = Path.GetDirectoryName(
-                    LicenseGeneratorCore.KeysFilePath)!;
-                Directory.CreateDirectory(folder);
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = folder,
-                    UseShellExecute = true
-                });
-                SetStatus("Opened keys folder: " + folder, StatusKind.Info);
+                SetStatus("No key generated yet.", StatusKind.Warning);
+                return;
             }
-            catch (Exception ex)
-            {
-                SetStatus("Could not open keys folder: " + ex.Message,
-                          StatusKind.Error);
-            }
-        }
 
-        // ── Sign-a-license card ─────────────────────────────────
-
-        private void UseThisMachineButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                string fp = LicenseGeneratorCore.CurrentFingerprint();
-                FingerprintBox.Text = fp;
-                SetStatus("Filled fingerprint from this machine: " + fp,
-                          StatusKind.Info);
-            }
-            catch (Exception ex)
-            {
-                SetStatus("Could not read fingerprint: " + ex.Message,
-                          StatusKind.Error);
-            }
-        }
-
-        private void BrowseOutputButton_Click(object sender, RoutedEventArgs e)
-        {
-            string defaultName = "License.lic";
+            string defaultName = "license.lic";
             if (!string.IsNullOrWhiteSpace(CompanyNameBox.Text))
                 defaultName = SanitiseFileName(CompanyNameBox.Text) + ".lic";
 
             var dialog = new SaveFileDialog
             {
-                Title = "Save signed license as…",
+                Title = "Save license key as a .lic file",
                 Filter = "License files (*.lic)|*.lic|All files (*.*)|*.*",
                 DefaultExt = ".lic",
                 FileName = defaultName,
-                InitialDirectory = LicenseGeneratorCore.DefaultOutputFolder,
                 OverwritePrompt = true,
                 AddExtension = true
             };
-            if (!Directory.Exists(dialog.InitialDirectory))
-            {
-                Directory.CreateDirectory(dialog.InitialDirectory);
-            }
             if (dialog.ShowDialog(this) == true)
             {
-                OutputPathBox.Text = dialog.FileName;
-                SetStatus("Output path set to " + dialog.FileName,
-                          StatusKind.Info);
-            }
-        }
-
-        private void SignButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (_keys == null)
-            {
-                SetStatus("No signing key. Generate one first.",
-                          StatusKind.Error);
-                return;
-            }
-
-            // KEY-MATCH GUARD (2026-08-26): this is the direct cause of the
-            // "Activation failed: signature does not match the payload"
-            // reports. The app only accepts licenses signed by the private
-            // key whose public half is embedded in
-            // Services/Licensing/LicensePublicKey.cs. If this tool's signing
-            // key does not match that embedded key, every license produced
-            // here is guaranteed to fail on the app. Detect it up front and
-            // tell the vendor exactly what to do instead of issuing a file
-            // that cannot work.
-            if (!LicenseGeneratorCore.PublicKeyMatchesApp(_keys.PublicKeyXml))
-            {
-                string genFp = LicenseGeneratorCore.PublicKeyFingerprint(_keys.PublicKeyXml);
-                string appFp = LicenseGeneratorCore.PublicKeyFingerprint(
-                    ProGlassAutomation.Services.Licensing.LicensePublicKey.PublicKeyXml);
-                string msg =
-                    "The signing key does NOT match the public key embedded " +
-                    "in the app.\n\n" +
-                    "Signing key fingerprint : " + genFp + "\n" +
-                    "App embedded key        : " + appFp + "\n\n" +
-                    "Every license signed now will be REJECTED by the app " +
-                    "(\"signature does not match\").\n\n" +
-                    "Click WRITE PUBLIC KEY INTO APP (top card), then rebuild " +
-                    "the main app, then sign again.";
-                SetStatus(msg, StatusKind.Error);
-                MessageBox.Show(this, msg, "Signing key mismatch",
-                    MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            var request = new LicenseGeneratorCore.IssueRequest
-            {
-                Edition = ParseEdition(EditionCombo),
-                CustomerId = CustomerIdBox.Text ?? "",
-                CompanyName = CompanyNameBox.Text ?? "",
-                DaysValid = ParseInt(DaysBox.Text, defaultValue: 365,
-                    min: 1, max: 365 * 10, fieldName: "Days valid"),
-                MaxActivations = ParseInt(MaxActivationsBox.Text,
-                    defaultValue: 1, min: 1, max: 1000,
-                    fieldName: "Max activations"),
-                Features = FeaturesBox.Text?.Split(
-                    new[] { '\n', ',' },
-                    StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>(),
-                MachineFingerprint = string.IsNullOrWhiteSpace(FingerprintBox.Text)
-                    ? null
-                    : FingerprintBox.Text.Trim(),
-                Notes = NotesBox.Text ?? ""
-            };
-
-            // Default the output path if the user did not
-            // click BROWSE.
-            string outputPath = string.IsNullOrWhiteSpace(OutputPathBox.Text)
-                ? null!
-                : OutputPathBox.Text;
-
-            try
-            {
-                var result = LicenseGeneratorCore.IssueLicense(
-                    request, _keys.PrivateKeyXml, outputPath);
-
-                if (!result.Success)
+                try
                 {
-                    SetStatus(result.Message, StatusKind.Error);
-                    MessageBox.Show(this, result.Message, "Sign failed",
-                        MessageBoxButton.OK, MessageBoxImage.Warning);
-                    return;
+                    // The .lic file IS the decoded JSON envelope (the app's
+                    // file path also accepts it). Write raw key JSON.
+                    byte[] bytes = Convert.FromBase64String(
+                        LicenseGeneratorCore.UnformatKey(_lastKey));
+                    File.WriteAllText(dialog.FileName,
+                        System.Text.Encoding.UTF8.GetString(bytes));
+                    SetStatus("Saved to " + dialog.FileName, StatusKind.Success);
                 }
-
-                OutputPathBox.Text = result.OutputPath;
-                SetStatus(
-                    "✓ Signed. LicenseId=" + result.Payload!.LicenseId +
-                    " • " + Path.GetFileName(result.OutputPath),
-                    StatusKind.Success);
-                RevealIssuedPayload(result);
-            }
-            catch (Exception ex)
-            {
-                SetStatus("Sign failed: " + ex.Message, StatusKind.Error);
-                MessageBox.Show(this, ex.ToString(), "Sign crashed",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                catch (Exception ex)
+                {
+                    SetStatus("Save failed: " + ex.Message, StatusKind.Error);
+                }
             }
         }
 
-        private void ResetFormButton_Click(object sender, RoutedEventArgs e)
-        {
-            EditionCombo.SelectedIndex = 2; // Business
-            CustomerIdBox.Text = "CUST-2026-001";
-            CompanyNameBox.Text = "Acme Glass LLC";
-            DaysBox.Text = "365";
-            MaxActivationsBox.Text = "1";
-            FeaturesBox.Text = "Inquiry.*, Proforma.*, JobOrder.*, " +
-                               "DeliveryNote.*, TaxInvoice.*, Statement.*, " +
-                               "MasterData.*, SheetStore.*";
-            FingerprintBox.Text = "";
-            NotesBox.Text = "";
-            UpdateDefaultOutputPath();
-            SetStatus("Form reset.", StatusKind.Info);
-        }
-
-        // ── UI plumbing ────────────────────────────────────────
+        // ── UI plumbing ─────────────────────────────────────────
 
         private void RefreshKeyUi()
         {
             if (_keys == null)
             {
-                KeyStatusText.Text = "No key pair found.";
+                KeyStatusText.Text = "No signing key.";
                 KeyStatusDetail.Text =
-                    "Click GENERATE to create a fresh RSA-2048 key pair. " +
-                    "The private key is saved to " +
-                    LicenseGeneratorCore.KeysFilePath + ".";
-                PublicKeyTextBox.Text = "";
+                    "Click GENERATE KEY PAIR to create one. The private key is " +
+                    "stored on this machine only.";
+                KeyPairInfo.Visibility = Visibility.Collapsed;
                 return;
             }
 
-            KeyStatusText.Text = "Key pair ready.";
+            KeyStatusText.Text = "Signing key ready.";
             KeyStatusDetail.Text =
                 "Created " + _keys.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm") +
-                "  •  private key at " + LicenseGeneratorCore.KeysFilePath +
-                "  •  public key length: " + _keys.PublicKeyXml.Length + " chars";
-
-            // Compact preview in the text box. The full
-            // XML is in the keys file; the user can copy
-            // it via COPY TO CLIPBOARD.
-            string xml = _keys.PublicKeyXml;
-            if (xml.Length > 600)
-            {
-                xml = xml.Substring(0, 600) + "\n…(truncated; click COPY TO CLIPBOARD for the full string)";
-            }
-            PublicKeyTextBox.Text = xml;
-        }
-
-        private void UpdateDefaultOutputPath()
-        {
-            string company = string.IsNullOrWhiteSpace(CompanyNameBox.Text)
-                ? "(unnamed)" : CompanyNameBox.Text.Trim();
-            string fileName = SanitiseFileName(company) + "-" +
-                              DateTime.UtcNow.ToString("yyyy-MM-dd") + ".lic";
-            OutputPathBox.Text = Path.Combine(
-                LicenseGeneratorCore.DefaultOutputFolder, fileName);
-        }
-
-        private void RevealIssuedPayload(LicenseGeneratorCore.IssueResult result)
-        {
-            // Open Explorer with the produced .lic
-            // selected, so the developer can verify
-            // the file landed in the right place.
-            try
-            {
-                Process.Start(new ProcessStartInfo
-                {
-                    FileName = "explorer.exe",
-                    Arguments = $"/select,\"{result.OutputPath}\"",
-                    UseShellExecute = true
-                });
-            }
-            catch (System.Exception ex)
-            {
-                // Non-fatal: the status bar already tells
-                // the user where the file is.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseGenerator] Explorer reveal failed: " + ex.Message);
-            }
+                " · private key kept on this machine.";
+            KeyFingerprintText.Text =
+                "Key fingerprint: " + LicenseGeneratorCore.PublicKeyFingerprint(_keys.PublicKeyXml);
+            KeyPairInfo.Visibility = Visibility.Visible;
         }
 
         // ── Status bar ──────────────────────────────────────────
 
-        private enum StatusKind { Info, Success, Error }
+        private enum StatusKind { Info, Success, Error, Warning }
 
         private void SetStatus(string message, StatusKind kind)
         {
             StatusText.Text = message;
-            // FindResource returns the brush instance itself
-            // (the resource is declared as SolidColorBrush,
-            // not as a raw Color), so we cast to SolidColorBrush
-            // and reuse the existing instance. Creating a new
-            // SolidColorBrush from .Color would also work but
-            // is wasteful and loses the frozen state.
             string brushKey = kind switch
             {
                 StatusKind.Success => "SuccessBrush",
                 StatusKind.Error => "DangerBrush",
+                StatusKind.Warning => "WarningBrush",
                 _ => "TextDimBrush"
             };
             if (FindResource(brushKey) is System.Windows.Media.Brush brush)
-            {
                 StatusText.Foreground = brush;
-            }
             else
-            {
-                // Defensive: never let a status-bar update
-                // throw. Fall back to a default brush.
                 StatusText.Foreground = System.Windows.Media.Brushes.Gray;
-            }
             StatusTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
         }
 
@@ -494,9 +356,6 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
 
         private static LicenseEdition ParseEdition(ComboBox combo)
         {
-            // The ComboBoxItem.Tag carries the enum name;
-            // falling back to the text content is a
-            // safety net for hand-edited XAML.
             if (combo.SelectedItem is ComboBoxItem item
                 && item.Tag is string tag
                 && Enum.TryParse<LicenseEdition>(tag, out var parsed))
@@ -511,22 +370,16 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
         {
             if (!int.TryParse(text, out int v))
             {
-                MessageBox.Show(
-                    fieldName + " must be a whole number; using " +
-                    defaultValue + ".",
-                    "Invalid input",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                MessageBox.Show(fieldName + " must be a whole number; using " +
+                    defaultValue + ".", "Invalid input",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return defaultValue;
             }
             if (v < min || v > max)
             {
-                MessageBox.Show(
-                    fieldName + " must be between " + min + " and " + max +
-                    "; using " + defaultValue + ".",
-                    "Invalid input",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                MessageBox.Show(fieldName + " must be between " + min + " and " +
+                    max + "; using " + defaultValue + ".", "Invalid input",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
                 return defaultValue;
             }
             return v;

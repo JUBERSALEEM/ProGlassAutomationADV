@@ -28,6 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ProGlassAutomation.Services.Licensing;
@@ -254,6 +255,78 @@ namespace ProGlassAutomation.Tools.LicenseGenerator
         /// <summary>Current machine's fingerprint, hex16.</summary>
         public static string CurrentFingerprint()
             => MachineFingerprint.ComputeCurrent();
+
+        /// <summary>
+        /// Build a signed license and return it as a SINGLE, copy/paste
+        /// license KEY string — the base64 of the signed JSON envelope.
+        /// No file, no path, no browsing. The customer pastes this string
+        /// into the app's Settings → License "Paste a license key" box and
+        /// it activates instantly (the app decodes + verifies the RSA
+        /// signature against the embedded public key).
+        /// </summary>
+        public static string GenerateKey(
+            IssueRequest request, string privateKeyXml)
+        {
+            if (request is null) throw new ArgumentNullException(nameof(request));
+            if (string.IsNullOrWhiteSpace(privateKeyXml))
+                throw new InvalidOperationException(
+                    "No signing key. Generate a key pair first.");
+
+            var payload = new LicensePayload
+            {
+                LicenseId = Guid.NewGuid().ToString(),
+                Edition = request.Edition,
+                CustomerId = string.IsNullOrWhiteSpace(request.CustomerId)
+                    ? "CUST-" + DateTime.UtcNow.ToString("yyyy-MM") + "-001"
+                    : request.CustomerId.Trim(),
+                CompanyName = string.IsNullOrWhiteSpace(request.CompanyName)
+                    ? "(unnamed customer)"
+                    : request.CompanyName.Trim(),
+                IssuedAt = DateTime.UtcNow,
+                ExpiresAt = DateTime.UtcNow.AddDays(request.DaysValid),
+                MaxActivations = request.MaxActivations,
+                Features = NormaliseFeatures(request.Features),
+                MachineFingerprint = string.IsNullOrWhiteSpace(request.MachineFingerprint)
+                    ? null
+                    : request.MachineFingerprint.Trim(),
+                Notes = request.Notes?.Trim() ?? ""
+            };
+
+            // Sign the envelope, then base64 it so the key is a single
+            // compact printable string the vendor can email / WhatsApp.
+            string envelope = LicenseSigner.Sign(payload, privateKeyXml);
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(envelope));
+        }
+
+        /// <summary>
+        /// Groups a base64 key string into 4-char blocks separated by
+        /// spaces so it is easy to read / quote / send. The app strips
+        /// whitespace before decoding, so the grouped form pastes fine.
+        /// </summary>
+        public static string FormatKey(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return "";
+            var trimmed = string.Concat(key.Select(c => !char.IsWhiteSpace(c) ? c : ' '))
+                .Replace(" ", "");
+            var sb = new StringBuilder();
+            for (int i = 0; i < trimmed.Length; i += 4)
+            {
+                if (i > 0) sb.Append(' ');
+                int len = Math.Min(4, trimmed.Length - i);
+                sb.Append(trimmed, i, len);
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Strips grouping whitespace from a pasted key so it can be
+        /// decoded. Accepts the spaced 4-char blocks the generator shows.
+        /// </summary>
+        public static string UnformatKey(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return "";
+            return string.Concat(key.Where(c => !char.IsWhiteSpace(c)));
+        }
 
         /// <summary>
         /// Pretty-print the public-key XML in the form the

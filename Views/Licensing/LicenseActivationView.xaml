@@ -72,9 +72,7 @@
                            TextWrapping="Wrap" FontSize="13"
                            Margin="0,4,0,24"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
-                    <Run Text="Paste a license key from your vendor, or drop a "/>
-                    <Run FontWeight="SemiBold" Text=".lic"/>
-                    <Run Text=" file. The app verifies the signature before it runs."/>
+                    <Run Text="Paste the license key your vendor sent you. The app verifies the signature and activates instantly."/>
                 </TextBlock>
 
                 <!-- Current license card (always shown so the user
@@ -152,7 +150,7 @@
                         <TextBlock TextWrapping="Wrap" FontSize="12"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Paste the full license JSON your vendor sent you (it starts with an open brace and ends with a close brace), or paste a base64-encoded envelope."/>
+                            <Run Text="Paste the single license key your vendor sent you. It is one long string — paste it all and click Apply."/>
                         </TextBlock>
                         <TextBox x:Name="PasteTextBox"
                                  AcceptsReturn="True" AcceptsTab="True"

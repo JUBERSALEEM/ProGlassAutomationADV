@@ -245,21 +245,20 @@ namespace ProGlassAutomation.Views.Licensing
                 case LicenseStatus.NotActivated:
                     HeadlineText.Text = "Activate ProGlass Automation";
                     SubheadText.Text =
-                        "Paste a license key from your vendor, or " +
-                        "drop a .lic file. A " +
+                        "Paste the license key your vendor sent you below " +
+                        "and click Apply — it activates instantly. A " +
                         (LicenseService.AutoTrialDays) +
                         "-day trial is automatically issued on first " +
-                        "launch; if you do not see one, ask your vendor " +
-                        "for a key.";
+                        "launch; if you do not see one, ask your vendor for a key.";
                     break;
                 case LicenseStatus.Invalid:
                 case LicenseStatus.MachineMismatch:
                 case LicenseStatus.Expired:
                     HeadlineText.Text = "License problem";
                     SubheadText.Text =
-                        "The current license is not in a runnable " +
-                        "state. Install a replacement .lic file or " +
-                        "paste a fresh key below.";
+                        "The current license is not runnable. Paste a fresh " +
+                        "license key from your vendor below (or browse a .lic " +
+                        "file) to replace it.";
                     break;
                 case LicenseStatus.ActivationLimit:
                     HeadlineText.Text = "Activation limit reached";
