@@ -228,6 +228,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        private decimal _uInsertPricePerSqm;
+        /// <summary>
+        /// Step 4 seeded U-Insert rate for this spec. Step 5 does not render
+        /// it; Step 6 advanced mode consumes it when the spec carries a
+        /// U-Insert spacer extra.
+        /// </summary>
+        public decimal UInsertPricePerSqm
+        {
+            get => _uInsertPricePerSqm;
+            set
+            {
+                if (_uInsertPricePerSqm == value) return;
+                _uInsertPricePerSqm = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>True when an outer stock sheet was chosen in Step 4.</summary>
         public bool HasOuterSheet =>
             OuterSheetWidthMm > 0 && OuterSheetHeightMm > 0;
@@ -646,6 +663,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             try
             {
+                // A miss is normal (spec from an earlier session). Reset to
+                // zero so Step 9 / Step 6 fall back honestly instead of
+                // inheriting the previous spec's sheet or U-Insert rate.
+                OuterSheetWidthMm = 0;
+                OuterSheetHeightMm = 0;
+                InnerSheetWidthMm = 0;
+                InnerSheetHeightMm = 0;
+                UInsertPricePerSqm = 0m;
+
                 var selection = ProGlassAutomation.Services.ProformaInvoice
                     .SpecSheetRegistry.TryGet(specName);
 

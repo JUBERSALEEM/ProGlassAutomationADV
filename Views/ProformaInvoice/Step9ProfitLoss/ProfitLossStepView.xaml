@@ -229,7 +229,7 @@
                                                     Padding="0,6">
                                                 <Grid>
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="120"/>
                                                         <ColumnDefinition Width="*" MinWidth="180"/>
                                                         <ColumnDefinition Width="190"/>
                                                         <ColumnDefinition Width="60"/>

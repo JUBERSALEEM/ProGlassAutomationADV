@@ -392,7 +392,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                                     OuterWidthMm = DguVM.OuterSheetWidthMm,
                                     OuterHeightMm = DguVM.OuterSheetHeightMm,
                                     InnerWidthMm = DguVM.InnerSheetWidthMm,
-                                    InnerHeightMm = DguVM.InnerSheetHeightMm
+                                    InnerHeightMm = DguVM.InnerSheetHeightMm,
+                                    UInsertPricePerSqm = DguVM.HasUInsertExtra
+                                        ? DguVM.UInsertPricePerSqm
+                                        : 0m
                                 });
                         break;
 

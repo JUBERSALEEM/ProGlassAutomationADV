@@ -106,11 +106,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             $"× {Quantity:0.##}";
 
         /// <summary>
-        /// e.g. "46.00 / SQM". Every row is now per SQM, including the ASP
-        /// spacer: Step 4 defines the spacer rate per SQM, so costing it per
-        /// linear metre was a unit mismatch that tripled the figure.
+        /// e.g. "46.00 / SQM" or "15.00 / QTY" depending on the row.
         /// </summary>
-        public string PriceDisplay => $"{PricePerSqm:N2} / SQM";
+        public string PriceDisplay => $"{PricePerSqm:N2} / {UnitLabel}";
 
         /// <summary>e.g. "1,328.94".</summary>
         public string AmountDisplay => $"{Amount:N2}";

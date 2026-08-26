@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ViewModels/ProformaInvoice/Step4PricingEstimator/DguParameters/         ║
 // ║    DguParametersViewModel.cs                                             ║
 // ║                                                                          ║
@@ -141,7 +141,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 _spacerExtra = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnPropertyChanged(nameof(HasUInsertExtra));
             }
+        }
+
+        /// <summary>
+        /// True when the selected spacer extra requires a U-Insert price box.
+        /// </summary>
+        public bool HasUInsertExtra =>
+            !string.IsNullOrWhiteSpace(SpacerExtra)
+            && SpacerExtra.IndexOf("U-Insert", System.StringComparison.OrdinalIgnoreCase) >= 0;
+
+        private decimal _uInsertPricePerSqm = 10m;
+        /// <summary>
+        /// Additional U-Insert charge per SQM. Step 4 seeds this value and
+        /// Step 6 advanced mode consumes it for the auto-enabled U-Insert row.
+        /// It is NOT silently folded into the base DGU rate to avoid double
+        /// charging once Step 6 applies the separate fabrication line.
+        /// </summary>
+        public decimal UInsertPricePerSqm
+        {
+            get => _uInsertPricePerSqm;
+            set { _uInsertPricePerSqm = value; OnPropertyChanged(); }
         }
 
         /// <summary>

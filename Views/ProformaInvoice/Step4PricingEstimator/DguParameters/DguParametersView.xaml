@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -102,7 +102,9 @@
                         </Grid>
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/><ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel>
                                 <TextBlock Text="EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
@@ -111,6 +113,22 @@
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="PANEL EXTRA" Style="{StaticResource ModuleFieldLabelStyle}"/>
                                 <ComboBox ItemsSource="{Binding PanelExtraOptions}" SelectedItem="{Binding PanelExtra}" Style="{StaticResource Step4ComboStyle}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="4">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasUInsertExtra}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <TextBlock Text="U-INSERT / SQM" Style="{StaticResource ModuleFieldLabelStyle}"/>
+                                <TextBox Text="{Binding UInsertPricePerSqm, StringFormat={}{0:0.##}}"
+                                         Style="{StaticResource Step4InputStyle}"
+                                         ToolTip="Separate fabrication charge per SQM, forwarded to Step 6 Advanced mode."/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>

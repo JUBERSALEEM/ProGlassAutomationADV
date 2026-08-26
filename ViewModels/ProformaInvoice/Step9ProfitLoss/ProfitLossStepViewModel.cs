@@ -1191,7 +1191,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
                 $"glass costed at {CostBasisLabel} · " +
                 $"SGU glass = required SQM + {WastagePercent:0.#}% wastage, cutting and tempering separate · " +
-                $"active Step 6 charges are included as cost lines · " +
+                $"active Step 6 predefined/custom charges are included as cost lines · " +
+                $"Step 6 wastage rows are excluded until optimization/utilization is implemented · " +
                 $"multi-pane builds still round to whole sheets · VAT stripped at 5%.";
 
             return skipped > 0
@@ -1208,8 +1209,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             foreach (var charge in _otherChargesVm.ChargeRows.Where(r => r.IsActive))
                 AppendPredefinedChargeRows(rows, ref productionCost, charge);
 
-            foreach (var wastage in _otherChargesVm.WastagesSection.WastageRows.Where(r => r.IsActive))
-                AppendWastageRows(rows, ref productionCost, wastage);
+            // Wastage rows remain OUTSIDE Step 9 for now. Without sheet
+            // optimization / utilization logic the business does not want
+            // wastage guessed into profit yet.
 
             foreach (var custom in _otherChargesVm.CustomChargesSection.AddedCharges.Where(r => r.IsActive))
                 AppendInvoiceWideCharge(rows, ref productionCost,
@@ -1245,44 +1247,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (qty <= 0m) continue;
 
                 decimal amount = Math.Round(qty * charge.Rate, 2);
+                string kind = BuildChargeKind(charge.ChargeName);
                 rows.Add(new ProfitLossRow
                 {
-                    Kind = "Production",
+                    Kind = kind,
                     SpecNumber = spec.SpecGroupNumber,
                     SpecName = FindSpecName(spec.SpecGroupNumber),
                     Description = PnLMeasurement.BuildRowDescription(
                         FindSpecGroup(spec.SpecGroupNumber),
-                        charge.ChargeName,
+                        kind,
                         $"{qty:0.###} {charge.Unit.ToString().ToUpperInvariant()}"),
                     Quantity = Math.Round(qty, 3),
                     PricePerSqm = charge.Rate,
                     UnitLabel = charge.Unit.ToString().ToUpperInvariant(),
-                    Amount = amount
-                });
-                productionCost += amount;
-            }
-        }
-
-        private void AppendWastageRows(
-            List<ProfitLossRow> rows,
-            ref decimal productionCost,
-            Models.ProformaInvoice.Step6OtherCharges.Wastages.WastageRow wastage)
-        {
-            foreach (var src in wastage.AvailableSources.Where(s => s.IsChecked && s.SqmValue > 0m))
-            {
-                decimal qty = Math.Round(src.SqmValue, 3);
-                decimal amount = Math.Round(qty * wastage.Rate, 2);
-                rows.Add(new ProfitLossRow
-                {
-                    Kind = "Production",
-                    SpecNumber = src.SpecNumber,
-                    SpecName = FindSpecName(src.SpecNumber),
-                    Description = PnLMeasurement.BuildRowDescription(
-                        FindSpecGroup(src.SpecNumber),
-                        string.IsNullOrWhiteSpace(wastage.ColorName) ? "Wastage" : wastage.ColorName,
-                        $"{src.SideLabel} · {qty:0.###} SQM"),
-                    Quantity = qty,
-                    PricePerSqm = wastage.Rate,
                     Amount = amount
                 });
                 productionCost += amount;
@@ -1300,12 +1277,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             if (qty <= 0m || rate <= 0m) return;
 
             decimal amount = Math.Round(qty * rate, 2);
+            string kind = BuildChargeKind(label);
             rows.Add(new ProfitLossRow
             {
-                Kind = "Production",
+                Kind = kind,
                 SpecNumber = 0,
                 SpecName = "Invoice-wide other charges",
-                Description = $"{label} · {qty:0.###} {unit}",
+                Description = $"{kind} · {qty:0.###} {unit}",
                 Quantity = Math.Round(qty, 3),
                 PricePerSqm = rate,
                 UnitLabel = unit,
@@ -1354,6 +1332,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 new List<SpecGroupSnapshot> { snapshot },
                 charge.SelectedPolishSubType.Type.ToString(),
                 matchedSameGlassOnly: charge.IsMatchedLamPolishRow);
+        }
+
+        private static string BuildChargeKind(string? label)
+        {
+            string text = (label ?? "Charge").Trim();
+            int unitAt = text.IndexOf(" (", StringComparison.Ordinal);
+            if (unitAt > 0)
+                text = text[..unitAt].Trim();
+            return string.IsNullOrWhiteSpace(text) ? "Charge" : text;
         }
 
         private SpecGroup? FindSpecGroup(int specNumber) =>

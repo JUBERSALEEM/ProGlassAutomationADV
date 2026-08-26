@@ -305,6 +305,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                             SpecGroupNumber = specMetric.SpecGroupNumber,
                             DisplayName = specMetric.SpecDisplayName,
                             IsDoubleGlass = specMetric.IsDoubleGlass,
+                            PaneFactor = specMetric.PaneFactor,
                             Lm1 = specMetric.Lm1,
                             Lm2 = specMetric.Lm2,
                             Sqm1 = specMetric.Sqm1,
@@ -413,6 +414,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                             row.SelectedPolishSubType = subType;
                     }
 
+                    if (TryResolveAutoRate(row.TemplateKey, desired.Specs, out decimal autoRate))
+                        row.Rate = autoRate;
+
                     row.IsActive = desired.Specs.Count > 0;
                 }
 
@@ -424,6 +428,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             {
                 _isApplyingAdvancedAutomation = false;
             }
+        }
+
+        private bool TryResolveAutoRate(
+            string templateKey,
+            HashSet<int> specNumbers,
+            out decimal rate)
+        {
+            rate = 0m;
+            if (specNumbers == null || specNumbers.Count == 0)
+                return false;
+
+            // Right now only U-Insert has an explicit Step 4 rate field.
+            // Other auto-mapped charges continue to use their Step 6 row rate
+            // (template default or user-edited override).
+            if (!string.Equals(templateKey, "U_INSERT", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            foreach (var group in _dataGridVM.SpecGroups)
+            {
+                if (!specNumbers.Contains(group.GroupNumber)) continue;
+                if (group.UInsertPricePerSqm <= 0m) continue;
+                rate = group.UInsertPricePerSqm;
+                return true;
+            }
+
+            return false;
         }
 
         // ── Hub property changed → sync ─────────────────────────────────

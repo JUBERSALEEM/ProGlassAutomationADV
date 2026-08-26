@@ -45,6 +45,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         public int InnerWidthMm { get; init; }
         public int InnerHeightMm { get; init; }
 
+        /// <summary>
+        /// Optional Step 4 seeded U-Insert rate for DGU builds. Lives in the
+        /// same per-spec handoff as the sheet selection because Step 5 / Step 6
+        /// need it later in the same session, but it is still an invoice-side
+        /// choice rather than part of the portable spec library.
+        /// </summary>
+        public decimal UInsertPricePerSqm { get; init; }
+
         public bool HasOuter => OuterWidthMm > 0 && OuterHeightMm > 0;
         public bool HasInner => InnerWidthMm > 0 && InnerHeightMm > 0;
     }

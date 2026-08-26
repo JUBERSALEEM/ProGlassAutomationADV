@@ -282,7 +282,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterSheetWidthMm = group.OuterSheetWidthMm,
                     OuterSheetHeightMm = group.OuterSheetHeightMm,
                     InnerSheetWidthMm = group.InnerSheetWidthMm,
-                    InnerSheetHeightMm = group.InnerSheetHeightMm
+                    InnerSheetHeightMm = group.InnerSheetHeightMm,
+                    UInsertPricePerSqm = group.UInsertPricePerSqm
                 };
 
                 foreach (var row in group.ItemRows)
@@ -554,7 +555,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterSheetWidthMm = gSnap.OuterSheetWidthMm,
                     OuterSheetHeightMm = gSnap.OuterSheetHeightMm,
                     InnerSheetWidthMm = gSnap.InnerSheetWidthMm,
-                    InnerSheetHeightMm = gSnap.InnerSheetHeightMm
+                    InnerSheetHeightMm = gSnap.InnerSheetHeightMm,
+                    UInsertPricePerSqm = gSnap.UInsertPricePerSqm
                 };
 
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)

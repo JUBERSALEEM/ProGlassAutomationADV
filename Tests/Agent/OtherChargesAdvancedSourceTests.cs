@@ -42,7 +42,26 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Step6VM", pi);
             Assert.Contains("Step9VM.Bind(", pi);
             Assert.Contains("AppendStep6Costs", pnl);
-            Assert.Contains("active Step 6 charges are included as cost lines", pnl);
+            Assert.Contains("active Step 6 predefined/custom charges are included as cost lines", pnl);
+            Assert.Contains("wastage rows are excluded", pnl);
+            Assert.DoesNotContain("_otherChargesVm.WastagesSection.WastageRows", pnl);
+        }
+
+        [Fact]
+        public void Dgu_view_and_handoff_expose_u_insert_price()
+        {
+            var root = LocateProjectRoot();
+            var dguView = File.ReadAllText(Path.Combine(root,
+                "Views/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersView.xaml"));
+            var dguVm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/DguParameters/DguParametersViewModel.cs"));
+            var pricing = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+
+            Assert.Contains("HasUInsertExtra", dguView);
+            Assert.Contains("U-INSERT / SQM", dguView);
+            Assert.Contains("UInsertPricePerSqm", dguVm);
+            Assert.Contains("UInsertPricePerSqm", pricing);
         }
 
         private static string LocateProjectRoot()
