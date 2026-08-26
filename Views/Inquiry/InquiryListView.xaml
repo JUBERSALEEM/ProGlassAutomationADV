@@ -595,15 +595,23 @@
                             <DataTemplate>
                                 <Border Style="{StaticResource ModuleListRowStyle}"
                                         Cursor="Hand"
+                                        Tag="{Binding DataContext, ElementName=Root}"
                                         MouseLeftButtonUp="OnRowClick">
-                                    <!-- Right-click row context menu. Bound to the
-                                         row's DataContext (an InquiryListRow) and
-                                         resolves commands via the UserControl
-                                         DataContext (the InquiryListViewModel) so
-                                         every command works on the right-clicked
-                                         row, not just the rail's selection. -->
+                                    <!-- Right-click row context menu.
+
+                                         Senior fix: ContextMenu lives in a Popup,
+                                         outside the normal visual tree, so it does
+                                         NOT reliably see ElementName=Root command
+                                         bindings. We therefore bind the menu's
+                                         DataContext to its PlacementTarget row and
+                                         stash the InquiryListViewModel on the row
+                                         Border.Tag. Every command below resolves
+                                         through PlacementTarget.Tag, which is the
+                                         real VM instance, while CommandParameter
+                                         stays the right-clicked row. -->
                                     <Border.ContextMenu>
-                                        <ContextMenu Style="{DynamicResource ModernContextMenuStyle}">
+                                        <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
+                                                     DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                                             <!-- Edit / Convert / Change status — the
                                                  three primary table actions. Edit
                                                  opens the inquiry editor; Convert
@@ -612,11 +620,11 @@
                                                  gated by the workflow state machine. -->
                                             <MenuItem Header="Edit inquiry…"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.EditInquiryRowCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.EditInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
                                             <MenuItem Header="Convert to Proforma Invoice"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.ConvertToPiRowCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.ConvertToPiRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"
                                                       IsEnabled="{Binding CanConvert}"/>
                                             <MenuItem Header="Change status"
@@ -624,46 +632,46 @@
                                                 <MenuItem Header="Prepare"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanPrepareWorkflow}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.PrepareRowCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.PrepareRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Send"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanSendWorkflow}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.SendRowCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.SendRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Confirm"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanConfirmWorkflow}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.ConfirmRowCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.ConfirmRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Hold"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanHoldWorkflow}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.HoldRowCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.HoldRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Cancel inquiry"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
                                                           IsEnabled="{Binding CanCancelWorkflow}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.CancelRowCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.CancelRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                             </MenuItem>
                                             <MenuItem Header="Change priority"
                                                       Style="{DynamicResource ModernMenuItemStyle}">
                                                 <MenuItem Header="Urgent"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.SetUrgentPriorityCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.SetUrgentPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="High"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.SetHighPriorityCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.SetHighPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Normal"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.SetNormalPriorityCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.SetNormalPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                                 <MenuItem Header="Low"
                                                           Style="{DynamicResource ModernMenuItemStyle}"
-                                                          Command="{Binding ElementName=Root, Path=DataContext.SetLowPriorityCommand}"
+                                                          Command="{Binding PlacementTarget.Tag.SetLowPriorityCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                             </MenuItem>
                                             <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
@@ -675,26 +683,26 @@
                                                  permission check. -->
                                             <MenuItem Header="Duplicate inquiry"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.DuplicateInquiryRowCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.DuplicateInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
                                             <MenuItem Header="Delete inquiry"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       Foreground="{DynamicResource DangerBrush}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.DeleteInquiryRowCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.DeleteInquiryRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                       CommandParameter="{Binding}"/>
                                             <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                             <MenuItem Header="Copy inquiry number"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.CopyInquiryNumberCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.CopyInquiryNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                             <MenuItem Header="Copy summary"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.CopySummaryCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.CopySummaryCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                             <MenuItem Header="Open attachments folder"
                                                       Style="{DynamicResource ModernMenuItemStyle}"
                                                       IsEnabled="{Binding HasAttachments}"
-                                                      Command="{Binding ElementName=Root, Path=DataContext.OpenAttachmentsFolderCommand}"
+                                                      Command="{Binding PlacementTarget.Tag.OpenAttachmentsFolderCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                           CommandParameter="{Binding}"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
@@ -932,21 +940,21 @@
                                 <!-- Right-click context menu on the PI stage. -->
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding SelectedInquiry}">
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Open Proforma Invoice"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasProforma}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenProformaForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenProformaForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <MenuItem Header="Copy PI number"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasProforma}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.CopyProformaNumberCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyProformaNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                         <MenuItem Header="View inquiry workspace"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
@@ -1010,21 +1018,21 @@
                                 </Grid>
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding SelectedInquiry}">
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Open Job Order"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasJobOrder}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenJobOrderForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenJobOrderForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <MenuItem Header="Copy JO number"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasJobOrder}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.CopyJobOrderNumberCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyJobOrderNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                         <MenuItem Header="View inquiry workspace"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
@@ -1088,21 +1096,21 @@
                                 </Grid>
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding SelectedInquiry}">
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Open Delivery Note"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenDeliveryNoteForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenDeliveryNoteForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <MenuItem Header="Copy DN number"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasDeliveryNote}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.CopyDeliveryNoteNumberCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyDeliveryNoteNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                         <MenuItem Header="View inquiry workspace"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
@@ -1166,21 +1174,21 @@
                                 </Grid>
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding SelectedInquiry}">
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Open Tax Invoice"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenTaxInvoiceForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenTaxInvoiceForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <MenuItem Header="Copy TI number"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasTaxInvoice}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.CopyTaxInvoiceNumberCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.CopyTaxInvoiceNumberCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                         <MenuItem Header="View inquiry workspace"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
@@ -1232,20 +1240,20 @@
                                 </Grid>
                                 <Border.ContextMenu>
                                     <ContextMenu Style="{DynamicResource ModernContextMenuStyle}"
-                                                 DataContext="{Binding SelectedInquiry}">
+                                                 DataContext="{Binding PlacementTarget.DataContext.SelectedInquiry, RelativeSource={RelativeSource Self}}">
                                         <MenuItem Header="Open Statement"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
                                                   IsEnabled="{Binding Lifecycle.HasStatement}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenStatementForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <MenuItem Header="Open statement module"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenStatementForRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenStatementForRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                         <Separator Style="{DynamicResource ModernMenuSeparatorStyle}"/>
                                         <MenuItem Header="View inquiry workspace"
                                                   Style="{DynamicResource ModernMenuItemStyle}"
-                                                  Command="{Binding ElementName=Root, Path=DataContext.OpenWorkspaceRowCommand}"
+                                                  Command="{Binding PlacementTarget.DataContext.OpenWorkspaceRowCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                   CommandParameter="{Binding}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>
