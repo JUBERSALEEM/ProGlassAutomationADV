@@ -100,6 +100,9 @@ public static class LicenseCrypto
             using var rsa = RSA.Create();
             rsa.FromXmlString(publicKeyXml);
             var p = rsa.ExportParameters(false);
+            if (p.Modulus is null || p.Modulus.Length == 0)
+                return "UNKNOWN";
+
             var hash = SHA256.HashData(p.Modulus);
             var hex = new System.Text.StringBuilder(16);
             for (int i = 0; i < 8; i++) hex.Append(hash[i].ToString("x2"));

@@ -123,10 +123,18 @@ public static class LicenseService
             if (!string.IsNullOrWhiteSpace(outputPath))
                 LicenseWriter.WriteFile(signed, outputPath);
 
+            var selfCheckJson = !string.IsNullOrWhiteSpace(outputPath) && File.Exists(outputPath)
+                ? File.ReadAllText(outputPath)
+                : LicenseWriter.ToJson(signed);
+
             var selfCheck = VerifyAndValidate(
-                LicenseWriter.ToJson(signed),
+                selfCheckJson,
                 appVersion: "1.0.0",
                 utcNow: DateTime.UtcNow,
+                trustedPublicKeys: new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    [signed.Signature.KeyId] = PrivateKeyToPublic(privateKeyXml)
+                },
                 productId: ProductIds.ProGlassAutomation);
 
             if (!selfCheck.IsValid)

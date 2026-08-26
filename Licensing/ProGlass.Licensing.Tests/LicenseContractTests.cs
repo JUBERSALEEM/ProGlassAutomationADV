@@ -213,10 +213,17 @@ public sealed class LicenseContractTests
         Assert.True(result.Success);
         var signed = new SignedLicense { LicenseFormatVersion = 1, Document = result.Document, Signature = new SignatureEnvelope { Algorithm = LicenseCrypto.Algorithm, KeyId = keyId, Value = ReSign(result.Document, priv) } };
 
-        // A different trusted-key set that does NOT include the signing key.
-        var (_, otherPub) = LicenseCrypto.GenerateKeyPair();
+        // A different trusted-key ring that does NOT include the signing key.
+        // Use more than one key so the verifier cannot fall back to a single
+        // configured key when the keyId is missing from the ring.
+        var (otherPub1, _) = LicenseCrypto.GenerateKeyPair();
+        var (otherPub2, _) = LicenseCrypto.GenerateKeyPair();
         var verify = LicenseService.VerifyAndValidate(LicenseWriter.ToJson(signed), AppVersion, DateTime.UtcNow,
-            new Dictionary<string, string> { ["other-key"] = otherPub });
+            new Dictionary<string, string>
+            {
+                ["other-key-1"] = otherPub1,
+                ["other-key-2"] = otherPub2
+            });
         Assert.False(verify.IsValid);
         Assert.Equal(LicenseErrorCode.UnknownKey, verify.ErrorCode);
     }

@@ -150,7 +150,7 @@ public static class LicenseGeneratorCore
         IReadOnlyDictionary<string, string> trustedKeys, string? fingerprint = null)
     {
         return LicenseService.VerifyAndValidate(licenseJson, appVersion, DateTime.UtcNow,
-            trustedKeys, fingerprint: fingerprint, currentDeviceCount: 1);
+            trustedKeys, currentFingerprint: fingerprint, currentDeviceCount: 1);
     }
 
     // ── Generator history (authority is the license, not this file) ───
