@@ -8,6 +8,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         public int SpecNumber { get; set; }
         public string SpecName { get; set; } = "";
         public string SideLabel { get; set; } = ""; // "Outer (W1/H1)" or "Inner (W2/H2)"
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+        public decimal PricePerSqm { get; set; }
 
         private decimal _sqmValue;
         public decimal SqmValue

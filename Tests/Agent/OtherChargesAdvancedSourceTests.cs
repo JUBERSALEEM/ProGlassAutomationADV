@@ -58,12 +58,27 @@ namespace ProGlassAutomation.Tests.Agent
                 "Models/ProformaInvoice/Step6OtherCharges/Wastages/WastageRow.cs"));
 
             Assert.Contains("UseOptimizationFormula", wastageView);
-            Assert.Contains("FormulaPricePerSqm", wastageView);
-            Assert.Contains("OptimizationPercent", wastageView);
+            Assert.Contains("FormulaPricePerSqmText", wastageView);
+            Assert.Contains("OptimizationPercentText", wastageView);
+            Assert.Contains("SelectedSheetWidthText", wastageView);
+            Assert.Contains("SelectedSheetHeightText", wastageView);
             Assert.Contains("WASTAGE SETUP", wastageView);
             Assert.Contains("SetupToggle", wastageView);
+            Assert.Contains("SelectedSourcePricePerSqm", wastageRow);
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
+        }
+
+
+        [Fact]
+        public void Wastage_advanced_refresh_does_not_force_rows_on()
+        {
+            var root = LocateProjectRoot();
+            var wastageVm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
+
+            Assert.Contains("IsActive = previousRow?.IsActive ?? false", wastageVm);
+            Assert.DoesNotContain("IsActive = true,", wastageVm);
         }
 
         [Fact]

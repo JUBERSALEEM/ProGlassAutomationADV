@@ -20,6 +20,7 @@ namespace ProGlassAutomation.Tests.Agent
                 SpecNumber = 1,
                 SideLabel = "Outer (W1/H1)",
                 SqmValue = 10m,
+                PricePerSqm = 40m,
                 IsChecked = true
             });
 
@@ -43,6 +44,7 @@ namespace ProGlassAutomation.Tests.Agent
                 SpecNumber = 1,
                 SideLabel = "Outer (W1/H1)",
                 SqmValue = 3m,
+                PricePerSqm = 40m,
                 IsChecked = true
             });
 
@@ -67,6 +69,7 @@ namespace ProGlassAutomation.Tests.Agent
                 SpecNumber = 1,
                 SideLabel = "Outer (W1/H1)",
                 SqmValue = 2m,
+                PricePerSqm = 40m,
                 IsChecked = true
             });
 
@@ -76,6 +79,38 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Equal(22m, row.Rate);
             Assert.Equal(44m, row.ResultAmount);
+        }
+
+        [Fact]
+        public void Optimization_percent_text_accepts_decimal_input()
+        {
+            var row = new WastageRow();
+
+            row.OptimizationPercentText = "15.60";
+
+            Assert.Equal(15.60m, row.OptimizationPercent);
+        }
+
+        [Fact]
+        public void Selected_source_auto_fills_sheet_price_and_size()
+        {
+            var row = new WastageRow();
+
+            row.AvailableSources.Add(new SpecGroupColorSide
+            {
+                SpecNumber = 1,
+                SideLabel = "Outer (W1/H1)",
+                SqmValue = 5m,
+                PricePerSqm = 48m,
+                SheetWidthMm = 3210,
+                SheetHeightMm = 2250,
+                IsChecked = true
+            });
+
+            Assert.Equal(48m, row.FormulaPricePerSqm);
+            Assert.Equal("3210", row.SelectedSheetWidthText);
+            Assert.Equal("2250", row.SelectedSheetHeightText);
+            Assert.Equal(5m, row.ChargeableSqm);
         }
     }
 }

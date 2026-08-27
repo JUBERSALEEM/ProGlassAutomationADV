@@ -240,7 +240,8 @@
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,0,10"/>
-                                                    <Grid>
+
+                                                    <Grid Margin="0,0,0,10">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
@@ -255,6 +256,40 @@
                                                                       HorizontalAlignment="Left"
                                                                       VerticalAlignment="Center"
                                                                       AutomationProperties.Name="Optimization wastage formula"/>
+                                                    </Grid>
+
+                                                    <Grid Margin="0,0,0,10">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="10"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="10"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="SHEET WIDTH"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding SelectedSheetWidthText, Mode=OneWay}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     IsReadOnly="True"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="SHEET HEIGHT"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding SelectedSheetHeightText, Mode=OneWay}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     IsReadOnly="True"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="4">
+                                                            <TextBlock Text="SHEET / SQM PRICE"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding FormulaPricePerSqmText, Mode=OneWay}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     IsReadOnly="True"/>
+                                                        </StackPanel>
                                                     </Grid>
 
                                                     <Grid Margin="0,10,0,0">
@@ -272,35 +307,22 @@
                                                             <ColumnDefinition Width="*"/>
                                                             <ColumnDefinition Width="10"/>
                                                             <ColumnDefinition Width="*"/>
-                                                            <ColumnDefinition Width="10"/>
-                                                            <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
                                                         <StackPanel>
-                                                            <TextBlock Text="PRICE / SQM"
+                                                            <TextBlock Text="OPT %"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
-                                                            <TextBox Text="{Binding FormulaPricePerSqm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
+                                                            <TextBox Text="{Binding OptimizationPercentText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                                      Style="{StaticResource RowInputStyle}"
                                                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
                                                         </StackPanel>
                                                         <StackPanel Grid.Column="2">
-                                                            <TextBlock Text="OPT %"
-                                                                       Style="{StaticResource PiFieldLabelStyle}"
-                                                                       Margin="0,0,0,2"/>
-                                                            <TextBox Text="{Binding OptimizationPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
-                                                                     Style="{StaticResource RowInputStyle}"
-                                                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
-                                                        </StackPanel>
-                                                        <StackPanel Grid.Column="4">
                                                             <TextBlock Text="CHARGEABLE SQM"
                                                                        Style="{StaticResource PiFieldLabelStyle}"
                                                                        Margin="0,0,0,2"/>
-                                                            <TextBlock Text="{Binding ChargeableSqm, StringFormat={}{0:0.000}}"
-                                                                       FontSize="12"
-                                                                       FontWeight="Bold"
-                                                                       Foreground="{DynamicResource AccentBrush}"
-                                                                       VerticalAlignment="Center"
-                                                                       Margin="8,5,0,0"/>
+                                                            <TextBox Text="{Binding ChargeableSqm, StringFormat={}{0:0.000}, Mode=OneWay}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     IsReadOnly="True"/>
                                                         </StackPanel>
                                                     </Grid>
 

@@ -387,6 +387,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterSheetHeightMm = group.OuterSheetHeightMm,
                     InnerSheetWidthMm = group.InnerSheetWidthMm,
                     InnerSheetHeightMm = group.InnerSheetHeightMm,
+                    OuterSheetPricePerSqm = group.OuterSheetPricePerSqm,
+                    InnerSheetPricePerSqm = group.InnerSheetPricePerSqm,
                     UInsertPricePerSqm = group.UInsertPricePerSqm
                 };
 
@@ -665,6 +667,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                             OuterHeightMm = gSnap.OuterSheetHeightMm,
                             InnerWidthMm = gSnap.InnerSheetWidthMm,
                             InnerHeightMm = gSnap.InnerSheetHeightMm,
+                            OuterPricePerSqm = gSnap.OuterSheetPricePerSqm,
+                            InnerPricePerSqm = gSnap.InnerSheetPricePerSqm,
                             UInsertPricePerSqm = gSnap.UInsertPricePerSqm
                         });
                 }
@@ -686,6 +690,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterSheetHeightMm = gSnap.OuterSheetHeightMm,
                     InnerSheetWidthMm = gSnap.InnerSheetWidthMm,
                     InnerSheetHeightMm = gSnap.InnerSheetHeightMm,
+                    OuterSheetPricePerSqm = gSnap.OuterSheetPricePerSqm,
+                    InnerSheetPricePerSqm = gSnap.InnerSheetPricePerSqm,
                     UInsertPricePerSqm = gSnap.UInsertPricePerSqm
                 };
 

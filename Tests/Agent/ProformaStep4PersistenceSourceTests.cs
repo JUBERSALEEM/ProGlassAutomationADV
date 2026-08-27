@@ -47,6 +47,8 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Contains("keepCommittedTypedText", specGroup);
             Assert.Contains("UInsertPricePerSqm = selection.UInsertPricePerSqm", specGroup);
+            Assert.Contains("OuterSheetPricePerSqm = selection.OuterPricePerSqm", specGroup);
+            Assert.Contains("InnerSheetPricePerSqm = selection.InnerPricePerSqm", specGroup);
             Assert.Contains("SheetSelectionSummary", specGroup);
             Assert.Contains("SheetSelectionSummary", step5View);
         }

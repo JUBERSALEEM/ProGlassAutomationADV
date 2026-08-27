@@ -645,6 +645,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                                     OuterHeightMm = DguVM.OuterSheetHeightMm,
                                     InnerWidthMm = DguVM.InnerSheetWidthMm,
                                     InnerHeightMm = DguVM.InnerSheetHeightMm,
+                                    OuterPricePerSqm = DguVM.OuterBasePrice,
+                                    InnerPricePerSqm = DguVM.InnerBasePrice,
                                     UInsertPricePerSqm = DguVM.HasUInsertExtra
                                         ? DguVM.UInsertPricePerSqm
                                         : 0m
@@ -657,7 +659,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                                 new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
                                 {
                                     OuterWidthMm = SguVM.SheetWidthMm,
-                                    OuterHeightMm = SguVM.SheetHeightMm
+                                    OuterHeightMm = SguVM.SheetHeightMm,
+                                    OuterPricePerSqm = SguVM.BasePricePerSqm
                                 });
                         break;
 
@@ -669,7 +672,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                                     OuterWidthMm = LamVM.OuterSheetWidthMm,
                                     OuterHeightMm = LamVM.OuterSheetHeightMm,
                                     InnerWidthMm = LamVM.InnerSheetWidthMm,
-                                    InnerHeightMm = LamVM.InnerSheetHeightMm
+                                    InnerHeightMm = LamVM.InnerSheetHeightMm,
+                                    OuterPricePerSqm = LamVM.OuterBasePrice,
+                                    InnerPricePerSqm = LamVM.InnerBasePrice
                                 });
                         break;
                 }

@@ -236,6 +236,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
+        private decimal _outerSheetPricePerSqm;
+        public decimal OuterSheetPricePerSqm
+        {
+            get => _outerSheetPricePerSqm;
+            set
+            {
+                if (_outerSheetPricePerSqm == value) return;
+                _outerSheetPricePerSqm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
+            }
+        }
+
+        private decimal _innerSheetPricePerSqm;
+        public decimal InnerSheetPricePerSqm
+        {
+            get => _innerSheetPricePerSqm;
+            set
+            {
+                if (_innerSheetPricePerSqm == value) return;
+                _innerSheetPricePerSqm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
+            }
+        }
+
         private decimal _uInsertPricePerSqm;
         /// <summary>
         /// Step 4 seeded U-Insert rate for this spec. Step 5 does not render
@@ -283,9 +311,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 var parts = new List<string>();
                 if (HasOuterSheet)
-                    parts.Add($"Outer sheet {OuterSheetDisplay}");
+                    parts.Add(OuterSheetPricePerSqm > 0m
+                        ? $"Outer sheet {OuterSheetDisplay} @ AED {OuterSheetPricePerSqm:N2}/SQM"
+                        : $"Outer sheet {OuterSheetDisplay}");
                 if (HasInnerSheet)
-                    parts.Add($"Inner sheet {InnerSheetDisplay}");
+                    parts.Add(InnerSheetPricePerSqm > 0m
+                        ? $"Inner sheet {InnerSheetDisplay} @ AED {InnerSheetPricePerSqm:N2}/SQM"
+                        : $"Inner sheet {InnerSheetDisplay}");
                 return parts.Count == 0 ? "" : string.Join("  ·  ", parts);
             }
         }
@@ -700,6 +732,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OuterSheetHeightMm = 0;
                 InnerSheetWidthMm = 0;
                 InnerSheetHeightMm = 0;
+                OuterSheetPricePerSqm = 0m;
+                InnerSheetPricePerSqm = 0m;
                 UInsertPricePerSqm = 0m;
 
                 var selection = ProGlassAutomation.Services.ProformaInvoice
@@ -719,6 +753,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetHeightMm = selection.InnerHeightMm;
                 }
 
+                OuterSheetPricePerSqm = selection.OuterPricePerSqm;
+                InnerSheetPricePerSqm = selection.InnerPricePerSqm;
                 UInsertPricePerSqm = selection.UInsertPricePerSqm;
             }
             catch (Exception ex)

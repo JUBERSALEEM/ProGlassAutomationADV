@@ -91,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
                 var row = new WastageRow
                 {
-                    IsActive = true,
+                    IsActive = previousRow?.IsActive ?? false,
                     ColorName = group.Key,
                     Rate = previousRow?.Rate ?? 0m,
                     UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
@@ -163,7 +163,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     SpecNumber = group.GroupNumber,
                     SpecName = group.GroupName,
                     SideLabel = "Outer (W1/H1)",
-                    SqmValue = group.FooterTotalSqm
+                    SqmValue = group.FooterTotalSqm,
+                    SheetWidthMm = group.OuterSheetWidthMm,
+                    SheetHeightMm = group.OuterSheetHeightMm,
+                    PricePerSqm = group.OuterSheetPricePerSqm
                 };
                 if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}"))
                     outer.IsChecked = true;
@@ -178,7 +181,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SpecNumber = group.GroupNumber,
                         SpecName = group.GroupName,
                         SideLabel = "Inner (W2/H2)",
-                        SqmValue = group.FooterTotalSqm2
+                        SqmValue = group.FooterTotalSqm2,
+                        SheetWidthMm = group.InnerSheetWidthMm,
+                        SheetHeightMm = group.InnerSheetHeightMm,
+                        PricePerSqm = group.InnerSheetPricePerSqm
                     };
                     if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}"))
                         inner.IsChecked = true;

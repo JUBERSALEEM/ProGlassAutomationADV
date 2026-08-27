@@ -277,6 +277,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public int OuterSheetHeightMm { get; set; }
         public int InnerSheetWidthMm { get; set; }
         public int InnerSheetHeightMm { get; set; }
+        public decimal OuterSheetPricePerSqm { get; set; }
+        public decimal InnerSheetPricePerSqm { get; set; }
 
         /// <summary>
         /// Step 4 seeded U-Insert rate for DGU-type specs. Additive: older
