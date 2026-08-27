@@ -1,22 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!--
-    ProGlassAutomation.LicenseGenerator — the standalone production tool.
-
-    It signs licenses against the permanent ProGlass.Licensing contract. It
-    does NOT:
-      • reference ProGlassAutomation (the customer app),
-      • share / re-compile the app's Services/Licensing files,
-      • need AppLogServiceStub / AuditStub / any fake app service,
-      • need System.Management (it never fingerprints a machine itself),
-      • need a database, EF Core, or a WPF app build.
-
-    Dependency graph:
-        ProGlass.Licensing (sign + verify + format + validate)
-        LicenseGenerator (PRIVATE KEY, signs)
-        ProGlassAutomation (PUBLIC KEY, verifies)  — a different project, not here.
-  -->
-
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -31,13 +14,15 @@
     <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307;CA1416</WarningsNotAsErrors>
   </PropertyGroup>
 
+  <!--
+    The generator must emit the EXACT .lic envelope the main app already
+    accepts today. Rather than re-implement that contract again, link the
+    authoritative payload + signer source files directly into this vendor-only
+    tool. That keeps the file format in lockstep with the app.
+  -->
   <ItemGroup>
-    <ProjectReference Include="..\..\Licensing\ProGlass.Licensing.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <!-- Windows DPAPI, used only to protect the generator's private key at rest. -->
-    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+    <Compile Include="..\..\Services\Licensing\LicensePayload.cs" Link="Compatibility\LicensePayload.cs" />
+    <Compile Include="..\..\Services\Licensing\LicenseSigner.cs" Link="Compatibility\LicenseSigner.cs" />
   </ItemGroup>
 
 </Project>

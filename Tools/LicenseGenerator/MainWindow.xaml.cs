@@ -1,104 +1,109 @@
-// ═══════════════════════════════════════════════════════════════════════
-// FILE: Tools/LicenseGenerator/MainWindow.xaml.cs
-// PROJECT: ProGlassAutomation.LicenseGenerator
-// MODULE: Generator window code-behind
-//
-// Thin shims over LicenseGeneratorCore / ProGlass.Licensing. The window
-// has no business logic and no embedded crypto. It drives the standalone
-// contract library, and it NEVER references ProGlassAutomation.
-// ═══════════════════════════════════════════════════════════════════════
-
+using Microsoft.Win32;
+using ProGlassAutomation.Services.Licensing;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using Microsoft.Win32;
-using ProGlass.Licensing;
+using System.Windows.Media;
 
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
 public partial class MainWindow : Window
 {
-    private LicenseGeneratorCore.KeyStore? _keys;
     private string? _lastLicenseJson;
+    private string? _lastPasteKey;
     private bool _uiReady;
 
     public MainWindow()
     {
         InitializeComponent();
         _uiReady = true;
-        LicenseTypeCombo.SelectedIndex = 1;
+        LicenseTypeCombo.SelectedIndex = 2; // Business
+        ApplyEditionPreset(force: true);
         RefreshDeviceRow();
         Loaded += OnLoaded;
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        try
-        {
-            _keys = LicenseGeneratorCore.LoadOrCreateKeyStore(out bool wasCreated);
-            RefreshKeyUi();
-            SetStatus(wasCreated
-                ? "New signing key generated. Copy the public key into the app so it can verify licenses from this tool."
-                : "Signing key loaded. Ready to generate licenses.", StatusKind.Info);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Could not load signing key: " + ex.Message, StatusKind.Error);
-        }
+        RefreshIssuerUi();
+        SetStatus(
+            "Ready — generates an app-compatible .lic and paste key for the current ProGlass activation screen.",
+            StatusKind.Info);
     }
 
-    // ── Device policy visibility ────────────────────────────────
+    private void LicenseTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!_uiReady) return;
+        ApplyEditionPreset(force: true);
+        RefreshDeviceRow();
+    }
 
     private void UnboundRadio_Checked(object sender, RoutedEventArgs e) => RefreshDeviceRow();
     private void SingleRadio_Checked(object sender, RoutedEventArgs e) => RefreshDeviceRow();
 
     private void RefreshDeviceRow()
     {
-        // XAML sets UnboundRadio.IsChecked="True" and wires Checked events.
-        // Those events can fire during InitializeComponent before later named
-        // controls have been assigned, so guard startup-time refreshes.
-        if (!_uiReady || FingerprintRow == null || SingleRadio == null || MultiRadio == null)
+        if (!_uiReady || FingerprintRow == null || FingerprintPanel == null || ActivationLimitPanel == null)
             return;
 
-        bool bound = SingleRadio.IsChecked == true || MultiRadio.IsChecked == true;
-        FingerprintRow.Visibility = bound ? Visibility.Visible : Visibility.Collapsed;
-    }
+        bool machineBound = SingleRadio.IsChecked == true;
+        bool highVolumePortable = MultiRadio.IsChecked == true;
 
-    // ── Signing key ─────────────────────────────────────────────
+        FingerprintPanel.Visibility = machineBound ? Visibility.Visible : Visibility.Collapsed;
+        ActivationLimitPanel.Visibility = machineBound ? Visibility.Visible : Visibility.Visible;
+
+        FingerprintBox.IsEnabled = machineBound;
+        FingerprintBox.Opacity = machineBound ? 1.0 : 0.55;
+        if (!machineBound)
+            FingerprintBox.Text = string.Empty;
+
+        if (machineBound)
+        {
+            ActivationLimitLabel.Text = "Max activations";
+            DeviceLimitBox.Text = "1";
+            DeviceLimitBox.IsEnabled = false;
+        }
+        else
+        {
+            ActivationLimitLabel.Text = highVolumePortable
+                ? "Max activations (high-volume preset)"
+                : "Max activations";
+
+            if (highVolumePortable && ParseInt(DeviceLimitBox.Text, 0, 0, 1_000_000) < 25)
+                DeviceLimitBox.Text = LicenseGeneratorCore.UnlimitedPortableActivations.ToString();
+            else if (!highVolumePortable && string.IsNullOrWhiteSpace(DeviceLimitBox.Text))
+                DeviceLimitBox.Text = LicenseGeneratorCore
+                    .SuggestedActivationLimit(ParseSelectedEdition())
+                    .ToString();
+
+            DeviceLimitBox.IsEnabled = true;
+        }
+
+        PreviewText.Text = machineBound
+            ? "Machine-bound license — paste the customer PC fingerprint from About → License. The app will run only on that machine."
+            : highVolumePortable
+                ? "Portable license — high activation cap preset. Good for factory / enterprise fleets."
+                : "Portable license — the app accepts the same .lic on multiple PCs until the activation limit is reached.";
+    }
 
     private void GenerateKeyButton_Click(object sender, RoutedEventArgs e)
     {
-        var confirm = MessageBox.Show(
-            "Generate a new RSA-2048 signing key?\n\n" +
-            "The old key is replaced. Any license already issued with the old " +
-            "key keeps working only while the app still trusts that key.\n\n" +
-            "The private key is stored DPAPI-protected on this machine.",
-            "Generate key", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (confirm != MessageBoxResult.Yes) return;
-
-        try
-        {
-            _keys = LicenseGeneratorCore.GenerateNewKeyPair();
-            RefreshKeyUi();
-            SetStatus("New signing key generated. Copy the public key into the app.",
-                StatusKind.Success);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Key generation failed: " + ex.Message, StatusKind.Error);
-        }
+        var test = LicenseGeneratorCore.RunSelfTest();
+        SetStatus(test.Message, test.IsValid ? StatusKind.Success : StatusKind.Error);
+        MessageBox.Show(this, test.Message,
+            test.IsValid ? "Generator self-test" : "Generator self-test failed",
+            MessageBoxButton.OK,
+            test.IsValid ? MessageBoxImage.Information : MessageBoxImage.Error);
     }
 
     private void CopyPublicKeyButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_keys == null) { SetStatus("No signing key.", StatusKind.Error); return; }
         try
         {
-            Clipboard.SetText(_keys.PublicKeyXml);
-            SetStatus("Public key copied to clipboard. Paste it into the app's trusted-keys configuration.", StatusKind.Success);
+            Clipboard.SetText(AppCompatibleIssuerKeys.PublicKeyXml);
+            SetStatus("App-compatible public key copied to clipboard.", StatusKind.Success);
         }
         catch (Exception ex)
         {
@@ -106,60 +111,40 @@ public partial class MainWindow : Window
         }
     }
 
-    // ── Generate ────────────────────────────────────────────────
-
     private void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_keys == null) { SetStatus("Generate a signing key first.", StatusKind.Error); return; }
-
         try
         {
-            var req = BuildRequest();
-            string defaultPath = Path.Combine(
+            var request = BuildRequest();
+            string defaultPath = System.IO.Path.Combine(
                 LicenseGeneratorCore.DefaultOutputFolder,
-                Sanitise(req.CustomerName) + "-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + LicenseFormat.FileExtension);
+                Sanitise(request.CompanyName) + "-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + LicenseGeneratorCore.LicenseFileExtension);
 
-            var result = LicenseGeneratorCore.GenerateLicense(req, _keys, defaultPath);
-            LicenseGeneratorCore.RecordHistory(result);
+            var result = LicenseGeneratorCore.GenerateLicense(request, defaultPath);
+            OutputCard.Visibility = Visibility.Visible;
 
             if (!result.Success)
             {
-                OutputCard.Visibility = Visibility.Visible;
                 ResultText.Text = "FAILED: " + result.Message;
                 ResultText.Foreground = ResolveBrush("DangerBrush");
-                KeyOutputBox.Text = "";
-                SetStatus("License generation FAILED: " + result.Message, StatusKind.Error);
+                PasteKeyOutputBox.Text = result.PasteKey ?? string.Empty;
+                KeyOutputBox.Text = result.LicenseJson ?? string.Empty;
+                SetStatus(result.Message, StatusKind.Error);
                 return;
             }
 
-            // Always re-read + verify the written file (self-verification).
             string file = string.IsNullOrWhiteSpace(result.OutputPath)
                 ? defaultPath
                 : result.OutputPath;
-            string json = File.ReadAllText(file);
-            _lastLicenseJson = json;
 
-            var verify = LicenseGeneratorCore.Inspect(json, appVersion: "1.0.0",
-                trustedKeys: new Dictionary<string, string> { [_keys.KeyId] = _keys.PublicKeyXml });
-
-            OutputCard.Visibility = Visibility.Visible;
-            KeyOutputBox.Text = LicenseWriter.ToJson(verify.License ?? new SignedLicense());
-            if (verify.IsValid)
-            {
-                ResultText.Text = "VALID ✓  LicenseId=" + result.Document!.LicenseId +
-                    " · expires=" + (result.Document.ExpiresAtUtc?.ToString("u") ?? "never") +
-                    " · key=" + result.KeyId;
-                ResultText.Foreground = ResolveBrush("SuccessBrush");
-                SetStatus("License generated + verified. Send the " + LicenseFormat.FileExtension + " file to the customer.",
-                    StatusKind.Success);
-            }
-            else
-            {
-                ResultText.Text = "SELF-VERIFY FAILED: " + verify.Message;
-                ResultText.Foreground = ResolveBrush("DangerBrush");
-                SetStatus("License generated, but self-verification failed: " + verify.Message,
-                    StatusKind.Error);
-            }
+            _lastLicenseJson = result.LicenseJson;
+            _lastPasteKey = result.PasteKey;
+            PasteKeyOutputBox.Text = result.PasteKey;
+            KeyOutputBox.Text = result.LicenseJson;
+            ResultText.Text = result.Message + "\nSaved to: " + file;
+            ResultText.Foreground = ResolveBrush("SuccessBrush");
+            SetStatus("License generated. Use SAVE AS for the .lic file or COPY PASTE KEY for the activation text.",
+                StatusKind.Success);
         }
         catch (Exception ex)
         {
@@ -170,17 +155,23 @@ public partial class MainWindow : Window
 
     private void SaveAsButton_Click(object sender, RoutedEventArgs e)
     {
+        if (string.IsNullOrWhiteSpace(_lastLicenseJson))
+        {
+            SetStatus("Generate or inspect a license first.", StatusKind.Warning);
+            return;
+        }
+
         var dialog = new SaveFileDialog
         {
-            Title = "Save license",
-            Filter = "ProGlass license (*" + LicenseFormat.FileExtension + ")|*" + LicenseFormat.FileExtension + "|All files (*.*)|*.*",
-            DefaultExt = LicenseFormat.FileExtension,
-            FileName = "CustomerLicense" + LicenseFormat.FileExtension,
+            Title = "Save app-compatible license",
+            Filter = "ProGlass license (*.lic)|*.lic|All files (*.*)|*.*",
+            DefaultExt = ".lic",
+            FileName = "CustomerLicense.lic",
             AddExtension = true
         };
-        if (dialog.ShowDialog(this) == true && _lastLicenseJson != null)
+        if (dialog.ShowDialog(this) == true)
         {
-            File.WriteAllText(dialog.FileName, _lastLicenseJson);
+            System.IO.File.WriteAllText(dialog.FileName, _lastLicenseJson, new UTF8Encoding(false));
             SetStatus("Saved to " + dialog.FileName, StatusKind.Success);
         }
     }
@@ -189,75 +180,127 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Title = "Inspect a license",
-            Filter = "ProGlass license (*" + LicenseFormat.FileExtension + ")|*" + LicenseFormat.FileExtension + "|All files (*.*)|*.*",
+            Title = "Inspect an existing .lic",
+            Filter = "ProGlass license (*.lic,*.json,*.txt)|*.lic;*.json;*.txt|All files (*.*)|*.*",
             CheckFileExists = true
         };
-        if (dialog.ShowDialog(this) != true || _keys == null) return;
+        if (dialog.ShowDialog(this) != true) return;
 
-        var read = LicenseReader.ReadFile(dialog.FileName);
-        var verdict = LicenseService.VerifyAndValidate(
-            read, appVersion: "1.0.0", utcNow: DateTime.UtcNow,
-            trustedPublicKeys: new Dictionary<string, string> { [_keys.KeyId] = _keys.PublicKeyXml });
+        var verdict = LicenseGeneratorCore.InspectFile(dialog.FileName);
         OutputCard.Visibility = Visibility.Visible;
         ResultText.Foreground = ResolveBrush(verdict.IsValid ? "SuccessBrush" : "DangerBrush");
-        ResultText.Text = (verdict.IsValid ? "VALID" : "INVALID") + " — " + verdict.Message;
-        KeyOutputBox.Text = read.License != null ? LicenseWriter.ToJson(read.License) : "";
-        SetStatus("Inspection complete.", StatusKind.Info);
+        ResultText.Text = verdict.Message;
+        PasteKeyOutputBox.Text = verdict.PasteKey;
+        KeyOutputBox.Text = verdict.LicenseJson;
+        _lastLicenseJson = verdict.LicenseJson;
+        _lastPasteKey = verdict.PasteKey;
+        SetStatus(verdict.IsValid ? "Inspection complete — file is app-compatible." : "Inspection complete — file is NOT app-compatible.",
+            verdict.IsValid ? StatusKind.Info : StatusKind.Warning);
     }
 
     private void CopyLicenseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (string.IsNullOrEmpty(_lastLicenseJson)) { SetStatus("No license generated yet.", StatusKind.Warning); return; }
-        try { Clipboard.SetText(_lastLicenseJson); SetStatus("License copied to clipboard.", StatusKind.Success); }
-        catch (Exception ex) { SetStatus("Copy failed: " + ex.Message, StatusKind.Error); }
+        if (string.IsNullOrWhiteSpace(_lastPasteKey))
+        {
+            SetStatus("No paste key available yet.", StatusKind.Warning);
+            return;
+        }
+
+        try
+        {
+            Clipboard.SetText(_lastPasteKey);
+            SetStatus("Paste key copied to clipboard.", StatusKind.Success);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Copy failed: " + ex.Message, StatusKind.Error);
+        }
     }
 
-    // ── Request building ────────────────────────────────────────
-
-    private LicenseRequest BuildRequest()
+    private LicenseGeneratorCore.IssueRequest BuildRequest()
     {
-        string type = (LicenseTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "Subscription";
+        LicenseEdition edition = ParseSelectedEdition();
+        int days = ParseInt(DaysBox.Text, edition == LicenseEdition.Trial ? 30 : 365, 1, 3650);
+        bool machineBound = SingleRadio.IsChecked == true;
+        bool highVolumePortable = MultiRadio.IsChecked == true;
 
-        string device = "Unbound";
-        if (SingleRadio.IsChecked == true) device = "SingleDevice";
-        else if (MultiRadio.IsChecked == true) device = "MultiDevice";
+        int maxActivations = machineBound
+            ? 1
+            : ParseInt(
+                DeviceLimitBox.Text,
+                highVolumePortable
+                    ? LicenseGeneratorCore.UnlimitedPortableActivations
+                    : LicenseGeneratorCore.SuggestedActivationLimit(edition),
+                1,
+                1_000_000);
 
-        int days = ParseInt(DaysBox.Text, 365, 1, 3650);
-        int? limit = device == "MultiDevice" ? ParseInt(DeviceLimitBox.Text, 1, 1, 1000) : null;
+        string? fingerprint = machineBound
+            ? (FingerprintBox.Text?.Trim() ?? string.Empty)
+            : null;
 
-        return new LicenseRequest
+        if (machineBound && string.IsNullOrWhiteSpace(fingerprint))
         {
-            CustomerId = CustomerIdBox.Text?.Trim() ?? "",
-            CustomerName = CustomerNameBox.Text?.Trim() ?? "",
-            Company = CompanyBox.Text?.Trim(),
-            Email = EmailBox.Text?.Trim(),
-            LicenseType = type,
-            DaysValid = days,
-            Features = (FeaturesBox.Text ?? "").Split(',')
-                .Select(f => f.Trim()).Where(f => f.Length > 0).ToList(),
-            DeviceBinding = device,
-            DeviceFingerprint = device != "Unbound" ? FingerprintBox.Text?.Trim() : null,
-            DeviceLimit = limit,
-            MinimumApplicationVersion = string.IsNullOrWhiteSpace(MinVersionBox.Text) ? "1.0.0" : MinVersionBox.Text.Trim(),
-            MaximumApplicationVersion = string.IsNullOrWhiteSpace(MaxVersionBox.Text) ? null : MaxVersionBox.Text.Trim()
+            throw new InvalidOperationException(
+                "Machine-bound license selected, but the customer fingerprint is blank.");
+        }
+
+        return new LicenseGeneratorCore.IssueRequest
+        {
+            CustomerId = CustomerIdBox.Text?.Trim() ?? string.Empty,
+            CompanyName = CustomerNameBox.Text?.Trim() ?? string.Empty,
+            Edition = edition,
+            ValidDays = days,
+            MaxActivations = maxActivations,
+            MachineFingerprint = string.IsNullOrWhiteSpace(fingerprint) ? null : fingerprint,
+            Features = ParseFeatures(FeaturesBox.Text),
+            Notes = CompanyBox.Text?.Trim() ?? string.Empty,
+            LicenseIdOverride = EmailBox.Text?.Trim() ?? string.Empty,
+            IssuedAtUtc = DateTime.UtcNow
         };
     }
 
-    // ── UI plumbing ─────────────────────────────────────────────
-
-    private void RefreshKeyUi()
+    private LicenseEdition ParseSelectedEdition()
     {
-        if (_keys == null)
+        string text = (LicenseTypeCombo.SelectedItem as ComboBoxItem)?.Content?.ToString()
+            ?? LicenseTypeCombo.Text
+            ?? LicenseEdition.Business.ToString();
+        return LicenseGeneratorCore.ParseEdition(text);
+    }
+
+    private void ApplyEditionPreset(bool force)
+    {
+        if (!_uiReady && !force) return;
+
+        LicenseEdition edition = ParseSelectedEdition();
+        FeaturesBox.Text = string.Join(", ", LicenseGeneratorCore.DefaultFeatures(edition));
+
+        if (SingleRadio.IsChecked != true)
+            DeviceLimitBox.Text = LicenseGeneratorCore.SuggestedActivationLimit(edition).ToString();
+
+        KeyDetailText.Text = edition switch
         {
-            KeyStatusText.Text = "No signing key.";
-            KeyDetailText.Text = "Click GENERATE KEY to create one. The private key stays on this machine.";
-            return;
-        }
-        KeyStatusText.Text = "Key: " + (_keys.KeyId.Length > 8 ? _keys.KeyId[..8] : _keys.KeyId);
-        KeyDetailText.Text =
-            "Created " + _keys.CreatedUtc.ToLocalTime().ToString("yyyy-MM-dd HH:mm") +
-            " · key id " + _keys.KeyId + " · private key DPAPI-protected.";
+            LicenseEdition.Trial => "Trial — 30-day evaluation, usually 1 activation, all modules allowed.",
+            LicenseEdition.Basic => "Basic — inquiry and proforma workflow only, single-device by default.",
+            LicenseEdition.Business => "Business — all ERP workflow modules, no cutting optimisation, 5 activations by default.",
+            LicenseEdition.Factory => "Factory — full ERP plus cutting optimisation, high activation cap preset.",
+            LicenseEdition.Enterprise => "Enterprise — unrestricted feature set and very high activation cap preset.",
+            _ => "App-compatible RSA issuer key trusted by the current ProGlass build."
+        };
+    }
+
+    private void RefreshIssuerUi()
+    {
+        KeyStatusText.Text = "Trusted by app · key fingerprint " + LicenseGeneratorCore.PublicKeyFingerprint;
+    }
+
+    private static string[] ParseFeatures(string? text)
+    {
+        return (text ?? string.Empty)
+            .Split(new[] { ',', ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(x => x.Trim())
+            .Where(x => x.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
     }
 
     private enum StatusKind { Info, Success, Error, Warning }
@@ -276,22 +319,23 @@ public partial class MainWindow : Window
         StatusTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
     }
 
-    private System.Windows.Media.Brush ResolveBrush(string key)
+    private Brush ResolveBrush(string key)
     {
-        return TryFindResource(key) as System.Windows.Media.Brush
-            ?? System.Windows.Media.Brushes.DimGray;
+        return TryFindResource(key) as Brush
+            ?? Brushes.DimGray;
     }
 
-    private static int ParseInt(string text, int def, int min, int max)
+    private static int ParseInt(string? text, int def, int min, int max)
     {
         if (int.TryParse(text, out int v) && v >= min && v <= max) return v;
         return def;
     }
 
-    private static string Sanitise(string name)
+    private static string Sanitise(string? name)
     {
-        var invalid = Path.GetInvalidFileNameChars();
-        return new string((string.IsNullOrEmpty(name) ? "License" : name)
-            .Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+        char[] invalid = System.IO.Path.GetInvalidFileNameChars();
+        return new string((string.IsNullOrWhiteSpace(name) ? "License" : name.Trim())
+            .Select(c => invalid.Contains(c) ? '_' : c)
+            .ToArray());
     }
 }

@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="ProGlass — License Generator"
-        Width="1080" Height="860"
-        MinWidth="900" MinHeight="680"
+        Width="1120" Height="900"
+        MinWidth="940" MinHeight="720"
         Background="{StaticResource BgBrush}"
         Foreground="{StaticResource TextBrush}"
         FontFamily="{StaticResource AppFont}"
@@ -16,7 +16,6 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- ── Top bar ─────────────────────────────────────────── -->
         <Border Grid.Row="0" Background="{StaticResource CardBrush}"
                 BorderBrush="{StaticResource BorderSoftBrush}"
                 BorderThickness="0,0,0,1" Padding="28,22">
@@ -37,23 +36,21 @@
                         <TextBlock Text="ProGlass License Generator"
                                    Style="{StaticResource HeaderText}"/>
                         <TextBlock Style="{StaticResource HelpText}" Margin="0,2,0,0"
-                                   Text="Create a signed license the customer imports into ProGlass Automation. It activates instantly."/>
+                                   Text="Vendor tool — generates the exact .lic file and paste key the current ProGlass app activation screen accepts."/>
                     </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="2" Background="{StaticResource CardAltBrush}"
                         CornerRadius="8" Padding="12,8" VerticalAlignment="Center">
-                    <TextBlock x:Name="KeyStatusText" Text="No signing key."
+                    <TextBlock x:Name="KeyStatusText" Text="App-compatible key ready."
                                FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextDimBrush}"/>
                 </Border>
             </Grid>
         </Border>
 
-        <!-- ── Body ────────────────────────────────────────────── -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled" Padding="28,20">
             <StackPanel>
 
-                <!-- 1. SIGNING KEY ─────────────────────────────── -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -61,26 +58,25 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="SIGNING KEY" Style="{StaticResource SectionLabel}"/>
+                            <TextBlock Text="APP-COMPATIBLE SIGNING" Style="{StaticResource SectionLabel}"/>
                             <TextBlock x:Name="KeyDetailText"
                                        Style="{StaticResource HelpText}"
-                                       Text="Generate a key once. The private key is stored DPAPI-protected on this machine and never leaves it. Rebuild not required — only the public key must be embedded in the app."/>
+                                       Text="This generator is locked to the app-compatible RSA key trusted by the current ProGlass build. No manual key copy, no rebuild needed to activate generated licenses."/>
                         </StackPanel>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
                             <Button x:Name="GenerateKeyButton"
                                     Style="{StaticResource OutlinedButton}"
-                                    Content="GENERATE KEY"
+                                    Content="RUN SELF TEST"
                                     Click="GenerateKeyButton_Click"/>
                             <Button x:Name="CopyPublicKeyButton"
                                     Style="{StaticResource GhostButton}"
-                                    Content="COPY PUBLIC KEY (for app)"
+                                    Content="COPY APP PUBLIC KEY"
                                     Click="CopyPublicKeyButton_Click"
                                     Margin="0,8,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- 2. LICENSE DETAILS ─────────────────────────── -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="LICENSE DETAILS" Style="{StaticResource SectionLabel}"/>
@@ -89,17 +85,18 @@
                                 <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/><RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="License type" Style="{StaticResource LabelText}"/>
-                                <ComboBox x:Name="LicenseTypeCombo" SelectedIndex="1">
+                                <TextBlock Text="Edition" Style="{StaticResource LabelText}"/>
+                                <ComboBox x:Name="LicenseTypeCombo" SelectionChanged="LicenseTypeCombo_SelectionChanged">
                                     <ComboBoxItem Content="Trial"/>
-                                    <ComboBoxItem Content="Subscription"/>
-                                    <ComboBoxItem Content="Lifetime"/>
-                                    <ComboBoxItem Content="Perpetual Version"/>
+                                    <ComboBoxItem Content="Basic"/>
+                                    <ComboBoxItem Content="Business"/>
+                                    <ComboBoxItem Content="Factory"/>
                                     <ComboBoxItem Content="Enterprise"/>
                                 </ComboBox>
                             </StackPanel>
@@ -109,125 +106,108 @@
                             </StackPanel>
 
                             <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Customer ID" Style="{StaticResource LabelText}"/>
+                                <TextBlock Text="Customer code" Style="{StaticResource LabelText}"/>
                                 <TextBox x:Name="CustomerIdBox" Text="CUST-001"/>
                             </StackPanel>
                             <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,12">
-                                <TextBlock Text="Customer name" Style="{StaticResource LabelText}"/>
+                                <TextBlock Text="Company name" Style="{StaticResource LabelText}"/>
                                 <TextBox x:Name="CustomerNameBox" Text="Acme Glass LLC"/>
                             </StackPanel>
 
-                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,12">
-                                <TextBlock Text="Company (optional)" Style="{StaticResource LabelText}"/>
-                                <TextBox x:Name="CompanyBox"/>
-                            </StackPanel>
-                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,12">
-                                <TextBlock Text="Email (optional)" Style="{StaticResource LabelText}"/>
+                            <StackPanel Grid.Row="2" Grid.Column="0" Margin="0,0,0,4">
+                                <TextBlock Text="License ID override (optional)" Style="{StaticResource LabelText}"/>
                                 <TextBox x:Name="EmailBox"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Row="3" Grid.ColumnSpan="3" Margin="0,0,0,4">
-                                <TextBlock Style="{StaticResource LabelText}">
-                                    <Run Text="Features"/><Run Text="  (comma-separated · the stable IDs the app checks · * = all)"
-                                         FontSize="10" Foreground="{StaticResource TextDimBrush}"/>
-                                </TextBlock>
-                                <TextBox x:Name="FeaturesBox"
-                                         Text="PROFORMA_INVOICE, JOB_ORDER, DELIVERY_NOTE, TAX_INVOICE, REPORTS"
-                                         AcceptsReturn="True" TextWrapping="Wrap" Height="52"
-                                         VerticalScrollBarVisibility="Auto"/>
+                            <StackPanel Grid.Row="2" Grid.Column="2" Margin="0,0,0,4">
+                                <TextBlock Text="Issuer notes (optional)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="CompanyBox"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- 3. DEVICE POLICY ───────────────────────────── -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="DEVICE POLICY" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Text="ACTIVATION MODEL" Style="{StaticResource SectionLabel}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                             <RadioButton x:Name="UnboundRadio" GroupName="Device" IsChecked="True"
-                                         Content="Unbound (any machine)"
+                                         Content="Portable (shared .lic, activation-limited)"
                                          Checked="UnboundRadio_Checked"/>
                             <RadioButton x:Name="SingleRadio" GroupName="Device"
-                                         Content="Single machine" Margin="20,0,0,0"
+                                         Content="Machine-bound (customer fingerprint required)" Margin="20,0,0,0"
                                          Checked="SingleRadio_Checked"/>
                             <RadioButton x:Name="MultiRadio" GroupName="Device"
-                                         Content="Multiple (N) machines" Margin="20,0,0,0"
+                                         Content="High-volume portable preset" Margin="20,0,0,0"
                                          Checked="SingleRadio_Checked"/>
                         </StackPanel>
-                        <Grid x:Name="FingerprintRow" Visibility="Collapsed">
+                        <Grid x:Name="FingerprintRow">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="180"/>
                             </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Style="{StaticResource LabelText}">
-                                    <Run Text="Machine fingerprint (from the customer's About page)"/>
-                                </TextBlock>
+                            <StackPanel x:Name="FingerprintPanel" Grid.Column="0">
+                                <TextBlock x:Name="FingerprintLabel" Style="{StaticResource LabelText}"
+                                           Text="Machine fingerprint (from About → License on the customer PC)"/>
                                 <TextBox x:Name="FingerprintBox"/>
                             </StackPanel>
-                            <StackPanel Grid.Column="1" VerticalAlignment="Bottom" Margin="10,0,0,0">
-                                <TextBlock Text="Device limit" Style="{StaticResource LabelText}"/>
-                                <TextBox x:Name="DeviceLimitBox" Text="1" Width="80"/>
+                            <StackPanel x:Name="ActivationLimitPanel" Grid.Column="2" VerticalAlignment="Bottom">
+                                <TextBlock x:Name="ActivationLimitLabel" Text="Max activations" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="DeviceLimitBox" Text="5" Width="140"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
                 </Border>
 
-                <!-- 4. VERSION POLICY ──────────────────────────── -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="VERSION POLICY (app compatibility)" Style="{StaticResource SectionLabel}"/>
-                        <TextBlock Style="{StaticResource HelpText}" Margin="0,0,0,12"
-                                   Text="Default: minimum 1.0.0, no maximum — the license stays valid for every future release (1.0, 1.1, 2.0, 3.0 …). Only restrict for a deliberate version-locked license."/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0">
-                                <TextBlock Text="Minimum app version" Style="{StaticResource LabelText}"/>
-                                <TextBox x:Name="MinVersionBox" Text="1.0.0"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
-                                <TextBlock Text="Maximum app version (blank = unlimited future)" Style="{StaticResource LabelText}"/>
-                                <TextBox x:Name="MaxVersionBox" Text=""/>
-                            </StackPanel>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- 5. PREVIEW + GENERATE ──────────────────────── -->
-                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
-                    <StackPanel>
-                        <TextBlock Text="PREVIEW" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Text="FEATURE SET" Style="{StaticResource SectionLabel}"/>
                         <TextBlock x:Name="PreviewText" Style="{StaticResource HelpText}"
-                                   Text="Fill the form, then click GENERATE. The license is signed, written to a .proglasslicense file, and re-verified before it is reported as success."/>
+                                   Text="Pick an edition and the generator fills the recommended feature list. You can edit the list manually before generating."/>
+                        <TextBlock Style="{StaticResource LabelText}" Margin="0,12,0,4">
+                            <Run Text="Features (comma-separated, exact app feature IDs · * = everything)"/>
+                        </TextBlock>
+                        <TextBox x:Name="FeaturesBox"
+                                 Text="Inquiry.*, Proforma.*, JobOrder.*, DeliveryNote.*, TaxInvoice.*, Statement.*, Reports.*, AI.*"
+                                 AcceptsReturn="True" TextWrapping="Wrap" Height="72"
+                                 VerticalScrollBarVisibility="Auto"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="GENERATE" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Style="{StaticResource HelpText}"
+                                   Text="Generate writes a .lic file and also prepares a base64 paste key. The main app can activate from either the file or the pasted key."/>
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                             <Button x:Name="GenerateButton" Style="{StaticResource PrimaryButton}"
-                                    Content="GENERATE LICENSE"
+                                    Content="GENERATE .LIC"
                                     Click="GenerateButton_Click"/>
                             <Button x:Name="SaveAsButton" Style="{StaticResource OutlinedButton}"
                                     Content="SAVE AS…"
                                     Click="SaveAsButton_Click"
                                     Margin="10,0,0,0"/>
                             <Button x:Name="InspectButton" Style="{StaticResource GhostButton}"
-                                    Content="INSPECT AN EXISTING LICENSE"
+                                    Content="INSPECT EXISTING .LIC"
                                     Click="InspectButton_Click"
                                     Margin="10,0,0,0"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- 6. OUTPUT ──────────────────────────────────── -->
                 <Border x:Name="OutputCard" Style="{StaticResource Card}" Visibility="Collapsed">
                     <StackPanel>
                         <TextBlock Text="RESULT" Style="{StaticResource SectionLabel}"/>
                         <TextBlock x:Name="ResultText" Style="{StaticResource HelpText}" Margin="0,0,0,10"/>
+                        <TextBlock Text="PASTE KEY (base64 accepted by the app activation screen)" Style="{StaticResource LabelText}"/>
+                        <TextBox x:Name="PasteKeyOutputBox" Style="{StaticResource CodeTextBox}"
+                                 MinHeight="84" MaxHeight="140" IsReadOnly="True" TextWrapping="Wrap"/>
+                        <TextBlock Text=".LIC JSON ENVELOPE" Style="{StaticResource LabelText}" Margin="0,12,0,4"/>
                         <TextBox x:Name="KeyOutputBox" Style="{StaticResource CodeTextBox}"
-                                 MinHeight="120" MaxHeight="220" IsReadOnly="True" TextWrapping="Wrap"/>
+                                 MinHeight="140" MaxHeight="280" IsReadOnly="True" TextWrapping="Wrap"/>
                         <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
                             <Button Style="{StaticResource PrimaryButton}"
-                                    Content="COPY LICENSE (to send)"
+                                    Content="COPY PASTE KEY"
                                     Click="CopyLicenseButton_Click"/>
                         </StackPanel>
                     </StackPanel>
@@ -236,7 +216,6 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- ── Status bar ─────────────────────────────────────── -->
         <Border Grid.Row="2" Style="{StaticResource StatusBar}">
             <Grid>
                 <Grid.ColumnDefinitions>

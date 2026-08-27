@@ -1,80 +1,58 @@
-# ProGlass Automation — License Generator (standalone)
+# ProGlassAutomation.LicenseGenerator
 
-A **completely independent** production tool that creates signed
-`.proglasslicense` files for ProGlass Automation customers.
+Vendor-only WPF utility that issues the exact `.lic` envelope the current
+ProGlass main application already accepts in **Settings / About → License**.
 
-It has **zero** dependency on the main application. It does not need:
+## What it generates
 
-- the ProGlassAutomation source, project, or build,
-- a Visual Studio / MSBuild / dotnet build of the app,
-- the app's EXE / DLL / database / configuration,
-- app services or stubs (`AppLogServiceStub`, `AuditStub`, …),
-- `System.Management` (it never fingerprints a machine itself).
+- **`.lic` JSON envelope** signed with the app-compatible RSA key
+- **Base64 paste key** of that same JSON envelope
 
-## Architecture
+The app activation screen can accept either:
+1. browse the `.lic` file
+2. paste the base64 key
 
-```
-        ┌──────────────────────────────────┐
-        │  ProGlass.Licensing (contract)   │  stable format, canonical JSON,
-        │  Licensing/ProGlass.Licensing    │  RSA-PSS sign/verify, validation,
-        └───────────────┬──────────────────┘  error codes, key IDs, version
-                        │                     policy, machine policy
-        ┌───────────────┴──────────────────┐
-        │                                 │
-        ▼                                 ▼
-LicenseGenerator                  ProGlassAutomation
-(PRIVATE KEY · SIGNS)             (PUBLIC KEYS · VERIFIES)
-```
+## Contract source of truth
 
-The two sides reference **only** `ProGlass.Licensing`, never each other.
-The private signing key lives **only** in the generator (DPAPI-protected at
-rest); the app contains **only** trusted public keys.
+This tool is deliberately linked to the same app-compatible licensing files the
+main app uses today:
 
-## The stable contract
+- `Services/Licensing/LicensePayload.cs`
+- `Services/Licensing/LicenseSigner.cs`
 
-- `licenseFormatVersion = 1` — separate from any application version.
-- `productId = PROGLASS_AUTOMATION` — permanent, never changes on a release.
-- **Canonical serialization** — the signature is over exact, deterministic
-  bytes (fixed key order, no whitespace), so verification is exact.
-- **Version policy** — default is `minimum = 1.0.0`, `maximum = null`, i.e.
-  *unlimited future compatibility*: a 2026 license works on 1.0 / 1.1 / 2.0 /
-  3.0 builds. Restrictions are opt-in (range / exact / allowed-major).
-- **Features** — stable IDs (`PROFORMA_INVOICE`, `JOB_ORDER`, …). Unknown
-  future feature IDs are tolerated, never crash.
-- **Device policy** — Unbound (default), SingleDevice, MultiDevice (N).
-- **Key rotation** — every signature carries a `keyId`; the app can trust
-  multiple keys, so old licenses survive rotation.
-- **Self-verification** — every generated license is re-read and re-verified
-  by the generator before it reports success.
+That keeps the generator output in lockstep with the main software acceptance
+path. No second implementation of the `.lic` format is maintained here.
 
-## Build & run (independently)
+## Trusted keys
 
-```
-dotnet build Licensing/ProGlass.Licensing.csproj
-dotnet build Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj -c Release
-dotnet run --project Tools/LicenseGenerator/ProGlassAutomation.LicenseGenerator.csproj
-```
+- The generator signs with the embedded compatibility issuer key in
+  `Tools/LicenseGenerator/AppCompatibleIssuerKeys.cs`.
+- The main app trusts that public key as a **secondary production key** in
+  `Services/Licensing/LicensePublicKey.cs`.
+- The app still trusts the original legacy production key for older licenses.
 
-Output is `ProGlassAutomation.LicenseGenerator.exe`. Take it to a clean Windows
-machine (no ProGlassAutomation) and it still generates licenses.
+## Edition presets
 
-## Workflow
+Default feature presets follow the app's current license model:
 
-1. **Generate signing key** (once). The private key is stored DPAPI-protected
-   on this machine; **COPY PUBLIC KEY (for app)** → paste into the app's
-   `TrustedLicenseKeys` → rebuild the app.
-2. **Fill the form** — license type, customer, validity, features, device
-   policy, version policy.
-3. **Generate** — the license is signed, written to a `.proglasslicense`
-   file, re-read, re-verified, then reported valid.
-4. **Send** the `.proglasslicense` file to the customer. They import it in
-   the app (Settings → License) and it activates.
-5. **Inspect** — open an existing license to see VALID / INVALID / EXPIRED /
-   TAMPERED / WRONG PRODUCT and why.
+- **Trial** → `*`
+- **Basic** → `Inquiry.*`, `Proforma.*`
+- **Business** → all ERP workflow modules, no `Cutting.*`
+- **Factory** → Business + `Cutting.*`
+- **Enterprise** → `*`
 
-## Security notes (honest)
+## Intended workflow
 
-RSA-2048 / PSS / SHA-256 protects license **authenticity and integrity** — a
-normal user cannot edit the license without breaking the signature. It does
-**not** make a locally-executed application impossible to reverse engineer
-(that is not achievable with offline licensing, and we do not claim it).
+1. Open the generator
+2. Pick edition / days / activation model
+3. Generate the license
+4. Send either:
+   - the `.lic` file, or
+   - the copied paste key
+5. In the app, the customer activates from the license screen
+
+## Notes
+
+- This is a **vendor/internal** tool, not customer-distributed software.
+- It is intentionally app-compatible first; it does not use the newer
+  `ProGlass.Licensing` contract library.

@@ -43,6 +43,7 @@
 //   baseline used by every major PKI for code signing.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace ProGlassAutomation.Services.Licensing
@@ -135,6 +136,29 @@ namespace ProGlassAutomation.Services.Licensing
         /// </summary>
         public static bool IsPlaceholder =>
             PublicKeyXml.StartsWith("PLACEHOLDER_", System.StringComparison.Ordinal);
+
+        /// <summary>
+        /// Secondary production public key trusted by the rewritten vendor-side
+        /// License Generator. The original key stays trusted for legacy .lic
+        /// files already in the field; new issues from the generator are signed
+        /// with the matching private half on the vendor machine.
+        /// </summary>
+        public static string GeneratorCompatiblePublicKeyXml { get; } =
+            "<RSAKeyValue>" +
+            "<Modulus>tzD0mVm083BrnW8Y535QKNPI32B7bDVWqawsH+5UscgXqod+9AsIOw7mk76E9m25VUbTWr/fO7/wCQQV7CYZusXRNPwGSiVxwaIXQ+yib3uFVRLsiii+XmbMfvT0Aur5oDVfzo/l3vj3gj71xnfZ8xuobeCidpI8CypwZY3utnMDJ5EC37XCvrh0mjiR6ruUB8LHBvrayXDXdPNZ4BQfAXHRUkFj1bPJP4FWMsAfLywod1zyyJV+/8EPUxcyi/s/V2A3Hmtci+Ml3NUFEuc0yEuVEVAkUrIEE97oE+3qsIX+hi3jiybhAMi2Y6LcnqNdfV+ekCLUOio8bgn1ChfVDQ==</Modulus>" +
+            "<Exponent>AQAB</Exponent>" +
+            "</RSAKeyValue>";
+
+        /// <summary>
+        /// All production public keys trusted for customer-issued .lic files.
+        /// Ordered newest-to-oldest for diagnostics; the verifier tries each
+        /// until one matches. No trial keys belong here.
+        /// </summary>
+        public static IReadOnlyList<string> ProductionPublicKeys => new[]
+        {
+            PublicKeyXml,
+            GeneratorCompatiblePublicKeyXml
+        };
 
         /// <summary>
         /// INTERNAL TEST HOOK. Swaps the public key for the

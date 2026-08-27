@@ -40,7 +40,9 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -126,11 +128,10 @@ namespace ProGlassAutomation.Services.Licensing
         public static readonly TimeSpan GracePeriod = TimeSpan.FromDays(7);
 
         /// <summary>
-        /// Short hex fingerprint (first 8 bytes of SHA-256 of the
-        /// Modulus) of the embedded production public key. This lets the
-        /// error message tell the vendor WHICH key this build expects, so
-        /// a "signature does not match" is actionable instead of a dead
-        /// end. Never throws; returns a marker for the placeholder.
+        /// Short hex fingerprints (first 8 bytes of SHA-256 of each trusted
+        /// production-key modulus). This lets a signature-mismatch message tell
+        /// the vendor WHICH key ring this build expects, not just one key.
+        /// Never throws.
         /// </summary>
         public static string EmbeddedPublicKeyFingerprint
         {
@@ -138,15 +139,14 @@ namespace ProGlassAutomation.Services.Licensing
             {
                 try
                 {
-                    string keyXml = LicensePublicKey.PublicKeyXml;
                     if (LicensePublicKey.IsPlaceholder) return "PLACEHOLDER";
-                    using var rsa = RSA.Create();
-                    rsa.FromXmlString(keyXml);
-                    var p = rsa.ExportParameters(false);
-                    var hash = SHA256.HashData(p.Modulus);
-                    var hex = new StringBuilder(16);
-                    for (int i = 0; i < 8; i++) hex.Append(hash[i].ToString("x2"));
-                    return hex.ToString();
+                    var parts = LicensePublicKey.ProductionPublicKeys
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Select(FingerprintOfKey)
+                        .Where(x => !string.IsNullOrWhiteSpace(x))
+                        .Distinct(StringComparer.Ordinal)
+                        .ToList();
+                    return parts.Count == 0 ? "UNKNOWN" : string.Join(" / ", parts);
                 }
                 catch
                 {
@@ -251,26 +251,10 @@ namespace ProGlassAutomation.Services.Licensing
             }
             byte[] message = Encoding.UTF8.GetBytes(envelope.Payload.ToCanonicalJson());
 
-            // Pick the right public key. A payload marked as a
-            // trial (TrialSource != "") is verified against the
-            // trial public key, not the production public key.
-            // This separation is what lets the shipped app
-            // issue its own 7-day trial without having the
-            // production private key on disk. The trial key
-            // pair is embedded in LicensePublicKey for this
-            // purpose (see the threat-model comment there for
-            // why this is a business-logic gate, not a
-            // cryptographic one).
-            string publicKeyXml = !string.IsNullOrEmpty(envelope.Payload.TrialSource)
-                ? LicensePublicKey.TrialPublicKeyXml
-                : LicensePublicKey.PublicKeyXml;
-
-            // If the trial key is still the placeholder, refuse
-            // any trial payload — the developer has not finished
-            // configuring the licensing subsystem. A real
-            // customer license (TrialSource == "") falls through
-            // to the production-key path, which is its own
-            // placeholder check.
+            // Trial payloads use their dedicated trial public key. Real
+            // customer .lic files use the production key ring so newly issued
+            // generator licenses can coexist with older licenses already in
+            // the field.
             if (!string.IsNullOrEmpty(envelope.Payload.TrialSource)
                 && LicensePublicKey.IsTrialKeyPlaceholder)
             {
@@ -286,52 +270,46 @@ namespace ProGlassAutomation.Services.Licensing
                 };
             }
 
-            // Verify the signature. PSS first (the modern
-            // padding); fall back to PKCS#1 v1.5 for backward
-            // compatibility with old hand-rolled license tools.
-            try
+            bool signatureValid;
+            string? verifyError;
+
+            if (!string.IsNullOrEmpty(envelope.Payload.TrialSource))
             {
-                using var rsa = RSA.Create();
-                rsa.FromXmlString(publicKeyXml);
-
-                bool ok =
-                    rsa.VerifyData(message, signature,
-                        HashAlgorithmName.SHA256, RSASignaturePadding.Pss)
-                    || rsa.VerifyData(message, signature,
-                        HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-
-                if (!ok)
-                {
-                    // Actionable diagnosis. "Signature does not match" is
-                    // almost always a KEY MISMATCH: the license was signed
-                    // with a private key whose public half differs from the
-                    // one embedded in this app build. Tell the developer
-                    // exactly what to do instead of leaving a dead end.
-                    string hint =
-                        "Signature does not match the payload. " +
-                        "The license was signed with a DIFFERENT key than " +
-                        "the one this app build expects. " +
-                        "A copied / renamed / stale license, or an app " +
-                        "rebuilt with a different public key, also causes " +
-                        "this.\n" +
-                        "\n" +
-                        "Send this to your vendor so they can re-issue " +
-                        "with the matching key: this app expects public-key " +
-                        "fingerprint " + EmbeddedPublicKeyFingerprint + ".";
-
-                    return new LicenseVerificationResult
-                    {
-                        Status = LicenseStatus.Invalid,
-                        ErrorDetail = hint
-                    };
-                }
+                signatureValid = TryVerifyWithKey(
+                    LicensePublicKey.TrialPublicKeyXml,
+                    message,
+                    signature,
+                    out verifyError);
             }
-            catch (Exception ex)
+            else
             {
+                signatureValid = TryVerifyWithAnyProductionKey(
+                    LicensePublicKey.ProductionPublicKeys,
+                    message,
+                    signature,
+                    out verifyError);
+            }
+
+            if (!signatureValid)
+            {
+                string hint =
+                    "Signature does not match the payload. " +
+                    "The license was signed with a DIFFERENT key than " +
+                    "the one this app build expects. " +
+                    "A copied / renamed / stale license, or an app " +
+                    "rebuilt with a different public key, also causes " +
+                    "this.\n\n" +
+                    "Send this to your vendor so they can re-issue " +
+                    "with the matching key: this app expects public-key " +
+                    "fingerprint(s) " + EmbeddedPublicKeyFingerprint + ".";
+
+                if (!string.IsNullOrWhiteSpace(verifyError))
+                    hint += "\n\nVerifier detail: " + verifyError;
+
                 return new LicenseVerificationResult
                 {
                     Status = LicenseStatus.Invalid,
-                    ErrorDetail = "Signature verification failed: " + ex.Message
+                    ErrorDetail = hint
                 };
             }
 
@@ -440,6 +418,60 @@ namespace ProGlassAutomation.Services.Licensing
                 Status = LicenseStatus.Valid,
                 Payload = payload
             };
+        }
+
+        private static string FingerprintOfKey(string keyXml)
+        {
+            using var rsa = RSA.Create();
+            rsa.FromXmlString(keyXml);
+            var p = rsa.ExportParameters(false);
+            var hash = SHA256.HashData(p.Modulus ?? Array.Empty<byte>());
+            var hex = new StringBuilder(16);
+            for (int i = 0; i < Math.Min(8, hash.Length); i++)
+                hex.Append(hash[i].ToString("x2"));
+            return hex.ToString();
+        }
+
+        private static bool TryVerifyWithAnyProductionKey(
+            IEnumerable<string> keys,
+            byte[] message,
+            byte[] signature,
+            out string? error)
+        {
+            error = null;
+            foreach (var key in keys ?? Array.Empty<string>())
+            {
+                if (string.IsNullOrWhiteSpace(key))
+                    continue;
+
+                if (TryVerifyWithKey(key, message, signature, out error))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryVerifyWithKey(
+            string publicKeyXml,
+            byte[] message,
+            byte[] signature,
+            out string? error)
+        {
+            error = null;
+            try
+            {
+                using var rsa = RSA.Create();
+                rsa.FromXmlString(publicKeyXml);
+                return rsa.VerifyData(message, signature,
+                           HashAlgorithmName.SHA256, RSASignaturePadding.Pss)
+                    || rsa.VerifyData(message, signature,
+                           HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            }
+            catch (Exception ex)
+            {
+                error = ex.Message;
+                return false;
+            }
         }
 
         /// <summary>
