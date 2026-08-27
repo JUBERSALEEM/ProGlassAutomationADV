@@ -1206,12 +1206,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             if (_otherChargesVm == null) return;
 
+            var billedCoverage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var charge in _otherChargesVm.ChargeRows.Where(r => r.IsActive))
-                AppendPredefinedChargeRows(rows, ref productionCost, charge);
+                AppendPredefinedChargeRows(rows, ref productionCost, charge, billedCoverage);
 
             // Wastage rows remain OUTSIDE Step 9 for now. Without sheet
             // optimization / utilization logic the business does not want
             // wastage guessed into profit yet.
+
+            if (_otherChargesVm.UseAdvancedAutomation)
+                AppendAdvancedSuggestedCharges(rows, ref productionCost, billedCoverage);
 
             foreach (var custom in _otherChargesVm.CustomChargesSection.AddedCharges.Where(r => r.IsActive))
                 AppendInvoiceWideCharge(rows, ref productionCost,
@@ -1248,6 +1253,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 decimal amount = Math.Round(qty * charge.Rate, 2);
                 string kind = BuildChargeKind(charge.ChargeName);
+                billedCoverage?.Add(BuildCoverageKey(charge.TemplateKey, spec.SpecGroupNumber));
                 rows.Add(new ProfitLossRow
                 {
                     Kind = kind,
@@ -1263,6 +1269,84 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     Amount = amount
                 });
                 productionCost += amount;
+            }
+        }
+
+        private void AppendAdvancedSuggestedCharges(
+            List<ProfitLossRow> rows,
+            ref decimal productionCost,
+            HashSet<string> billedCoverage)
+        {
+            if (_otherChargesVm == null || _dataGrid == null) return;
+
+            var metricsByGroup = _otherChargesVm.MetricHub.PerSpecMetrics
+                .ToDictionary(x => x.SpecGroupNumber);
+
+            foreach (var group in _dataGrid.SpecGroups)
+            {
+                metricsByGroup.TryGetValue(group.GroupNumber, out var metric);
+                bool matchedSameGlass = metric?.IsMatchedSameGlass
+                    ?? Models.ProformaInvoice.Step6OtherCharges.LaminateGlassMatcher
+                        .IsMatchedSameGlass(
+                            group.SelectedSpecName,
+                            group.SelectedGlassType,
+                            group.OuterGlassColor,
+                            group.InnerGlassColor);
+
+                foreach (var suggestion in OtherChargeAutomationRules.GetChargeSuggestions(
+                    group.SelectedGlassType,
+                    group.SelectedSpecName,
+                    matchedSameGlass))
+                {
+                    string coverageKey = BuildCoverageKey(
+                        suggestion.TemplateKey,
+                        group.GroupNumber);
+                    if (billedCoverage.Contains(coverageKey))
+                        continue;
+
+                    var charge = _otherChargesVm.ChargeRows.FirstOrDefault(r =>
+                        string.Equals(r.TemplateKey, suggestion.TemplateKey,
+                            StringComparison.OrdinalIgnoreCase));
+                    if (charge == null) continue;
+
+                    decimal qty = 0m;
+                    string unitLabel = charge.Unit.ToString().ToUpperInvariant();
+
+                    if (charge.IsPolishRow)
+                    {
+                        var polishType = suggestion.PolishSubType
+                            ?? charge.SelectedPolishSubType?.Type
+                            ?? Models.ProformaInvoice.Step6OtherCharges.PolishSubType.AllSidePolish;
+                        qty = ComputePolishQtyForSpec(group.GroupNumber, charge, polishType);
+                    }
+                    else if (metric != null)
+                    {
+                        qty = MetricValueForSpec(metric, suggestion.MetricKey);
+                    }
+
+                    decimal rate = ResolveSuggestedChargeRate(
+                        charge, suggestion.TemplateKey, group);
+                    if (qty <= 0m || rate <= 0m) continue;
+
+                    string kind = BuildChargeKind(charge.ChargeName);
+                    decimal amount = Math.Round(qty * rate, 2);
+                    rows.Add(new ProfitLossRow
+                    {
+                        Kind = kind,
+                        SpecNumber = group.GroupNumber,
+                        SpecName = FindSpecName(group.GroupNumber),
+                        Description = PnLMeasurement.BuildRowDescription(
+                            FindSpecGroup(group.GroupNumber),
+                            kind,
+                            $"{qty:0.###} {unitLabel}"),
+                        Quantity = Math.Round(qty, 3),
+                        PricePerSqm = rate,
+                        UnitLabel = unitLabel,
+                        Amount = amount
+                    });
+                    productionCost += amount;
+                    billedCoverage.Add(coverageKey);
+                }
             }
         }
 
@@ -1294,11 +1378,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         private decimal ComputePolishQtyForSpec(
             int specNumber,
-            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge)
+            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge,
+            Models.ProformaInvoice.Step6OtherCharges.PolishSubType? overrideType = null)
         {
+            var selectedType = overrideType ?? charge.SelectedPolishSubType?.Type;
             if (_dataGrid == null
-                || charge.SelectedPolishSubType == null
-                || charge.SelectedPolishSubType.Type == Models.ProformaInvoice.Step6OtherCharges.PolishSubType.Custom)
+                || selectedType == null
+                || selectedType == Models.ProformaInvoice.Step6OtherCharges.PolishSubType.Custom)
                 return 0m;
 
             var group = _dataGrid.SpecGroups.FirstOrDefault(g => g.GroupNumber == specNumber);
@@ -1330,9 +1416,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
             return Services.ProformaInvoice.Export.ProformaChargeMetricsCalculator.ComputePolishLm(
                 new List<SpecGroupSnapshot> { snapshot },
-                charge.SelectedPolishSubType.Type.ToString(),
+                selectedType.Value.ToString(),
                 matchedSameGlassOnly: charge.IsMatchedLamPolishRow);
         }
+
+        private decimal ResolveSuggestedChargeRate(
+            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge,
+            string templateKey,
+            SpecGroup group)
+        {
+            if (string.Equals(templateKey, "U_INSERT", StringComparison.OrdinalIgnoreCase)
+                && group.UInsertPricePerSqm > 0m)
+                return group.UInsertPricePerSqm;
+
+            return charge.Rate;
+        }
+
+        private static decimal MetricValueForSpec(
+            Models.ProformaInvoice.Step6OtherCharges.SpecGroupMetric spec,
+            string metricKey)
+        {
+            return metricKey switch
+            {
+                "LM1" => spec.Lm1,
+                "LM2" => spec.Lm2,
+                "LM_COMBINED" => spec.LmCombined,
+                "SQM1" => spec.Sqm1,
+                "SQM2" => spec.Sqm2,
+                "SQM_COMBINED" => spec.SqmCombined,
+                "DGU_CAVITY" => spec.Sqm1,
+                "QTY" => spec.Qty,
+                "DOUBLE_GLASS" => spec.PhysicalPanes,
+                _ => 0m
+            };
+        }
+
+        private static string BuildCoverageKey(string templateKey, int specNumber) =>
+            $"{templateKey}|{specNumber}";
 
         private static string BuildChargeKind(string? label)
         {
