@@ -18,9 +18,12 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Step6_xaml_exposes_the_advanced_mode_toggle()
         {
-            var path = Path.Combine(LocateProjectRoot(),
+            var root = LocateProjectRoot();
+            var path = Path.Combine(root,
                 "Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml");
             var src = File.ReadAllText(path);
+            var vm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/OtherChargesViewModel.cs"));
 
             var xdoc = new XmlDocument();
             xdoc.Load(path);
@@ -28,6 +31,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("UseAdvancedAutomation", src);
             Assert.Contains("Advanced auto-charge mode", src);
             Assert.Contains("AutomationModeLabel", src);
+            Assert.Contains("BindStep4Pricing", vm);
         }
 
         [Fact]

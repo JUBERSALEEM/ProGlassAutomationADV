@@ -1,7 +1,9 @@
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
     public class WastagesSectionViewModel : ViewModelBase
     {
         private readonly DataGridViewModel _dataGrid;
+        private Func<IReadOnlyList<Step4PricingSnapshot>>? _step4SectionsProvider;
 
         public ObservableCollection<WastageRow> WastageRows { get; } = new();
 
@@ -29,6 +32,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         public ICommand AddWastageCommand { get; }
         public ICommand RemoveWastageCommand { get; }
+
+        public void BindStep4SectionsProvider(Func<IReadOnlyList<Step4PricingSnapshot>> provider)
+        {
+            _step4SectionsProvider = provider;
+            SyncAllWastageSources();
+        }
 
         public WastagesSectionViewModel(DataGridViewModel dataGrid)
         {
@@ -153,10 +162,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 .Select(s => $"{s.SpecNumber}-{s.SideLabel}")
                 .ToList();
 
+            var step4Sections = _step4SectionsProvider?.Invoke();
+
             row.AvailableSources.Clear();
 
             foreach (var group in _dataGrid.SpecGroups)
             {
+                var step4Snapshot = ResolveStep4Snapshot(step4Sections, group.GroupNumber);
+
                 // Outer
                 var outer = new SpecGroupColorSide
                 {
@@ -169,6 +182,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     SheetHeightMm = group.OuterSheetHeightMm,
                     PricePerSqm = group.OuterSheetPricePerSqm
                 };
+                ApplyStep4SourceMetadata(outer, step4Snapshot, group.SelectedGlassType, preferInner: false);
                 if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}"))
                     outer.IsChecked = true;
                 row.AvailableSources.Add(outer);
@@ -188,6 +202,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
                     };
+                    ApplyStep4SourceMetadata(inner, step4Snapshot, group.SelectedGlassType, preferInner: true);
                     if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}"))
                         inner.IsChecked = true;
                     row.AvailableSources.Add(inner);
@@ -197,6 +212,120 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         }
 
         public void RefreshTotal() => RecalculateTotal();
+
+        private static Step4PricingSnapshot? ResolveStep4Snapshot(
+            IReadOnlyList<Step4PricingSnapshot>? sections,
+            int groupNumber)
+        {
+            if (sections == null || groupNumber <= 0 || groupNumber > sections.Count)
+                return null;
+
+            return sections[groupNumber - 1];
+        }
+
+        private static void ApplyStep4SourceMetadata(
+            SpecGroupColorSide source,
+            Step4PricingSnapshot? snapshot,
+            string? selectedGlassType,
+            bool preferInner)
+        {
+            if (source == null || snapshot == null)
+                return;
+
+            string type = (selectedGlassType ?? string.Empty).Trim().ToUpperInvariant();
+            string color = (source.ColorName ?? string.Empty).Trim();
+
+            if (type == "SGU")
+            {
+                ApplyIfMatch(source, color, snapshot.Sgu.GlassColor,
+                    snapshot.Sgu.SheetWidthMm, snapshot.Sgu.SheetHeightMm,
+                    snapshot.Sgu.BasePricePerSqm);
+                return;
+            }
+
+            if (type == "DGU")
+            {
+                ApplyBestMatch(source, color, preferInner,
+                    (snapshot.Dgu.OuterGlassColor, snapshot.Dgu.OuterSheetWidthMm, snapshot.Dgu.OuterSheetHeightMm, snapshot.Dgu.OuterBasePrice),
+                    (snapshot.Dgu.InnerGlassColor, snapshot.Dgu.InnerSheetWidthMm, snapshot.Dgu.InnerSheetHeightMm, snapshot.Dgu.InnerBasePrice));
+                return;
+            }
+
+            if (type == "LAM")
+            {
+                ApplyBestMatch(source, color, preferInner,
+                    (snapshot.Lam.OuterGlassColor, snapshot.Lam.OuterSheetWidthMm, snapshot.Lam.OuterSheetHeightMm, snapshot.Lam.OuterBasePrice),
+                    (snapshot.Lam.InnerGlassColor, snapshot.Lam.InnerSheetWidthMm, snapshot.Lam.InnerSheetHeightMm, snapshot.Lam.InnerBasePrice));
+                return;
+            }
+
+            if (type == "DGU+LAM")
+            {
+                ApplyBestMatch(source, color, preferInner,
+                    (snapshot.DguLam.OuterGlassColor, 0, 0, snapshot.DguLam.OuterBasePrice),
+                    (snapshot.DguLam.LamInnerColor, 0, 0, snapshot.DguLam.LamInnerBasePrice),
+                    (snapshot.DguLam.LamOuterColor, 0, 0, snapshot.DguLam.LamOuterBasePrice));
+            }
+        }
+
+        private static void ApplyBestMatch(
+            SpecGroupColorSide source,
+            string color,
+            bool preferInner,
+            params (string Color, int Width, int Height, decimal Price)[] candidates)
+        {
+            if (candidates == null || candidates.Length == 0)
+                return;
+
+            var ordered = preferInner && candidates.Length > 1
+                ? candidates.Skip(1).Concat(candidates.Take(1))
+                : candidates.AsEnumerable();
+
+            foreach (var candidate in ordered)
+            {
+                if (!ColorsMatch(color, candidate.Color))
+                    continue;
+
+                ApplyMetadata(source, candidate.Width, candidate.Height, candidate.Price);
+                return;
+            }
+        }
+
+        private static void ApplyIfMatch(
+            SpecGroupColorSide source,
+            string sourceColor,
+            string? candidateColor,
+            int width,
+            int height,
+            decimal price)
+        {
+            if (!ColorsMatch(sourceColor, candidateColor))
+                return;
+
+            ApplyMetadata(source, width, height, price);
+        }
+
+        private static void ApplyMetadata(
+            SpecGroupColorSide source,
+            int width,
+            int height,
+            decimal price)
+        {
+            if (width > 0)
+                source.SheetWidthMm = width;
+            if (height > 0)
+                source.SheetHeightMm = height;
+            if (price > 0m)
+                source.PricePerSqm = price;
+        }
+
+        private static bool ColorsMatch(string? left, string? right)
+        {
+            return string.Equals(
+                (left ?? string.Empty).Trim(),
+                (right ?? string.Empty).Trim(),
+                StringComparison.OrdinalIgnoreCase);
+        }
 
         private static string ExtractColorKey(string? displayName)
         {

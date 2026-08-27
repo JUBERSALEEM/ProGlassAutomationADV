@@ -180,6 +180,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
             Step5VM = new Step5DataGrid.DataGridViewModel();
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
+            Step6VM.BindStep4Pricing(() => Step4VM.CaptureSectionSnapshots());
             Step6VM.BindLaminationEditors(Step4VM.LamVM, Step4VM.DguLamVM);
 
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(

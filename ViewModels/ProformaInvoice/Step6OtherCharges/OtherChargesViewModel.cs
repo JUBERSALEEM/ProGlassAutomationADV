@@ -134,6 +134,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             ApplyAdvancedSuggestions();
         }
 
+        public void BindStep4Pricing(Func<IReadOnlyList<ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.Step4PricingSnapshot>> sectionsProvider)
+        {
+            if (sectionsProvider == null) return;
+            WastagesSection.BindStep4SectionsProvider(sectionsProvider);
+            RefreshWastageSelectionSurface();
+        }
+
         public void BindLaminationEditors(
             LamParametersViewModel lamVm,
             DguLamParametersViewModel dguLamVm)
