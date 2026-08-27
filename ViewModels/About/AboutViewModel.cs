@@ -24,7 +24,7 @@
 //   • Dynamic copyright year (2026 floor)
 //   • LeftPillars / RightPillars (hero triptych)
 //   • SalesCycle / ProductionStages / DispatchBilling (workflow)
-//   • Modules (11 module chips)
+//   • Modules (12 module chips)
 //   • TechStack (8 tech items)
 //   • CapabilitiesTop / CapabilitiesBottom (split capability rows)
 //   • All records except StatTile: HeroPillar, WorkflowStage,
@@ -289,8 +289,10 @@ public sealed class AboutViewModel : ViewModelBase
 
     /// <summary>
     /// Live modules shipped in the current release.
-    /// Each entry renders as a chip in the "Active Modules" card.
+    /// Each entry renders as a card in the "Active Modules" grid.
     /// Ordered by user-facing importance (Sales → Production → Dispatch).
+    /// Includes the Settings surface because it owns core system behavior,
+    /// licensing, theme, backup, AI and feature controls.
     /// Backed by <see cref="ActiveModuleCatalog"/> so the hero metric
     /// stays numerically aligned with the actual list.
     /// </summary>
@@ -308,6 +310,8 @@ public sealed class AboutViewModel : ViewModelBase
             "VAT-compliant · Partial invoices · Family tracking"),
         new ModuleInfo("\uE81C", "Statements & Reports",
             "Account statements · Sales report · PDF export"),
+        new ModuleInfo("\uE713", "Settings",
+            "Appearance · licensing · backups · AI · feature controls"),
         new ModuleInfo("\uE72E", "Users · Audit · Activity",
             "Roles & permissions · Before/after diffs · Live log"),
         new ModuleInfo("\uE9F9", "Multi-page Dashboard",

@@ -30,84 +30,84 @@
 
         <Border Style="{StaticResource HeroCardStyle}">
             <StackPanel>
-                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
-                    <TextBlock Text="Developer"
-                               Style="{StaticResource SectionTitleStyle}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Craftsmanship, workflow engineering, and product direction behind ProGlass Automation"
-                               Style="{StaticResource SectionSubtitleStyle}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               MaxWidth="760"
-                               Margin="0,0,0,0"/>
-                    <Border Style="{StaticResource AboutHeaderBadgeStyle}"
-                            HorizontalAlignment="Center"
-                            Margin="0,14,0,0">
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Developer"
+                                   Style="{StaticResource SectionTitleStyle}"/>
+                        <TextBlock Text="Craftsmanship, workflow engineering, and product direction behind ProGlass Automation"
+                                   Style="{StaticResource SectionSubtitleStyle}"
+                                   Margin="0,0,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource AboutHeaderBadgeStyle}">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="CRAFTED FOR GLASS ERP"/>
                     </Border>
-                </StackPanel>
+                </Grid>
 
-                <Grid HorizontalAlignment="Center" MaxWidth="1050">
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.05*"/>
+                        <ColumnDefinition Width="1.1*"/>
                         <ColumnDefinition Width="22"/>
-                        <ColumnDefinition Width="0.95*"/>
+                        <ColumnDefinition Width="0.9*"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
                             Style="{StaticResource AboutSectionPanelStyle}"
                             Margin="0,0,0,0"
                             Padding="24,22">
-                        <StackPanel HorizontalAlignment="Center">
-                            <Border Width="84"
-                                    Height="84"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Background="{DynamicResource AboutInteractiveHoverBrush}"
-                                    BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}"
-                                    SnapsToDevicePixels="True"
-                                    HorizontalAlignment="Center">
-                                <Border Width="76"
-                                        Height="76"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        ClipToBounds="True">
-                                    <Border.Background>
-                                        <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
-                                                    Stretch="UniformToFill"
-                                                    RenderOptions.BitmapScalingMode="HighQuality"/>
-                                    </Border.Background>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="84"
+                                        Height="84"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Background="{DynamicResource AboutInteractiveHoverBrush}"
+                                        BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                        SnapsToDevicePixels="True">
+                                    <Border Width="76"
+                                            Height="76"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            ClipToBounds="True">
+                                        <Border.Background>
+                                            <ImageBrush ImageSource="{x:Static viewsAbout:AppIconResource.Icon}"
+                                                        Stretch="UniformToFill"
+                                                        RenderOptions.BitmapScalingMode="HighQuality"/>
+                                        </Border.Background>
+                                    </Border>
                                 </Border>
-                            </Border>
 
-                            <TextBlock Text="{Binding DeveloperName}"
-                                       FontSize="22"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource GlassSnow}"
-                                       HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       Margin="0,16,0,0"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="Principal developer · product design · workflow engineering"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource GlassMuted}"
-                                       HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="Made in India · {Binding Country}"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource GlassCerulean}"
-                                       HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"
-                                       IsHitTestVisible="False"/>
+                                <StackPanel Margin="18,0,0,0"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding DeveloperName}"
+                                               FontSize="22"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource GlassSnow}"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="Principal developer · product design · workflow engineering"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource GlassMuted}"
+                                               Margin="0,6,0,0"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="Made in India · {Binding Country}"
+                                               FontSize="12"
+                                               Foreground="{DynamicResource GlassCerulean}"
+                                               Margin="0,6,0,0"
+                                               TextWrapping="Wrap"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </StackPanel>
 
                             <Border Margin="0,20,0,0"
                                     Padding="18,10"
-                                    HorizontalAlignment="Center"
+                                    HorizontalAlignment="Left"
                                     Cursor="Hand"
                                     Background="{DynamicResource AboutInteractiveBrush}"
                                     BorderBrush="{DynamicResource AboutInteractiveBorderStrongBrush}"
@@ -137,60 +137,46 @@
                             Padding="24,22">
                         <StackPanel>
                             <TextBlock Text="PRODUCT FACTS"
-                                       Style="{StaticResource AboutPanelKickerStyle}"
-                                       HorizontalAlignment="Center"
-                                       TextAlignment="Center"/>
+                                       Style="{StaticResource AboutPanelKickerStyle}"/>
 
-                            <UniformGrid Columns="2" Rows="2" Margin="0,6,0,0">
+                            <UniformGrid Columns="2" Rows="2" Margin="-6,6,-6,0">
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
-                                    <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel>
                                         <TextBlock Text="VERSION"
-                                                   Style="{StaticResource InfoLabelStyle}"
-                                                   HorizontalAlignment="Center"/>
+                                                   Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding Version}"
                                                    Style="{StaticResource InfoValueStyle}"
-                                                   HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
                                                    Margin="0,6,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
-                                    <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel>
                                         <TextBlock Text="BUILD"
-                                                   Style="{StaticResource InfoLabelStyle}"
-                                                   HorizontalAlignment="Center"/>
+                                                   Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding Build}"
                                                    Style="{StaticResource InfoValueStyle}"
-                                                   HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
                                                    Margin="0,6,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
-                                    <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel>
                                         <TextBlock Text="EDITION"
-                                                   Style="{StaticResource InfoLabelStyle}"
-                                                   HorizontalAlignment="Center"/>
+                                                   Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding LicenseStatus.EditionDisplay}"
                                                    Style="{StaticResource InfoValueStyle}"
-                                                   HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    Margin="0,6,0,0"/>
                                     </StackPanel>
                                 </Border>
 
                                 <Border Style="{StaticResource AboutCodeStripStyle}" Margin="6">
-                                    <StackPanel HorizontalAlignment="Center">
+                                    <StackPanel>
                                         <TextBlock Text="STATUS"
-                                                   Style="{StaticResource InfoLabelStyle}"
-                                                   HorizontalAlignment="Center"/>
+                                                   Style="{StaticResource InfoLabelStyle}"/>
                                         <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
                                                    Style="{StaticResource InfoValueStyle}"
-                                                   HorizontalAlignment="Center"
-                                                   TextAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    Margin="0,6,0,0"/>
                                     </StackPanel>
@@ -204,36 +190,37 @@
 
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>
-                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
-                    <TextBlock Text="Technology Stack"
-                               Style="{StaticResource SectionTitleStyle}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"/>
-                    <TextBlock Text="Battle-tested Microsoft and open-source foundation"
-                               Style="{StaticResource SectionSubtitleStyle}"
-                               HorizontalAlignment="Center"
-                               TextAlignment="Center"
-                               MaxWidth="720"
-                               Margin="0,0,0,0"/>
-                    <Border Style="{StaticResource AboutHeaderBadgeStyle}"
-                            HorizontalAlignment="Center"
-                            Margin="0,14,0,0">
+                <Grid Margin="0,0,0,18">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="Technology Stack"
+                                   Style="{StaticResource SectionTitleStyle}"/>
+                        <TextBlock Text="Battle-tested Microsoft and open-source foundation"
+                                   Style="{StaticResource SectionSubtitleStyle}"
+                                   Margin="0,0,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource AboutHeaderBadgeStyle}">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
                             <Run Text="STACK ITEMS  "/>
                             <Run Text="{Binding TechStack.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
-                </StackPanel>
+                </Grid>
 
                 <Border Style="{StaticResource AboutSectionPanelStyle}"
                         Margin="0,0,0,0"
-                        Padding="16,16">
+                        Padding="14,14">
                     <ItemsControl ItemsSource="{Binding TechStack}"
-                                  ItemTemplate="{StaticResource TechItemTemplate}"
-                                  HorizontalAlignment="Center">
+                                  ItemTemplate="{StaticResource TechItemTemplate}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
-                                <WrapPanel HorizontalAlignment="Center"/>
+                                <UniformGrid Columns="4"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                     </ItemsControl>
@@ -242,7 +229,7 @@
         </Border>
 
         <Border Style="{StaticResource AboutCardStyle}">
-            <StackPanel HorizontalAlignment="Center" MaxWidth="760">
+            <StackPanel HorizontalAlignment="Center">
                 <TextBlock Text="ProGlass Automation — Enterprise ERP for UAE glass manufacturing"
                            FontSize="13"
                            FontWeight="Bold"

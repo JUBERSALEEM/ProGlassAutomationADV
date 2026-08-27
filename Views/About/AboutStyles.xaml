@@ -232,10 +232,10 @@
 
     <DataTemplate x:Key="ModuleChipTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                Width="332"
-                Height="140"
+                MinHeight="140"
                 Padding="18,16"
                 Margin="7"
+                HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
@@ -315,10 +315,10 @@
 
     <DataTemplate x:Key="TechItemTemplate">
         <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                Width="268"
-                Height="84"
+                MinHeight="84"
                 Padding="16,14"
                 Margin="7"
+                HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
@@ -354,10 +354,10 @@
 
     <DataTemplate x:Key="CapabilityCardTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                Width="252"
-                Height="176"
+                MinHeight="176"
                 Padding="20,20"
                 Margin="8"
+                HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
@@ -395,10 +395,10 @@
 
     <DataTemplate x:Key="WorkflowCardTemplate">
         <Border CornerRadius="{DynamicResource CardCornerRadius}"
-                Width="224"
-                Height="196"
+                MinHeight="196"
                 Padding="20,18"
                 Margin="7"
+                HorizontalAlignment="Stretch"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"

@@ -48,7 +48,7 @@
                 <Setter Property="ItemsPanel">
                     <Setter.Value>
                         <ItemsPanelTemplate>
-                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Center"/>
+                            <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left"/>
                         </ItemsPanelTemplate>
                     </Setter.Value>
                 </Setter>
@@ -137,9 +137,7 @@
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="40,40,40,40"
-                        HorizontalAlignment="Center"
-                        MaxWidth="1280">
+            <StackPanel Margin="40,40,40,40">
 
                 <!-- ═══ HERO — frosted identity strip ═══ -->
                 <Border Style="{StaticResource HeroCardStyle}">
@@ -273,10 +271,10 @@
                                 <ItemsControl Grid.Column="0"
                                               ItemsSource="{Binding LeftPillars}"
                                               ItemTemplate="{StaticResource HeroPillarTemplate}"
-                                              HorizontalAlignment="Center">
+                                              HorizontalAlignment="Left">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel HorizontalAlignment="Center"/>
+                                            <WrapPanel HorizontalAlignment="Left"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
@@ -284,10 +282,10 @@
                                 <ItemsControl Grid.Column="2"
                                               ItemsSource="{Binding RightPillars}"
                                               ItemTemplate="{StaticResource HeroPillarTemplate}"
-                                              HorizontalAlignment="Center">
+                                              HorizontalAlignment="Right">
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <WrapPanel HorizontalAlignment="Center"/>
+                                            <WrapPanel HorizontalAlignment="Right"/>
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                 </ItemsControl>
@@ -301,7 +299,6 @@
                          SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
                          Style="{StaticResource AboutTabListStyle}"
                          ItemContainerStyle="{StaticResource AboutTabItemStyle}"
-                         HorizontalAlignment="Center"
                          Margin="0,0,0,22"/>
 
                 <!-- ═══ SECTION CONTENT (switched by SelectedTabIndex) ═══ -->
