@@ -241,6 +241,13 @@
                                                Foreground="{DynamicResource GlassAccent}"
                                                IsHitTestVisible="False"/>
                                 </Border>
+                                <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
+                                        HorizontalAlignment="Right">
+                                    <TextBlock Text="{Binding LicenseStatus.StatusBadge}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="{DynamicResource GlassSnow}"
+                                               IsHitTestVisible="False"/>
+                                </Border>
                             </StackPanel>
 
                             <!-- Hero metrics restored: bind the shared pillar collections

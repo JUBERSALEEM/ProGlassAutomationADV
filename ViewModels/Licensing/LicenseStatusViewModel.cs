@@ -69,6 +69,11 @@ namespace ProGlassAutomation.ViewModels.Licensing
         private string _licenseIdDisplay = "—";
         private string _notesDisplay = "";
         private string _errorDetail = "";
+        private string _activationModeDisplay = "—";
+        private string _licenseSourceDisplay = "—";
+        private string _licenseWindowDisplay = "—";
+        private string _trustedIssuerDisplay = "—";
+        private string _featureSummaryDisplay = "—";
 
         private LicenseStatusViewModel()
         {
@@ -171,8 +176,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _licenseIdDisplay = "—";
                 _machineFingerprint = "—";
                 _featuresDisplay = "—";
+                _featureSummaryDisplay = "No active feature set";
+                _activationModeDisplay = "No active license";
+                _licenseSourceDisplay = "Paste a license key or browse a .lic file in Settings → License.";
+                _licenseWindowDisplay = "—";
+                _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = "";
                 _daysRemaining = 0;
+                _trialTotalDays = 0;
             }
             else
             {
@@ -182,7 +193,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _companyDisplay = string.IsNullOrEmpty(p.CompanyName)
                     ? "—" : p.CompanyName;
                 _issuedDisplay = SafeLocalString(p.IssuedAt);
-                _expiresDisplay = SafeLocalString(p.ExpiresAt);
+                _expiresDisplay = SafeLocalString(p.EffectiveExpiresAt);
                 _licenseIdDisplay = string.IsNullOrEmpty(p.LicenseId)
                     ? "—" : p.LicenseId;
                 _machineFingerprint = string.IsNullOrEmpty(p.MachineFingerprint)
@@ -190,6 +201,13 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _featuresDisplay = (p.Features == null || p.Features.Count == 0)
                     ? "—"
                     : string.Join(", ", p.Features);
+                _featureSummaryDisplay = BuildFeatureSummary(p.Features);
+                _activationModeDisplay = BuildActivationMode(p);
+                _licenseSourceDisplay = string.IsNullOrEmpty(p.TrialSource)
+                    ? "Customer-issued full license — accepted as .lic file or pasted activation key."
+                    : $"{p.TotalDays}-day auto-issued trial — accepted by the same activation screen as paid licenses.";
+                _licenseWindowDisplay = $"{_issuedDisplay} → {_expiresDisplay}";
+                _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = p.Notes ?? "";
                 // Read the expiry from the payload's own authoritative
                 // value (TrialExpiresAt for trials, ExpiresAt otherwise),
@@ -238,8 +256,16 @@ namespace ProGlassAutomation.ViewModels.Licensing
             OnPropertyChanged(nameof(MachineFingerprint));
             OnPropertyChanged(nameof(CurrentFingerprint));
             OnPropertyChanged(nameof(FeaturesDisplay));
+            OnPropertyChanged(nameof(FeatureSummaryDisplay));
             OnPropertyChanged(nameof(LicenseIdDisplay));
+            OnPropertyChanged(nameof(ActivationModeDisplay));
+            OnPropertyChanged(nameof(LicenseSourceDisplay));
+            OnPropertyChanged(nameof(LicenseWindowDisplay));
+            OnPropertyChanged(nameof(TrustedIssuerDisplay));
             OnPropertyChanged(nameof(NotesDisplay));
+            OnPropertyChanged(nameof(HasNotes));
+            OnPropertyChanged(nameof(HasPayloadDetails));
+            OnPropertyChanged(nameof(SupportSummary));
             OnPropertyChanged(nameof(ErrorDetail));
             // Commit 4 of the licensing refactor: the main
             // window's overlay trigger binds to this. Raise
@@ -314,8 +340,15 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public string MachineFingerprint => _machineFingerprint;
         public string CurrentFingerprint => _currentFingerprint;
         public string FeaturesDisplay => _featuresDisplay;
+        public string FeatureSummaryDisplay => _featureSummaryDisplay;
         public string LicenseIdDisplay => _licenseIdDisplay;
+        public string ActivationModeDisplay => _activationModeDisplay;
+        public string LicenseSourceDisplay => _licenseSourceDisplay;
+        public string LicenseWindowDisplay => _licenseWindowDisplay;
+        public string TrustedIssuerDisplay => _trustedIssuerDisplay;
         public string NotesDisplay => _notesDisplay;
+        public bool HasNotes => !string.IsNullOrWhiteSpace(_notesDisplay);
+        public bool HasPayloadDetails => LicenseService.Current.Payload != null;
         public string ErrorDetail => _errorDetail;
 
         /// <summary>
@@ -356,6 +389,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
         /// functionality (no read-only mode).
         /// </summary>
         public bool CanRunFullUi => IsValid || IsTrial;
+
+        /// <summary>
+        /// About/support surface helper. This summarizes who the license
+        /// belongs to, what mode it runs in, and which issuer ring this build
+        /// trusts.
+        /// </summary>
+        public string SupportSummary =>
+            $"{CustomerDisplay} · {EditionDisplay} · {ActivationModeDisplay} · trusted key ring {TrustedIssuerDisplay}";
 
         /// <summary>
         /// True ONLY when the app is in a hard-broken
@@ -430,6 +471,30 @@ namespace ProGlassAutomation.ViewModels.Licensing
             LicenseService.Current.Status == LicenseStatus.TrialExpired;
 
         // ── Helpers ─────────────────────────────────────────────
+
+        private static string BuildActivationMode(LicensePayload payload)
+        {
+            if (payload == null)
+                return "No active license";
+
+            if (!string.IsNullOrWhiteSpace(payload.MachineFingerprint))
+                return "Machine-bound · only the licensed fingerprint may run this license";
+
+            return payload.MaxActivations >= 9999
+                ? "Portable · high-volume / effectively unlimited device allowance"
+                : $"Portable · up to {payload.MaxActivations} activated device(s)";
+        }
+
+        private static string BuildFeatureSummary(IReadOnlyList<string>? features)
+        {
+            if (features == null || features.Count == 0)
+                return "No active feature entries";
+            if (features.Any(f => string.Equals(f, "*", StringComparison.Ordinal)))
+                return "All modules and feature sets granted";
+            return features.Count == 1
+                ? "1 granted feature entry"
+                : $"{features.Count} granted feature entries";
+        }
 
         private static string FormatEdition(LicenseEdition edition, LicenseStatus status)
         {

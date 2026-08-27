@@ -48,28 +48,42 @@ namespace ProGlassAutomation.Views.About.Sections
 
         private void CopyFingerprintButton_Click(object sender, RoutedEventArgs e)
         {
+            CopyValue(
+                LicenseStatusViewModel.Instance.CurrentFingerprint,
+                "The current machine fingerprint is unavailable.",
+                "Copy fingerprint");
+        }
+
+        private void CopyLicenseIdButton_Click(object sender, RoutedEventArgs e)
+        {
+            CopyValue(
+                LicenseStatusViewModel.Instance.LicenseIdDisplay,
+                "No active license ID is available yet.",
+                "Copy license ID");
+        }
+
+        private static void CopyValue(string? value, string emptyMessage, string title)
+        {
             try
             {
-                string fp = LicenseStatusViewModel.Instance.CurrentFingerprint;
-                if (string.IsNullOrEmpty(fp) || fp == "—" || fp == "Computing…")
+                string text = (value ?? string.Empty).Trim();
+                if (text.Length == 0 || text == "—" || text == "Computing…")
                 {
                     MessageBox.Show(
-                        "The current machine fingerprint is unavailable.",
-                        "Copy fingerprint",
+                        emptyMessage,
+                        title,
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                     return;
                 }
-                Clipboard.SetText(fp);
+
+                Clipboard.SetText(text);
             }
             catch (Exception ex)
             {
-                // Clipboard.SetText can throw
-                // ExternalException on transient clipboard
-                // busy conditions. Surface, do not crash.
                 MessageBox.Show(
                     "Could not copy to clipboard: " + ex.Message,
-                    "Copy fingerprint",
+                    title,
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
             }

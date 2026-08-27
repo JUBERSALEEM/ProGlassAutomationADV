@@ -485,8 +485,17 @@ namespace ProGlassAutomation.Views.Licensing
                 return;
             }
 
-            try { Activated?.Invoke(this, EventArgs.Empty); }
-            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] TryInstallFromFile: host should still close: " + ex.Message); }
+            try
+            {
+                if (result.Status is LicenseStatus.Valid or LicenseStatus.ExpiringSoon or LicenseStatus.Trial)
+                    LicenseActivatedDialog.ShowFor(Window.GetWindow(this), result);
+
+                Activated?.Invoke(this, EventArgs.Empty);
+            }
+            catch (System.Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Debug("[LicenseActivationView.xaml] TryInstallFromFile: host should still close: " + ex.Message);
+            }
         }
 
         /// <summary>
