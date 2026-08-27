@@ -61,5 +61,14 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains(row.TargetSelection.AvailableSpecs,
                 s => s.SpecGroupNumber == group.GroupNumber && s.IsChecked);
         }
+
+        [Fact]
+        public void Advanced_mode_is_enabled_by_default_on_a_fresh_other_charges_viewmodel()
+        {
+            var vm = new OtherChargesViewModel(new DataGridViewModel());
+
+            Assert.True(vm.UseAdvancedAutomation);
+            Assert.False(vm.IsManualMode);
+        }
     }
 }

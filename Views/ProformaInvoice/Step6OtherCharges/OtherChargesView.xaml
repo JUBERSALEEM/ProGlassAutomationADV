@@ -148,7 +148,7 @@
                     </Grid.ColumnDefinitions>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ToggleButton Style="{StaticResource PiToggleSwitch}"
-                                      IsChecked="{Binding UseAdvancedAutomation}"
+                                      IsChecked="{Binding UseAdvancedAutomation, Mode=TwoWay}"
                                       AutomationProperties.Name="Advanced other-charge automation"/>
                         <TextBlock Text="Advanced auto-charge mode"
                                    FontSize="12"

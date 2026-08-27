@@ -30,9 +30,10 @@ namespace ProGlassAutomation.Tests.Agent
             var xdoc = new XmlDocument();
             xdoc.Load(path);
 
-            Assert.Contains("UseAdvancedAutomation", src);
+            Assert.Contains("UseAdvancedAutomation, Mode=TwoWay", src);
             Assert.Contains("Advanced auto-charge mode", src);
             Assert.Contains("AutomationModeLabel", src);
+            Assert.Contains("_useAdvancedAutomation = true", vm);
             Assert.Contains("BindStep4Pricing", vm);
             Assert.Contains("public void Dispose()", vm);
             Assert.Contains("Step6VM?.Dispose()", pi);
