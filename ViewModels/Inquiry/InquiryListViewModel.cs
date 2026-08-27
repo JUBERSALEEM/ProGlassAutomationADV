@@ -25,7 +25,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
     /// - selection survives a reload (A7: drawer slammed shut after save);
     /// - no placeholder commands — every visible control does real work.
     /// </summary>
-    public sealed class InquiryListViewModel : ViewModelBase
+    public sealed class InquiryListViewModel : ViewModelBase, System.IDisposable
     {
         private readonly IInquiryRepository _repository;
         private readonly IInquiryWorkflowService _workflow;
@@ -286,20 +286,13 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // populated by ApplyStatistics after each page load. Default 0.
             foreach (var t in InquiryPipelineTab.All) PipelineTabs.Add(t);
 
-            NewInquiryCommand = new RelayCommand(async _ =>
-            {
-                // If the user came here from the PI module's
-                // "Start from Inquiry" prompt, clear the banner so
-                // it doesn't linger after they click the toolbar
-                // "+ New inquiry" — the new inquiry is a new round
-                // of work, not a continuation of the PI prompt.
-                IsAwaitingNewPiSelection = false;
-                await EditAsync(null);
-            });
-            EditInquiryCommand = new RelayCommand(async p =>
+            NewInquiryCommand = new RelayCommand(_ =>
+                AsyncUtility.SafeFireAndForget(NewInquiryAsync, "Inquiry New"));
+            EditInquiryCommand = new RelayCommand(p =>
             {
                 var row = p as InquiryListRow ?? SelectedInquiry;
-                if (row != null) await EditRowAsync(row);
+                if (row != null)
+                    AsyncUtility.SafeFireAndForget(() => EditRowAsync(row), "Inquiry Edit");
             }, _ => SelectedInquiry != null);
             SelectStatusTabCommand = new RelayCommand(p =>
             {
@@ -311,20 +304,26 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                 SelectedPipelineKind = p is InquiryLifecycleKind k ? k : (InquiryLifecycleKind?)null;
                 ResetAndReload();
             });
-            ExportCommand = new RelayCommand(async _ => await ExportAsync());
-            ImportCommand = new RelayCommand(async _ => await ImportAsync());
+            ExportCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ExportAsync, "Inquiry Export"));
+            ImportCommand = new RelayCommand(_ => AsyncUtility.SafeFireAndForget(ImportAsync, "Inquiry Import"));
             ResetFiltersCommand = new RelayCommand(_ => ResetFilters());
             RefreshCommand = new RelayCommand(_ => Reload());
             PreviousPageCommand = new RelayCommand(_ => { if (CanGoPrevious) { CurrentPage--; Reload(); } }, _ => CanGoPrevious);
             NextPageCommand = new RelayCommand(_ => { if (CanGoNext) { CurrentPage++; Reload(); } }, _ => CanGoNext);
             CloseDetailsCommand = new RelayCommand(_ => IsDetailsDrawerOpen = false);
-            OpenWorkspaceCommand = new RelayCommand(async _ => { if (SelectedInquiry != null) await EditRowAsync(SelectedInquiry); }, _ => SelectedInquiry != null);
-            ConvertToPiCommand = new RelayCommand(async _ =>
+            OpenWorkspaceCommand = new RelayCommand(_ =>
+            {
+                if (SelectedInquiry != null)
+                    AsyncUtility.SafeFireAndForget(() => EditRowAsync(SelectedInquiry), "Inquiry OpenWorkspace");
+            }, _ => SelectedInquiry != null);
+            ConvertToPiCommand = new RelayCommand(_ =>
             {
                 IsAwaitingNewPiSelection = false;
-                await ConvertToPiAsync();
+                AsyncUtility.SafeFireAndForget(ConvertToPiAsync, "Inquiry ConvertToPi");
             }, _ => CanConvertSelected);
-            ChangeStatusCommand = new RelayCommand(async p => await ChangeSelectedStatusAsync(p as string), p => SelectedInquiry != null && p is string);
+            ChangeStatusCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ChangeSelectedStatusAsync(p as string), "Inquiry ChangeStatus"),
+                p => SelectedInquiry != null && p is string);
             OpenAttachmentCommand = new RelayCommand(p =>
             {
                 if (p is InquiryAttachmentItem item)
@@ -337,24 +336,10 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             {
                 if (p is InquiryAttachmentItem item) PreviewAttachmentRequested?.Invoke(item.Attachment);
             });
-            DeleteAttachmentCommand = new RelayCommand(async p =>
+            DeleteAttachmentCommand = new RelayCommand(p =>
             {
                 if (p is InquiryAttachmentItem item && SelectedInquiry is { } row)
-                {
-                    if (ConfirmDeleteAttachmentRequested?.Invoke(item.Attachment) != true) return;
-                    try
-                    {
-                        bool removed = await _attachments.DeleteAsync(item.Attachment);
-                        if (removed)
-                        {
-                            row.Attachments.Remove(item);
-                            row.AttachmentCount = Math.Max(0, row.AttachmentCount - 1);
-                            SetStatus($"Deleted '{item.FileName}'.");
-                            AsyncUtility.SafeFireAndForget(() => LoadSelectedDetailAsync(row), "Inquiry drawer refresh");
-                        }
-                    }
-                    catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
-                }
+                    AsyncUtility.SafeFireAndForget(() => DeleteAttachmentAsync(item, row), "Inquiry DeleteAttachment");
             });
 
             // ── Right-click context-menu commands ───────────────────────
@@ -363,11 +348,15 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // SelectedInquiry. Internally they reuse the same logic — we just
             // promote the parameter into SelectedInquiry first so the rail,
             // KPI strip and double-click handlers all stay in sync.
-            OpenWorkspaceRowCommand = new RelayCommand(async p =>
+            OpenWorkspaceRowCommand = new RelayCommand(p =>
             {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await EditRowAsync(row); }
+                if (p is InquiryListRow row)
+                {
+                    SelectedInquiry = row;
+                    AsyncUtility.SafeFireAndForget(() => EditRowAsync(row), "Inquiry OpenWorkspaceRow");
+                }
             }, p => p is InquiryListRow);
-            ConvertToPiRowCommand = new RelayCommand(async p =>
+            ConvertToPiRowCommand = new RelayCommand(p =>
             {
                 if (p is InquiryListRow row)
                 {
@@ -375,32 +364,17 @@ namespace ProGlassAutomation.ViewModels.Inquiry
                     // round-trip is complete now that the user picked.
                     IsAwaitingNewPiSelection = false;
                     SelectedInquiry = row;
-                    await ConvertToPiAsync();
+                    AsyncUtility.SafeFireAndForget(ConvertToPiAsync, "Inquiry ConvertToPiRow");
                 }
             }, p => p is InquiryListRow row && row.CanConvert);
             // Per-status row commands. Each promotes the row into the
             // selection (so the rail, KPI strip etc. update too) and then
             // delegates to the standard ChangeSelectedStatusAsync path.
-            PrepareRowCommand = new RelayCommand(async p =>
-            {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Prepared); }
-            }, p => p is InquiryListRow row && row.CanPrepareWorkflow);
-            SendRowCommand = new RelayCommand(async p =>
-            {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Sent); }
-            }, p => p is InquiryListRow row && row.CanSendWorkflow);
-            ConfirmRowCommand = new RelayCommand(async p =>
-            {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Confirmed); }
-            }, p => p is InquiryListRow row && row.CanConfirmWorkflow);
-            HoldRowCommand = new RelayCommand(async p =>
-            {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Hold); }
-            }, p => p is InquiryListRow row && row.CanHoldWorkflow);
-            CancelRowCommand = new RelayCommand(async p =>
-            {
-                if (p is InquiryListRow row) { SelectedInquiry = row; await ChangeSelectedStatusAsync(InquiryStatuses.Cancelled); }
-            }, p => p is InquiryListRow row && row.CanCancelWorkflow);
+            PrepareRowCommand = new RelayCommand(p => ExecuteStatusRowChange(p, InquiryStatuses.Prepared, "Inquiry PrepareRow"), p => p is InquiryListRow row && row.CanPrepareWorkflow);
+            SendRowCommand = new RelayCommand(p => ExecuteStatusRowChange(p, InquiryStatuses.Sent, "Inquiry SendRow"), p => p is InquiryListRow row && row.CanSendWorkflow);
+            ConfirmRowCommand = new RelayCommand(p => ExecuteStatusRowChange(p, InquiryStatuses.Confirmed, "Inquiry ConfirmRow"), p => p is InquiryListRow row && row.CanConfirmWorkflow);
+            HoldRowCommand = new RelayCommand(p => ExecuteStatusRowChange(p, InquiryStatuses.Hold, "Inquiry HoldRow"), p => p is InquiryListRow row && row.CanHoldWorkflow);
+            CancelRowCommand = new RelayCommand(p => ExecuteStatusRowChange(p, InquiryStatuses.Cancelled, "Inquiry CancelRow"), p => p is InquiryListRow row && row.CanCancelWorkflow);
             CopyInquiryNumberCommand = new RelayCommand(p =>
             {
                 if (p is InquiryListRow row && !string.IsNullOrWhiteSpace(row.InquiryNumber))
@@ -475,72 +449,23 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // ── Right-click row actions: Edit / Duplicate / Delete ────
             // Each promotes the row into the selection first so the
             // rail, KPI strip and double-click handlers stay in sync.
-            EditInquiryRowCommand = new RelayCommand(async p =>
+            EditInquiryRowCommand = new RelayCommand(p =>
             {
                 if (p is InquiryListRow row)
                 {
                     SelectedInquiry = row;
-                    await EditRowAsync(row);
+                    AsyncUtility.SafeFireAndForget(() => EditRowAsync(row), "Inquiry EditRow");
                 }
             }, p => p is InquiryListRow);
-            DuplicateInquiryRowCommand = new RelayCommand(async p =>
+            DuplicateInquiryRowCommand = new RelayCommand(p =>
             {
-                if (p is not InquiryListRow row) return;
-                try
-                {
-                    var clone = await _workflow.DuplicateAsync(row.Id);
-                    SetStatus($"Duplicated {row.InquiryNumber} → {clone.InquiryNumber}.");
-                    Reload();
-                }
-                catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
-                catch (Exception ex) { SetStatus("Duplicate failed: " + ExceptionMessages.Deep(ex)); }
+                if (p is InquiryListRow row)
+                    AsyncUtility.SafeFireAndForget(() => DuplicateInquiryAsync(row), "Inquiry DuplicateRow");
             }, p => p is InquiryListRow);
-            DeleteInquiryRowCommand = new RelayCommand(async p =>
+            DeleteInquiryRowCommand = new RelayCommand(p =>
             {
-                if (p is not InquiryListRow row) return;
-                // The confirmation dialog is wired by the view; default
-                // fallback refuses so a VM constructed without a view
-                // (e.g. a test harness) cannot accidentally delete rows.
-                bool proceed = ConfirmDeleteInquiryRequested?.Invoke(row) ?? false;
-                if (!proceed) return;
-                try
-                {
-                    var result = await _workflow.DeleteAsync(row.Id);
-                    if (result.IsSuccess)
-                    {
-                        SetStatus($"Deleted inquiry {row.InquiryNumber}.");
-                        // Clear selection if the deleted row was the
-                        // currently-selected one; the reload below will
-                        // refresh the register either way.
-                        if (ReferenceEquals(SelectedInquiry, row)) SelectedInquiry = null;
-                        Reload();
-                    }
-                    else if (result.Outcome == DeleteInquiryOutcome.NotFound)
-                    {
-                        SetStatus("This inquiry no longer exists — the register will refresh.");
-                        Reload();
-                    }
-                    else
-                    {
-                        // BlockedByDownstream: surface a precise message
-                        // naming every document that would have been
-                        // orphaned. The product rule is "delete is
-                        // allowed only when no PI has been created" —
-                        // because deleting the inquiry would break
-                        // the PI / JO / DN / TI / STMT chain. The user
-                        // can cancel the inquiry (via Change status →
-                        // Cancel) instead so the audit trail stays
-                        // intact.
-                        string list = result.BlockingDocuments.Count == 0
-                            ? "downstream documents"
-                            : string.Join(", ", result.BlockingDocuments);
-                        SetStatus($"Cannot delete {row.InquiryNumber}: a {list} already exists. " +
-                                  "Delete is only allowed when no Proforma Invoice has been created. " +
-                                  "Use 'Change status → Cancel' to close the inquiry instead.");
-                    }
-                }
-                catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
-                catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
+                if (p is InquiryListRow row)
+                    AsyncUtility.SafeFireAndForget(() => DeleteInquiryAsync(row), "Inquiry DeleteRow");
             }, p => p is InquiryListRow);
 
             // ── Change-priority submenu ──────────────────────────────
@@ -548,13 +473,17 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             // the parameter row. The XAML CommandParameter on each
             // MenuItem would carry the same string, so we just bake
             // the value into the command and skip CommandParameter.
-            SetUrgentPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Urgent"),
+            SetUrgentPriorityCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyPriorityAsync(p, "Urgent"), "Inquiry PriorityUrgent"),
                 p => p is InquiryListRow);
-            SetHighPriorityCommand = new RelayCommand(p => ApplyPriority(p, "High"),
+            SetHighPriorityCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyPriorityAsync(p, "High"), "Inquiry PriorityHigh"),
                 p => p is InquiryListRow);
-            SetNormalPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Normal"),
+            SetNormalPriorityCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyPriorityAsync(p, "Normal"), "Inquiry PriorityNormal"),
                 p => p is InquiryListRow);
-            SetLowPriorityCommand = new RelayCommand(p => ApplyPriority(p, "Low"),
+            SetLowPriorityCommand = new RelayCommand(p =>
+                AsyncUtility.SafeFireAndForget(() => ApplyPriorityAsync(p, "Low"), "Inquiry PriorityLow"),
                 p => p is InquiryListRow);
 
             // Cancel the "new PI from inquiry" round-trip. Cleared
@@ -571,7 +500,7 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             Reload();
         }
 
-        private async void ApplyPriority(object? parameter, string priority)
+        private async Task ApplyPriorityAsync(object? parameter, string priority)
         {
             if (parameter is not InquiryListRow row) return;
             try
@@ -585,6 +514,80 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             }
             catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
             catch (Exception ex) { SetStatus("Change priority failed: " + ExceptionMessages.Deep(ex)); }
+        }
+
+        private async Task NewInquiryAsync()
+        {
+            IsAwaitingNewPiSelection = false;
+            await EditAsync(null);
+        }
+
+        private async Task DeleteAttachmentAsync(InquiryAttachmentItem item, InquiryListRow row)
+        {
+            if (ConfirmDeleteAttachmentRequested?.Invoke(item.Attachment) != true) return;
+            try
+            {
+                bool removed = await _attachments.DeleteAsync(item.Attachment);
+                if (removed)
+                {
+                    row.Attachments.Remove(item);
+                    row.AttachmentCount = Math.Max(0, row.AttachmentCount - 1);
+                    SetStatus($"Deleted '{item.FileName}'.");
+                    AsyncUtility.SafeFireAndForget(() => LoadSelectedDetailAsync(row), "Inquiry drawer refresh");
+                }
+            }
+            catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
+        }
+
+        private void ExecuteStatusRowChange(object? parameter, string nextStatus, string op)
+        {
+            if (parameter is not InquiryListRow row) return;
+            SelectedInquiry = row;
+            AsyncUtility.SafeFireAndForget(() => ChangeSelectedStatusAsync(nextStatus), op);
+        }
+
+        private async Task DuplicateInquiryAsync(InquiryListRow row)
+        {
+            try
+            {
+                var clone = await _workflow.DuplicateAsync(row.Id);
+                SetStatus($"Duplicated {row.InquiryNumber} → {clone.InquiryNumber}.");
+                Reload();
+            }
+            catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
+            catch (Exception ex) { SetStatus("Duplicate failed: " + ExceptionMessages.Deep(ex)); }
+        }
+
+        private async Task DeleteInquiryAsync(InquiryListRow row)
+        {
+            bool proceed = ConfirmDeleteInquiryRequested?.Invoke(row) ?? false;
+            if (!proceed) return;
+            try
+            {
+                var result = await _workflow.DeleteAsync(row.Id);
+                if (result.IsSuccess)
+                {
+                    SetStatus($"Deleted inquiry {row.InquiryNumber}.");
+                    if (ReferenceEquals(SelectedInquiry, row)) SelectedInquiry = null;
+                    Reload();
+                }
+                else if (result.Outcome == DeleteInquiryOutcome.NotFound)
+                {
+                    SetStatus("This inquiry no longer exists — the register will refresh.");
+                    Reload();
+                }
+                else
+                {
+                    string list = result.BlockingDocuments.Count == 0
+                        ? "downstream documents"
+                        : string.Join(", ", result.BlockingDocuments);
+                    SetStatus($"Cannot delete {row.InquiryNumber}: a {list} already exists. " +
+                              "Delete is only allowed when no Proforma Invoice has been created. " +
+                              "Use 'Change status → Cancel' to close the inquiry instead.");
+                }
+            }
+            catch (Services.Audit.PermissionDeniedException ex) { SetStatus(ex.UserMessage); }
+            catch (Exception ex) { SetStatus("Delete failed: " + ExceptionMessages.Deep(ex)); }
         }
 
         // ── Right-click helpers ──────────────────────────────────────────
@@ -1015,6 +1018,12 @@ namespace ProGlassAutomation.ViewModels.Inquiry
             OnPropertyChanged(nameof(SelectedPriority)); OnPropertyChanged(nameof(SelectedSort));
             OnPropertyChanged(nameof(HasAttachmentsOnly)); OnPropertyChanged(nameof(HasActiveFilters));
             ResetAndReload();
+        }
+        public void Dispose()
+        {
+            try { _loadCts?.Cancel(); _loadCts?.Dispose(); _loadCts = null; } catch { }
+            try { _debounceCts?.Cancel(); _debounceCts?.Dispose(); _debounceCts = null; } catch { }
+            try { _importCts?.Cancel(); _importCts?.Dispose(); _importCts = null; } catch { }
         }
     }
 

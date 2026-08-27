@@ -32,7 +32,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     ///
     /// BUG-53, BUG-54, BUG-55 all preserved.
     /// </summary>
-    public class OtherChargesViewModel : ViewModelBase
+    public class OtherChargesViewModel : ViewModelBase, IDisposable
     {
         private readonly DataGridViewModel _dataGridVM;
         private LamParametersViewModel? _lamVm;
@@ -785,6 +785,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             RecalculatePolishRowsImmediate();
             RecalculateTotal();
             ApplyAdvancedSuggestions();
+        }
+
+        public void Dispose()
+        {
+            _polishDebouncer.Stop();
+            _polishDebouncer.Tick -= OnPolishDebounceElapsed;
+
+            MetricHub.PropertyChanged -= OnHubPropertyChanged;
+            MetricHub.PerSpecMetrics.CollectionChanged -= OnPerSpecMetricsChanged;
+            _dataGridVM.SpecGroups.CollectionChanged -= OnSpecGroupsCollectionChanged;
+
+            if (_lamVm != null)
+                _lamVm.PropertyChanged -= OnLaminationEditorChanged;
+            if (_dguLamVm != null)
+                _dguLamVm.PropertyChanged -= OnLaminationEditorChanged;
+
+            if (WastagesSection != null)
+                WastagesSection.PropertyChanged -= OnSubSectionChanged;
+            if (CustomChargesSection != null)
+                CustomChargesSection.PropertyChanged -= OnSubSectionChanged;
+
+            foreach (var row in ChargeRows)
+                row.PropertyChanged -= OnChargeRowChanged;
+
+            foreach (var g in _dataGridVM.SpecGroups)
+                UnhookSpecGroup(g);
         }
     }
 }

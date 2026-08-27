@@ -1025,6 +1025,7 @@ namespace ProGlassAutomation.ViewModels
             // (DocumentLifecycle, SampleData.DataSeeded,
             // AuditService.ActivityLogged) — without this they leak and keep
             // firing after the module is no longer in use.
+            try { InquiryVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: InquiryVM teardown failed: " + ex.Message); }
             try { JobOrderVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: JobOrderVM teardown failed: " + ex.Message); }
             try { DeliveryNoteVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: DeliveryNoteVM teardown failed: " + ex.Message); }
             try { ProformaInvoiceVM?.Dispose(); } catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[MainViewModel] Dispose: ProformaInvoiceVM teardown failed: " + ex.Message); }

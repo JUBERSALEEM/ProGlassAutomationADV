@@ -217,6 +217,44 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
+        public void Inquiry_register_uses_safe_fire_and_forget_instead_of_async_command_lambdas()
+        {
+            var root = LocateProjectRoot();
+            var inquiryVm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/Inquiry/InquiryListViewModel.cs"));
+            var mainVm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/MainViewModel.cs"));
+
+            Assert.DoesNotContain("new RelayCommand(async", inquiryVm);
+            Assert.DoesNotContain("async void", inquiryVm);
+            Assert.Contains("public void Dispose()", inquiryVm);
+            Assert.Contains("InquiryVM?.Dispose()", mainVm);
+        }
+
+        [Fact]
+        public void New_blank_proforma_restores_document_prepared_by_to_the_current_user()
+        {
+            var root = LocateProjectRoot();
+            var pi = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+
+            Assert.Contains("Step2VM.DocumentPreparedBy = Services.Audit.AuditService.CurrentUser?.DisplayName", pi);
+            Assert.Contains("?? Services.Audit.AuditService.CurrentUsername;", pi);
+        }
+
+        [Fact]
+        public void Restored_proforma_rehydrates_the_step3_project_filter_from_the_current_client()
+        {
+            var root = LocateProjectRoot();
+            var pi = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+
+            Assert.Contains("SyncProjectFilterFromCurrentClient()", pi);
+            Assert.Contains("AdoptExternalCustomerSelection(Step2VM.CustomerName)", pi);
+            Assert.Contains("Step3VM.SetClientFilter(Step2VM.CustomerName);", pi);
+        }
+
+        [Fact]
         public void InquiryStatuses_only_Confirmed_is_convertible()
         {
             // Documents the eligibility contract for

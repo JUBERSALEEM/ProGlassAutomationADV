@@ -306,6 +306,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // parent. Chain its disposal here so the whole PI tree
             // tears down cleanly on shutdown / test hosts. Best-effort:
             // a partially-constructed child never blocks teardown.
+            try { Step6VM?.Dispose(); }
+            catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
+
             try { SavedInvoicesListVM?.Dispose(); }
             catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[ProformaInvoiceViewModel] Dispose: best-effort teardown: " + ex.Message); }
 
@@ -317,6 +320,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (e.PropertyName != nameof(Step2ClientProfile.ClientProfileViewModel.SelectedClientName))
                 return;
             Step3VM.SetClientFilter(Step2VM.SelectedClientName);
+        }
+
+        private void SyncProjectFilterFromCurrentClient()
+        {
+            Step2VM.AdoptExternalCustomerSelection(Step2VM.CustomerName);
+            Step3VM.SetClientFilter(Step2VM.CustomerName);
         }
 
         private void GoToStep(int stepNumber)
@@ -365,7 +374,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step2VM.CustomerTrn = "";
             Step2VM.CustomerReferenceCode = "";
             Step2VM.SalesRepresentative = "";
-            Step2VM.DocumentPreparedBy = "";
+            Step2VM.DocumentPreparedBy = Services.Audit.AuditService.CurrentUser?.DisplayName
+                ?? Services.Audit.AuditService.CurrentUsername;
             Step2VM.BillingAddress = "";
             Step2VM.AttentionExecutiveName = "";
             Step2VM.ClientContactPhone = "";
@@ -422,6 +432,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 ProformaInvoiceMapper.RestoreWizardFromSnapshot(
                     snapshot, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
                     Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
+                SyncProjectFilterFromCurrentClient();
             }
             finally { Step7VM.InvoiceMainSummary.EndBatchUpdate(); }
 
@@ -475,6 +486,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository.ProformaInvoiceMapper.RestoreWizardFromSnapshot(
                     snapshot, Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
                     Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
+                SyncProjectFilterFromCurrentClient();
             }
             finally { Step7VM.InvoiceMainSummary.EndBatchUpdate(); }
             await Step8VM.LoadAsync();

@@ -24,6 +24,8 @@ namespace ProGlassAutomation.Tests.Agent
             var src = File.ReadAllText(path);
             var vm = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step6OtherCharges/OtherChargesViewModel.cs"));
+            var pi = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
 
             var xdoc = new XmlDocument();
             xdoc.Load(path);
@@ -32,6 +34,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Advanced auto-charge mode", src);
             Assert.Contains("AutomationModeLabel", src);
             Assert.Contains("BindStep4Pricing", vm);
+            Assert.Contains("public void Dispose()", vm);
+            Assert.Contains("Step6VM?.Dispose()", pi);
         }
 
         [Fact]
