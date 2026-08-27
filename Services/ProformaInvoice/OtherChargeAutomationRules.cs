@@ -41,8 +41,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             string? specName,
             bool matchedSameGlass)
         {
-            string type = NormalizeGlassType(glassType);
             string spec = specName ?? "";
+            string type = ResolveEffectiveGlassType(glassType, spec);
             bool doubleGlass = IsDoubleGlass(type);
             bool dguLike = type is "DGU" or "DGU+LAM";
 
@@ -147,10 +147,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             string? outerColorFallback,
             string? innerColorFallback)
         {
-            string type = NormalizeGlassType(glassType);
+            string spec = specName ?? "";
+            string type = ResolveEffectiveGlassType(glassType, spec);
             bool doubleGlass = IsDoubleGlass(type);
 
-            var glassMatches = PnLSpecParser.GlassMatches(specName);
+            var glassMatches = PnLSpecParser.GlassMatches(spec);
             string outerColor = glassMatches.Count > 0
                 ? (glassMatches[0].Groups["color"].Value ?? "").Trim()
                 : (outerColorFallback ?? "").Trim();
@@ -277,6 +278,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
         private static bool IsDoubleGlass(string glassType) =>
             glassType is "DGU" or "LAM" or "DGU+LAM";
+
+        private static string ResolveEffectiveGlassType(string? glassType, string? specName)
+        {
+            string spec = specName ?? string.Empty;
+            bool hasSpacer = PnLSpecParser.Spacer(spec).Success;
+            bool hasInterlayer = PnLSpecParser.Interlayer(spec).Success;
+            bool hasGlass = PnLSpecParser.GlassMatches(spec).Count > 0;
+
+            if (hasSpacer && hasInterlayer) return "DGU+LAM";
+            if (hasSpacer) return "DGU";
+            if (hasInterlayer) return "LAM";
+            if (hasGlass) return "SGU";
+
+            return NormalizeGlassType(glassType);
+        }
 
         private static string NormalizeGlassType(string? glassType) =>
             (glassType ?? "").Trim().ToUpperInvariant();

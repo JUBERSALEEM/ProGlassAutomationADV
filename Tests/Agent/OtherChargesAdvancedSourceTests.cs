@@ -148,6 +148,25 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Advanced_auto_charge_now_uses_spec_grammar_when_step5_type_is_stale()
+        {
+            var root = LocateProjectRoot();
+            var rules = File.ReadAllText(Path.Combine(root,
+                "Services/ProformaInvoice/OtherChargeAutomationRules.cs"));
+            var detector = File.ReadAllText(Path.Combine(root,
+                "Utilities/GlassTypeDetector.cs"));
+            var specGroup = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
+
+            Assert.Contains("ResolveEffectiveGlassType", rules);
+            Assert.Contains("PnLSpecParser.Spacer(spec)", rules);
+            Assert.Contains("PnLSpecParser.Interlayer(spec)", rules);
+            Assert.Contains("PnLSpecParser.Interlayer(specName).Success", detector);
+            Assert.Contains("ResetSpecSelectionForManualGlassTypeChange", specGroup);
+            Assert.Contains("SelectedGlassType = detected;", specGroup);
+        }
+
+        [Fact]
         public void Dgu_view_and_handoff_expose_u_insert_price()
         {
             var root = LocateProjectRoot();

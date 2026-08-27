@@ -23,10 +23,12 @@ public partial class MainWindow : Window
 {
     private LicenseGeneratorCore.KeyStore? _keys;
     private string? _lastLicenseJson;
+    private bool _uiReady;
 
     public MainWindow()
     {
         InitializeComponent();
+        _uiReady = true;
         LicenseTypeCombo.SelectedIndex = 1;
         RefreshDeviceRow();
         Loaded += OnLoaded;
@@ -55,6 +57,12 @@ public partial class MainWindow : Window
 
     private void RefreshDeviceRow()
     {
+        // XAML sets UnboundRadio.IsChecked="True" and wires Checked events.
+        // Those events can fire during InitializeComponent before later named
+        // controls have been assigned, so guard startup-time refreshes.
+        if (!_uiReady || FingerprintRow == null || SingleRadio == null || MultiRadio == null)
+            return;
+
         bool bound = SingleRadio.IsChecked == true || MultiRadio.IsChecked == true;
         FingerprintRow.Visibility = bound ? Visibility.Visible : Visibility.Collapsed;
     }
@@ -137,17 +145,21 @@ public partial class MainWindow : Window
             OutputCard.Visibility = Visibility.Visible;
             KeyOutputBox.Text = LicenseWriter.ToJson(verify.License ?? new SignedLicense());
             if (verify.IsValid)
+            {
                 ResultText.Text = "VALID ✓  LicenseId=" + result.Document!.LicenseId +
                     " · expires=" + (result.Document.ExpiresAtUtc?.ToString("u") ?? "never") +
                     " · key=" + result.KeyId;
+                ResultText.Foreground = ResolveBrush("SuccessBrush");
+                SetStatus("License generated + verified. Send the " + LicenseFormat.FileExtension + " file to the customer.",
+                    StatusKind.Success);
+            }
             else
             {
                 ResultText.Text = "SELF-VERIFY FAILED: " + verify.Message;
                 ResultText.Foreground = ResolveBrush("DangerBrush");
+                SetStatus("License generated, but self-verification failed: " + verify.Message,
+                    StatusKind.Error);
             }
-            ResultText.Foreground = ResolveBrush("SuccessBrush");
-            SetStatus("License generated + verified. Send the " + LicenseFormat.FileExtension + " file to the customer.",
-                StatusKind.Success);
         }
         catch (Exception ex)
         {

@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  Utilities/GlassTypeDetector.cs                                          ║
 // ║                                                                          ║
 // ║  CHAT 13 HOTFIX-4 — NEW FILE                                             ║
@@ -17,6 +17,7 @@
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using System;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 
 namespace ProGlassAutomation.Utilities
 {
@@ -26,33 +27,36 @@ namespace ProGlassAutomation.Utilities
     /// </summary>
     public static class GlassTypeDetector
     {
-        private const string ASP_MARKER = "ASP";   // Aluminum SPacer (DGU)
-        private const string PVB_MARKER = "PVB";   // PolyVinyl Butyral (LAM)
-
         /// <summary>
         /// Returns "SGU" | "DGU" | "LAM" | "DGU+LAM" | "Unknown"
-        /// based on markers found in the spec name.
+        /// based on the same grammar Step 9 already trusts.
         ///
         /// Detection rules:
-        ///   ASP + PVB → DGU+LAM
-        ///   ASP only  → DGU
-        ///   PVB only  → LAM
-        ///   Neither   → SGU
-        ///   Empty     → Unknown
+        ///   spacer + interlayer → DGU+LAM
+        ///   spacer only         → DGU
+        ///   interlayer only     → LAM
+        ///   glass only          → SGU
+        ///   empty / unparsable  → Unknown
+        ///
+        /// Using the shared parser matters: the older implementation only
+        /// looked for "PVB", so SGP/EVA hybrids were mis-detected as DGU and
+        /// the Step 5 glass-type dropdown drifted away from the actual spec.
         /// </summary>
         public static string Detect(string specName)
         {
             if (string.IsNullOrWhiteSpace(specName))
                 return "Unknown";
 
-            bool hasAsp = specName.IndexOf(ASP_MARKER, StringComparison.OrdinalIgnoreCase) >= 0;
-            bool hasPvb = specName.IndexOf(PVB_MARKER, StringComparison.OrdinalIgnoreCase) >= 0;
+            bool hasSpacer = PnLSpecParser.Spacer(specName).Success;
+            bool hasInterlayer = PnLSpecParser.Interlayer(specName).Success;
+            bool hasGlass = PnLSpecParser.GlassMatches(specName).Count > 0;
 
-            if (hasAsp && hasPvb) return "DGU+LAM";
-            if (hasAsp) return "DGU";
-            if (hasPvb) return "LAM";
+            if (hasSpacer && hasInterlayer) return "DGU+LAM";
+            if (hasSpacer) return "DGU";
+            if (hasInterlayer) return "LAM";
+            if (hasGlass) return "SGU";
 
-            return "SGU";
+            return "Unknown";
         }
 
         /// <summary>

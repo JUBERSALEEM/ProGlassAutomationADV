@@ -37,6 +37,18 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("DropShadowEffect", theme);
         }
 
+        [Fact]
+        public void Startup_guards_radio_checked_events_until_the_window_is_fully_built()
+        {
+            string root = LocateProjectRoot();
+            string code = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
+
+            Assert.Contains("private bool _uiReady;", code);
+            Assert.Contains("if (!_uiReady || FingerprintRow == null || SingleRadio == null || MultiRadio == null)", code);
+            Assert.Contains("_uiReady = true;", code);
+        }
+
         private static string LocateProjectRoot()
         {
             var dir = new DirectoryInfo(AppContext.BaseDirectory);

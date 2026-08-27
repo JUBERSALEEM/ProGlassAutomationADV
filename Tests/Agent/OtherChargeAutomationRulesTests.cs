@@ -139,6 +139,32 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Spec_grammar_can_override_a_stale_glass_type_for_advanced_charge_detection()
+        {
+            var rules = OtherChargeAutomationRules.GetChargeSuggestions(
+                "SGU",
+                "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM)",
+                matchedSameGlass: false);
+
+            Assert.Contains(rules, r => r.TemplateKey == "U_INSERT" && r.MetricKey == "DGU_CAVITY");
+            Assert.Contains(rules, r => r.TemplateKey == "SILICON_BED" && r.MetricKey == "LM1");
+        }
+
+        [Fact]
+        public void Hybrid_sgp_spec_is_detected_as_dgu_lam_from_the_spec_text()
+        {
+            var rules = OtherChargeAutomationRules.GetWastageSuggestions(
+                5,
+                "DGU",
+                "6mm Clear FT Glass + 12mm ASP + 6mm Grey FT Glass + 1.52mm Clear SGP + 6mm Clear FT Glass",
+                "Grey",
+                "Clear");
+
+            Assert.Contains(rules, r => r.SourceSideLabel == "Lam Outer (W2/H2)");
+            Assert.Contains(rules, r => r.SourceSideLabel == "Lam Inner (W2/H2)");
+        }
+
+        [Fact]
         public void Hybrid_three_pane_counts_are_supported()
         {
             var metric = new SpecGroupMetric { Qty = 4, PaneFactor = 3 };

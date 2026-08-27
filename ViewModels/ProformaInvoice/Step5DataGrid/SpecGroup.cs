@@ -14,6 +14,7 @@ using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -341,10 +342,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             get => _selectedGlassType;
             set
             {
-                if (_selectedGlassType == value) return;
-                _selectedGlassType = value;
+                string next = value ?? "";
+                if (_selectedGlassType == next) return;
+
+                string previous = _selectedGlassType;
+                _selectedGlassType = next;
                 OnPropertyChanged();
                 UpdatePerimeterFactors();
+
+                if (!_isAutoSwitchingGlassType)
+                    ResetSpecSelectionForManualGlassTypeChange(previous, next);
+
                 _ = LoadSpecsAsync();
             }
         }
@@ -722,11 +730,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private void RefreshGlassColorsFromSpecName()
         {
-            LaminateGlassMatcher.ExtractColorsFromSpecName(
-                _selectedSpecName, _selectedGlassType,
-                out string outer, out string inner);
-            if (!string.IsNullOrWhiteSpace(outer)) OuterGlassColor = outer;
-            if (!string.IsNullOrWhiteSpace(inner)) InnerGlassColor = inner;
+            if (string.Equals(_selectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(_selectedGlassType, "DGU+LAM", StringComparison.OrdinalIgnoreCase))
+            {
+                LaminateGlassMatcher.ExtractColorsFromSpecName(
+                    _selectedSpecName, _selectedGlassType,
+                    out string lamOuter, out string lamInner);
+                OuterGlassColor = lamOuter;
+                InnerGlassColor = lamInner;
+                return;
+            }
+
+            var panes = PnLSpecParser.GlassMatches(_selectedSpecName);
+            OuterGlassColor = panes.Count > 0
+                ? (panes[0].Groups["color"].Value ?? "").Trim()
+                : "";
+            InnerGlassColor = panes.Count > 1
+                ? (panes[^1].Groups["color"].Value ?? "").Trim()
+                : "";
         }
 
         private void AdoptSheetSelection(string specName)
@@ -1442,18 +1463,55 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 try
                 {
                     var previous = _selectedGlassType;
-                    _selectedGlassType = detected;
-                    OnPropertyChanged(nameof(SelectedGlassType));
-                    UpdatePerimeterFactors();
+                    SelectedGlassType = detected;
                     RefreshGlassColorsFromSpecName();
 
                     _ = ShowToastAsync(
                         $"✓  Auto-switched glass type: {previous} → {detected}");
-
-                    _ = LoadSpecsAsync();
                 }
                 finally { _isAutoSwitchingGlassType = false; }
             }
+        }
+
+        /// <summary>
+        /// Manual glass-type changes must not leave a ready spec from a
+        /// different build family on screen. That stale pairing made Step 6
+        /// advanced automation read the wrong type/spec combination and miss
+        /// charges that were clearly present in the spec text.
+        ///
+        /// We only clear when the current spec is recognisably of another
+        /// type. Unknown free-typed text is left alone so the operator can
+        /// keep editing it.
+        /// </summary>
+        private void ResetSpecSelectionForManualGlassTypeChange(string previousType, string nextType)
+        {
+            if (string.IsNullOrWhiteSpace(_selectedSpecName)
+                || string.IsNullOrWhiteSpace(nextType)
+                || string.Equals(previousType, nextType, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            string detected = GlassTypeDetector.Detect(_selectedSpecName);
+            if (detected == "Unknown"
+                || string.Equals(detected, nextType, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            _isProgrammaticSpecChange = true;
+            try
+            {
+                _selectedSpecName = "";
+                _specTypedText = "";
+                _selectedSpecItem = null;
+                OnPropertyChanged(nameof(SelectedSpecName));
+                OnPropertyChanged(nameof(SpecTypedText));
+                OnPropertyChanged(nameof(SelectedSpecItem));
+                OnPropertyChanged(nameof(SpecDisplayName));
+                IsSpecDropdownOpen = false;
+                ImportedPrice = 0m;
+                BaseRate = 0m;
+                RefreshGlassColorsFromSpecName();
+                AdoptSheetSelection("");
+            }
+            finally { _isProgrammaticSpecChange = false; }
         }
 
         /// <summary>
