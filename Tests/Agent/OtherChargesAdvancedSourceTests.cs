@@ -47,6 +47,23 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("_otherChargesVm.WastagesSection.WastageRows", pnl);
         }
 
+
+        [Fact]
+        public void Wastage_view_exposes_the_optimization_formula_fields()
+        {
+            var root = LocateProjectRoot();
+            var wastageView = File.ReadAllText(Path.Combine(root,
+                "Views/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionView.xaml"));
+            var wastageRow = File.ReadAllText(Path.Combine(root,
+                "Models/ProformaInvoice/Step6OtherCharges/Wastages/WastageRow.cs"));
+
+            Assert.Contains("UseOptimizationFormula", wastageView);
+            Assert.Contains("FormulaPricePerSqm", wastageView);
+            Assert.Contains("OptimizationPercent", wastageView);
+            Assert.Contains("OptimizationSummaryText", wastageRow);
+            Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
+        }
+
         [Fact]
         public void Dgu_view_and_handoff_expose_u_insert_price()
         {

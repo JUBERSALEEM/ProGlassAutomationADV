@@ -383,6 +383,18 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string ColorName { get; set; } = "";
         public decimal Rate { get; set; }
 
+        /// <summary>
+        /// True when the wastage row derives its effective AED/SQM rate from
+        /// the optimization formula instead of using the manual Rate field.
+        /// </summary>
+        public bool UseOptimizationFormula { get; set; }
+
+        /// <summary>Glass price fed into the optimization formula.</summary>
+        public decimal FormulaPricePerSqm { get; set; }
+
+        /// <summary>Third-party optimization percentage, e.g. 70 means 70%.</summary>
+        public decimal OptimizationPercent { get; set; }
+
         /// <summary>Format: "SpecNumber-SideLabel" (e.g. "1-Outer (W1/H1)").</summary>
         public List<string> CheckedSourceKeys { get; set; } = new();
     }

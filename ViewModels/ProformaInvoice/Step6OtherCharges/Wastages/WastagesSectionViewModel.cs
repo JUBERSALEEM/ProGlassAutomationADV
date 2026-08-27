@@ -46,7 +46,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         private void AddWastage()
         {
-            var row = new WastageRow();
+            var row = new WastageRow
+            {
+                Rate = 0m
+            };
             SyncSourcesForRow(row);
             row.PropertyChanged += (s, e) =>
             {
@@ -71,9 +74,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         /// </summary>
         public void ApplyAdvancedSuggestions(IEnumerable<AutoWastageSuggestion> suggestions)
         {
-            var previousRates = WastageRows
+            var previousRows = WastageRows
                 .GroupBy(r => r.ColorName ?? "", System.StringComparer.OrdinalIgnoreCase)
-                .ToDictionary(g => g.Key, g => g.First().Rate, System.StringComparer.OrdinalIgnoreCase);
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First(),
+                    System.StringComparer.OrdinalIgnoreCase);
 
             WastageRows.Clear();
 
@@ -81,11 +87,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 .GroupBy(x => x.DisplayName, System.StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x.Key, System.StringComparer.OrdinalIgnoreCase))
             {
+                previousRows.TryGetValue(group.Key, out var previousRow);
+
                 var row = new WastageRow
                 {
                     IsActive = true,
                     ColorName = group.Key,
-                    Rate = previousRates.TryGetValue(group.Key, out var rate) ? rate : 40m
+                    Rate = previousRow?.Rate ?? 0m,
+                    UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
+                    FormulaPricePerSqm = previousRow?.FormulaPricePerSqm ?? 0m,
+                    OptimizationPercent = previousRow?.OptimizationPercent ?? 0m
                 };
 
                 PopulateSourcesForRestoredRow(row);

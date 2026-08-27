@@ -452,7 +452,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 {
                     IsActive = wastage.IsActive,
                     ColorName = wastage.ColorName ?? "",
-                    Rate = wastage.Rate
+                    Rate = wastage.Rate,
+                    UseOptimizationFormula = wastage.UseOptimizationFormula,
+                    FormulaPricePerSqm = wastage.FormulaPricePerSqm,
+                    OptimizationPercent = wastage.OptimizationPercent
                 };
                 foreach (var src in wastage.AvailableSources.Where(s => s.IsChecked))
                     w.CheckedSourceKeys.Add($"{src.SpecNumber}-{src.SideLabel}");
@@ -816,7 +819,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     {
                         IsActive = wSnap.IsActive,
                         ColorName = wSnap.ColorName ?? "",
-                        Rate = wSnap.Rate
+                        Rate = wSnap.Rate,
+                        UseOptimizationFormula = wSnap.UseOptimizationFormula,
+                        FormulaPricePerSqm = wSnap.FormulaPricePerSqm,
+                        OptimizationPercent = wSnap.OptimizationPercent
                     };
 
                     otherCharges.WastagesSection.PopulateSourcesForRestoredRow(newRow);
