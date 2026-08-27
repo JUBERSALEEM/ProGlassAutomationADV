@@ -114,6 +114,33 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Utilized_sqm_raises_change_notification_when_formula_result_changes()
+        {
+            var row = new WastageRow();
+            bool raised = false;
+            row.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName == nameof(row.UtilizedSqm))
+                    raised = true;
+            };
+
+            row.OptimizationPercentText = "70";
+            row.AvailableSources.Add(new SpecGroupColorSide
+            {
+                SpecNumber = 1,
+                SideLabel = "Outer (W1/H1)",
+                SqmValue = 5m,
+                PricePerSqm = 48m,
+                SheetWidthMm = 3210,
+                SheetHeightMm = 2250,
+                IsChecked = true
+            });
+
+            Assert.True(raised);
+            Assert.Equal(12.10m, decimal.Round(row.UtilizedSqm, 2));
+        }
+
+        [Fact]
         public void Matching_sources_across_outer_and_inner_are_aggregated_automatically()
         {
             var row = new WastageRow();

@@ -268,7 +268,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         public decimal BaseResultValue
         {
             get => _baseResultValue;
-            private set { if (_baseResultValue == value) return; _baseResultValue = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_baseResultValue == value) return;
+                _baseResultValue = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(UtilizedSqm));
+            }
         }
 
         private decimal _finalResultValue;
