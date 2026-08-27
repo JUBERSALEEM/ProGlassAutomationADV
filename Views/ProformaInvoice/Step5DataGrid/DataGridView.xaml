@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 5 — stacked spec groups, page scroll.
     Do NOT put the row list in a * TabControl/ListView viewport:
     that collapsed the grid to zero height and virtualized empty rows
@@ -289,11 +289,28 @@
                                     </Button>
                                 </Grid>
 
-                                <TextBlock Text="{Binding SpecDisplayName}"
-                                           FontSize="13"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           Margin="0,0,0,8"/>
+                                <StackPanel Margin="0,0,0,8">
+                                    <TextBlock Text="{Binding SpecDisplayName}"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="{Binding SheetSelectionSummary}"
+                                               FontSize="10"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,4,0,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasSheetSelectionSummary}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
 
                                 <Border Style="{StaticResource PiTableHeaderStyle}" Padding="6,5">
                                     <Grid>

@@ -384,10 +384,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
                     if (!desiredRows.TryGetValue(row.TemplateKey, out var desired))
                     {
-                        // Advanced mode suggests the relevant rows but must
-                        // never FORCE billing on or off. If the operator left
-                        // this row off, clear any stale auto-selection; if the
-                        // row is manually on, preserve the manual choice.
+                        // No current match. Auto-driven rows should switch
+                        // back off, but any operator-restored/manual toggle
+                        // remains authoritative.
+                        row.ApplySuggestedIsActive(false);
+
+                        // If the row is OFF, clear stale auto-targeting so the
+                        // Step 6 surface reflects the current detection set.
                         if (!row.IsActive && row.TargetSelection != null)
                         {
                             foreach (var spec in row.TargetSelection.AvailableSpecs)
@@ -419,6 +422,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
                     if (TryResolveAutoRate(row.TemplateKey, desired.Specs, out decimal autoRate))
                         row.Rate = autoRate;
+
+                    row.ApplySuggestedIsActive(desired.Specs.Count > 0);
                 }
 
                 WastagesSection?.ApplyAdvancedSuggestions(wastage);

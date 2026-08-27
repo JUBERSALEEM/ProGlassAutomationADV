@@ -44,6 +44,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         // Guards: auto-fill must not re-enter through its own setters.
         private bool _isAutoFillingOuter;
         private bool _isAutoFillingInner;
+        private bool _suspendSheetStoreRefresh;
+        private int _sheetStoreEpoch;
 
         // ═══════════════════════════════════════════════════════════════
         //  SHEET SIZE — WIDTH / HEIGHT PER SIDE
@@ -63,7 +65,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _outerSheetWidthMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OuterSheetDisplay));
-                if (!_isAutoFillingOuter) FireAndForget(RepriceOuterAsync);
+                if (!_isAutoFillingOuter && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceOuterAsync);
             }
         }
 
@@ -78,7 +81,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _outerSheetHeightMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OuterSheetDisplay));
-                if (!_isAutoFillingOuter) FireAndForget(RepriceOuterAsync);
+                if (!_isAutoFillingOuter && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceOuterAsync);
             }
         }
 
@@ -93,7 +97,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _innerSheetWidthMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(InnerSheetDisplay));
-                if (!_isAutoFillingInner) FireAndForget(RepriceInnerAsync);
+                if (!_isAutoFillingInner && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceInnerAsync);
             }
         }
 
@@ -108,7 +113,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _innerSheetHeightMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(InnerSheetDisplay));
-                if (!_isAutoFillingInner) FireAndForget(RepriceInnerAsync);
+                if (!_isAutoFillingInner && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceInnerAsync);
             }
         }
 
@@ -247,15 +253,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         }
 
         /// <summary>Setter hook — outer thickness/colour changed.</summary>
-        private void OnOuterGlassChanged() => FireAndForget(RefreshOuterFromStoreAsync);
+        private void OnOuterGlassChanged()
+        {
+            if (_suspendSheetStoreRefresh) return;
+            FireAndForget(RefreshOuterFromStoreAsync);
+        }
 
         /// <summary>Setter hook — inner thickness/colour changed.</summary>
-        private void OnInnerGlassChanged() => FireAndForget(RefreshInnerFromStoreAsync);
+        private void OnInnerGlassChanged()
+        {
+            if (_suspendSheetStoreRefresh) return;
+            FireAndForget(RefreshInnerFromStoreAsync);
+        }
 
         // Thin wrapper over the shared AsyncUtility.SafeFireAndForget so the
         // per-file log prefix stays here while the try/catch + logging logic
         // lives in one place. Pricing hints must never surface as a crash
         // dialog, but a failure must still be recorded in Release.
+        internal void RunWithoutSheetStoreRefresh(Action work)
+        {
+            _sheetStoreEpoch++;
+            _suspendSheetStoreRefresh = true;
+            try { work?.Invoke(); }
+            finally { _suspendSheetStoreRefresh = false; }
+        }
+
         private static void FireAndForget(Func<Task> work)
             => Utilities.AsyncUtility.SafeFireAndForget(
                 work, "[LamParametersViewModel] sheet-store refresh failed");
@@ -266,10 +288,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         /// </summary>
         private async Task RefreshOuterFromStoreAsync()
         {
+            int epoch = _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(OuterThickness);
 
             var sizes = await SheetStorePricingService
                 .GetSizesAsync(OuterGlassColor, mm).ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             ReplaceSizes(OuterSheetSizeOptions, sizes.Select(s => s.Display));
 
@@ -285,16 +310,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             }
             _isAutoFillingOuter = false;
 
-            await RepriceOuterAsync().ConfigureAwait(true);
+            await RepriceOuterAsync(epoch).ConfigureAwait(true);
         }
 
         /// <summary>Inner equivalent of <see cref="RefreshOuterFromStoreAsync"/>.</summary>
         private async Task RefreshInnerFromStoreAsync()
         {
+            int epoch = _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(InnerThickness);
 
             var sizes = await SheetStorePricingService
                 .GetSizesAsync(InnerGlassColor, mm).ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             ReplaceSizes(InnerSheetSizeOptions, sizes.Select(s => s.Display));
 
@@ -308,21 +336,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             }
             _isAutoFillingInner = false;
 
-            await RepriceInnerAsync().ConfigureAwait(true);
+            await RepriceInnerAsync(epoch).ConfigureAwait(true);
         }
 
         /// <summary>
         /// Writes OuterBasePrice from the Sheet Store SELLING price of the
         /// exact sheet (colour + thickness + W + H) currently selected.
         /// </summary>
-        private async Task RepriceOuterAsync()
+        private Task RepriceOuterAsync() => RepriceOuterAsync(-1);
+
+        private async Task RepriceOuterAsync(int expectedEpoch)
         {
+            int epoch = expectedEpoch >= 0 ? expectedEpoch : _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(OuterThickness);
 
             var price = await SheetStorePricingService
                 .TryGetPriceForSizeAsync(
                     OuterGlassColor, mm, OuterSheetWidthMm, OuterSheetHeightMm)
                 .ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             _outerInStore = price.HasValue
                 && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);
@@ -342,14 +375,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         }
 
         /// <summary>Inner equivalent of <see cref="RepriceOuterAsync"/>.</summary>
-        private async Task RepriceInnerAsync()
+        private Task RepriceInnerAsync() => RepriceInnerAsync(-1);
+
+        private async Task RepriceInnerAsync(int expectedEpoch)
         {
+            int epoch = expectedEpoch >= 0 ? expectedEpoch : _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(InnerThickness);
 
             var price = await SheetStorePricingService
                 .TryGetPriceForSizeAsync(
                     InnerGlassColor, mm, InnerSheetWidthMm, InnerSheetHeightMm)
                 .ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             _innerInStore = price.HasValue
                 && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);

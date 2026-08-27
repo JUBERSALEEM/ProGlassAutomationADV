@@ -36,6 +36,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
 
         private bool _isAutoFilling;
+        private bool _suspendSheetStoreRefresh;
+        private int _sheetStoreEpoch;
 
         // ═══════════════════════════════════════════════════════════════
         //  SHEET SIZE — WIDTH / HEIGHT
@@ -55,7 +57,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 _sheetWidthMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SheetDisplay));
-                if (!_isAutoFilling) FireAndForget(RepriceAsync);
+                if (!_isAutoFilling && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceAsync);
             }
         }
 
@@ -70,7 +73,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 _sheetHeightMm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SheetDisplay));
-                if (!_isAutoFilling) FireAndForget(RepriceAsync);
+                if (!_isAutoFilling && !_suspendSheetStoreRefresh)
+                    FireAndForget(RepriceAsync);
             }
         }
 
@@ -168,12 +172,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         }
 
         /// <summary>Setter hook — thickness/colour changed.</summary>
-        private void OnGlassChanged() => FireAndForget(RefreshFromStoreAsync);
+        private void OnGlassChanged()
+        {
+            if (_suspendSheetStoreRefresh) return;
+            FireAndForget(RefreshFromStoreAsync);
+        }
 
         // Thin wrapper over the shared AsyncUtility.SafeFireAndForget so the
         // per-file log prefix stays here while the try/catch + logging logic
         // lives in one place. Pricing hints must never surface as a crash
         // dialog, but a failure must still be recorded in Release.
+        internal void RunWithoutSheetStoreRefresh(Action work)
+        {
+            _sheetStoreEpoch++;
+            _suspendSheetStoreRefresh = true;
+            try { work?.Invoke(); }
+            finally { _suspendSheetStoreRefresh = false; }
+        }
+
         private static void FireAndForget(Func<Task> work)
             => Utilities.AsyncUtility.SafeFireAndForget(
                 work, "[SguParametersViewModel] sheet-store refresh failed");
@@ -184,10 +200,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         /// </summary>
         private async Task RefreshFromStoreAsync()
         {
+            int epoch = _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(SelectedThickness);
 
             var sizes = await SheetStorePricingService
                 .GetSizesAsync(GlassColor, mm).ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             SheetSizeOptions.Clear();
             foreach (var sz in sizes) SheetSizeOptions.Add(sz.Display);
@@ -204,20 +223,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             }
             _isAutoFilling = false;
 
-            await RepriceAsync().ConfigureAwait(true);
+            await RepriceAsync(epoch).ConfigureAwait(true);
         }
 
         /// <summary>
         /// Writes BasePricePerSqm from the Sheet Store SELLING price of the
         /// exact sheet (colour + thickness + W + H) currently selected.
         /// </summary>
-        private async Task RepriceAsync()
+        private Task RepriceAsync() => RepriceAsync(-1);
+
+        private async Task RepriceAsync(int expectedEpoch)
         {
+            int epoch = expectedEpoch >= 0 ? expectedEpoch : _sheetStoreEpoch;
             int mm = SheetStorePricingService.ParseMm(SelectedThickness);
 
             var price = await SheetStorePricingService
                 .TryGetPriceForSizeAsync(GlassColor, mm, SheetWidthMm, SheetHeightMm)
                 .ConfigureAwait(true);
+
+            if (epoch != _sheetStoreEpoch || _suspendSheetStoreRefresh) return;
 
             bool inStore = price.HasValue
                 && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);

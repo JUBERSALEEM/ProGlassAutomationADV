@@ -180,6 +180,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OuterSheetDisplay));
                 OnPropertyChanged(nameof(HasOuterSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
 
@@ -195,6 +197,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(OuterSheetDisplay));
                 OnPropertyChanged(nameof(HasOuterSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
 
@@ -210,6 +214,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(InnerSheetDisplay));
                 OnPropertyChanged(nameof(HasInnerSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
 
@@ -225,6 +231,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(InnerSheetDisplay));
                 OnPropertyChanged(nameof(HasInnerSheet));
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
             }
         }
 
@@ -265,6 +273,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
               $"{(InnerSheetWidthMm * (decimal)InnerSheetHeightMm) / 1_000_000m:0.####} SQM"
             : "—";
 
+        /// <summary>
+        /// Human-readable sheet provenance carried from Step 4 so Step 5 can
+        /// show exactly which third-party stock sheet this spec will use.
+        /// </summary>
+        public string SheetSelectionSummary
+        {
+            get
+            {
+                var parts = new List<string>();
+                if (HasOuterSheet)
+                    parts.Add($"Outer sheet {OuterSheetDisplay}");
+                if (HasInnerSheet)
+                    parts.Add($"Inner sheet {InnerSheetDisplay}");
+                return parts.Count == 0 ? "" : string.Join("  ·  ", parts);
+            }
+        }
+
+        public bool HasSheetSelectionSummary =>
+            !string.IsNullOrWhiteSpace(SheetSelectionSummary);
+
         // ── Glass type ────────────────────────────────────────────────────
 
         private string _selectedGlassType = "";
@@ -298,6 +326,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
                 RefreshGlassColorsFromSpecName();
+                OnPropertyChanged(nameof(SheetSelectionSummary));
+                OnPropertyChanged(nameof(HasSheetSelectionSummary));
 
                 // PHASE G: adopt the stock sheet chosen for this spec in
                 // Step 4. A miss (spec from an earlier session) leaves the
@@ -688,6 +718,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     InnerSheetWidthMm = selection.InnerWidthMm;
                     InnerSheetHeightMm = selection.InnerHeightMm;
                 }
+
+                UInsertPricePerSqm = selection.UInsertPricePerSqm;
             }
             catch (Exception ex)
             {
@@ -1257,8 +1289,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _sourceKeys.Clear();
             _allTypeSpecsMerged = false;
 
+            bool keepCommittedTypedText =
+                !string.IsNullOrEmpty(_selectedSpecName) &&
+                string.Equals(_specTypedText, _selectedSpecName,
+                    StringComparison.Ordinal);
+
             if (!_isAutoSwitchingGlassType &&
-                !string.IsNullOrEmpty(_specTypedText))
+                !string.IsNullOrEmpty(_specTypedText) &&
+                !keepCommittedTypedText)
             {
                 _isProgrammaticSpecChange = true;
                 try

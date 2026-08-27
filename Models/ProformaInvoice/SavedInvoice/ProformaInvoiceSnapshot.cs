@@ -52,6 +52,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         // Step 3 in snapshot = Client data (structure unchanged for JSON stability)
         public ClientSnapshot Client { get; set; } = new();
 
+        // Step 4: pricing estimator panel state
+        public Step4PricingSnapshot Step4Pricing { get; set; } = new();
+
         // Step 5: DataGrid spec groups
         public List<SpecGroupSnapshot> SpecGroups { get; set; } = new();
 
@@ -139,6 +142,116 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string BillingAddress { get; set; } = "";
         public string AttentionExecutiveName { get; set; } = "";
         public string ClientContactPhone { get; set; } = "";
+    }
+
+    // ── Step 4: Pricing estimator ───────────────────────────────────────
+
+    public class Step4PricingSnapshot
+    {
+        public string SelectedGlassTypeCode { get; set; } = "";
+        public SguPricingPanelSnapshot Sgu { get; set; } = new();
+        public DguPricingPanelSnapshot Dgu { get; set; } = new();
+        public LamPricingPanelSnapshot Lam { get; set; } = new();
+        public DguLamPricingPanelSnapshot DguLam { get; set; } = new();
+    }
+
+    public class SguPricingPanelSnapshot
+    {
+        public string SelectedThickness { get; set; } = "";
+        public string GlassColor { get; set; } = "";
+        public string SelectedTreatment { get; set; } = "";
+        public decimal BasePricePerSqm { get; set; }
+        public decimal CuttingCostPerSqm { get; set; }
+        public decimal TemperingCostPerSqm { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal TargetMarginPercent { get; set; }
+        public string SelectedPolishOption { get; set; } = "";
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+    }
+
+    public class DguPricingPanelSnapshot
+    {
+        public string OuterThickness { get; set; } = "";
+        public string OuterGlassColor { get; set; } = "";
+        public string OuterTreatment { get; set; } = "";
+        public decimal OuterBasePrice { get; set; }
+        public int OuterSheetWidthMm { get; set; }
+        public int OuterSheetHeightMm { get; set; }
+        public string SpacerWidth { get; set; } = "";
+        public string SpacerMaterial { get; set; } = "";
+        public decimal SpacerPrice { get; set; }
+        public string SpacerExtra { get; set; } = "";
+        public decimal UInsertPricePerSqm { get; set; }
+        public string PanelExtra { get; set; } = "";
+        public string InnerThickness { get; set; } = "";
+        public string InnerGlassColor { get; set; } = "";
+        public string InnerTreatment { get; set; } = "";
+        public decimal InnerBasePrice { get; set; }
+        public int InnerSheetWidthMm { get; set; }
+        public int InnerSheetHeightMm { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal MarginProfitPercent { get; set; }
+    }
+
+    public class LamPricingPanelSnapshot
+    {
+        public string OuterThickness { get; set; } = "";
+        public string OuterGlassColor { get; set; } = "";
+        public string OuterTreatment { get; set; } = "";
+        public decimal OuterBasePrice { get; set; }
+        public int OuterSheetWidthMm { get; set; }
+        public int OuterSheetHeightMm { get; set; }
+        public string InnerThickness { get; set; } = "";
+        public string InnerGlassColor { get; set; } = "";
+        public string InnerTreatment { get; set; } = "";
+        public decimal InnerBasePrice { get; set; }
+        public int InnerSheetWidthMm { get; set; }
+        public int InnerSheetHeightMm { get; set; }
+        public string PvbThickness { get; set; } = "";
+        public string PvbColor { get; set; } = "";
+        public decimal PvbMaterialRate { get; set; }
+        public string LaminationPolish { get; set; } = "";
+        public decimal OuterCuttingCost { get; set; }
+        public decimal InnerCuttingCost { get; set; }
+        public decimal OuterTemperingCost { get; set; }
+        public decimal InnerTemperingCost { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal MarginProfitPercent { get; set; }
+    }
+
+    public class DguLamPricingPanelSnapshot
+    {
+        public string OuterThickness { get; set; } = "";
+        public string OuterGlassColor { get; set; } = "";
+        public string OuterTreatment { get; set; } = "";
+        public decimal OuterBasePrice { get; set; }
+        public string SpacerThickness { get; set; } = "";
+        public decimal SpacerPrice { get; set; }
+        public string SpacerExtra { get; set; } = "";
+        public string LamOuterThickness { get; set; } = "";
+        public string LamOuterColor { get; set; } = "";
+        public string LamOuterTreatment { get; set; } = "";
+        public decimal LamOuterBasePrice { get; set; }
+        public string InterlayerType { get; set; } = "";
+        public string InterlayerThickness { get; set; } = "";
+        public string InterlayerColor { get; set; } = "";
+        public decimal InterlayerBuyPrice { get; set; }
+        public decimal InterlayerSellPrice { get; set; }
+        public string LamInnerThickness { get; set; } = "";
+        public string LamInnerColor { get; set; } = "";
+        public string LamInnerTreatment { get; set; } = "";
+        public decimal LamInnerBasePrice { get; set; }
+        public string PanelExtra { get; set; } = "";
+        public string EdgePolish { get; set; } = "";
+        public decimal OuterCuttingCost { get; set; }
+        public decimal OuterTemperingCost { get; set; }
+        public decimal LamOuterCuttingCost { get; set; }
+        public decimal LamOuterTemperingCost { get; set; }
+        public decimal LamInnerCuttingCost { get; set; }
+        public decimal LamInnerTemperingCost { get; set; }
+        public decimal YieldFactor { get; set; }
+        public decimal MarginProfitPercent { get; set; }
     }
 
     // ── Step 5: DataGrid spec groups ────────────────────────────────────

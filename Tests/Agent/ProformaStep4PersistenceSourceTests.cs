@@ -1,0 +1,69 @@
+using System;
+using System.IO;
+using Xunit;
+
+namespace ProGlassAutomation.Tests.Agent
+{
+    public sealed class ProformaStep4PersistenceSourceTests
+    {
+        [Fact]
+        public void Snapshot_and_mapper_include_step4_persistence_surface()
+        {
+            string root = LocateProjectRoot();
+            string snapshot = File.ReadAllText(Path.Combine(root,
+                "Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs"));
+            string mapper = File.ReadAllText(Path.Combine(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+
+            Assert.Contains("Step4PricingSnapshot", snapshot);
+            Assert.Contains("SelectedGlassTypeCode", snapshot);
+            Assert.Contains("snap.Step4Pricing = new Step4PricingSnapshot", mapper);
+            Assert.Contains("printable.Step4Pricing.RestoreFromSnapshot", mapper);
+        }
+
+        [Fact]
+        public void Wizard_resets_step4_and_clears_per_invoice_sheet_registry()
+        {
+            string root = LocateProjectRoot();
+            string pi = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+            string pricing = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+
+            Assert.Contains("Step4VM.ResetForNewInvoice()", pi);
+            Assert.Contains("SpecSheetRegistry.Clear()", pi);
+            Assert.Contains("HasRestoredSnapshotState", pricing);
+            Assert.Contains("RestoreFromSnapshot", pricing);
+        }
+
+        [Fact]
+        public void Step5_preserves_saved_spec_text_and_displays_sheet_selection_summary()
+        {
+            string root = LocateProjectRoot();
+            string specGroup = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs"));
+            string step5View = File.ReadAllText(Path.Combine(root,
+                "Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml"));
+
+            Assert.Contains("keepCommittedTypedText", specGroup);
+            Assert.Contains("UInsertPricePerSqm = selection.UInsertPricePerSqm", specGroup);
+            Assert.Contains("SheetSelectionSummary", specGroup);
+            Assert.Contains("SheetSelectionSummary", step5View);
+        }
+
+        private static string LocateProjectRoot()
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null)
+            {
+                var probe = Path.Combine(dir.FullName,
+                    "Views", "ProformaInvoice", "Step5DataGrid", "DataGridView.xaml");
+                if (File.Exists(probe)) return dir.FullName;
+                dir = dir.Parent;
+            }
+
+            throw new DirectoryNotFoundException(
+                "Could not locate the project root above " + AppContext.BaseDirectory);
+        }
+    }
+}

@@ -136,6 +136,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         }
         public bool HasApplyStatus => !string.IsNullOrEmpty(_applyStatusMessage);
 
+        private bool _isRestoringSnapshot;
+        public bool HasRestoredSnapshotState { get; private set; }
+
         // === Commands ===
         public ICommand SelectGlassTypeCommand { get; }
         public ICommand ToggleSpecGroupCommand { get; }
@@ -274,6 +277,255 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// Step 4 reflects the new prices without reopening the wizard.
         /// </summary>
         public void RefreshSheetStoreData() => AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator Refresh");
+
+        public void ResetForNewInvoice()
+        {
+            _isRestoringSnapshot = true;
+            try
+            {
+                HasRestoredSnapshotState = false;
+
+                SguVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    SguVM.SelectedThickness = "6mm";
+                    SguVM.GlassColor = "Clear";
+                    SguVM.SelectedTreatment = "FT Glass";
+                    SguVM.BasePricePerSqm = 46m;
+                    SguVM.CuttingCostPerSqm = 15m;
+                    SguVM.TemperingCostPerSqm = 25m;
+                    SguVM.YieldFactor = 0.85m;
+                    SguVM.TargetMarginPercent = 15m;
+                    SguVM.SelectedPolishOption = "None (Standard)";
+                    SguVM.SheetWidthMm = 0;
+                    SguVM.SheetHeightMm = 0;
+                });
+
+                DguVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    DguVM.OuterThickness = "6mm";
+                    DguVM.OuterGlassColor = "Clear";
+                    DguVM.OuterTreatment = "FT";
+                    DguVM.OuterBasePrice = 46m;
+                    DguVM.OuterSheetWidthMm = 0;
+                    DguVM.OuterSheetHeightMm = 0;
+                    DguVM.SpacerWidth = "12mm ASP";
+                    DguVM.SpacerMaterial = "Normal Mill Aluminum";
+                    DguVM.SpacerPrice = 45m;
+                    DguVM.SpacerExtra = "None";
+                    DguVM.UInsertPricePerSqm = 10m;
+                    DguVM.PanelExtra = "None";
+                    DguVM.InnerThickness = "6mm";
+                    DguVM.InnerGlassColor = "Clear";
+                    DguVM.InnerTreatment = "FT";
+                    DguVM.InnerBasePrice = 46m;
+                    DguVM.InnerSheetWidthMm = 0;
+                    DguVM.InnerSheetHeightMm = 0;
+                    DguVM.YieldFactor = 0.85m;
+                    DguVM.MarginProfitPercent = 15m;
+                });
+
+                LamVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    LamVM.OuterThickness = "6mm";
+                    LamVM.OuterGlassColor = "Clear";
+                    LamVM.OuterTreatment = "FT";
+                    LamVM.OuterBasePrice = 46m;
+                    LamVM.OuterSheetWidthMm = 0;
+                    LamVM.OuterSheetHeightMm = 0;
+                    LamVM.InnerThickness = "6mm";
+                    LamVM.InnerGlassColor = "Clear";
+                    LamVM.InnerTreatment = "FT";
+                    LamVM.InnerBasePrice = 46m;
+                    LamVM.InnerSheetWidthMm = 0;
+                    LamVM.InnerSheetHeightMm = 0;
+                    LamVM.PvbThickness = "1.52mm";
+                    LamVM.PvbColor = "Clear";
+                    LamVM.PvbMaterialRate = 80m;
+                    LamVM.LaminationPolish = "None";
+                    LamVM.OuterCuttingCost = 15m;
+                    LamVM.InnerCuttingCost = 15m;
+                    LamVM.OuterTemperingCost = 25m;
+                    LamVM.InnerTemperingCost = 25m;
+                    LamVM.YieldFactor = 0.85m;
+                    LamVM.MarginProfitPercent = 15m;
+                });
+
+                DguLamVM.OuterThickness = "6mm";
+                DguLamVM.OuterGlassColor = "HD Grey";
+                DguLamVM.OuterTreatment = "FT";
+                DguLamVM.OuterBasePrice = 48m;
+                DguLamVM.SpacerThickness = "12mm";
+                DguLamVM.SpacerPrice = 0m;
+                DguLamVM.SpacerExtra = "None";
+                DguLamVM.LamOuterThickness = "6mm";
+                DguLamVM.LamOuterColor = "Clear";
+                DguLamVM.LamOuterTreatment = "FT";
+                DguLamVM.LamOuterBasePrice = 25m;
+                DguLamVM.InterlayerType = "PVB";
+                DguLamVM.InterlayerThickness = "1.52mm";
+                DguLamVM.InterlayerColor = "Clear";
+                DguLamVM.InterlayerBuyPrice = 100m;
+                DguLamVM.InterlayerSellPrice = 110m;
+                DguLamVM.LamInnerThickness = "6mm";
+                DguLamVM.LamInnerColor = "Clear";
+                DguLamVM.LamInnerTreatment = "FT";
+                DguLamVM.LamInnerBasePrice = 25m;
+                DguLamVM.PanelExtra = "None";
+                DguLamVM.EdgePolish = "None";
+                DguLamVM.OuterCuttingCost = 10m;
+                DguLamVM.OuterTemperingCost = 12m;
+                DguLamVM.LamOuterCuttingCost = 10m;
+                DguLamVM.LamOuterTemperingCost = 10m;
+                DguLamVM.LamInnerCuttingCost = 10m;
+                DguLamVM.LamInnerTemperingCost = 10m;
+                DguLamVM.YieldFactor = 0.85m;
+                DguLamVM.MarginProfitPercent = 20m;
+
+                SelectGlassTypeCard("SGU");
+                YieldFactorWarning = "";
+                ApplyStatusMessage = "";
+                RecalculateEstimatedRate();
+            }
+            finally
+            {
+                _isRestoringSnapshot = false;
+            }
+
+            RefreshSheetStoreData();
+        }
+
+        public void RestoreFromSnapshot(
+            ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.Step4PricingSnapshot? snapshot,
+            System.Collections.Generic.IEnumerable<ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot>? specGroups = null)
+        {
+            bool hasStep4Snapshot = !string.IsNullOrWhiteSpace(snapshot?.SelectedGlassTypeCode);
+
+            _isRestoringSnapshot = true;
+            try
+            {
+                if (hasStep4Snapshot && snapshot != null)
+                {
+                    SguVM.RunWithoutSheetStoreRefresh(() =>
+                    {
+                        SguVM.SelectedThickness = snapshot.Sgu.SelectedThickness;
+                        SguVM.GlassColor = snapshot.Sgu.GlassColor;
+                        SguVM.SelectedTreatment = snapshot.Sgu.SelectedTreatment;
+                        SguVM.BasePricePerSqm = snapshot.Sgu.BasePricePerSqm;
+                        SguVM.CuttingCostPerSqm = snapshot.Sgu.CuttingCostPerSqm;
+                        SguVM.TemperingCostPerSqm = snapshot.Sgu.TemperingCostPerSqm;
+                        SguVM.YieldFactor = snapshot.Sgu.YieldFactor;
+                        SguVM.TargetMarginPercent = snapshot.Sgu.TargetMarginPercent;
+                        SguVM.SelectedPolishOption = snapshot.Sgu.SelectedPolishOption;
+                        SguVM.SheetWidthMm = snapshot.Sgu.SheetWidthMm;
+                        SguVM.SheetHeightMm = snapshot.Sgu.SheetHeightMm;
+                    });
+
+                    DguVM.RunWithoutSheetStoreRefresh(() =>
+                    {
+                        DguVM.OuterThickness = snapshot.Dgu.OuterThickness;
+                        DguVM.OuterGlassColor = snapshot.Dgu.OuterGlassColor;
+                        DguVM.OuterTreatment = snapshot.Dgu.OuterTreatment;
+                        DguVM.OuterBasePrice = snapshot.Dgu.OuterBasePrice;
+                        DguVM.OuterSheetWidthMm = snapshot.Dgu.OuterSheetWidthMm;
+                        DguVM.OuterSheetHeightMm = snapshot.Dgu.OuterSheetHeightMm;
+                        DguVM.SpacerWidth = snapshot.Dgu.SpacerWidth;
+                        DguVM.SpacerMaterial = snapshot.Dgu.SpacerMaterial;
+                        DguVM.SpacerPrice = snapshot.Dgu.SpacerPrice;
+                        DguVM.SpacerExtra = snapshot.Dgu.SpacerExtra;
+                        DguVM.UInsertPricePerSqm = snapshot.Dgu.UInsertPricePerSqm;
+                        DguVM.PanelExtra = snapshot.Dgu.PanelExtra;
+                        DguVM.InnerThickness = snapshot.Dgu.InnerThickness;
+                        DguVM.InnerGlassColor = snapshot.Dgu.InnerGlassColor;
+                        DguVM.InnerTreatment = snapshot.Dgu.InnerTreatment;
+                        DguVM.InnerBasePrice = snapshot.Dgu.InnerBasePrice;
+                        DguVM.InnerSheetWidthMm = snapshot.Dgu.InnerSheetWidthMm;
+                        DguVM.InnerSheetHeightMm = snapshot.Dgu.InnerSheetHeightMm;
+                        DguVM.YieldFactor = snapshot.Dgu.YieldFactor;
+                        DguVM.MarginProfitPercent = snapshot.Dgu.MarginProfitPercent;
+                    });
+
+                    LamVM.RunWithoutSheetStoreRefresh(() =>
+                    {
+                        LamVM.OuterThickness = snapshot.Lam.OuterThickness;
+                        LamVM.OuterGlassColor = snapshot.Lam.OuterGlassColor;
+                        LamVM.OuterTreatment = snapshot.Lam.OuterTreatment;
+                        LamVM.OuterBasePrice = snapshot.Lam.OuterBasePrice;
+                        LamVM.OuterSheetWidthMm = snapshot.Lam.OuterSheetWidthMm;
+                        LamVM.OuterSheetHeightMm = snapshot.Lam.OuterSheetHeightMm;
+                        LamVM.InnerThickness = snapshot.Lam.InnerThickness;
+                        LamVM.InnerGlassColor = snapshot.Lam.InnerGlassColor;
+                        LamVM.InnerTreatment = snapshot.Lam.InnerTreatment;
+                        LamVM.InnerBasePrice = snapshot.Lam.InnerBasePrice;
+                        LamVM.InnerSheetWidthMm = snapshot.Lam.InnerSheetWidthMm;
+                        LamVM.InnerSheetHeightMm = snapshot.Lam.InnerSheetHeightMm;
+                        LamVM.PvbThickness = snapshot.Lam.PvbThickness;
+                        LamVM.PvbColor = snapshot.Lam.PvbColor;
+                        LamVM.PvbMaterialRate = snapshot.Lam.PvbMaterialRate;
+                        LamVM.LaminationPolish = snapshot.Lam.LaminationPolish;
+                        LamVM.OuterCuttingCost = snapshot.Lam.OuterCuttingCost;
+                        LamVM.InnerCuttingCost = snapshot.Lam.InnerCuttingCost;
+                        LamVM.OuterTemperingCost = snapshot.Lam.OuterTemperingCost;
+                        LamVM.InnerTemperingCost = snapshot.Lam.InnerTemperingCost;
+                        LamVM.YieldFactor = snapshot.Lam.YieldFactor;
+                        LamVM.MarginProfitPercent = snapshot.Lam.MarginProfitPercent;
+                    });
+
+                    DguLamVM.OuterThickness = snapshot.DguLam.OuterThickness;
+                    DguLamVM.OuterGlassColor = snapshot.DguLam.OuterGlassColor;
+                    DguLamVM.OuterTreatment = snapshot.DguLam.OuterTreatment;
+                    DguLamVM.OuterBasePrice = snapshot.DguLam.OuterBasePrice;
+                    DguLamVM.SpacerThickness = snapshot.DguLam.SpacerThickness;
+                    DguLamVM.SpacerPrice = snapshot.DguLam.SpacerPrice;
+                    DguLamVM.SpacerExtra = snapshot.DguLam.SpacerExtra;
+                    DguLamVM.LamOuterThickness = snapshot.DguLam.LamOuterThickness;
+                    DguLamVM.LamOuterColor = snapshot.DguLam.LamOuterColor;
+                    DguLamVM.LamOuterTreatment = snapshot.DguLam.LamOuterTreatment;
+                    DguLamVM.LamOuterBasePrice = snapshot.DguLam.LamOuterBasePrice;
+                    DguLamVM.InterlayerType = snapshot.DguLam.InterlayerType;
+                    DguLamVM.InterlayerThickness = snapshot.DguLam.InterlayerThickness;
+                    DguLamVM.InterlayerColor = snapshot.DguLam.InterlayerColor;
+                    DguLamVM.InterlayerBuyPrice = snapshot.DguLam.InterlayerBuyPrice;
+                    DguLamVM.InterlayerSellPrice = snapshot.DguLam.InterlayerSellPrice;
+                    DguLamVM.LamInnerThickness = snapshot.DguLam.LamInnerThickness;
+                    DguLamVM.LamInnerColor = snapshot.DguLam.LamInnerColor;
+                    DguLamVM.LamInnerTreatment = snapshot.DguLam.LamInnerTreatment;
+                    DguLamVM.LamInnerBasePrice = snapshot.DguLam.LamInnerBasePrice;
+                    DguLamVM.PanelExtra = snapshot.DguLam.PanelExtra;
+                    DguLamVM.EdgePolish = snapshot.DguLam.EdgePolish;
+                    DguLamVM.OuterCuttingCost = snapshot.DguLam.OuterCuttingCost;
+                    DguLamVM.OuterTemperingCost = snapshot.DguLam.OuterTemperingCost;
+                    DguLamVM.LamOuterCuttingCost = snapshot.DguLam.LamOuterCuttingCost;
+                    DguLamVM.LamOuterTemperingCost = snapshot.DguLam.LamOuterTemperingCost;
+                    DguLamVM.LamInnerCuttingCost = snapshot.DguLam.LamInnerCuttingCost;
+                    DguLamVM.LamInnerTemperingCost = snapshot.DguLam.LamInnerTemperingCost;
+                    DguLamVM.YieldFactor = snapshot.DguLam.YieldFactor;
+                    DguLamVM.MarginProfitPercent = snapshot.DguLam.MarginProfitPercent;
+                }
+
+                string selectedCode = hasStep4Snapshot
+                    ? snapshot!.SelectedGlassTypeCode
+                    : specGroups?.Select(g => g.SelectedGlassType)
+                        .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))
+                        ?? "SGU";
+
+                SelectGlassTypeCard(selectedCode);
+                HasRestoredSnapshotState = hasStep4Snapshot;
+                YieldFactorWarning = "";
+                ApplyStatusMessage = "";
+                RecalculateEstimatedRate();
+            }
+            finally
+            {
+                _isRestoringSnapshot = false;
+            }
+        }
+
+        private void SelectGlassTypeCard(string? code)
+        {
+            var card = GlassTypes.FirstOrDefault(c =>
+                string.Equals(c.Code, code, StringComparison.OrdinalIgnoreCase));
+            SelectedGlassType = card ?? GlassTypes.FirstOrDefault();
+        }
 
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================
 
@@ -463,6 +715,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         private void OnAnyPanelPropertyChanged(
             object? sender, PropertyChangedEventArgs e)
         {
+            if (_isRestoringSnapshot) return;
+            HasRestoredSnapshotState = false;
+
             string? currentType = SelectedGlassType?.Code;
             if (currentType == null) return;
 

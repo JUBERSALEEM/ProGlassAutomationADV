@@ -65,6 +65,16 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         // ── Active state ────────────────────────────────────────────────────
 
         private bool _isActive;
+        private bool _isApplyingSuggestedActive;
+        private bool _hasManualActiveOverride;
+
+        /// <summary>
+        /// True once the operator (or a restored snapshot) has explicitly
+        /// chosen this row's ON/OFF state. Advanced automation must then
+        /// keep suggesting targets/rates, but stop fighting the toggle.
+        /// </summary>
+        public bool HasManualActiveOverride => _hasManualActiveOverride;
+
         public bool IsActive
         {
             get => _isActive;
@@ -72,10 +82,43 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             {
                 if (_isActive == value) return;
                 _isActive = value;
+                if (!_isApplyingSuggestedActive)
+                    _hasManualActiveOverride = true;
                 OnPropertyChanged();
                 Recalculate();
             }
         }
+
+        /// <summary>
+        /// Applies an automation-suggested ON/OFF state unless the operator
+        /// already overrode the toggle manually.
+        /// </summary>
+        public void ApplySuggestedIsActive(bool isActive)
+        {
+            if (_hasManualActiveOverride) return;
+
+            _isApplyingSuggestedActive = true;
+            try { IsActive = isActive; }
+            finally { _isApplyingSuggestedActive = false; }
+        }
+
+        /// <summary>
+        /// Restores a saved ON/OFF state and marks it as an explicit user
+        /// choice so later automation does not silently overwrite it.
+        /// </summary>
+        public void RestoreIsActive(bool isActive)
+        {
+            _isApplyingSuggestedActive = true;
+            try { IsActive = isActive; }
+            finally { _isApplyingSuggestedActive = false; }
+            _hasManualActiveOverride = true;
+        }
+
+        /// <summary>
+        /// New invoice / fresh row: advanced automation may drive the toggle
+        /// again until the operator touches it.
+        /// </summary>
+        public void ClearManualActiveOverride() => _hasManualActiveOverride = false;
 
         // ── Spec-target selection (Chat 17 — NEW) ──────────────────────
 

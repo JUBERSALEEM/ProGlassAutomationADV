@@ -198,6 +198,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step6VM);
 
             Step7VM.PrintableInvoice.ProfitLoss = Step9VM;
+            Step7VM.PrintableInvoice.Step4Pricing = Step4VM;
 
             WizardSteps = new ObservableCollection<WizardStep>
             {
@@ -327,7 +328,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 
-            if (stepNumber == 4)
+            if (stepNumber == 4 && !Step4VM.HasRestoredSnapshotState)
                 Step4VM.RefreshSheetStoreData();
             if (stepNumber == 5)
                 Step5VM.EnsureDefaultWorkspace();
@@ -365,6 +366,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step3VM.SiteDeliveryLocation = "";
             Step3VM.LpoNumber = "";
 
+            Services.ProformaInvoice.SpecSheetRegistry.Clear();
+            Step4VM.ResetForNewInvoice();
             Step5VM.ResetForNewInvoice();
             Step6VM.ResetForNewInvoice();
 

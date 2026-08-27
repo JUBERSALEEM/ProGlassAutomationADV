@@ -258,6 +258,110 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // When it is present we persist the costed breakdown; when it
             // is not (older wiring, or a VM built outside the wizard) the
             // snapshot keeps its empty default and nothing breaks.
+            if (printable?.Step4Pricing != null)
+            {
+                var step4 = printable.Step4Pricing;
+                snap.Step4Pricing = new Step4PricingSnapshot
+                {
+                    SelectedGlassTypeCode = step4.SelectedGlassType?.Code ?? "",
+                    Sgu = new SguPricingPanelSnapshot
+                    {
+                        SelectedThickness = step4.SguVM.SelectedThickness ?? "",
+                        GlassColor = step4.SguVM.GlassColor ?? "",
+                        SelectedTreatment = step4.SguVM.SelectedTreatment ?? "",
+                        BasePricePerSqm = step4.SguVM.BasePricePerSqm,
+                        CuttingCostPerSqm = step4.SguVM.CuttingCostPerSqm,
+                        TemperingCostPerSqm = step4.SguVM.TemperingCostPerSqm,
+                        YieldFactor = step4.SguVM.YieldFactor,
+                        TargetMarginPercent = step4.SguVM.TargetMarginPercent,
+                        SelectedPolishOption = step4.SguVM.SelectedPolishOption ?? "",
+                        SheetWidthMm = step4.SguVM.SheetWidthMm,
+                        SheetHeightMm = step4.SguVM.SheetHeightMm
+                    },
+                    Dgu = new DguPricingPanelSnapshot
+                    {
+                        OuterThickness = step4.DguVM.OuterThickness ?? "",
+                        OuterGlassColor = step4.DguVM.OuterGlassColor ?? "",
+                        OuterTreatment = step4.DguVM.OuterTreatment ?? "",
+                        OuterBasePrice = step4.DguVM.OuterBasePrice,
+                        OuterSheetWidthMm = step4.DguVM.OuterSheetWidthMm,
+                        OuterSheetHeightMm = step4.DguVM.OuterSheetHeightMm,
+                        SpacerWidth = step4.DguVM.SpacerWidth ?? "",
+                        SpacerMaterial = step4.DguVM.SpacerMaterial ?? "",
+                        SpacerPrice = step4.DguVM.SpacerPrice,
+                        SpacerExtra = step4.DguVM.SpacerExtra ?? "",
+                        UInsertPricePerSqm = step4.DguVM.UInsertPricePerSqm,
+                        PanelExtra = step4.DguVM.PanelExtra ?? "",
+                        InnerThickness = step4.DguVM.InnerThickness ?? "",
+                        InnerGlassColor = step4.DguVM.InnerGlassColor ?? "",
+                        InnerTreatment = step4.DguVM.InnerTreatment ?? "",
+                        InnerBasePrice = step4.DguVM.InnerBasePrice,
+                        InnerSheetWidthMm = step4.DguVM.InnerSheetWidthMm,
+                        InnerSheetHeightMm = step4.DguVM.InnerSheetHeightMm,
+                        YieldFactor = step4.DguVM.YieldFactor,
+                        MarginProfitPercent = step4.DguVM.MarginProfitPercent
+                    },
+                    Lam = new LamPricingPanelSnapshot
+                    {
+                        OuterThickness = step4.LamVM.OuterThickness ?? "",
+                        OuterGlassColor = step4.LamVM.OuterGlassColor ?? "",
+                        OuterTreatment = step4.LamVM.OuterTreatment ?? "",
+                        OuterBasePrice = step4.LamVM.OuterBasePrice,
+                        OuterSheetWidthMm = step4.LamVM.OuterSheetWidthMm,
+                        OuterSheetHeightMm = step4.LamVM.OuterSheetHeightMm,
+                        InnerThickness = step4.LamVM.InnerThickness ?? "",
+                        InnerGlassColor = step4.LamVM.InnerGlassColor ?? "",
+                        InnerTreatment = step4.LamVM.InnerTreatment ?? "",
+                        InnerBasePrice = step4.LamVM.InnerBasePrice,
+                        InnerSheetWidthMm = step4.LamVM.InnerSheetWidthMm,
+                        InnerSheetHeightMm = step4.LamVM.InnerSheetHeightMm,
+                        PvbThickness = step4.LamVM.PvbThickness ?? "",
+                        PvbColor = step4.LamVM.PvbColor ?? "",
+                        PvbMaterialRate = step4.LamVM.PvbMaterialRate,
+                        LaminationPolish = step4.LamVM.LaminationPolish ?? "",
+                        OuterCuttingCost = step4.LamVM.OuterCuttingCost,
+                        InnerCuttingCost = step4.LamVM.InnerCuttingCost,
+                        OuterTemperingCost = step4.LamVM.OuterTemperingCost,
+                        InnerTemperingCost = step4.LamVM.InnerTemperingCost,
+                        YieldFactor = step4.LamVM.YieldFactor,
+                        MarginProfitPercent = step4.LamVM.MarginProfitPercent
+                    },
+                    DguLam = new DguLamPricingPanelSnapshot
+                    {
+                        OuterThickness = step4.DguLamVM.OuterThickness ?? "",
+                        OuterGlassColor = step4.DguLamVM.OuterGlassColor ?? "",
+                        OuterTreatment = step4.DguLamVM.OuterTreatment ?? "",
+                        OuterBasePrice = step4.DguLamVM.OuterBasePrice,
+                        SpacerThickness = step4.DguLamVM.SpacerThickness ?? "",
+                        SpacerPrice = step4.DguLamVM.SpacerPrice,
+                        SpacerExtra = step4.DguLamVM.SpacerExtra ?? "",
+                        LamOuterThickness = step4.DguLamVM.LamOuterThickness ?? "",
+                        LamOuterColor = step4.DguLamVM.LamOuterColor ?? "",
+                        LamOuterTreatment = step4.DguLamVM.LamOuterTreatment ?? "",
+                        LamOuterBasePrice = step4.DguLamVM.LamOuterBasePrice,
+                        InterlayerType = step4.DguLamVM.InterlayerType ?? "",
+                        InterlayerThickness = step4.DguLamVM.InterlayerThickness ?? "",
+                        InterlayerColor = step4.DguLamVM.InterlayerColor ?? "",
+                        InterlayerBuyPrice = step4.DguLamVM.InterlayerBuyPrice,
+                        InterlayerSellPrice = step4.DguLamVM.InterlayerSellPrice,
+                        LamInnerThickness = step4.DguLamVM.LamInnerThickness ?? "",
+                        LamInnerColor = step4.DguLamVM.LamInnerColor ?? "",
+                        LamInnerTreatment = step4.DguLamVM.LamInnerTreatment ?? "",
+                        LamInnerBasePrice = step4.DguLamVM.LamInnerBasePrice,
+                        PanelExtra = step4.DguLamVM.PanelExtra ?? "",
+                        EdgePolish = step4.DguLamVM.EdgePolish ?? "",
+                        OuterCuttingCost = step4.DguLamVM.OuterCuttingCost,
+                        OuterTemperingCost = step4.DguLamVM.OuterTemperingCost,
+                        LamOuterCuttingCost = step4.DguLamVM.LamOuterCuttingCost,
+                        LamOuterTemperingCost = step4.DguLamVM.LamOuterTemperingCost,
+                        LamInnerCuttingCost = step4.DguLamVM.LamInnerCuttingCost,
+                        LamInnerTemperingCost = step4.DguLamVM.LamInnerTemperingCost,
+                        YieldFactor = step4.DguLamVM.YieldFactor,
+                        MarginProfitPercent = step4.DguLamVM.MarginProfitPercent
+                    }
+                };
+            }
+
             if (printable?.ProfitLoss != null)
             {
                 snap.ProfitLoss = printable.ProfitLoss.BuildSnapshot();
@@ -442,6 +546,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             if (snap == null) return;
 
+            ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry.Clear();
+
             // ── Step 1: Company ────────────────────────────────────────
             if (snap.Company != null)
             {
@@ -483,6 +589,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 project.ProjectReference = snap.Project.ProjectReference ?? "";  // CHAT 15: NEW
                 project.SiteDeliveryLocation = snap.Project.SiteDeliveryLocation ?? "";
                 project.LpoNumber = snap.Project.LpoNumber ?? "";
+            }
+
+            if (printable?.Step4Pricing != null)
+            {
+                printable.Step4Pricing.RestoreFromSnapshot(
+                    snap.Step4Pricing,
+                    snap.SpecGroups);
             }
 
             // ── Step 5: DataGrid ───────────────────────────────────────
@@ -539,6 +652,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             foreach (var gSnap in snap.SpecGroups)
             {
+                if (!string.IsNullOrWhiteSpace(gSnap.SelectedSpecName))
+                {
+                    ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry.Record(
+                        gSnap.SelectedSpecName,
+                        new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
+                        {
+                            OuterWidthMm = gSnap.OuterSheetWidthMm,
+                            OuterHeightMm = gSnap.OuterSheetHeightMm,
+                            InnerWidthMm = gSnap.InnerSheetWidthMm,
+                            InnerHeightMm = gSnap.InnerSheetHeightMm,
+                            UInsertPricePerSqm = gSnap.UInsertPricePerSqm
+                        });
+                }
+
                 var group = new SpecGroup
                 {
                     GroupNumber = gSnap.GroupNumber,
@@ -597,7 +724,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         r => r.TemplateKey == cSnap.TemplateKey);
                     if (row == null) continue;
 
-                    row.IsActive = cSnap.IsActive;
+                    row.RestoreIsActive(cSnap.IsActive);
                     row.Rate = cSnap.Rate;
 
                     // Legacy: SelectedSource restore (pre-Chat 17 invoices)

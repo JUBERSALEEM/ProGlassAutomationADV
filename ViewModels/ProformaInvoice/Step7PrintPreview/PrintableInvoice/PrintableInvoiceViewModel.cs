@@ -28,6 +28,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile;   // FIXED: was Step2ProjectSpecs
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs;    // FIXED: was Step3ClientProfile
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
@@ -176,6 +177,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
         }
         private ProfitLossStepViewModel? _profitLoss;
+
+        /// <summary>
+        /// Optional link back to Step 4 so save/load can persist the active
+        /// pricing-editor state without making the printable VM own Step 4.
+        /// </summary>
+        public PricingEstimatorViewModel? Step4Pricing { get; set; }
 
         /// <summary>
         /// CHAT 15: Parameter order corrected.
