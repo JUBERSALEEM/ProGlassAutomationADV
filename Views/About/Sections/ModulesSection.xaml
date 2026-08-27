@@ -24,46 +24,79 @@
 
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="Active Modules"
-                                   Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Live operational modules already running the commercial workflow"
-                                   Style="{StaticResource SectionSubtitleStyle}"
-                                   Margin="0,0,0,0"/>
-                    </StackPanel>
-                    <Border Grid.Column="1" Style="{StaticResource AboutHeaderBadgeStyle}">
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                    <TextBlock Text="Active Modules"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="Operational surfaces already deployed in this build, aligned as one commercial-to-factory workspace"
+                               Style="{StaticResource SectionSubtitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               MaxWidth="760"
+                               Margin="0,0,0,0"/>
+                    <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                            HorizontalAlignment="Center"
+                            Margin="0,14,0,0">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
                             <Run Text="MODULE COUNT  "/>
                             <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
-                </Grid>
-                <ItemsControl ItemsSource="{Binding Modules}"
-                              ItemTemplate="{StaticResource ModuleChipTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                </StackPanel>
+
+                <Border Style="{StaticResource AboutSectionPanelStyle}"
+                        Margin="0,0,0,0"
+                        Padding="16,16">
+                    <ItemsControl ItemsSource="{Binding Modules}"
+                                  ItemTemplate="{StaticResource ModuleChipTemplate}"
+                                  HorizontalAlignment="Center">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel HorizontalAlignment="Center"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+                </Border>
             </StackPanel>
         </Border>
 
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>
-                <TextBlock Text="End-to-End Production Workflow"
-                           Style="{StaticResource SectionTitleStyle}"/>
-                <TextBlock Text="From raw glass sheets to tax invoice — every stage tracked in one shell"
-                           Style="{StaticResource SectionSubtitleStyle}"/>
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                    <TextBlock Text="End-to-End Production Workflow"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="Commercial intake, production preparation, and final billing arranged in a clean stage-by-stage operating flow"
+                               Style="{StaticResource SectionSubtitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               MaxWidth="780"
+                               Margin="0,0,0,0"/>
+                </StackPanel>
 
                 <Border Style="{StaticResource AboutSectionPanelStyle}">
                     <StackPanel>
-                        <TextBlock Text="SALES CYCLE" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,14">
+                            <TextBlock Text="SALES CYCLE"
+                                       Style="{StaticResource WorkflowGroupLabelStyle}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                            <TextBlock Text="From sheet availability to released production paperwork"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource GlassFrost}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="560"/>
+                            <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,12,0,0">
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="3 STAGES"/>
+                            </Border>
+                        </StackPanel>
+
                         <ItemsControl ItemsSource="{Binding SalesCycle}"
                                       ItemTemplate="{StaticResource WorkflowCardTemplate}"
                                       HorizontalAlignment="Center">
@@ -78,9 +111,28 @@
 
                 <Border Style="{StaticResource AboutSectionPanelStyle}">
                     <StackPanel>
-                        <TextBlock Text="PRODUCTION STAGES (UPCOMING)" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,14">
+                            <TextBlock Text="PRODUCTION STAGES (UPCOMING)"
+                                       Style="{StaticResource WorkflowGroupLabelStyle}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                            <TextBlock Text="Planned factory execution stages that will slot into the same controlled workflow shell"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource GlassFrost}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="600"/>
+                            <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,12,0,0">
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="8 STAGES"/>
+                            </Border>
+                        </StackPanel>
+
                         <ItemsControl ItemsSource="{Binding ProductionStages}"
-                                      ItemTemplate="{StaticResource WorkflowCardTemplate}">
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                                      HorizontalAlignment="Center">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <WrapPanel HorizontalAlignment="Center"/>
@@ -92,7 +144,25 @@
 
                 <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
                     <StackPanel>
-                        <TextBlock Text="DISPATCH &amp; BILLING" Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <StackPanel HorizontalAlignment="Center" Margin="0,0,0,14">
+                            <TextBlock Text="DISPATCH &amp; BILLING"
+                                       Style="{StaticResource WorkflowGroupLabelStyle}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"/>
+                            <TextBlock Text="Delivery evidence, invoicing, and reporting closed out under one financial trail"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource GlassFrost}"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="560"/>
+                            <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,12,0,0">
+                                <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}" Text="3 STAGES"/>
+                            </Border>
+                        </StackPanel>
+
                         <ItemsControl ItemsSource="{Binding DispatchBilling}"
                                       ItemTemplate="{StaticResource WorkflowCardTemplate}"
                                       HorizontalAlignment="Center">

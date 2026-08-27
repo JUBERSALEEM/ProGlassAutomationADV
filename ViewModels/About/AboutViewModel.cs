@@ -179,10 +179,10 @@ public sealed class AboutViewModel : ViewModelBase
 
     /// <summary>
     /// Developer contact email.
-    /// Bound to a clickable pill in AboutView — click launches
-    /// the OS default mailto handler via AboutView.xaml.cs.
+    /// Bound to a clickable pill in the Developer section — click launches
+    /// the OS default mailto handler via DeveloperSection.xaml.cs.
     /// </summary>
-    public string Email { get; } = "Jubersaleem@gmail.com";
+    public string Email { get; } = "jubersaleem01@gmail.com";
 
     // ══════════════════════════════════════════════════════════════════
     //  LEGAL
