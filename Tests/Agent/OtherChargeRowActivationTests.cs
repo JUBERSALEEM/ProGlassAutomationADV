@@ -1,4 +1,7 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
+using System.Linq;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
@@ -39,6 +42,24 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.False(row.IsActive);
             Assert.True(row.HasManualActiveOverride);
+        }
+
+        [Fact]
+        public void Advanced_mode_auto_picks_u_insert_by_default_when_the_spec_contains_it()
+        {
+            var grid = new DataGridViewModel();
+            var group = grid.SpecGroups[0];
+            group.SelectedGlassType = "DGU";
+            group.SelectedSpecName = "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass";
+
+            var vm = new OtherChargesViewModel(grid);
+            var row = vm.ChargeRows.First(r => r.TemplateKey == "U_INSERT");
+
+            Assert.True(row.IsActive);
+            Assert.NotNull(row.TargetSelection?.SelectedMetric);
+            Assert.Equal("DGU_CAVITY", row.TargetSelection!.SelectedMetric!.Key);
+            Assert.Contains(row.TargetSelection.AvailableSpecs,
+                s => s.SpecGroupNumber == group.GroupNumber && s.IsChecked);
         }
     }
 }

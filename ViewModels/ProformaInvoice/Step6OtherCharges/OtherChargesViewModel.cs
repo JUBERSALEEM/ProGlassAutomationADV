@@ -499,9 +499,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     ChargeName = template.ChargeName,
                     Description = template.Description,
                     Unit = template.Unit,
-                    Rate = template.DefaultRate,
-                    IsActive = false
+                    Rate = template.DefaultRate
                 };
+
+                // Default OFF must not count as a manual operator override,
+                // otherwise advanced mode can never auto-activate the row.
+                row.ClearManualActiveOverride();
 
                 if (row.IsPolishRow)
                 {

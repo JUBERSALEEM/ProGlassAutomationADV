@@ -430,6 +430,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         //  PRIVATE HELPERS
         // ═══════════════════════════════════════════════════════════════
 
+        public void AdoptExternalCustomerSelection(string? customerName)
+        {
+            SelectedClientName = customerName ?? string.Empty;
+        }
+
+        public void ClearExternalCustomerSelection()
+        {
+            SelectedClientName = string.Empty;
+        }
+
         private void RebuildVisibleCards()
         {
             SavedClientCards.Clear();

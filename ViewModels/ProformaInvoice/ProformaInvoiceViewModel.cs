@@ -369,7 +369,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step2VM.BillingAddress = "";
             Step2VM.AttentionExecutiveName = "";
             Step2VM.ClientContactPhone = "";
+            Step2VM.ClearExternalCustomerSelection();
 
+            Step3VM.SetClientFilter("");
             Step3VM.ProjectIdentifierName = "";
             Step3VM.ProjectContractNo = "";
             Step3VM.ProjectReference = "";
@@ -606,6 +608,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step2VM.BillingAddress = inquiry.CustomerLocation;
             Step2VM.SalesRepresentative = inquiry.SalesmanName;
             Step2VM.DocumentPreparedBy = inquiry.PreparedByName;
+            Step2VM.AdoptExternalCustomerSelection(inquiry.CustomerName);
+            Step3VM.SetClientFilter(inquiry.CustomerName);
 
             // Project reference. ProjectDescription is the fuller
             // free-text field on the inquiry; when empty we fall back

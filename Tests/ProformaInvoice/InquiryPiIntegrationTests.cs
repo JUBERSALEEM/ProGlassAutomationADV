@@ -33,7 +33,9 @@ using ProGlassAutomation.Services.Inquiry;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -192,6 +194,29 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
         }
 
         [Fact]
+        public void ClientProfile_external_customer_selection_publishes_the_project_filter_name()
+        {
+            var vm = new ClientProfileViewModel();
+
+            vm.AdoptExternalCustomerSelection("ACME");
+            Assert.Equal("ACME", vm.SelectedClientName);
+
+            vm.ClearExternalCustomerSelection();
+            Assert.Equal(string.Empty, vm.SelectedClientName);
+        }
+
+        [Fact]
+        public void StartFromInquiryAsync_seeds_the_step3_client_filter_channel()
+        {
+            var root = LocateProjectRoot();
+            var pi = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+
+            Assert.Contains("AdoptExternalCustomerSelection(inquiry.CustomerName)", pi);
+            Assert.Contains("Step3VM.SetClientFilter(inquiry.CustomerName);", pi);
+        }
+
+        [Fact]
         public void InquiryStatuses_only_Confirmed_is_convertible()
         {
             // Documents the eligibility contract for
@@ -260,6 +285,20 @@ namespace ProGlassAutomation.Tests.ProformaInvoice
             string scrubbedJson = ProformaInvoiceMapper.SerializeSnapshot(reparsed);
 
             Assert.DoesNotContain("\"InquiryId\":17", scrubbedJson);
+        }
+        private static string LocateProjectRoot()
+        {
+            var dir = new DirectoryInfo(AppContext.BaseDirectory);
+            while (dir != null)
+            {
+                var probe = Path.Combine(dir.FullName,
+                    "ViewModels", "ProformaInvoice", "ProformaInvoiceViewModel.cs");
+                if (File.Exists(probe)) return dir.FullName;
+                dir = dir.Parent;
+            }
+
+            throw new DirectoryNotFoundException(
+                "Could not locate the project root above " + AppContext.BaseDirectory);
         }
     }
 }

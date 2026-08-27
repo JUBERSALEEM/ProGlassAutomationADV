@@ -95,6 +95,17 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Step6_predefined_rows_start_off_without_counting_as_manual_override()
+        {
+            var root = LocateProjectRoot();
+            var vm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/OtherChargesViewModel.cs"));
+
+            Assert.Contains("row.ClearManualActiveOverride();", vm);
+            Assert.DoesNotContain("IsActive = false", vm);
+        }
+
+        [Fact]
         public void Dgu_view_and_handoff_expose_u_insert_price()
         {
             var root = LocateProjectRoot();

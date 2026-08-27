@@ -47,6 +47,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             {
                 if (p is WastageRow r)
                 {
+                    DetachRow(r);
                     WastageRows.Remove(r);
                     RecalculateTotal();
                 }
@@ -60,12 +61,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                 Rate = 0m
             };
             SyncSourcesForRow(row);
-            row.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(WastageRow.ResultAmount)
-                    || e.PropertyName == nameof(WastageRow.IsActive))
-                    RecalculateTotal();
-            };
+            AttachRow(row);
             WastageRows.Add(row);
         }
 
@@ -90,6 +86,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     g => g.First(),
                     System.StringComparer.OrdinalIgnoreCase);
 
+            foreach (var existing in WastageRows.ToList())
+                DetachRow(existing);
             WastageRows.Clear();
 
             foreach (var group in suggestions
@@ -145,14 +143,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
             // Populate available sources from current spec groups
             SyncSourcesForRow(row);
-
-            // Hook total recalculation on state changes
-            row.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(WastageRow.ResultAmount)
-                    || e.PropertyName == nameof(WastageRow.IsActive))
-                    RecalculateTotal();
-            };
+            AttachRow(row);
         }
 
         private void SyncSourcesForRow(WastageRow row)
@@ -212,6 +203,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         }
 
         public void RefreshTotal() => RecalculateTotal();
+
+        private void AttachRow(WastageRow row)
+        {
+            if (row == null) return;
+            row.PropertyChanged -= OnWastageRowChanged;
+            row.PropertyChanged += OnWastageRowChanged;
+        }
+
+        private void DetachRow(WastageRow row)
+        {
+            if (row == null) return;
+            row.PropertyChanged -= OnWastageRowChanged;
+        }
+
+        private void OnWastageRowChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(WastageRow.ResultAmount)
+                || e.PropertyName == nameof(WastageRow.IsActive))
+                RecalculateTotal();
+        }
 
         private static Step4PricingSnapshot? ResolveStep4Snapshot(
             IReadOnlyList<Step4PricingSnapshot>? sections,
