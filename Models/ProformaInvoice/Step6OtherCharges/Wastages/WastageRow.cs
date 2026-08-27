@@ -437,9 +437,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 
             autoPrice = Math.Round(autoPrice, 6);
             SelectedSourcePricePerSqm = autoPrice;
-
-            if (autoPrice > 0m)
-                SetAutoFormulaPrice(autoPrice);
+            SetAutoFormulaPrice(autoPrice);
         }
 
         private void RecalculateOptimizationResults()

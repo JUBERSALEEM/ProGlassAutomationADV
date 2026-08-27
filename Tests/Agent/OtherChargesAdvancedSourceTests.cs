@@ -65,6 +65,14 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("WASTAGE SETUP", wastageView);
             Assert.Contains("SetupToggle", wastageView);
             Assert.Contains("SelectedSourcePricePerSqm", wastageRow);
+            Assert.Contains("SelectedSheetWidthText", wastageRow);
+            Assert.Contains("SetAutoFormulaPrice", wastageRow);
+            Assert.Contains("ExtractColorKey", File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
+            Assert.Contains("ColorName = group.OuterGlassColor", File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
+            Assert.Contains("ColorName = group.InnerGlassColor", File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
         }

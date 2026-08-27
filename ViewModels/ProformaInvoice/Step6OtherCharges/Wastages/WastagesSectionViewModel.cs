@@ -84,7 +84,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             WastageRows.Clear();
 
             foreach (var group in suggestions
-                .GroupBy(x => x.DisplayName, System.StringComparer.OrdinalIgnoreCase)
+                .GroupBy(x => ExtractColorKey(x.DisplayName), System.StringComparer.OrdinalIgnoreCase)
                 .OrderBy(x => x.Key, System.StringComparer.OrdinalIgnoreCase))
             {
                 previousRows.TryGetValue(group.Key, out var previousRow);
@@ -163,6 +163,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     SpecNumber = group.GroupNumber,
                     SpecName = group.GroupName,
                     SideLabel = "Outer (W1/H1)",
+                    ColorName = group.OuterGlassColor,
                     SqmValue = group.FooterTotalSqm,
                     SheetWidthMm = group.OuterSheetWidthMm,
                     SheetHeightMm = group.OuterSheetHeightMm,
@@ -181,6 +182,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SpecNumber = group.GroupNumber,
                         SpecName = group.GroupName,
                         SideLabel = "Inner (W2/H2)",
+                        ColorName = group.InnerGlassColor,
                         SqmValue = group.FooterTotalSqm2,
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
@@ -195,6 +197,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         }
 
         public void RefreshTotal() => RecalculateTotal();
+
+        private static string ExtractColorKey(string? displayName)
+        {
+            string text = (displayName ?? string.Empty).Trim();
+            if (text.Length == 0) return string.Empty;
+
+            int emDash = text.IndexOf('—');
+            if (emDash > 0)
+                return text[..emDash].Trim();
+
+            int hyphen = text.IndexOf('-');
+            if (hyphen > 0)
+                return text[..hyphen].Trim();
+
+            return text;
+        }
 
         private void RecalculateTotal()
         {

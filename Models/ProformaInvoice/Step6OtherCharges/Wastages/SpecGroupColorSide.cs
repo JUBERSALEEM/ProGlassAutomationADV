@@ -8,6 +8,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         public int SpecNumber { get; set; }
         public string SpecName { get; set; } = "";
         public string SideLabel { get; set; } = ""; // "Outer (W1/H1)" or "Inner (W2/H2)"
+        public string ColorName { get; set; } = "";
         public int SheetWidthMm { get; set; }
         public int SheetHeightMm { get; set; }
         public decimal PricePerSqm { get; set; }
@@ -26,7 +27,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             set { if (_isChecked == value) return; _isChecked = value; OnPropertyChanged(); }
         }
 
-        public string DisplayLabel => $"Spec {SpecNumber} ({SpecName}) → {SideLabel}";
+        public string DisplayLabel =>
+            string.IsNullOrWhiteSpace(ColorName)
+                ? $"Spec {SpecNumber} ({SpecName}) → {SideLabel}"
+                : $"Spec {SpecNumber} ({SpecName}) → {SideLabel} · {ColorName}";
 
         public string ShortLabel
         {
