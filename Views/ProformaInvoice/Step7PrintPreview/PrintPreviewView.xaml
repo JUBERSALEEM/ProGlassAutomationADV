@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 7 — Preview. Approved board:
     left steel controls (summary, terms checklist, save/export at BOTTOM)
     · right paper-white A4.
@@ -35,8 +35,8 @@
                 <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,12,0,0">
                     <Button Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
                             Style="{StaticResource PiFooterPrimaryButton}"
-                            Content="SAVE DRAFT"
-                            ToolTip="Save invoice to database"
+                            Content="SAVE ONLY"
+                            ToolTip="Save invoice only. Confirmation happens through Step 8 attachments."
                             Margin="0,0,8,0"/>
                     <Button Command="{Binding PrintableInvoice.ExportPdfCommand}"
                             Style="{StaticResource PiFooterGhostButton}"

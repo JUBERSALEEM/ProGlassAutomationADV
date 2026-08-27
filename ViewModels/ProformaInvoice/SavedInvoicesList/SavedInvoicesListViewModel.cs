@@ -62,7 +62,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public List<string> StatusFilterOptions { get; } = new()
         {
             "All Statuses",
-            "PI created", "PI confirmed", "Full job created",
+            "PI created", "PI sent", "PI confirmed", "Full job created",
             "Partially delivered", "Fully delivered",
             "Partially invoiced", "Fully invoiced", "Cancelled"
         };
@@ -399,6 +399,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 // Load downstream lifecycle data once so the list can derive the
                 // business status (full job created / delivered / invoiced).
                 var lifecycle = await LoadLifecycleStateAsync();
+                var confirmedWithAttachments = await LoadApprovalProofStateAsync(entities);
 
                 _allItems = entities.Select(e =>
                 {
@@ -415,7 +416,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         UpdatedAt = e.UpdatedAt
                     };
 
-                    var ls = lifecycle.Compute(e.ProformaId ?? "", e.Status ?? "Draft");
+                    bool hasApprovalProof = confirmedWithAttachments.Contains(e.ProformaId ?? "");
+                    var ls = lifecycle.Compute(e.ProformaId ?? "", e.Status ?? "Draft", hasApprovalProof);
                     item.DisplayStatus = ls.Status;
                     item.DisplayStatusBrushKey = ls.BrushKey;
                     return item;
@@ -509,6 +511,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         /// <summary>
+        /// Loads Step 8 confirmation proof state once for the current list.
+        /// A PI is only shown as confirmed when it is stored Approved AND it
+        /// has at least one attachment uploaded through Step 8.
+        /// </summary>
+        private async Task<HashSet<string>> LoadApprovalProofStateAsync(
+            IEnumerable<SavedProformaInvoice> entities)
+        {
+            var confirmed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                var service = new ProformaAttachmentService();
+                var ids = (entities ?? Enumerable.Empty<SavedProformaInvoice>())
+                    .Select(x => x.ProformaId)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                var results = await Task.WhenAll(ids.Select(async id =>
+                {
+                    var manifest = await service.LoadManifestAsync(id!);
+                    return (Id: id!, HasProof: manifest.Count > 0);
+                }));
+
+                foreach (var row in results)
+                    if (row.HasProof)
+                        confirmed.Add(row.Id);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning($"Suppressed exception: {ex.Message}");
+            }
+
+            return confirmed;
+        }
+
+        /// <summary>
         /// Cached downstream data used to derive the list status.
         /// </summary>
         private sealed class LifecycleState
@@ -519,7 +558,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             /// <summary>Invoiced quantity per proforma (sum of TI TotalQty).</summary>
             public Dictionary<string, int> InvoicedQtyByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
 
-            public (string Status, string BrushKey) Compute(string proformaId, string storedStatus)
+            public (string Status, string BrushKey) Compute(
+                string proformaId,
+                string storedStatus,
+                bool hasConfirmationAttachment)
             {
                 // Cancelled (stored Cancelled/Rejected)
                 if (string.Equals(storedStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)
@@ -561,11 +603,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (JobOrderByProforma.ContainsKey(proformaId))
                     return ("Full job created", "InfoBrush");
 
-                // PI confirmed = stored Approved
-                if (string.Equals(storedStatus, "Approved", StringComparison.OrdinalIgnoreCase))
+                // PI confirmed requires BOTH: stored Approved and a real
+                // Step 8 confirmation attachment (signed PI / LPO upload).
+                if (string.Equals(storedStatus, "Approved", StringComparison.OrdinalIgnoreCase)
+                    && hasConfirmationAttachment)
                     return ("PI confirmed", "AccentBrush");
 
-                // PI created (default)
+                if (string.Equals(storedStatus, "Sent", StringComparison.OrdinalIgnoreCase))
+                    return ("PI sent", "AccentDarkBrush");
+
+                // Approved-without-attachment is treated as still only created.
+                // This protects the list from legacy/bad saves that skipped the
+                // Step 8 confirmation proof requirement.
                 return ("PI created", "NeutralBrush");
             }
         }

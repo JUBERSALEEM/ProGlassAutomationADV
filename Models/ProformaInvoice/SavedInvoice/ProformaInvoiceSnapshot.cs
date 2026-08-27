@@ -449,7 +449,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     {
         public string PreparedByName { get; set; } = "";
         public string PreparedByDept { get; set; } = "";
-        public string PreparedByStatus { get; set; } = "APPROVED";
+        // Default empty so the printable VM falls back to the workflow
+        // status from Company.ProformaStatus. A hard-coded APPROVED here
+        // promoted old/blank snapshots into a fake confirmed state.
+        public string PreparedByStatus { get; set; } = "";
         public string TermsText { get; set; } = "";
         public string FooterDisclaimer { get; set; } = "";
     }

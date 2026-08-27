@@ -54,7 +54,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// Converts between live wizard ViewModels and the JSON-serializable
     /// ProformaInvoiceSnapshot / SavedProformaInvoice entity.
     ///
-    /// BUG-15 [CRITICAL]: Status reflects PreparedByStatus override.
+    /// BUG-15 [CRITICAL]: Stored PI workflow status no longer trusts the
+    ///                     printable PreparedByStatus field.
     /// BUG-16: Wastages restore — no UI command called from mapper.
     /// BUG-17: Spec name mismatch check removed.
     /// BUG-18: DeserializeSnapshot catches only JsonException.
@@ -105,11 +106,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             string json = JsonSerializer.Serialize(snapshot, _jsonOptions);
 
-            // BUG-15: Effective status — printable override takes precedence
-            string effectiveStatus =
-                !string.IsNullOrWhiteSpace(printable?.PreparedByStatus)
-                    ? printable.PreparedByStatus
-                    : (company.ProformaStatus ?? "Draft");
+            // Senior workflow hardening (Aug 2026): Step 7 print-preview
+            // fields must NEVER be able to confirm an invoice. Stored PI
+            // workflow status comes from the real wizard status only; Step 8
+            // approval is the only path that may move it to Approved.
+            string effectiveStatus = company.ProformaStatus ?? "Draft";
 
             var entity = new SavedProformaInvoice
             {
@@ -247,7 +248,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 {
                     PreparedByName = printable.PreparedByName ?? "",
                     PreparedByDept = printable.PreparedByDept ?? "",
-                    PreparedByStatus = printable.PreparedByStatus ?? "",
+                    PreparedByStatus = company.ProformaStatus ?? "",
                     TermsText = printable.TermsText ?? "",
                     FooterDisclaimer = printable.FooterDisclaimer ?? ""
                 }
@@ -643,7 +644,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             {
                 printable.PreparedByName = snap.PreparedBy.PreparedByName ?? "";
                 printable.PreparedByDept = snap.PreparedBy.PreparedByDept ?? "";
-                printable.PreparedByStatus = snap.PreparedBy.PreparedByStatus ?? "";
+                printable.PreparedByStatus = snap.Company?.ProformaStatus ?? "Draft";
                 printable.TermsText = snap.PreparedBy.TermsText ?? "";
                 printable.FooterDisclaimer = snap.PreparedBy.FooterDisclaimer ?? "";
             }

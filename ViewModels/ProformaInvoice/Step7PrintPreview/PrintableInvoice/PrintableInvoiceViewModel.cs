@@ -104,16 +104,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
         }
 
-        private string _preparedByStatusOverride;
         public string PreparedByStatus
         {
-            get => string.IsNullOrWhiteSpace(_preparedByStatusOverride)
-                ? (Company?.ProformaStatus ?? "Draft")
-                : _preparedByStatusOverride;
+            get => string.IsNullOrWhiteSpace(Company?.ProformaStatus)
+                ? "Draft"
+                : Company.ProformaStatus;
             set
             {
-                if (_preparedByStatusOverride == value) return;
-                _preparedByStatusOverride = value;
+                string next = string.IsNullOrWhiteSpace(value)
+                    ? "Draft"
+                    : value.Trim();
+
+                if (string.Equals(Company?.ProformaStatus, next,
+                        StringComparison.OrdinalIgnoreCase))
+                    return;
+
+                if (Company != null)
+                    Company.ProformaStatus = next;
+
                 OnPropertyChanged();
             }
         }
@@ -237,11 +245,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         private void OnCompanyChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(CompanySetupViewModel.ProformaStatus)
-                && string.IsNullOrWhiteSpace(_preparedByStatusOverride))
-            {
+            if (e.PropertyName == nameof(CompanySetupViewModel.ProformaStatus))
                 OnPropertyChanged(nameof(PreparedByStatus));
-            }
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -327,7 +332,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 if (string.IsNullOrWhiteSpace(entity.ProformaId))
                     return false;
 
-                if (await App.Invoices.ExistsByProformaIdAsync(entity.ProformaId))
+                var existing = await App.Invoices.GetByProformaIdAsync(entity.ProformaId);
+                entity.Status = NormalizeSaveOnlyStatus(existing?.Status);
+                Company.ProformaStatus = entity.Status;
+                OnPropertyChanged(nameof(PreparedByStatus));
+
+                if (existing != null)
                     await App.Invoices.UpdateAsync(entity);
                 else
                     await App.Invoices.InsertAsync(entity);
@@ -370,8 +380,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 Company, Client, Project, DataGrid, OtherCharges,
                 MainSummary, Terms, this);
 
-            bool alreadyExists =
-                await App.Invoices.ExistsByProformaIdAsync(entity.ProformaId);
+            var existing = await App.Invoices.GetByProformaIdAsync(entity.ProformaId);
+            entity.Status = NormalizeSaveOnlyStatus(existing?.Status);
+            Company.ProformaStatus = entity.Status;
+            OnPropertyChanged(nameof(PreparedByStatus));
+
+            bool alreadyExists = existing != null;
 
             if (alreadyExists)
             {
@@ -403,7 +417,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 }
 
                 entity.ProformaId = suggestedId;
+                entity.Status = NormalizeSaveOnlyStatus(null);
                 Company.ProformaId = suggestedId;
+                Company.ProformaStatus = entity.Status;
+                OnPropertyChanged(nameof(PreparedByStatus));
                 await App.Invoices.InsertAsync(entity);
                 await StampSaveArtifactsAsync(entity, isUpdate: false);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
@@ -413,6 +430,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             await App.Invoices.InsertAsync(entity);
             await StampSaveArtifactsAsync(entity, isUpdate: false);
             ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+        }
+
+        private string NormalizeSaveOnlyStatus(string? currentStoredStatus)
+        {
+            string current = NormalizeWorkflowStatus(currentStoredStatus);
+            if (string.Equals(current, "Approved", StringComparison.OrdinalIgnoreCase))
+                return "Approved";
+
+            string requested = NormalizeWorkflowStatus(Company?.ProformaStatus);
+            if (string.Equals(requested, "Approved", StringComparison.OrdinalIgnoreCase))
+                return current;
+
+            return requested;
+        }
+
+        private static string NormalizeWorkflowStatus(string? status)
+        {
+            if (string.IsNullOrWhiteSpace(status))
+                return "Draft";
+
+            return status.Trim();
         }
 
         /// <summary>
@@ -459,7 +497,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             string verb = isUpdate ? "updated" : "saved";
             MessageBox.Show(
                 $"Invoice '{proformaId}' was {verb} successfully.\n\n" +
-                "You can load it later using the LOAD INVOICE button.",
+                "This SAVE ONLY action does not confirm the PI. " +
+                "Confirmation happens through Step 8 attachments / the approval flow.",
                 "Save Successful",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
