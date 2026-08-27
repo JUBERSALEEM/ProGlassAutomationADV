@@ -1,12 +1,15 @@
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
 
@@ -43,6 +46,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
                 // Recalculate rate when glass type changes
                 RecalculateEstimatedRate();
+                if (!_isRestoringSnapshot)
+                    UpdateCurrentCalculationSectionSnapshot();
             }
         }
 
@@ -79,7 +84,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // === Specification Target Groups (Step 4 preview only — see BUG-43) ===
         public ObservableCollection<SpecTargetGroup> SpecGroups { get; }
 
-        public int TotalSpecsActive => SpecGroups?.Count(g => g.IsSelected) ?? 0;
+        private SpecTargetGroup? _selectedCalculationSection;
+        public SpecTargetGroup? SelectedCalculationSection
+        {
+            get => _selectedCalculationSection;
+            private set
+            {
+                if (ReferenceEquals(_selectedCalculationSection, value)) return;
+                _selectedCalculationSection = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentCalculationSectionLabel));
+                OnPropertyChanged(nameof(TotalSpecsActive));
+                OnPropertyChanged(nameof(CanRemoveCalculationSection));
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        public int TotalSpecsActive => SelectedCalculationSection == null ? 0 : 1;
+        public int CalculationSectionCount => SpecGroups?.Count ?? 0;
+        public bool CanRemoveCalculationSection => CalculationSectionCount > 1;
+        public string CurrentCalculationSectionLabel => SelectedCalculationSection?.Name ?? "Spec Group 1";
 
         // === Estimated Rate (calculated live) ===
 
@@ -142,6 +166,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // === Commands ===
         public ICommand SelectGlassTypeCommand { get; }
         public ICommand ToggleSpecGroupCommand { get; }
+        public ICommand AddCalculationSectionCommand { get; }
+        public ICommand RemoveCalculationSectionCommand { get; }
         public ICommand ApplyRateCommand { get; }
 
         public PricingEstimatorViewModel()
@@ -196,16 +222,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             };
 
-            // BUG-43: SpecGroups is preview-only, not linked to Step5
-            SpecGroups = new ObservableCollection<SpecTargetGroup>
-            {
-                new SpecTargetGroup
-                {
-                    Name        = "Spec Group 1",
-                    Description = "Default spec group",
-                    IsSelected  = true
-                }
-            };
+            SpecGroups = new ObservableCollection<SpecTargetGroup>();
 
             SelectGlassTypeCommand = new RelayCommand(param =>
             {
@@ -216,11 +233,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             ToggleSpecGroupCommand = new RelayCommand(param =>
             {
                 if (param is SpecTargetGroup group)
-                {
-                    group.IsSelected = !group.IsSelected;
-                    OnPropertyChanged(nameof(TotalSpecsActive));
-                }
+                    SelectCalculationSection(group);
             });
+
+            AddCalculationSectionCommand = new RelayCommand(_ => AddCalculationSection());
+            RemoveCalculationSectionCommand = new RelayCommand(
+                _ => RemoveCalculationSection(),
+                _ => CanRemoveCalculationSection);
 
             // CanExecute still requires a real spec name, which is what
             // keeps an unimplemented glass type from saving garbage. All
@@ -243,6 +262,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             // Initial calc
             RecalculateEstimatedRate();
+            InitializeCalculationSections();
 
             // PHASE A/J: populate the Sheet Store dropdowns and prices.
             // Fire-and-forget with its own guard — a constructor cannot
@@ -277,6 +297,367 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// Step 4 reflects the new prices without reopening the wizard.
         /// </summary>
         public void RefreshSheetStoreData() => AsyncUtility.SafeFireAndForget(LoadSheetStoreDataAsync, "PricingEstimator Refresh");
+
+        public IReadOnlyList<Step4PricingSnapshot> CaptureSectionSnapshots()
+        {
+            UpdateCurrentCalculationSectionSnapshot();
+            return SpecGroups.Select(g => ClonePricingSnapshot(g.Snapshot)).ToList();
+        }
+
+        public int SelectedCalculationSectionNumber => SelectedCalculationSection?.SectionNumber ?? 1;
+
+        public void EnsureCalculationSectionCount(int count)
+        {
+            if (count < 1) count = 1;
+            if (count == CalculationSectionCount) return;
+
+            UpdateCurrentCalculationSectionSnapshot();
+
+            while (SpecGroups.Count < count)
+                AddCalculationSection();
+
+            while (SpecGroups.Count > count && CanRemoveCalculationSection)
+                RemoveLastCalculationSection();
+
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            OnPropertyChanged(nameof(CanRemoveCalculationSection));
+            OnPropertyChanged(nameof(TotalSpecsActive));
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void InitializeCalculationSections()
+        {
+            SpecGroups.Clear();
+            var group = new SpecTargetGroup
+            {
+                SectionNumber = 1,
+                Name = "Spec Group 1",
+                Description = "Primary calculation section",
+                Snapshot = BuildCurrentPricingSnapshot()
+            };
+            SpecGroups.Add(group);
+            SelectCalculationSection(group, captureCurrent: false);
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void AddCalculationSection()
+        {
+            var snapshot = BuildCurrentPricingSnapshot();
+            int next = SpecGroups.Count + 1;
+            var group = new SpecTargetGroup
+            {
+                SectionNumber = next,
+                Name = $"Spec Group {next}",
+                Description = $"Calculation section {next}",
+                Snapshot = ClonePricingSnapshot(snapshot)
+            };
+
+            SpecGroups.Add(group);
+            SelectCalculationSection(group, captureCurrent: false);
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            OnPropertyChanged(nameof(CanRemoveCalculationSection));
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void RemoveCalculationSection()
+        {
+            if (SelectedCalculationSection == null || !CanRemoveCalculationSection)
+                return;
+
+            int index = SpecGroups.IndexOf(SelectedCalculationSection);
+            if (index < 0) return;
+
+            SpecGroups.RemoveAt(index);
+            RenumberCalculationSections();
+
+            int nextIndex = Math.Min(index, SpecGroups.Count - 1);
+            if (nextIndex >= 0)
+                SelectCalculationSection(SpecGroups[nextIndex], captureCurrent: false);
+
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            OnPropertyChanged(nameof(CanRemoveCalculationSection));
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        private void RemoveLastCalculationSection()
+        {
+            if (!CanRemoveCalculationSection) return;
+
+            var current = SelectedCalculationSection;
+            int removeIndex = SpecGroups.Count - 1;
+            bool removingCurrent = current != null && SpecGroups.IndexOf(current) == removeIndex;
+
+            SpecGroups.RemoveAt(removeIndex);
+            RenumberCalculationSections();
+
+            if (removingCurrent)
+                SelectCalculationSection(SpecGroups[^1], captureCurrent: false);
+
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            OnPropertyChanged(nameof(CanRemoveCalculationSection));
+        }
+
+        private void RenumberCalculationSections()
+        {
+            for (int i = 0; i < SpecGroups.Count; i++)
+            {
+                SpecGroups[i].SectionNumber = i + 1;
+                SpecGroups[i].Name = $"Spec Group {i + 1}";
+                SpecGroups[i].Description = $"Calculation section {i + 1}";
+            }
+
+            OnPropertyChanged(nameof(CurrentCalculationSectionLabel));
+        }
+
+        private void SelectCalculationSection(
+            SpecTargetGroup? group,
+            bool captureCurrent = true)
+        {
+            if (group == null) return;
+            if (ReferenceEquals(SelectedCalculationSection, group) && group.IsSelected)
+                return;
+
+            if (captureCurrent)
+                UpdateCurrentCalculationSectionSnapshot();
+
+            foreach (var item in SpecGroups)
+                item.IsSelected = ReferenceEquals(item, group);
+
+            SelectedCalculationSection = group;
+            ApplyPricingSnapshot(group.Snapshot);
+        }
+
+        private void UpdateCurrentCalculationSectionSnapshot()
+        {
+            if (_isRestoringSnapshot || SelectedCalculationSection == null)
+                return;
+
+            SelectedCalculationSection.Snapshot = BuildCurrentPricingSnapshot();
+        }
+
+        private Step4PricingSnapshot BuildCurrentPricingSnapshot()
+        {
+            return new Step4PricingSnapshot
+            {
+                SelectedGlassTypeCode = SelectedGlassType?.Code ?? "",
+                Sgu = new SguPricingPanelSnapshot
+                {
+                    SelectedThickness = SguVM.SelectedThickness ?? "",
+                    GlassColor = SguVM.GlassColor ?? "",
+                    SelectedTreatment = SguVM.SelectedTreatment ?? "",
+                    BasePricePerSqm = SguVM.BasePricePerSqm,
+                    CuttingCostPerSqm = SguVM.CuttingCostPerSqm,
+                    TemperingCostPerSqm = SguVM.TemperingCostPerSqm,
+                    YieldFactor = SguVM.YieldFactor,
+                    TargetMarginPercent = SguVM.TargetMarginPercent,
+                    SelectedPolishOption = SguVM.SelectedPolishOption ?? "",
+                    SheetWidthMm = SguVM.SheetWidthMm,
+                    SheetHeightMm = SguVM.SheetHeightMm
+                },
+                Dgu = new DguPricingPanelSnapshot
+                {
+                    OuterThickness = DguVM.OuterThickness ?? "",
+                    OuterGlassColor = DguVM.OuterGlassColor ?? "",
+                    OuterTreatment = DguVM.OuterTreatment ?? "",
+                    OuterBasePrice = DguVM.OuterBasePrice,
+                    OuterSheetWidthMm = DguVM.OuterSheetWidthMm,
+                    OuterSheetHeightMm = DguVM.OuterSheetHeightMm,
+                    SpacerWidth = DguVM.SpacerWidth ?? "",
+                    SpacerMaterial = DguVM.SpacerMaterial ?? "",
+                    SpacerPrice = DguVM.SpacerPrice,
+                    SpacerExtra = DguVM.SpacerExtra ?? "",
+                    UInsertPricePerSqm = DguVM.UInsertPricePerSqm,
+                    PanelExtra = DguVM.PanelExtra ?? "",
+                    InnerThickness = DguVM.InnerThickness ?? "",
+                    InnerGlassColor = DguVM.InnerGlassColor ?? "",
+                    InnerTreatment = DguVM.InnerTreatment ?? "",
+                    InnerBasePrice = DguVM.InnerBasePrice,
+                    InnerSheetWidthMm = DguVM.InnerSheetWidthMm,
+                    InnerSheetHeightMm = DguVM.InnerSheetHeightMm,
+                    YieldFactor = DguVM.YieldFactor,
+                    MarginProfitPercent = DguVM.MarginProfitPercent
+                },
+                Lam = new LamPricingPanelSnapshot
+                {
+                    OuterThickness = LamVM.OuterThickness ?? "",
+                    OuterGlassColor = LamVM.OuterGlassColor ?? "",
+                    OuterTreatment = LamVM.OuterTreatment ?? "",
+                    OuterBasePrice = LamVM.OuterBasePrice,
+                    OuterSheetWidthMm = LamVM.OuterSheetWidthMm,
+                    OuterSheetHeightMm = LamVM.OuterSheetHeightMm,
+                    InnerThickness = LamVM.InnerThickness ?? "",
+                    InnerGlassColor = LamVM.InnerGlassColor ?? "",
+                    InnerTreatment = LamVM.InnerTreatment ?? "",
+                    InnerBasePrice = LamVM.InnerBasePrice,
+                    InnerSheetWidthMm = LamVM.InnerSheetWidthMm,
+                    InnerSheetHeightMm = LamVM.InnerSheetHeightMm,
+                    PvbThickness = LamVM.PvbThickness ?? "",
+                    PvbColor = LamVM.PvbColor ?? "",
+                    PvbMaterialRate = LamVM.PvbMaterialRate,
+                    LaminationPolish = LamVM.LaminationPolish ?? "",
+                    OuterCuttingCost = LamVM.OuterCuttingCost,
+                    InnerCuttingCost = LamVM.InnerCuttingCost,
+                    OuterTemperingCost = LamVM.OuterTemperingCost,
+                    InnerTemperingCost = LamVM.InnerTemperingCost,
+                    YieldFactor = LamVM.YieldFactor,
+                    MarginProfitPercent = LamVM.MarginProfitPercent
+                },
+                DguLam = new DguLamPricingPanelSnapshot
+                {
+                    OuterThickness = DguLamVM.OuterThickness ?? "",
+                    OuterGlassColor = DguLamVM.OuterGlassColor ?? "",
+                    OuterTreatment = DguLamVM.OuterTreatment ?? "",
+                    OuterBasePrice = DguLamVM.OuterBasePrice,
+                    SpacerThickness = DguLamVM.SpacerThickness ?? "",
+                    SpacerPrice = DguLamVM.SpacerPrice,
+                    SpacerExtra = DguLamVM.SpacerExtra ?? "",
+                    LamOuterThickness = DguLamVM.LamOuterThickness ?? "",
+                    LamOuterColor = DguLamVM.LamOuterColor ?? "",
+                    LamOuterTreatment = DguLamVM.LamOuterTreatment ?? "",
+                    LamOuterBasePrice = DguLamVM.LamOuterBasePrice,
+                    InterlayerType = DguLamVM.InterlayerType ?? "",
+                    InterlayerThickness = DguLamVM.InterlayerThickness ?? "",
+                    InterlayerColor = DguLamVM.InterlayerColor ?? "",
+                    InterlayerBuyPrice = DguLamVM.InterlayerBuyPrice,
+                    InterlayerSellPrice = DguLamVM.InterlayerSellPrice,
+                    LamInnerThickness = DguLamVM.LamInnerThickness ?? "",
+                    LamInnerColor = DguLamVM.LamInnerColor ?? "",
+                    LamInnerTreatment = DguLamVM.LamInnerTreatment ?? "",
+                    LamInnerBasePrice = DguLamVM.LamInnerBasePrice,
+                    PanelExtra = DguLamVM.PanelExtra ?? "",
+                    EdgePolish = DguLamVM.EdgePolish ?? "",
+                    OuterCuttingCost = DguLamVM.OuterCuttingCost,
+                    OuterTemperingCost = DguLamVM.OuterTemperingCost,
+                    LamOuterCuttingCost = DguLamVM.LamOuterCuttingCost,
+                    LamOuterTemperingCost = DguLamVM.LamOuterTemperingCost,
+                    LamInnerCuttingCost = DguLamVM.LamInnerCuttingCost,
+                    LamInnerTemperingCost = DguLamVM.LamInnerTemperingCost,
+                    YieldFactor = DguLamVM.YieldFactor,
+                    MarginProfitPercent = DguLamVM.MarginProfitPercent
+                }
+            };
+        }
+
+        private void ApplyPricingSnapshot(Step4PricingSnapshot? snapshot)
+        {
+            if (snapshot == null) return;
+
+            _isRestoringSnapshot = true;
+            try
+            {
+                SguVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    SguVM.SelectedThickness = snapshot.Sgu.SelectedThickness;
+                    SguVM.GlassColor = snapshot.Sgu.GlassColor;
+                    SguVM.SelectedTreatment = snapshot.Sgu.SelectedTreatment;
+                    SguVM.BasePricePerSqm = snapshot.Sgu.BasePricePerSqm;
+                    SguVM.CuttingCostPerSqm = snapshot.Sgu.CuttingCostPerSqm;
+                    SguVM.TemperingCostPerSqm = snapshot.Sgu.TemperingCostPerSqm;
+                    SguVM.YieldFactor = snapshot.Sgu.YieldFactor;
+                    SguVM.TargetMarginPercent = snapshot.Sgu.TargetMarginPercent;
+                    SguVM.SelectedPolishOption = snapshot.Sgu.SelectedPolishOption;
+                    SguVM.SheetWidthMm = snapshot.Sgu.SheetWidthMm;
+                    SguVM.SheetHeightMm = snapshot.Sgu.SheetHeightMm;
+                });
+
+                DguVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    DguVM.OuterThickness = snapshot.Dgu.OuterThickness;
+                    DguVM.OuterGlassColor = snapshot.Dgu.OuterGlassColor;
+                    DguVM.OuterTreatment = snapshot.Dgu.OuterTreatment;
+                    DguVM.OuterBasePrice = snapshot.Dgu.OuterBasePrice;
+                    DguVM.OuterSheetWidthMm = snapshot.Dgu.OuterSheetWidthMm;
+                    DguVM.OuterSheetHeightMm = snapshot.Dgu.OuterSheetHeightMm;
+                    DguVM.SpacerWidth = snapshot.Dgu.SpacerWidth;
+                    DguVM.SpacerMaterial = snapshot.Dgu.SpacerMaterial;
+                    DguVM.SpacerPrice = snapshot.Dgu.SpacerPrice;
+                    DguVM.SpacerExtra = snapshot.Dgu.SpacerExtra;
+                    DguVM.UInsertPricePerSqm = snapshot.Dgu.UInsertPricePerSqm;
+                    DguVM.PanelExtra = snapshot.Dgu.PanelExtra;
+                    DguVM.InnerThickness = snapshot.Dgu.InnerThickness;
+                    DguVM.InnerGlassColor = snapshot.Dgu.InnerGlassColor;
+                    DguVM.InnerTreatment = snapshot.Dgu.InnerTreatment;
+                    DguVM.InnerBasePrice = snapshot.Dgu.InnerBasePrice;
+                    DguVM.InnerSheetWidthMm = snapshot.Dgu.InnerSheetWidthMm;
+                    DguVM.InnerSheetHeightMm = snapshot.Dgu.InnerSheetHeightMm;
+                    DguVM.YieldFactor = snapshot.Dgu.YieldFactor;
+                    DguVM.MarginProfitPercent = snapshot.Dgu.MarginProfitPercent;
+                });
+
+                LamVM.RunWithoutSheetStoreRefresh(() =>
+                {
+                    LamVM.OuterThickness = snapshot.Lam.OuterThickness;
+                    LamVM.OuterGlassColor = snapshot.Lam.OuterGlassColor;
+                    LamVM.OuterTreatment = snapshot.Lam.OuterTreatment;
+                    LamVM.OuterBasePrice = snapshot.Lam.OuterBasePrice;
+                    LamVM.OuterSheetWidthMm = snapshot.Lam.OuterSheetWidthMm;
+                    LamVM.OuterSheetHeightMm = snapshot.Lam.OuterSheetHeightMm;
+                    LamVM.InnerThickness = snapshot.Lam.InnerThickness;
+                    LamVM.InnerGlassColor = snapshot.Lam.InnerGlassColor;
+                    LamVM.InnerTreatment = snapshot.Lam.InnerTreatment;
+                    LamVM.InnerBasePrice = snapshot.Lam.InnerBasePrice;
+                    LamVM.InnerSheetWidthMm = snapshot.Lam.InnerSheetWidthMm;
+                    LamVM.InnerSheetHeightMm = snapshot.Lam.InnerSheetHeightMm;
+                    LamVM.PvbThickness = snapshot.Lam.PvbThickness;
+                    LamVM.PvbColor = snapshot.Lam.PvbColor;
+                    LamVM.PvbMaterialRate = snapshot.Lam.PvbMaterialRate;
+                    LamVM.LaminationPolish = snapshot.Lam.LaminationPolish;
+                    LamVM.OuterCuttingCost = snapshot.Lam.OuterCuttingCost;
+                    LamVM.InnerCuttingCost = snapshot.Lam.InnerCuttingCost;
+                    LamVM.OuterTemperingCost = snapshot.Lam.OuterTemperingCost;
+                    LamVM.InnerTemperingCost = snapshot.Lam.InnerTemperingCost;
+                    LamVM.YieldFactor = snapshot.Lam.YieldFactor;
+                    LamVM.MarginProfitPercent = snapshot.Lam.MarginProfitPercent;
+                });
+
+                DguLamVM.OuterThickness = snapshot.DguLam.OuterThickness;
+                DguLamVM.OuterGlassColor = snapshot.DguLam.OuterGlassColor;
+                DguLamVM.OuterTreatment = snapshot.DguLam.OuterTreatment;
+                DguLamVM.OuterBasePrice = snapshot.DguLam.OuterBasePrice;
+                DguLamVM.SpacerThickness = snapshot.DguLam.SpacerThickness;
+                DguLamVM.SpacerPrice = snapshot.DguLam.SpacerPrice;
+                DguLamVM.SpacerExtra = snapshot.DguLam.SpacerExtra;
+                DguLamVM.LamOuterThickness = snapshot.DguLam.LamOuterThickness;
+                DguLamVM.LamOuterColor = snapshot.DguLam.LamOuterColor;
+                DguLamVM.LamOuterTreatment = snapshot.DguLam.LamOuterTreatment;
+                DguLamVM.LamOuterBasePrice = snapshot.DguLam.LamOuterBasePrice;
+                DguLamVM.InterlayerType = snapshot.DguLam.InterlayerType;
+                DguLamVM.InterlayerThickness = snapshot.DguLam.InterlayerThickness;
+                DguLamVM.InterlayerColor = snapshot.DguLam.InterlayerColor;
+                DguLamVM.InterlayerBuyPrice = snapshot.DguLam.InterlayerBuyPrice;
+                DguLamVM.InterlayerSellPrice = snapshot.DguLam.InterlayerSellPrice;
+                DguLamVM.LamInnerThickness = snapshot.DguLam.LamInnerThickness;
+                DguLamVM.LamInnerColor = snapshot.DguLam.LamInnerColor;
+                DguLamVM.LamInnerTreatment = snapshot.DguLam.LamInnerTreatment;
+                DguLamVM.LamInnerBasePrice = snapshot.DguLam.LamInnerBasePrice;
+                DguLamVM.PanelExtra = snapshot.DguLam.PanelExtra;
+                DguLamVM.EdgePolish = snapshot.DguLam.EdgePolish;
+                DguLamVM.OuterCuttingCost = snapshot.DguLam.OuterCuttingCost;
+                DguLamVM.OuterTemperingCost = snapshot.DguLam.OuterTemperingCost;
+                DguLamVM.LamOuterCuttingCost = snapshot.DguLam.LamOuterCuttingCost;
+                DguLamVM.LamOuterTemperingCost = snapshot.DguLam.LamOuterTemperingCost;
+                DguLamVM.LamInnerCuttingCost = snapshot.DguLam.LamInnerCuttingCost;
+                DguLamVM.LamInnerTemperingCost = snapshot.DguLam.LamInnerTemperingCost;
+                DguLamVM.YieldFactor = snapshot.DguLam.YieldFactor;
+                DguLamVM.MarginProfitPercent = snapshot.DguLam.MarginProfitPercent;
+
+                SelectGlassTypeCard(snapshot.SelectedGlassTypeCode);
+                YieldFactorWarning = "";
+                ApplyStatusMessage = "";
+                RecalculateEstimatedRate();
+            }
+            finally
+            {
+                _isRestoringSnapshot = false;
+            }
+        }
+
+        private static Step4PricingSnapshot ClonePricingSnapshot(Step4PricingSnapshot snapshot)
+        {
+            return JsonSerializer.Deserialize<Step4PricingSnapshot>(
+                JsonSerializer.Serialize(snapshot)) ?? new Step4PricingSnapshot();
+        }
 
         public void ResetForNewInvoice()
         {
@@ -385,6 +766,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 YieldFactorWarning = "";
                 ApplyStatusMessage = "";
                 RecalculateEstimatedRate();
+                InitializeCalculationSections();
             }
             finally
             {
@@ -395,121 +777,48 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         }
 
         public void RestoreFromSnapshot(
-            ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.Step4PricingSnapshot? snapshot,
-            System.Collections.Generic.IEnumerable<ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot>? specGroups = null)
+            Step4PricingSnapshot? snapshot,
+            IEnumerable<ProGlassAutomation.Models.ProformaInvoice.SavedInvoice.SpecGroupSnapshot>? specGroups = null,
+            IEnumerable<Step4PricingSnapshot>? pricingSections = null,
+            int selectedSectionNumber = 1)
         {
             bool hasStep4Snapshot = !string.IsNullOrWhiteSpace(snapshot?.SelectedGlassTypeCode);
+            var sectionList = pricingSections?.ToList() ?? new List<Step4PricingSnapshot>();
 
             _isRestoringSnapshot = true;
             try
             {
-                if (hasStep4Snapshot && snapshot != null)
+                if (sectionList.Count > 0)
                 {
-                    SguVM.RunWithoutSheetStoreRefresh(() =>
-                    {
-                        SguVM.SelectedThickness = snapshot.Sgu.SelectedThickness;
-                        SguVM.GlassColor = snapshot.Sgu.GlassColor;
-                        SguVM.SelectedTreatment = snapshot.Sgu.SelectedTreatment;
-                        SguVM.BasePricePerSqm = snapshot.Sgu.BasePricePerSqm;
-                        SguVM.CuttingCostPerSqm = snapshot.Sgu.CuttingCostPerSqm;
-                        SguVM.TemperingCostPerSqm = snapshot.Sgu.TemperingCostPerSqm;
-                        SguVM.YieldFactor = snapshot.Sgu.YieldFactor;
-                        SguVM.TargetMarginPercent = snapshot.Sgu.TargetMarginPercent;
-                        SguVM.SelectedPolishOption = snapshot.Sgu.SelectedPolishOption;
-                        SguVM.SheetWidthMm = snapshot.Sgu.SheetWidthMm;
-                        SguVM.SheetHeightMm = snapshot.Sgu.SheetHeightMm;
-                    });
-
-                    DguVM.RunWithoutSheetStoreRefresh(() =>
-                    {
-                        DguVM.OuterThickness = snapshot.Dgu.OuterThickness;
-                        DguVM.OuterGlassColor = snapshot.Dgu.OuterGlassColor;
-                        DguVM.OuterTreatment = snapshot.Dgu.OuterTreatment;
-                        DguVM.OuterBasePrice = snapshot.Dgu.OuterBasePrice;
-                        DguVM.OuterSheetWidthMm = snapshot.Dgu.OuterSheetWidthMm;
-                        DguVM.OuterSheetHeightMm = snapshot.Dgu.OuterSheetHeightMm;
-                        DguVM.SpacerWidth = snapshot.Dgu.SpacerWidth;
-                        DguVM.SpacerMaterial = snapshot.Dgu.SpacerMaterial;
-                        DguVM.SpacerPrice = snapshot.Dgu.SpacerPrice;
-                        DguVM.SpacerExtra = snapshot.Dgu.SpacerExtra;
-                        DguVM.UInsertPricePerSqm = snapshot.Dgu.UInsertPricePerSqm;
-                        DguVM.PanelExtra = snapshot.Dgu.PanelExtra;
-                        DguVM.InnerThickness = snapshot.Dgu.InnerThickness;
-                        DguVM.InnerGlassColor = snapshot.Dgu.InnerGlassColor;
-                        DguVM.InnerTreatment = snapshot.Dgu.InnerTreatment;
-                        DguVM.InnerBasePrice = snapshot.Dgu.InnerBasePrice;
-                        DguVM.InnerSheetWidthMm = snapshot.Dgu.InnerSheetWidthMm;
-                        DguVM.InnerSheetHeightMm = snapshot.Dgu.InnerSheetHeightMm;
-                        DguVM.YieldFactor = snapshot.Dgu.YieldFactor;
-                        DguVM.MarginProfitPercent = snapshot.Dgu.MarginProfitPercent;
-                    });
-
-                    LamVM.RunWithoutSheetStoreRefresh(() =>
-                    {
-                        LamVM.OuterThickness = snapshot.Lam.OuterThickness;
-                        LamVM.OuterGlassColor = snapshot.Lam.OuterGlassColor;
-                        LamVM.OuterTreatment = snapshot.Lam.OuterTreatment;
-                        LamVM.OuterBasePrice = snapshot.Lam.OuterBasePrice;
-                        LamVM.OuterSheetWidthMm = snapshot.Lam.OuterSheetWidthMm;
-                        LamVM.OuterSheetHeightMm = snapshot.Lam.OuterSheetHeightMm;
-                        LamVM.InnerThickness = snapshot.Lam.InnerThickness;
-                        LamVM.InnerGlassColor = snapshot.Lam.InnerGlassColor;
-                        LamVM.InnerTreatment = snapshot.Lam.InnerTreatment;
-                        LamVM.InnerBasePrice = snapshot.Lam.InnerBasePrice;
-                        LamVM.InnerSheetWidthMm = snapshot.Lam.InnerSheetWidthMm;
-                        LamVM.InnerSheetHeightMm = snapshot.Lam.InnerSheetHeightMm;
-                        LamVM.PvbThickness = snapshot.Lam.PvbThickness;
-                        LamVM.PvbColor = snapshot.Lam.PvbColor;
-                        LamVM.PvbMaterialRate = snapshot.Lam.PvbMaterialRate;
-                        LamVM.LaminationPolish = snapshot.Lam.LaminationPolish;
-                        LamVM.OuterCuttingCost = snapshot.Lam.OuterCuttingCost;
-                        LamVM.InnerCuttingCost = snapshot.Lam.InnerCuttingCost;
-                        LamVM.OuterTemperingCost = snapshot.Lam.OuterTemperingCost;
-                        LamVM.InnerTemperingCost = snapshot.Lam.InnerTemperingCost;
-                        LamVM.YieldFactor = snapshot.Lam.YieldFactor;
-                        LamVM.MarginProfitPercent = snapshot.Lam.MarginProfitPercent;
-                    });
-
-                    DguLamVM.OuterThickness = snapshot.DguLam.OuterThickness;
-                    DguLamVM.OuterGlassColor = snapshot.DguLam.OuterGlassColor;
-                    DguLamVM.OuterTreatment = snapshot.DguLam.OuterTreatment;
-                    DguLamVM.OuterBasePrice = snapshot.DguLam.OuterBasePrice;
-                    DguLamVM.SpacerThickness = snapshot.DguLam.SpacerThickness;
-                    DguLamVM.SpacerPrice = snapshot.DguLam.SpacerPrice;
-                    DguLamVM.SpacerExtra = snapshot.DguLam.SpacerExtra;
-                    DguLamVM.LamOuterThickness = snapshot.DguLam.LamOuterThickness;
-                    DguLamVM.LamOuterColor = snapshot.DguLam.LamOuterColor;
-                    DguLamVM.LamOuterTreatment = snapshot.DguLam.LamOuterTreatment;
-                    DguLamVM.LamOuterBasePrice = snapshot.DguLam.LamOuterBasePrice;
-                    DguLamVM.InterlayerType = snapshot.DguLam.InterlayerType;
-                    DguLamVM.InterlayerThickness = snapshot.DguLam.InterlayerThickness;
-                    DguLamVM.InterlayerColor = snapshot.DguLam.InterlayerColor;
-                    DguLamVM.InterlayerBuyPrice = snapshot.DguLam.InterlayerBuyPrice;
-                    DguLamVM.InterlayerSellPrice = snapshot.DguLam.InterlayerSellPrice;
-                    DguLamVM.LamInnerThickness = snapshot.DguLam.LamInnerThickness;
-                    DguLamVM.LamInnerColor = snapshot.DguLam.LamInnerColor;
-                    DguLamVM.LamInnerTreatment = snapshot.DguLam.LamInnerTreatment;
-                    DguLamVM.LamInnerBasePrice = snapshot.DguLam.LamInnerBasePrice;
-                    DguLamVM.PanelExtra = snapshot.DguLam.PanelExtra;
-                    DguLamVM.EdgePolish = snapshot.DguLam.EdgePolish;
-                    DguLamVM.OuterCuttingCost = snapshot.DguLam.OuterCuttingCost;
-                    DguLamVM.OuterTemperingCost = snapshot.DguLam.OuterTemperingCost;
-                    DguLamVM.LamOuterCuttingCost = snapshot.DguLam.LamOuterCuttingCost;
-                    DguLamVM.LamOuterTemperingCost = snapshot.DguLam.LamOuterTemperingCost;
-                    DguLamVM.LamInnerCuttingCost = snapshot.DguLam.LamInnerCuttingCost;
-                    DguLamVM.LamInnerTemperingCost = snapshot.DguLam.LamInnerTemperingCost;
-                    DguLamVM.YieldFactor = snapshot.DguLam.YieldFactor;
-                    DguLamVM.MarginProfitPercent = snapshot.DguLam.MarginProfitPercent;
+                    LoadCalculationSections(sectionList, selectedSectionNumber);
+                    HasRestoredSnapshotState = true;
                 }
+                else if (hasStep4Snapshot && snapshot != null)
+                {
+                    int desiredCount = Math.Max(1, specGroups?.Count() ?? 1);
+                    var clonedSections = Enumerable.Range(0, desiredCount)
+                        .Select(_ => ClonePricingSnapshot(snapshot))
+                        .ToList();
+                    LoadCalculationSections(clonedSections, Math.Max(1, selectedSectionNumber));
+                    HasRestoredSnapshotState = true;
+                }
+                else
+                {
+                    int desiredCount = Math.Max(1, specGroups?.Count() ?? 1);
+                    InitializeCalculationSections();
+                    EnsureCalculationSectionCount(desiredCount);
 
-                string selectedCode = hasStep4Snapshot
-                    ? snapshot!.SelectedGlassTypeCode
-                    : specGroups?.Select(g => g.SelectedGlassType)
+                    if (SpecGroups.Count > 0)
+                        SelectCalculationSection(SpecGroups[0], captureCurrent: false);
+
+                    string selectedCode = specGroups?.Select(g => g.SelectedGlassType)
                         .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x))
                         ?? "SGU";
+                    SelectGlassTypeCard(selectedCode);
+                    UpdateCurrentCalculationSectionSnapshot();
+                    HasRestoredSnapshotState = false;
+                }
 
-                SelectGlassTypeCard(selectedCode);
-                HasRestoredSnapshotState = hasStep4Snapshot;
                 YieldFactorWarning = "";
                 ApplyStatusMessage = "";
                 RecalculateEstimatedRate();
@@ -518,6 +827,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 _isRestoringSnapshot = false;
             }
+        }
+
+        private void LoadCalculationSections(
+            IReadOnlyList<Step4PricingSnapshot> snapshots,
+            int selectedSectionNumber)
+        {
+            SpecGroups.Clear();
+
+            if (snapshots == null || snapshots.Count == 0)
+            {
+                InitializeCalculationSections();
+                return;
+            }
+
+            for (int i = 0; i < snapshots.Count; i++)
+            {
+                SpecGroups.Add(new SpecTargetGroup
+                {
+                    SectionNumber = i + 1,
+                    Name = $"Spec Group {i + 1}",
+                    Description = $"Calculation section {i + 1}",
+                    Snapshot = ClonePricingSnapshot(snapshots[i])
+                });
+            }
+
+            int targetIndex = Math.Clamp(selectedSectionNumber - 1, 0, SpecGroups.Count - 1);
+            SelectCalculationSection(SpecGroups[targetIndex], captureCurrent: false);
+            OnPropertyChanged(nameof(CalculationSectionCount));
+            OnPropertyChanged(nameof(CanRemoveCalculationSection));
+            OnPropertyChanged(nameof(TotalSpecsActive));
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private void SelectGlassTypeCard(string? code)
@@ -736,7 +1076,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             };
 
             if (relevant)
+            {
                 RecalculateEstimatedRate();
+                UpdateCurrentCalculationSectionSnapshot();
+            }
         }
 
         private void RecalculateEstimatedRate()

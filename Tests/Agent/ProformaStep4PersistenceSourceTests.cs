@@ -16,8 +16,12 @@ namespace ProGlassAutomation.Tests.Agent
                 "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
 
             Assert.Contains("Step4PricingSnapshot", snapshot);
+            Assert.Contains("Step4PricingSections", snapshot);
+            Assert.Contains("Step4SelectedSectionNumber", snapshot);
             Assert.Contains("SelectedGlassTypeCode", snapshot);
             Assert.Contains("snap.Step4Pricing = new Step4PricingSnapshot", mapper);
+            Assert.Contains("CaptureSectionSnapshots", mapper);
+            Assert.Contains("Step4SelectedSectionNumber", mapper);
             Assert.Contains("printable.Step4Pricing.RestoreFromSnapshot", mapper);
         }
 
@@ -34,6 +38,30 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SpecSheetRegistry.Clear()", pi);
             Assert.Contains("HasRestoredSnapshotState", pricing);
             Assert.Contains("RestoreFromSnapshot", pricing);
+        }
+
+
+        [Fact]
+        public void Step4_view_and_vm_expose_multi_section_switching()
+        {
+            string root = LocateProjectRoot();
+            string view = File.ReadAllText(Path.Combine(root,
+                "Views/ProformaInvoice/Step4PricingEstimator/PricingEstimatorView.xaml"));
+            string vm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step4PricingEstimator/PricingEstimatorViewModel.cs"));
+            string shell = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs"));
+            string step5 = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs"));
+
+            Assert.Contains("CurrentCalculationSectionLabel", view);
+            Assert.Contains("AddCalculationSectionCommand", view);
+            Assert.Contains("RemoveCalculationSectionCommand", view);
+            Assert.Contains("SelectCalculationSection", vm);
+            Assert.Contains("CalculationSectionCount", vm);
+            Assert.Contains("CaptureSectionSnapshots", vm);
+            Assert.Contains("EnsureSpecGroupCount", shell);
+            Assert.Contains("EnsureSpecGroupCount", step5);
         }
 
         [Fact]

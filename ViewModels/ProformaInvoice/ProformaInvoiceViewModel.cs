@@ -328,10 +328,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 
-            if (stepNumber == 4 && !Step4VM.HasRestoredSnapshotState)
-                Step4VM.RefreshSheetStoreData();
+            if (stepNumber == 4)
+            {
+                if (Step5VM.TotalSpecGroups > Step4VM.CalculationSectionCount)
+                    Step4VM.EnsureCalculationSectionCount(Step5VM.TotalSpecGroups);
+
+                if (!Step4VM.HasRestoredSnapshotState)
+                    Step4VM.RefreshSheetStoreData();
+            }
             if (stepNumber == 5)
+            {
+                Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
                 Step5VM.EnsureDefaultWorkspace();
+            }
             if (stepNumber == 6)
                 Step6VM.RefreshWorkspace();
             if (stepNumber == 8)

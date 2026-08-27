@@ -360,6 +360,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         MarginProfitPercent = step4.DguLamVM.MarginProfitPercent
                     }
                 };
+                snap.Step4PricingSections = step4.CaptureSectionSnapshots().ToList();
+                snap.Step4SelectedSectionNumber = step4.SelectedCalculationSectionNumber;
             }
 
             if (printable?.ProfitLoss != null)
@@ -600,7 +602,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             {
                 printable.Step4Pricing.RestoreFromSnapshot(
                     snap.Step4Pricing,
-                    snap.SpecGroups);
+                    snap.SpecGroups,
+                    snap.Step4PricingSections,
+                    snap.Step4SelectedSectionNumber);
             }
 
             // ── Step 5: DataGrid ───────────────────────────────────────

@@ -160,6 +160,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         /// <summary>
+        /// Ensures Step 5 has at least the requested number of spec groups so
+        /// Step 4's calculation sections can flow forward without the operator
+        /// re-adding matching tabs by hand.
+        /// </summary>
+        public void EnsureSpecGroupCount(int count)
+        {
+            if (count < 1) count = 1;
+            while (SpecGroups.Count < count)
+                AddNewSpecGroup();
+        }
+
+        /// <summary>
         /// Guarantees a visible workspace: at least one spec group, at
         /// least one empty row in any group that has none, sequential
         /// "Spec 1…" names, and a selected tab.

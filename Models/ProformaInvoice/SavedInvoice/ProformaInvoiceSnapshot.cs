@@ -54,6 +54,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         // Step 4: pricing estimator panel state
         public Step4PricingSnapshot Step4Pricing { get; set; } = new();
+        public List<Step4PricingSnapshot> Step4PricingSections { get; set; } = new();
+        public int Step4SelectedSectionNumber { get; set; } = 1;
 
         // Step 5: DataGrid spec groups
         public List<SpecGroupSnapshot> SpecGroups { get; set; } = new();
