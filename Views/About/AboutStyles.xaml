@@ -196,12 +196,16 @@
     <!-- ═══ TEMPLATES (glass) ═══ -->
 
     <DataTemplate x:Key="HeroPillarTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12" Margin="0,0,0,10"
-                MinWidth="120" BorderThickness="{DynamicResource CardBorderThickness}"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                Width="148"
+                Height="94"
+                Padding="16,14"
+                Margin="6"
+                BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
                 SnapsToDevicePixels="True">
-            <StackPanel HorizontalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="20"
@@ -209,15 +213,17 @@
                            HorizontalAlignment="Center"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Value}"
-                           FontSize="15" FontWeight="Bold"
+                           FontSize="15"
+                           FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Margin="0,4,0,0"
+                           Margin="0,5,0,0"
                            Foreground="{DynamicResource GlassSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Label}"
-                           FontSize="10" FontWeight="Bold"
+                           FontSize="10"
+                           FontWeight="Bold"
                            HorizontalAlignment="Center"
-                           Margin="0,2,0,0"
+                           Margin="0,3,0,0"
                            Foreground="{DynamicResource GlassAccent}"
                            IsHitTestVisible="False"/>
             </StackPanel>
@@ -308,38 +314,58 @@
     </DataTemplate>
 
     <DataTemplate x:Key="TechItemTemplate">
-        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="6"
+        <Border CornerRadius="{DynamicResource ControlCornerRadius}"
+                Width="268"
+                Height="84"
+                Padding="16,14"
+                Margin="7"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
                 SnapsToDevicePixels="True">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Icon}"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="17"
-                           Foreground="{DynamicResource GlassAccent}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,12,0"
-                           IsHitTestVisible="False"/>
-                <StackPanel VerticalAlignment="Center">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Style="{StaticResource IconTileStyle}"
+                        Width="42"
+                        Height="42"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="18"
+                               Style="{StaticResource GlyphStyle}"/>
+                </Border>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Label}"
                                Style="{StaticResource InfoLabelStyle}"/>
                     <TextBlock Text="{Binding Value}"
-                               Style="{StaticResource InfoValueStyle}"/>
+                               Style="{StaticResource InfoValueStyle}"
+                               TextWrapping="Wrap"/>
                 </StackPanel>
-            </StackPanel>
+            </Grid>
         </Border>
     </DataTemplate>
 
     <DataTemplate x:Key="CapabilityCardTemplate">
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,20" Margin="8"
-                MinWidth="230" MaxWidth="280" BorderThickness="{DynamicResource CardBorderThickness}"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}"
+                Width="252"
+                Height="176"
+                Padding="20,20"
+                Margin="8"
+                BorderThickness="{DynamicResource CardBorderThickness}"
                 Background="{DynamicResource AboutInteractiveBrush}"
                 BorderBrush="{DynamicResource AboutInteractiveBorderBrush}"
                 SnapsToDevicePixels="True">
-            <StackPanel HorizontalAlignment="Center">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Border Style="{StaticResource IconTileStyle}"
-                        Width="52" Height="52"
+                        Width="52"
+                        Height="52"
                         HorizontalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
@@ -347,10 +373,12 @@
                                Style="{StaticResource GlyphStyle}"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="14" FontWeight="Bold"
+                           FontSize="14"
+                           FontWeight="Bold"
                            Foreground="{DynamicResource GlassSnow}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
+                           TextWrapping="Wrap"
                            Margin="0,12,0,6"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
@@ -359,6 +387,7 @@
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            TextWrapping="Wrap"
+                           LineHeight="18"
                            IsHitTestVisible="False"/>
             </StackPanel>
         </Border>

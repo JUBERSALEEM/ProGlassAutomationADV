@@ -52,30 +52,31 @@
         <!-- ═══ ABOUT ═══ -->
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>
-                <Grid Margin="0,0,0,16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <StackPanel Grid.Column="0">
-                        <TextBlock Text="About ProGlass Automation"
-                                   Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Purpose-built ERP for UAE glass manufacturing"
-                                   Style="{StaticResource SectionSubtitleStyle}"
-                                   Margin="0,0,0,0"/>
-                    </StackPanel>
-                    <Border Grid.Column="1" Style="{StaticResource AboutHeaderBadgeStyle}">
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                    <TextBlock Text="About ProGlass Automation"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="Purpose-built ERP for UAE glass manufacturing"
+                               Style="{StaticResource SectionSubtitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               MaxWidth="740"
+                               Margin="0,0,0,0"/>
+                    <Border Style="{StaticResource AboutHeaderBadgeStyle}"
+                            HorizontalAlignment="Center"
+                            Margin="0,14,0,0">
                         <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
                             <Run Text="LIVE MODULES  "/>
                             <Run Text="{Binding Modules.Count, Mode=OneWay}"/>
                         </TextBlock>
                     </Border>
-                </Grid>
+                </StackPanel>
 
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="18"/>
+                        <ColumnDefinition Width="24"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
@@ -146,69 +147,96 @@
         <!-- ═══ CAPABILITIES ═══ -->
         <Border Style="{StaticResource AboutCardStyle}">
             <StackPanel>
-                <TextBlock Text="Key Capabilities"
-                           Style="{StaticResource SectionTitleStyle}"/>
-                <TextBlock Text="What sets ProGlass Automation apart"
-                           Style="{StaticResource SectionSubtitleStyle}"/>
-                <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
-                              ItemTemplate="{StaticResource CapabilityCardTemplate}"
-                              HorizontalAlignment="Center"
-                              Margin="0,4,0,4">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-                <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
-                              ItemTemplate="{StaticResource CapabilityCardTemplate}"
-                              HorizontalAlignment="Center"
-                              Margin="0,12,0,4">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <WrapPanel HorizontalAlignment="Center"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                    <TextBlock Text="Key Capabilities"
+                               Style="{StaticResource SectionTitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="What sets ProGlass Automation apart"
+                               Style="{StaticResource SectionSubtitleStyle}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               MaxWidth="720"
+                               Margin="0,0,0,0"/>
+                </StackPanel>
+
+                <Border Style="{StaticResource AboutSectionPanelStyle}"
+                        Padding="16,16"
+                        Margin="0,0,0,0">
+                    <StackPanel>
+                        <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,4">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,8,0,0">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <WrapPanel HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
             </StackPanel>
         </Border>
 
         <!-- ═══ PRIVACY ═══ -->
-        <Border Background="{DynamicResource GlassCard}"
-                BorderBrush="{DynamicResource AboutCardBorderBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Padding="26,20"
-                Margin="0,0,0,16">
+        <Border Style="{StaticResource AboutCardStyle}" Margin="0,0,0,16">
             <StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <TextBlock Text="&#xE72E;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="{DynamicResource GlassAccent}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <TextBlock Text="Privacy"
-                               FontSize="15" FontWeight="Bold"
-                               Foreground="{DynamicResource GlassSnow}"/>
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,16">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <TextBlock Text="&#xE72E;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource GlassAccent}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="Privacy"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource GlassSnow}"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"/>
+                    </StackPanel>
+                    <TextBlock Text="Local-first data handling, operator control, and practical privacy boundaries"
+                               FontSize="12"
+                               Foreground="{DynamicResource GlassCerulean}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               MaxWidth="760"
+                               Margin="0,8,0,0"/>
                 </StackPanel>
-                <ItemsControl ItemsSource="{Binding PrivacyLines}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,0,0,7">
-                                <TextBlock Text="•"
-                                           FontSize="12" FontWeight="Bold"
-                                           Foreground="{DynamicResource GlassAccent}"
-                                           Margin="0,0,9,0"/>
-                                <TextBlock Text="{Binding}"
-                                           FontSize="12"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource GlassFrost}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+
+                <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
+                    <ItemsControl ItemsSource="{Binding PrivacyLines}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
+                                    <TextBlock Text="•"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource GlassAccent}"
+                                               Margin="0,0,9,0"/>
+                                    <TextBlock Text="{Binding}"
+                                               FontSize="12"
+                                               TextWrapping="Wrap"
+                                               LineHeight="20"
+                                               Foreground="{DynamicResource GlassFrost}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Border>
             </StackPanel>
         </Border>
 
