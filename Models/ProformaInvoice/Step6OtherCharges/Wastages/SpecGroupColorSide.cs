@@ -7,7 +7,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
     {
         public int SpecNumber { get; set; }
         public string SpecName { get; set; } = "";
-        public string SideLabel { get; set; } = ""; // "Outer (W1/H1)" or "Inner (W2/H2)"
+        public string SideLabel { get; set; } = ""; // "Outer (W1/H1)", "Inner (W2/H2)", "Lam Outer (W2/H2)", or "Lam Inner (W2/H2)"
         public string ColorName { get; set; } = "";
         public int SheetWidthMm { get; set; }
         public int SheetHeightMm { get; set; }
@@ -36,9 +36,17 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
         {
             get
             {
-                bool inner = !string.IsNullOrEmpty(SideLabel)
-                    && SideLabel.Contains("Inner", StringComparison.OrdinalIgnoreCase);
-                return $"Spec {SpecNumber} {(inner ? "Inner" : "Outer")}";
+                if (!string.IsNullOrEmpty(SideLabel))
+                {
+                    if (SideLabel.Contains("Lam Inner", StringComparison.OrdinalIgnoreCase))
+                        return $"Spec {SpecNumber} Lam Inner";
+                    if (SideLabel.Contains("Lam Outer", StringComparison.OrdinalIgnoreCase))
+                        return $"Spec {SpecNumber} Lam Outer";
+                    if (SideLabel.Contains("Inner", StringComparison.OrdinalIgnoreCase))
+                        return $"Spec {SpecNumber} Inner";
+                }
+
+                return $"Spec {SpecNumber} Outer";
             }
         }
     }

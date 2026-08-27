@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
@@ -198,6 +199,35 @@ namespace ProGlassAutomation.Tests.Agent
 
             Assert.Single(vm.WastageRows);
             Assert.True(vm.WastageRows[0].IsActive);
+        }
+
+        [Fact]
+        public void DguLam_sources_expose_outer_and_both_laminated_sides()
+        {
+            var grid = new DataGridViewModel();
+            var group = grid.SpecGroups[0];
+            group.SelectedGlassType = "DGU+LAM";
+            group.SelectedSpecName =
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Bronze FT Glass";
+
+            var row = group.ItemRows[0];
+            row.W1 = 1000;
+            row.H1 = 2000;
+            row.W2 = 900;
+            row.H2 = 1800;
+            row.Qty = 2;
+
+            var vm = new WastagesSectionViewModel(grid);
+            var wastageRow = new WastageRow();
+
+            vm.PopulateSourcesForRestoredRow(wastageRow);
+
+            Assert.Contains(wastageRow.AvailableSources,
+                s => s.SideLabel == "Outer (W1/H1)" && s.ColorName == "HD Grey");
+            Assert.Contains(wastageRow.AvailableSources,
+                s => s.SideLabel == "Lam Outer (W2/H2)" && s.ColorName == "Clear");
+            Assert.Contains(wastageRow.AvailableSources,
+                s => s.SideLabel == "Lam Inner (W2/H2)" && s.ColorName == "Bronze");
         }
     }
 }

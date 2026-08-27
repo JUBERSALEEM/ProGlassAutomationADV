@@ -159,6 +159,64 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                 : (innerColorFallback ?? "").Trim();
 
             var rows = new List<AutoWastageSuggestion>();
+
+            if (type == "DGU+LAM")
+            {
+                string lamOuterColor = glassMatches.Count > 1
+                    ? (glassMatches[1].Groups["color"].Value ?? "").Trim()
+                    : (outerColorFallback ?? "").Trim();
+                string lamInnerColor = glassMatches.Count > 2
+                    ? (glassMatches[2].Groups["color"].Value ?? "").Trim()
+                    : (innerColorFallback ?? "").Trim();
+
+                if (string.IsNullOrWhiteSpace(outerColor)
+                    && string.IsNullOrWhiteSpace(lamOuterColor)
+                    && string.IsNullOrWhiteSpace(lamInnerColor)
+                    && glassMatches.Count == 0)
+                    return rows;
+
+                if (!string.IsNullOrWhiteSpace(outerColor) || glassMatches.Count > 0)
+                {
+                    rows.Add(new AutoWastageSuggestion
+                    {
+                        SpecGroupNumber = specGroupNumber,
+                        SourceSideLabel = "Outer (W1/H1)",
+                        DisplayName = string.IsNullOrWhiteSpace(outerColor)
+                            ? "Outer glass wastage"
+                            : $"{outerColor} — outer glass wastage",
+                        Reason = "Primary outer pane wastage."
+                    });
+                }
+
+                if (!string.IsNullOrWhiteSpace(lamOuterColor) || glassMatches.Count > 1)
+                {
+                    rows.Add(new AutoWastageSuggestion
+                    {
+                        SpecGroupNumber = specGroupNumber,
+                        SourceSideLabel = "Lam Outer (W2/H2)",
+                        DisplayName = string.IsNullOrWhiteSpace(lamOuterColor)
+                            ? "Lam outer glass wastage"
+                            : $"{lamOuterColor} — lam outer glass wastage",
+                        Reason = "Laminated outer pane wastage."
+                    });
+                }
+
+                if (!string.IsNullOrWhiteSpace(lamInnerColor) || glassMatches.Count > 2)
+                {
+                    rows.Add(new AutoWastageSuggestion
+                    {
+                        SpecGroupNumber = specGroupNumber,
+                        SourceSideLabel = "Lam Inner (W2/H2)",
+                        DisplayName = string.IsNullOrWhiteSpace(lamInnerColor)
+                            ? "Lam inner glass wastage"
+                            : $"{lamInnerColor} — lam inner glass wastage",
+                        Reason = "Laminated inner pane wastage."
+                    });
+                }
+
+                return rows;
+            }
+
             if (string.IsNullOrWhiteSpace(specName)
                 && string.IsNullOrWhiteSpace(outerColor)
                 && string.IsNullOrWhiteSpace(innerColor)

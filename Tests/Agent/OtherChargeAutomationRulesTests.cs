@@ -120,6 +120,25 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void DguLam_wastage_rules_return_outer_and_both_laminated_panes()
+        {
+            var rows = OtherChargeAutomationRules.GetWastageSuggestions(
+                4,
+                "DGU+LAM",
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Bronze FT Glass",
+                "Clear",
+                "Bronze");
+
+            Assert.Equal(3, rows.Count);
+            Assert.Contains(rows, r => r.SourceSideLabel == "Outer (W1/H1)"
+                && r.DisplayName.Contains("HD Grey"));
+            Assert.Contains(rows, r => r.SourceSideLabel == "Lam Outer (W2/H2)"
+                && r.DisplayName.Contains("Clear"));
+            Assert.Contains(rows, r => r.SourceSideLabel == "Lam Inner (W2/H2)"
+                && r.DisplayName.Contains("Bronze"));
+        }
+
+        [Fact]
         public void Hybrid_three_pane_counts_are_supported()
         {
             var metric = new SpecGroupMetric { Qty = 4, PaneFactor = 3 };

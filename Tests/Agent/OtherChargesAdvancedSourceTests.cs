@@ -77,12 +77,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SelectedSourcePricePerSqm", wastageRow);
             Assert.Contains("SelectedSheetWidthText", wastageRow);
             Assert.Contains("SetAutoFormulaPrice", wastageRow);
-            Assert.Contains("ExtractColorKey", File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
-            Assert.Contains("ColorName = group.OuterGlassColor", File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
-            Assert.Contains("ColorName = group.InnerGlassColor", File.ReadAllText(Path.Combine(root,
-                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs")));
+            var wastageVm = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
+            Assert.Contains("ExtractColorKey", wastageVm);
+            Assert.Contains("ResolveDguLamPaneColors", wastageVm);
+            Assert.Contains("Lam Outer (W2/H2)", wastageVm);
+            Assert.Contains("Lam Inner (W2/H2)", wastageVm);
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
         }
@@ -94,8 +94,12 @@ namespace ProGlassAutomation.Tests.Agent
             var root = LocateProjectRoot();
             var wastageVm = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
+            var rules = File.ReadAllText(Path.Combine(root,
+                "Services/ProformaInvoice/OtherChargeAutomationRules.cs"));
 
             Assert.Contains("IsActive = previousRow?.IsActive ?? true", wastageVm);
+            Assert.Contains("Lam Outer (W2/H2)", rules);
+            Assert.Contains("Lam Inner (W2/H2)", rules);
         }
 
         [Fact]

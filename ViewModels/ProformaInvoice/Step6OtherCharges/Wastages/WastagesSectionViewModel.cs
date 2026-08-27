@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -172,9 +173,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             foreach (var group in _dataGrid.SpecGroups)
             {
                 var step4Snapshot = ResolveStep4Snapshot(step4Sections, group.GroupNumber);
+                string type = (group.SelectedGlassType ?? string.Empty).Trim().ToUpperInvariant();
 
-                // Outer
-                var outer = new SpecGroupColorSide
+                if (type == "DGU+LAM")
+                {
+                    var paneColors = ResolveDguLamPaneColors(group, step4Snapshot);
+
+                    AddSource(row, checkedIds, new SpecGroupColorSide
+                    {
+                        SpecNumber = group.GroupNumber,
+                        SpecName = group.GroupName,
+                        SideLabel = "Outer (W1/H1)",
+                        ColorName = paneColors.Outer,
+                        SqmValue = group.FooterTotalSqm,
+                        SheetWidthMm = group.OuterSheetWidthMm,
+                        SheetHeightMm = group.OuterSheetHeightMm,
+                        PricePerSqm = group.OuterSheetPricePerSqm
+                    }, step4Snapshot, group.SelectedGlassType, preferInner: false);
+
+                    AddSource(row, checkedIds, new SpecGroupColorSide
+                    {
+                        SpecNumber = group.GroupNumber,
+                        SpecName = group.GroupName,
+                        SideLabel = "Lam Outer (W2/H2)",
+                        ColorName = paneColors.LamOuter,
+                        SqmValue = group.FooterTotalSqm2,
+                        SheetWidthMm = group.InnerSheetWidthMm,
+                        SheetHeightMm = group.InnerSheetHeightMm,
+                        PricePerSqm = group.InnerSheetPricePerSqm
+                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
+
+                    AddSource(row, checkedIds, new SpecGroupColorSide
+                    {
+                        SpecNumber = group.GroupNumber,
+                        SpecName = group.GroupName,
+                        SideLabel = "Lam Inner (W2/H2)",
+                        ColorName = paneColors.LamInner,
+                        SqmValue = group.FooterTotalSqm2,
+                        SheetWidthMm = group.InnerSheetWidthMm,
+                        SheetHeightMm = group.InnerSheetHeightMm,
+                        PricePerSqm = group.InnerSheetPricePerSqm
+                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
+
+                    continue;
+                }
+
+                AddSource(row, checkedIds, new SpecGroupColorSide
                 {
                     SpecNumber = group.GroupNumber,
                     SpecName = group.GroupName,
@@ -184,17 +228,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     SheetWidthMm = group.OuterSheetWidthMm,
                     SheetHeightMm = group.OuterSheetHeightMm,
                     PricePerSqm = group.OuterSheetPricePerSqm
-                };
-                ApplyStep4SourceMetadata(outer, step4Snapshot, group.SelectedGlassType, preferInner: false);
-                if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}"))
-                    outer.IsChecked = true;
-                row.AvailableSources.Add(outer);
+                }, step4Snapshot, group.SelectedGlassType, preferInner: false);
 
-                // Inner (if DGU/LAM)
                 bool hasInner = group.SelectedGlassType != "SGU";
                 if (hasInner)
                 {
-                    var inner = new SpecGroupColorSide
+                    AddSource(row, checkedIds, new SpecGroupColorSide
                     {
                         SpecNumber = group.GroupNumber,
                         SpecName = group.GroupName,
@@ -204,17 +243,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                         SheetWidthMm = group.InnerSheetWidthMm,
                         SheetHeightMm = group.InnerSheetHeightMm,
                         PricePerSqm = group.InnerSheetPricePerSqm
-                    };
-                    ApplyStep4SourceMetadata(inner, step4Snapshot, group.SelectedGlassType, preferInner: true);
-                    if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}"))
-                        inner.IsChecked = true;
-                    row.AvailableSources.Add(inner);
+                    }, step4Snapshot, group.SelectedGlassType, preferInner: true);
                 }
             }
             row.ForceRefreshSqm();
         }
 
         public void RefreshTotal() => RecalculateTotal();
+
+        private static void AddSource(
+            WastageRow row,
+            IReadOnlyCollection<string> checkedIds,
+            SpecGroupColorSide source,
+            Step4PricingSnapshot? step4Snapshot,
+            string? selectedGlassType,
+            bool preferInner)
+        {
+            ApplyStep4SourceMetadata(source, step4Snapshot, selectedGlassType, preferInner);
+            if (checkedIds.Contains($"{source.SpecNumber}-{source.SideLabel}"))
+                source.IsChecked = true;
+            row.AvailableSources.Add(source);
+        }
+
+        private static (string Outer, string LamOuter, string LamInner) ResolveDguLamPaneColors(
+            SpecGroup group,
+            Step4PricingSnapshot? snapshot)
+        {
+            var glassMatches = PnLSpecParser.GlassMatches(group.SelectedSpecName);
+            if (glassMatches.Count >= 3)
+            {
+                return (
+                    (glassMatches[0].Groups["color"].Value ?? string.Empty).Trim(),
+                    (glassMatches[1].Groups["color"].Value ?? string.Empty).Trim(),
+                    (glassMatches[2].Groups["color"].Value ?? string.Empty).Trim());
+            }
+
+            return (
+                snapshot?.DguLam.OuterGlassColor?.Trim() ?? string.Empty,
+                snapshot?.DguLam.LamOuterColor?.Trim() ?? group.OuterGlassColor ?? string.Empty,
+                snapshot?.DguLam.LamInnerColor?.Trim() ?? group.InnerGlassColor ?? string.Empty);
+        }
 
         private void AttachRow(WastageRow row)
         {
