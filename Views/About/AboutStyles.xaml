@@ -68,6 +68,55 @@
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
     </Style>
 
+    <Style x:Key="AboutSectionPanelStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource AboutInteractiveBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="Margin" Value="0,0,0,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="AboutHeaderBadgeStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AboutInteractiveBorderStrongBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="AboutHeaderBadgeTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassAccent}"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="AboutPanelKickerStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassAccent}"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="AboutPanelTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassIce}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="LineHeight" Value="22"/>
+        <Setter Property="IsHitTestVisible" Value="False"/>
+    </Style>
+
+    <Style x:Key="AboutCodeStripStyle" TargetType="Border" BasedOn="{StaticResource AboutSectionPanelStyle}">
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"          Value="19"/>
         <Setter Property="FontWeight"        Value="Bold"/>

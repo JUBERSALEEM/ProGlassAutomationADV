@@ -1,9 +1,6 @@
 <!--
-  AboutCrashReportsCard — the "Recent crash reports"
-  card in the About page. Lists the most recent
-  crash-*.txt files with parsed headers. Self-contained:
-  it owns its own AboutCrashReportsViewModel and does
-  not need the parent About page to inject one.
+  AboutCrashReportsCard — premium crash-report summary for the About page.
+  Shows the most recent crash files in a cleaner support-oriented layout.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.About.Sections.AboutCrashReportsCard"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -24,117 +21,122 @@
 
     <Border Style="{StaticResource AboutCardStyle}">
         <StackPanel>
-            <Grid>
+            <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Recent crash reports"
                                Style="{StaticResource SectionTitleStyle}"/>
                     <TextBlock Text="The last 10 crash files on disk. Share the error ID with support."
-                               Style="{StaticResource SectionSubtitleStyle}"/>
+                               Style="{StaticResource SectionSubtitleStyle}"
+                               Margin="0,0,0,0"/>
                 </StackPanel>
-                <WrapPanel Grid.Column="1" Orientation="Horizontal"
-                           VerticalAlignment="Top" ItemHeight="32">
-                    <Button Style="{StaticResource AboutPillButtonStyle}"
-                            Content="REFRESH"
-                            Margin="0,0,8,0"
-                            Click="RefreshButton_Click"/>
-                    <Button Style="{StaticResource AboutPillButtonStyle}"
-                            Content="OPEN FOLDER"
-                            Margin="0,0,8,0"
-                            Click="OpenFolderButton_Click"/>
-                    <Button x:Name="ClearAllButton"
-                            Style="{StaticResource AboutPillButtonStyle}"
-                            Content="CLEAR ALL"
-                            Foreground="{DynamicResource GlassMuted}"
-                            Click="ClearAllButton_Click"/>
-                </WrapPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Top">
+                    <Border Style="{StaticResource AboutHeaderBadgeStyle}" Margin="0,0,8,0">
+                        <TextBlock Style="{StaticResource AboutHeaderBadgeTextStyle}">
+                            <Run Text="REPORTS  "/>
+                            <Run Text="{Binding Reports.Count, Mode=OneWay}"/>
+                        </TextBlock>
+                    </Border>
+                    <WrapPanel Orientation="Horizontal" VerticalAlignment="Top">
+                        <Button Style="{StaticResource AboutPillButtonStyle}"
+                                Content="REFRESH"
+                                Margin="0,0,8,0"
+                                Click="RefreshButton_Click"/>
+                        <Button Style="{StaticResource AboutPillButtonStyle}"
+                                Content="OPEN FOLDER"
+                                Margin="0,0,8,0"
+                                Click="OpenFolderButton_Click"/>
+                        <Button x:Name="ClearAllButton"
+                                Style="{StaticResource AboutPillButtonStyle}"
+                                Content="CLEAR ALL"
+                                Foreground="{DynamicResource GlassMuted}"
+                                Click="ClearAllButton_Click"/>
+                    </WrapPanel>
+                </StackPanel>
             </Grid>
 
-            <ItemsControl ItemsSource="{Binding Reports}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="0,8,0,0" Padding="12,8"
-                                BorderBrush="{DynamicResource AboutDividerBrush}" BorderThickness="0,0,0,1"
-                                SnapsToDevicePixels="True">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="170"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="80"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
+            <Border Style="{StaticResource AboutSectionPanelStyle}" Margin="0,0,0,0">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding Reports}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,8"
+                                        Padding="14,12"
+                                        Background="{DynamicResource AboutInteractiveHoverBrush}"
+                                        BorderBrush="{DynamicResource AboutDividerBrush}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
+                                        CornerRadius="{DynamicResource CardCornerRadius}">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Grid.Column="0"
-                                           Text="{Binding TimestampDisplay}"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource GlassCerulean}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1"
-                                           TextTrimming="CharacterEllipsis"
-                                           Margin="0,0,8,0">
-                                    <!--
-                                      Mode=OneWay is MANDATORY on these
-                                      Run bindings (same convention as
-                                      DeliveryNoteDetailView /
-                                      DnOverviewSection /
-                                      WorkflowWarningDialog): Run.Text
-                                      binds TwoWay by default, and a
-                                      TwoWay binding on the read-only
-                                      CrashReportEntry.ErrorId /
-                                      TopExceptionType properties throws
-                                      XamlParseException the moment the
-                                      About page's bindings connect —
-                                      AFTER InitializeComponent returned,
-                                      so the AboutView ctor's try/catch
-                                      can never see it. That was the
-                                      "About page crashes on open" bug.
-                                    -->
-                                    <Run Text="{Binding ErrorId,
-                                         Mode=OneWay,
-                                         FallbackValue='(no id)'}"
-                                         FontWeight="Bold"
-                                         Foreground="{DynamicResource GlassSnow}"/>
-                                    <Run Text="  "/>
-                                    <Run Text="{Binding TopExceptionType,
-                                         Mode=OneWay,
-                                         FallbackValue=''}"
-                                         Foreground="{DynamicResource GlassMuted}"/>
-                                </TextBlock>
-                                <Button Grid.Row="0" Grid.Column="2"
-                                        Style="{StaticResource AboutPillButtonStyle}"
-                                        Content="OPEN"
-                                        Click="OpenFileButton_Click"
-                                        Tag="{Binding FilePath}"/>
+                                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                                   Text="{Binding TimestampDisplay}"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource GlassCerulean}"
+                                                   VerticalAlignment="Center"/>
 
-                                <TextBlock Grid.Row="1" Grid.Column="0"
-                                           Text="{Binding SizeDisplay}"
-                                           FontSize="10"
-                                           Foreground="{DynamicResource GlassMuted}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1"
-                                           Grid.ColumnSpan="2"
-                                           Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
-                                           FontSize="11"
-                                           TextTrimming="CharacterEllipsis"
-                                           Foreground="{DynamicResource GlassIce}"/>
-                            </Grid>
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                                        <TextBlock Grid.Row="0" Grid.Column="1"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Margin="0,0,12,0">
+                                            <Run Text="{Binding ErrorId, Mode=OneWay, FallbackValue='(no id)'}"
+                                                 FontWeight="Bold"
+                                                 Foreground="{DynamicResource GlassSnow}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
+                                                 Foreground="{DynamicResource GlassMuted}"/>
+                                        </TextBlock>
 
-            <!-- Empty-state line: shown when there are no reports. -->
-            <TextBlock x:Name="EmptyStateText"
-                       Text="No crash reports on disk."
-                       FontSize="11" FontStyle="Italic"
-                       Margin="0,10,0,0"
-                       Foreground="{DynamicResource GlassCerulean}"
-                       Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"/>
+                                        <Button Grid.Row="0" Grid.RowSpan="2" Grid.Column="2"
+                                                Style="{StaticResource AboutPillButtonStyle}"
+                                                Content="OPEN"
+                                                Click="OpenFileButton_Click"
+                                                Tag="{Binding FilePath}"
+                                                Margin="10,0,0,0"
+                                                VerticalAlignment="Center"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                                   Text="{Binding SizeDisplay}"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource GlassMuted}"
+                                                   Margin="0,8,0,0"/>
+
+                                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                                   Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
+                                                   FontSize="11"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   Foreground="{DynamicResource GlassIce}"
+                                                   Margin="0,8,0,0"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <TextBlock x:Name="EmptyStateText"
+                               Text="No crash reports on disk."
+                               FontSize="11"
+                               FontStyle="Italic"
+                               Margin="0,4,0,0"
+                               Foreground="{DynamicResource GlassCerulean}"
+                               Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVis}}"/>
+                </StackPanel>
+            </Border>
         </StackPanel>
     </Border>
 </UserControl>
