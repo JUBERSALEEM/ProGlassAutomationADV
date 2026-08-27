@@ -53,7 +53,15 @@
             public CustomChargesSectionViewModel()
             {
                 AddChargeCommand = new RelayCommand(_ => AddNewCharge(), _ => !string.IsNullOrWhiteSpace(InputName));
-                RemoveChargeCommand = new RelayCommand(p => { if (p is CustomChargeRow r) { AddedCharges.Remove(r); RecalculateTotal(); } });
+                RemoveChargeCommand = new RelayCommand(p =>
+                {
+                    if (p is CustomChargeRow r)
+                    {
+                        DetachCharge(r);
+                        AddedCharges.Remove(r);
+                        RecalculateTotal();
+                    }
+                });
             }
 
             private void AddNewCharge()
@@ -86,6 +94,21 @@
                 if (row == null) return;
                 row.PropertyChanged -= OnRestoredChargeChanged;
                 row.PropertyChanged += OnRestoredChargeChanged;
+            }
+
+            public void DetachCharge(CustomChargeRow row)
+            {
+                if (row == null) return;
+                row.PropertyChanged -= OnRestoredChargeChanged;
+            }
+
+            public void ClearCharges()
+            {
+                foreach (var row in AddedCharges.ToList())
+                    DetachCharge(row);
+
+                AddedCharges.Clear();
+                RecalculateTotal();
             }
 
             private void OnRestoredChargeChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)

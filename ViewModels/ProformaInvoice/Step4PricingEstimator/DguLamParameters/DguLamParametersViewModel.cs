@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/.../DguLamParameters/DguLamParametersViewModel.cs
 // PROJECT: ProGlassAutomation — Step 4 Pricing Estimator
 //
@@ -338,8 +338,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 
         private decimal _interlayerSellPrice = 110m;
         /// <summary>
-        /// AED per SQM charged to the customer. Added AFTER the profit
-        /// margin step — see rule 1 in the file header.
+        /// AED per SQM charged to the customer. Added BEFORE the profit
+        /// margin step and therefore marked up with the rest of the rate.
         /// </summary>
         public decimal InterlayerSellPrice
         {

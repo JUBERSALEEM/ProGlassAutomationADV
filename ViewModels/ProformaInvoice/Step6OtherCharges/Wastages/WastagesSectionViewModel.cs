@@ -72,6 +72,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         }
 
         /// <summary>
+        /// Removes every current wastage row after unhooking its live total
+        /// subscription. Used by reset/restore paths so Step 6 never keeps
+        /// listening to rows from the previous invoice state.
+        /// </summary>
+        public void ClearWastageRows()
+        {
+            foreach (var row in WastageRows.ToList())
+                DetachRow(row);
+
+            WastageRows.Clear();
+            RecalculateTotal();
+        }
+
+        /// <summary>
         /// Advanced Step 6 mode: rebuild wastage rows from the glass sides the
         /// current specification set requires. Existing rates are preserved by
         /// display name so an operator's invoice-specific price survives a
@@ -86,9 +100,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
                     g => g.First(),
                     System.StringComparer.OrdinalIgnoreCase);
 
-            foreach (var existing in WastageRows.ToList())
-                DetachRow(existing);
-            WastageRows.Clear();
+            ClearWastageRows();
 
             foreach (var group in suggestions
                 .GroupBy(x => ExtractColorKey(x.DisplayName), System.StringComparer.OrdinalIgnoreCase)

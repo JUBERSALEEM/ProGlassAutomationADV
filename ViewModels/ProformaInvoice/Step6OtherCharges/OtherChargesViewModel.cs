@@ -776,10 +776,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             BuildChargeRows();
 
             UseAdvancedAutomation = true;
-            WastagesSection.WastageRows.Clear();
+            WastagesSection.ClearWastageRows();
             WastagesSection.RefreshTotal();
 
-            CustomChargesSection.AddedCharges.Clear();
+            CustomChargesSection.ClearCharges();
             CustomChargesSection.RefreshTotal();
 
             RecalculatePolishRowsImmediate();

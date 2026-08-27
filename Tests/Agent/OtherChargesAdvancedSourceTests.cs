@@ -110,6 +110,40 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Step6_reset_and_restore_clear_live_row_subscriptions_before_rebuilding()
+        {
+            var root = LocateProjectRoot();
+            var step6 = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/OtherChargesViewModel.cs"));
+            var wastage = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
+            var custom = File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step6OtherCharges/CustomCharges/CustomChargesSectionViewModel.cs"));
+            var mapper = File.ReadAllText(Path.Combine(root,
+                "Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs"));
+
+            Assert.Contains("public void ClearWastageRows()", wastage);
+            Assert.Contains("DetachRow(row);", wastage);
+            Assert.Contains("WastagesSection.ClearWastageRows();", step6);
+            Assert.Contains("otherCharges.WastagesSection.ClearWastageRows();", mapper);
+            Assert.Contains("public void ClearCharges()", custom);
+            Assert.Contains("DetachCharge(r);", custom);
+            Assert.Contains("CustomChargesSection.ClearCharges();", step6);
+            Assert.Contains("otherCharges.CustomChargesSection.ClearCharges();", mapper);
+        }
+
+        [Fact]
+        public void Hybrid_metric_panel_uses_pane_factor_for_physical_pane_count()
+        {
+            var root = LocateProjectRoot();
+            var metric = File.ReadAllText(Path.Combine(root,
+                "Models/ProformaInvoice/Step6OtherCharges/SpecGroupMetric.cs"));
+
+            Assert.Contains("Qty * (PaneFactor <= 0 ? 1 : PaneFactor)", metric);
+            Assert.DoesNotContain("IsDoubleGlass ? Qty * 2 : Qty", metric);
+        }
+
+        [Fact]
         public void Dgu_view_and_handoff_expose_u_insert_price()
         {
             var root = LocateProjectRoot();

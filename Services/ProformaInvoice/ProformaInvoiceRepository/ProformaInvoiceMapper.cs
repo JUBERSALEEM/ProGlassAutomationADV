@@ -822,8 +822,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 }
             }
 
-            // BUG-16: Wastages restore — no UI command, create directly
-            otherCharges.WastagesSection.WastageRows.Clear();
+            // BUG-16: Wastages restore — no UI command, create directly.
+            // Clear through the VM helper so restored rows never leave the
+            // previous invoice's row subscriptions behind.
+            otherCharges.WastagesSection.ClearWastageRows();
             if (snap.OtherCharges.Wastages != null)
             {
                 foreach (var wSnap in snap.OtherCharges.Wastages)
@@ -854,7 +856,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
             otherCharges.WastagesSection.RefreshTotal();
 
-            otherCharges.CustomChargesSection.AddedCharges.Clear();
+            otherCharges.CustomChargesSection.ClearCharges();
             if (snap.OtherCharges.CustomCharges != null)
             {
                 foreach (var cSnap in snap.OtherCharges.CustomCharges)

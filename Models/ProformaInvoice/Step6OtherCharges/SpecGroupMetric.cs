@@ -149,6 +149,6 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        public int PhysicalPanes => IsDoubleGlass ? Qty * 2 : Qty;
+        public int PhysicalPanes => Qty * (PaneFactor <= 0 ? 1 : PaneFactor);
     }
 }
