@@ -95,6 +95,7 @@
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="0.9*"/>
                     <ColumnDefinition Width="0.8*"/>
+                    <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="1.6*"/>
                     <ColumnDefinition Width="36"/>
                 </Grid.ColumnDefinitions>
@@ -103,7 +104,8 @@
                 <TextBlock Grid.Column="2" Text="SOURCE" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Left"/>
                 <TextBlock Grid.Column="3" Text="SQM" Style="{StaticResource LineItemsHeaderTextStyle}"/>
                 <TextBlock Grid.Column="4" Text="RATE" Style="{StaticResource LineItemsHeaderTextStyle}"/>
-                <TextBlock Grid.Column="5" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="5" Text="SETUP" Style="{StaticResource LineItemsHeaderTextStyle}"/>
+                <TextBlock Grid.Column="6" Text="AMOUNT" Style="{StaticResource LineItemsHeaderTextStyle}" HorizontalAlignment="Right"/>
             </Grid>
         </Border>
 
@@ -121,6 +123,7 @@
                                     <ColumnDefinition Width="2*"/>
                                     <ColumnDefinition Width="0.9*"/>
                                     <ColumnDefinition Width="0.8*"/>
+                                    <ColumnDefinition Width="90"/>
                                     <ColumnDefinition Width="1.6*"/>
                                     <ColumnDefinition Width="36"/>
                                 </Grid.ColumnDefinitions>
@@ -204,14 +207,121 @@
                                          behaviors:TextBoxBehaviors.AcceptDecimals="True"
                                          IsEnabled="{Binding IsManualRateMode}"
                                          Margin="4,0"/>
-                                <TextBlock Grid.Column="5"
+                                <Grid Grid.Column="5" Margin="4,0">
+                                    <ToggleButton x:Name="SetupToggle"
+                                                  Style="{StaticResource SourceToggleButtonStyle}"
+                                                  ToolTip="Open wastage setup">
+                                        <TextBlock Text="SETUP"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center"/>
+                                    </ToggleButton>
+                                    <Popup IsOpen="{Binding IsChecked, ElementName=SetupToggle}"
+                                           StaysOpen="False"
+                                           PlacementTarget="{Binding ElementName=SetupToggle}"
+                                           AllowsTransparency="True"
+                                           PopupAnimation="Fade">
+                                        <Border DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=Popup}}"
+                                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                                BorderBrush="{DynamicResource AccentBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="14"
+                                                Width="520"
+                                                MaxHeight="420">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                          HorizontalScrollBarVisibility="Disabled">
+                                                <StackPanel>
+                                                    <TextBlock Text="WASTAGE SETUP"
+                                                               Style="{StaticResource PiSectionLabelStyle}"
+                                                               Margin="0,0,0,10"/>
+                                                    <TextBlock Text="{Binding SourceSummaryText}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="0,0,0,10"/>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Text="OPTIMIZATION FORMULA"
+                                                                   Style="{StaticResource PiFieldLabelStyle}"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,10,0"/>
+                                                        <ToggleButton Grid.Column="1"
+                                                                      Style="{StaticResource PiToggleSwitch}"
+                                                                      IsChecked="{Binding UseOptimizationFormula}"
+                                                                      HorizontalAlignment="Left"
+                                                                      VerticalAlignment="Center"
+                                                                      AutomationProperties.Name="Optimization wastage formula"/>
+                                                    </Grid>
+
+                                                    <Grid Margin="0,10,0,0">
+                                                        <Grid.Style>
+                                                            <Style TargetType="Grid">
+                                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsOptimizationFormulaMode}" Value="True">
+                                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Grid.Style>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="10"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="10"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel>
+                                                            <TextBlock Text="PRICE / SQM"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding FormulaPricePerSqm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="OPT %"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding OptimizationPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="4">
+                                                            <TextBlock Text="CHARGEABLE SQM"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBlock Text="{Binding ChargeableSqm, StringFormat={}{0:0.000}}"
+                                                                       FontSize="12"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="8,5,0,0"/>
+                                                        </StackPanel>
+                                                    </Grid>
+
+                                                    <TextBlock Text="{Binding OptimizationSummaryText}"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"
+                                                               Margin="0,10,0,0"/>
+                                                </StackPanel>
+                                            </ScrollViewer>
+                                        </Border>
+                                    </Popup>
+                                </Grid>
+                                <TextBlock Grid.Column="6"
                                            Text="{Binding FormulaDisplay}"
                                            FontSize="11" FontWeight="Bold"
                                            TextAlignment="Right"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SuccessBrush}"
                                            TextWrapping="Wrap"/>
-                                <Button Grid.Column="6"
+                                <Button Grid.Column="7"
                                         Command="{Binding DataContext.RemoveWastageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         CommandParameter="{Binding}"
                                         Style="{StaticResource PiIconButtonStyle}"
@@ -222,101 +332,6 @@
                                                Foreground="{DynamicResource DangerBrush}"/>
                                 </Button>
                             </Grid>
-
-                            <Border Margin="64,8,0,0"
-                                    Padding="10,8"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}">
-                                <StackPanel>
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="18"/>
-                                            <ColumnDefinition Width="130"/>
-                                            <ColumnDefinition Width="18"/>
-                                            <ColumnDefinition Width="110"/>
-                                            <ColumnDefinition Width="18"/>
-                                            <ColumnDefinition Width="140"/>
-                                            <ColumnDefinition Width="*"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="OPTIMIZATION FORMULA"
-                                                   Style="{StaticResource PiFieldLabelStyle}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                                        <ToggleButton Grid.Column="1"
-                                                      Style="{StaticResource PiToggleSwitch}"
-                                                      IsChecked="{Binding UseOptimizationFormula}"
-                                                      VerticalAlignment="Center"
-                                                      AutomationProperties.Name="Optimization wastage formula"/>
-
-                                        <StackPanel Grid.Column="3">
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsOptimizationFormulaMode}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </StackPanel.Style>
-                                            <TextBlock Text="PRICE / SQM"
-                                                       Style="{StaticResource PiFieldLabelStyle}"
-                                                       Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding FormulaPricePerSqm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
-                                                     Style="{StaticResource RowInputStyle}"
-                                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="5">
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsOptimizationFormulaMode}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </StackPanel.Style>
-                                            <TextBlock Text="OPT %"
-                                                       Style="{StaticResource PiFieldLabelStyle}"
-                                                       Margin="0,0,0,2"/>
-                                            <TextBox Text="{Binding OptimizationPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.####}}"
-                                                     Style="{StaticResource RowInputStyle}"
-                                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"/>
-                                        </StackPanel>
-
-                                        <StackPanel Grid.Column="7">
-                                            <StackPanel.Style>
-                                                <Style TargetType="StackPanel">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsOptimizationFormulaMode}" Value="True">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </StackPanel.Style>
-                                            <TextBlock Text="CHARGEABLE SQM"
-                                                       Style="{StaticResource PiFieldLabelStyle}"
-                                                       Margin="0,0,0,2"/>
-                                            <TextBlock Text="{Binding ChargeableSqm, StringFormat={}{0:0.000}}"
-                                                       FontSize="12"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="8,5,0,0"/>
-                                        </StackPanel>
-                                    </Grid>
-                                    <TextBlock Text="{Binding OptimizationSummaryText}"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,8,0,0"/>
-                                </StackPanel>
-                            </Border>
                         </StackPanel>
                     </Border>
                 </DataTemplate>

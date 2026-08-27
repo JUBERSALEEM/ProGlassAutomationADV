@@ -60,6 +60,8 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("UseOptimizationFormula", wastageView);
             Assert.Contains("FormulaPricePerSqm", wastageView);
             Assert.Contains("OptimizationPercent", wastageView);
+            Assert.Contains("WASTAGE SETUP", wastageView);
+            Assert.Contains("SetupToggle", wastageView);
             Assert.Contains("OptimizationSummaryText", wastageRow);
             Assert.DoesNotContain("private decimal _rate = 40m;", wastageRow);
         }
