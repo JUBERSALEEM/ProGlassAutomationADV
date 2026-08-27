@@ -70,11 +70,14 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 _totalSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ChargeableSqm));
+                OnPropertyChanged(nameof(SelectedSourceSqm));
                 Recalculate();
             }
         }
 
         public decimal ChargeableSqm => TotalSqm;
+        public decimal SelectedSourceSqm => ChargeableSqm;
+        public decimal UtilizedSqm => BaseResultValue;
 
         private decimal _selectedSourcePricePerSqm;
         public decimal SelectedSourcePricePerSqm
@@ -282,8 +285,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 if (!UseOptimizationFormula)
                     return "Manual rate mode — selected SQM × entered rate.";
 
-                if (ChargeableSqm <= 0m)
-                    return "Optimization formula — select wastage sources first so chargeable SQM can be calculated.";
+                if (SelectedSourceSqm <= 0m)
+                    return "Optimization formula — select wastage sources first so the wastage SQM can be calculated.";
 
                 if (FormulaPricePerSqm <= 0m)
                     return "Optimization formula — sheet price could not be resolved from Step 4 for the selected source(s).";
@@ -291,7 +294,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
                 if (OptimizationPercent <= 0m)
                     return "Optimization formula — enter optimization % (decimals allowed, e.g. 15.60).";
 
-                return $"Section 1: {Section1Value:N2}  ·  Section 2: {Section2Value:N2}  ·  Base rate: {BaseResultValue:N4} / SQM  ·  Chargeable SQM: {ChargeableSqm:0.000}";
+                return $"{FormulaPricePerSqm:0.####} ÷ {OptimizationPercent:0.##}% = {Section1Value:N2}  ·  {FormulaPricePerSqm:0.####} ÷ {BaselineOptimizationPercent:0.##}% = {Section2Value:N2}  ·  Utilized SQM: {UtilizedSqm:N2}";
             }
         }
 
@@ -315,10 +318,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 
                 if (UseOptimizationFormula)
                 {
-                    if (FormulaPricePerSqm <= 0m || OptimizationPercent <= 0m || ChargeableSqm <= 0m)
+                    if (FormulaPricePerSqm <= 0m || OptimizationPercent <= 0m || SelectedSourceSqm <= 0m)
                         return $"Optimization formula pending input{colorSuffix}";
 
-                    return $"({FormulaPricePerSqm:0.####} ÷ {OptimizationPercent:0.##}%) - ({FormulaPricePerSqm:0.####} ÷ {BaselineOptimizationPercent:0.##}%) = {BaseResultValue:N4} AED/SQM × {ChargeableSqm:0.000} SQM = {ResultAmount:N2} AED{colorSuffix}";
+                    return $"{FormulaPricePerSqm:0.####} ÷ {OptimizationPercent:0.##}% = {Section1Value:N2}  ·  {FormulaPricePerSqm:0.####} ÷ {BaselineOptimizationPercent:0.##}% = {Section2Value:N2}  ·  RATE {BaseResultValue:N2} × {SelectedSourceSqm:0.000} SQM = {ResultAmount:N2} AED{colorSuffix}";
                 }
 
                 return $"{TotalSqm:0.000} SQM × {Rate:0.##} AED = {ResultAmount:N2} AED{colorSuffix}";
@@ -442,7 +445,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
 
         private void RecalculateOptimizationResults()
         {
-            if (FormulaPricePerSqm <= 0m || OptimizationPercent <= 0m || ChargeableSqm <= 0m)
+            if (FormulaPricePerSqm <= 0m || OptimizationPercent <= 0m || SelectedSourceSqm <= 0m)
             {
                 Section1Value = 0m;
                 Section2Value = 0m;
@@ -466,7 +469,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages
             Section1Value = Math.Round(FormulaPricePerSqm / optimizationFactor, 6);
             Section2Value = Math.Round(FormulaPricePerSqm / (BaselineOptimizationPercent / 100m), 6);
             BaseResultValue = Math.Round(Section1Value - Section2Value, 6);
-            FinalResultValue = Math.Round(BaseResultValue * ChargeableSqm, 6);
+            FinalResultValue = Math.Round(BaseResultValue * SelectedSourceSqm, 6);
             SetCalculatedRate(BaseResultValue);
         }
 

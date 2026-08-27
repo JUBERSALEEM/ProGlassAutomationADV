@@ -68,6 +68,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SelectedSheetHeightText", wastageView);
             Assert.Contains("WASTAGE SETUP", wastageView);
             Assert.Contains("SetupToggle", wastageView);
+            Assert.Contains("UTILIZED SQM", wastageView);
             Assert.Contains("SelectedSourcePricePerSqm", wastageRow);
             Assert.Contains("SelectedSheetWidthText", wastageRow);
             Assert.Contains("SetAutoFormulaPrice", wastageRow);
