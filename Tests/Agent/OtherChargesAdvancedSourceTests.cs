@@ -42,7 +42,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("Step6VM", pi);
             Assert.Contains("Step9VM.Bind(", pi);
             Assert.Contains("AppendStep6Costs", pnl);
-            Assert.Contains("active Step 6 predefined/custom charges are included as cost lines", pnl);
+            Assert.Contains("active Step 6 charges plus advanced inferred charges are included as cost lines", pnl);
             Assert.Contains("wastage rows are excluded", pnl);
             Assert.DoesNotContain("_otherChargesVm.WastagesSection.WastageRows", pnl);
         }

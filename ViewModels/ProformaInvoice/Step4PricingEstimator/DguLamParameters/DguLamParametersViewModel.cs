@@ -136,8 +136,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public List<string> PanelExtraOptions { get; } = new()
         {
             "None",
-            "With Overlap",
-            "With Overlap As Per DWG",
+            "With Overlap (LM) and Silicon Bed (LM)",
+            "With Overlap (LM) and Silicon Bed (LM) As Per DWG",
+            "With Overlap (SQM)",
+            "With Overlap (SQM) As Per DWG",
+            "With Overlap (SQM) and Silicon Bed (SQM)",
+            "With Overlap (SQM) and Silicon Bed (SQM) As Per DWG",
             "With Fanhole",
             "With Fanhole As Per DWG",
             "With Cutout",
@@ -529,13 +533,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         ///   spacer extra -> attached to the ASP segment
         ///       "… + 12mm ASP With U-Insert + …"
         ///   panel extra  -> attached to the LAST glass pane
-        ///       "… + 6mm Clear FT Glass With Overlap As Per DWG"
+        ///       "… + 6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM) As Per DWG"
         ///   edge polish  -> a " With …" suffix on the whole string
         ///       "… With Both Height Side Polish"
         ///
         /// Both an extra and a polish can apply at once, which is why the
         /// polish is appended last rather than merged into a pane:
-        ///   "… With Overlap As Per DWG With All Side Polish"
+        ///   "… With Overlap (LM) and Silicon Bed (LM) As Per DWG With All Side Polish"
         ///
         /// The layer order is load-bearing: Step 9 parses this string to
         /// decide how many panes to cost, so the three "… Glass" segments

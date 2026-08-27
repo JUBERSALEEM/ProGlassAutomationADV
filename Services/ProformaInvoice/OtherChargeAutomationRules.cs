@@ -44,6 +44,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice
             string type = NormalizeGlassType(glassType);
             string spec = specName ?? "";
             bool doubleGlass = IsDoubleGlass(type);
+            bool dguLike = type is "DGU" or "DGU+LAM";
 
             var suggestions = new Dictionary<string, AutoChargeSuggestion>(
                 StringComparer.OrdinalIgnoreCase);
@@ -66,9 +67,28 @@ namespace ProGlassAutomation.Services.ProformaInvoice
 
             if (Contains(spec, "Overlap"))
             {
-                Add("OVERLAP", "LM1", "Spec requires overlap edge treatment.");
-                if (type is "DGU" or "DGU+LAM")
-                    Add("SILICON_BED", "LM1", "Overlap on a DGU build also requires silicon bed.");
+                bool specialOverlapSqm = Contains(spec, "Overlap (SQM)");
+                bool explicitSiliconSqm = Contains(spec, "Silicon Bed (SQM)");
+                bool explicitSiliconLm = Contains(spec, "Silicon Bed (LM)");
+
+                if (specialOverlapSqm)
+                {
+                    Add("OVERLAP_SQM", "SQM1", "Special overlap is charged by area (SQM).");
+                    if (dguLike && explicitSiliconSqm)
+                    {
+                        Add("SILICON_BED_SQM", "SQM1",
+                            "Special overlap also charges silicon bed by area (SQM).");
+                    }
+                }
+                else
+                {
+                    Add("OVERLAP", "LM1", "Normal overlap is charged by perimeter (LM).");
+                    if (dguLike && (explicitSiliconLm || !Contains(spec, "Silicon Bed")))
+                    {
+                        Add("SILICON_BED", "LM1",
+                            "Normal DGU overlap also charges silicon bed by perimeter (LM).");
+                    }
+                }
             }
 
             if (Contains(spec, "Argon Gas"))

@@ -47,6 +47,28 @@ namespace ProGlassAutomation.Tests.Agent
                 new DguParametersViewModel().GeneratedSpecName));
         }
 
+
+        [Fact]
+        public void Dgu_overlap_dropdown_exposes_normal_and_special_modes()
+        {
+            var vm = new DguParametersViewModel();
+
+            Assert.Contains("With Overlap (LM) and Silicon Bed (LM)", vm.PanelExtraOptions);
+            Assert.Contains("With Overlap (SQM)", vm.PanelExtraOptions);
+            Assert.Contains("With Overlap (SQM) and Silicon Bed (SQM)", vm.PanelExtraOptions);
+        }
+
+        [Fact]
+        public void Dgu_special_overlap_mode_is_preserved_in_the_spec_name()
+        {
+            var vm = new DguParametersViewModel
+            {
+                PanelExtra = "With Overlap (SQM)"
+            };
+
+            Assert.EndsWith("6mm Clear FT Glass With Overlap (SQM)", vm.GeneratedSpecName);
+        }
+
         [Fact]
         public void Lam_produces_a_spec_name()
         {

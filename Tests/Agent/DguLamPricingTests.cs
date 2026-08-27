@@ -332,10 +332,10 @@ namespace ProGlassAutomation.Tests.Agent
         public void Panel_extra_attaches_to_the_last_pane()
         {
             var vm = Vm();
-            vm.PanelExtra = "With Overlap As Per DWG";
+            vm.PanelExtra = "With Overlap (LM) and Silicon Bed (LM) As Per DWG";
 
             Assert.EndsWith(
-                "6mm Clear FT Glass With Overlap As Per DWG",
+                "6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM) As Per DWG",
                 vm.GeneratedSpecName);
         }
 
@@ -381,7 +381,9 @@ namespace ProGlassAutomation.Tests.Agent
             var vm = Vm();
 
             Assert.Contains("With U-Insert", vm.SpacerExtraOptions);
-            Assert.Contains("With Overlap As Per DWG", vm.PanelExtraOptions);
+            Assert.Contains("With Overlap (LM) and Silicon Bed (LM)", vm.PanelExtraOptions);
+            Assert.Contains("With Overlap (SQM)", vm.PanelExtraOptions);
+            Assert.Contains("With Overlap (SQM) and Silicon Bed (SQM)", vm.PanelExtraOptions);
             Assert.Contains("Both Height Side Polish", vm.EdgePolishOptions);
             Assert.Contains("All Side Polish", vm.EdgePolishOptions);
 
@@ -400,7 +402,7 @@ namespace ProGlassAutomation.Tests.Agent
 
             var vm = Vm();
             vm.SpacerExtra = "With U-Insert";
-            vm.PanelExtra = "With Overlap";
+            vm.PanelExtra = "With Overlap (LM) and Silicon Bed (LM)";
             vm.EdgePolish = "All Side Polish";
 
             Assert.Equal(before, vm.CalculateRate());

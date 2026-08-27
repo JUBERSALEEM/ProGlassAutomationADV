@@ -10,7 +10,7 @@
 // ║                                                                          ║
 // ║    New clean 2-dropdown design:                                          ║
 // ║      ✅ SpacerExtra  — 3 options (U-Insert variants only)                ║
-// ║      ✅ PanelExtra   — 15 options (Overlap, Fanhole, Cutout, Holes,     ║
+// ║      ✅ PanelExtra   — 19 options (normal/special overlap modes,      ║
 // ║                        Shutter Bonding, Argon Gas, all with As Per DWG   ║
 // ║                        variants)                                         ║
 // ║                                                                          ║
@@ -256,7 +256,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         /// Examples:
         ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
         ///   "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass"
-        ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap As Per DWG"
+        ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM) As Per DWG"
         ///   "6mm HD Grey FT Glass + 12mm ASP With U-Insert +
         ///    6mm Clear FT Glass With Argon Gas As Per DWG"
         ///
@@ -360,14 +360,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         };
 
         // ══════════════════════════════════════════════════════════════════
-        //  HOTFIX-3: PANEL EXTRA — 15 options (all real DGU add-ons)
+        //  HOTFIX-3: PANEL EXTRA — 19 options (all real DGU add-ons)
+        //  Includes both the normal overlap+silicon LM mode and the
+        //  special SQM overlap variants requested by the business.
         //  Placed AFTER inner glass in generated spec name.
         // ══════════════════════════════════════════════════════════════════
         public List<string> PanelExtraOptions { get; } = new()
         {
             "None",
-            "With Overlap",
-            "With Overlap As Per DWG",
+            "With Overlap (LM) and Silicon Bed (LM)",
+            "With Overlap (LM) and Silicon Bed (LM) As Per DWG",
+            "With Overlap (SQM)",
+            "With Overlap (SQM) As Per DWG",
+            "With Overlap (SQM) and Silicon Bed (SQM)",
+            "With Overlap (SQM) and Silicon Bed (SQM) As Per DWG",
             "With Fanhole",
             "With Fanhole As Per DWG",
             "With Cutout",

@@ -40,12 +40,30 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             },
             new Template
             {
+                Key = "SILICON_BED_SQM",
+                ChargeName = "Silicon bed (Sqm)",
+                Description = "Secondary sealant structural silicone bed barrier for special overlap jobs charged by area.",
+                Unit = OtherChargeUnit.Sqm,
+                DefaultRate = 6m,
+                DefaultSourceKey = "SQM1"
+            },
+            new Template
+            {
                 Key = "OVERLAP",
                 ChargeName = "Overlap (lm)",
-                Description = "Stepped laminate offset or double glazed spacer overlap edge.",
+                Description = "Stepped laminate offset or double glazed spacer overlap edge charged by perimeter.",
                 Unit = OtherChargeUnit.Lm,
                 DefaultRate = 6m,
                 DefaultSourceKey = "LM1"
+            },
+            new Template
+            {
+                Key = "OVERLAP_SQM",
+                ChargeName = "Overlap (Sqm)",
+                Description = "Special overlap mode charged by glass area instead of perimeter.",
+                Unit = OtherChargeUnit.Sqm,
+                DefaultRate = 6m,
+                DefaultSourceKey = "SQM1"
             },
             new Template
             {

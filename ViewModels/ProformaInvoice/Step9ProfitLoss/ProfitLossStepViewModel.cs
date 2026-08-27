@@ -1191,7 +1191,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
                 $"glass costed at {CostBasisLabel} · " +
                 $"SGU glass = required SQM + {WastagePercent:0.#}% wastage, cutting and tempering separate · " +
-                $"active Step 6 predefined/custom charges are included as cost lines · " +
+                $"active Step 6 charges plus advanced inferred charges are included as cost lines · " +
                 $"Step 6 wastage rows are excluded until optimization/utilization is implemented · " +
                 $"multi-pane builds still round to whole sheets · VAT stripped at 5%.";
 
@@ -1229,7 +1229,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private void AppendPredefinedChargeRows(
             List<ProfitLossRow> rows,
             ref decimal productionCost,
-            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge)
+            Models.ProformaInvoice.Step6OtherCharges.OtherChargeRow charge,
+            HashSet<string> billedCoverage)
         {
             if (charge.IsDeliveryRow)
             {
@@ -1253,7 +1254,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 decimal amount = Math.Round(qty * charge.Rate, 2);
                 string kind = BuildChargeKind(charge.ChargeName);
-                billedCoverage?.Add(BuildCoverageKey(charge.TemplateKey, spec.SpecGroupNumber));
+                billedCoverage.Add(BuildCoverageKey(charge.TemplateKey, spec.SpecGroupNumber));
                 rows.Add(new ProfitLossRow
                 {
                     Kind = kind,
@@ -1452,7 +1453,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         }
 
         private static string BuildCoverageKey(string templateKey, int specNumber) =>
-            $"{templateKey}|{specNumber}";
+            $"{NormalizeCoverageTemplate(templateKey)}|{specNumber}";
+
+        private static string NormalizeCoverageTemplate(string? templateKey)
+        {
+            return (templateKey ?? string.Empty).Trim().ToUpperInvariant() switch
+            {
+                "OVERLAP_SQM" => "OVERLAP",
+                "SILICON_BED_SQM" => "SILICON_BED",
+                _ => (templateKey ?? string.Empty).Trim().ToUpperInvariant()
+            };
+        }
 
         private static string BuildChargeKind(string? label)
         {

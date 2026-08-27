@@ -31,11 +31,11 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Dgu_overlap_implies_overlap_and_silicon_bed()
+        public void Dgu_normal_overlap_implies_overlap_and_silicon_bed_in_lm()
         {
             var rules = OtherChargeAutomationRules.GetChargeSuggestions(
                 "DGU",
-                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap",
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM)",
                 matchedSameGlass: false);
 
             Assert.Contains(rules, r => r.TemplateKey == "OVERLAP" && r.MetricKey == "LM1");
@@ -47,12 +47,49 @@ namespace ProGlassAutomation.Tests.Agent
         {
             var rules = OtherChargeAutomationRules.GetChargeSuggestions(
                 "DGU",
-                "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass With Overlap",
+                "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass With Overlap (LM) and Silicon Bed (LM)",
                 matchedSameGlass: false);
 
             Assert.Contains(rules, r => r.TemplateKey == "U_INSERT" && r.MetricKey == "DGU_CAVITY");
             Assert.Contains(rules, r => r.TemplateKey == "OVERLAP");
             Assert.Contains(rules, r => r.TemplateKey == "SILICON_BED");
+        }
+
+        [Fact]
+        public void Dgu_special_overlap_uses_sqm_and_leaves_silicon_bed_off_by_default()
+        {
+            var rules = OtherChargeAutomationRules.GetChargeSuggestions(
+                "DGU",
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap (SQM)",
+                matchedSameGlass: false);
+
+            Assert.Contains(rules, r => r.TemplateKey == "OVERLAP_SQM" && r.MetricKey == "SQM1");
+            Assert.DoesNotContain(rules, r => r.TemplateKey == "SILICON_BED");
+            Assert.DoesNotContain(rules, r => r.TemplateKey == "SILICON_BED_SQM");
+        }
+
+        [Fact]
+        public void Dgu_special_overlap_can_optionally_add_silicon_bed_in_sqm()
+        {
+            var rules = OtherChargeAutomationRules.GetChargeSuggestions(
+                "DGU",
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap (SQM) and Silicon Bed (SQM)",
+                matchedSameGlass: false);
+
+            Assert.Contains(rules, r => r.TemplateKey == "OVERLAP_SQM" && r.MetricKey == "SQM1");
+            Assert.Contains(rules, r => r.TemplateKey == "SILICON_BED_SQM" && r.MetricKey == "SQM1");
+        }
+
+        [Fact]
+        public void Legacy_dgu_overlap_text_still_maps_to_the_normal_lm_pair()
+        {
+            var rules = OtherChargeAutomationRules.GetChargeSuggestions(
+                "DGU",
+                "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap",
+                matchedSameGlass: false);
+
+            Assert.Contains(rules, r => r.TemplateKey == "OVERLAP" && r.MetricKey == "LM1");
+            Assert.Contains(rules, r => r.TemplateKey == "SILICON_BED" && r.MetricKey == "LM1");
         }
 
         [Fact]
