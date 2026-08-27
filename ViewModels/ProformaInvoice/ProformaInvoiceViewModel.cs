@@ -328,6 +328,48 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step3VM.SetClientFilter(Step2VM.CustomerName);
         }
 
+        private void SyncStep5SelectionsFromStep4()
+        {
+            var sections = Step4VM.CaptureSectionSnapshots();
+            int count = Math.Min(sections.Count, Step5VM.SpecGroups.Count);
+
+            for (int i = 0; i < count; i++)
+            {
+                var section = sections[i];
+                var group = Step5VM.SpecGroups[i];
+                bool matchesCurrentSectionSpec =
+                    !string.IsNullOrWhiteSpace(section.GeneratedSpecName)
+                    && string.Equals(group.SelectedSpecName, section.GeneratedSpecName,
+                        StringComparison.OrdinalIgnoreCase);
+                bool wasLastSynced =
+                    string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                    || matchesCurrentSectionSpec
+                    || string.Equals(group.SelectedSpecName, group.LastSyncedStep4SpecName,
+                        StringComparison.OrdinalIgnoreCase);
+
+                if (!string.IsNullOrWhiteSpace(section.SelectedGlassTypeCode)
+                    && (string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                        || wasLastSynced
+                        || string.Equals(group.SelectedGlassType, group.LastSyncedStep4GlassType,
+                            StringComparison.OrdinalIgnoreCase)))
+                {
+                    group.SelectedGlassType = section.SelectedGlassTypeCode;
+                }
+
+                if (!string.IsNullOrWhiteSpace(section.GeneratedSpecName) && wasLastSynced)
+                {
+                    group.SelectedSpecName = section.GeneratedSpecName;
+                    group.LastSyncedStep4SpecName = section.GeneratedSpecName;
+                    group.LastSyncedStep4GlassType = section.SelectedGlassTypeCode;
+
+                    if (group.ImportedPrice <= 0m && section.EstimatedRatePerSqm > 0m)
+                        group.ImportedPrice = section.EstimatedRatePerSqm;
+                    if (group.BaseRate <= 0m && section.EstimatedRatePerSqm > 0m)
+                        group.BaseRate = section.EstimatedRatePerSqm;
+                }
+            }
+        }
+
         private void GoToStep(int stepNumber)
         {
             var step = WizardSteps.FirstOrDefault(s => s.StepNumber == stepNumber);
@@ -349,6 +391,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (stepNumber == 5)
             {
                 Step5VM.EnsureSpecGroupCount(Step4VM.CalculationSectionCount);
+                SyncStep5SelectionsFromStep4();
                 Step5VM.EnsureDefaultWorkspace();
             }
             if (stepNumber == 6)

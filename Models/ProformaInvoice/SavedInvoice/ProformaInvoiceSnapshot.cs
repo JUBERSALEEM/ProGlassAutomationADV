@@ -151,6 +151,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     public class Step4PricingSnapshot
     {
         public string SelectedGlassTypeCode { get; set; } = "";
+        public string GeneratedSpecName { get; set; } = "";
+        public decimal EstimatedRatePerSqm { get; set; }
         public SguPricingPanelSnapshot Sgu { get; set; } = new();
         public DguPricingPanelSnapshot Dgu { get; set; } = new();
         public LamPricingPanelSnapshot Lam { get; set; } = new();

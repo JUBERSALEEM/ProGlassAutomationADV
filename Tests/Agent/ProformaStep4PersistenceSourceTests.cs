@@ -60,6 +60,10 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("SelectCalculationSection", vm);
             Assert.Contains("CalculationSectionCount", vm);
             Assert.Contains("CaptureSectionSnapshots", vm);
+            Assert.Contains("GeneratedSpecName", vm);
+            Assert.Contains("SyncStep5SelectionsFromStep4", shell);
+            Assert.Contains("LastSyncedStep4SpecName", File.ReadAllText(Path.Combine(root,
+                "ViewModels/ProformaInvoice/Step5DataGrid/SpecGroup.cs")));
             Assert.Contains("EnsureSpecGroupCount", shell);
             Assert.Contains("EnsureSpecGroupCount", step5);
         }

@@ -441,6 +441,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             return new Step4PricingSnapshot
             {
                 SelectedGlassTypeCode = SelectedGlassType?.Code ?? "",
+                GeneratedSpecName = GetCurrentSpecName(SelectedGlassType?.Code ?? ""),
+                EstimatedRatePerSqm = EstimatedRatePerSqm,
                 Sgu = new SguPricingPanelSnapshot
                 {
                     SelectedThickness = SguVM.SelectedThickness ?? "",

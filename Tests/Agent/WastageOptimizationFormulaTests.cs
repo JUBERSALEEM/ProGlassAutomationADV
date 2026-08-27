@@ -1,4 +1,5 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
@@ -172,6 +173,31 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(48m, row.FormulaPricePerSqm);
             Assert.Equal("3210", row.SelectedSheetWidthText);
             Assert.Equal("2250", row.SelectedSheetHeightText);
+        }
+
+        [Fact]
+        public void Advanced_wastage_rows_start_on_by_default_for_new_detected_colors()
+        {
+            var grid = new DataGridViewModel();
+            var group = grid.SpecGroups[0];
+            group.SelectedGlassType = "DGU";
+            group.SelectedSpecName = "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass";
+            group.OuterGlassColor = "HD Grey";
+            group.InnerGlassColor = "Clear";
+
+            var vm = new WastagesSectionViewModel(grid);
+            vm.ApplyAdvancedSuggestions(new[]
+            {
+                new Services.ProformaInvoice.AutoWastageSuggestion
+                {
+                    SpecGroupNumber = 1,
+                    SourceSideLabel = "Outer (W1/H1)",
+                    DisplayName = "HD Grey — outer glass wastage"
+                }
+            });
+
+            Assert.Single(vm.WastageRows);
+            Assert.True(vm.WastageRows[0].IsActive);
         }
     }
 }

@@ -264,6 +264,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 snap.Step4Pricing = new Step4PricingSnapshot
                 {
                     SelectedGlassTypeCode = step4.SelectedGlassType?.Code ?? "",
+                    GeneratedSpecName = step4.CaptureSectionSnapshots()
+                        .ElementAtOrDefault(Math.Max(0, step4.SelectedCalculationSectionNumber - 1))?.GeneratedSpecName ?? "",
+                    EstimatedRatePerSqm = step4.EstimatedRatePerSqm,
                     Sgu = new SguPricingPanelSnapshot
                     {
                         SelectedThickness = step4.SguVM.SelectedThickness ?? "",

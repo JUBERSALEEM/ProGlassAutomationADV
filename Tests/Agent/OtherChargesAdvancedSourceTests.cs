@@ -95,8 +95,7 @@ namespace ProGlassAutomation.Tests.Agent
             var wastageVm = File.ReadAllText(Path.Combine(root,
                 "ViewModels/ProformaInvoice/Step6OtherCharges/Wastages/WastagesSectionViewModel.cs"));
 
-            Assert.Contains("IsActive = previousRow?.IsActive ?? false", wastageVm);
-            Assert.DoesNotContain("IsActive = true,", wastageVm);
+            Assert.Contains("IsActive = previousRow?.IsActive ?? true", wastageVm);
         }
 
         [Fact]

@@ -128,6 +128,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             ? SelectedSpecName
             : (GroupName ?? $"Spec Group {GroupNumber}");
 
+        /// <summary>
+        /// Ephemeral Step 4 → Step 5 background sync markers. Not persisted:
+        /// they only tell the shell whether a group still mirrors the last
+        /// auto-synced Step 4 section or has been manually changed in Step 5.
+        /// </summary>
+        public string LastSyncedStep4SpecName { get; set; } = "";
+        public string LastSyncedStep4GlassType { get; set; } = "";
+
         private string _outerGlassColor = "";
         /// <summary>Step 4 outer / laminated-outer color for this spec.</summary>
         public string OuterGlassColor

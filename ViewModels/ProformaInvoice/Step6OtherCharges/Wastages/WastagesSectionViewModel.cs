@@ -98,7 +98,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
                 var row = new WastageRow
                 {
-                    IsActive = previousRow?.IsActive ?? false,
+                    IsActive = previousRow?.IsActive ?? true,
                     ColorName = group.Key,
                     Rate = previousRow?.Rate ?? 0m,
                     UseOptimizationFormula = previousRow?.UseOptimizationFormula ?? true,
