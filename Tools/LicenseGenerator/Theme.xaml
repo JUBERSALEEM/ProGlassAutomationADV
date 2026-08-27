@@ -24,7 +24,7 @@
     <SolidColorBrush x:Key="CodeBgBrush"    Color="#F1F5F9"/>
     <SolidColorBrush x:Key="CodeTextBrush"  Color="#0F172A"/>
 
-    <FontFamily x:Key="AppFont">Segoe UI, Segoe UI Variable, Arial</FontFamily>
+    <FontFamily x:Key="AppFont">Segoe UI</FontFamily>
 
     <!-- Base text styles -->
     <Style TargetType="TextBlock" x:Key="LabelText">
@@ -145,18 +145,13 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding" Value="24"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.06" Color="#0F172A" Direction="270"/>
-            </Setter.Value>
-        </Setter>
     </Style>
 
     <!-- Code-style text box (for public key / key output) -->
     <Style TargetType="TextBox" x:Key="CodeTextBox" BasedOn="{StaticResource {x:Type TextBox}}">
         <Setter Property="Background" Value="{StaticResource CodeBgBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource CodeTextBrush}"/>
-        <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
+        <Setter Property="FontFamily" Value="Consolas"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="AcceptsReturn" Value="True"/>
         <Setter Property="TextWrapping" Value="Wrap"/>

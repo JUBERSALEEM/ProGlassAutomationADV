@@ -118,15 +118,16 @@ public partial class MainWindow : Window
             {
                 OutputCard.Visibility = Visibility.Visible;
                 ResultText.Text = "FAILED: " + result.Message;
-                ResultText.Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush");
+                ResultText.Foreground = ResolveBrush("DangerBrush");
                 KeyOutputBox.Text = "";
                 SetStatus("License generation FAILED: " + result.Message, StatusKind.Error);
                 return;
             }
 
             // Always re-read + verify the written file (self-verification).
-            var file = Path.Combine(LicenseGeneratorCore.DefaultOutputFolder,
-                Sanitise(req.CustomerName) + "-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + LicenseFormat.FileExtension);
+            string file = string.IsNullOrWhiteSpace(result.OutputPath)
+                ? defaultPath
+                : result.OutputPath;
             string json = File.ReadAllText(file);
             _lastLicenseJson = json;
 
@@ -142,9 +143,9 @@ public partial class MainWindow : Window
             else
             {
                 ResultText.Text = "SELF-VERIFY FAILED: " + verify.Message;
-                ResultText.Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush");
+                ResultText.Foreground = ResolveBrush("DangerBrush");
             }
-            ResultText.Foreground = (System.Windows.Media.Brush)FindResource("SuccessBrush");
+            ResultText.Foreground = ResolveBrush("SuccessBrush");
             SetStatus("License generated + verified. Send the " + LicenseFormat.FileExtension + " file to the customer.",
                 StatusKind.Success);
         }
@@ -187,7 +188,7 @@ public partial class MainWindow : Window
             read, appVersion: "1.0.0", utcNow: DateTime.UtcNow,
             trustedPublicKeys: new Dictionary<string, string> { [_keys.KeyId] = _keys.PublicKeyXml });
         OutputCard.Visibility = Visibility.Visible;
-        ResultText.Foreground = (System.Windows.Media.Brush)FindResource(verdict.IsValid ? "SuccessBrush" : "DangerBrush");
+        ResultText.Foreground = ResolveBrush(verdict.IsValid ? "SuccessBrush" : "DangerBrush");
         ResultText.Text = (verdict.IsValid ? "VALID" : "INVALID") + " — " + verdict.Message;
         KeyOutputBox.Text = read.License != null ? LicenseWriter.ToJson(read.License) : "";
         SetStatus("Inspection complete.", StatusKind.Info);
@@ -259,8 +260,14 @@ public partial class MainWindow : Window
             StatusKind.Warning => "WarningBrush",
             _ => "TextDimBrush"
         };
-        if (FindResource(key) is System.Windows.Media.Brush b) StatusText.Foreground = b;
+        StatusText.Foreground = ResolveBrush(key);
         StatusTimeText.Text = DateTime.Now.ToString("HH:mm:ss");
+    }
+
+    private System.Windows.Media.Brush ResolveBrush(string key)
+    {
+        return TryFindResource(key) as System.Windows.Media.Brush
+            ?? System.Windows.Media.Brushes.DimGray;
     }
 
     private static int ParseInt(string text, int def, int min, int max)
