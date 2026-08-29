@@ -66,7 +66,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 4 — SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#0F172A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#141E293B" po:Freeze="True"/>
     <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#0D1E293B" po:Freeze="True"/>
@@ -97,11 +97,11 @@
         <GradientStop Color="#11FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#14FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#0FFFFFFF" Offset="0.12"/>
-        <GradientStop Color="#1CFFFFFF" Offset="0.24"/>
-        <GradientStop Color="#0AFFFFFF" Offset="0.65"/>
-        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.12"/>
+        <GradientStop Color="#12FFFFFF" Offset="0.24"/>
+        <GradientStop Color="#05FFFFFF" Offset="0.65"/>
+        <GradientStop Color="#07FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
@@ -243,27 +243,27 @@
          SECTION 9 — LIQUID COMPOSITION BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="LiquidCard" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#27FFFFFF" Offset="0.06"/>
-        <GradientStop Color="#3AFFFFFF" Offset="0.16"/>
-        <GradientStop Color="#1AFFFFFF" Offset="0.50"/>
-        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
-        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#20FFFFFF" Offset="0.16"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.50"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.93"/>
+        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <RadialGradientBrush x:Key="LiquidOrbA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
-        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
-        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
-        <GradientStop Color="#1D4ED800" Offset="1.0"/>
+        <GradientStop Color="#3038BDF8" Offset="0.0"/>
+        <GradientStop Color="#180369A1" Offset="0.55"/>
+        <GradientStop Color="#000369A1" Offset="1.0"/>
     </RadialGradientBrush>
     <RadialGradientBrush x:Key="LiquidOrbB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
-        <GradientStop Color="#60A5FA66" Offset="0.0"/>
-        <GradientStop Color="#3B82F633" Offset="0.55"/>
-        <GradientStop Color="#3B82F600" Offset="1.0"/>
+        <GradientStop Color="#307DD3FC" Offset="0.0"/>
+        <GradientStop Color="#1838BDF8" Offset="0.55"/>
+        <GradientStop Color="#0038BDF8" Offset="1.0"/>
     </RadialGradientBrush>
     <SolidColorBrush x:Key="LiquidControlHoverBrush" Color="#33FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidControlPressedBrush" Color="#1CFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidControlDisabledBrush" Color="#14FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidFocusBrush" Color="#9960A5FA" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidFocusBrush" Color="#6638BDF8" po:Freeze="True"/>
     <LinearGradientBrush x:Key="LiquidSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#4D3B82F6" Offset="0.0"/>
         <GradientStop Color="#333B82F6" Offset="1.0"/>
@@ -275,10 +275,10 @@
     <!-- About page liquid palette (dark) -->
     <SolidColorBrush x:Key="LiquidIce" Color="#DBEAFE" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidFrost" Color="#BFDBFE" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidCerulean" Color="#93C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidCerulean" Color="{StaticResource AccentLightColor}"/>
     <SolidColorBrush x:Key="LiquidSnow" Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidAccent" Color="#60A5FA" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidAccentDeep" Color="#3B82F6" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidAccent" Color="{StaticResource AccentColor}"/>
+    <SolidColorBrush x:Key="LiquidAccentDeep" Color="{StaticResource AccentDarkColor}"/>
     <SolidColorBrush x:Key="LiquidMuted" Color="#8FB3E6" po:Freeze="True"/>
 
 
@@ -461,19 +461,19 @@
         <GradientStop Color="#201E3A8A" Offset="1.0"/>
     </LinearGradientBrush>
     <DropShadowEffect x:Key="DashCardShadowEffect" Color="#000000" Opacity="0.40" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#3B82F6" Opacity="0.30" BlurRadius="14" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#38BDF8" Opacity="0.15" BlurRadius="14" ShadowDepth="4" Direction="270"/>
     <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#000000" Opacity="0.20" BlurRadius="6" ShadowDepth="2" Direction="270"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 18 — ABOUT PAGE TOKENS (dark)
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="AboutInteractiveBrush" Color="#14FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveHoverBrush" Color="#20FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveBorderBrush" Color="#4093C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush" Color="#6693C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutCardBorderBrush" Color="#6693C5FD" po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutDividerBrush" Color="#2293C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBrush" Color="#0D38BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveHoverBrush" Color="#1838BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderBrush" Color="#4038BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush" Color="#6638BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutCardBorderBrush" Color="#4038BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutDividerBrush" Color="#1A38BDF8" po:Freeze="True"/>
 
 
     <!-- ═══════════════════════════════════════════════════════════════

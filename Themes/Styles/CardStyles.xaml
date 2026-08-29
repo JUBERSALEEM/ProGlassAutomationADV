@@ -124,8 +124,8 @@
         <Setter Property="Background">
             <Setter.Value>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#1E40AF" Offset="0"/>
-                    <GradientStop Color="#3B82F6" Offset="1"/>
+                    <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
                 </LinearGradientBrush>
             </Setter.Value>
         </Setter>

@@ -16,10 +16,9 @@
             ClipToBounds="True">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <!-- v2 default: brand blue (was green) — callers can
-                     still override via GradientStart/EndColor. -->
-                <GradientStop Color="#1E3A8A" Offset="0"/>
-                <GradientStop Color="#3B82F6" Offset="1"/>
+                <!-- v3: accent-adaptive gradient (was hardcoded blue) -->
+                <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+                <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
             </LinearGradientBrush>
         </Border.Background>
 

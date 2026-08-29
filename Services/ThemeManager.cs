@@ -450,35 +450,42 @@ namespace ProGlassAutomation.Services
             Color deepTint = ColorMath.Tint(accentDeep,
                 Color.FromRgb(255, 255, 255), dark ? 0.08 : 0.05);
 
+            // ── ULTRA-TRANSPARENT GLASS (iOS Liquid Glass 110%) ──────
+            // Both themes now use very low alpha so the background
+            // gradient shows through every card, matching the iPhone
+            // liquid glass effect where surfaces are near-invisible
+            // and only the crystal edge defines the shape.
             if (dark)
             {
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(topTint, 0x34), 0.00));
+                    ColorMath.WithAlpha(topTint, 0x18), 0.00));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(topTint, 0x2C), 0.06));
+                    ColorMath.WithAlpha(topTint, 0x12), 0.06));
                 card.GradientStops.Add(new GradientStop(
                     ColorMath.WithAlpha(ColorMath.Mix(topTint,
-                        Color.FromRgb(255, 255, 255), 0.05), 0x40), 0.16));
+                        Color.FromRgb(255, 255, 255), 0.05), 0x1E), 0.16));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(ColorMath.Mix(topTint, deepTint, 0.5), 0x20), 0.50));
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint, deepTint, 0.5), 0x0D), 0.50));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(deepTint, 0x16), 0.93));
+                    ColorMath.WithAlpha(deepTint, 0x08), 0.93));
                 card.GradientStops.Add(new GradientStop(
                     ColorMath.WithAlpha(ColorMath.Mix(deepTint,
-                        Color.FromRgb(255, 255, 255), 0.06), 0x1B), 1.00));
+                        Color.FromRgb(255, 255, 255), 0.06), 0x0B), 1.00));
             }
             else
             {
-                card.GradientStops.Add(new GradientStop(topTint, 0.00));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Mix(topTint, deepTint, 0.25), 0.06));
+                    ColorMath.WithAlpha(topTint, 0x1C), 0.00));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Mix(topTint, Color.FromRgb(255, 255, 255), 0.08), 0.16));
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint, deepTint, 0.25), 0x14), 0.06));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Mix(topTint, deepTint, 0.5), 0.50));
-                card.GradientStops.Add(new GradientStop(deepTint, 0.93));
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint, Color.FromRgb(255, 255, 255), 0.08), 0x22), 0.16));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Mix(deepTint, Color.FromRgb(255, 255, 255), 0.10), 1.00));
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint, deepTint, 0.5), 0x0E), 0.50));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(deepTint, 0x0A), 0.93));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Mix(deepTint, Color.FromRgb(255, 255, 255), 0.10), 0x0D), 1.00));
             }
             FreezeAndSetBrush(resources, "LiquidCard", card);
 
@@ -522,24 +529,28 @@ namespace ProGlassAutomation.Services
                 Color.FromArgb(0, accent.R, accent.G, accent.B), 1.0));
             FreezeAndSetBrush(resources, "LiquidOrbB", orbB);
 
+            // ── ULTRA-TRANSPARENT PANEL FILLS (iOS glass) ─────────────
+            // Panel fills are now very low alpha so the background
+            // gradient bleeds through. Borders stay visible (crystal
+            // edge effect) but fills are nearly invisible.
             Color panelFill = dark
-                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.20), 0x24)
-                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.08);
+                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.20), 0x10)
+                : ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.50), 0x0D);
             Color panelHover = dark
-                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.28), 0x32)
-                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.14);
+                ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.28), 0x1C)
+                : ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.50), 0x16);
             Color panelBorder = dark
-                ? ColorMath.WithAlpha(accent, 0x58)
-                : ColorMath.Tint(accent, surface, 0.42);
+                ? ColorMath.WithAlpha(accent, 0x50)
+                : ColorMath.WithAlpha(accent, 0x40);
             Color panelBorderStrong = dark
-                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.08), 0x84)
-                : ColorMath.FromHsl(h, Math.Max(0.48, s * 0.82), Math.Min(0.58, Math.Max(0.46, l + 0.02)));
+                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.08), 0x70)
+                : ColorMath.WithAlpha(accent, 0x60);
             Color cardBorder = dark
-                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.12), 0x78)
-                : ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.26);
+                ? ColorMath.WithAlpha(ColorMath.Lighten(accent, 0.12), 0x60)
+                : ColorMath.WithAlpha(accent, 0x38);
             Color divider = dark
-                ? ColorMath.WithAlpha(accent, 0x2C)
-                : ColorMath.Tint(accent, surface, 0.22);
+                ? ColorMath.WithAlpha(accent, 0x22)
+                : ColorMath.WithAlpha(accent, 0x1A);
 
             FreezeAndSet(resources, "AboutInteractiveBrush", panelFill);
             FreezeAndSet(resources, "AboutInteractiveHoverBrush", panelHover);
@@ -618,10 +629,10 @@ namespace ProGlassAutomation.Services
             if (!liquidActive)
                 resources["DashAmbientBlob2Brush"] = blob2;
 
-            // Liquid card fill.
+            // Liquid card fill — ultra-transparent for iOS glass effect.
             var glass = new SolidColorBrush(
-                ColorMath.Tint(core, surface, dark ? 0.06 : 0.03))
-            { Opacity = 0.82 };
+                ColorMath.Tint(core, surface, dark ? 0.04 : 0.02))
+            { Opacity = 0.12 };
             glass.Freeze();
             if (!liquidActive)
                 resources["DashLiquidSurfaceBrush"] = glass;
