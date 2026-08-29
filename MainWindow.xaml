@@ -673,6 +673,10 @@
                                                 Content="Job Order"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JobOrder"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Tax Invoice"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoice"/>
                                     </StackPanel>
                                 </Border>
                                 </StackPanel>
@@ -756,10 +760,23 @@
                                                 Content="Delivery Note"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="DeliveryNote"/>
-                                        <Button Style="{StaticResource SidebarSubItem}"
-                                                Content="Tax Invoice"
-                                                Command="{Binding NavigateCommand}"
-                                                CommandParameter="TaxInvoice"/>
+                                    </StackPanel>
+                                </Border>
+                                </StackPanel>
+
+                                <!-- FINANCE (expandable) -->
+                                <TextBlock Text="FINANCE"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="FinanceGroupHost">
+                                <ToggleButton x:Name="FinanceGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Finance &amp; Accounting"
+                                              Tag="&#xE90E;"
+                                              Click="SidebarGroup_Click"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=FinanceGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
                                         <Button Style="{StaticResource SidebarSubItem}"
                                                 Content="Statement Generator"
                                                 Command="{Binding NavigateCommand}"

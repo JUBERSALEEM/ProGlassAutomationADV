@@ -284,6 +284,7 @@ namespace ProGlassAutomation
                 FindName("SalesGroupHost") as StackPanel,
                 FindName("ProductionGroupHost") as StackPanel,
                 FindName("DispatchGroupHost") as StackPanel,
+                FindName("FinanceGroupHost") as StackPanel,
                 FindName("ReportsGroupHost") as StackPanel,
                 FindName("MasterDataGroupHost") as StackPanel,
                 FindName("SystemGroupHost") as StackPanel
