@@ -997,7 +997,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     if (ap == null) return;
 
                     // 1) Reset the persisted values to factory defaults.
-                    UpdateStatus("Resetting configuration...");
+                    SetResetStatus("Resetting configuration...");
                     ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
                     ap.Theme = "Light";
                     ap.UseDefinedOutline = false;
@@ -1019,32 +1019,32 @@ namespace ProGlassAutomation.ViewModels.Settings
                     SaveConfig();
 
                     // 2) Apply theme changes on UI thread
-                    UpdateStatus("Applying theme...");
+                    SetResetStatus("Applying theme...");
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         ThemeManager.ApplyTheme(AppTheme.Light);
                     });
 
-                    UpdateStatus("Configuring gradients...");
+                    SetResetStatus("Configuring gradients...");
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         ThemeManager.ApplyGradientPreference(true);
                     });
 
-                    UpdateStatus("Setting display density...");
+                    SetResetStatus("Setting display density...");
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         ThemeManager.ApplyDisplayDensity("Compact");
                         ThemeManager.ApplyUiScale(1.0);
                     });
 
-                    UpdateStatus("Applying visual theme...");
+                    SetResetStatus("Applying visual theme...");
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         ApplyVisualTheme();
                     });
 
-                    UpdateStatus("Resetting fonts...");
+                    SetResetStatus("Resetting fonts...");
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         FontService.ResetToDefault();
@@ -1052,7 +1052,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 });
 
                 // 3) Resync the bound controls on UI thread
-                UpdateStatus("Updating UI...");
+                SetResetStatus("Updating UI...");
                 await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
                 {
                     ReloadFontOptions();
@@ -1093,12 +1093,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
                     "Appearance reset to factory defaults", "");
 
-                UpdateStatus("Complete!");
+                SetResetStatus("Complete!");
                 await Task.Delay(500); // Show completion message briefly
             }
             catch (Exception ex)
             {
-                UpdateStatus($"Error: {ex.Message}");
+                SetResetStatus($"Error: {ex.Message}");
                 await Task.Delay(2000);
             }
             finally
@@ -1108,7 +1108,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        private void UpdateStatus(string message)
+        private void SetResetStatus(string message)
         {
             System.Windows.Application.Current?.Dispatcher.Invoke(() =>
             {
