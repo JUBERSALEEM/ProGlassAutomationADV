@@ -59,6 +59,51 @@ public sealed class OfflineLicensingHardeningSourceTests
     }
 
     [Fact]
+    public void Files_importing_both_licensing_namespaces_pin_bare_LicenseService_to_the_app_service()
+    {
+        // CS0104 regression guard (2026-08-29): ProGlass.Licensing and
+        // ProGlassAutomation.Services.Licensing BOTH define
+        // LicenseService. Any file importing both namespaces AND using
+        // the bare name must carry the using-alias that pins it to the
+        // APP service — otherwise Visual Studio reports CS0104.
+        const string alias =
+            "using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;";
+
+        foreach (string path in Directory.GetFiles(Root(), "*.cs", SearchOption.AllDirectories))
+        {
+            if (path.Contains("\\obj\\") || path.Contains("\\bin\\"))
+                continue;
+
+            string src = File.ReadAllText(path);
+            if (!src.Contains("using ProGlass.Licensing;", StringComparison.Ordinal)
+                || !src.Contains("using ProGlassAutomation.Services.Licensing;", StringComparison.Ordinal))
+                continue;
+
+            bool usesBare = System.Text.RegularExpressions.Regex.IsMatch(
+                src, @"(^|[^.A-Za-z])LicenseService[.(]");
+            if (usesBare)
+            {
+                Assert.True(src.Contains(alias, StringComparison.Ordinal),
+                    path + " uses bare LicenseService while importing both licensing " +
+                    "namespaces — add the using-alias pinning it to the app service.");
+            }
+        }
+    }
+
+    [Fact]
+    public void Activation_dialog_imports_documents_for_TextElement()
+    {
+        // CS0103 regression guard (2026-08-29): the dialog styles
+        // TextBlock foregrounds via TextElement.ForegroundProperty,
+        // which lives in System.Windows.Documents.
+        string src = File.ReadAllText(Path.Combine(Root(),
+            "Views", "Licensing", "LicenseActivatedDialog.cs"));
+
+        Assert.Contains("using System.Windows.Documents;", src, StringComparison.Ordinal);
+        Assert.Contains("TextElement.ForegroundProperty", src, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void License_service_exposes_secure_activation_request_api()
     {
         string src = File.ReadAllText(Path.Combine(Root(),

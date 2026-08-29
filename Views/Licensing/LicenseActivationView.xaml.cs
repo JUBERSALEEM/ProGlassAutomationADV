@@ -18,6 +18,10 @@ using Microsoft.Win32;
 using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
+// Both licensing namespaces are imported above, and the contract also
+// defines a LicenseService type — the alias pins every bare
+// "LicenseService" reference in this file to the APP service.
+using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;
 
 namespace ProGlassAutomation.Views.Licensing
 {

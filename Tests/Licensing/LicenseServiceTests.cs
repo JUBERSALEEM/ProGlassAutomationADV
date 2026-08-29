@@ -3,6 +3,11 @@ using System.IO;
 using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using Xunit;
+// Both licensing namespaces are imported above and the contract also
+// defines LicenseService — the alias pins every bare "LicenseService"
+// reference in this file to the APP service (the contract one is
+// always written fully qualified as ProGlass.Licensing.LicenseService).
+using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;
 
 namespace ProGlassAutomation.Tests.Licensing
 {

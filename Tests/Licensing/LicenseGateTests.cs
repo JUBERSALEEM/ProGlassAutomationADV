@@ -3,6 +3,8 @@ using System.IO;
 using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using Xunit;
+// See LicenseServiceTests: pins bare LicenseService to the APP service.
+using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;
 
 namespace ProGlassAutomation.Tests.Licensing
 {
