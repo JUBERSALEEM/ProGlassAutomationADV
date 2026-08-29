@@ -35,13 +35,19 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
-    <!-- Shared glass template with Tag-glyph + label, press squish and
-         white top glare — the reference button look, icon-aware. -->
+    <!-- Shared layered glass pill template — crystal edge, specular highlight,
+         reflection gradient, bottom refraction, spring press animation,
+         icon-aware via Tag property. -->
     <ControlTemplate x:Key="GlassPillButtonTemplate" TargetType="Button">
         <Grid x:Name="RootGrid">
             <Grid.RenderTransform>
                 <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
             </Grid.RenderTransform>
+            <!-- L0: Shadow -->
+            <Border x:Name="ShadowHost"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Effect="{DynamicResource ShadowSoft}"/>
+            <!-- L1+L2: Surface + crystal border -->
             <Border x:Name="Bg"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -49,66 +55,86 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="{TemplateBinding Padding}"
                     Height="{TemplateBinding Height}"
-                    Effect="{DynamicResource GlassShadowSoftBorder}"
                     SnapsToDevicePixels="True">
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            VerticalAlignment="Center">
-                    <TextBlock x:Name="Icon"
-                               Text="{TemplateBinding Tag}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="{StaticResource TextBodyLarge}"
-                               Foreground="{TemplateBinding Foreground}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Style.Triggers>
-                                    <Trigger Property="Text" Value="">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </Trigger>
-                                    <Trigger Property="Text" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <ContentPresenter VerticalAlignment="Center"
-                                      TextElement.FontSize="{StaticResource TextBody}"
-                                      TextElement.FontWeight="Bold"
-                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
-                </StackPanel>
+                <Grid>
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center">
+                        <TextBlock x:Name="Icon"
+                                   Text="{TemplateBinding Tag}"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="{StaticResource TextBodyLarge}"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Style.Triggers>
+                                        <Trigger Property="Text" Value="">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </Trigger>
+                                        <Trigger Property="Text" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <ContentPresenter VerticalAlignment="Center"
+                                          TextElement.FontSize="{StaticResource TextBody}"
+                                          TextElement.FontWeight="Bold"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"/>
+                    </StackPanel>
+                </Grid>
             </Border>
-            <!-- white top highlight: the frosted glass catch-light -->
-            <Border x:Name="Glare"
-                    Height="12"
-                    CornerRadius="12,12,0,0"
+            <!-- L3: Specular highlight (top edge) -->
+            <Border x:Name="SpecularHighlight"
+                    Height="1"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     VerticalAlignment="Top"
-                    Background="{DynamicResource GlassTopReflection}"
-                    Opacity="0.55"
+                    Background="{DynamicResource GlassSpecularHighlight}"
+                    Opacity="0.6"
+                    Margin="1,0,1,0"
+                    IsHitTestVisible="False"/>
+            <!-- Top glare (frosted glass catch-light) -->
+            <Border x:Name="Glare"
+                    Height="14"
+                    CornerRadius="14,14,0,0"
+                    VerticalAlignment="Top"
+                    Background="{DynamicResource GlassTopReflectionGradient}"
+                    Opacity="0.5"
                     Margin="1,1,1,0"
                     IsHitTestVisible="False"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                <Setter TargetName="Glare" Property="Opacity" Value="0.7"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
                 <Trigger.EnterActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.05"/>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.05"/>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.05"/>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.05"/>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.ExitActions>
@@ -118,19 +144,20 @@
                 <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                <Setter TargetName="Glare" Property="Opacity" Value="0.2"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <!-- VARIANT 1 — PrimaryPillButton: blue liquid glass -->
+    <!-- VARIANT 1 — PrimaryPillButton: accent liquid glass -->
     <Style x:Key="PrimaryPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
         <Style.Triggers>
@@ -140,14 +167,14 @@
         </Style.Triggers>
     </Style>
 
-    <!-- VARIANT 2 — SuccessPillButton: green liquid glass -->
+    <!-- VARIANT 2 — SuccessPillButton: success glass -->
     <Style x:Key="SuccessPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
         <Style.Triggers>
@@ -157,27 +184,27 @@
         </Style.Triggers>
     </Style>
 
-    <!-- VARIANT 3 — OutlinedPillButton: frosted glass -->
+    <!-- VARIANT 3 — OutlinedPillButton: transparent glass -->
     <Style x:Key="OutlinedPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="20,0"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
     </Style>
 
-    <!-- VARIANT 4 — DangerButton: frosted glass + red edge -->
+    <!-- VARIANT 4 — DangerButton: transparent glass + danger edge -->
     <Style x:Key="DangerButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="32"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="MinWidth" Value="92"/>
-        <Setter Property="Foreground" Value="{DynamicResource GlassDangerBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassDangerBorderBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
     </Style>
@@ -191,11 +218,15 @@
          COMPACT ROW VARIANTS — one glass shape (corner radius from the
          theme), colours per role, top glare retained.
     ════════════════════════════════════════════════════════════════ -->
+    <!-- Compact row button — layered glass with spring animation -->
     <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
         <Grid x:Name="RootGrid">
             <Grid.RenderTransform>
                 <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
             </Grid.RenderTransform>
+            <Border x:Name="ShadowHost"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Effect="{DynamicResource ShadowSoft}"/>
             <Border x:Name="Bg"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"
@@ -203,7 +234,6 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="{TemplateBinding Padding}"
                     Height="{TemplateBinding Height}"
-                    Effect="{DynamicResource GlassShadowSoftBorder}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center"
@@ -233,29 +263,44 @@
                                       TextElement.Foreground="{TemplateBinding Foreground}"/>
                 </StackPanel>
             </Border>
-            <Border Height="8" CornerRadius="8,8,0,0" VerticalAlignment="Top"
-                    Background="{DynamicResource GlassTopReflection}"
-                    Opacity="0.5" Margin="1,1,1,0" IsHitTestVisible="False"/>
+            <!-- Specular highlight -->
+            <Border Height="1" CornerRadius="{DynamicResource CardCornerRadius}"
+                    VerticalAlignment="Top"
+                    Background="{DynamicResource GlassSpecularHighlight}"
+                    Opacity="0.5" Margin="1,0,1,0" IsHitTestVisible="False"/>
+            <!-- Top glare -->
+            <Border x:Name="Glare" Height="8" CornerRadius="8,8,0,0" VerticalAlignment="Top"
+                    Background="{DynamicResource GlassTopReflectionGradient}"
+                    Opacity="0.45" Margin="1,1,1,0" IsHitTestVisible="False"/>
         </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                <Setter TargetName="Glare" Property="Opacity" Value="0.65"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
                 <Trigger.EnterActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.05"/>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.05"/>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.EnterActions>
                 <Trigger.ExitActions>
                     <BeginStoryboard>
                         <Storyboard>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.05"/>
-                            <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.05"/>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
+                            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                            </DoubleAnimationUsingKeyFrames>
                         </Storyboard>
                     </BeginStoryboard>
                 </Trigger.ExitActions>
@@ -265,7 +310,8 @@
                 <Setter TargetName="Bg" Property="BorderThickness" Value="1.5"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                <Setter TargetName="Glare" Property="Opacity" Value="0.15"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -275,9 +321,9 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
@@ -287,9 +333,9 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
@@ -299,9 +345,9 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
@@ -311,9 +357,9 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="MinWidth" Value="44"/>
-        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
-        <Setter Property="Foreground" Value="{DynamicResource GlassDangerBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassDangerBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
