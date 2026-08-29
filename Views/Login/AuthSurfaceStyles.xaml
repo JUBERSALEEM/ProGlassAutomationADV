@@ -71,7 +71,7 @@
         <Setter Property="Height" Value="42"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
-        <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Ice}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -124,7 +124,7 @@
         <Setter Property="Height" Value="42"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
-        <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource Ice}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
@@ -195,7 +195,7 @@
                                        Text="&#xE73E;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="{StaticResource TextBody}"
-                                       Foreground="{StaticResource Ice}"
+                                       Foreground="{DynamicResource Ice}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Visibility="Collapsed"/>

@@ -120,7 +120,7 @@
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsRunning}" Value="True">
                     <Setter Property="Background" Value="{StaticResource StepRunningBg}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource VioletAccent}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource VioletAccent}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -145,7 +145,7 @@
                     <Setter Property="Background" Value="{StaticResource RedAccent}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsRunning}" Value="True">
-                    <Setter Property="Background" Value="{StaticResource VioletAccent}"/>
+                    <Setter Property="Background" Value="{DynamicResource VioletAccent}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -242,7 +242,7 @@
                         <TextBlock Grid.Row="0" Grid.Column="2"
                                    Text="{Binding LastWorkflowProgressDisplay}"
                                    FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
-                                   Foreground="{StaticResource VioletAccent}"
+                                   Foreground="{DynamicResource VioletAccent}"
                                    VerticalAlignment="Center"/>
 
                         <Border Grid.Row="2" Grid.ColumnSpan="3"

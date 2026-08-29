@@ -139,7 +139,7 @@
             </Border>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsChecked" Value="True">
-                    <Setter TargetName="chevron" Property="Fill" Value="{StaticResource IndigoPrimary}"/>
+                    <Setter TargetName="chevron" Property="Fill" Value="{DynamicResource IndigoPrimary}"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -186,7 +186,7 @@
                                              FontWeight="{TemplateBinding FontWeight}"
                                              Padding="{TemplateBinding Padding}"
                                              VerticalContentAlignment="Center"
-                                             CaretBrush="{StaticResource IndigoPrimary}"
+                                             CaretBrush="{DynamicResource IndigoPrimary}"
                                              SelectionBrush="{DynamicResource TintIndigoBrush}"
                                              Focusable="True"/>
 
@@ -230,7 +230,7 @@
                                 <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
+                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
                                 <Setter TargetName="rootBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -357,7 +357,7 @@
                                 <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
+                                <Setter TargetName="rootBorder" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
                                 <Setter TargetName="rootBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -390,7 +390,7 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                    <Setter Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
                     <Setter Property="Effect" Value="{StaticResource OptionCardHoverShadow}"/>
                 </Trigger>
             </Style.Triggers>
@@ -456,11 +456,11 @@
             <ControlTemplate.Triggers>
                 <Trigger Property="IsChecked" Value="True">
                     <Setter TargetName="chipRoot" Property="Background" Value="{StaticResource ChipCheckedBg}"/>
-                    <Setter TargetName="chipRoot" Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
-                    <Setter TargetName="tick" Property="Background" Value="{StaticResource IndigoPrimary}"/>
-                    <Setter TargetName="tick" Property="BorderBrush" Value="{StaticResource IndigoPrimary}"/>
+                    <Setter TargetName="chipRoot" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
+                    <Setter TargetName="tick" Property="Background" Value="{DynamicResource IndigoPrimary}"/>
+                    <Setter TargetName="tick" Property="BorderBrush" Value="{DynamicResource IndigoPrimary}"/>
                     <Setter TargetName="tickGlyph" Property="Visibility" Value="Visible"/>
-                    <Setter TargetName="countBadge" Property="Background" Value="{StaticResource IndigoPrimary}"/>
+                    <Setter TargetName="countBadge" Property="Background" Value="{DynamicResource IndigoPrimary}"/>
                     <Setter TargetName="countText" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                 </Trigger>
                 <MultiTrigger>
@@ -508,14 +508,14 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                             <Border Width="6" Height="6"
-                                    Background="{StaticResource IndigoPrimary}"
+                                    Background="{DynamicResource IndigoPrimary}"
                                     CornerRadius="3"
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0"/>
                             <TextBlock Text="STEP 1 OF 4"
                                        FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
-                                       Foreground="{StaticResource IndigoPrimary}"
+                                       Foreground="{DynamicResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="Filter Criteria"
@@ -655,7 +655,7 @@
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter TargetName="bd" Property="Background" Value="{StaticResource ClearHoverBg}"/>
-                                                <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource ClearHoverBorder}"/>
+                                                <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource ClearHoverBorder}"/>
                                                 <Setter TargetName="ic" Property="Fill" Value="{StaticResource ClearHoverText}"/>
                                                 <Setter TargetName="tx" Property="Foreground" Value="{StaticResource ClearHoverText}"/>
                                             </Trigger>
@@ -701,7 +701,7 @@
                                     <TextBlock Text="BUSINESS DIMENSIONS"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
-                                               Foreground="{StaticResource IndigoPrimary}"
+                                               Foreground="{DynamicResource IndigoPrimary}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
