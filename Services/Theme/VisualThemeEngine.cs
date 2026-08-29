@@ -704,6 +704,23 @@ namespace ProGlassAutomation.Services.Theme
                 resources, "ShellLiquidBrush", accent,
                 Colors.White, 0.94, dark);
 
+            // Dashboard ambient and liquid surfaces — Monet needs these too.
+            resources["SidebarCardBrush"] = FrostSurface(
+                resources, "SidebarCardBrush", accent,
+                Colors.White, 0.90, dark);
+            resources["DashLiquidSurfaceBrush"] = FrostSurface(
+                resources, "DashLiquidSurfaceBrush", accent,
+                Colors.White, 0.86, dark);
+            resources["DashAmbientBrush"] = FrostSurface(
+                resources, "DashAmbientBrush", accent,
+                Colors.White, 0.16, dark);
+            resources["DashAmbientBlob1Brush"] = FrostSurface(
+                resources, "DashAmbientBlob1Brush", accent,
+                Colors.White, 0.12, dark);
+            resources["DashAmbientBlob2Brush"] = FrostSurface(
+                resources, "DashAmbientBlob2Brush", accent,
+                Colors.White, 0.10, dark);
+
             // Softer, rounder cards fit the artistic look.
             resources["CardCornerRadius"] = new CornerRadius(18);
             resources["CardCornerRadiusLarge"] = new CornerRadius(24);
