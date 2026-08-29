@@ -156,9 +156,9 @@
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="REPORTS HUB" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
+                            <TextBlock Text="REPORTS HUB" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95"/>
                             <TextBlock Text="Intelligence Center" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
-                            <TextBlock Text="Row-level traceability" FontSize="{StaticResource TextBody}" Foreground="#BFDBFE" Margin="0,2,0,0"/>
+                            <TextBlock Text="Row-level traceability" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
                         <Button Grid.Column="2"
@@ -204,7 +204,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="KPI dashboard" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -232,7 +232,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="Quotes &amp; conversion" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -258,7 +258,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="Production &amp; status" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -284,7 +284,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="Dispatched / pending" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -310,7 +310,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="Billed &amp; overdue" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -336,7 +336,7 @@
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                     <TextBlock Text="Customer statements" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
-                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
+                                        <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
@@ -446,9 +446,9 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="REPORTS OVERVIEW" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="#DBEAFE"/>
+                                <TextBlock Text="REPORTS OVERVIEW" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 <TextBlock Text="Documents &amp; Fulfillment" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
-                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="{StaticResource TextBody}" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                                     <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
                                         <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="DELIVERY"/><Run Text="  →  "/><Run Text="TAX INVOICE"/><Run Text="  →  "/><Run Text="STATEMENT"/>

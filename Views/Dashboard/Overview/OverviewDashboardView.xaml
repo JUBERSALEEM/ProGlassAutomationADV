@@ -121,7 +121,7 @@
                                 <StackPanel>
                                     <TextBlock Text="FACTORY PULSE"
                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                               Foreground="#CCFFFFFF"
+                                               Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                     <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                              StretchDirection="DownOnly" Margin="0,8,12,4">
@@ -132,7 +132,7 @@
                                     </Viewbox>
                                     <TextBlock Text="{Binding PulseHint}"
                                                FontSize="{StaticResource TextBody}"
-                                               Foreground="#DDFFFFFF"/>
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                                 </StackPanel>
                                 <mini:MiniBarChartControl Grid.Column="1"
                                                           Height="72"
@@ -140,7 +140,7 @@
                                                           Margin="0,24,0,0"
                                                           Values="{Binding PulseSpark}"
                                                           BarBrush="White"
-                                                          HighlightBrush="#B3FFFFFF"/>
+                                                          HighlightBrush="{DynamicResource OnAccentSecondaryForegroundBrush}"/>
                             </Grid>
                         </Grid>
                     </Border>

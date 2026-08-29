@@ -12,7 +12,7 @@
         Width="560" Height="380"
         MinWidth="480" MinHeight="320"
         Background="White"
-        Foreground="#1F2937"
+        Foreground="{DynamicResource PrimaryForegroundBrush}"
         FontFamily="Segoe UI, Segoe UI Variable, Arial"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
@@ -37,17 +37,17 @@
         <StackPanel Grid.Row="0">
             <TextBlock Text="Something went wrong"
                        FontSize="{StaticResource TextTitleLarge}" FontWeight="SemiBold"
-                       Foreground="#B91C1C"/>
+                       Foreground="{DynamicResource DangerBrush}"/>
             <TextBlock Text="ProGlass Automation has recovered from an unexpected error."
                        FontSize="{StaticResource TextBody}" Margin="0,6,0,0"
                        TextWrapping="Wrap"
-                       Foreground="#4B5563"/>
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
         <!-- ── Detail block ──────────────────────────────────── -->
         <Border Grid.Row="1" Margin="0,18,0,0" Padding="16,14"
-                Background="#F9FAFB"
-                BorderBrush="#E5E7EB" BorderThickness="1"
+                Background="{DynamicResource SurfaceBrush}"
+                BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                 CornerRadius="6">
             <StackPanel>
                 <Grid Margin="0,0,0,10">
@@ -91,7 +91,7 @@
                            Text="—"
                            FontFamily="Consolas, Cascadia Mono, Courier New"
                            FontSize="{StaticResource TextBody}"
-                           Foreground="#374151"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap"/>
             </StackPanel>
         </Border>

@@ -166,6 +166,9 @@
     <SolidColorBrush x:Key="OnAccentForegroundBrush"
                      Color="#FFFFFF"
                      po:Freeze="True"/>
+    <SolidColorBrush x:Key="OnAccentSecondaryForegroundBrush"
+                     Color="#CCFFFFFF"
+                     po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonForegroundBrush"
                      Color="#FFFFFF"
                      po:Freeze="True"/>

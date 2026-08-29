@@ -282,7 +282,7 @@
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
                                        FontSize="{StaticResource TextCaption}"
-                                       Foreground="#E0E0FF"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        Opacity="0.9"
                                        IsHitTestVisible="False"/>
                         </StackPanel>
