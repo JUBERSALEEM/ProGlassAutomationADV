@@ -120,6 +120,7 @@ namespace ProGlassAutomation.Services.Theme
             "GlassShadowSoft", "GlassShadowSoftBorder",
             "GlassShadowSoftButton", "GlassShadowSoftCheckBox",
             "GlassShadowSoftTextBox", "GlassShadowSoftToggle",
+            "LiquidCard",
 
             // Liquid typography: the About page's text palette is
             // applied so text auto-adapts when every card goes
@@ -1784,6 +1785,9 @@ namespace ProGlassAutomation.Services.Theme
             resources["GlassCrystalBrush"] = crystalFill;
             resources["GlassWaterBrush"] = crystalFill;
             resources["GlassFrostedBrush"] = crystalFill;
+
+            // About module card fill (DynamicResource LiquidCard)
+            resources["LiquidCard"] = crystalFill;
 
             // ── 8) LIQUID GLASS DESIGN TOKENS ──────────────────────
             // The LiquidGlassDesign.xaml control system uses these.

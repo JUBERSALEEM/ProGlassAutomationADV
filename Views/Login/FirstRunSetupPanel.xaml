@@ -60,7 +60,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{StaticResource LiquidCard}"
+                Background="{DynamicResource LiquidCard}"
                 BorderBrush="{DynamicResource GlassBorderSoft}"
                 BorderThickness="1"
                 Effect="{StaticResource CardShadow}"
