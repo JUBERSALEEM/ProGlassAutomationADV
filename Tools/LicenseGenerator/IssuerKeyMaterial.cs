@@ -1,3 +1,5 @@
+using System;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,7 +14,7 @@ namespace ProGlassAutomation.Tools.LicenseGenerator;
 /// distributed customer binaries. The generator therefore loads it from an
 /// operator-held file outside the repository.
 /// </summary>
-internal sealed class IssuerKeyMaterial
+public sealed class IssuerKeyMaterial
 {
     [JsonPropertyName("formatVersion")]
     public int FormatVersion { get; set; } = 1;
