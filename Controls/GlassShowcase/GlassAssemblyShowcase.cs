@@ -78,6 +78,11 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
         public string OuterTreatment { get => (string)GetValue(OuterTreatmentProperty); set => SetValue(OuterTreatmentProperty, value); }
 
+        public static readonly DependencyProperty OuterPolishProperty =
+            DependencyProperty.Register(nameof(OuterPolish), typeof(string), typeof(GlassAssemblyShowcase),
+                new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
+        public string OuterPolish { get => (string)GetValue(OuterPolishProperty); set => SetValue(OuterPolishProperty, value); }
+
         public static readonly DependencyProperty InnerColorProperty =
             DependencyProperty.Register(nameof(InnerColor), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("Clear", FrameworkPropertyMetadataOptions.AffectsRender));
@@ -92,6 +97,11 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DependencyProperty.Register(nameof(InnerTreatment), typeof(string), typeof(GlassAssemblyShowcase),
                 new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
         public string InnerTreatment { get => (string)GetValue(InnerTreatmentProperty); set => SetValue(InnerTreatmentProperty, value); }
+
+        public static readonly DependencyProperty InnerPolishProperty =
+            DependencyProperty.Register(nameof(InnerPolish), typeof(string), typeof(GlassAssemblyShowcase),
+                new FrameworkPropertyMetadata("", FrameworkPropertyMetadataOptions.AffectsRender));
+        public string InnerPolish { get => (string)GetValue(InnerPolishProperty); set => SetValue(InnerPolishProperty, value); }
 
         public static readonly DependencyProperty SpacerWidthProperty =
             DependencyProperty.Register(nameof(SpacerWidth), typeof(string), typeof(GlassAssemblyShowcase),
@@ -356,7 +366,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             double left = (w - paneW) * 0.5;
             double frontY = h * 0.50;
 
-            DrawWidePane(dc, left, frontY, paneW, depth, thick, GlassTint(OuterColor), outline);
+            DrawWidePane(dc, left, frontY, paneW, depth, thick, GlassTint(OuterColor), outline, polish: OuterPolish);
 
             // AutoCAD dimension lines
             Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
@@ -394,13 +404,18 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             double depth = Math.Min(h * 0.32, 88);
             double outerT = VisualThickness(OuterThickness, 12, 22);
             double innerT = VisualThickness(InnerThickness, 12, 22);
-            double gap = Math.Clamp(ParseMm(SpacerWidth) * 1.6, 18, 36);
+            
+            // Proportional spacer width scaling (no harsh clamps)
+            double spacerMm = ParseMm(SpacerWidth);
+            double gap = Math.Max(8, spacerMm * 2.0); // 2px per mm, minimum 8px
+            
             double left = (w - paneW) * 0.52;
             double y = h * 0.30;
 
-            DrawWidePane(dc, left + 22, y + gap + outerT + 6, paneW - 10, depth, innerT, GlassTint(InnerColor), outline);
+            // Draw layers from back to front
+            DrawWidePane(dc, left + 22, y + gap + outerT + 6, paneW - 10, depth, innerT, GlassTint(InnerColor), outline, polish: InnerPolish);
             DrawSpacerBar(dc, left + 10, y + outerT + 4, paneW - 8, depth * 0.62, gap - 2, outline, accent);
-            DrawWidePane(dc, left, y, paneW, depth, outerT, GlassTint(OuterColor), outline);
+            DrawWidePane(dc, left, y, paneW, depth, outerT, GlassTint(OuterColor), outline, polish: OuterPolish);
 
             // AutoCAD dimension lines
             Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
@@ -411,7 +426,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawDimensionLine(dc,
                 new Point(left - 24, y),
                 new Point(left - 24, y + totalThick + 6),
-                "TOTAL", dimColor, horizontal: false);
+                $"{ParseMm(OuterThickness) + spacerMm + ParseMm(InnerThickness):0.#}mm", dimColor, horizontal: false);
 
             // Leader annotations for each layer
             DrawLeaderAnnotation(dc,
@@ -422,7 +437,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawLeaderAnnotation(dc,
                 new Point(left + paneW * 0.5, y + outerT + gap * 0.5),
                 new Point(left + paneW + 20, y + outerT + gap * 0.5),
-                $"ASP: {SpacerWidth}", dimColor);
+                $"SPACER: {SpacerWidth} AL", dimColor);
 
             DrawLeaderAnnotation(dc,
                 new Point(left + 30, y + gap + outerT + 6 + innerT * 0.5),
@@ -437,15 +452,20 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             double depth = Math.Min(h * 0.20, 66);
             double outerT = VisualThickness(OuterThickness, 11, 18);
             double innerT = VisualThickness(InnerThickness, 11, 18);
-            double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 4.0, 10, 18);
+            
+            // Proportional interlayer thickness (more visible)
+            double interlayerMm = ParseMm(InterlayerThickness);
+            double filmT = Math.Max(6, interlayerMm * 5.0); // 5px per mm for visibility, minimum 6px
+            
             double explode = Math.Max(h * 0.18, 32);
             double cx = (w - paneW) * 0.28;
             double top = h * 0.10;
 
-            DrawWidePane(dc, cx + explode * 0.55, top + explode * 2 + 8, paneW, depth, innerT, GlassTint(InnerColor), outline);
-            DrawWidePane(dc, cx + explode * 0.28, top + explode + 4, paneW, depth, filmT,
-                InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
-            DrawWidePane(dc, cx, top, paneW, depth, outerT, GlassTint(OuterColor), outline);
+            // Draw layers from back to front
+            DrawWidePane(dc, cx + explode * 0.55, top + explode * 2 + 8, paneW, depth, innerT, GlassTint(InnerColor), outline, polish: InnerPolish);
+            DrawInterlayer(dc, cx + explode * 0.28, top + explode + 4, paneW, depth, filmT,
+                InterlayerTint(InterlayerColor, InterlayerType), outline, InterlayerType);
+            DrawWidePane(dc, cx, top, paneW, depth, outerT, GlassTint(OuterColor), outline, polish: OuterPolish);
 
             // AutoCAD dimension lines
             Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
@@ -472,7 +492,68 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawDimensionLine(dc,
                 new Point(cx + paneW + 20, top),
                 new Point(cx + paneW + 20, totalY),
-                "TOTAL", dimColor, horizontal: false);
+                $"{ParseMm(OuterThickness) + interlayerMm + ParseMm(InnerThickness):0.##}mm", dimColor, horizontal: false);
+        }
+
+        private static void DrawInterlayer(
+            DrawingContext dc, double left, double frontY, double width, double depth, double thick, Color interlayer, Color outline, string type)
+        {
+            // Professional PVB/SGP interlayer rendering
+            double skew = depth * 0.62;
+            double rise = depth * 0.48;
+
+            Point fl = new(left, frontY);
+            Point fr = new(left + width, frontY);
+            Point br = new(left + width + skew, frontY - rise);
+            Point bl = new(left + skew, frontY - rise);
+
+            Point flb = new(fl.X, fl.Y + thick);
+            Point frb = new(fr.X, fr.Y + thick);
+            Point brb = new(br.X, br.Y + thick);
+
+            // Interlayer is translucent with proper amber/tint color
+            Color topColor = Color.FromArgb(180, interlayer.R, interlayer.G, interlayer.B);
+            Color frontColor = Color.FromArgb(200, interlayer.R, interlayer.G, interlayer.B);
+            Color sideColor = Color.FromArgb(210, interlayer.R, interlayer.G, interlayer.B);
+
+            var topBrush = new SolidColorBrush(topColor);
+            topBrush.Freeze();
+            var frontBrush = new SolidColorBrush(frontColor);
+            frontBrush.Freeze();
+            var sideBrush = new SolidColorBrush(sideColor);
+            sideBrush.Freeze();
+
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(150, outline.R, outline.G, outline.B)), 0.8);
+            pen.Freeze();
+
+            // Draw three faces
+            dc.DrawGeometry(topBrush, pen, Quad(fl, fr, br, bl));
+            dc.DrawGeometry(frontBrush, pen, Quad(fl, fr, frb, flb));
+            dc.DrawGeometry(sideBrush, pen, Quad(fr, br, brb, frb));
+
+            // Add subtle texture/pattern to indicate it's an interlayer
+            var texturePen = new Pen(new SolidColorBrush(Color.FromArgb(40, 255, 255, 255)), 0.5);
+            texturePen.Freeze();
+            
+            // Horizontal lines on front face to show it's a film
+            for (double y = flb.Y + 2; y < fl.Y - 2; y += 3)
+            {
+                double t = (y - flb.Y) / (fl.Y - flb.Y);
+                Point lineStart = new(flb.X, y);
+                Point lineEnd = new(frb.X, y);
+                dc.DrawLine(texturePen, lineStart, lineEnd);
+            }
+
+            // Add type label if there's room
+            if (width > 100)
+            {
+                bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+                var text = Format(type.ToUpperInvariant(), 7, FontWeights.Bold, 
+                    dark ? Color.FromRgb(255, 240, 200) : Color.FromRgb(120, 80, 20));
+                double textX = left + width * 0.5 - text.Width * 0.5;
+                double textY = frontY - rise * 0.5 - text.Height * 0.5;
+                dc.DrawText(text, new Point(textX, textY));
+            }
         }
 
         // Standing IGU cutaway: outer lite + cavity + laminated pair, all vertical.
@@ -482,24 +563,58 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             double liteH = h * 0.68;
             double x = w * 0.10;
             double tOuter = Math.Clamp(w * 0.07, 14, 26);
-            double cavity = Math.Clamp(ParseMm(SpacerWidth) * 1.8, 16, 32);
+            
+            // Proportional spacer width
+            double spacerMm = ParseMm(SpacerWidth);
+            double cavity = Math.Max(10, spacerMm * 2.0);
+            
             double tLamOut = Math.Clamp(w * 0.055, 10, 18);
-            double tFilm = Math.Clamp(w * 0.035, 6, 12);
+            
+            // Proportional interlayer thickness
+            double interlayerMm = ParseMm(InterlayerThickness);
+            double tFilm = Math.Max(4, interlayerMm * 4.0);
+            
             double tLamIn = Math.Clamp(w * 0.055, 10, 18);
 
             DrawStandingLite(dc, x, baseY, tOuter, liteH, GlassTint(OuterColor), outline);
 
+            // Draw cavity with metallic spacer appearance
             var cavityFill = Mix(accent, Color.FromRgb(0x9C, 0xA3, 0xAF), 0.50);
             cavityFill.A = 70;
             double cavX = x + tOuter + 3;
-            dc.DrawRectangle(new SolidColorBrush(cavityFill),
+            
+            // Metallic gradient for cavity/spacer
+            var cavityGradient = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 0)
+            };
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            if (dark)
+            {
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(180, 80, 85, 95), 0));
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(200, 120, 125, 135), 0.5));
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(180, 80, 85, 95), 1));
+            }
+            else
+            {
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(180, 130, 135, 145), 0));
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(200, 170, 175, 185), 0.5));
+                cavityGradient.GradientStops.Add(new GradientStop(Color.FromArgb(180, 130, 135, 145), 1));
+            }
+            cavityGradient.Freeze();
+            
+            dc.DrawRectangle(cavityGradient,
                 new Pen(new SolidColorBrush(outline), 0.8),
                 new Rect(cavX, baseY - liteH * 0.94, cavity, liteH * 0.90));
 
             double lx = cavX + cavity + 4;
             DrawStandingLite(dc, lx, baseY - 4, tLamOut, liteH * 0.92, GlassTint(LamOuterColor), outline);
-            DrawStandingLite(dc, lx + tLamOut + 2, baseY, tFilm, liteH * 0.88,
-                InterlayerTint(InterlayerColor, InterlayerType), outline);
+            
+            // Draw interlayer with proper visibility
+            DrawStandingInterlayer(dc, lx + tLamOut + 2, baseY, tFilm, liteH * 0.88,
+                InterlayerTint(InterlayerColor, InterlayerType), outline, InterlayerType);
+            
             DrawStandingLite(dc, lx + tLamOut + tFilm + 4, baseY + 4, tLamIn, liteH * 0.84,
                 GlassTint(LamInnerColor), outline);
 
@@ -512,7 +627,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawDimensionLine(dc,
                 new Point(x, baseY + 16),
                 new Point(x + totalWidth, baseY + 16),
-                "TOTAL WIDTH", dimColor, horizontal: true);
+                $"{ParseMm(OuterThickness) + spacerMm + ParseMm(LamOuterThickness) + interlayerMm + ParseMm(LamInnerThickness):0.#}mm", dimColor, horizontal: true);
 
             // Leader annotations for each layer
             DrawLeaderAnnotation(dc,
@@ -523,7 +638,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawLeaderAnnotation(dc,
                 new Point(cavX + cavity * 0.5, baseY - liteH * 0.5),
                 new Point(cavX + cavity * 0.5, baseY - liteH - 10),
-                $"ASP: {SpacerWidth}", dimColor);
+                $"SPACER: {SpacerWidth} AL", dimColor);
 
             DrawLeaderAnnotation(dc,
                 new Point(lx + tLamOut * 0.5, baseY - liteH * 0.45),
@@ -539,6 +654,42 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 new Point(lx + tLamOut + tFilm + 4 + tLamIn * 0.5, baseY - liteH * 0.40),
                 new Point(lx + totalWidth + 20, baseY - liteH * 0.4),
                 $"LAM INNER: {LamInnerThickness} {LamInnerColor}", dimColor);
+        }
+
+        private static void DrawStandingInterlayer(
+            DrawingContext dc, double x, double baseY, double thickness, double height, Color interlayer, Color outline, string type)
+        {
+            // Professional standing interlayer for DGU+LAM cutaway
+            Point bl = new(x, baseY);
+            Point br = new(x + thickness, baseY - 8);
+            Point tr = new(x + thickness + 10, baseY - height);
+            Point tl = new(x + 8, baseY - height + 10);
+
+            Color fillColor = Color.FromArgb(190, interlayer.R, interlayer.G, interlayer.B);
+            DrawQuad(dc, tl, tr, br, bl, fillColor, outline, 0.85);
+
+            // Add texture lines to show it's an interlayer
+            var texturePen = new Pen(new SolidColorBrush(Color.FromArgb(50, 255, 255, 255)), 0.4);
+            texturePen.Freeze();
+            
+            for (double y = bl.Y; y > tl.Y; y -= 4)
+            {
+                double t = (bl.Y - y) / (bl.Y - tl.Y);
+                Point lineStart = Lerp(bl, tl, t);
+                Point lineEnd = Lerp(br, tr, t);
+                dc.DrawLine(texturePen, lineStart, lineEnd);
+            }
+
+            // Add type label if there's room
+            if (height > 80)
+            {
+                bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+                var text = Format(type.ToUpperInvariant(), 6, FontWeights.Bold, 
+                    dark ? Color.FromRgb(255, 240, 200) : Color.FromRgb(120, 80, 20));
+                double textX = x + thickness * 0.5 - text.Width * 0.5 + 5;
+                double textY = baseY - height * 0.5;
+                dc.DrawText(text, new Point(textX, textY));
+            }
         }
 
         private static void DrawStandingLite(
@@ -561,7 +712,7 @@ namespace ProGlassAutomation.Controls.GlassShowcase
         }
 
         private static void DrawWidePane(
-            DrawingContext dc, double left, double frontY, double width, double depth, double thick, Color glass, Color outline, bool film = false)
+            DrawingContext dc, double left, double frontY, double width, double depth, double thick, Color glass, Color outline, bool film = false, string polish = "")
         {
             double skew = depth * 0.62;
             double rise = depth * 0.48;
@@ -601,16 +752,172 @@ namespace ProGlassAutomation.Controls.GlassShowcase
                 var edge = new Pen(new SolidColorBrush(Color.FromArgb(140, 255, 255, 255)), 1.4);
                 edge.Freeze();
                 dc.DrawLine(edge, fl, fr);
+
+                // Draw polish indicators on edges if polish is specified
+                if (!string.IsNullOrWhiteSpace(polish))
+                {
+                    DrawPolishIndicator(dc, fl, fr, frb, flb, polish, outline);
+                }
+            }
+        }
+
+        private static void DrawPolishIndicator(
+            DrawingContext dc, Point fl, Point fr, Point frb, Point flb, string polish, Color outline)
+        {
+            // Polish types: Flat Polish, Pencil Polish, Bevel Polish
+            string polishLower = polish.ToLowerInvariant();
+            bool isFlat = polishLower.Contains("flat");
+            bool isPencil = polishLower.Contains("pencil") || polishLower.Contains("round");
+            bool isBevel = polishLower.Contains("bevel");
+
+            if (!isFlat && !isPencil && !isBevel) return;
+
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            Color polishColor = dark ? Color.FromRgb(180, 220, 255) : Color.FromRgb(100, 160, 220);
+            var polishPen = new Pen(new SolidColorBrush(polishColor), 2.0);
+            polishPen.Freeze();
+
+            // Draw polish indicator on the front edge (bottom edge of front face)
+            if (isFlat)
+            {
+                // Flat polish: straight line with small squares at corners
+                dc.DrawLine(polishPen, flb, frb);
+                
+                // Corner indicators
+                var cornerBrush = new SolidColorBrush(polishColor);
+                cornerBrush.Freeze();
+                dc.DrawRectangle(cornerBrush, null, new Rect(flb.X - 2, flb.Y - 2, 4, 4));
+                dc.DrawRectangle(cornerBrush, null, new Rect(frb.X - 2, frb.Y - 2, 4, 4));
+            }
+            else if (isPencil)
+            {
+                // Pencil polish: rounded edge (draw arc at corners)
+                var arcGeo = new StreamGeometry();
+                using (var ctx = arcGeo.Open())
+                {
+                    ctx.BeginFigure(flb, false, false);
+                    ctx.LineTo(frb, true, false);
+                }
+                arcGeo.Freeze();
+                dc.DrawGeometry(null, polishPen, arcGeo);
+
+                // Rounded corners
+                dc.DrawEllipse(null, polishPen, flb, 3, 3);
+                dc.DrawEllipse(null, polishPen, frb, 3, 3);
+            }
+            else if (isBevel)
+            {
+                // Bevel polish: angled edge
+                double bevelSize = 3;
+                Point bevelFl = new(flb.X, flb.Y - bevelSize);
+                Point bevelFr = new(frb.X, frb.Y - bevelSize);
+                
+                var bevelGeo = new StreamGeometry();
+                using (var ctx = bevelGeo.Open())
+                {
+                    ctx.BeginFigure(flb, true, true);
+                    ctx.LineTo(bevelFl, true, false);
+                    ctx.LineTo(bevelFr, true, false);
+                    ctx.LineTo(frb, true, false);
+                }
+                bevelGeo.Freeze();
+
+                var bevelBrush = new SolidColorBrush(Color.FromArgb(80, polishColor.R, polishColor.G, polishColor.B));
+                bevelBrush.Freeze();
+                dc.DrawGeometry(bevelBrush, polishPen, bevelGeo);
+            }
+
+            // Add "POLISH" label if there's room
+            double edgeWidth = Math.Abs(frb.X - flb.X);
+            if (edgeWidth > 80)
+            {
+                var text = Format(polish.ToUpperInvariant(), 6, FontWeights.SemiBold, polishColor);
+                double textX = (flb.X + frb.X) * 0.5 - text.Width * 0.5;
+                double textY = flb.Y + 4;
+                dc.DrawText(text, new Point(textX, textY));
             }
         }
 
         private static void DrawSpacerBar(
             DrawingContext dc, double left, double y, double width, double depth, double thick, Color outline, Color accent)
         {
-            var alu = ThemeManager.CurrentTheme == AppTheme.Dark
-                ? Color.FromRgb(0x6B, 0x72, 0x80)
-                : Color.FromRgb(0x9C, 0xA3, 0xAF);
-            DrawWidePane(dc, left, y, width, depth, Math.Max(thick, 8), Mix(accent, alu, 0.45), outline, film: true);
+            // Professional metallic aluminum spacer bar
+            double skew = depth * 0.62;
+            double rise = depth * 0.48;
+
+            Point fl = new(left, y);
+            Point fr = new(left + width, y);
+            Point br = new(left + width + skew, y - rise);
+            Point bl = new(left + skew, y - rise);
+
+            Point flb = new(fl.X, fl.Y + thick);
+            Point frb = new(fr.X, fr.Y + thick);
+            Point brb = new(br.X, br.Y + thick);
+
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            
+            // Metallic aluminum gradient for top face
+            var topGradient = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 0)
+            };
+            if (dark)
+            {
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(220, 90, 95, 105), 0));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(240, 140, 145, 155), 0.3));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(255, 180, 185, 195), 0.5));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(240, 140, 145, 155), 0.7));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(220, 90, 95, 105), 1));
+            }
+            else
+            {
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(220, 140, 145, 155), 0));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(240, 190, 195, 205), 0.3));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(255, 220, 225, 235), 0.5));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(240, 190, 195, 205), 0.7));
+                topGradient.GradientStops.Add(new GradientStop(Color.FromArgb(220, 140, 145, 155), 1));
+            }
+            topGradient.Freeze();
+
+            // Front face - darker metallic
+            Color frontColor = dark ? Color.FromArgb(200, 70, 75, 85) : Color.FromArgb(200, 120, 125, 135);
+            var frontBrush = new SolidColorBrush(frontColor);
+            frontBrush.Freeze();
+
+            // Side face - medium metallic
+            Color sideColor = dark ? Color.FromArgb(210, 80, 85, 95) : Color.FromArgb(210, 130, 135, 145);
+            var sideBrush = new SolidColorBrush(sideColor);
+            sideBrush.Freeze();
+
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(180, outline.R, outline.G, outline.B)), 1.0);
+            pen.Freeze();
+
+            // Draw three faces
+            dc.DrawGeometry(topGradient, pen, Quad(fl, fr, br, bl));
+            dc.DrawGeometry(frontBrush, pen, Quad(fl, fr, frb, flb));
+            dc.DrawGeometry(sideBrush, pen, Quad(fr, br, brb, frb));
+
+            // Add metallic highlight on top
+            var highlight = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(0, 1)
+            };
+            highlight.GradientStops.Add(new GradientStop(Color.FromArgb(120, 255, 255, 255), 0));
+            highlight.GradientStops.Add(new GradientStop(Color.FromArgb(0, 255, 255, 255), 0.5));
+            highlight.Freeze();
+            dc.DrawGeometry(highlight, null, Quad(fl, fr, br, bl));
+
+            // Add "ALUMINUM SPACER" text if there's room
+            if (width > 120)
+            {
+                var text = Format("AL SPACER", 7, FontWeights.SemiBold, 
+                    dark ? Color.FromRgb(220, 220, 230) : Color.FromRgb(60, 60, 70));
+                double textX = left + width * 0.5 - text.Width * 0.5;
+                double textY = y - rise * 0.5 - text.Height * 0.5;
+                dc.DrawText(text, new Point(textX, textY));
+            }
         }
 
         private static StreamGeometry Quad(Point a, Point b, Point c, Point d)
