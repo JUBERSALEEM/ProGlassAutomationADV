@@ -143,7 +143,7 @@
                             VerticalAlignment="Center">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="Background" Value="#33FFFFFF"/>
+                                <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasWarnings}" Value="True">
                                         <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
@@ -983,7 +983,7 @@
                                                                         Value="{DynamicResource MenuHoverBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
-                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -1057,7 +1057,7 @@
                                                                         Value="{DynamicResource MenuHoverBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
-                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>
@@ -1131,7 +1131,7 @@
                                                                         Value="{DynamicResource MenuHoverBrush}"/>
                                                                 <Style.Triggers>
                                                                     <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
-                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
                                                                     </DataTrigger>
                                                                 </Style.Triggers>
                                                             </Style>

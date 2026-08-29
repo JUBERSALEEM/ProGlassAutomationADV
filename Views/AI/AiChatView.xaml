@@ -406,7 +406,7 @@
                                                            FontSize="{StaticResource TextBodyLarge}"
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
-                                                           Foreground="#FFFFFFAA"
+                                                           Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
                                                            FontSize="{StaticResource TextCaption}"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,4,0,0"
@@ -775,7 +775,7 @@
                             <Ellipse Width="44" Height="44"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
-                                     Fill="#22EF4444"
+                                     Fill="{DynamicResource DangerSurfaceBrush}"
                                      Opacity="{Binding MicAudioLevel}"
                                      IsHitTestVisible="False"/>
 

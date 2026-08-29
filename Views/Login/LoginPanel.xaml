@@ -72,7 +72,7 @@
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{StaticResource LiquidCard}"
-                BorderBrush="#66FFFFFF"
+                BorderBrush="{DynamicResource GlassBorderSoft}"
                 BorderThickness="1"
                 Effect="{StaticResource CardShadow}"
                 SnapsToDevicePixels="True">
@@ -105,7 +105,7 @@
                                                     Stretch="UniformToFill"/>
                                     </Border.Background>
                                     <Border.Effect>
-                                        <DropShadowEffect Color="#1D4ED8" BlurRadius="24"
+                                        <DropShadowEffect Color="{DynamicResource AccentColor}" BlurRadius="24"
                                                           ShadowDepth="0" Opacity="0.55"/>
                                     </Border.Effect>
                                 </Border>
@@ -127,7 +127,7 @@
                             <Border x:Name="DefaultCredWarning"
                                     Margin="0,14,0,0" Padding="12,9"
                                     CornerRadius="10"
-                                    Background="#22F59E0B"
+                                    Background="{DynamicResource WarningSurfaceBrush}"
                                     BorderBrush="{StaticResource WarningOnLiquid}"
                                     BorderThickness="1"
                                     Visibility="Collapsed">
@@ -191,8 +191,8 @@
                                  App.Config.SkipLoginUntilUpdate. -->
                             <Border Margin="2,14,2,0" Padding="14,10"
                                     CornerRadius="12"
-                                    Background="#26FFFFFF"
-                                    BorderBrush="#33FFFFFF"
+                                    Background="{DynamicResource GlassSurfaceUltra}"
+                                    BorderBrush="{DynamicResource GlassBorderSoft}"
                                     BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -227,7 +227,7 @@
                             <Border x:Name="ErrorPanel"
                                     Margin="0,14,0,0" Padding="13,10"
                                     CornerRadius="10"
-                                    Background="#33DC2626"
+                                    Background="{DynamicResource DangerSurfaceBrush}"
                                     BorderBrush="{StaticResource DangerOnLiquid}"
                                     BorderThickness="1"
                                     Visibility="Collapsed">
@@ -267,7 +267,7 @@
                                         Margin="0,12,0,0"
                                         Visibility="Hidden">
                                 <Ellipse x:Name="SignInBusyDot" Width="8" Height="8"
-                                         Fill="#4ADE80" Margin="0,0,8,0"
+                                         Fill="{DynamicResource SuccessBrush}" Margin="0,0,8,0"
                                          VerticalAlignment="Center"
                                          Visibility="Collapsed"/>
                                 <TextBlock x:Name="SignInStatusText"

@@ -329,7 +329,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ToolTip">
-                    <Border Background="#1E293B"
+                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"
                             MaxWidth="320"

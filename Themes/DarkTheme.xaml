@@ -179,6 +179,9 @@
     <SolidColorBrush x:Key="OnAccentSecondaryForegroundBrush"
                      Color="#CCFFFFFF"
                      po:Freeze="True"/>
+    <SolidColorBrush x:Key="WarningSurfaceBrush" Color="#22F59E0B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#33DC2626" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerLightBrush" Color="#FCA5A5" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonForegroundBrush"
                      Color="#FFFFFF"
                      po:Freeze="True"/>

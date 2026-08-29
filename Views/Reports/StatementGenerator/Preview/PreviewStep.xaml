@@ -614,7 +614,7 @@
                             <!-- Icon -->
                             <Border Grid.Column="0"
                                     Width="36" Height="36"
-                                    Background="#FFFFFF33"
+                                    Background="{DynamicResource GlassSurfaceUltra}"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,14,0">
@@ -631,7 +631,7 @@
                                            Foreground="White"/>
                                 <TextBlock Text="{Binding PreviewVM.ReconciliationHeaderDisplay}"
                                            FontSize="{StaticResource TextBody}"
-                                           Foreground="#FFFFFFDD"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            Margin="0,3,0,0"/>
                             </StackPanel>
 
@@ -640,7 +640,7 @@
                                        Text="Cross-check of PI Ordered vs DN Delivered vs TI Invoiced"
                                        FontSize="{StaticResource TextCaption}"
                                        FontStyle="Italic"
-                                       Foreground="#FFFFFFAA"
+                                       Foreground="{DynamicResource OnAccentSecondaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </Grid>
                     </Border>

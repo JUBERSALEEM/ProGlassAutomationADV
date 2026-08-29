@@ -172,7 +172,7 @@
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
         <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="16,12">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="#475569"/>
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.09" Color="#1E293B"/>
             </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>

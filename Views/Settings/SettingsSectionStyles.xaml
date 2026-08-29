@@ -30,7 +30,7 @@
     <!-- ═══════════════════════════════════════════════════════════════
          1. FROZEN BRUSHES (local constants)
     ═══════════════════════════════════════════════════════════════ -->
-    <SolidColorBrush x:Key="PillBorderLightBrush" Color="#93C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="PillBorderLightBrush" Color="{DynamicResource AccentColor}"/>
     <SolidColorBrush x:Key="ProviderDotBlue"      Color="#4285F4" po:Freeze="True"/>
     <SolidColorBrush x:Key="ProviderDotAmber"     Color="{DynamicResource WarningColor}"/>
     <SolidColorBrush x:Key="ProviderDotViolet"    Color="#8B5CF6" po:Freeze="True"/>
