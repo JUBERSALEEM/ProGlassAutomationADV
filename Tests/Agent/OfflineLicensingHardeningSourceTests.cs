@@ -68,6 +68,36 @@ public sealed class OfflineLicensingHardeningSourceTests
     }
 
     [Fact]
+    public void No_code_uses_the_nonexistent_two_argument_Thickness_constructor()
+    {
+        // CS7036 regression guard (2026-08-29): WPF's Thickness has
+        // only Thickness(double) and Thickness(l, t, r, b) — there is
+        // NO two-argument constructor. The code-built licensing view
+        // hit exactly this (new Thickness(28, 24)); pin it repo-wide.
+        foreach (string path in Directory.GetFiles(Root(), "*.cs", SearchOption.AllDirectories))
+        {
+            if (path.Contains("\\obj\\") || path.Contains("\\bin\\"))
+                continue;
+
+            string src = File.ReadAllText(path);
+            foreach (System.Text.RegularExpressions.Match m in
+                     System.Text.RegularExpressions.Regex.Matches(
+                         src, @"new\s+Thickness\s*\(\s*([^()]*)\)"))
+            {
+                string[] args = m.Groups[1].Value.Split(',');
+                if (args.Length == 2 &&
+                    !string.IsNullOrWhiteSpace(args[0]) &&
+                    !string.IsNullOrWhiteSpace(args[1]))
+                {
+                    Assert.Fail(path + " uses the two-argument Thickness " +
+                        "constructor, which does not exist (CS7036). Use " +
+                        "new Thickness(l, t, r, b) or new Thickness(uniform).");
+                }
+            }
+        }
+    }
+
+    [Fact]
     public void Files_importing_both_licensing_namespaces_pin_bare_LicenseService_to_the_app_service()
     {
         // CS0104 regression guard (2026-08-29): ProGlass.Licensing and

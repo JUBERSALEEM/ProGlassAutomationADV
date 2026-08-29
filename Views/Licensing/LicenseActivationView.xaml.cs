@@ -571,7 +571,7 @@ namespace ProGlassAutomation.Views.Licensing
             double displayLarge = Sz("TextDisplayLarge", 28);
             CornerRadius corner = Cr("CardCornerRadius", new CornerRadius(12));
 
-            var root = new Border { Padding = new Thickness(28, 24) };
+            var root = new Border { Padding = new Thickness(28, 24, 28, 24) };
             root.SetResourceReference(Border.BackgroundProperty, "WindowBackgroundBrush");
 
             var scroll = new ScrollViewer
@@ -890,7 +890,7 @@ namespace ProGlassAutomation.Views.Licensing
             fef.SetValue(Border.BorderBrushProperty, B("DividerBrush", Brushes.Gray));
             fef.SetValue(Border.BorderThicknessProperty, new Thickness(1.5));
             fef.SetValue(Border.CornerRadiusProperty, Cr("CardCornerRadius", new CornerRadius(12)));
-            fef.SetValue(Border.PaddingProperty, new Thickness(16, 14));
+            fef.SetValue(Border.PaddingProperty, new Thickness(16, 14, 16, 14));
             fef.SetValue(Border.MinWidthProperty, 150d);
             fef.SetValue(Border.SnapsToDevicePixelsProperty, true);
             fef.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter)));
