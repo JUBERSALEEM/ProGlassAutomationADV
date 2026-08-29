@@ -12,6 +12,13 @@
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
+                <!-- Liquid Glass Design System (2026-08-29) — the CANONICAL
+                     frosted-glass reference: brushes, shadows, typography,
+                     panel/card/button/switch/input styles. Merged before
+                     every shared dictionary so they can BasedOn/Static
+                     reference it; it wins over theme defaults. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassDesign.xaml"/>
+
                 <!-- ── Global type scale (TextXSmall…TextDisplayLarge).
                      Every FontSize below 30 DIPs references these tokens. ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypeScaleTokens.xaml"/>

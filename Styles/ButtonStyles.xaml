@@ -1,28 +1,24 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Styles/ButtonStyles.xaml
      PROJECT: ProGlassAutomation
-     PURPOSE: Centralized button design system.
-              Every button in every view uses one of these 5 styles.
-              To change how ALL buttons look, edit this file only.
+     PURPOSE: Centralized button design system — Liquid Glass (2026-08-29).
+              Every button in every view uses one of these styles.
+              All materials resolve to the canonical reference
+              (Themes/Styles/LiquidGlassDesign.xaml): frosted glass
+              fills, white top glare, glass shadows, press squish.
 
      STYLES PROVIDED:
-       • PrimaryPillButton    — solid indigo, main actions
-       • SuccessPillButton    — solid green, export/confirm
-       • OutlinedPillButton   — white bg + indigo border, secondary
-       • DangerButton         — red outlined, delete/deactivate
+       • PrimaryPillButton    — blue liquid glass, main actions
+       • SuccessPillButton    — green liquid glass, export/confirm
+       • OutlinedPillButton   — frosted glass, secondary
+       • DangerButton         — frosted glass + red edge
        • TabPillButton        — nav tabs (alias of OutlinedPillButton)
+       • Row* compact variants + Report toolbar variants
 
-     USAGE (in any view):
+     USAGE (unchanged):
        <Button Style="{StaticResource PrimaryPillButton}"
                Command="{Binding SaveCommand}"
-               Tag="&#xE74E;"
-               Content="SAVE"
-               ToolTip="Save the current record"/>
-
-       - Tag holds the Segoe MDL2 glyph code (icon)
-       - Content holds the UPPERCASE label text
-       - Icon renders left, text renders right, auto-centered
-       - Omit Tag for text-only buttons
+               Tag="&#xE74E;" Content="SAVE"/>
 ═══════════════════════════════════════════════════════════════════ -->
 
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -39,264 +35,137 @@
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
-    <!-- VARIANT 1 — PrimaryPillButton -->
+    <!-- Shared glass template with Tag-glyph + label, press squish and
+         white top glare — the reference button look, icon-aware. -->
+    <ControlTemplate x:Key="GlassPillButtonTemplate" TargetType="Button">
+        <Grid>
+            <Grid.RenderTransform>
+                <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+            </Grid.RenderTransform>
+            <Border x:Name="Bg"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="{TemplateBinding Padding}"
+                    Height="{TemplateBinding Height}"
+                    Effect="{StaticResource GlassShadowSoftBorder}"
+                    SnapsToDevicePixels="True">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock x:Name="Icon"
+                               Text="{TemplateBinding Tag}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextBodyLarge}"
+                               Foreground="{TemplateBinding Foreground}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ContentPresenter VerticalAlignment="Center"
+                                      TextElement.FontSize="{StaticResource TextBody}"
+                                      TextElement.FontWeight="Bold"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                </StackPanel>
+            </Border>
+            <!-- white top highlight: the frosted glass catch-light -->
+            <Border x:Name="Glare"
+                    Height="12"
+                    CornerRadius="12,12,0,0"
+                    VerticalAlignment="Top"
+                    Background="{DynamicResource GlassTopReflection}"
+                    Opacity="0.55"
+                    Margin="1,1,1,0"
+                    IsHitTestVisible="False"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
+                <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- VARIANT 1 — PrimaryPillButton: blue liquid glass -->
     <Style x:Key="PrimaryPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg"
-                            Background="{DynamicResource AccentBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            Height="{TemplateBinding Height}"
-                            SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock x:Name="Icon"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <Trigger Property="Text" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                            <Trigger Property="Text" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="{StaticResource TextBody}"
-                                              TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.96"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
-    <!-- VARIANT 2 — SuccessPillButton -->
+    <!-- VARIANT 2 — SuccessPillButton: green liquid glass -->
     <Style x:Key="SuccessPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg"
-                            Background="{DynamicResource SuccessBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            Height="{TemplateBinding Height}"
-                            SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock x:Name="Icon"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <Trigger Property="Text" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                            <Trigger Property="Text" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="{StaticResource TextBody}"
-                                              TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Opacity" Value="0.9"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
-    <!-- VARIANT 3 — OutlinedPillButton -->
+    <!-- VARIANT 3 — OutlinedPillButton: frosted glass -->
     <Style x:Key="OutlinedPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="20,0"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            Height="{TemplateBinding Height}"
-                            SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock x:Name="Icon"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBodyLarge}"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <Trigger Property="Text" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                            <Trigger Property="Text" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="{StaticResource TextBody}"
-                                              TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
     </Style>
 
-    <!-- VARIANT 4 — DangerButton -->
+    <!-- VARIANT 4 — DangerButton: frosted glass + red edge -->
     <Style x:Key="DangerButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
         <Setter Property="Height" Value="32"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="MinWidth" Value="92"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="Button">
-                    <Border x:Name="Bg"
-                            Background="Transparent"
-                            BorderBrush="{DynamicResource DangerBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            Height="{TemplateBinding Height}"
-                            SnapsToDevicePixels="True">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock x:Name="Icon"
-                                       Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource DangerBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,8,0">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <Trigger Property="Text" Value="">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                            <Trigger Property="Text" Value="{x:Null}">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="{StaticResource TextBody}"
-                                              TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="{DynamicResource DangerBrush}"/>
-                        </StackPanel>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintRedBrush}"/>
-                        </Trigger>
-                        <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Foreground" Value="{DynamicResource GlassDangerBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassDangerBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource GlassPillButtonTemplate}"/>
     </Style>
 
     <!-- VARIANT 5 — TabPillButton (alias of OutlinedPillButton for semantics) -->
@@ -305,56 +174,66 @@
 
 
     <!-- ═════════════════════════════════════════════════════════════
-         COMPACT ROW VARIANTS (extension per spec "HOW TO EXTEND")
-         Unified rectangle family (R8, H26) for in-row actions so all
-         row buttons share ONE shape language. Colors per role.
+         COMPACT ROW VARIANTS — one glass shape (corner radius from the
+         theme), colours per role, top glare retained.
     ════════════════════════════════════════════════════════════════ -->
     <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
-        <Border x:Name="Bg"
-                Background="{TemplateBinding Background}"
-                BorderBrush="{TemplateBinding BorderBrush}"
-                BorderThickness="{TemplateBinding BorderThickness}"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Padding="{TemplateBinding Padding}"
-                Height="{TemplateBinding Height}"
-                SnapsToDevicePixels="True">
-            <StackPanel Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-                <TextBlock Text="{TemplateBinding Tag}"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="{StaticResource TextCaption}"
-                           Foreground="{TemplateBinding Foreground}"
-                           VerticalAlignment="Center"
-                           Margin="0,0,6,0">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Style.Triggers>
-                                <Trigger Property="Text" Value="">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                                <Trigger Property="Text" Value="{x:Null}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <ContentPresenter VerticalAlignment="Center"
-                                  TextElement.FontSize="{StaticResource TextCaption}"
-                                  TextElement.FontWeight="Bold"
-                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
-            </StackPanel>
-        </Border>
+        <Grid>
+            <Grid.RenderTransform>
+                <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+            </Grid.RenderTransform>
+            <Border x:Name="Bg"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    Padding="{TemplateBinding Padding}"
+                    Height="{TemplateBinding Height}"
+                    Effect="{DynamicResource GlassShadowSoftBorder}"
+                    SnapsToDevicePixels="True">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{TemplateBinding Tag}"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="{StaticResource TextCaption}"
+                               Foreground="{TemplateBinding Foreground}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                    <Trigger Property="Text" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <ContentPresenter VerticalAlignment="Center"
+                                      TextElement.FontSize="{StaticResource TextCaption}"
+                                      TextElement.FontWeight="Bold"
+                                      TextElement.Foreground="{TemplateBinding Foreground}"/>
+                </StackPanel>
+            </Border>
+            <Border Height="8" CornerRadius="8,8,0,0" VerticalAlignment="Top"
+                    Background="{DynamicResource GlassTopReflection}"
+                    Opacity="0.5" Margin="1,1,1,0" IsHitTestVisible="False"/>
+        </Grid>
         <ControlTemplate.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
-                <Setter TargetName="Bg" Property="Opacity" Value="0.7"/>
+                <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
+                <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocused" Value="True">
-                <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
                 <Setter TargetName="Bg" Property="BorderThickness" Value="1.5"/>
             </Trigger>
             <Trigger Property="IsEnabled" Value="False">
@@ -368,9 +247,10 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
 
@@ -379,9 +259,10 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
 
@@ -390,9 +271,9 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="10,0"/>
         <Setter Property="MinWidth" Value="46"/>
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
@@ -402,19 +283,15 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="MinWidth" Value="44"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientIdle}"/>
+        <Setter Property="Foreground" Value="{DynamicResource GlassDangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassDangerBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>
 
     <!-- ══════════════════════════════════════════════════════════════
-         REPORT TOOLBAR BUTTONS — single source of truth for the
-         Reports module's filter / export / pagination chrome.
-         One size (32px actions, 30px pagination), one spacing rhythm
-         (6px between toolbar buttons, 8px between pagination buttons),
-         so every report screen looks professionally consistent.
+         REPORT TOOLBAR BUTTONS — glass, one size, one spacing rhythm.
     ═══════════════════════════════════════════════════════════════════ -->
 
     <!-- Apply — the primary filter action -->

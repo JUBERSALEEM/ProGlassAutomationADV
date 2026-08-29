@@ -56,23 +56,23 @@
         <Setter Property="FontSize" Value="{DynamicResource DensityTitleFontSize}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource PrimaryForegroundBrush}"/>
+                Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
     <Style x:Key="ModulePageSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Margin" Value="0,3,0,0"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                Value="{DynamicResource TextSecondaryBrush}"/>
     </Style>
 
     <!-- ══ SECTION CARD — the one card shape for module panels ═══════ -->
 
     <Style x:Key="ModuleSectionCardStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource OutlineBrush}"/>
+                Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
@@ -86,7 +86,7 @@
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource MutedForegroundBrush}"/>
+                Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
@@ -144,7 +144,7 @@
         <Setter Property="Foreground"
                 Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Background"
-                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"
                 Value="{DynamicResource AccentBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
@@ -165,14 +165,14 @@
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource PrimaryForegroundBrush}"/>
+                Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
     <Style x:Key="ModuleDetailActionBarStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource OutlineBrush}"/>
+                Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness"
                 Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"
@@ -223,7 +223,7 @@
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
 
@@ -241,7 +241,7 @@
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Padding" Value="14,7"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Template">

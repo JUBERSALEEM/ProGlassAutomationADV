@@ -126,6 +126,12 @@ namespace ProGlassAutomation.Services
             // the previous theme reporting itself).
             _currentTheme = theme;
 
+            // Publish the canonical Liquid Glass reference palette for
+            // this mode BEFORE the accent re-derive: every adopted
+            // style binds these keys through DynamicResource, so the
+            // whole frosted-glass system re-tints on Light/Dark.
+            PublishLiquidReference(theme == AppTheme.Dark);
+
             // NEW: re-derive the accent family against the fresh theme
             // surfaces so hover/tint/contrast stay correct.
             ApplyAccent(_customAccent, raiseEvent: false);
@@ -150,6 +156,93 @@ namespace ProGlassAutomation.Services
         public static void ToggleTheme()
         {
             ApplyTheme(_currentTheme == AppTheme.Light ? AppTheme.Dark : AppTheme.Light);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  LIQUID GLASS REFERENCE PALETTE (2026-08-29)
+        //
+        //  The canonical design lives in Themes/Styles/LiquidGlassDesign.xaml
+        //  (LIGHT values). This publishes the per-mode values into the
+        //  application scope so every adopted style (buttons, panels,
+        //  cards, switches, inputs, typography) re-tints live on
+        //  Light/Dark — while staying byte-faithful to the reference in
+        //  Light mode.
+        // ══════════════════════════════════════════════════════════════
+
+        private static void PublishLiquidReference(bool dark)
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            if (dark)
+            {
+                FreezeAndSet(resources, "TextPrimaryBrush", Color.FromRgb(0xF2, 0xF5, 0xF8));
+                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0xB4, 0xE2, 0xEA, 0xF4));
+                FreezeAndSet(resources, "GlassSurfaceUltra", Color.FromArgb(0x08, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceStandard", Color.FromArgb(0x12, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceElevated", Color.FromArgb(0x1E, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderPrimary", Color.FromArgb(0x59, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderBright", Color.FromArgb(0x8C, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderSoft", Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF));
+
+                var idle = new LinearGradientBrush(
+                    Color.FromArgb(0x1F, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x0A, 0xFF, 0xFF, 0xFF),
+                    new Point(0, 0), new Point(1, 1));
+                idle.Freeze();
+                resources["GlassGradientIdle"] = idle;
+
+                var topRef = new LinearGradientBrush(
+                    Color.FromArgb(0x66, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                    new Point(0, 0), new Point(0, 1));
+                topRef.Freeze();
+                resources["GlassTopReflection"] = topRef;
+
+                var bg = new LinearGradientBrush(
+                    Color.FromRgb(0x0B, 0x14, 0x26),
+                    Color.FromRgb(0x0E, 0x1B, 0x31),
+                    new Point(0, 0), new Point(1, 1));
+                bg.GradientStops.Insert(1, new GradientStop(
+                    Color.FromRgb(0x12, 0x23, 0x3F), 0.5));
+                bg.Freeze();
+                resources["AppBackgroundBrush"] = bg;
+            }
+            else
+            {
+                // Light mode — the reference values verbatim.
+                FreezeAndSet(resources, "TextPrimaryBrush", Color.FromRgb(0x1D, 0x1D, 0x1F));
+                FreezeAndSet(resources, "TextSecondaryBrush", Color.FromArgb(0x8C, 0x1E, 0x28, 0x32));
+                FreezeAndSet(resources, "GlassSurfaceUltra", Color.FromArgb(0x06, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceStandard", Color.FromArgb(0x0D, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassSurfaceElevated", Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderPrimary", Color.FromArgb(0xD9, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderBright", Color.FromArgb(0xF2, 0xFF, 0xFF, 0xFF));
+                FreezeAndSet(resources, "GlassBorderSoft", Color.FromArgb(0xB8, 0xFF, 0xFF, 0xFF));
+
+                var idle = new LinearGradientBrush(
+                    Color.FromArgb(0x28, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x05, 0xFF, 0xFF, 0xFF),
+                    new Point(0, 0), new Point(1, 1));
+                idle.Freeze();
+                resources["GlassGradientIdle"] = idle;
+
+                var topRef = new LinearGradientBrush(
+                    Color.FromArgb(0xBF, 0xFF, 0xFF, 0xFF),
+                    Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                    new Point(0, 0), new Point(0, 1));
+                topRef.Freeze();
+                resources["GlassTopReflection"] = topRef;
+
+                var bg = new LinearGradientBrush(
+                    Color.FromRgb(0xD7, 0xED, 0xF9),
+                    Color.FromRgb(0xD5, 0xEA, 0xF7),
+                    new Point(0, 0), new Point(1, 1));
+                bg.GradientStops.Insert(1, new GradientStop(
+                    Color.FromRgb(0xFF, 0xFF, 0xFF), 0.5));
+                bg.Freeze();
+                resources["AppBackgroundBrush"] = bg;
+            }
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -198,6 +291,28 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "AccentLightBrush",
                 ColorMath.Lighten(core, 0.12));
             FreezeAndSet(resources, "OverlayButtonBackgroundBrush", core);
+
+            // ── Liquid Glass active gradient — accent-tinted ─────────
+            // The reference's blue liquid (#28BEFF / #82E1FF / #2FAFF5)
+            // is mixed toward the user's accent at 45%, so primary
+            // buttons, switches and selections stay the "blue liquid"
+            // identity while belonging to the chosen colour.
+            Color activeTop = ColorMath.Mix(
+                Color.FromArgb(0xB7, 0x28, 0xBE, 0xFF), core, 0.45);
+            Color activeMid = ColorMath.Mix(
+                Color.FromArgb(0x66, 0x82, 0xE1, 0xFF), core, 0.45);
+            Color activeBot = ColorMath.Mix(
+                Color.FromArgb(0xA6, 0x32, 0xAF, 0xF5), core, 0.45);
+            var activeGlass = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
+            activeGlass.GradientStops.Add(new GradientStop(activeTop, 0.0));
+            activeGlass.GradientStops.Add(new GradientStop(activeMid, 0.5));
+            activeGlass.GradientStops.Add(new GradientStop(activeBot, 1.0));
+            activeGlass.Freeze();
+            resources["GlassGradientActive"] = activeGlass;
 
             // ── Contrast-aware text on accent ─────────────────────────
             FreezeAndSet(resources, "OnAccentForegroundBrush",

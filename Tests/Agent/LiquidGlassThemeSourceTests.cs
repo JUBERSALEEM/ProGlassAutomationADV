@@ -147,15 +147,17 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // Runtime overrides (Application.Resources) only reach
             // consumers bound with DynamicResource. The card styles
-            // must never switch back to StaticResource, or the iOS
-            // Liquid Glass surfaces would silently stay opaque.
+            // must never switch back to StaticResource, or the glass
+            // surfaces would silently stay opaque. (2026-08-29: the
+            // cards now consume the canonical GlassSurfaceStandard
+            // material — still through DynamicResource.)
             string cardStyles = Read("Themes/Styles/CardStyles.xaml");
             string settings = Read("Views/Settings/SettingsSectionStyles.xaml");
 
-            Assert.Contains("{DynamicResource ModuleBackgroundBrush}", cardStyles, StringComparison.Ordinal);
-            Assert.Contains("{DynamicResource ModuleBackgroundBrush}", settings, StringComparison.Ordinal);
-            Assert.DoesNotContain("{StaticResource ModuleBackgroundBrush}", cardStyles, StringComparison.Ordinal);
-            Assert.DoesNotContain("{StaticResource ModuleBackgroundBrush}", settings, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassSurfaceStandard}", cardStyles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassSurfaceStandard}", settings, StringComparison.Ordinal);
+            Assert.DoesNotContain("{StaticResource GlassSurfaceStandard}", cardStyles, StringComparison.Ordinal);
+            Assert.DoesNotContain("{StaticResource GlassSurfaceStandard}", settings, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -192,24 +194,25 @@ namespace ProGlassAutomation.Tests.Agent
         public void Liquid_glass_styles_never_pin_theme_colours_with_static_resource()
         {
             // Dynamic switching depends on DynamicResource — the design
-            // system must never StaticResource the liquid glass tokens.
+            // system must never StaticResource the glass MATERIALS.
+            // (Style-key references like {StaticResource
+            // LiquidGlassButtonPrimary} in BasedOn are legitimate —
+            // styles, not colours.)
             string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
-            // Style-key references (e.g. {StaticResource
-            // LiquidGlassDataGridColumnHeaderStyle}) are legitimate;
-            // the COLOUR/BRUSH tokens must never be static.
             foreach (string token in new[]
                      {
-                         "LiquidGlassBrush", "LiquidGlassSubtleBrush", "LiquidGlassStrongBrush",
-                         "LiquidEdgeBrush", "LiquidInnerHighlightBrush", "LiquidReflectionBrush",
-                         "LiquidControlHoverBrush", "LiquidControlPressedBrush", "LiquidControlDisabledBrush",
-                         "LiquidFocusBrush", "LiquidSelectionBrush", "LiquidPrimaryButtonBrush",
-                         "LiquidOverlayBrush", "LiquidShadowColor"
+                         "GlassSurfaceUltra", "GlassSurfaceStandard",
+                         "GlassSurfaceElevated", "GlassBorderPrimary",
+                         "GlassBorderBright", "GlassBorderSoft",
+                         "GlassGradientIdle", "GlassGradientActive",
+                         "GlassTopReflection", "TextPrimaryBrush",
+                         "TextSecondaryBrush"
                      })
             {
                 Assert.DoesNotContain("{StaticResource " + token + "}", styles, StringComparison.Ordinal);
             }
-            Assert.Contains("{DynamicResource LiquidGlassBrush}", styles, StringComparison.Ordinal);
-            Assert.Contains("{DynamicResource LiquidEdgeBrush}", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassSurfaceStandard}", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassTopReflection}", styles, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -427,12 +430,12 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Card_template_draws_the_watery_meniscus_line()
         {
-            // The droplet's surface-tension band: a soft line hugging
-            // the rounded top of the card, between the crisp edge and
-            // the diagonal sweep.
+            // The droplet's surface-tension band: the white top
+            // highlight hugging the rounded top of the card (reference
+            // GlassTopReflection material).
             string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
             Assert.Contains("x:Name=\"Meniscus\"", styles, StringComparison.Ordinal);
-            Assert.Contains("{DynamicResource LiquidEdgeBrush}", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassTopReflection}", styles, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -446,6 +449,72 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("GuaranteeCriticalResources(resources)", engine, StringComparison.Ordinal);
             Assert.Contains("CriticalFallbacks(dark)", engine, StringComparison.Ordinal);
             Assert.Contains("ResourceReferenceKeyNotFoundException", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Liquid_glass_reference_dictionary_is_merged_and_controls_adopt_it()
+        {
+            // 2026-08-29 reference adoption: the canonical dictionary is
+            // merged first in App.xaml, the shared button system renders
+            // the reference glass (idle gradient + top glare), the app
+            // toggle is the reference switch, the engine publishes the
+            // per-mode palette, and the main window rides the reference
+            // app background.
+            string app = Read("App.xaml");
+            Assert.Contains("LiquidGlassDesign.xaml", app, StringComparison.Ordinal);
+
+            string design = Read("Themes/Styles/LiquidGlassDesign.xaml");
+            foreach (string key in new[]
+                     {
+                         "GlassSurfaceUltra", "GlassSurfaceStandard",
+                         "GlassSurfaceElevated", "GlassTopReflection",
+                         "GlassGradientIdle", "GlassGradientActive",
+                         "AppBackgroundBrush", "TextPrimaryBrush",
+                         "TextSecondaryBrush", "LiquidGlassPanel",
+                         "LiquidGlassCard", "LiquidGlassButton",
+                         "LiquidGlassButtonPrimary", "LiquidGlassSwitch",
+                         "LiquidGlassTextBox"
+                     })
+            {
+                Assert.Contains("x:Key=\"" + key + "\"", design, StringComparison.Ordinal);
+            }
+
+            string buttons = Read("Styles/ButtonStyles.xaml");
+            Assert.Contains("GlassGradientIdle", buttons, StringComparison.Ordinal);
+            Assert.Contains("GlassTopReflection", buttons, StringComparison.Ordinal);
+
+            string settings = Read("Views/Settings/SettingsSectionStyles.xaml");
+            Assert.Contains("BasedOn=\"{StaticResource LiquidGlassToggleSwitch}\"",
+                settings, StringComparison.Ordinal);
+
+            string tm = Read("Services/ThemeManager.cs");
+            Assert.Contains("PublishLiquidReference(", tm, StringComparison.Ordinal);
+            Assert.Contains("resources[\"GlassGradientActive\"]", tm, StringComparison.Ordinal);
+
+            string window = Read("MainWindow.xaml");
+            Assert.Contains("{DynamicResource AppBackgroundBrush}", window, StringComparison.Ordinal);
+            Assert.Contains("Style=\"{StaticResource LiquidGlassWindow}\"", window, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Adoption_layer_contains_no_hardcoded_colours()
+        {
+            // Rule 1 of the reference adoption: the shared control
+            // layer must never pin a hex colour directly — everything
+            // resolves to a defined reference brush.
+            foreach (string rel in new[]
+                     {
+                         "Styles/ButtonStyles.xaml",
+                         "Themes/Styles/LiquidGlassStyles.xaml",
+                         "Themes/Styles/InputStyles.xaml"
+                     })
+            {
+                string xaml = Read(rel);
+                Assert.False(
+                    System.Text.RegularExpressions.Regex.IsMatch(
+                        xaml, "(Background|BorderBrush|Foreground|Color|Fill)=\"#[0-9A-Fa-f]{6,8}\""),
+                    rel + " contains a hardcoded colour");
+            }
         }
 
         private static string[] ResourceKeys(string xaml) =>

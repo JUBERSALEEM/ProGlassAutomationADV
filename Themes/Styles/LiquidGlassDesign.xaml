@@ -1,0 +1,701 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ══════════════════════════════════════════════════════════════
+         Liquid Glass Design System — canonical reference (2026-08-29)
+         THE single source of truth for the frosted glass look.
+
+         Every shared style dictionary and view resolves through this
+         file's brushes, effects, typography and control styles.
+         Merged FIRST in App.xaml so all other dictionaries can
+         BasedOn / StaticResource these keys.
+    ══════════════════════════════════════════════════════════════ -->
+
+    <!-- ====================================================================== -->
+    <!-- 1. CORE COLORS & BRUSHES                                               -->
+    <!-- ====================================================================== -->
+
+    <Color x:Key="TextPrimaryColor">#1D1D1F</Color>
+    <Color x:Key="TextSecondaryColor">#8C1E2832</Color> <!-- rgba(30,40,50,0.55) -->
+    <Color x:Key="AccentBlueColor">#28BEFF</Color>
+
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
+
+    <!-- Ultra-Transparent (Main Panels) 2.5% opacity -->
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#06FFFFFF"/>
+
+    <!-- Standard Surface (Cards/Settings) 5% opacity -->
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0DFFFFFF"/>
+
+    <!-- Frosted (Hover / Elevated) 10% opacity -->
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF"/>
+
+    <!-- Border Brushes -->
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#D9FFFFFF"/>      <!-- 85% -->
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#F2FFFFFF"/>       <!-- 95% -->
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#B8FFFFFF"/>         <!-- 72% -->
+
+    <!-- Glass Gradients (For OFF/Idle states) -->
+    <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#28FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#05FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- ACTIVE STATE (Blue Liquid) -->
+    <LinearGradientBrush x:Key="GlassGradientActive" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#B728BEFF" Offset="0.0"/>
+        <GradientStop Color="#6682E1FF" Offset="0.5"/>
+        <GradientStop Color="#A632AFF5" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- TOP REFLECTION (Applied to top of all glass surfaces) -->
+    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#BFFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- App Background (Soft radial "sky" background) -->
+    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#D7EDF9" Offset="0.0"/>
+        <GradientStop Color="#FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#D5EAF7" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Semantic glass brushes (danger / overlay) — defined here so no
+         style anywhere needs a hardcoded colour. -->
+    <SolidColorBrush x:Key="GlassDangerBrush" Color="#B91C1C"/>
+    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#E2B91C1C"/>
+    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#3D1E2832"/>
+
+    <!-- ====================================================================== -->
+    <!-- 2. SHADOW EFFECTS                                                      -->
+    <!-- ====================================================================== -->
+
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+
+    <!-- Effect bridges: one Freezable instance per target type, so the
+         same shadow can be assigned to any control's Effect property. -->
+    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+
+    <!-- ====================================================================== -->
+    <!-- 3. TYPOGRAPHY                                                          -->
+    <!-- ====================================================================== -->
+
+    <Style x:Key="LiquidTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="28"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,0,0,6"/>
+    </Style>
+
+    <Style x:Key="LiquidSubtitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+    </Style>
+
+    <Style x:Key="LiquidCardHeading" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <Style x:Key="LiquidCardDescription" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
+        <Setter Property="Margin" Value="0,4,0,0"/>
+    </Style>
+
+    <!-- ====================================================================== -->
+    <!-- 4. STRUCTURAL PANELS (Borders / Cards)                                 -->
+    <!-- ====================================================================== -->
+
+    <Style x:Key="LiquidGlassWindow" TargetType="Window">
+        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}"/>
+        <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+    </Style>
+
+    <Style x:Key="LiquidGlassPanel" TargetType="Border">
+        <Setter Property="CornerRadius" Value="42"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="32,20"/>
+        <Setter Property="Effect" Value="{DynamicResource GlassShadowPanelBorder}"/>
+    </Style>
+
+    <Style x:Key="LiquidGlassCard" TargetType="Border">
+        <Setter Property="CornerRadius" Value="26"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
+        <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ====================================================================== -->
+    <!-- 5. INTERACTIVE CONTROLS (Buttons, Switches, Inputs)                    -->
+    <!-- ====================================================================== -->
+
+    <!-- STANDARD BUTTON -->
+    <Style x:Key="LiquidGlassButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="20,12"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="Bg"
+                                CornerRadius="18"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                        <!-- Top Glare -->
+                        <Border Height="14"
+                                CornerRadius="18,18,0,0"
+                                VerticalAlignment="Top"
+                                Background="{DynamicResource GlassTopReflection}"
+                                Opacity="0.65"
+                                Margin="1,1,1,0"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
+                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- PRIMARY ACTION BUTTON -->
+    <Style x:Key="LiquidGlassButtonPrimary" TargetType="Button" BasedOn="{StaticResource LiquidGlassButton}">
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="Bg"
+                                CornerRadius="18"
+                                Background="{DynamicResource GlassGradientActive}"
+                                BorderBrush="{DynamicResource GlassBorderBright}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowActiveButton}"/>
+                        <!-- Top Glare -->
+                        <Border Height="14" CornerRadius="18,18,0,0" VerticalAlignment="Top" Background="{DynamicResource GlassTopReflection}" Opacity="0.4" Margin="1,1,1,0"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.94"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
+                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ICON BUTTON — square glass chip with the same glare -->
+    <Style x:Key="LiquidGlassIconButton" TargetType="Button" BasedOn="{StaticResource LiquidGlassButton}">
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="PressScale" ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="Bg"
+                                CornerRadius="14"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                        <Border Height="10" CornerRadius="14,14,0,0" VerticalAlignment="Top"
+                                Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.94"/>
+                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.94"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- GHOST / LINK BUTTON — pure text on glass, elevated on hover -->
+    <Style x:Key="LiquidGlassLinkButton" TargetType="Button">
+        <Setter Property="Foreground" Value="{DynamicResource AccentBlueColor}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Bg" CornerRadius="12" Background="Transparent" Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- LIQUID GLASS SWITCH (CHECKBOX) -->
+    <Style x:Key="LiquidGlassSwitch" TargetType="CheckBox">
+        <Setter Property="Width" Value="62"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="Squish" ScaleX="1" ScaleY="1" CenterX="31" CenterY="18"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="Track"
+                                CornerRadius="18"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                        <!-- Top Glare -->
+                        <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
+                                Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
+                        <!-- Inner Highlight -->
+                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="#F2FFFFFF" Opacity="0.8" Margin="1"/>
+
+                        <!-- Thumb -->
+                        <Border x:Name="Thumb" Width="30" Height="30" CornerRadius="15"
+                                HorizontalAlignment="Left" Margin="3,0,0,0"
+                                BorderBrush="{DynamicResource GlassBorderBright}" BorderThickness="1">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="Slide" X="0"/>
+                            </Border.RenderTransform>
+                            <Border.Background>
+                                <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
+                                    <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                    <GradientStop Color="#B7FFFFFF" Offset="0.3"/>
+                                    <GradientStop Color="#4DD2F0FF" Offset="0.7"/>
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <!-- Thumb Shine -->
+                            <Ellipse Width="16" Height="9" Fill="#E6FFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
+                                <Ellipse.Effect>
+                                    <BlurEffect Radius="2"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Border>
+                    </Grid>
+
+                    <ControlTemplate.Triggers>
+                        <!-- Active State -->
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                            <Setter TargetName="Thumb" Property="Background">
+                                <Setter.Value>
+                                    <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
+                                        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                        <GradientStop Color="#D8EBFAFF" Offset="0.35"/>
+                                        <GradientStop Color="#59AAE6FF" Offset="0.75"/>
+                                    </RadialGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <!-- Pressed State -->
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Squish" Property="ScaleX" Value="0.96"/>
+                            <Setter TargetName="Squish" Property="ScaleY" Value="0.96"/>
+                            <Setter TargetName="Thumb" Property="Width" Value="35"/>
+                        </Trigger>
+                        <!-- Animations -->
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="26" Duration="0:0:0.35">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.35">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- LIQUID GLASS TOGGLE — the ToggleButton twin of the switch, for
+         app toggles (WPF ToggleButton carries the same routed events). -->
+    <Style x:Key="LiquidGlassToggleSwitch" TargetType="ToggleButton">
+        <Setter Property="Width" Value="62"/>
+        <Setter Property="Height" Value="36"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Grid>
+                        <Grid.RenderTransform>
+                            <ScaleTransform x:Name="Squish" ScaleX="1" ScaleY="1" CenterX="31" CenterY="18"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="Track"
+                                CornerRadius="18"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                        <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
+                                Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
+                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="#F2FFFFFF" Opacity="0.8" Margin="1"/>
+                        <Border x:Name="Thumb" Width="30" Height="30" CornerRadius="15"
+                                HorizontalAlignment="Left" Margin="3,0,0,0"
+                                BorderBrush="{DynamicResource GlassBorderBright}" BorderThickness="1">
+                            <Border.RenderTransform>
+                                <TranslateTransform x:Name="Slide" X="0"/>
+                            </Border.RenderTransform>
+                            <Border.Background>
+                                <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
+                                    <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                    <GradientStop Color="#B7FFFFFF" Offset="0.3"/>
+                                    <GradientStop Color="#4DD2F0FF" Offset="0.7"/>
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <Ellipse Width="16" Height="9" Fill="#E6FFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
+                                <Ellipse.Effect>
+                                    <BlurEffect Radius="2"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                            <Setter TargetName="Thumb" Property="Background">
+                                <Setter.Value>
+                                    <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
+                                        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+                                        <GradientStop Color="#D8EBFAFF" Offset="0.35"/>
+                                        <GradientStop Color="#59AAE6FF" Offset="0.75"/>
+                                    </RadialGradientBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Squish" Property="ScaleX" Value="0.96"/>
+                            <Setter TargetName="Squish" Property="ScaleY" Value="0.96"/>
+                            <Setter TargetName="Thumb" Property="Width" Value="35"/>
+                        </Trigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Checked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="26" Duration="0:0:0.35">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="ToggleButton.Unchecked">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Storyboard.TargetName="Slide" Storyboard.TargetProperty="X" To="0" Duration="0:0:0.35">
+                                        <DoubleAnimation.EasingFunction>
+                                            <CubicEase EasingMode="EaseOut"/>
+                                        </DoubleAnimation.EasingFunction>
+                                    </DoubleAnimation>
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- FROSTED CHECKBOX (label-aware glass tick) -->
+    <Style x:Key="LiquidGlassCheckBox" TargetType="CheckBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <StackPanel Orientation="Horizontal">
+                        <Border x:Name="Box" Width="20" Height="20" CornerRadius="6"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1"
+                                Effect="{DynamicResource GlassShadowSoftBorder}"
+                                VerticalAlignment="Center">
+                            <Border Height="7" CornerRadius="6,6,0,0" VerticalAlignment="Top"
+                                    Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
+                            <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Visibility="Collapsed"/>
+                        </Border>
+                        <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- TEXTBOX (FROSTED INPUT) -->
+    <Style x:Key="LiquidGlassTextBox" TargetType="TextBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Bd" CornerRadius="16"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- PASSWORD BOX (FROSTED INPUT) -->
+    <Style x:Key="LiquidGlassPasswordBox" TargetType="PasswordBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="PasswordBox">
+                    <Border x:Name="Bd" CornerRadius="16"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="Bd" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- COMBOBOX / DROPDOWN -->
+    <Style x:Key="LiquidGlassComboBox" TargetType="ComboBox">
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ComboBox">
+                    <Grid>
+                        <ToggleButton x:Name="Toggle" Focusable="False" ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="Chrome" CornerRadius="16"
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="1"
+                                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                                        <Border Height="10" CornerRadius="16,16,0,0" VerticalAlignment="Top"
+                                                Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                        <ContentPresenter Margin="14,0,32,0" VerticalAlignment="Center"
+                                          Content="{TemplateBinding SelectionBoxItem}"
+                                          ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
+                        <TextBlock x:Name="Arrow" Text="&#xE70D;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10" Foreground="{DynamicResource TextSecondaryBrush}"
+                                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,14,0"
+                                   IsHitTestVisible="False"/>
+                        <Popup x:Name="Popup" Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}"
+                               AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
+                            <Border x:Name="DropDownBorder" MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                    CornerRadius="16" Margin="0,6,0,0"
+                                    Background="{DynamicResource GlassSurfaceElevated}"
+                                    BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                    BorderThickness="1"
+                                    Effect="{DynamicResource GlassShadowPanelBorder}">
+                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEditable" Value="True">
+                            <Setter Property="IsTabStop" Value="False"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- SLIDER (LIQUID TRACK) -->
+    <Style x:Key="LiquidGlassSlider" TargetType="Slider">
+        <Setter Property="Foreground" Value="{DynamicResource AccentBlueColor}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Height" Value="24"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Slider">
+                    <Grid Height="24" VerticalAlignment="Center">
+                        <Border x:Name="Track" Height="6" CornerRadius="3"
+                                Background="{DynamicResource GlassGradientIdle}"
+                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                BorderThickness="1" VerticalAlignment="Center"/>
+                        <Border x:Name="Fill" Height="6" CornerRadius="3" HorizontalAlignment="Left"
+                                Background="{DynamicResource GlassGradientActive}" VerticalAlignment="Center"/>
+                        <Thumb x:Name="Thumb" Width="18" Height="18">
+                            <Thumb.Template>
+                                <ControlTemplate TargetType="Thumb">
+                                    <Border CornerRadius="9"
+                                            Background="{DynamicResource GlassSurfaceElevated}"
+                                            BorderBrush="{DynamicResource GlassBorderBright}"
+                                            BorderThickness="1"
+                                            Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                                </ControlTemplate>
+                            </Thumb.Template>
+                        </Thumb>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- SCROLLBAR (THIN GLASS) -->
+    <Style x:Key="LiquidGlassScrollBar" TargetType="ScrollBar">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Width" Value="8"/>
+        <Setter Property="Opacity" Value="0.6"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid>
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border CornerRadius="4"
+                                                    Background="{DynamicResource GlassBorderPrimary}"/>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

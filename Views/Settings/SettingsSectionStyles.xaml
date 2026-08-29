@@ -46,8 +46,8 @@
          erased the coloured card edges the user relies on - do not repeat
          that. Neutral hairlines belong on plain surfaces, not on these. -->
     <Style x:Key="SectionCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="Padding"             Value="24,20"/>
@@ -57,13 +57,13 @@
     </Style>
 
     <Style x:Key="InfoCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource TintIndigoBrush}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceUltra}"/>
         <!-- Was StaticResource PillBorderLightBrush, a frozen #93C5FD.
              StaticResource resolves ONCE at load, so this keyline could
              never follow a Light/Dark swap or a Monet/Professional
              recolour - which is why the About and Help cards stayed pale
              blue while Appearance adapted. Now the shared dynamic token. -->
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"             Value="22,18"/>
@@ -81,8 +81,8 @@
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -91,7 +91,7 @@
     <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
@@ -99,7 +99,7 @@
     <Style x:Key="InfoCardBodyStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="LineHeight"       Value="20"/>
-        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
         <Setter Property="Margin"           Value="0,10,0,0"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
@@ -108,7 +108,7 @@
     <Style x:Key="InfoCardBulletStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="LineHeight"       Value="19"/>
-        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
         <Setter Property="Margin"           Value="0,6,0,0"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
@@ -117,7 +117,7 @@
     <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"           Value="0,0,0,10"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
@@ -125,13 +125,13 @@
     <Style x:Key="RowTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="HintTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
@@ -139,28 +139,28 @@
     <Style x:Key="LabelStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="ValueStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
     <!-- Page header used at the top of every section. -->
     <Style x:Key="PageTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextDisplay}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Margin"           Value="0,4,0,0"/>
-        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
         <!-- LAYOUT FIX: was missing, unlike HintTextStyle. Without it a
              long subtitle (the AI & Agent page has the longest in the app
@@ -174,116 +174,13 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- iOS-style animated toggle switch. -->
-    <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
-        <Setter Property="Width"               Value="56"/>
-        <Setter Property="Height"              Value="28"/>
-        <Setter Property="Cursor"              Value="Hand"/>
-        <Setter Property="BorderThickness"     Value="0"/>
-        <!-- NOTE: must be a LITERAL color, not a DynamicResource. The
-             ControlTemplate's trigger Storyboard animates
-             (Border.Background).(SolidColorBrush.Color), and a Storyboard
-             that references a DynamicResource (or a shared frozen brush)
-             cannot be frozen when the Style is sealed → it throws
-             "Cannot freeze this Storyboard timeline tree" at runtime. -->
-        <Setter Property="Background"          Value="#CBD5E1"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
-                    <Grid SnapsToDevicePixels="True">
-                        <Border x:Name="Track"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{TemplateBinding Background}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True"/>
-                        <TextBlock x:Name="OffLabel" Text="OFF"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="White"
-                                   HorizontalAlignment="Right"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,9,0"
-                                   IsHitTestVisible="False"/>
-                        <TextBlock x:Name="OnLabel" Text="ON"
-                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
-                                   Foreground="White"
-                                   HorizontalAlignment="Left"
-                                   VerticalAlignment="Center"
-                                   Margin="9,0,0,0"
-                                   Opacity="0"
-                                   IsHitTestVisible="False"/>
-                        <Ellipse x:Name="Thumb"
-                                 Width="22" Height="22" Fill="White"
-                                 HorizontalAlignment="Left"
-                                 Margin="3,0,0,0"
-                                 SnapsToDevicePixels="True">
-                            <Ellipse.RenderTransform>
-                                <TranslateTransform x:Name="ThumbTransform" X="0"/>
-                            </Ellipse.RenderTransform>
-                        </Ellipse>
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="ThumbTransform"
-                                            Storyboard.TargetProperty="X"
-                                            To="28" Duration="0:0:0.2">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="OffLabel"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="0" Duration="0:0:0.15"/>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="OnLabel"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1" Duration="0:0:0.15"/>
-                                        <ColorAnimation
-                                            Storyboard.TargetName="Track"
-                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="#1D4ED8" Duration="0:0:0.2"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="ThumbTransform"
-                                            Storyboard.TargetProperty="X"
-                                            To="0" Duration="0:0:0.2">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="OffLabel"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1" Duration="0:0:0.15"/>
-                                        <DoubleAnimation
-                                            Storyboard.TargetName="OnLabel"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="0" Duration="0:0:0.15"/>
-                                        <ColorAnimation
-                                            Storyboard.TargetName="Track"
-                                            Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            To="#CBD5E1" Duration="0:0:0.2"/>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton"
+           BasedOn="{StaticResource LiquidGlassToggleSwitch}">
+        <!-- 2026-08-29: the app's toggle is now the canonical Liquid
+             Glass switch (frosted track, white top glare, blue liquid
+             active state, squish press, sliding thumb). -->
+        <Setter Property="Width"  Value="56"/>
+        <Setter Property="Height" Value="28"/>
     </Style>
 
     <!-- Rounded password box (API keys). -->
@@ -292,10 +189,10 @@
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background"               Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderThickness"          Value="1.5"/>
-        <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="SnapsToDevicePixels"      Value="True"/>
         <Setter Property="UseLayoutRounding"        Value="True"/>
         <Setter Property="Template">
@@ -318,11 +215,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Root" Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassBorderSoft}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
                             <Setter TargetName="Root" Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassBorderSoft}"/>
                             <Setter TargetName="Root" Property="BorderThickness"
                                     Value="2"/>
                         </Trigger>
@@ -342,7 +239,7 @@
         <Setter Property="Margin"              Value="0,0,8,8"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"          Value="SemiBold"/>
-        <Setter Property="Foreground"          Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"          Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="Template">
@@ -362,7 +259,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassBorderSoft}"/>
                             <Setter TargetName="bd" Property="Opacity" Value="0.92"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
@@ -370,7 +267,7 @@
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="bd" Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassBorderSoft}"/>
                             <Setter TargetName="bd" Property="BorderThickness"
                                     Value="1.5"/>
                         </Trigger>
@@ -387,7 +284,7 @@
          per-provider DataTrigger (BasedOn in the card). -->
     <Style x:Key="ProviderSelectButtonStyle" TargetType="Button">
         <Setter Property="Content"             Value="SELECT"/>
-        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="Height"              Value="28"/>
         <Setter Property="Padding"             Value="12,0"/>
         <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
@@ -430,8 +327,8 @@
     <Style x:Key="DownloadProgressBarStyle" TargetType="ProgressBar">
         <Setter Property="Height"              Value="8"/>
         <Setter Property="Maximum"             Value="100"/>
-        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="Background"          Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceElevated}"/>
         <Setter Property="BorderThickness"     Value="0"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
@@ -465,8 +362,8 @@
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -511,14 +408,14 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
                         </Trigger>
                         <Trigger Property="Tag" Value="Active">
                             <Setter TargetName="Bd" Property="Background"
-                                    Value="{DynamicResource TintIndigoBrush}"/>
+                                    Value="{DynamicResource GlassSurfaceUltra}"/>
                             <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -534,7 +431,7 @@
         <Setter Property="Width"             Value="22"/>
         <Setter Property="TextAlignment"     Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
@@ -544,7 +441,7 @@
         <Setter Property="FontWeight"        Value="SemiBold"/>
         <Setter Property="Margin"            Value="10,0,0,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
@@ -563,7 +460,7 @@
     <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"             Value="Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
-        <Setter Property="Foreground"             Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"             Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="HorizontalAlignment"    Value="Center"/>
         <Setter Property="VerticalAlignment"      Value="Center"/>
         <Setter Property="IsHitTestVisible"       Value="False"/>
@@ -616,14 +513,14 @@
     <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
-        <Setter Property="Foreground"       Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="Margin"           Value="0,4,0,0"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"           Value="0,4,0,14"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
@@ -636,8 +533,8 @@
         <Setter Property="Padding"             Value="18,16"/>
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="BorderThickness"     Value="1"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
@@ -673,21 +570,21 @@
         <Setter Property="TextAlignment"     Value="Center"/>
         <Setter Property="Margin"            Value="0,0,10,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
-        <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="SettingsTileCaptionStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"           Value="0,0,0,12"/>
         <Setter Property="LineHeight"       Value="16"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
@@ -696,7 +593,7 @@
 
     <Style x:Key="SettingsTileFooterHintStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-        <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"           Value="0,10,0,0"/>
         <Setter Property="LineHeight"       Value="15"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
@@ -706,7 +603,7 @@
     <Style x:Key="SettingsTileHeroStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
         <Setter Property="FontWeight"          Value="Bold"/>
-        <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground"          Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="Margin"              Value="0,4,0,0"/>
         <Setter Property="IsHitTestVisible"    Value="False"/>
@@ -744,7 +641,7 @@
         <Setter Property="Margin" Value="0,0,8,0"/>
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
@@ -765,15 +662,15 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">

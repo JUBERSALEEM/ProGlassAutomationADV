@@ -81,10 +81,11 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FontFamily="{DynamicResource AppFontFamily}"
+        Style="{StaticResource LiquidGlassWindow}"
         FontWeight="{DynamicResource AppFontWeight}"
         FontStyle="{DynamicResource AppFontStyle}"
         Icon="pack://application:,,,/favicon.ico"
-        Background="{DynamicResource WindowBackgroundBrush}"
+        Background="{DynamicResource AppBackgroundBrush}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Fixed"
@@ -1088,7 +1089,7 @@
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     Panel.ZIndex="10"
-                    Effect="{StaticResource DrawerLeftShadow}"
+                    Effect="{StaticResource GlassShadowPanelBorder}"
                     SnapsToDevicePixels="True"
                     ClipToBounds="True">
                 <Border.Style>
@@ -1561,7 +1562,7 @@
                     ClipToBounds="True"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    Effect="{StaticResource DrawerLeftShadow}"
+                    Effect="{StaticResource GlassShadowPanelBorder}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
@@ -1649,5 +1650,15 @@
             <viewsShared:ScreenRecordPanel x:Name="ScreenRecordPanelHost"
                                            />
         </Popup>
+
+        <!-- Liquid Glass catch-light: the white top highlight that makes
+             the whole window read as frosted glass, layered over the
+             app background. Purely decorative, never hit-testable. -->
+        <Border IsHitTestVisible="False"
+                Height="140"
+                VerticalAlignment="Top"
+                Background="{DynamicResource GlassTopReflection}"
+                Opacity="0.45"
+                Panel.ZIndex="99"/>
 </Grid>
 </Window>

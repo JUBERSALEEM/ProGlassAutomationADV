@@ -93,9 +93,9 @@
          (#FFFFFF light / #273449 dark) so one style serves both. -->
     <Style x:Key="DashCardStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource DashLiquidSurfaceBrush}"/>
+                Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource DashLiquidBorderBrush}"/>
+                Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>
@@ -112,7 +112,7 @@
     <Style x:Key="DashTileStyle" TargetType="Border">
         <Setter Property="Background"
                 Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="12,10"/>
@@ -241,7 +241,7 @@
         <Setter Property="Width" Value="3"/>
         <Setter Property="CornerRadius" Value="2"/>
         <Setter Property="Margin" Value="0,0,10,0"/>
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding Accent}" Value="Green">
@@ -267,7 +267,7 @@
         <Setter Property="Height" Value="26"/>
         <Setter Property="CornerRadius" Value="7"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
         <Style.Triggers>
             <DataTrigger Binding="{Binding Accent}" Value="Green">
                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -318,7 +318,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome"
-                            Background="{DynamicResource ElevatedSurfaceBrush}"
+                            Background="{DynamicResource GlassSurfaceStandard}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource CardCornerRadius}"
@@ -345,7 +345,7 @@
                             <Setter TargetName="Chrome" Property="Background"
                                     Value="{DynamicResource MenuHoverBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassGradientActive}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.75"/>
@@ -593,7 +593,7 @@
     <!-- The reference's SectionBorderStyle. -->
     <Style x:Key="SoftCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
@@ -624,7 +624,7 @@
          softening the very numbers this dashboard exists to show. -->
     <Style x:Key="SoftTileStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
@@ -633,7 +633,7 @@
 
     <!-- Hero band — radius 22, no border, per the reference. -->
     <Style x:Key="SoftHeroStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Background"   Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
@@ -645,7 +645,7 @@
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Background"   Value="{DynamicResource TintGrayBrush}"/>
         <Setter Property="CornerRadius" Value="12"/>
@@ -656,7 +656,7 @@
     <!-- Inner neutral tile (sales-team chips, list rows). -->
     <Style x:Key="SoftInsetStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="Padding"         Value="12"/>
@@ -840,7 +840,7 @@
 
     <Style x:Key="SoftPillAccentStyle" TargetType="Button"
            BasedOn="{StaticResource SoftPillButtonStyle}">
-        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
         <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="FontWeight" Value="Bold"/>
     </Style>
@@ -930,7 +930,7 @@
                 <Border>
                     <Border.Style>
                         <Style TargetType="Border" BasedOn="{StaticResource SoftBadgeStyle}">
-                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="Background" Value="{DynamicResource GlassGradientActive}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Accent}" Value="Green">
                                     <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>

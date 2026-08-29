@@ -20,7 +20,7 @@
     <Style x:Key="StatNumberStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextDisplayLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         <Setter Property="TextOptions.TextRenderingMode"  Value="ClearType"/>
     </Style>
@@ -29,14 +29,14 @@
     <Style x:Key="MediumNumberStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
     </Style>
 
     <!-- Page title (e.g. "Dashboard", "Sheet Store") -->
     <Style x:Key="PageTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize"   Value="30"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
         <Setter Property="TextOptions.TextRenderingMode"  Value="ClearType"/>
     </Style>
@@ -45,7 +45,7 @@
     <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"     Value="0,4,0,0"/>
     </Style>
 
@@ -53,7 +53,7 @@
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>
     </Style>
 
@@ -61,7 +61,7 @@
     <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Margin"     Value="0,0,0,10"/>
     </Style>
 
@@ -69,14 +69,14 @@
     <Style x:Key="CardTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     </Style>
 
     <!-- Card subtitle (small text under card value, e.g. "VAT inclusive") -->
     <Style x:Key="CardSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Normal"/>
-        <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="Margin"       Value="0,6,0,0"/>
     </Style>
@@ -85,14 +85,14 @@
     <Style x:Key="MetaTextStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Normal"/>
-        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
     </Style>
 
     <!-- Row title in list cards (e.g. task name, invoice number) -->
     <Style x:Key="RowTitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"   Value="SemiBold"/>
-        <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
@@ -100,7 +100,7 @@
     <Style x:Key="RowSubtitleStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Normal"/>
-        <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         <Setter Property="Margin"       Value="0,3,0,0"/>
     </Style>
@@ -116,7 +116,7 @@
     <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
         <Setter Property="Padding"    Value="8,6"/>
     </Style>
 

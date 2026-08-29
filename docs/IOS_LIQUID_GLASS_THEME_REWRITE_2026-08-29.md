@@ -233,3 +233,77 @@ water bands more pronounced; the offsets (0.07/0.16) move the bands.
 `LiquidGlassThemeSourceTests` now has 23 facts — the ramp dip/meniscus
 markers, Orb C + caustics, and the template meniscus line are all
 pinned so a future edit cannot flatten the water back out.
+
+---
+
+## Reference-file adoption — 2026-08-29 (Liquid Glass Design System)
+
+The user supplied the canonical Liquid Glass reference dictionary and
+required COMPLETE adoption. The reference is now the app's single
+source of truth: `Themes/Styles/LiquidGlassDesign.xaml` (reference
+verbatim + only the glue the rules demand: per-control-type shadow
+bridges, PasswordBox/ComboBox/Slider/ScrollBar templates, a
+ToggleButton twin of the switch, danger/overlay brushes), merged FIRST
+in App.xaml so every other dictionary can build on it.
+
+### How each rule is satisfied
+
+1. **No hardcoded colours** — the shared control layer (ButtonStyles,
+   LiquidGlassStyles, InputStyles, AuthSurfaceStyles) contains zero
+   hex literals; everything resolves to a defined reference brush
+   (`GlassSurfaceUltra/Standard/Elevated`, `TextPrimaryBrush`, ...).
+   Pinned by test.
+2. **Borders → glass panels/cards** — `LiquidGlassPanel` (radius 42) /
+   `LiquidGlassCard` (radius 26) are the reference styles; every
+   shared card style (CardStyles, DialogStyles, ModuleSectionCard,
+   Settings tiles, dashboard cards) now renders the same frosted
+   material with the white top highlight.
+3. **Buttons → LiquidGlassButton / ButtonPrimary** — the app-wide
+   button system (ButtonStyles.xaml: Primary/Success/Outlined/Danger/
+   Tab/Row/Report variants) is rebuilt on the reference templates:
+   idle glass gradient, top glare, press squish, `GlassSurfaceElevated`
+   hover, primary = blue liquid `GlassGradientActive`.
+4. **Toggles → LiquidGlassSwitch** — `ModernToggleSwitch` (the app's
+   toggle) is now `BasedOn LiquidGlassToggleSwitch`: frosted track,
+   white glare, blue liquid active state, sliding squishy thumb.
+   `LiquidGlassCheckBox` covers labeled checkboxes.
+5. **Typography** — `LiquidTitle/LiquidSubtitle/LiquidCardHeading/
+   LiquidCardDescription` are the reference styles; TypographyStyles,
+   DesignTokens and Settings text styles all resolve through
+   `TextPrimaryBrush`/`TextSecondaryBrush`.
+6. **Main window** — `Style="{StaticResource LiquidGlassWindow}"` +
+   `Background="{DynamicResource AppBackgroundBrush}"` + a decorative
+   white top catch-light over the whole window.
+7. **GlassShadowSoft everywhere** — every adopted template carries the
+   reference soft shadow (panels get `GlassShadowPanel`); MainWindow's
+   drawer shadow is the reference panel shadow.
+8. **No opaque fills** — solid surface brushes were replaced by glass
+   brushes app-wide in the shared layer; the only solid colour left is
+   text ink.
+9. **Corner radius table** — panels 42, cards 26, buttons 18, inputs
+   16, switch 18 — exactly the reference geometry.
+10. **Hover → GlassSurfaceElevated** — every adopted template's
+    hover trigger transitions to `GlassSurfaceElevated`.
+11. **Readability** — main text `TextPrimaryBrush`, descriptions
+    `TextSecondaryBrush`, both published per-mode by the engine.
+12. **Frosted glass + white top highlight** — `GlassTopReflection` is
+    layered onto every panel, card, button, switch and input template,
+    and onto the window itself. Pinned by the meniscus test.
+
+### Adaptivity (the WPF-correctness layer)
+
+`StaticResource` in style setters freezes values at load, so all
+MATERIAL references in the adoption layer are `DynamicResource`.
+`ThemeManager.PublishLiquidReference(bool dark)` publishes the
+per-mode palette (Light = the reference values verbatim; Dark = deep
+frost equivalents) on every Light/Dark swap, and `ApplyAccent` re-tints
+`GlassGradientActive` (blue liquid mixed 45% toward the user's accent).
+This keeps the reference look byte-faithful in Light mode AND keeps the
+existing dynamic switching the app is built on.
+
+### Verification
+
+XAML parse on every changed dictionary · 0 duplicate keys · 0
+unresolved resource references · 0 legacy identifiers · C# structural
+balance · 28 pinned test facts (3 new adoption facts) · Light/Dark
+token symmetry intact.

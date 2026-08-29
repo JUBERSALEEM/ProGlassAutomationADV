@@ -18,15 +18,15 @@
     <!-- ── TextBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="{DynamicResource GlassSurfaceStandard}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -39,10 +39,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -57,15 +59,15 @@
     <!-- ── PasswordBox ───────────────────────────────────────────────── -->
     <Style x:Key="ModernPasswordBoxStyle" TargetType="PasswordBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="{DynamicResource GlassSurfaceStandard}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -78,10 +80,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -107,9 +111,9 @@
     ──────────────────────────────────────────────────────────────── -->
     <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
         <Setter Property="Height" Value="34"/>
@@ -163,7 +167,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                <Border Background="{DynamicResource GlassSurfaceElevated}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -178,14 +182,17 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsDropDownOpen" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -200,9 +207,9 @@
     <!-- ── ComboBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
         <Setter Property="Height" Value="34"/>
@@ -253,7 +260,7 @@
                                    Focusable="False"
                                    PopupAnimation="Fade"
                                    StaysOpen="False">
-                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                <Border Background="{DynamicResource GlassSurfaceElevated}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
@@ -268,14 +275,17 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsDropDownOpen" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -308,7 +318,7 @@
     <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}"/>
 
     <Style TargetType="ComboBoxItem">
-        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="12,8"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
@@ -328,11 +338,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource GlassSurfaceStandard}"/>
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                    Value="{DynamicResource GlassSurfaceStandard}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
