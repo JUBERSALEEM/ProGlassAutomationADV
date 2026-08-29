@@ -444,7 +444,7 @@
     <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
-    <Thickness x:Key="CardBorderThickness">0.5</Thickness>
+    <Thickness x:Key="CardBorderThickness">1.5</Thickness>
 
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -522,10 +522,13 @@
         <GradientStop Color="#18FFFFFF" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassBorderGradientCrystal" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#38FFFFFF" Offset="0"/>
-        <GradientStop Color="#18FFFFFF" Offset="0.3"/>
-        <GradientStop Color="#28FFFFFF" Offset="0.7"/>
-        <GradientStop Color="#20FFFFFF" Offset="1"/>
+        <GradientStop Color="#E8FFFFFF" Offset="0.00"/>
+        <GradientStop Color="#B0FFFFFF" Offset="0.15"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.35"/>
+        <GradientStop Color="#60FFFFFF" Offset="0.50"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.65"/>
+        <GradientStop Color="#B0FFFFFF" Offset="0.85"/>
+        <GradientStop Color="#D8FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
 
     <!-- ═══ Phase 1: Glass Highlights & Reflections (Dark) ═══ -->

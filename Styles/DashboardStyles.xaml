@@ -594,6 +594,7 @@
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -625,6 +626,7 @@
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="16,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -646,6 +648,7 @@
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="Background"   Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"      Value="10"/>
@@ -657,6 +660,7 @@
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>

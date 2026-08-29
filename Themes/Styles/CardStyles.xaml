@@ -25,8 +25,9 @@
 
     <Style x:Key="BaseCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"         Value="24"/>
         <Setter Property="Margin"          Value="8"/>

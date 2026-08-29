@@ -53,8 +53,9 @@
     -->
     <Style x:Key="AboutCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{DynamicResource LiquidCard}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource AboutCardBorderBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness"     Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Aliased"/>
         <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"             Value="30,26"/>
         <Setter Property="Margin"              Value="0,0,0,20"/>

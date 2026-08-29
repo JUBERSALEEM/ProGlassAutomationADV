@@ -88,7 +88,7 @@
         Background="{DynamicResource WindowBackgroundBrush}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
-        TextOptions.TextHintingMode="Fixed"
+        TextOptions.TextHintingMode="Auto"
         RenderOptions.BitmapScalingMode="HighQuality"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
