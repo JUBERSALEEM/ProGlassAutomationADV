@@ -86,6 +86,13 @@
     <SolidColorBrush x:Key="GlassMuted"
                      Color="#475569"
                      po:Freeze="True"/>
+    <!-- iOS-glass specular top edge for shared cards: transparent in
+         every non-glass visual family; VisualThemeEngine writes a
+         white-alpha value for Glass/Glassy so cards carry the crisp
+         top light of Apple's materials. -->
+    <SolidColorBrush x:Key="GlassEdgeBrush"
+                     Color="#00000000"
+                     po:Freeze="True"/>
     <!-- Frosted card fill (near-opaque white → pale slate so the card
          reads against the white module surface) + sheen. -->
     <LinearGradientBrush x:Key="GlassCard"

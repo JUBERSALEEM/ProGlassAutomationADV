@@ -78,6 +78,30 @@
                 Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Border">
+                    <Grid>
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <!-- iOS-glass specular top edge. GlassEdgeBrush is
+                             transparent in non-glass families, white-alpha
+                             in Glass/Glassy (set by VisualThemeEngine). -->
+                        <Border Height="1"
+                                VerticalAlignment="Top"
+                                Margin="1,1,1,0"
+                                CornerRadius="1"
+                                Background="{DynamicResource GlassEdgeBrush}"
+                                IsHitTestVisible="False"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ══ COLUMN / FIELD LABELS ═════════════════════════════════════ -->

@@ -93,6 +93,10 @@ namespace ProGlassAutomation.Services.Theme
             "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
             "ShellGlassBrush", "SidebarCardBrush",
 
+            // Specular top edge for shared cards (iOS-glass detail):
+            // white-alpha in Glass/Glassy, transparent elsewhere.
+            "GlassEdgeBrush",
+
             // Glassy typography: the About page's own text palette
             // (GlassSnow / GlassCerulean / GlassMuted) is applied so
             // text auto-adapts when every card goes transparent.
@@ -724,9 +728,27 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadiusLarge"] = new CornerRadius(18);
             resources["ControlCornerRadius"] = new CornerRadius(10);
 
+            // Specular top light — the crisp 1px white edge Apple's
+            // glass materials carry on their upper border.
+            SetGlassEdgeHighlight(resources, dark);
+
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x4A, 0x5E, 0x7E)
                 : Color.FromRgb(0x9C, 0xB2, 0xD0));
+        }
+
+        /// <summary>
+        /// White specular edge brush for the shared card templates.
+        /// Brighter on the light theme (the frost sits on an icy stage,
+        /// so the edge must be more visible); softer on dark.
+        /// </summary>
+        private static void SetGlassEdgeHighlight(
+            ResourceDictionary resources, bool dark)
+        {
+            var edge = new SolidColorBrush(Color.FromArgb(
+                dark ? (byte)0x30 : (byte)0x5A, 0xFF, 0xFF, 0xFF));
+            edge.Freeze();
+            resources["GlassEdgeBrush"] = edge;
         }
 
         // ── GLASSY — the About page's look, app-wide ─────────────────
@@ -840,6 +862,9 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadius"] = new CornerRadius(14);
             resources["CardCornerRadiusLarge"] = new CornerRadius(18);
             resources["ControlCornerRadius"] = new CornerRadius(10);
+
+            // Specular top light on every shared card (iOS-glass edge).
+            SetGlassEdgeHighlight(resources, dark);
 
             // ApplyKeyline is the documented no-op — the accent owns
             // the keyline; the call keeps the family's intended edge
