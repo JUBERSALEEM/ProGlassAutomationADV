@@ -87,3 +87,27 @@ use the higher no-chrome alphas — contrast never collapses.
 - Regression risk on Dark and on Normal/Monet/Professional/Ocean:
   minimal — dark ramps untouched, Monet's surface tint change is a
   subtle whiter light glass only.
+
+## 6. Second pass (2026-08-29, later) — "fully transparent" upgrade
+
+User follow-up demanded FULLY transparent white water glass. Cross-check
+confirmed the pipeline is coherent (cards consume surfaces via
+DynamicResource; the engine rebuilds on navigation; the DWM veil is
+wired; font preference restores Glassy text last), so this pass pushed
+the material further instead of re-applying the previous fix:
+
+- Light Glassy ramp thinned: ModuleBackground 0.82→0.48,
+  Elevated 0.86→0.55, SideMenu 0.90→0.62, MenuHover 0.46→0.26,
+  SidebarCard 0.80→0.46, ShellGlass 0.86→0.55, DashGlass 0.82→0.50.
+  The panes are now genuinely see-through; readability is preserved
+  because they sit on the BRIGHT blurred backdrop, never over raw
+  desktop contrast.
+- Light window veil thinned: 0x40 → 0x30 (dark stays 0x40) so the
+  white acrylic blur reads through the window clearly.
+- Light GlassCard (About) thinned to #DBFFFFFF → #BDFFFFFF →
+  #9EFFFFFF (0.86 → 0.74 → 0.62) with the specular sheen raised to
+  #8CFFFFFF.
+- New source-test suite Tests/Agent/GlassThemeSourceTests.cs pins the
+  design: light ramp numbers, thin veil, translucent GlassCard,
+  XAML↔engine orb verbatim equality, decoupled text constants,
+  DynamicResource surface consumption, dark ramp untouched.

@@ -793,9 +793,15 @@ namespace ProGlassAutomation.Services.Theme
             // shows through the whole window — the orbs keep their glow
             // on top. Without it the stage stays opaque so Glassy still
             // reads correctly on systems without backdrop blur.
+            // iOS-glass mode: the stage base becomes a translucent veil
+            // over the DWM acrylic backdrop. LIGHT gets a thinner veil
+            // (0x30) than dark (0x40) so the white water-glass window
+            // lets the blurred desktop shine through clearly.
             resources["WindowBackgroundBrush"] = BuildGlassStageBrush(
                 dark, accent,
-                GlassChromeService.IsSupported ? (byte)0x40 : (byte)0xFF);
+                GlassChromeService.IsSupported
+                    ? (dark ? (byte)0x40 : (byte)0x30)
+                    : (byte)0xFF);
 
             // ── 2) CARD SURFACES — white water glass (light) /
             //        deep-frost glass (dark) ──────────────────────────
@@ -824,17 +830,20 @@ namespace ProGlassAutomation.Services.Theme
             }
             else
             {
-                // WHITE WATER GLASS (2026-08-29): translucent white
-                // panes, densest at the top, see-through at the lower
-                // edge — the iPhone-17-style light material over the
-                // bright ice stage / blurred desktop.
-                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.88, 0.58);
-                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.92, 0.64);
-                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.95, 0.70);
-                resources["MenuHoverBrush"] = GlassFill(accent, 0.52, 0.34);
-                resources["SidebarCardBrush"] = GlassFill(accent, 0.86, 0.56);
-                resources["ShellGlassBrush"] = GlassFill(accent, 0.92, 0.62);
-                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.88, 0.58);
+                // WHITE WATER GLASS (2026-08-29, transparency pass 2):
+                // fully see-through white panes — densest at the top
+                // where iOS light materials catch the light, thinning
+                // toward the lower edge so the blurred desktop / ice
+                // stage genuinely reads through every card. Text stays
+                // readable because the pane sits on the BRIGHT blurred
+                // backdrop (never over raw desktop contrast).
+                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.82, 0.48);
+                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.86, 0.55);
+                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.90, 0.62);
+                resources["MenuHoverBrush"] = GlassFill(accent, 0.46, 0.26);
+                resources["SidebarCardBrush"] = GlassFill(accent, 0.80, 0.46);
+                resources["ShellGlassBrush"] = GlassFill(accent, 0.86, 0.55);
+                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.82, 0.50);
 
                 // ── 3) DASHBOARD AMBIENT — soft blue glow under the
                 //        white panes (slightly stronger than dark's so

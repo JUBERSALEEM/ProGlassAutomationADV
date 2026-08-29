@@ -86,18 +86,18 @@
     <SolidColorBrush x:Key="GlassMuted"
                      Color="#475569"
                      po:Freeze="True"/>
-    <!-- Frosted card fill — TRUE white water glass (2026-08-29):
-         translucent white, densest at the top where iOS light
-         materials catch the light, thinning toward the bottom edge so
-         the stage / wallpaper / blurred backdrop reads through
-         (alpha 0xE6 → 0xBF). Previously opaque #FFFFFFFF → #F1F5F9:
-         solid white, no translucency — not glass. -->
+    <!-- Frosted card fill — TRUE white water glass (2026-08-29,
+         transparency pass 2): translucent white, densest at the top
+         where iOS light materials catch the light, thinning toward the
+         bottom edge so the stage / wallpaper / blurred desktop reads
+         through (alpha 0.86 → 0.74 → 0.62). Previously opaque
+         #FFFFFFFF → #F1F5F9: solid white, no translucency — not glass. -->
     <LinearGradientBrush x:Key="GlassCard"
                          StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
-        <GradientStop Color="#E6FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#D1FFFFFF" Offset="0.45"/>
-        <GradientStop Color="#BFFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#DBFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#BDFFFFFF" Offset="0.45"/>
+        <GradientStop Color="#9EFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Top-light specular sheen: strong white highlight at the top
          corner fading out — the "water glass" catch-light. Previously
@@ -105,7 +105,7 @@
     <LinearGradientBrush x:Key="GlassSheen"
                          StartPoint="0,0" EndPoint="1,1"
                          po:Freeze="True">
-        <GradientStop Color="#80FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#8CFFFFFF" Offset="0.0"/>
         <GradientStop Color="#00FFFFFF" Offset="0.45"/>
     </LinearGradientBrush>
     <!-- Decorative aurora orbs — boosted for the light stage so the
