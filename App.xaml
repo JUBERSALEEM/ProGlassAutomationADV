@@ -117,15 +117,9 @@
             <BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVis"/>
 
-            <!-- Density defaults (overwritten at startup by ThemeManager). -->
-            <sys:Double x:Key="DensityInputHeight">28</sys:Double>
-            <sys:Double x:Key="DensityButtonHeight">30</sys:Double>
-            <sys:Double x:Key="DensityRowHeight">26</sys:Double>
-            <sys:Double x:Key="DensityTitleFontSize">17</sys:Double>
-            <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
-            <sys:Double x:Key="DensityBodyFontSize">13</sys:Double>
-            <sys:Double x:Key="DensityButtonMinWidth">84</sys:Double>
             <sys:Double x:Key="UiScale">1.0</sys:Double>
+
+            <!-- Density defaults (overwritten at startup by ThemeManager). -->
 
             <!-- ══════════════════════════════════════════════════════════
                      CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
