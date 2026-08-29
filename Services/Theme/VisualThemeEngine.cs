@@ -121,6 +121,9 @@ namespace ProGlassAutomation.Services.Theme
             "GlassShadowSoftButton", "GlassShadowSoftCheckBox",
             "GlassShadowSoftTextBox", "GlassShadowSoftToggle",
             "LiquidCard",
+            "AboutInteractiveBrush", "AboutInteractiveHoverBrush",
+            "AboutInteractiveBorderBrush", "AboutInteractiveBorderStrongBrush",
+            "AboutCardBorderBrush", "AboutDividerBrush",
 
             // Liquid typography: the About page's text palette is
             // applied so text auto-adapts when every card goes
@@ -1788,6 +1791,17 @@ namespace ProGlassAutomation.Services.Theme
 
             // About module card fill (DynamicResource LiquidCard)
             resources["LiquidCard"] = crystalFill;
+
+            // About module inner panels, chips, icon tiles, license panels
+            // — all use AboutInteractiveBrush (40 consumers)
+            resources["AboutInteractiveBrush"] = crystalFill;
+            resources["AboutInteractiveHoverBrush"] = hoverFill;
+            resources["AboutInteractiveBorderBrush"] = crystalBorder;
+            resources["AboutInteractiveBorderStrongBrush"] =
+                new SolidColorBrush(Color.FromArgb(0x61, 0xFF, 0xFF, 0xFF));
+            resources["AboutCardBorderBrush"] = crystalBorder;
+            resources["AboutDividerBrush"] =
+                new SolidColorBrush(Color.FromArgb(0x20, 0xFF, 0xFF, 0xFF));
 
             // ── 8) LIQUID GLASS DESIGN TOKENS ──────────────────────
             // The LiquidGlassDesign.xaml control system uses these.
