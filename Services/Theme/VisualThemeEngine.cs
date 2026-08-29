@@ -687,12 +687,14 @@ namespace ProGlassAutomation.Services.Theme
             resources["ModuleBackgroundBrush"] = FrostSurface(
                 resources, "ModuleBackgroundBrush", accent,
                 Colors.White, 0.74, dark);
+            // Elevated surfaces — popups, dialogs, floating panels
+            // Increased opacity to 0.95 for better readability (was 0.82)
             resources["ElevatedSurfaceBrush"] = FrostSurface(
                 resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, 0.82, dark);
+                Colors.White, 0.95, dark);
             resources["SideMenuBackgroundBrush"] = FrostSurface(
                 resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, 0.88, dark);
+                Colors.White, 0.92, dark);
             resources["MenuHoverBrush"] = FrostSurface(
                 resources, "MenuHoverBrush", accent,
                 Color.FromRgb(0xF3, 0xF4, 0xF6), 0.62, dark);
