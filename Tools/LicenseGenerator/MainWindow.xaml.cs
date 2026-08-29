@@ -213,6 +213,17 @@ public partial class MainWindow : Window
     // LICENSE KEY — simple flow handlers
     // ────────────────────────────────────────────────────────────────────
 
+    private void AdvancedFlowToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        // The legacy request/response flow is collapsed by default —
+        // the primary path is generating a license key.
+        bool show = AdvancedRequestPanel.Visibility != Visibility.Visible;
+        AdvancedRequestPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        AdvancedFlowToggleButton.Content = show
+            ? "ADVANCED: PC-ID ACTIVATION REQUEST FLOW (LEGACY) ▴"
+            : "ADVANCED: PC-ID ACTIVATION REQUEST FLOW (LEGACY) ▾";
+    }
+
     private string SelectedKeyEdition() =>
         (KeyEditionCombo.SelectedItem as ComboBoxItem)?.Content as string ?? "Business";
 

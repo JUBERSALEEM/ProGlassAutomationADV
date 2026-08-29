@@ -42,8 +42,8 @@ namespace ProGlassAutomation.Views.Licensing
             RefreshFromService();
 
             HintText.Text =
-                "A 30-day trial starts automatically the first time the app runs on this PC. " +
-                "Paste a vendor-signed license key to activate permanently — the key always takes precedence over the trial.";
+                "Paste the license key your vendor sent you (it starts with PGKEY1). " +
+                "The 30-day trial keeps the app fully usable until the key is applied.";
         }
 
         private void OnLicenseViewUnloaded(object sender, RoutedEventArgs e)
@@ -321,6 +321,17 @@ namespace ProGlassAutomation.Views.Licensing
             }
 
             OnActivated(result);
+        }
+
+        private void AdvancedToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            // The advanced request/response flow is collapsed by default —
+            // the normal path is simply pasting the license key.
+            bool show = AdvancedPanel.Visibility != Visibility.Visible;
+            AdvancedPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+            AdvancedToggleButton.Content = show
+                ? "ADVANCED: ACTIVATION REQUEST (NOT REQUIRED) ▴"
+                : "ADVANCED: ACTIVATION REQUEST (NOT REQUIRED) ▾";
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

@@ -67,7 +67,7 @@ public static class AutoTrialManager
     {
         string machine = string.IsNullOrWhiteSpace(machineFingerprint) ? "" : machineFingerprint;
 
-        TrialLedger.TrialLedgerSnapshot snapshot;
+        TrialLedgerSnapshot snapshot;
         try
         {
             snapshot = TrialLedger.Read(machine);

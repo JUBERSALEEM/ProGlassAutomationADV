@@ -166,6 +166,15 @@
                     </StackPanel>
                 </Border>
 
+                <Button x:Name="AdvancedFlowToggleButton"
+                        Style="{StaticResource GhostButton}"
+                        Content="ADVANCED: PC-ID ACTIVATION REQUEST FLOW (LEGACY) ▾"
+                        Click="AdvancedFlowToggleButton_Click"
+                        HorizontalAlignment="Left"
+                        Margin="0,0,0,12"/>
+
+                <StackPanel x:Name="AdvancedRequestPanel" Visibility="Collapsed">
+
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
                         <TextBlock Text="CUSTOMER ACTIVATION REQUEST (ADVANCED PC-ID FLOW)" Style="{StaticResource SectionLabel}"/>
@@ -306,6 +315,8 @@
                         </StackPanel>
                     </StackPanel>
                 </Border>
+
+                </StackPanel>
 
             </StackPanel>
         </ScrollViewer>

@@ -219,6 +219,28 @@ from type + features, matching the generator's own presets:
   canonical serializer order, and mirror any new type-scale token in
   `Tools/LicenseGenerator/Theme.xaml` (standalone assembly).
 
+## 8. Errata & follow-up (same day)
+
+- **CS0426 `TrialLedgerSnapshot`**: `TrialLedgerSnapshot` is a
+  namespace-level record (it is NOT nested inside `TrialLedger`); the
+  first draft of `AutoTrialManager` referenced it as
+  `TrialLedger.TrialLedgerSnapshot`. Fixed — `HeartbeatResult`, by
+  contrast, IS nested and stays `TrialLedger.HeartbeatResult`.
+- **CS0102/CS0229 generator `KeyOutputBox`**: the pre-existing
+  response-result box already used that `x:Name`; the new key card
+  duplicated it, which broke the generated partial class and cascaded
+  into spurious CS0103s for every new control. Renamed to
+  `LicenseKeyOutputBox`.
+- **UI simplified further (user feedback: "make it simple, direct to
+  use")**: the activation-request/response UI is no longer part of the
+  primary surface. `LicenseActivationView` now leads with a single
+  LICENSE KEY card (paste → apply), a small read-only PC ID strip, and
+  the legacy request flow collapsed behind an "ADVANCED" toggle. The
+  License Generator likewise opens on the issuer-key + LICENSE KEY
+  cards, with the PC-ID request flow collapsed behind a toggle. All
+  request/response APIs and verification paths remain intact for
+  backwards compatibility; nothing was removed from the security model.
+
 ## 7. Verification performed (no .NET toolchain available in this sandbox)
 
 - Python C# lexer (interpolated / verbatim / raw-string aware): **900
