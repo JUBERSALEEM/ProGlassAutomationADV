@@ -47,42 +47,229 @@
     <!-- ====================================================================== -->
 
     <Style x:Key="LiquidGlassWindow" TargetType="Window">
-        <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrush}"/>
         <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
     </Style>
 
+    <!-- LIQUID GLASS PANEL — slightly elevated glass with crystal border -->
     <Style x:Key="LiquidGlassPanel" TargetType="Border">
-        <Setter Property="CornerRadius" Value="14"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="16,10"/>
-        <Setter Property="Effect" Value="{DynamicResource GlassShadowPanelBorder}"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
     </Style>
 
+    <!-- LIQUID GLASS CARD — layered transparent surface with crystal edge.
+         For full layered composition (specular + reflection + refraction),
+         wrap content in <ContentControl Style="{StaticResource LiquidGlassSurface}">
+         instead of using this Border style directly. -->
     <Style x:Key="LiquidGlassCard" TargetType="Border">
-        <Setter Property="CornerRadius" Value="12"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="12"/>
-        <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
             </Trigger>
         </Style.Triggers>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID GLASS SURFACE SYSTEM — Layered Composition Templates
+         ═══════════════════════════════════════════════════════════════
+
+         Each glass surface is composed of 6 layers:
+           L0  Ambient shadow (DropShadowEffect on outer border)
+           L1  Crystal edge (gradient BorderBrush)
+           L2  Transparent base surface (Background)
+           L3  Internal specular highlight (top edge, white→transparent)
+           L4  Reflection gradient (diagonal, subtle white sweep)
+           L5  Bottom refraction edge (very subtle hue shift)
+           L6  Content layer (ContentPresenter)
+
+         Usage:
+           <ContentControl Style="{StaticResource LiquidGlassSurface}">
+               <YourContent/>
+           </ContentControl>
+
+         Variants: LiquidGlassSurfaceUltraClear, LiquidGlassSurfaceCrystal,
+                   LiquidGlassSurfaceWater, LiquidGlassSurfaceFrosted
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- BASE GLASS SURFACE — standard transparency, crystal edge, full layering -->
+    <Style x:Key="LiquidGlassSurface" TargetType="ContentControl">
+        <Setter Property="Padding" Value="16"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <!-- L0: Ambient + contact shadow -->
+                        <Border x:Name="ShadowHost"
+                                CornerRadius="16"
+                                Effect="{DynamicResource ShadowElevated}"/>
+                        <!-- L1+L2: Crystal edge + transparent surface -->
+                        <Border x:Name="SurfaceBorder"
+                                CornerRadius="16"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                BorderThickness="1">
+                            <Grid>
+                                <!-- L3: Specular highlight (top edge glow) -->
+                                <Border Height="1"
+                                        VerticalAlignment="Top"
+                                        CornerRadius="16,16,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}"
+                                        Margin="1,0,1,0"
+                                        Opacity="0.8"/>
+                                <!-- L4: Reflection gradient (diagonal light sweep) -->
+                                <Border CornerRadius="16"
+                                        Background="{DynamicResource GlassReflectionGradient}"
+                                        Margin="1"
+                                        Opacity="0.5"/>
+                                <!-- L5: Bottom refraction edge -->
+                                <Border Height="1"
+                                        VerticalAlignment="Bottom"
+                                        CornerRadius="0,0,16,16"
+                                        Background="{DynamicResource GlassRefractionEdge}"
+                                        Margin="1,0,1,0"
+                                        Opacity="0.6"/>
+                                <!-- L6: Content -->
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ULTRA CLEAR VARIANT — maximum transparency, brightest highlights -->
+    <Style x:Key="LiquidGlassSurfaceUltraClear" TargetType="ContentControl" BasedOn="{StaticResource LiquidGlassSurface}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border CornerRadius="16" Effect="{DynamicResource ShadowSoft}"/>
+                        <Border CornerRadius="16"
+                                Background="{DynamicResource GlassUltraClearBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Border Height="1" VerticalAlignment="Top" CornerRadius="16,16,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}" Margin="1,0,1,0" Opacity="0.9"/>
+                                <Border CornerRadius="16"
+                                        Background="{DynamicResource GlassReflectionGradient}" Margin="1" Opacity="0.6"/>
+                                <Border Height="1" VerticalAlignment="Bottom" CornerRadius="0,0,16,16"
+                                        Background="{DynamicResource GlassRefractionEdge}" Margin="1,0,1,0" Opacity="0.7"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- CRYSTAL VARIANT — slightly more opaque, prismatic border -->
+    <Style x:Key="LiquidGlassSurfaceCrystal" TargetType="ContentControl" BasedOn="{StaticResource LiquidGlassSurface}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border CornerRadius="16" Effect="{DynamicResource ShadowElevated}"/>
+                        <Border CornerRadius="16"
+                                Background="{DynamicResource GlassCrystalBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                                BorderThickness="1.5">
+                            <Grid>
+                                <Border Height="1" VerticalAlignment="Top" CornerRadius="16,16,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}" Margin="1,0,1,0" Opacity="0.85"/>
+                                <Border CornerRadius="16"
+                                        Background="{DynamicResource GlassReflectionGradient}" Margin="1" Opacity="0.55"/>
+                                <Border Height="1" VerticalAlignment="Bottom" CornerRadius="0,0,16,16"
+                                        Background="{DynamicResource GlassRefractionEdge}" Margin="1,0,1,0" Opacity="0.65"/>
+                                <!-- Inner highlight for crystal depth -->
+                                <Border CornerRadius="15"
+                                        BorderBrush="{DynamicResource GlassInnerHighlight}"
+                                        BorderThickness="1"
+                                        Margin="2"
+                                        Opacity="0.3"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- WATER GLASS VARIANT — subtle blue tint, softer highlights -->
+    <Style x:Key="LiquidGlassSurfaceWater" TargetType="ContentControl" BasedOn="{StaticResource LiquidGlassSurface}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border CornerRadius="16" Effect="{DynamicResource ShadowSoft}"/>
+                        <Border CornerRadius="16"
+                                Background="{DynamicResource GlassWaterBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Border Height="1" VerticalAlignment="Top" CornerRadius="16,16,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}" Margin="1,0,1,0" Opacity="0.6"/>
+                                <Border CornerRadius="16"
+                                        Background="{DynamicResource GlassReflectionGradient}" Margin="1" Opacity="0.35"/>
+                                <Border Height="1" VerticalAlignment="Bottom" CornerRadius="0,0,16,16"
+                                        Background="{DynamicResource GlassRefractionEdge}" Margin="1,0,1,0" Opacity="0.5"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- FROSTED VARIANT — more opaque, muted highlights, matte feel -->
+    <Style x:Key="LiquidGlassSurfaceFrosted" TargetType="ContentControl" BasedOn="{StaticResource LiquidGlassSurface}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Grid>
+                        <Border CornerRadius="16" Effect="{DynamicResource ShadowElevated}"/>
+                        <Border CornerRadius="16"
+                                Background="{DynamicResource GlassFrostedBrush}"
+                                BorderBrush="{DynamicResource GlassBorderSoft}"
+                                BorderThickness="1">
+                            <Grid>
+                                <Border Height="1" VerticalAlignment="Top" CornerRadius="16,16,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}" Margin="1,0,1,0" Opacity="0.4"/>
+                                <Border CornerRadius="16"
+                                        Background="{DynamicResource GlassReflectionGradient}" Margin="1" Opacity="0.2"/>
+                                <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ====================================================================== -->
     <!-- 5. INTERACTIVE CONTROLS (Buttons, Switches, Inputs)                    -->
     <!-- ====================================================================== -->
 
-    <!-- STANDARD BUTTON -->
+    <!-- STANDARD BUTTON — full layered glass with crystal edge, specular, reflection, refraction -->
     <Style x:Key="LiquidGlassButton" TargetType="Button">
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Padding" Value="20,12"/>
@@ -94,45 +281,81 @@
                         <Grid.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
                         </Grid.RenderTransform>
+                        <!-- L0: Shadow -->
+                        <Border x:Name="ShadowBorder"
+                                CornerRadius="20"
+                                Effect="{DynamicResource ShadowSoft}"/>
+                        <!-- L1+L2: Crystal edge + transparent surface -->
                         <Border x:Name="Bg"
-                                CornerRadius="18"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
-                                BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
-                        <!-- Top Glare -->
-                        <Border Height="14"
-                                CornerRadius="18,18,0,0"
-                                VerticalAlignment="Top"
-                                Background="{DynamicResource GlassTopReflection}"
-                                Opacity="0.65"
-                                Margin="1,1,1,0"/>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="20"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                BorderThickness="1">
+                            <Grid>
+                                <!-- L3: Specular highlight -->
+                                <Border x:Name="SpecularHighlight"
+                                        Height="1" VerticalAlignment="Top"
+                                        CornerRadius="20,20,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}"
+                                        Margin="1,0,1,0" Opacity="0.7"/>
+                                <!-- L4: Reflection gradient -->
+                                <Border x:Name="ReflectionLayer"
+                                        CornerRadius="20"
+                                        Background="{DynamicResource GlassReflectionGradient}"
+                                        Margin="1" Opacity="0.4"/>
+                                <!-- Top glare (existing, refined) -->
+                                <Border x:Name="TopGlare" Height="16"
+                                        CornerRadius="20,20,0,0"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource GlassTopReflectionGradient}"
+                                        Opacity="0.55"
+                                        Margin="1,1,1,0"/>
+                                <!-- L5: Bottom refraction -->
+                                <Border Height="1" VerticalAlignment="Bottom"
+                                        CornerRadius="0,0,20,20"
+                                        Background="{DynamicResource GlassRefractionEdge}"
+                                        Margin="1,0,1,0" Opacity="0.5"/>
+                                <!-- Content -->
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                            <Setter TargetName="TopGlare" Property="Opacity" Value="0.75"/>
+                            <Setter TargetName="ReflectionLayer" Property="Opacity" Value="0.55"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.05"/>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.05"/>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                            <Setter TargetName="TopGlare" Property="Opacity" Value="0.2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -140,9 +363,9 @@
         </Setter>
     </Style>
 
-    <!-- PRIMARY ACTION BUTTON -->
+    <!-- PRIMARY ACTION BUTTON — accent glass with full layering and spring motion -->
     <Style x:Key="LiquidGlassButtonPrimary" TargetType="Button" BasedOn="{StaticResource LiquidGlassButton}">
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -150,40 +373,64 @@
                         <Grid.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
                         </Grid.RenderTransform>
+                        <!-- Shadow -->
+                        <Border CornerRadius="20" Effect="{DynamicResource ShadowElevated}"/>
+                        <!-- Accent surface with crystal border -->
                         <Border x:Name="Bg"
-                                CornerRadius="18"
-                                Background="{DynamicResource GlassGradientActive}"
-                                BorderBrush="{DynamicResource GlassBorderBright}"
-                                BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowActiveButton}"/>
-                        <!-- Top Glare -->
-                        <Border Height="14" CornerRadius="18,18,0,0" VerticalAlignment="Top" Background="{DynamicResource GlassTopReflection}" Opacity="0.4" Margin="1,1,1,0"/>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                CornerRadius="20"
+                                Background="{DynamicResource AccentBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                                BorderThickness="1">
+                            <Grid>
+                                <!-- Specular highlight -->
+                                <Border Height="1" VerticalAlignment="Top" CornerRadius="20,20,0,0"
+                                        Background="{DynamicResource GlassSpecularHighlight}" Margin="1,0,1,0" Opacity="0.8"/>
+                                <!-- Top glare (reduced on accent) -->
+                                <Border x:Name="TopGlare" Height="16" CornerRadius="20,20,0,0"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource GlassTopReflectionGradient}"
+                                        Opacity="0.35" Margin="1,1,1,0"/>
+                                <!-- Bottom refraction -->
+                                <Border Height="1" VerticalAlignment="Bottom" CornerRadius="0,0,20,20"
+                                        Background="{DynamicResource GlassRefractionEdge}" Margin="1,0,1,0" Opacity="0.4"/>
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                            </Grid>
+                        </Border>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.94"/>
+                            <Setter TargetName="TopGlare" Property="Opacity" Value="0.55"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="0.96" Duration="0:0:0.05"/>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX" To="1" Duration="0:0:0.05"/>
-                                        <DoubleAnimation Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                            <Setter TargetName="TopGlare" Property="Opacity" Value="0.15"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
