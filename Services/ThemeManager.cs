@@ -392,16 +392,16 @@ namespace ProGlassAutomation.Services
             ambient.GradientStops.Add(new GradientStop(
                 ColorMath.Tint(core, surface, dark ? 0.20 : 0.16), 1.0));
             // ── GLASSY GUARD ────────────────────────────────────────
-            // The Glassy visual family OWNS these four dashboard keys
-            // (it renders them as About-page glass). ApplyAccent runs
-            // AFTER the engine on every theme change (ApplyVisualTheme
-            // order), so without this guard it would repaint the whole
-            // dashboard surface OPAQUE (0.82 solid) on top of Glassy's
-            // transparency — the "dashboards don't accept the setting"
-            // bug. DashAccentTextBrush below stays accent-driven in
-            // every family.
+            // The iOS Liquid Glass visual family OWNS these four
+            // dashboard keys (it renders them as glass). ApplyAccent
+            // runs AFTER the engine on every theme change
+            // (ApplyVisualTheme order), so without this guard it would
+            // repaint the whole dashboard surface OPAQUE on top of the
+            // glass transparency — the "dashboards don't accept the
+            // setting" bug. DashAccentTextBrush below stays
+            // accent-driven in every family.
             bool glassyActive =
-                VisualThemeEngine.Current == VisualThemeEngine.Glassy;
+                VisualThemeEngine.Current == VisualThemeEngine.LiquidGlass;
 
             ambient.Freeze();
             if (!glassyActive)

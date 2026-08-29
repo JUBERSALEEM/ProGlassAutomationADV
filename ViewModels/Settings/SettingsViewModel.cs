@@ -973,7 +973,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             if (ap == null) return;
 
             // 1) Reset the persisted values to factory defaults.
-            ap.VisualTheme = "Normal";
+            ap.VisualTheme = ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
             ap.Theme = "Light";
             ap.UseDefinedOutline = false;
             ap.UseGradientSurfaces = true;
@@ -1757,7 +1757,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional /
-        //       Glass / Glassy / Ocean)
+        //       iOS Liquid Glass / Ocean). "Glass" and "Glassy" were
+        //       removed in the 2026-08-29 rewrite; saved configs using
+        //       them resolve to iOS Liquid Glass via the engine's
+        //       Normalize mapping.
         // ══════════════════════════════════════════════════════════════
 
         public List<string> VisualThemeOptions { get; } = new()
@@ -1765,14 +1768,14 @@ namespace ProGlassAutomation.ViewModels.Settings
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Glass,
-            ProGlassAutomation.Services.Theme.VisualThemeEngine.Glassy,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean
         };
 
         public string SelectedVisualTheme
         {
-            get => App.Config?.Appearance?.VisualTheme ?? "Normal";
+            get => App.Config?.Appearance?.VisualTheme
+                ?? ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass;
             set
             {
                 if (App.Config == null || string.IsNullOrEmpty(value))

@@ -86,7 +86,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Visual Theme"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Normal, Monet, Professional, Glass, Glassy or Ocean — restyles the whole app instantly. Glass and Glassy are full iOS-style glass: the window gets real acrylic backdrop blur (Windows 10/11) and every card becomes a translucent frosted pane. Systems without blur support fall back to the frosted gradient stage automatically."/>
+                                       Text="Normal, Monet, Professional, iOS Liquid Glass or Ocean — restyles the whole app instantly. iOS Liquid Glass is the default: a complete crystal design system that adapts to Light and Dark — translucent frosted panes, crystal edges, reflections and soft shadows over a rich aurora stage. Renders identically on every Windows 10/11 machine."/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       SelectedItem="{Binding SelectedVisualTheme}"
                                       HorizontalAlignment="Stretch"

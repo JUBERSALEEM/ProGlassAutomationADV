@@ -15,19 +15,16 @@
 //   Professional  — premium corporate finish: cool slate gradient
 //                   window, crisp cooler surfaces, tighter radii,
 //                   restrained hover — visibly distinct from Normal.
-//   Glass         — frosted translucency over a cool stage; with
-//                   GlassChromeService (DWM acrylic) the whole window
-//                   becomes real iOS-style glass: the desktop blurs
-//                   through a translucent veil and every card is a
-//                   white-frost pane on top of it.
-//   Glassy        — the About page's look, applied app-wide: the whole
-//                   window becomes the About stage (diagonal navy/ice
-//                   gradient + the two soft light orbs) and every
-//                   surface turns into translucent frosted glass so the
-//                   stage — or the wallpaper — reads through everything.
-//                   With GlassChromeService active the stage itself is a
-//                   translucent veil over a blurred accent backdrop
-//                   (iOS-style material).
+//   iOS Liquid Glass — the app's DEFAULT look (2026-08-29 rewrite):
+//                   one coherent crystal design system that adapts to
+//                   Light and Dark. The window paints its own OPAQUE
+//                   aurora stage (deep navy in Dark, sky-ice in Light)
+//                   and every surface becomes a translucent frosted
+//                   pane with crystal edges, top reflections and soft
+//                   shadows — self-contained, identical on every
+//                   machine, no OS backdrop dependency. (The old
+//                   "Glass"/"Glassy" families were removed; saved
+//                   configs referencing them resolve to this family.)
 //   Ocean         — deep teal corporate.
 //
 // SYSTEM-WIDE WALLPAPER (v3):
@@ -62,8 +59,8 @@ namespace ProGlassAutomation.Services.Theme
         public const string Normal = "Normal";
         public const string Monet = "Monet";
         public const string Professional = "Professional";
-        public const string Glass = "Glass";
-        public const string Glassy = "Glassy";
+        /// <summary>The default family — iOS Liquid Glass (2026-08-29).</summary>
+        public const string LiquidGlass = "iOS Liquid Glass";
         public const string Ocean = "Ocean";
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
@@ -79,16 +76,16 @@ namespace ProGlassAutomation.Services.Theme
             "ModuleWallpaperBrush",
 
             // Status-tint cards/chips (InfoCard + the BrushKeyConverter
-            // chips in dashboards/lists). Glassy renders these as
-            // see-through hue glass (hue kept, alpha dropped), so the
-            // overrides must be cleaned up on family switch exactly like
-            // the surfaces above.
+            // chips in dashboards/lists). The iOS Liquid Glass family
+            // renders these as see-through hue glass (hue kept, alpha
+            // dropped), so the overrides must be cleaned up on family
+            // switch exactly like the surfaces above.
             "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush",
             "TintRedBrush", "TintAmberBrush", "TintPurpleBrush",
             "TintGrayBrush",
 
             // Dashboard glass + ambient layer, and the shell (top bar)
-            // glass — Glassy re-skins these to the About-page glass.
+            // glass — the iOS family re-skins these to the glass stage.
             "DashGlassSurfaceBrush", "DashAmbientBrush",
             "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
             "ShellGlassBrush", "SidebarCardBrush",
@@ -106,9 +103,9 @@ namespace ProGlassAutomation.Services.Theme
             "GlassPrimaryButtonBrush", "GlassOverlayBrush",
             "GlassShadowColor",
 
-            // Glassy typography: the About page's own text palette
-            // (GlassSnow / GlassCerulean / GlassMuted) is applied so
-            // text auto-adapts when every card goes transparent.
+            // Glass typography: the About page's text palette is
+            // applied so text auto-adapts when every card goes
+            // transparent.
             "PrimaryForegroundBrush",
 
             // The card keyline. Monet and Professional recolour every
@@ -173,12 +170,10 @@ namespace ProGlassAutomation.Services.Theme
 
         private static void OnAccentChanged(object? sender, EventArgs e)
         {
-            // Monet, Glass and Glassy all derive their surfaces and
-            // window stage from the active accent colour, so all three
-            // must re-derive when the user changes the accent. (Glass
-            // was missed here previously: its GlassSurface tints kept
-            // the OLD accent until the next full theme re-apply.)
-            if (Current != Monet && Current != Glassy && Current != Glass)
+            // Monet and iOS Liquid Glass derive their surfaces and
+            // window stage from the active accent colour, so both must
+            // re-derive when the user changes the accent.
+            if (Current != Monet && Current != LiquidGlass)
                 return;
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
             ApplyModule(LastRequestedModule, App.Config?.Appearance);
@@ -215,12 +210,8 @@ namespace ProGlassAutomation.Services.Theme
                         ApplyProfessional(resources);
                         break;
 
-                    case Glass:
-                        ApplyGlass(resources);
-                        break;
-
-                    case Glassy:
-                        ApplyGlassy(resources);
+                    case LiquidGlass:
+                        ApplyLiquidGlass(resources);
                         break;
 
                     case Ocean:
@@ -311,11 +302,8 @@ namespace ProGlassAutomation.Services.Theme
                     case Professional:
                         ApplyProfessional(resources);
                         break;
-                    case Glass:
-                        ApplyGlass(resources);
-                        break;
-                    case Glassy:
-                        ApplyGlassy(resources);
+                    case LiquidGlass:
+                        ApplyLiquidGlass(resources);
                         break;
                     case Ocean:
                         ApplyOcean(resources);
@@ -693,219 +681,106 @@ namespace ProGlassAutomation.Services.Theme
 
         // ── GLASS — frosted translucency (premium glass identity) ─────
 
-        private static void ApplyGlass(ResourceDictionary resources)
-        {
-            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
-
-            // WINDOW STAGE — ALWAYS OPAQUE (2026-08-29 fix).
-            //
-            // The previous design painted the window surface as a
-            // translucent veil expecting the DWM acrylic backdrop to
-            // show through. An opaque WPF window surface does NOT let
-            // the backdrop through, so the veil alpha-blended against
-            // the window's white clear color — on Windows 11 (and
-            // whenever "Transparency effects" is off or the desktop
-            // behind is bright) the whole app faded to a white sheet.
-            //
-            // The glass scene is now painted INSIDE the window: a rich
-            // sky-ice stage with frosted panes on top (the Mica /
-            // iOS-in-app technique) — identical on every machine, no
-            // OS dependency. The stage must stay noticeably more
-            // colourful than the white panes, or the glass reads as
-            // flat white-on-white.
-            Color stageA = dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                                : Color.FromRgb(0xC9, 0xDD, 0xF5);
-            Color stageB = dark ? Color.FromRgb(0x12, 0x22, 0x44)
-                                : Color.FromRgb(0xB4, 0xCF, 0xF0);
-            var window = new LinearGradientBrush(
-                stageA, stageB, new Point(0, 0), new Point(1, 1));
-            window.Freeze();
-            resources["WindowBackgroundBrush"] = window;
-
-            // Frosted panes — translucent white with a whisper of
-            // accent, ONE ramp per mode (no chrome/no-chrome split:
-            // the stage is always the in-window scene now).
-            var accent = ThemeManager.AccentColor;
-            resources["ModuleBackgroundBrush"] = GlassSurface(
-                resources, "ModuleBackgroundBrush", accent,
-                Colors.White, dark ? 0.58 : 0.66, dark);
-            resources["ElevatedSurfaceBrush"] = GlassSurface(
-                resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, dark ? 0.66 : 0.74, dark);
-            resources["SideMenuBackgroundBrush"] = GlassSurface(
-                resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, dark ? 0.74 : 0.78, dark);
-            resources["MenuHoverBrush"] = GlassSurface(
-                resources, "MenuHoverBrush", accent,
-                Color.FromRgb(0xF3, 0xF4, 0xF6),
-                dark ? 0.40 : 0.48, dark);
-
-            // Softer radii suit the frosted material.
-            resources["CardCornerRadius"] = new CornerRadius(14);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(18);
-            resources["ControlCornerRadius"] = new CornerRadius(10);
-
-            ApplyKeyline(resources, dark
-                ? Color.FromRgb(0x4A, 0x5E, 0x7E)
-                : Color.FromRgb(0x9C, 0xB2, 0xD0));
-
-            ApplyLiquidGlassTokens(resources, dark);
-        }
-
-        // ── GLASSY — the About page's look, app-wide ─────────────────
+        // ── iOS LIQUID GLASS — the default family (2026-08-29) ────────
         //
-        // The About view earned the "glass page" identity: a rich
-        // diagonal stage, two soft light orbs, and frosted cards.
-        // Glassy moves that identity from one page to the WHOLE
-        // application — with a per-theme material ramp (2026-08-29):
+        // ONE coherent crystal design system, adaptive to Light/Dark.
+        // The previous "Glass" and "Glassy" families were two
+        // overlapping, inconsistent attempts — both deleted. This
+        // family merges their best parts into a single scene:
         //
-        //   * DARK  = deep-frost glass: low-alpha white veil
-        //     (0.05 → 0.30) over the navy stage — the original
-        //     About-page ramp.
-        //   * LIGHT = WHITE WATER GLASS: high-alpha white panes
-        //     (0.58 → 0.95, top-lit fade) over the bright ice stage
-        //     and the DWM white acrylic backdrop — the
-        //     iPhone-17-style light material. The old code applied
-        //     the dark 0.18→0.05 ramp to BOTH themes, which on the
-        //     pale light stage made every card surface invisible.
-        //
-        //   * WindowBackgroundBrush becomes the About stage itself
-        //     (navy/ice diagonal + the same two radial light orbs), so
-        //     the window reads as one glass scene.
-        //   * EVERY card surface in the UI — module cards, elevated
-        //     tiles, the top bar, side menu, sidebar cards, dashboard
-        //     glass, shell glass, hover, and DataGrid rows (which ride
-        //     ModuleBackgroundBrush / MenuHoverBrush) — becomes that
-        //     same translucent glass, so the stage or wallpaper reads
-        //     through everything, inside and outside the cards alike.
-        //   * Status tint cards/chips (TintIndigo/Blue/Green/Red/
-        //     Amber/Purple/Gray — used directly and through
-        //     BrushKeyConverter in VM-driven templates, which
-        //     re-resolves keys live) keep their hue but drop to glass
-        //     alpha, so status colour is preserved while fills go
-        //     transparent.
-        //   * Typography auto-adapts: dark reads the dark About text
-        //     palette (GlassSnow / GlassCerulean / GlassMuted); light
-        //     uses fixed ink/slate constants — decoupled from the
-        //     surface keys so the white glass can be recoloured
-        //     without ever washing the text out.
+        //   * WINDOW — an OPAQUE, self-contained aurora stage: deep
+        //     navy + orbs in Dark, sky-ice + orbs in Light. Painting
+        //     the scene INSIDE the window (instead of veiling the
+        //     surface and hoping the DWM backdrop shows through an
+        //     opaque WPF surface) fixed the "full fade white" bug —
+        //     the look is identical on every Windows 10/11 machine.
+        //   * SURFACES — translucent white panes with a top-lit fade:
+        //     high-alpha white water glass in Light, deep frost in
+        //     Dark. The stage must stay noticeably more colourful
+        //     than the panes — that contrast is what makes glass
+        //     read as glass instead of white-on-white.
+        //   * STATUS TINTS — hue kept, fill made glass.
+        //   * TYPOGRAPHY — About-page text palette in Dark, fixed
+        //     ink/slate in Light (decoupled from surface keys).
+        //   * LIQUID GLASS TOKENS — crystal edge, reflections and
+        //     control states published last so the whole
+        //     LiquidGlassStyles.xaml control system re-tints live.
 
-        private static void ApplyGlassy(ResourceDictionary resources)
+        private static void ApplyLiquidGlass(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             var accent = ThemeManager.AccentColor;
 
-            // ── 1) WINDOW — the About stage ──────────────────────────
-            // When a wallpaper is configured, Apply() overwrites this
-            // brush with the image afterwards, exactly like every other
-            // family — the glass surfaces then sit on the picture.
-            //
-            // Window stage is ALWAYS OPAQUE (2026-08-29 fix) — see
-            // ApplyGlass: an alpha veil over an opaque WPF surface
-            // blends toward the white clear color on Windows 11 /
-            // transparency-off machines (the "full fade white" bug).
-            // The glass reads against the in-window stage instead.
-            resources["WindowBackgroundBrush"] = BuildGlassStageBrush(
-                dark, accent, (byte)0xFF);
+            // ── 1) WINDOW — the aurora stage (always opaque) ────────
+            resources["WindowBackgroundBrush"] =
+                BuildLiquidStageBrush(dark, accent);
 
-            // ── 2) CARD SURFACES — white water glass (light) /
-            //        deep-frost glass (dark) ──────────────────────────
-            // iOS light materials are HIGH-alpha white panes: the
-            // backdrop blur plus a strong white veil with a top-lit
-            // fade. Dark materials are LOW-alpha frost. The old single
-            // ramp (dark's 0.18 → 0.05) was applied to BOTH themes —
-            // on the pale light stage a 5-18% white veil is invisible,
-            // so every card surface vanished and the app read as one
-            // flat washed-out sheet ("glass broken"). Each theme now
-            // gets its own material ramp.
+            // ── 2) CARD SURFACES — one material ramp per mode ───────
             if (dark)
             {
-                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.18, 0.05);
-                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.24, 0.08);
-                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.30, 0.10);
-                resources["MenuHoverBrush"] = GlassFill(accent, 0.20, 0.10);
-                resources["SidebarCardBrush"] = GlassFill(accent, 0.22, 0.08);
-                resources["ShellGlassBrush"] = GlassFill(accent, 0.26, 0.08);
-                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.20, 0.08);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.20, 0.06);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.26, 0.09);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.32, 0.11);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.22, 0.11);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.24, 0.09);
+                resources["ShellGlassBrush"] = FrostFill(accent, 0.28, 0.09);
+                resources["DashGlassSurfaceBrush"] = FrostFill(accent, 0.22, 0.09);
 
-                // ── 3) DASHBOARD AMBIENT — blend into the stage ──────
-                resources["DashAmbientBrush"] = GlassFill(accent, 0.14, 0.06);
+                // ── 3) DASHBOARD AMBIENT — soft glow under the frost ─
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.14, 0.06);
                 resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.10);
                 resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.08);
             }
             else
             {
-                // WHITE WATER GLASS (2026-08-29, transparency pass 2):
-                // fully see-through white panes — densest at the top
-                // where iOS light materials catch the light, thinning
-                // toward the lower edge so the blurred desktop / ice
-                // stage genuinely reads through every card. Text stays
-                // readable because the pane sits on the BRIGHT blurred
-                // backdrop (never over raw desktop contrast).
-                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.82, 0.48);
-                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.86, 0.55);
-                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.90, 0.62);
-                resources["MenuHoverBrush"] = GlassFill(accent, 0.46, 0.26);
-                resources["SidebarCardBrush"] = GlassFill(accent, 0.80, 0.46);
-                resources["ShellGlassBrush"] = GlassFill(accent, 0.86, 0.55);
-                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.82, 0.50);
+                // White water glass: translucent white panes, densest
+                // at the top (iOS light materials catch the light),
+                // see-through toward the lower edge.
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.84, 0.54);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.90, 0.62);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.94, 0.72);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.50, 0.30);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.82, 0.52);
+                resources["ShellGlassBrush"] = FrostFill(accent, 0.88, 0.58);
+                resources["DashGlassSurfaceBrush"] = FrostFill(accent, 0.84, 0.56);
 
-                // ── 3) DASHBOARD AMBIENT — soft blue glow under the
-                //        white panes (slightly stronger than dark's so
-                //        it reads through the denser frost). ──────────
-                resources["DashAmbientBrush"] = GlassFill(accent, 0.20, 0.08);
+                // ── 3) DASHBOARD AMBIENT — blue glow under the panes ─
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.20, 0.08);
                 resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.16);
                 resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.12);
             }
 
-            // ── 4) STATUS TINTS — hue kept, fill made glass ──────────
-            // The tint keys drive status cards and the
-            // BrushKeyConverter chips. Keep each hue, drop the alpha:
-            // the navy stage needs little to read; the ice stage takes
-            // the same ramp (white-frost tints sit on it identically).
-            resources["TintIndigoBrush"] = HueGlass(
-                "TintIndigoBrush", 0.30, 0.14);
-            resources["TintBlueBrush"] = HueGlass(
-                "TintBlueBrush", 0.30, 0.14);
-            resources["TintGreenBrush"] = HueGlass(
-                "TintGreenBrush", 0.30, 0.14);
-            resources["TintRedBrush"] = HueGlass(
-                "TintRedBrush", 0.30, 0.14);
-            resources["TintAmberBrush"] = HueGlass(
-                "TintAmberBrush", 0.30, 0.14);
-            resources["TintPurpleBrush"] = HueGlass(
-                "TintPurpleBrush", 0.30, 0.14);
-            resources["TintGrayBrush"] = HueGlass(
-                "TintGrayBrush", 0.30, 0.14);
+            // ── 4) STATUS TINTS — hue kept, fill made glass ─────────
+            resources["TintIndigoBrush"] = HueGlass("TintIndigoBrush", 0.30, 0.14);
+            resources["TintBlueBrush"] = HueGlass("TintBlueBrush", 0.30, 0.14);
+            resources["TintGreenBrush"] = HueGlass("TintGreenBrush", 0.30, 0.14);
+            resources["TintRedBrush"] = HueGlass("TintRedBrush", 0.30, 0.14);
+            resources["TintAmberBrush"] = HueGlass("TintAmberBrush", 0.30, 0.14);
+            resources["TintPurpleBrush"] = HueGlass("TintPurpleBrush", 0.30, 0.14);
+            resources["TintGrayBrush"] = HueGlass("TintGrayBrush", 0.30, 0.14);
 
-            // ── 5) TYPOGRAPHY — the About page's text palette ────────
-            // (Also re-applied by ApplyFontPreference in Auto mode —
-            // one code path owns the Glassy text set.)
-            SetGlassTextPalette(resources, dark);
+            // ── 5) TYPOGRAPHY — per-mode text palette ───────────────
+            SetLiquidTextPalette(resources, dark);
 
-            // ── 6) SHAPE + KEYLINE ───────────────────────────────────
-            // Softer radii suit the frosted material (same as Glass).
+            // ── 6) SHAPE + KEYLINE ──────────────────────────────────
             resources["CardCornerRadius"] = new CornerRadius(14);
             resources["CardCornerRadiusLarge"] = new CornerRadius(18);
             resources["ControlCornerRadius"] = new CornerRadius(10);
-
-            // ApplyKeyline is the documented no-op — the accent owns
-            // the keyline; the call keeps the family's intended edge
-            // documented, as in Glass/Professional.
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x6E, 0x8C, 0xC4)
                 : Color.FromRgb(0x94, 0xB4, 0xDE));
 
+            // ── 7) LIQUID GLASS TOKENS — design-system controls ─────
             ApplyLiquidGlassTokens(resources, dark);
         }
 
         /// <summary>
-        /// One Glassy card fill: accent-tinted white glass with a
-        /// diagonal alpha fade (denser top-left, more see-through
-        /// bottom-right) — the About page's GlassCard construction.
-        /// Flat average alpha when Gradient Surfaces is off.
+        /// One frosted card fill: accent-tinted white glass with a
+        /// top-lit vertical alpha fade (denser at the top — the
+        /// "lit from above" iOS sheen). Flat average alpha when
+        /// Gradient Surfaces is off.
         /// </summary>
-        private static Brush GlassFill(
+        private static Brush FrostFill(
             Color accent, double topAlpha, double bottomAlpha)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
@@ -963,7 +838,7 @@ namespace ProGlassAutomation.Services.Theme
         /// headings and captions use, read from the ACTIVE theme's
         /// Glass* keys so Light/Dark swaps auto-select the match.
         /// </summary>
-        private static void SetGlassTextPalette(
+        private static void SetLiquidTextPalette(
             ResourceDictionary resources, bool dark)
         {
             // Dark mode reads the dark About text palette keys
@@ -1171,11 +1046,11 @@ namespace ProGlassAutomation.Services.Theme
 
                 if (string.IsNullOrWhiteSpace(hex))
                 {
-                    if (Current == Glassy)
+                    if (Current == LiquidGlass)
                     {
                         bool dark = ThemeManager.CurrentTheme ==
                             AppTheme.Dark;
-                        SetGlassTextPalette(resources, dark);
+                        SetLiquidTextPalette(resources, dark);
                     }
                     else
                     {
@@ -1249,7 +1124,7 @@ namespace ProGlassAutomation.Services.Theme
         {
             try
             {
-                if (Current == Glass || Current == Glassy)
+                if (Current == LiquidGlass)
                 {
                     bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
                     Color accent = ThemeManager.AccentColor;
@@ -1316,8 +1191,8 @@ namespace ProGlassAutomation.Services.Theme
         /// re-applies on AccentChanged).
         /// </para>
         /// </summary>
-        private static Brush BuildGlassStageBrush(
-            bool dark, Color accent, byte alpha = 0xFF)
+        private static Brush BuildLiquidStageBrush(
+            bool dark, Color accent)
         {
             // Base stage: the About page's diagonal A → B → A gradient.
             Color baseA, baseB;
@@ -1338,13 +1213,6 @@ namespace ProGlassAutomation.Services.Theme
                 baseB = ColorMath.Tint(
                     accent, Color.FromRgb(0xAE, 0xCB, 0xF0), 0.42);
             }
-
-            // The stage is painted OPAQUE (alpha always 0xFF from the
-            // callers since the 2026-08-29 white-fade fix); the alpha
-            // path is kept only so a future layered-window mode can
-            // reuse the builder.
-            baseA = ColorMath.WithAlpha(baseA, alpha);
-            baseB = ColorMath.WithAlpha(baseB, alpha);
 
             if (!ThemeManager.UseGradients)
             {
@@ -1378,12 +1246,12 @@ namespace ProGlassAutomation.Services.Theme
 
             // Orb A — top-right, the About page's larger orb.
             stage.Children.Add(new GeometryDrawing(
-                GlassOrb(dark, orbA: true), null,
+                LiquidOrb(dark, orbA: true), null,
                 new EllipseGeometry(new Point(0.87, 0.10), 0.45, 0.45)));
 
             // Orb B — bottom-left, the About page's smaller orb.
             stage.Children.Add(new GeometryDrawing(
-                GlassOrb(dark, orbA: false), null,
+                LiquidOrb(dark, orbA: false), null,
                 new EllipseGeometry(new Point(0.06, 0.94), 0.36, 0.36)));
 
             stage.Freeze();
@@ -1408,7 +1276,7 @@ namespace ProGlassAutomation.Services.Theme
         /// One About-stage orb: the exact radial stops the About page
         /// uses (GlassOrbA / GlassOrbB in the theme files), frozen.
         /// </summary>
-        private static Brush GlassOrb(bool dark, bool orbA)
+        private static Brush LiquidOrb(bool dark, bool orbA)
         {
             // Stops are the XAML values verbatim (AARRGGBB in the files):
             //   Dark  A: #4D82F6FF / #1D4ED84D / #1D4ED800
@@ -1570,8 +1438,12 @@ namespace ProGlassAutomation.Services.Theme
             {
                 Monet => Monet,
                 Professional => Professional,
-                Glass => Glass,
-                Glassy => Glassy,
+                LiquidGlass => LiquidGlass,
+                // Legacy families removed in the 2026-08-29 rewrite —
+                // saved configs pointing at them resolve to the new
+                // iOS Liquid Glass family instead of breaking.
+                "Glass" => LiquidGlass,
+                "Glassy" => LiquidGlass,
                 Ocean => Ocean,
                 _ => Normal
             };

@@ -27,21 +27,21 @@ namespace ProGlassAutomation.Tests.Agent
         private static string LightTheme => Read("Themes/LightTheme.xaml");
 
         [Fact]
-        public void Light_glassy_uses_the_white_water_glass_ramp_not_the_dark_ramp()
+        public void Liquid_glass_uses_white_water_glass_in_light_and_deep_frost_in_dark()
         {
-            // The original defect: ApplyGlassy applied the dark ramp
-            // (0.18→0.05 white) to light mode — cards vanished on the
-            // pale stage. Light must keep its own high-alpha ramp, and
-            // the dark ramp must remain untouched for dark mode.
-            Assert.Contains("0.82, 0.48", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.90, 0.62", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.86, 0.55", Engine, StringComparison.Ordinal);
-            Assert.Contains("0.18, 0.05", Engine, StringComparison.Ordinal); // dark kept
-            Assert.Contains("0.30, 0.10", Engine, StringComparison.Ordinal); // dark kept
+            // The original defect: the light mode used the dark ramp —
+            // cards vanished on the pale stage. The single iOS Liquid
+            // Glass family keeps an intentional ramp per mode: white
+            // water glass in Light, deep frost in Dark.
+            Assert.Contains("0.84, 0.54", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.94, 0.72", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.88, 0.58", Engine, StringComparison.Ordinal);
+            Assert.Contains("0.20, 0.06", Engine, StringComparison.Ordinal); // dark
+            Assert.Contains("0.32, 0.11", Engine, StringComparison.Ordinal); // dark
         }
 
         [Fact]
-        public void Glass_window_stages_are_opaque_and_self_contained()
+        public void Liquid_glass_window_stage_is_opaque_and_self_contained()
         {
             // 2026-08-29 white-fade regression: an alpha veil over an
             // opaque WPF window surface blends toward the white clear
@@ -49,12 +49,38 @@ namespace ProGlassAutomation.Tests.Agent
             // whole app faded to a white sheet. The stage must be
             // opaque and visibly more colourful than the white panes.
             string engine = Engine;
-            Assert.DoesNotContain("dark ? (byte)0x40 : (byte)0x30", engine, StringComparison.Ordinal);
+            Assert.Contains("BuildLiquidStageBrush(", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("WithAlpha(baseA", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("WithAlpha(baseB", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("WithAlpha(stageA", engine, StringComparison.Ordinal);
             Assert.DoesNotContain("WithAlpha(stageB", engine, StringComparison.Ordinal);
-            Assert.Contains("(byte)0xFF)", engine, StringComparison.Ordinal);
-            Assert.Contains("0xC9, 0xDD, 0xF5", engine, StringComparison.Ordinal);
             Assert.Contains("0xD7, 0xE5, 0xF9", engine, StringComparison.Ordinal);
+            Assert.Contains("0xAE, 0xCB, 0xF0", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Glass_and_glassy_are_removed_and_ios_liquid_glass_is_the_default_family()
+        {
+            // 2026-08-29 rewrite: the two confusing "Glass"/"Glassy"
+            // families are GONE; one iOS Liquid Glass family replaces
+            // them, adapts to Light/Dark, and is the app-wide default.
+            string engine = Engine;
+            Assert.DoesNotContain("public const string Glass =", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("public const string Glassy =", engine, StringComparison.Ordinal);
+            Assert.Contains("public const string LiquidGlass = \"iOS Liquid Glass\";", engine, StringComparison.Ordinal);
+            Assert.Contains("\"Glass\" => LiquidGlass", engine, StringComparison.Ordinal);
+            Assert.Contains("\"Glassy\" => LiquidGlass", engine, StringComparison.Ordinal);
+
+            string config = Read("Services/AI/AIConfig/AppConfig.cs");
+            Assert.Contains("= \"iOS Liquid Glass\";", config, StringComparison.Ordinal);
+
+            string appCs = Read("App.xaml.cs");
+            Assert.Contains("?? \"iOS Liquid Glass\"", appCs, StringComparison.Ordinal);
+
+            string vm = Read("ViewModels/Settings/SettingsViewModel.cs");
+            Assert.Contains("VisualThemeEngine.LiquidGlass,", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glass,", vm, StringComparison.Ordinal);
+            Assert.DoesNotContain("VisualThemeEngine.Glassy,", vm, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -71,7 +97,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Light_orb_stops_stay_verbatim_identical_between_theme_and_engine()
         {
-            // The engine's BuildGlassStageBrush copies the About
+            // The engine's BuildLiquidStageBrush copies the About
             // orbs' stops; they must match the theme file exactly.
             Assert.Contains("#6660A5FA", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#7A3B82F6", LightTheme, StringComparison.Ordinal);
