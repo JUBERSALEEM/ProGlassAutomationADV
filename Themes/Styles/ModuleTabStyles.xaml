@@ -23,54 +23,105 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
 
-    <!-- ══ TAB STRIP CONTAINER ════════════════════════════════════════ -->
+    <!-- ══ TAB STRIP CONTAINER — floating transparent glass ══════════ -->
     <Style x:Key="ModuleTabStripStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
-                Value="{DynamicResource MenuHoverBrush}"/>
+                Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="4"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
     </Style>
 
-    <!-- ══ TAB BUTTON (base chrome; state triggers added per usage) ═══
-         v3 reference fidelity: inactive tab = light pill with border
-         (the "TODAY" look), hover = accent text, active (set per-view
-         via DataTriggers on Background/Foreground) = solid accent pill. -->
+    <!-- ══ TAB BUTTON — layered glass pill with spring press animation ═══
+         Active state is set per-view via DataTriggers on Background/
+         Foreground/BorderBrush (bound to IsGodView/IsActivityView flags).
+         Inactive = transparent glass pill, Active = accent glass pill. -->
     <Style x:Key="ModuleTabButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
-        <Setter Property="Padding" Value="18,8"/>
+        <Setter Property="Padding" Value="20,10"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
-                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource BorderBrush}"/>
+                Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="bd"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource CardCornerRadius}"
-                            Padding="{TemplateBinding Padding}"
-                            SnapsToDevicePixels="True">
-                        <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"/>
-                    </Border>
+                    <Grid x:Name="RootGrid">
+                        <Grid.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
+                        </Grid.RenderTransform>
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <!-- Specular highlight (top edge) -->
+                                <Border x:Name="Specular" Height="1"
+                                        VerticalAlignment="Top"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
+                                        Background="{DynamicResource GlassSpecularHighlight}"
+                                        Margin="1,0,1,0" Opacity="0.4"
+                                        IsHitTestVisible="False"/>
+                                <!-- Top glare -->
+                                <Border x:Name="Glare" Height="10"
+                                        CornerRadius="10,10,0,0"
+                                        VerticalAlignment="Top"
+                                        Background="{DynamicResource GlassTopReflectionGradient}"
+                                        Opacity="0.3"
+                                        Margin="1,1,1,0"
+                                        IsHitTestVisible="False"/>
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="Foreground"
                                     Value="{DynamicResource AccentBrush}"/>
                             <Setter Property="BorderBrush"
-                                    Value="{DynamicResource AccentBrush}"/>
+                                    Value="{DynamicResource GlassBorderGradientCrystal}"/>
+                            <Setter TargetName="Glare" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Specular" Property="Opacity" Value="0.6"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.08" Value="0.95" KeySpline="0.4,0.0 0.6,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleX">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="RenderTransform.ScaleY">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.2" Value="1" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -170,5 +221,28 @@
                 Value="{DynamicResource AccentBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
     </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         UNIFIED TAB SYSTEM — for use by any module's tab navigation.
+         Active tab: accent glass pill with bright foreground.
+         Inactive tab: transparent glass pill with muted foreground.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Active tab — accent glass surface, white text -->
+    <Style x:Key="LiquidGlassTabActive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+
+    <!-- Inactive tab — transparent glass, secondary text -->
+    <Style x:Key="LiquidGlassTabInactive" TargetType="Button" BasedOn="{StaticResource ModuleTabButtonStyle}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+    </Style>
+
+    <!-- Tab container (glass pill strip) -->
+    <Style x:Key="LiquidGlassTabContainer" TargetType="Border" BasedOn="{StaticResource ModuleTabStripStyle}"/>
 
 </ResourceDictionary>
