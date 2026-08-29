@@ -107,6 +107,7 @@
          glass surfaces used by all control templates.
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#08FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceBrush" Color="#0FFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0FFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF" po:Freeze="True"/>
 
@@ -362,6 +363,12 @@
          Ambient (soft, large) + Contact (sharp, small) + Active (glow).
     ═══════════════════════════════════════════════════════════════ -->
     <!-- Ambient shadows — soft, large, low opacity -->
+    
+    <!-- ═══ Phase 1 Consolidated Shadow Tokens ═══ -->
+    <DropShadowEffect x:Key="ShadowSoft" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowElevated" Color="#3C78A0" Opacity="0.08" BlurRadius="16" ShadowDepth="4" Direction="270" po:Freeze="True"/>
+    <DropShadowEffect x:Key="ShadowDeep" Color="#1E293B" Opacity="0.12" BlurRadius="24" ShadowDepth="8" Direction="270" po:Freeze="True"/>
+
     <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
     <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
     <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
@@ -426,6 +433,8 @@
     ═══════════════════════════════════════════════════════════════ -->
     <sys:Double x:Key="DensityInputHeight">30</sys:Double>
     <sys:Double x:Key="DensityButtonHeight">32</sys:Double>
+    <sys:Double x:Key="DensityButtonMinWidth">80</sys:Double>
+    <sys:Double x:Key="DensityBodyFontSize">13</sys:Double>
     <sys:Double x:Key="DensityRowHeight">28</sys:Double>
     <sys:Double x:Key="DensityTitleFontSize">18</sys:Double>
     <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
@@ -526,6 +535,50 @@
     <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#24000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
 
+
+
+    <!-- ═══ Phase 1: Glass Border Gradients ═══ -->
+    <LinearGradientBrush x:Key="GlassBorderGradientSoft" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#30FFFFFF" Offset="0"/>
+        <GradientStop Color="#18FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#20FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassBorderGradientCrystal" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#50FFFFFF" Offset="0"/>
+        <GradientStop Color="#28FFFFFF" Offset="0.3"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.7"/>
+        <GradientStop Color="#30FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+
+    <!-- ═══ Phase 1: Glass Highlights & Reflections ═══ -->
+    <LinearGradientBrush x:Key="GlassSpecularHighlight" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#00FFFFFF" Offset="0"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.3"/>
+        <GradientStop Color="#60FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.7"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassReflectionGradient" StartPoint="0,0" EndPoint="0.6,1" po:Freeze="True">
+        <GradientStop Color="#18FFFFFF" Offset="0"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.4"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassRefractionEdge" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#00FFFFFF" Offset="0"/>
+        <GradientStop Color="#10E0E8FF" Offset="0.5"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassTopReflectionGradient" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#25FFFFFF" Offset="0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassInnerHighlight" Color="#0FFFFFFF" po:Freeze="True"/>
+
+    <!-- ═══ Phase 1: Glass Variant Surfaces ═══ -->
+    <SolidColorBrush x:Key="GlassUltraClearBrush" Color="#0AFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassCrystalBrush" Color="#12FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassWaterBrush" Color="#0AEEF2FF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFrostedBrush" Color="#20FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 20 — CONVERTERS
