@@ -18,37 +18,46 @@
     <!-- ── TextBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border x:Name="Chrome"
-                            Background="{DynamicResource GlassSurfaceStandard}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="12,8"
-                            SnapsToDevicePixels="True">
-                        <ScrollViewer x:Name="PART_ContentHost"
-                                      VerticalAlignment="Center"
-                                      Margin="0"
-                                      Focusable="False"/>
-                    </Border>
+                    <Grid>
+                        <Border x:Name="Chrome"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <!-- Specular highlight -->
+                                <Border Height="1" VerticalAlignment="Top"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
+                                        Background="{DynamicResource GlassSpecularHighlight}"
+                                        Margin="1,0,1,0" Opacity="0.3"
+                                        IsHitTestVisible="False"/>
+                                <ScrollViewer x:Name="PART_ContentHost"
+                                              VerticalAlignment="Center"
+                                              Margin="12,8"
+                                              Focusable="False"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
                             <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassBorderBright}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Opacity" Value="0.5"/>
+                            <Setter TargetName="Chrome" Property="Opacity" Value="0.4"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -59,15 +68,15 @@
     <!-- ── PasswordBox ───────────────────────────────────────────────── -->
     <Style x:Key="ModernPasswordBoxStyle" TargetType="PasswordBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="CaretBrush" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
-                            Background="{DynamicResource GlassSurfaceStandard}"
+                            Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -111,8 +120,8 @@
     ──────────────────────────────────────────────────────────────── -->
     <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
@@ -207,8 +216,8 @@
     <!-- ── ComboBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="Padding" Value="12,7"/>
@@ -318,7 +327,7 @@
     <Style TargetType="ComboBox" BasedOn="{StaticResource ModernComboBoxStyle}"/>
 
     <Style TargetType="ComboBoxItem">
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="12,8"/>
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
@@ -338,11 +347,11 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource GlassSurfaceStandard}"/>
+                                    Value="{DynamicResource GlassSurfaceBrush}"/>
                         </Trigger>
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
-                                    Value="{DynamicResource GlassSurfaceStandard}"/>
+                                    Value="{DynamicResource GlassSurfaceBrush}"/>
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="ItemBd" Property="Background"
