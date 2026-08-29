@@ -17,7 +17,7 @@
 
     <!-- Floating dialog card — layered glass with crystal edge and shadow. -->
     <Style x:Key="DialogCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>

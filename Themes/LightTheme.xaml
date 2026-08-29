@@ -91,10 +91,10 @@
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#00FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
-    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#1AFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#0FFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="SidebarCardBrush" Color="#FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="MenuHoverBrush" Color="#E2E8F0" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#10FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#08FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SidebarCardBrush" Color="#10FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="#185FCDFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#0369A1" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#59061724" po:Freeze="True"/>
@@ -107,9 +107,9 @@
          glass surfaces used by all control templates.
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#08FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceBrush" Color="#0FFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0FFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceBrush" Color="#0CFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0CFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#14FFFFFF" po:Freeze="True"/>
 
     <!-- Layered glass fill — watery meniscus ramp -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
@@ -343,6 +343,9 @@
     <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#E2B91C1C" po:Freeze="True"/>
 
     <!-- Accent brushes -->
+        <SolidColorBrush x:Key="LiquidBlueBrush" Color="#5FCDFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidBlueSurfaceBrush" Color="#145FCDFF" po:Freeze="True"/>
+    <Color x:Key="LiquidBlueColor">#5FCDFF</Color>
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" po:Freeze="True"/>
@@ -390,24 +393,21 @@
          Window background, Backdrops, Aurora orbs, App background.
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="0.8,1">
-        <GradientStop Color="#C7D2FE" Offset="0.0"/>
-        <GradientStop Color="#A5B4FC" Offset="0.2"/>
-        <GradientStop Color="#93C5FD" Offset="0.4"/>
-        <GradientStop Color="#7DD3FC" Offset="0.6"/>
-        <GradientStop Color="#A5F3FC" Offset="0.8"/>
-        <GradientStop Color="#C4B5FD" Offset="1.0"/>
+        <GradientStop Color="#D7F0FF" Offset="0.0"/>
+        <GradientStop Color="#E8F6FF" Offset="0.3"/>
+        <GradientStop Color="#FFFFFF" Offset="0.55"/>
+        <GradientStop Color="#EAF4FF" Offset="0.8"/>
+        <GradientStop Color="#DCEEFA" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0,0.2" EndPoint="1,0.8">
-        <GradientStop Color="#818CF8" Offset="0.0"/>
-        <GradientStop Color="#60A5FA" Offset="0.25"/>
-        <GradientStop Color="#34D399" Offset="0.5"/>
-        <GradientStop Color="#FBBF24" Offset="0.75"/>
-        <GradientStop Color="#F472B6" Offset="1.0"/>
+        <GradientStop Color="#085FCDFF" Offset="0"/>
+        <GradientStop Color="#04FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#065FCDFF" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#D7EDF9" Offset="0.0"/>
+        <GradientStop Color="#D7F0FF" Offset="0.0"/>
         <GradientStop Color="#FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#D5EAF7" Offset="1.0"/>
+        <GradientStop Color="#DCEEFA" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#28FFFFFF" Offset="0.0"/>
@@ -528,9 +528,9 @@
          SECTION 19 — SHELL TOKENS
     ═══════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#E6FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#D9FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#0CD7F0FF" Offset="0"/>
+        <GradientStop Color="#08FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#0ADCEEFA" Offset="1"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#24000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
@@ -575,10 +575,10 @@
     <SolidColorBrush x:Key="GlassInnerHighlight" Color="#0FFFFFFF" po:Freeze="True"/>
 
     <!-- ═══ Phase 1: Glass Variant Surfaces ═══ -->
-    <SolidColorBrush x:Key="GlassUltraClearBrush" Color="#0AFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassCrystalBrush" Color="#12FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassWaterBrush" Color="#0AEEF2FF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassFrostedBrush" Color="#20FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassUltraClearBrush" Color="#06FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassCrystalBrush" Color="#0AFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassWaterBrush" Color="#08D7F0FF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFrostedBrush" Color="#14FFFFFF" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
          SECTION 20 — CONVERTERS
