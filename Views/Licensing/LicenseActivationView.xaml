@@ -1,17 +1,19 @@
 <!--
-  LicenseActivationView — the licensing page.
+  LicenseActivationView — the licensing page (2026 simple flow).
 
-  Simple by design (2026 workflow simplification):
-    • PASTE THE KEY: the vendor generates a license key and sends one
-      text block (PGKEY1.…). Paste it, apply, done. The app verifies the
-      vendor signature before activating.
-    • TRIAL IS AUTOMATIC: a 30-day trial starts on first run and keeps
-      working until the key arrives; if a key is ever removed or expires
-      inside the trial window, the app falls back to the trial.
-    • PC ID: shown read-only. Only needed when the vendor wants to bind
-      the key to this machine.
-    • The old activation-request round-trip still works but is tucked
-      away under "Advanced" — it is no longer required for anything.
+  ONE ACTION: paste the license key your vendor sent you (a single text
+  block starting with PGKEY1) and click Apply. The app verifies the
+  vendor's RSA signature against its embedded trusted-key ring and
+  activates instantly.
+
+  Supporting behaviour (automatic — nothing to configure):
+    • A 30-day trial starts on first run, recorded in the tamper-evident
+      machine ledger. If a key is later removed or expires inside the
+      trial window, the app falls back to the trial automatically; after
+      the window the app runs read-only with all data preserved.
+    • A signed license always takes precedence over the trial.
+    • The PC ID below is read-only reference info — the vendor only needs
+      it when issuing a key bound to this machine.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.Licensing.LicenseActivationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -43,7 +45,7 @@
                            TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
                            Margin="0,4,0,24"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
-                    <Run Text="Paste the license key your vendor sent you. A 30-day trial is already running, so you can keep working while you get your key."/>
+                    <Run Text="Paste the license key your vendor sent you. A 30-day trial is already running, so the app is fully usable while you wait for your key."/>
                 </TextBlock>
 
                 <Border Style="{StaticResource SectionCardStyle}">
@@ -54,7 +56,7 @@
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Your vendor sends you a single text block starting with PGKEY1. Paste it here and click Apply. That is all."/>
+                            <Run Text="Your vendor sends you a single text block starting with PGKEY1. Paste it here and click Apply — that is the entire process."/>
                         </TextBlock>
                         <TextBox x:Name="KeyPasteTextBox"
                                  AcceptsReturn="True" AcceptsTab="True"
@@ -149,7 +151,7 @@
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,0,0,8"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Send this to your vendor ONLY if they ask for it (a machine-bound key). You normally do not need it."/>
+                            <Run Text="Send this to your vendor ONLY if they ask for it (a key bound to this machine). You normally do not need it."/>
                         </TextBlock>
                         <TextBox x:Name="FingerprintDisplayBox"
                                  IsReadOnly="True"
@@ -165,88 +167,6 @@
                                  Margin="0,2,0,0"/>
                     </StackPanel>
                 </Border>
-
-                <Button x:Name="AdvancedToggleButton"
-                        Style="{StaticResource OutlinedPillButton}"
-                        Content="ADVANCED: ACTIVATION REQUEST (NOT REQUIRED) ▾"
-                        Click="AdvancedToggleButton_Click"
-                        HorizontalAlignment="Left"
-                        Margin="0,12,0,0"/>
-
-                <StackPanel x:Name="AdvancedPanel" Visibility="Collapsed">
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="STEP 1 — GENERATE ACTIVATION REQUEST"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
-                                       Margin="0,6,0,12"
-                                       Foreground="{DynamicResource ForegroundBrush}">
-                                <Run Text="For vendors who still use the request/response procedure: generate the request, send it to your vendor, then import the signed response they return."/>
-                            </TextBlock>
-                            <TextBlock Text="Activation request JSON"
-                                       FontSize="{StaticResource TextBody}"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBox x:Name="RequestOutputBox"
-                                     IsReadOnly="True"
-                                     AcceptsReturn="True"
-                                     TextWrapping="Wrap"
-                                     MinHeight="120"
-                                     MaxHeight="220"
-                                     VerticalScrollBarVisibility="Auto"
-                                     FontFamily="Consolas"
-                                     FontSize="{StaticResource TextBody}"
-                                     Margin="0,4,0,12"/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource PrimaryPillButton}"
-                                        Content="GENERATE REQUEST"
-                                        Click="GenerateRequestButton_Click"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
-                                        Content="SAVE REQUEST FILE…"
-                                        Click="SaveRequestButton_Click"
-                                        Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
-                                        Content="COPY REQUEST"
-                                        Click="CopyRequestButton_Click"
-                                        Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="STEP 2 — IMPORT SIGNED ACTIVATION RESPONSE"
-                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
-                                       Margin="0,6,0,12"
-                                       Foreground="{DynamicResource ForegroundBrush}">
-                                <Run Text="Paste the signed response JSON your vendor returned, or open the response file."/>
-                            </TextBlock>
-                            <TextBox x:Name="PasteTextBox"
-                                     AcceptsReturn="True" AcceptsTab="True"
-                                     TextWrapping="Wrap" MinHeight="120"
-                                     MaxHeight="220"
-                                     VerticalScrollBarVisibility="Auto"
-                                     FontFamily="Consolas" FontSize="{StaticResource TextBody}"
-                                     Margin="0,0,0,12"/>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource PrimaryPillButton}"
-                                        Content="APPLY SIGNED RESPONSE"
-                                        Click="PasteApplyButton_Click"
-                                        HorizontalAlignment="Stretch"/>
-                                <Button Style="{StaticResource OutlinedPillButton}"
-                                        Content="OPEN RESPONSE FILE…"
-                                        Click="BrowseButton_Click"
-                                        Margin="10,0,0,0"
-                                        HorizontalAlignment="Stretch"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
 
                 <TextBlock x:Name="ErrorText"
                            Margin="0,8,0,0"

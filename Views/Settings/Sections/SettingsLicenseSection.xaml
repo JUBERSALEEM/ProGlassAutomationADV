@@ -16,9 +16,9 @@
        step its own header, so the page reads as two clear steps.
 
      The activation view is the single source of truth for the
-     License-key / Activation-request / Machine-fingerprint UI — this
-     section deliberately does not duplicate that surface. The trial
-     itself is automatic (see Services/Licensing/AutoTrialManager).
+     License-key / PC-ID / trial-status UI — this section deliberately
+     does not duplicate that surface. The trial is automatic (see
+     Services/Licensing/AutoTrialManager).
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsLicenseSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -47,7 +47,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="License" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Paste your vendor-signed license key, or review the automatic trial and activation state."
+            <TextBlock Text="Paste your vendor-signed license key to activate, or review the automatic trial state."
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -121,7 +121,7 @@
                 <!-- ═══════ GROUP: ACTIVATION ═══════ -->
                 <TextBlock Text="ACTIVATION"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Paste a license key to activate, or generate an activation request when your vendor needs this PC's ID."
+                <TextBlock Text="Paste a license key to activate. The trial starts automatically; the PC ID below is only needed for machine-bound keys."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <!-- Reuses the same UserControl the main window used to show

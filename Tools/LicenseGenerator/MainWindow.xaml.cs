@@ -1,3 +1,12 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Tools/LicenseGenerator/MainWindow.xaml.cs
+// PROJECT: ProGlassAutomation.LicenseGenerator
+// MODULE: License Key Generator — window logic (2026 simple flow)
+//
+// ONE JOB: sign a customer license key with the operator's external
+// issuer key and hand back a single PGKEY1 text block.
+// ═══════════════════════════════════════════════════════════════════════
+
 using System;
 using System.IO;
 using System.Linq;
@@ -13,16 +22,15 @@ namespace ProGlassAutomation.Tools.LicenseGenerator;
 public partial class MainWindow : Window
 {
     private IssuerKeyMaterial? _loadedKeyMaterial;
-    private OfflineActivationRequestDocument? _loadedRequest;
-    private string? _lastResponseJson;
     private string? _lastLicenseKey;
 
     public MainWindow()
     {
         InitializeComponent();
-        LicenseTypeCombo.SelectedIndex = 2; // Business
-        LicenseModeCombo.SelectedIndex = 0; // Subscription
-        ApplyEditionPreset();
+        // SelectedIndex is set in code (not XAML) so the SelectionChanged
+        // handler never fires before KeyPreviewText exists.
+        KeyEditionCombo.SelectedIndex = 1; // Business
+        ApplyKeyPreview();
         Loaded += OnLoaded;
     }
 
@@ -30,14 +38,13 @@ public partial class MainWindow : Window
     {
         RefreshIssuerUi();
         SetStatus(
-            "Ready — load an issuer key file, import a customer activation request, then generate a signed offline response.",
+            "Ready — load your issuer key file, pick an edition, generate the key, send it to the customer.",
             StatusKind.Info);
     }
 
-    private void LicenseTypeCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ApplyEditionPreset();
-    }
+    // ────────────────────────────────────────────────────────────────────
+    // ISSUER KEY — load / create / copy public half / self-test
+    // ────────────────────────────────────────────────────────────────────
 
     private void LoadKeyButton_Click(object sender, RoutedEventArgs e)
     {
@@ -130,105 +137,30 @@ public partial class MainWindow : Window
             test.IsValid ? MessageBoxImage.Information : MessageBoxImage.Error);
     }
 
-    private void LoadRequestButton_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog
-        {
-            Title = "Load customer activation request",
-            Filter = "Activation request (*.pgrequest;*.json)|*.pgrequest;*.json|All files (*.*)|*.*",
-            CheckFileExists = true,
-            Multiselect = false
-        };
-        if (dialog.ShowDialog(this) != true) return;
-
-        try
-        {
-            string text = System.IO.File.ReadAllText(dialog.FileName);
-            ActivationRequestBox.Text = text;
-            ParseActivationRequestText();
-            SetStatus("Activation request loaded.", StatusKind.Success);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Request load failed: " + ex.Message, StatusKind.Error);
-            MessageBox.Show(this, ex.Message, "Load activation request", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void ParseRequestButton_Click(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            ParseActivationRequestText();
-            SetStatus("Activation request parsed.", StatusKind.Success);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Request parse failed: " + ex.Message, StatusKind.Error);
-            MessageBox.Show(this, ex.Message, "Parse activation request", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
-    private void GenerateButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (_loadedKeyMaterial == null)
-        {
-            SetStatus("Load an issuer key file first.", StatusKind.Warning);
-            return;
-        }
-
-        try
-        {
-            ParseActivationRequestText();
-            var request = BuildIssueRequest();
-            string defaultPath = System.IO.Path.Combine(
-                LicenseGeneratorCore.DefaultOutputFolder,
-                Sanitise(request.CompanyName) + "-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + LicenseGeneratorCore.ActivationResponseExtension);
-
-            var result = LicenseGeneratorCore.GenerateActivationResponse(request, _loadedKeyMaterial, defaultPath);
-            OutputCard.Visibility = Visibility.Visible;
-            KeyOutputBox.Text = result.ResponseJson ?? string.Empty;
-            _lastResponseJson = result.ResponseJson;
-
-            if (!result.Success)
-            {
-                ResultText.Text = "FAILED: " + result.Message;
-                ResultText.Foreground = ResolveBrush("DangerBrush");
-                SetStatus(result.Message, StatusKind.Error);
-                return;
-            }
-
-            ResultText.Text = result.Message + "\nSaved to: " + result.OutputPath;
-            ResultText.Foreground = ResolveBrush("SuccessBrush");
-            SetStatus("Signed offline activation response generated.", StatusKind.Success);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Generation failed: " + ex.Message, StatusKind.Error);
-            MessageBox.Show(this, ex.Message, "Generate response", MessageBoxButton.OK, MessageBoxImage.Error);
-        }
-    }
-
     // ────────────────────────────────────────────────────────────────────
-    // LICENSE KEY — simple flow handlers
+    // LICENSE KEY — generate / copy / save
     // ────────────────────────────────────────────────────────────────────
-
-    private void AdvancedFlowToggleButton_Click(object sender, RoutedEventArgs e)
-    {
-        // The legacy request/response flow is collapsed by default —
-        // the primary path is generating a license key.
-        bool show = AdvancedRequestPanel.Visibility != Visibility.Visible;
-        AdvancedRequestPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-        AdvancedFlowToggleButton.Content = show
-            ? "ADVANCED: PC-ID ACTIVATION REQUEST FLOW (LEGACY) ▴"
-            : "ADVANCED: PC-ID ACTIVATION REQUEST FLOW (LEGACY) ▾";
-    }
 
     private string SelectedKeyEdition() =>
-        (KeyEditionCombo.SelectedItem as ComboBoxItem)?.Content as string ?? "Business";
+        SelectedComboText(KeyEditionCombo, "Business");
+
+    private void ApplyKeyPreview()
+    {
+        string edition = SelectedKeyEdition();
+        KeyPreviewText.Text = edition switch
+        {
+            "Trial" => "Trial — 30-day key, all features (\"*\").",
+            "Basic" => "Basic — inquiry and proforma only.",
+            "Business" => "Business — full ERP workflow, excluding Cutting.*.",
+            "Factory" => "Factory — Business + Cutting.* workflow.",
+            "Enterprise" => "Enterprise — unrestricted feature scope.",
+            _ => "Business — full ERP workflow, excluding Cutting.*."
+        };
+    }
 
     private void KeyEditionCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        ApplyKeyPreview();
         // Trial keys have a fixed 30-day window; keep the days box honest.
         if (string.Equals(SelectedKeyEdition(), "Trial", StringComparison.OrdinalIgnoreCase))
             KeyDaysBox.Text = "30";
@@ -244,11 +176,9 @@ public partial class MainWindow : Window
 
         try
         {
-            if (!int.TryParse((KeyDaysBox.Text ?? string.Empty).Trim(), out int days))
-                days = 0;
-            if (days < 0) days = 0;
-
+            int days = ParseInt(KeyDaysBox.Text, 365, 0, 3650);
             string edition = SelectedKeyEdition();
+
             var result = LicenseGeneratorCore.GenerateLicenseKey(
                 new LicenseGeneratorCore.LicenseKeyIssueRequest
                 {
@@ -314,6 +244,7 @@ public partial class MainWindow : Window
             Filter = "License key (*.lic)|*.lic|Text (*.txt)|*.txt|All files (*.*)|*.*",
             DefaultExt = ".lic",
             AddExtension = true,
+            InitialDirectory = LicenseGeneratorCore.DefaultOutputFolder,
             FileName = "license-key-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ".lic"
         };
 
@@ -330,120 +261,9 @@ public partial class MainWindow : Window
         }
     }
 
-    private void SaveAsButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(_lastResponseJson))
-        {
-            SetStatus("Generate or inspect a response first.", StatusKind.Warning);
-            return;
-        }
-
-        var dialog = new SaveFileDialog
-        {
-            Title = "Save signed activation response",
-            Filter = "ProGlass activation response (*.lic)|*.lic|JSON (*.json)|*.json|All files (*.*)|*.*",
-            DefaultExt = ".lic",
-            FileName = "CustomerActivation.lic",
-            AddExtension = true
-        };
-        if (dialog.ShowDialog(this) == true)
-        {
-            System.IO.File.WriteAllText(dialog.FileName, _lastResponseJson, new UTF8Encoding(false));
-            SetStatus("Saved to " + dialog.FileName, StatusKind.Success);
-        }
-    }
-
-    private void InspectButton_Click(object sender, RoutedEventArgs e)
-    {
-        var dialog = new OpenFileDialog
-        {
-            Title = "Inspect a signed activation response",
-            Filter = "Activation response (*.lic;*.json)|*.lic;*.json|All files (*.*)|*.*",
-            CheckFileExists = true
-        };
-        if (dialog.ShowDialog(this) != true) return;
-
-        var verdict = LicenseGeneratorCore.InspectResponseFile(
-            dialog.FileName,
-            AppCompatibleIssuerKeys.TrustedPublicKeys);
-        OutputCard.Visibility = Visibility.Visible;
-        ResultText.Foreground = ResolveBrush(verdict.IsValid ? "SuccessBrush" : "DangerBrush");
-        ResultText.Text = verdict.Message;
-        KeyOutputBox.Text = verdict.ResponseJson;
-        _lastResponseJson = verdict.ResponseJson;
-        SetStatus(verdict.IsValid ? "Inspection complete — response matches an app-trusted key." : "Inspection complete — response is not trusted/valid.",
-            verdict.IsValid ? StatusKind.Info : StatusKind.Warning);
-    }
-
-    private void CopyLicenseButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (string.IsNullOrWhiteSpace(_lastResponseJson))
-        {
-            SetStatus("No signed response is available yet.", StatusKind.Warning);
-            return;
-        }
-
-        try
-        {
-            Clipboard.SetText(_lastResponseJson);
-            SetStatus("Response JSON copied to clipboard.", StatusKind.Success);
-        }
-        catch (Exception ex)
-        {
-            SetStatus("Copy failed: " + ex.Message, StatusKind.Error);
-        }
-    }
-
-    private void ParseActivationRequestText()
-    {
-        var parsed = LicenseGeneratorCore.ReadActivationRequest(ActivationRequestBox.Text ?? string.Empty);
-        if (!parsed.Success || parsed.Request == null)
-            throw new InvalidOperationException(parsed.Message ?? "Activation request is invalid.");
-
-        _loadedRequest = parsed.Request;
-        RequestDetailText.Text =
-            "Loaded request · License ID " + parsed.Request.LicenseId +
-            " · Install " + parsed.Request.InstallationId +
-            " · Fingerprint " + parsed.Request.MachineFingerprint +
-            " · Nonce " + parsed.Request.RequestNonce;
-    }
-
-    private LicenseGeneratorCore.IssueRequest BuildIssueRequest()
-    {
-        if (_loadedRequest == null)
-            throw new InvalidOperationException("Load and parse a customer activation request first.");
-
-        return new LicenseGeneratorCore.IssueRequest
-        {
-            ActivationRequest = _loadedRequest,
-            CustomerId = CustomerIdBox.Text?.Trim() ?? string.Empty,
-            CompanyName = CustomerNameBox.Text?.Trim() ?? string.Empty,
-            Edition = SelectedComboText(LicenseTypeCombo, "Business"),
-            LicenseType = SelectedComboText(LicenseModeCombo, "Subscription"),
-            LicenseStatus = "Active",
-            ValidDays = ParseInt(DaysBox.Text, 365, 1, 3650),
-            GraceDays = ParseInt(GraceDaysBox.Text, 7, 0, 90),
-            ReadOnlyOnExpiry = ReadOnlyOnExpiryCheckBox.IsChecked == true,
-            Features = ParseFeatures(FeaturesBox.Text),
-            Notes = NotesBox.Text?.Trim() ?? string.Empty
-        };
-    }
-
-    private void ApplyEditionPreset()
-    {
-        string edition = SelectedComboText(LicenseTypeCombo, "Business");
-        FeaturesBox.Text = string.Join(", ", LicenseGeneratorCore.DefaultFeatures(edition));
-
-        PreviewText.Text = edition switch
-        {
-            "Trial" => "Trial — vendor-issued offline trial response. No client self-signing.",
-            "Basic" => "Basic — inquiry and proforma only.",
-            "Business" => "Business — full ERP workflow, excluding Cutting.*.",
-            "Factory" => "Factory — Business + Cutting.* workflow.",
-            "Enterprise" => "Enterprise — unrestricted feature scope.",
-            _ => "Edition preset ready."
-        };
-    }
+    // ────────────────────────────────────────────────────────────────────
+    // Helpers
+    // ────────────────────────────────────────────────────────────────────
 
     private void RefreshIssuerUi()
     {
@@ -457,16 +277,6 @@ public partial class MainWindow : Window
         KeyStatusText.Text = trusted
             ? "App-trusted issuer loaded · keyId " + _loadedKeyMaterial.KeyId + " · fingerprint " + _loadedKeyMaterial.Fingerprint
             : "External issuer loaded · NOT currently trusted by this app build · keyId " + _loadedKeyMaterial.KeyId;
-    }
-
-    private static string[] ParseFeatures(string? text)
-    {
-        return (text ?? string.Empty)
-            .Split(new[] { ',', ';', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
-            .Select(x => x.Trim())
-            .Where(x => x.Length > 0)
-            .Distinct(StringComparer.Ordinal)
-            .ToArray();
     }
 
     private static string SelectedComboText(ComboBox comboBox, string fallback)
@@ -502,13 +312,5 @@ public partial class MainWindow : Window
     {
         if (int.TryParse(text, out int v) && v >= min && v <= max) return v;
         return def;
-    }
-
-    private static string Sanitise(string? name)
-    {
-        char[] invalid = System.IO.Path.GetInvalidFileNameChars();
-        return new string((string.IsNullOrWhiteSpace(name) ? "Activation" : name.Trim())
-            .Select(c => invalid.Contains(c) ? '_' : c)
-            .ToArray());
     }
 }

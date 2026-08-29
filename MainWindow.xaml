@@ -1423,14 +1423,13 @@
                  READ-ONLY BANNER (trial ended / grace period)
 
                  A slim, top-anchored strip that appears whenever
-                 LicenseService.Current.ReadOnly is true — i.e. a
-                 vendor-issued trial response has ended OR a paid
-                 activation response is in its post-expiry grace
-                 period. The app is still fully navigable (all data
-                 preserved), but write commands are gated by
-                 ReadOnlyGate. The banner links straight to
-                 Settings → License so the user can renew without
-                 hunting for the page.
+                 LicenseService.Current.ReadOnly is true — i.e. the
+                 30-day trial has ended OR a paid license is in its
+                 post-expiry grace period. The app is still fully
+                 navigable (all data preserved), but write commands
+                 are gated by ReadOnlyGate. The banner links straight
+                 to Settings → License so the user can paste a
+                 renewed key without hunting for the page.
                  ZIndex 5 sits ABOVE the module content card (implicit
                  ZIndex 0) but BELOW the sidebar drawer (ZIndex 10),
                  the license activation overlay (100), the AI chat

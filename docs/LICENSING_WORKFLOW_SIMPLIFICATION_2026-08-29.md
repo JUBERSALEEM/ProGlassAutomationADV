@@ -257,3 +257,27 @@ from type + features, matching the generator's own presets:
 Build-time verification (VS compile, unit tests) remains the user's step —
 as always, their Visual Studio error list is authoritative for WPF
 semantic errors that plain XML parsing cannot catch.
+
+## 9. Errata (2026-08-29, later) — COMPLETE REWRITE supersedes the ADVANCED toggle
+
+The "collapsed behind an ADVANCED toggle" approach recorded in §8 was
+explicitly rejected as a patch. Both sides of the UI were **rewritten from
+scratch** around the single generate → paste → instant-active flow:
+
+- **Generator** (`Tools/LicenseGenerator/MainWindow.xaml` + `.xaml.cs`,
+  `LicenseGeneratorCore.cs`): the PC-ID activation request/response flow
+  was DELETED — no `AdvancedRequestPanel`, no toggle, no
+  `ParseActivationRequestText`, no `GenerateActivationResponse`. The tool
+  is now exactly two cards: 1 · ISSUER KEY FILE (load/create .pgkey, copy
+  public half, signing self-test) and 2 · LICENSE KEY — GENERATE & SEND
+  (edition, days, customer/company, optional PC ID, PGKEY1 output,
+  copy/save).
+- **App** (`Views/Licensing/LicenseActivationView.xaml` + `.xaml.cs`,
+  `LicenseUiText.cs`): ONE card — paste the PGKEY1 key → APPLY (or OPEN
+  KEY FILE). Trial status card and the read-only YOUR PC ID strip remain;
+  the ADVANCED panel and its toggle handler were removed.
+- Security model unchanged: signing stays external-key + RSA-2048-PSS +
+  embedded-public-key verification; emitted keys are self-verified in
+  `LicenseService.Create`; the generator's self-test now runs fully
+  in-memory (no scratch file).
+- Full record: [`LICENSE_GENERATOR_SIMPLE_FLOW_REWRITE_2026-08-29.md`](./LICENSE_GENERATOR_SIMPLE_FLOW_REWRITE_2026-08-29.md).

@@ -51,23 +51,23 @@ namespace ProGlassAutomation.Views.Licensing
         public static string StatusDescription(LicenseStatus status) => status switch
         {
             LicenseStatus.NotActivated =>
-                "No license is active on this machine yet. Paste the license key your vendor sent you in Settings → License, or use the advanced activation request flow.",
+                "No license is active on this machine yet. Paste the license key your vendor sent you in Settings → License.",
             LicenseStatus.Invalid =>
-                "The installed license state could not be trusted. The key or response may be corrupt, signed with an unknown key, or from the legacy insecure format. Paste a fresh vendor-signed license key and try again.",
+                "The installed license state could not be trusted. The key may be corrupt or signed with an unknown key. Paste a fresh license key from your vendor.",
             LicenseStatus.GracePeriod =>
-                "The license is past its main expiry date but still inside its signed grace window. The app runs in read-only mode until the grace period ends. Install a renewed license key to restore full access.",
+                "The license is past its main expiry date but still inside its signed grace window. The app runs in read-only mode until the grace period ends. Paste a renewed license key to restore full access.",
             LicenseStatus.Expired =>
-                "The license is expired and its grace period has elapsed. Install a renewed license key from your vendor to restore full access.",
+                "The license is expired and its grace period has elapsed. Paste a renewed license key from your vendor to restore full access.",
             LicenseStatus.ExpiringSoon =>
-                "The license is valid but expires within 14 days. Contact your vendor to renew before it expires.",
+                "The license is valid but expires within 14 days. Contact your vendor for a renewed key before it expires.",
             LicenseStatus.Valid =>
                 "A vendor-signed license is active and the licensed features are available.",
             LicenseStatus.Trial =>
-                "A trial is active on this machine. Install a vendor-signed license key before the trial window ends to keep working without interruption.",
+                "A trial is active on this machine. Paste your license key before the trial window ends to keep working without interruption.",
             LicenseStatus.TrialExpired =>
-                "The trial has ended. All your data is preserved, but the app is now in read-only mode until you install a vendor-signed license key.",
+                "The trial has ended. All your data is preserved, but the app is now in read-only mode until you paste your license key.",
             LicenseStatus.MachineMismatch =>
-                "This license is bound to a different machine fingerprint. Ask your vendor for a key bound to this PC's ID, or generate a fresh activation request from this PC.",
+                "This license is bound to a different machine fingerprint. Ask your vendor for a key bound to this PC's ID.",
             LicenseStatus.ActivationLimit =>
                 "The legacy activation-limit state was reached. Re-issue the license as a signed license key.",
             _ => ""

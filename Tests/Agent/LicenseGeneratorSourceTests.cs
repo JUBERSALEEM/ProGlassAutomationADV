@@ -23,7 +23,7 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Main_window_uses_safe_brush_resolution_and_written_output_path()
+        public void Main_window_uses_safe_brush_resolution_and_default_output_folder()
         {
             string root = LocateProjectRoot();
             string code = File.ReadAllText(Path.Combine(root,
@@ -32,21 +32,28 @@ namespace ProGlassAutomation.Tests.Agent
                 "Tools", "LicenseGenerator", "Theme.xaml"));
 
             Assert.Contains("ResolveBrush(", code);
-            Assert.Contains("result.OutputPath", code);
+            Assert.Contains("LicenseGeneratorCore.DefaultOutputFolder", code);
+            Assert.Contains("SaveLicenseKeyButton_Click", code);
             Assert.Contains("<FontFamily x:Key=\"AppFont\">Segoe UI</FontFamily>", theme);
             Assert.DoesNotContain("DropShadowEffect", theme);
         }
 
         [Fact]
-        public void Generator_window_uses_explicit_request_parsing_and_external_key_loading_instead_of_ui_ready_radio_guards()
+        public void Generator_window_is_key_only_and_uses_external_key_loading()
         {
             string root = LocateProjectRoot();
             string code = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
 
             Assert.Contains("IssuerKeyMaterial.LoadFromFile", code);
-            Assert.Contains("ParseActivationRequestText()", code);
-            Assert.Contains("SelectedComboText(", code);
+            Assert.Contains("LicenseGeneratorCore.GenerateLicenseKey", code);
+            Assert.Contains("result.ArmoredKey", code);
+            Assert.Contains("LicenseGeneratorCore.RunSelfTest", code);
+
+            // The 2026 simple-flow rewrite removed the activation
+            // request/response UI from the generator entirely.
+            Assert.DoesNotContain("GenerateActivationResponse", code);
+            Assert.DoesNotContain("ActivationRequestBox", code);
             Assert.DoesNotContain("private bool _uiReady;", code);
         }
 
