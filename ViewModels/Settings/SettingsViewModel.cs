@@ -994,22 +994,23 @@ namespace ProGlassAutomation.ViewModels.Settings
             ap.FontStyleName = "Normal";
             SaveConfig();
 
-            // 2) Push each one through the same apply-path the matching
-            //    control uses, so the UI restyles immediately.
+            // 2) OPTIMIZED: Batch apply all appearance settings efficiently.
+            //    ApplyTheme internally calls ApplyAccent, ReapplyOutline, 
+            //    ReapplyCardBorderThickness, and ReapplyCardCornerRadius, so
+            //    we don't need to call them again.
             ThemeManager.ApplyTheme(AppTheme.Light);
+            
+            // Apply gradient preference (not called by ApplyTheme)
             ThemeManager.ApplyGradientPreference(true);
-            ThemeManager.ApplyOutline(false);
-            ThemeManager.ApplyCardBorderThickness(1.5);
-            ThemeManager.ApplyCardCornerRadius(12);
+            
+            // Apply display density and UI scale (not called by ApplyTheme)
             ThemeManager.ApplyDisplayDensity("Compact");
             ThemeManager.ApplyUiScale(1.0);
-            // Apply the DEFAULT family first, then re-derive the default
-            // accent: ApplyAccent raises AccentChanged, which makes the
-            // engine re-apply the CURRENT family — ordering it before
-            // the family switch would re-apply the stale previous
-            // family and only then converge.
-            ApplyVisualTheme();                  // iOS Liquid Glass (default family)
-            ThemeManager.ApplyAccent(null);      // null = theme default (Glass Blue)
+            
+            // Apply visual theme family (iOS Liquid Glass)
+            ApplyVisualTheme();
+            
+            // Reset fonts
             FontService.ResetToDefault();
 
             // 3) Resync the bound controls to the restored values.
