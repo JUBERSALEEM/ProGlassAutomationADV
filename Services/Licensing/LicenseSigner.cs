@@ -1,14 +1,21 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Licensing/LicenseSigner.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Commercial licensing — signing primitives
+// MODULE: Legacy license signing primitives — migration/tests only
 //
 // PURPOSE
 // ───────
-// Sign a <see cref="LicensePayload"/> with an RSA-2048 private key
-// (PSS padding, SHA-256) and write the resulting .lic file. The
+// Sign a legacy <see cref="LicensePayload"/> with an RSA-2048 private key
+// (PSS padding, SHA-256) and write the resulting `.lic` file. The
 // corresponding verifier (LicenseVerifier.cs) uses the embedded
 // public key in LicensePublicKey.cs.
+//
+// IMPORTANT
+// ─────────
+// This is no longer the active customer-activation contract after the secure
+// offline redesign. The live runtime path now uses signed offline activation
+// responses through ProGlass.Licensing. This signer remains for legacy
+// migration tooling and regression tests only.
 //
 // WHY RSA, NOT ED25519
 // ────────────────────

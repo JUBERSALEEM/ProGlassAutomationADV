@@ -1,7 +1,14 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Licensing/TrialLedger.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Licensing — tamper-evident, multi-anchor trial-issuance ledger
+// MODULE: Legacy licensing support — tamper-evident trial ledger
+//
+// NOTE
+// ────
+// This ledger belongs to the removed client-issued auto-trial model.
+// The secure offline activation redesign no longer uses it as the active
+// runtime authority, but it is retained temporarily for legacy migration
+// reference and older test/history compatibility.
 //
 // PURPOSE
 // ───────

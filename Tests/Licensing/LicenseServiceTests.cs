@@ -153,6 +153,55 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
+        public void InstallText_rejects_suspended_response_after_signature_verification()
+        {
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            string requestJson = LicenseService.CreateActivationRequestJson("LIC-SUSPENDED-001");
+            var request = OfflineActivationService.ReadRequest(requestJson).Request!;
+
+            var response = new OfflineActivationResponseDocument
+            {
+                ProductId = request.ProductId,
+                LicenseId = request.LicenseId,
+                ActivationId = "ACT-SUSPENDED-001",
+                InstallationId = request.InstallationId,
+                RequestNonce = request.RequestNonce,
+                MachineFingerprint = request.MachineFingerprint,
+                CustomerId = "CUST-001",
+                CompanyName = "Acme Glass LLC",
+                Edition = "Business",
+                LicenseType = "Subscription",
+                LicenseStatus = "Suspended",
+                IssuedAtUtc = DateTime.UtcNow,
+                NotBeforeUtc = DateTime.UtcNow,
+                ExpiresAtUtc = DateTime.UtcNow.AddDays(365),
+                FeatureEntitlements = new() { "*" }
+            };
+
+            string signed = OfflineActivationService.SignResponseJson(
+                response,
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
+
+            var result = LicenseService.InstallText(signed);
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.Contains("not Active", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void InstallFile_rejects_oversized_response_file()
+        {
+            string path = Path.Combine(_tempFolder, "huge-response.lic");
+            File.WriteAllText(path, new string('X', OfflineActivationService.MaxResponseCharacters * 4 + 1));
+
+            var result = LicenseService.InstallFile(path);
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.Contains("size limit", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
         public void InstallFile_accepts_signed_response_file()
         {
             (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();

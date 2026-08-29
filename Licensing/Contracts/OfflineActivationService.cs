@@ -24,7 +24,10 @@ public enum OfflineActivationErrorCode
     InstallationMismatch = 13,
     MachineMismatch = 14,
     NonceMismatch = 15,
-    UnsupportedStatus = 16
+    UnsupportedStatus = 16,
+    OversizedRequest = 17,
+    OversizedResponse = 18,
+    InactiveStatus = 19
 }
 
 public sealed class OfflineActivationRequestReadResult
@@ -52,6 +55,9 @@ public sealed class OfflineActivationVerificationResult
 /// </summary>
 public static class OfflineActivationService
 {
+    public const int MaxRequestCharacters = 64 * 1024;
+    public const int MaxResponseCharacters = 512 * 1024;
+
     public static string CreateRequestJson(OfflineActivationRequestDocument request)
     {
         if (request is null) throw new ArgumentNullException(nameof(request));
@@ -71,6 +77,16 @@ public static class OfflineActivationService
                 Success = false,
                 ErrorCode = OfflineActivationErrorCode.EmptyRequest,
                 Message = "Activation request is empty."
+            };
+        }
+
+        if (json.Length > MaxRequestCharacters)
+        {
+            return new OfflineActivationRequestReadResult
+            {
+                Success = false,
+                ErrorCode = OfflineActivationErrorCode.OversizedRequest,
+                Message = "Activation request exceeds the safe size limit."
             };
         }
 
@@ -185,6 +201,16 @@ public static class OfflineActivationService
                 IsValid = false,
                 ErrorCode = OfflineActivationErrorCode.EmptyResponse,
                 Message = "Activation response is empty."
+            };
+        }
+
+        if (responseJson.Length > MaxResponseCharacters)
+        {
+            return new OfflineActivationVerificationResult
+            {
+                IsValid = false,
+                ErrorCode = OfflineActivationErrorCode.OversizedResponse,
+                Message = "Activation response exceeds the safe size limit."
             };
         }
 
@@ -364,6 +390,18 @@ public static class OfflineActivationService
                 IsValid = false,
                 ErrorCode = OfflineActivationErrorCode.UnsupportedStatus,
                 Message = "Unsupported activation license status: '" + response.Payload.LicenseStatus + "'.",
+                Response = response,
+                SigningKeyId = response.Signature.KeyId
+            };
+        }
+
+        if (!string.Equals(response.Payload.LicenseStatus, "Active", StringComparison.OrdinalIgnoreCase))
+        {
+            return new OfflineActivationVerificationResult
+            {
+                IsValid = false,
+                ErrorCode = OfflineActivationErrorCode.InactiveStatus,
+                Message = "Activation response status is '" + response.Payload.LicenseStatus + "', not Active.",
                 Response = response,
                 SigningKeyId = response.Signature.KeyId
             };

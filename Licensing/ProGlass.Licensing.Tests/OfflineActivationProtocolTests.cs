@@ -211,4 +211,51 @@ public sealed class OfflineActivationProtocolTests
         Assert.False(verify.IsValid);
         Assert.Equal(OfflineActivationErrorCode.Expired, verify.ErrorCode);
     }
+
+    [Fact]
+    public void Suspended_activation_response_is_rejected_after_signature_verification()
+    {
+        var (pub, priv) = LicenseCrypto.GenerateKeyPair();
+        string keyId = LicenseCrypto.Fingerprint(pub);
+        var response = BuildResponse();
+        response.LicenseStatus = "Suspended";
+
+        string json = OfflineActivationService.SignResponseJson(response, priv, keyId);
+        var verify = OfflineActivationService.VerifyResponse(
+            json,
+            new Dictionary<string, string> { [keyId] = pub },
+            expectedProductId: ProductIds.ProGlassAutomation,
+            expectedInstallationId: "INST-001",
+            expectedMachineFingerprint: "MACHINE-ABC",
+            expectedRequestNonce: "NONCE-123",
+            utcNow: DateTime.UtcNow);
+
+        Assert.False(verify.IsValid);
+        Assert.Equal(OfflineActivationErrorCode.InactiveStatus, verify.ErrorCode);
+    }
+
+    [Fact]
+    public void Oversized_activation_request_is_rejected()
+    {
+        string huge = new string('A', OfflineActivationService.MaxRequestCharacters + 1);
+        var read = OfflineActivationService.ReadRequest(huge);
+        Assert.False(read.Success);
+        Assert.Equal(OfflineActivationErrorCode.OversizedRequest, read.ErrorCode);
+    }
+
+    [Fact]
+    public void Oversized_activation_response_is_rejected()
+    {
+        string huge = new string('A', OfflineActivationService.MaxResponseCharacters + 1);
+        var verify = OfflineActivationService.VerifyResponse(
+            huge,
+            new Dictionary<string, string>(),
+            expectedProductId: ProductIds.ProGlassAutomation,
+            expectedInstallationId: "INST-001",
+            expectedMachineFingerprint: "MACHINE-ABC",
+            expectedRequestNonce: "NONCE-123",
+            utcNow: DateTime.UtcNow);
+        Assert.False(verify.IsValid);
+        Assert.Equal(OfflineActivationErrorCode.OversizedResponse, verify.ErrorCode);
+    }
 }

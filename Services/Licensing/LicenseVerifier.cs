@@ -1,13 +1,20 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Licensing/LicenseVerifier.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Commercial licensing — verification
+// MODULE: Legacy license verification — migration/tests only
 //
 // PURPOSE
 // ───────
-// Read a .lic file, verify its RSA-2048-PSS signature against the
+// Read a legacy `.lic` file, verify its RSA-2048-PSS signature against the
 // embedded public key, and return a <see cref="LicenseStatus"/>
 // + the parsed <see cref="LicensePayload"/>.
+//
+// IMPORTANT
+// ─────────
+// This is no longer the active runtime authority after the secure offline
+// activation redesign. The live app path now trusts the protected signed
+// offline activation response loaded by LicenseService. This verifier remains
+// only for legacy inspection/migration and existing regression tests.
 //
 // The verifier is the ONLY piece of licensing code the app's
 // runtime calls on every cold start. It must be:

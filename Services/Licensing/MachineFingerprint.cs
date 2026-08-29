@@ -7,11 +7,11 @@
 // ────────────
 // A stable, opaque identifier for the machine the app is running on.
 // It is used by:
-//   • the license verifier, to decide whether a machine-bound license
-//     (.lic file with a non-null MachineFingerprint) applies to this
-//     device — including the auto-issued trial, which is machine-bound
-//     since 2026-08-26 (a copied/synced trial .lic is rejected on any
-//     other PC instead of silently running there);
+//   • the license verifier / offline activation flow, to decide whether
+//     a machine-bound license applies to this device — including
+//     vendor-issued offline trial responses that are bound to one
+//     machine so copied/synced activation artifacts are rejected on
+//     other PCs;
 //   • the activation ledger in %AppData%\ProGlassAutomation\
 //     activations.json (portable licenses count activations per
 //     fingerprint);

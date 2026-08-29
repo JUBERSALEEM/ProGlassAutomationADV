@@ -289,6 +289,16 @@ public static class LicenseService
         string text;
         try
         {
+            var info = new FileInfo(sourcePath);
+            if (info.Length > OfflineActivationService.MaxResponseCharacters * 4L)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail = "Activation response file exceeds the safe size limit."
+                };
+            }
+
             text = File.ReadAllText(sourcePath);
         }
         catch (Exception ex)
@@ -366,14 +376,13 @@ public static class LicenseService
         var stored = OfflineActivationStore.ReadActivationState(dataRoot);
         if (stored == null)
         {
-            if (LegacyLicenseArtifactExists(dataRoot))
+            string? legacyArtifactPath = FindLegacyLicenseArtifactPath(dataRoot);
+            if (legacyArtifactPath != null)
             {
                 return new LicenseVerificationResult
                 {
                     Status = LicenseStatus.Invalid,
-                    ErrorDetail =
-                        "A legacy license artifact was detected, but the app now requires a signed offline activation response. " +
-                        "Generate a fresh activation request from Settings → License and ask your vendor to re-issue the license in the new secure format."
+                    ErrorDetail = LegacyLicenseMigrationInspector.BuildMigrationPrompt(legacyArtifactPath)
                 };
             }
 
@@ -552,6 +561,18 @@ public static class LicenseService
                 Status = LicenseStatus.Expired,
                 Payload = payload,
                 ErrorDetail = verify.Message ?? "The activation response has expired."
+            },
+            OfflineActivationErrorCode.InactiveStatus => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                Payload = payload,
+                ErrorDetail = verify.Message ?? "The activation response is not active for runtime use."
+            },
+            OfflineActivationErrorCode.OversizedRequest or OfflineActivationErrorCode.OversizedResponse => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                Payload = payload,
+                ErrorDetail = verify.Message ?? "The activation artifact exceeds the safe size limit."
             },
             _ => new LicenseVerificationResult
             {
