@@ -186,8 +186,22 @@
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
-                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
@@ -223,8 +237,22 @@
                             <Setter TargetName="Bg" Property="Opacity" Value="0.94"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
-                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
@@ -260,8 +288,22 @@
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.94"/>
-                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.94"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.94" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.94" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -356,9 +398,23 @@
                         </Trigger>
                         <!-- Pressed State -->
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Squish" Property="ScaleX" Value="0.96"/>
-                            <Setter TargetName="Squish" Property="ScaleY" Value="0.96"/>
                             <Setter TargetName="Thumb" Property="Width" Value="35"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <!-- Animations -->
                         <EventTrigger RoutedEvent="ToggleButton.Checked">
@@ -445,9 +501,23 @@
                             </Setter>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Squish" Property="ScaleX" Value="0.96"/>
-                            <Setter TargetName="Squish" Property="ScaleY" Value="0.96"/>
                             <Setter TargetName="Thumb" Property="Width" Value="35"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="Squish" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <EventTrigger RoutedEvent="ToggleButton.Checked">
                             <BeginStoryboard>
@@ -493,12 +563,14 @@
                                 BorderThickness="1"
                                 Effect="{DynamicResource GlassShadowSoftBorder}"
                                 VerticalAlignment="Center">
-                            <Border Height="7" CornerRadius="6,6,0,0" VerticalAlignment="Top"
-                                    Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
-                            <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}"
-                                       HorizontalAlignment="Center" VerticalAlignment="Center"
-                                       Visibility="Collapsed"/>
+                            <Grid>
+                                <Border Height="7" CornerRadius="6,6,0,0" VerticalAlignment="Top"
+                                        Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
+                                <TextBlock x:Name="Glyph" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="11" Foreground="{DynamicResource TextPrimaryBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
+                            </Grid>
                         </Border>
                         <ContentPresenter Margin="9,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>

@@ -130,8 +130,22 @@
                             <Setter TargetName="Bg" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="PressScale" Property="ScaleX" Value="0.96"/>
-                            <Setter TargetName="PressScale" Property="ScaleY" Value="0.96"/>
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="0.96" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="0.96" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleX" To="1" Duration="0:0:0.05"/>
+                                        <DoubleAnimation Storyboard.TargetName="PressScale" Storyboard.TargetProperty="ScaleY" To="1" Duration="0:0:0.05"/>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -229,9 +243,12 @@
                             BorderBrush="{DynamicResource GlassBorderPrimary}"
                             BorderThickness="1"
                             Effect="{DynamicResource GlassShadowSoftBorder}">
-                        <Border Height="9" CornerRadius="16,16,0,0" VerticalAlignment="Top"
-                                Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
-                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Grid>
+                            <Border Height="9" CornerRadius="16,16,0,0" VerticalAlignment="Top"
+                                    Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"
+                                    IsHitTestVisible="False"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
