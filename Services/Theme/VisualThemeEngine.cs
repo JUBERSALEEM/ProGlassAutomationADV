@@ -1630,24 +1630,9 @@ namespace ProGlassAutomation.Services.Theme
             resources["WindowBackgroundBrush"] =
                 BuildLiquidStageBrush(dark, accent);
 
-            // ── 2) SHADOWS — deep soft crystal shadow ──────────────
-            var crystalShadow = new System.Windows.Media.Effects.DropShadowEffect
-            {
-                Color = Colors.Black,
-                BlurRadius = 35,
-                ShadowDepth = 12,
-                Opacity = 0.10,
-                Direction = 270
-            };
-            crystalShadow.Freeze();
-            resources["ShadowSoft"] = crystalShadow;
-            resources["ShadowElevated"] = crystalShadow;
-            resources["GlassShadowSoft"] = crystalShadow;
-            resources["GlassShadowSoftBorder"] = crystalShadow;
-            resources["GlassShadowSoftButton"] = crystalShadow;
-            resources["GlassShadowSoftCheckBox"] = crystalShadow;
-            resources["GlassShadowSoftTextBox"] = crystalShadow;
-            resources["GlassShadowSoftToggle"] = crystalShadow;
+            // ── 2) SHADOWS — theme XAML defines water-weight shadows ──
+            // (Deep, spread shadows that simulate water weight inside glass.
+            //  Defined in theme XAML, flow through via ClearOverrides.)
 
             // ── 3) CRYSTAL BORDER — 24% white ──────────────────────
             var crystalBorder = new SolidColorBrush(
