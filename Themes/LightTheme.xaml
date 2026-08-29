@@ -30,11 +30,22 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Surfaces ─────────────────────────────────────────────────── -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush"
-                     Color="#F1F5F9"
-                     po:Freeze="True"/>
+    <!-- iOS glass backdrop — subtle gradient that makes glass surfaces visible -->
+    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#E8EDF5" Offset="0.0"/>
+        <GradientStop Color="#E0E8F4" Offset="0.3"/>
+        <GradientStop Color="#DDE5F0" Offset="0.6"/>
+        <GradientStop Color="#E4E9F2" Offset="1.0"/>
+    </LinearGradientBrush>
+    <!-- Glass backdrop overlay — optional tinted layer behind glass cards -->
+    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+        <GradientStop Color="#C7D2FE" Offset="0.0"/>
+        <GradientStop Color="#BFDBFE" Offset="0.35"/>
+        <GradientStop Color="#A5F3FC" Offset="0.65"/>
+        <GradientStop Color="#C7D2FE" Offset="1.0"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="ModuleBackgroundBrush"
-                     Color="#FFFFFF"
+                     Color="#E6FFFFFF"
                      po:Freeze="True"/>
     <Color x:Key="ModuleBackgroundColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush"
@@ -528,9 +539,9 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
 
     <!-- Glass surfaces — near-transparent white tints on light stage -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#06FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0DFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#14FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#29FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#3DFFFFFF" po:Freeze="True"/>
 
     <!-- Glass borders — bright white edges on light stage -->
     <SolidColorBrush x:Key="GlassBorderPrimary" Color="#D9FFFFFF" po:Freeze="True"/>

@@ -22,9 +22,19 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- ── Surfaces ─────────────────────────────────────────────────── -->
-    <SolidColorBrush x:Key="WindowBackgroundBrush"
-                     Color="#020617"
-                     po:Freeze="True"/>
+    <!-- iOS dark glass backdrop -->
+    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#0A0F1E" Offset="0.0"/>
+        <GradientStop Color="#0C1225" Offset="0.3"/>
+        <GradientStop Color="#0E1530" Offset="0.6"/>
+        <GradientStop Color="#0A1020" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+        <GradientStop Color="#1E1B4B" Offset="0.0"/>
+        <GradientStop Color="#172554" Offset="0.35"/>
+        <GradientStop Color="#164E63" Offset="0.65"/>
+        <GradientStop Color="#1E1B4B" Offset="1.0"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="ModuleBackgroundBrush"
                      Color="#0F172A"
                      po:Freeze="True"/>
@@ -492,9 +502,9 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
 
     <!-- Glass surfaces — subtle dark tints on dark stage -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#0A1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#142D3B4F" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1E374A5E" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#1A1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#2A2D3B4F" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#3A374A5E" po:Freeze="True"/>
 
     <!-- Glass borders — subtle light edges on dark stage -->
     <SolidColorBrush x:Key="GlassBorderPrimary" Color="#4DFFFFFF" po:Freeze="True"/>

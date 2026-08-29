@@ -75,18 +75,20 @@
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="18"/>
+            <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
         <Style x:Key="SpecGroupCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="18"/>
             <Setter Property="Margin" Value="0,0,0,14"/>
+            <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
         <Style x:Key="FamilyInvoiceNumberStyle" TargetType="TextBlock">
@@ -119,11 +121,12 @@
             <Setter Property="Padding" Value="16,12"/>
         </Style>
         <Style x:Key="CompactStatTileStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14"/>
             <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+            <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="MinHeight" Value="70"/>
         </Style>

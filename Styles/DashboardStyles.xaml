@@ -592,13 +592,13 @@
 
     <!-- The reference's SectionBorderStyle. -->
     <Style x:Key="SoftCardStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="20"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect"          Value="{StaticResource SoftCardShadow}"/>
+        <Setter Property="Effect"          Value="{DynamicResource GlassShadowSoftBorder}"/>
     </Style>
 
     <!-- Same card with the reference's 0,0,0,20 stacking margin. -->
@@ -623,42 +623,42 @@
          1.0, so on a 125%/150% display it would rasterise at 1x and upscale,
          softening the very numbers this dashboard exists to show. -->
     <Style x:Key="SoftTileStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceElevated}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="18"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <!-- Hero band — radius 22, no border, per the reference. -->
     <Style x:Key="SoftHeroStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="Background"   Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background"   Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="CornerRadius" Value="26"/>
         <Setter Property="Padding"      Value="24"/>
         <Setter Property="Margin"       Value="0,0,0,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
-        <Setter Property="Effect"       Value="{StaticResource SoftCardShadow}"/>
+        <Setter Property="Effect"       Value="{DynamicResource GlassShadowPanelBorder}"/>
     </Style>
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="BorderThickness" Value="1.5"/>
-        <Setter Property="Background"   Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background"   Value="{DynamicResource GlassSurfaceElevated}"/>
+        <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding"      Value="10"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
     <!-- Inner neutral tile (sales-team chips, list rows). -->
     <Style x:Key="SoftInsetStyle" TargetType="Border">
-        <Setter Property="Background"      Value="{DynamicResource TintGrayBrush}"/>
+        <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="12"/>
+        <Setter Property="CornerRadius"    Value="14"/>
         <Setter Property="Padding"         Value="12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
