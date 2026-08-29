@@ -25,7 +25,7 @@
 
     <Style x:Key="BaseCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"         Value="24"/>
@@ -34,7 +34,7 @@
 
     <Style x:Key="ElevatedCardStyle" TargetType="Border"
            BasedOn="{StaticResource BaseCardStyle}">
-        <Setter Property="Effect" Value="{StaticResource ShadowSoft}"/>
+        <Setter Property="Effect" Value="{DynamicResource ShadowSoft}"/>
     </Style>
 
     <Style x:Key="TintedCardStyle" TargetType="Border">

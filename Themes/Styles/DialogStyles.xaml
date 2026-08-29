@@ -15,27 +15,21 @@
          dictionary makes the shared definition available.
     ═══════════════════════════════════════════════════════════════════ -->
 
-    <!-- Floating dialog card with soft shadow. -->
+    <!-- Floating dialog card — layered glass with crystal edge and shadow. -->
     <Style x:Key="DialogCardStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding" Value="20"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding" Value="True"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="28" ShadowDepth="4"
-                                  Direction="270" Opacity="0.25"
-                                  Color="#000000"/>
-            </Setter.Value>
-        </Setter>
+        <Setter Property="Effect" Value="{DynamicResource ShadowElevated}"/>
     </Style>
 
     <!-- Rounded dialog footer strip (buttons row). -->
     <Style x:Key="DialogFooterStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
         <Setter Property="CornerRadius" Value="0,0,20,20"/>
