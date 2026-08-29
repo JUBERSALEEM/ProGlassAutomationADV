@@ -1589,51 +1589,52 @@ namespace ProGlassAutomation.Services.Theme
             resources["WindowBackgroundBrush"] =
                 BuildLiquidStageBrush(dark, accent);
 
-            // ── 2) SURFACES — near-zero alpha (truly transparent) ─
-            // All surfaces are 2–8% white — almost invisible.
-            // The aurora stage shows through completely.
-            if (dark)
-            {
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.08, 0.02);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.10, 0.03);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.12, 0.04);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.08, 0.03);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.08, 0.03);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.10, 0.03);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.08, 0.03);
+            // ── 2) SURFACES — ZERO fill. Fully transparent. ────────
+            // No color. No tint. No gradient. Like clear water.
+            // The aurora stage shows through 100%.
+            // Only the crystal border defines the shape.
+            var clear = new SolidColorBrush(Colors.Transparent);
+            clear.Freeze();
 
-                // Dashboard ambient — very subtle glow
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.06, 0.02);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.04);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.03);
-            }
-            else
-            {
-                // Light mode: 2–10% white — nearly invisible
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.10, 0.03);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.12, 0.04);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.14, 0.05);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.10, 0.04);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.10, 0.04);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.12, 0.04);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.10, 0.04);
+            resources["ModuleBackgroundBrush"] = clear;
+            resources["ElevatedSurfaceBrush"] = clear;
+            resources["SideMenuBackgroundBrush"] = clear;
+            resources["SidebarCardBrush"] = clear;
+            resources["ShellLiquidBrush"] = clear;
+            resources["DashLiquidSurfaceBrush"] = clear;
 
-                // Dashboard ambient — soft glow
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.08, 0.03);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.06);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.04);
-            }
+            // Hover — just a whisper of white so the user sees feedback.
+            // Pure white, no accent tint. Like touching water.
+            var hoverAlpha = dark ? (byte)0x14 : (byte)0x0D;
+            var hover = new SolidColorBrush(
+                Color.FromArgb(hoverAlpha, 0xFF, 0xFF, 0xFF));
+            hover.Freeze();
+            resources["MenuHoverBrush"] = hover;
 
-            // ── 3) STATUS TINTS — hue kept, ultra-transparent ───────
-            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.18, 0.08);
-            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.18, 0.08);
-            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.18, 0.08);
-            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.18, 0.08);
-            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.18, 0.08);
-            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.18, 0.08);
-            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.18, 0.08);
+            // Dashboard ambient — very subtle white glow (no color)
+            var ambientGlow = new SolidColorBrush(
+                Color.FromArgb(dark ? (byte)0x08 : (byte)0x06,
+                    0xFF, 0xFF, 0xFF));
+            ambientGlow.Freeze();
+            resources["DashAmbientBrush"] = ambientGlow;
 
-            // ── 4) TYPOGRAPHY — readable on transparent background ─
+            var blobGlow = new SolidColorBrush(
+                Color.FromArgb(dark ? (byte)0x06 : (byte)0x04,
+                    0xFF, 0xFF, 0xFF));
+            blobGlow.Freeze();
+            resources["DashAmbientBlob1Brush"] = blobGlow;
+            resources["DashAmbientBlob2Brush"] = blobGlow;
+
+            // ── 3) STATUS TINTS — barely there, hue only ───────────
+            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.10, 0.05);
+            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.10, 0.05);
+            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.10, 0.05);
+            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.10, 0.05);
+            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.10, 0.05);
+            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
+            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
+
+            // ── 4) TYPOGRAPHY — readable on see-through background ─
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
@@ -1647,45 +1648,53 @@ namespace ProGlassAutomation.Services.Theme
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
                 : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
 
-            // ── 5) SHAPE — slightly larger radii for glass feel ───
+            // ── 5) SHAPE — larger radii for glass feel ─────────────
             resources["CardCornerRadius"] = new CornerRadius(16);
             resources["CardCornerRadiusLarge"] = new CornerRadius(20);
             resources["ControlCornerRadius"] = new CornerRadius(12);
 
-            // ── 6) STRONG CRYSTAL EDGES — white borders visible ────
+            // ── 6) STRONG CRYSTAL EDGES — the ONLY visible part ────
+            // White glass border is what makes cards visible.
+            // Without fill, the border IS the card.
             Color edgeColor = dark
-                ? Color.FromRgb(0x80, 0x90, 0xA0)
-                : Color.FromRgb(0xD0, 0xD8, 0xE0);
+                ? Color.FromRgb(0x80, 0xA0, 0xC0)
+                : Color.FromRgb(0xC8, 0xD4, 0xE0);
             ApplyKeyline(resources, edgeColor);
 
-            // ── 7) LIQUID GLASS TOKENS — ultra-transparent variant ─
-            resources["LiquidGlassBrush"] =
-                resources["ModuleBackgroundBrush"];
-            resources["LiquidGlassSubtleBrush"] =
-                resources["MenuHoverBrush"];
-            resources["LiquidGlassStrongBrush"] =
-                resources["ElevatedSurfaceBrush"];
+            // ── 7) LIQUID GLASS TOKENS — fully transparent ─────────
+            resources["LiquidGlassBrush"] = clear;
+            resources["LiquidGlassSubtleBrush"] = clear;
+            resources["LiquidGlassStrongBrush"] = clear;
 
             resources["LiquidEdgeBrush"] = CrystalEdge(accent, dark);
             resources["LiquidInnerHighlightBrush"] =
-                HorizontalSheen(dark ? (byte)0x66 : (byte)0xCC);
+                HorizontalSheen(dark ? (byte)0x70 : (byte)0xDD);
             resources["LiquidReflectionBrush"] =
                 DiagonalSheen(dark ? (byte)0x30 : (byte)0x66);
 
-            resources["LiquidControlHoverBrush"] =
-                SolidFrost(accent, dark ? 0.18 : 0.25);
-            resources["LiquidControlPressedBrush"] =
-                SolidFrost(accent, dark ? 0.14 : 0.30);
-            resources["LiquidControlDisabledBrush"] =
-                SolidFrost(accent, dark ? 0.08 : 0.15);
+            resources["LiquidControlHoverBrush"] = hover;
+
+            var pressed = new SolidColorBrush(
+                Color.FromArgb(dark ? (byte)0x1C : (byte)0x18,
+                    0xFF, 0xFF, 0xFF));
+            pressed.Freeze();
+            resources["LiquidControlPressedBrush"] = pressed;
+
+            var disabled = new SolidColorBrush(
+                Color.FromArgb(dark ? (byte)0x08 : (byte)0x06,
+                    0xFF, 0xFF, 0xFF));
+            disabled.Freeze();
+            resources["LiquidControlDisabledBrush"] = disabled;
 
             resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
-                dark ? (byte)0x66 : (byte)0x80,
+                dark ? (byte)0x50 : (byte)0x60,
                 accent.R, accent.G, accent.B));
+
+            // Selection + primary button — accent but still transparent
             resources["LiquidSelectionBrush"] =
-                AccentCrystal(accent, dark ? (0x30, 0x20) : (0x40, 0x28));
+                AccentCrystal(accent, dark ? (0x28, 0x18) : (0x30, 0x1A));
             resources["LiquidPrimaryButtonBrush"] =
-                AccentCrystal(accent, dark ? (0x80, 0x50) : (0xA0, 0x60));
+                AccentCrystal(accent, dark ? (0x70, 0x45) : (0x90, 0x55));
 
             resources["LiquidOverlayBrush"] = FrozenSolid(dark
                 ? Color.FromArgb(0x99, 0x03, 0x10, 0x26)
