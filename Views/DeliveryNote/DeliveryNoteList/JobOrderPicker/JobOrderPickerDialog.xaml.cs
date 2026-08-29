@@ -95,7 +95,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
                 Text = jo.Status,
                 FontSize = 10,
                 FontWeight = FontWeights.Bold,
-                Foreground = Brushes.White
+                Foreground = (System.Windows.Media.Brush)FindResource("OnAccentForegroundBrush")
             };
 
             // JO ID
@@ -194,10 +194,12 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
 
         private static void SetRowSelected(Border row)
         {
-            row.Background = new SolidColorBrush(Color.FromRgb(238, 242, 255));
+            row.Background = (System.Windows.Media.Brush)Application.Current.FindResource("SurfaceBrush");
+            var accentColor = (System.Windows.Media.Color)Application.Current.FindResource("AccentColor");
+            var accentLightColor = System.Windows.Media.Color.FromArgb(
+                180, accentColor.R, accentColor.G, accentColor.B);
             row.BorderBrush = new LinearGradientBrush(
-                Color.FromRgb(67, 56, 202),
-                Color.FromRgb(99, 102, 241),
+                accentColor, accentLightColor,
                 new Point(0, 0), new Point(1, 1));
             row.BorderThickness = new Thickness(2);
         }
@@ -205,17 +207,17 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
         private static void SetRowDeselected(Border row)
         {
             row.Background = new SolidColorBrush(Colors.Transparent);
-            row.BorderBrush = new SolidColorBrush(Color.FromRgb(226, 232, 240));
+            row.BorderBrush = (System.Windows.Media.Brush)Application.Current.FindResource("BorderBrush");
             row.BorderThickness = new Thickness(1);
         }
 
         private static Brush GetStatusBrush(string status) => status switch
         {
-            "Released" => new SolidColorBrush(Color.FromRgb(16, 185, 129)),
-            "InProduction" => new SolidColorBrush(Color.FromRgb(245, 158, 11)),
-            "Completed" => new SolidColorBrush(Color.FromRgb(99, 102, 241)),
-            "Delivered" => new SolidColorBrush(Color.FromRgb(107, 114, 128)),
-            _ => new SolidColorBrush(Color.FromRgb(156, 163, 175))
+            "Released" => (System.Windows.Media.Brush)Application.Current.FindResource("SuccessBrush"),
+            "InProduction" => (System.Windows.Media.Brush)Application.Current.FindResource("WarningBrush"),
+            "Completed" => (System.Windows.Media.Brush)Application.Current.FindResource("AccentBrush"),
+            "Delivered" => (System.Windows.Media.Brush)Application.Current.FindResource("NeutralBrush"),
+            _ => (System.Windows.Media.Brush)Application.Current.FindResource("MutedForegroundBrush")
         };
 
         // ── Search ────────────────────────────────────────────────────────

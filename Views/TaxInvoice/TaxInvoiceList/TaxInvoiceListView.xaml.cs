@@ -117,7 +117,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = $"📋 {family.ProformaId}",
                 IsEnabled = false,
-                Foreground = System.Windows.Media.Brushes.DarkSlateGray,
+                Foreground = (System.Windows.Media.Brush)FindResource("SecondaryForegroundBrush"),
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };

@@ -107,7 +107,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             var deleteItem = CreateMenuItem("🗑  Delete Invoice",
                 vm.DeleteInvoiceCommand, item);
             deleteItem.Foreground = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44));
+                (System.Windows.Media.Color)FindResource("DangerColor"));
             menu.Items.Add(deleteItem);
 
             element.ContextMenu = menu;

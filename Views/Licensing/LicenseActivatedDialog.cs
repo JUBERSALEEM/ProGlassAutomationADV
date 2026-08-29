@@ -104,7 +104,7 @@ namespace ProGlassAutomation.Views.Licensing
                 FontWeight = FontWeights.Bold,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
-                Foreground = Brushes.White
+                Foreground = (System.Windows.Media.Brush)FindResource("OnAccentForegroundBrush")
             };
             heroGrid.Children.Add(badge);
 
@@ -115,7 +115,7 @@ namespace ProGlassAutomation.Views.Licensing
                 Text = "License activated successfully",
                 FontSize = 24,
                 FontWeight = FontWeights.Bold,
-                Foreground = Brushes.White,
+                Foreground = (System.Windows.Media.Brush)FindResource("OnAccentForegroundBrush"),
                 TextWrapping = TextWrapping.Wrap
             });
             heroText.Children.Add(new TextBlock

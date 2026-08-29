@@ -200,7 +200,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 // FIX: 4 args
                 Margin = new Thickness(12, 0, 0, 0),
                 Foreground = new SolidColorBrush(
-                    Color.FromRgb(4, 120, 87))  // #047857 green
+                    (System.Windows.Media.Color)FindResource("SuccessColor"))
             };
 
             topRow.Children.Add(piLabel);
@@ -291,7 +291,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 // FIX: 4 args
                 Margin = new Thickness(16, 24, 16, 0),
                 Foreground = new SolidColorBrush(
-                    Color.FromRgb(185, 28, 28))  // #B91C1C
+                    (System.Windows.Media.Color)FindResource("DangerColor"))
             });
         }
     }
