@@ -115,7 +115,7 @@ standalone design.
 
 ## 5. Commit
 
-- `«hash»` — *Fix License Generator startup: define canonical type-scale
+- `1eba237` — *Fix License Generator startup: define canonical type-scale
   tokens in the tool's own Theme.xaml* — plus this document.
 
 ## 6. Operator notes
