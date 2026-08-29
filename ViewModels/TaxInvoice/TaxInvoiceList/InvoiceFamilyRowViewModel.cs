@@ -157,8 +157,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
             // ── Compute tab-filtering flags ─────────────────────────────
             AnyDraft = Members.Any(m => m.IsDraft);
-            AnyIssued = Members.Any(m => m.IsIssued);
-            AllPaid = Members.Count > 0 && Members.All(m => m.IsPaid);
+            // Use the family-level roll-up rather than the narrow row-level
+            // Issued flag so PartiallyPaid families still count as already
+            // billed/invoiced in tabs, KPIs and progress logic.
+            AnyIssued = family.HasIssuedInvoices;
+            AllPaid = family.IsFullyPaid;
             AnyOverdue = Members.Any(m => m.IsOverdue);
         }
 

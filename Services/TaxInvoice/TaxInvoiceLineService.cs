@@ -27,8 +27,9 @@ namespace ProGlassAutomation.Services.TaxInvoice
     {
         public static (int TotalQty, decimal TotalSqm) CalculateTotals(IEnumerable<TaxInvoiceItem> items)
         {
-            int qty = items.Sum(i => i.Qty);
-            decimal sqm = items.Sum(i => i.TotalSqm);
+            var rows = items?.ToList() ?? new List<TaxInvoiceItem>();
+            int qty = rows.Sum(i => i.Qty);
+            decimal sqm = rows.Sum(i => i.TotalSqm);
             return (qty, Math.Round(sqm, 3));
         }
 

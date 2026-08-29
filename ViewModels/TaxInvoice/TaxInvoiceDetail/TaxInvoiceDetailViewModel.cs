@@ -3,6 +3,7 @@ using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.TaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
@@ -1700,6 +1701,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         });
                 }
             }
+            catch (ReadOnlyModeException ex)
+            {
+                StatusMessage = ex.UserMessage;
+                MessageBox.Show(ex.UserMessage,
+                    "Read-Only Mode", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
             catch (Exception ex)
             {
                 StatusMessage = $"PDF export failed: {ex.Message}";
@@ -1874,6 +1882,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     _selectedFamilyMember.AttachmentCount -= 1;
                 OnPropertyChanged(nameof(SelectedFamilyHeaderText));
             }
+            catch (ReadOnlyModeException ex)
+            {
+                MessageBox.Show(ex.UserMessage,
+                    "Read-Only Mode", MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed:\n\n{ex.Message}",
@@ -1902,9 +1916,37 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 return false;
             }
 
+            if (!IsTrnValid)
+            {
+                MessageBox.Show("Company TRN must be exactly 15 digits for UAE tax invoices.",
+                    "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (DueDate < IssueDate)
+            {
+                MessageBox.Show("Due date cannot be earlier than issue date.",
+                    "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
             if (SpecGroups.Count == 0 || SpecGroups.All(g => g.Rows.Count == 0))
             {
                 MessageBox.Show("At least one glass item row is required.",
+                    "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (SpecGroups.SelectMany(g => g.Rows).Any(r => r.Qty <= 0))
+            {
+                MessageBox.Show("All invoice rows must have qty greater than zero.",
+                    "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (GrandTotal <= 0m)
+            {
+                MessageBox.Show("Grand total must be greater than zero.",
                     "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
             }
@@ -2149,6 +2191,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             if (!transition.IsValid)
             {
                 StatusMessage = transition.Reason ?? "Invalid status change.";
+                return;
+            }
+
+            Status = newStatus;
+            await SaveAsync();
+        }
+
+    }
+}lid status change.";
                 return;
             }
 
