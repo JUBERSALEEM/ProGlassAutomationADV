@@ -1003,8 +1003,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             ThemeManager.ApplyCardCornerRadius(12);
             ThemeManager.ApplyDisplayDensity("Compact");
             ThemeManager.ApplyUiScale(1.0);
+            // Apply the DEFAULT family first, then re-derive the default
+            // accent: ApplyAccent raises AccentChanged, which makes the
+            // engine re-apply the CURRENT family — ordering it before
+            // the family switch would re-apply the stale previous
+            // family and only then converge.
+            ApplyVisualTheme();                  // iOS Liquid Glass (default family)
             ThemeManager.ApplyAccent(null);      // null = theme default (Glass Blue)
-            ApplyVisualTheme();                  // Normal family, wallpaper cleared
             FontService.ResetToDefault();
 
             // 3) Resync the bound controls to the restored values.

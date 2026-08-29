@@ -752,9 +752,13 @@ namespace ProGlassAutomation.Views.Splash
         {
             StopLoadingIndicators();
 
-            // Stay Topmost for the fade. AllowsTransparency lets the
-            // window underneath show through — releasing Topmost first
-            // is what flashed the desktop between splash and login.
+            // Stay Topmost for the fade. The window underneath is only
+            // revealed by the opacity animation — releasing Topmost
+            // first is what flashed the desktop between splash and
+            // login. (2026-08-29: the splash is NOT a layered window —
+            // AllowsTransparency removed; an opaque stage renders it
+            // identically on every machine without the Win11
+            // software-rendered layered-window failure class.)
             IsHitTestVisible = false;
 
             var fadeOut = new DoubleAnimation

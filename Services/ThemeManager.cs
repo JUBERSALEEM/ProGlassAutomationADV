@@ -73,29 +73,58 @@ namespace ProGlassAutomation.Services
 
         public static void ApplyTheme(AppTheme theme)
         {
-            _currentTheme = theme;
-
             string themeUri = theme == AppTheme.Dark
                 ? "pack://application:,,,/Themes/DarkTheme.xaml"
                 : "pack://application:,,,/Themes/LightTheme.xaml";
 
-            var newDict = new ResourceDictionary
+            ResourceDictionary newDict;
+            try
             {
-                Source = new Uri(themeUri, UriKind.Absolute)
-            };
+                newDict = new ResourceDictionary
+                {
+                    Source = new Uri(themeUri, UriKind.Absolute)
+                };
+            }
+            catch (Exception ex)
+            {
+                // Never leave the app without a theme dictionary. If the
+                // new dictionary cannot load, KEEP the active one and
+                // surface the failure — a themeless resource scope is
+                // exactly the "every theme broken" symptom.
+                ProGlassAutomation.Services.Logging.AppLogService.Warning(
+                    $"Theme dictionary load failed ({themeUri}): {ex.Message}",
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "Themes",
+                        Operation = "ApplyTheme"
+                    });
+                return;
+            }
 
             var appDicts = Application.Current.Resources.MergedDictionaries;
 
-            // Remove existing theme dictionaries
+            // Add FIRST, then remove the old instance. A later merged
+            // dictionary wins DynamicResource lookups, so the new theme
+            // becomes authoritative the moment it is added — there is
+            // never a gap where theme keys resolve to nothing (that gap
+            // blanked every DynamicResource-bound surface during each
+            // Light/Dark swap).
+            appDicts.Add(newDict);
+
+            // Remove the PREVIOUS theme dictionary (the new one is
+            // deliberately excluded from the match).
             var existing = appDicts.FirstOrDefault(d =>
-                d.Source != null &&
+                d != null && d != newDict && d.Source != null &&
                 (d.Source.OriginalString.Contains("LightTheme.xaml") ||
                  d.Source.OriginalString.Contains("DarkTheme.xaml")));
 
             if (existing != null)
                 appDicts.Remove(existing);
 
-            appDicts.Add(newDict);
+            // Only now does the reported mode match the active
+            // dictionary (a failed load above returns early and leaves
+            // the previous theme reporting itself).
+            _currentTheme = theme;
 
             // NEW: re-derive the accent family against the fresh theme
             // surfaces so hover/tint/contrast stay correct.
@@ -181,12 +210,21 @@ namespace ProGlassAutomation.Services
                 dark ? Color.FromRgb(0x1E, 0x29, 0x3B)
                      : Color.FromRgb(0xFF, 0xFF, 0xFF));
 
-            FreezeAndSet(resources, "TintBlueBrush",
-                ColorMath.Tint(core, surface, dark ? 0.16 : 0.08));
-            FreezeAndSet(resources, "TintIndigoBrush",
-                ColorMath.Tint(
-                    ColorMath.FromHsl(h + 18, s, l), surface,
-                    dark ? 0.18 : 0.09));
+            // The iOS Liquid Glass family OWNS the tint brushes (it
+            // renders them as see-through hue frost). ApplyAccent runs
+            // AFTER the engine on every family switch (settings path),
+            // so without this guard it would repaint the Blue/Indigo
+            // chips opaque on top of the frost — the same class of bug
+            // as the dashboard-surface guard below.
+            if (VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass)
+            {
+                FreezeAndSet(resources, "TintBlueBrush",
+                    ColorMath.Tint(core, surface, dark ? 0.16 : 0.08));
+                FreezeAndSet(resources, "TintIndigoBrush",
+                    ColorMath.Tint(
+                        ColorMath.FromHsl(h + 18, s, l), surface,
+                        dark ? 0.18 : 0.09));
+            }
 
             // ── Card keyline — accent-derived, applied app-wide ───────
             // The Settings "Appearance" cards always looked right because
@@ -508,9 +546,13 @@ namespace ProGlassAutomation.Services
                 (d.Source.OriginalString.Contains("LightTheme.xaml") ||
                  d.Source.OriginalString.Contains("DarkTheme.xaml")));
 
-            return dict != null && dict[key] is SolidColorBrush brush
-                ? brush.Color
-                : fallback;
+            if (dict == null) return fallback;
+            return dict[key] switch
+            {
+                SolidColorBrush brush => brush.Color,
+                Color color => color,
+                _ => fallback
+            };
         }
 
         /// <summary>

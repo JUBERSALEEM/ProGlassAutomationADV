@@ -38,7 +38,6 @@
         WindowState="Maximized"
         WindowStyle="None"
         ResizeMode="NoResize"
-        AllowsTransparency="True"
         Background="{DynamicResource WindowBackgroundBrush}"
         ShowInTaskbar="False"
         Topmost="True"

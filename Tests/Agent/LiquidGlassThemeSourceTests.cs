@@ -363,6 +363,69 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("GlassFieldLabelStyle", filter, StringComparison.Ordinal);
         }
 
+        [Fact]
+        public void Splash_is_not_a_layered_window()
+        {
+            // AllowsTransparency turns the splash into a software-
+            // rendered layered window: on Windows 11 that class of
+            // window was the recurring source of white/frozen splash
+            // screens and failed fade/foreground handoffs. The splash
+            // content is fully opaque by design, so the flag must stay
+            // off.
+            string splash = Read("Views/Splash/SplashView.xaml");
+            Assert.DoesNotContain("AllowsTransparency=\"True\"", splash, StringComparison.Ordinal);
+            Assert.DoesNotContain("AllowsTransparency=\"true\"", splash, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Theme_swap_adds_the_new_dictionary_before_removing_the_old()
+        {
+            // Removing the theme dictionary before adding its replacement
+            // leaves a gap where EVERY DynamicResource bound to a theme
+            // key resolves to nothing — and if the new dictionary load
+            // throws, the app stays themeless for the whole session
+            // ("all themes broken"). The add must come first.
+            string tm = Read("Services/ThemeManager.cs");
+            int add = tm.IndexOf("appDicts.Add(newDict)", StringComparison.Ordinal);
+            int remove = tm.IndexOf("appDicts.Remove(existing)", StringComparison.Ordinal);
+            Assert.True(add >= 0, "ThemeManager must add the new theme dictionary");
+            Assert.True(remove >= 0, "ThemeManager must remove the old theme dictionary");
+            Assert.True(add < remove,
+                "ThemeManager must ADD the new theme dictionary BEFORE removing the old one");
+        }
+
+        [Fact]
+        public void Accent_application_does_not_clobber_the_liquid_family_tints()
+        {
+            // ApplyAccent runs after the engine on every family switch;
+            // it must not repaint the Blue/Indigo tint chips opaque over
+            // the iOS Liquid Glass family's see-through hue frost.
+            string tm = Read("Services/ThemeManager.cs");
+            int guard = tm.IndexOf(
+                "VisualThemeEngine.Current != VisualThemeEngine.LiquidGlass",
+                StringComparison.Ordinal);
+            int tintBlue = tm.IndexOf(
+                "FreezeAndSet(resources, \"TintBlueBrush\"",
+                StringComparison.Ordinal);
+            Assert.True(guard >= 0, "tint guard missing");
+            Assert.True(tintBlue >= 0, "TintBlueBrush write missing");
+            Assert.True(guard < tintBlue,
+                "the Liquid Glass tint guard must come before the TintBlueBrush write");
+        }
+
+        [Fact]
+        public void Engine_guarantees_critical_resources_after_every_apply()
+        {
+            // Last line of defense: Apply and ApplyModule must run the
+            // integrity pass in a finally block so an unresolved key
+            // becomes a logged, self-healed fallback instead of a
+            // silently broken screen.
+            string engine = Engine;
+            Assert.Contains("GuaranteeCriticalResources(resources)", engine, StringComparison.Ordinal);
+            Assert.Contains("CriticalFallbacks(dark)", engine, StringComparison.Ordinal);
+            Assert.Contains("ResourceReferenceKeyNotFoundException", engine, StringComparison.Ordinal);
+        }
+
         private static string[] ResourceKeys(string xaml) =>
             Regex.Matches(xaml, "x:Key=\"([^\"]+)\"")
                 .Select(m => m.Groups[1].Value)

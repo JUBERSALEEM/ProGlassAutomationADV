@@ -46,6 +46,7 @@
 
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows;
 using System.Windows.Media;
@@ -188,11 +189,11 @@ namespace ProGlassAutomation.Services.Theme
             string family, string wallpaperPath = "",
             double wallpaperOpacity = 0.85)
         {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
             try
             {
-                var resources = Application.Current?.Resources;
-                if (resources == null) return;
-
                 _lastWallpaperPath = wallpaperPath ?? "";
                 _lastWallpaperOpacity = ClampOpacity(wallpaperOpacity);
 
@@ -258,6 +259,12 @@ namespace ProGlassAutomation.Services.Theme
                         Class = nameof(VisualThemeEngine)
                     });
             }
+            finally
+            {
+                // Last line of defense — the UI must never be left with
+                // unresolved surfaces, text or window stage.
+                GuaranteeCriticalResources(resources);
+            }
         }
 
         // ── PER-MODULE WALLPAPER (§9) ────────────────────────────────────
@@ -272,11 +279,11 @@ namespace ProGlassAutomation.Services.Theme
             string moduleKey,
             AI.AIConfig.AppearanceSettings appearance)
         {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
             try
             {
-                var resources = Application.Current?.Resources;
-                if (resources == null) return;
-
                 LastRequestedModule = moduleKey ?? "";
 
                 _lastWallpaperPath = appearance?.WallpaperPath ?? "";
@@ -375,6 +382,153 @@ namespace ProGlassAutomation.Services.Theme
                         Class = nameof(VisualThemeEngine)
                     });
             }
+            finally
+            {
+                // Last line of defense — see GuaranteeCriticalResources.
+                GuaranteeCriticalResources(resources);
+            }
+        }
+
+        // ── THEME INTEGRITY GUARANTEE (2026-08-29) ──────────────────────
+        //
+        // Last line of defense after every Apply/ApplyModule: if any
+        // resource the UI depends on fails to resolve on a given
+        // machine, the screen would silently lose its surfaces, text or
+        // window stage. This pass verifies the effective application
+        // resource scope and injects a safe, opaque, theme-correct
+        // fallback — AND names the missing key in the log, so a
+        // machine-specific failure is diagnosable instead of invisible.
+
+        private static void GuaranteeCriticalResources(
+            ResourceDictionary resources)
+        {
+            try
+            {
+                var app = Application.Current;
+                if (app == null) return;
+
+                bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+                foreach (var (key, fallback) in CriticalFallbacks(dark))
+                {
+                    bool present;
+                    try
+                    {
+                        present = app.FindResource(key) != null;
+                    }
+                    catch (ResourceReferenceKeyNotFoundException)
+                    {
+                        present = false;
+                    }
+                    catch (Exception)
+                    {
+                        present = false;
+                    }
+
+                    if (present) continue;
+
+                    AppLogService.Warning(
+                        $"Critical theme resource missing — injected " +
+                        $"fallback: {key}",
+                        new LogContext
+                        {
+                            Module = "Themes",
+                            Class = nameof(VisualThemeEngine),
+                            Operation = "GuaranteeCriticalResources"
+                        });
+
+                    resources[key] = fallback;
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Theme integrity pass failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Themes",
+                        Class = nameof(VisualThemeEngine)
+                    });
+            }
+        }
+
+        private static IEnumerable<(string Key, object Value)>
+            CriticalFallbacks(bool dark)
+        {
+            Color windowColor = dark
+                ? Color.FromRgb(0x0B, 0x14, 0x2A)
+                : Color.FromRgb(0xD7, 0xE5, 0xF9);
+            Color moduleColor = dark
+                ? Color.FromRgb(0x1E, 0x29, 0x3B)
+                : Color.FromRgb(0xFF, 0xFF, 0xFF);
+            Color elevatedColor = dark
+                ? Color.FromRgb(0x24, 0x31, 0x46)
+                : Color.FromRgb(0xFF, 0xFF, 0xFF);
+            Color outlineColor = dark
+                ? Color.FromRgb(0x3E, 0x4C, 0x63)
+                : Color.FromRgb(0xC7, 0xD2, 0xE1);
+            Color primaryColor = dark
+                ? Color.FromRgb(0xF8, 0xFA, 0xFC)
+                : Color.FromRgb(0x33, 0x41, 0x55);
+            Color secondaryColor = dark
+                ? Color.FromRgb(0x94, 0xA3, 0xB8)
+                : Color.FromRgb(0x47, 0x55, 0x69);
+            Color mutedColor = Color.FromRgb(0x64, 0x74, 0x8B);
+
+            foreach (var (key, color) in new (string, Color)[]
+                     {
+                         ("WindowBackgroundBrush", windowColor),
+                         ("ModuleBackgroundBrush", moduleColor),
+                         ("ElevatedSurfaceBrush", elevatedColor),
+                         ("SideMenuBackgroundBrush", elevatedColor),
+                         ("MenuHoverBrush", elevatedColor),
+                         ("SidebarCardBrush", elevatedColor),
+                         ("ShellLiquidBrush", elevatedColor),
+                         ("DashLiquidSurfaceBrush", elevatedColor),
+                         ("DashAmbientBrush", moduleColor),
+                         ("OutlineBrush", outlineColor),
+                         ("BorderBrush", outlineColor),
+                         ("DividerBrush", outlineColor),
+                         ("PrimaryForegroundBrush", primaryColor),
+                         ("SecondaryForegroundBrush", secondaryColor),
+                         ("MutedForegroundBrush", mutedColor),
+                         ("AccentBrush", Color.FromRgb(0x03, 0x69, 0xA1)),
+                         ("LiquidGlassBrush", moduleColor),
+                         ("LiquidGlassSubtleBrush", elevatedColor),
+                         ("LiquidGlassStrongBrush", elevatedColor),
+                         ("TintIndigoBrush", dark
+                             ? Color.FromRgb(0x31, 0x2E, 0x81)
+                             : Color.FromRgb(0xEE, 0xF2, 0xFF)),
+                         ("TintBlueBrush", dark
+                             ? Color.FromRgb(0x1E, 0x3A, 0x8A)
+                             : Color.FromRgb(0xEF, 0xF6, 0xFF)),
+                         ("TintGreenBrush", dark
+                             ? Color.FromRgb(0x06, 0x4E, 0x3B)
+                             : Color.FromRgb(0xEC, 0xFD, 0xF5)),
+                         ("TintRedBrush", dark
+                             ? Color.FromRgb(0x7F, 0x1D, 0x1D)
+                             : Color.FromRgb(0xFE, 0xF2, 0xF2)),
+                         ("TintAmberBrush", dark
+                             ? Color.FromRgb(0x78, 0x35, 0x0F)
+                             : Color.FromRgb(0xFF, 0xFB, 0xEB)),
+                         ("TintPurpleBrush", dark
+                             ? Color.FromRgb(0x4C, 0x1D, 0x95)
+                             : Color.FromRgb(0xF5, 0xF3, 0xFF)),
+                         ("TintGrayBrush", dark
+                             ? Color.FromRgb(0x37, 0x41, 0x51)
+                             : Color.FromRgb(0xF9, 0xFA, 0xFB))
+                     })
+            {
+                var brush = new SolidColorBrush(color);
+                brush.Freeze();
+                yield return (key, brush);
+            }
+
+            yield return ("AccentColor", Color.FromRgb(0x03, 0x69, 0xA1));
+            yield return ("AccentHoverColor", Color.FromRgb(0x11, 0x86, 0xC4));
+            yield return ("CardCornerRadius", new CornerRadius(12));
+            yield return ("CardCornerRadiusLarge", new CornerRadius(16));
+            yield return ("ControlCornerRadius", new CornerRadius(10));
         }
 
         // ── SYSTEM-WIDE WALLPAPER LAYER ─────────────────────────────────

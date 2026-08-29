@@ -137,3 +137,42 @@ leftover. All of it is resolved in ONE commit — no incremental patching.
 - Tests: `Tests/Agent/LiquidGlassThemeSourceTests.cs` now pins **17 facts**
   (was 12) — including no-glass-prefixed-keys, no-legacy-identifiers,
   no-legacy-wording, and light/dark token-surface equality.
+
+---
+
+## Deep runtime analysis — 2026-08-29 (all-themes-broken report)
+
+A second senior pass after the user reported EVERY theme broken and the UI
+stuck. Method: every resource key, merge scope, event chain and startup
+order was traced end-to-end; the resource system was proven consistent
+(0 missing StaticResource/DynamicResource keys, 0 duplicate dictionary
+keys, identical Liquid token surface across Light/Dark). The runtime
+defects that remained were in WINDOW policy and APPLICATION ORDER —
+invisible to XAML-level checks. All six are fixed in one commit.
+
+### Root causes fixed
+
+1. **Splash was a layered window** (`AllowsTransparency="True"` + `WindowStyle="None"` + Maximized + Topmost). Layered windows are software-rendered on Windows 11 and this codebase's own comments document repeated "phantom splash" / failed fade-foreground failures from it — the same failure class as the original white sheet. The splash content is fully opaque by design; the flag is removed. `SplashView.xaml`.
+2. **Theme-swap vacuum.** `ThemeManager.ApplyTheme` removed the active theme dictionary BEFORE adding the replacement: a gap where every DynamicResource bound to a theme key resolves to nothing, and a permanent themeless scope if the new dictionary load throws ("all themes broken"). Now: load → ADD → remove-old → then report the new mode; a failed load keeps the old theme and logs the failure. `ThemeManager.cs`.
+3. **Accent re-derive clobbered the iOS family's tints.** `ApplyAccent` (runs after the engine on every family switch) repainted `TintBlueBrush`/`TintIndigoBrush` opaque over the family's see-through hue frost. Guarded exactly like the existing dashboard-surface guard. `ThemeManager.cs`.
+4. **`GetThemeColor` accepted only SolidColorBrush** — now also accepts `Color` entries (switch expression). `ThemeManager.cs`.
+5. **No last-line integrity guarantee.** The engine now runs `GuaranteeCriticalResources` in a `finally` after every `Apply`/`ApplyModule`: it verifies each critical key (window, surfaces, text, outlines, accent, corners, tints, liquid tokens) against the EFFECTIVE application scope and injects an opaque, theme-correct fallback — while logging the missing key BY NAME. Any machine-specific residual gap is now self-healed AND diagnosable from the log. `VisualThemeEngine.cs`.
+6. **Reset order.** `ResetAppearanceToDefaults` applied the default accent before the default family, causing the AccentChanged event to re-apply the stale previous family once. Family now applies first. `SettingsViewModel.cs`.
+
+### Verification
+
+- XAML parse + C# structural checks on every touched file
+- 0 legacy identifiers, 0 unresolved resource references repo-wide
+- New pins: splash must not be layered; theme swap adds-before-removes;
+  tint guard precedes the TintBlueBrush write; integrity pass present in
+  both Apply and ApplyModule (21 facts total in
+  `LiquidGlassThemeSourceTests.cs`)
+
+### If anything still looks broken on a specific machine
+
+The integrity pass logs every injected fallback as
+"Critical theme resource missing — injected fallback: <key>".
+The log file (AppLogService output / `logs\` folder, plus
+`logs\crash-latest.txt` for unhandled exceptions) now names the exact
+resource or exception — paste those lines and the root cause is
+immediately identifiable.
