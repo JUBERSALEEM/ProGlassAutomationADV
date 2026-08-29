@@ -262,6 +262,28 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
+        public void Corrupt_protected_activation_state_fails_closed_as_Invalid()
+        {
+            string path = Path.Combine(_tempFolder, "offline-activation.bin");
+            File.WriteAllText(path, "garbage-state");
+
+            var result = LicenseService.Initialize();
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.Contains("protected installed activation state", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void Corrupt_protected_pending_request_state_fails_closed_on_import()
+        {
+            string path = Path.Combine(_tempFolder, "offline-request.bin");
+            File.WriteAllText(path, "garbage-request-state");
+
+            var result = LicenseService.InstallText("{}");
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.Contains("pending activation request state", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
         public void StatusChanged_fires_on_reload()
         {
             bool fired = false;

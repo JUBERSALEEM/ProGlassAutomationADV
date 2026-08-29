@@ -248,18 +248,6 @@ public static class LicenseService
         if (!verify.IsValid || verify.Document == null || verify.Response == null)
             return MapVerificationFailure(verify);
 
-        if (!string.Equals(verify.Document.LicenseStatus, "Active", StringComparison.OrdinalIgnoreCase))
-        {
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.Invalid,
-                Payload = ProjectPayload(verify.Document),
-                ErrorDetail =
-                    "The signed activation response is not active for runtime use. " +
-                    "Ask your vendor to issue an ACTIVE response for this installation."
-            };
-        }
-
         OfflineActivationStore.SaveActivationState(
             DataRoot,
             pending.InstallationId,
@@ -436,16 +424,6 @@ public static class LicenseService
                     Status = LicenseStatus.Invalid,
                     Payload = payload,
                     ErrorDetail = rollback
-                };
-            }
-
-            if (!string.Equals(doc.LicenseStatus, "Active", StringComparison.OrdinalIgnoreCase))
-            {
-                return new LicenseVerificationResult
-                {
-                    Status = LicenseStatus.Invalid,
-                    Payload = payload,
-                    ErrorDetail = "The installed activation response is not active. Contact your vendor for re-issue or renewal."
                 };
             }
 

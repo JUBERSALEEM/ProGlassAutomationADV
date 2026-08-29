@@ -27,6 +27,14 @@ internal static class OfflineActivationStore
     private static readonly byte[] Entropy =
         Encoding.UTF8.GetBytes("ProGlassAutomation.OfflineLicensing.v1");
 
+    internal sealed class ProtectedReadResult<T> where T : class
+    {
+        public bool Exists { get; init; }
+        public bool Success { get; init; }
+        public string Error { get; init; } = "";
+        public T? Value { get; init; }
+    }
+
     internal sealed class InstallationState
     {
         [JsonPropertyName("formatVersion")]
@@ -95,9 +103,9 @@ internal static class OfflineActivationStore
 
     public static string GetInstallationId(string dataRoot)
     {
-        var existing = ReadInstallationState(dataRoot);
-        if (existing != null && !string.IsNullOrWhiteSpace(existing.InstallationId))
-            return existing.InstallationId;
+        var existing = ReadInstallationStateDetailed(dataRoot);
+        if (existing.Success && existing.Value != null && !string.IsNullOrWhiteSpace(existing.Value.InstallationId))
+            return existing.Value.InstallationId;
 
         var created = new InstallationState
         {
@@ -130,6 +138,9 @@ internal static class OfflineActivationStore
     }
 
     public static PendingRequestState? ReadPendingRequest(string dataRoot) =>
+        ReadPendingRequestDetailed(dataRoot).Value;
+
+    public static ProtectedReadResult<PendingRequestState> ReadPendingRequestDetailed(string dataRoot) =>
         ReadProtected<PendingRequestState>(Path.Combine(dataRoot, PendingRequestStateFileName));
 
     public static void ClearPendingRequest(string dataRoot)
@@ -138,6 +149,9 @@ internal static class OfflineActivationStore
     }
 
     public static ActivationState? ReadActivationState(string dataRoot) =>
+        ReadActivationStateDetailed(dataRoot).Value;
+
+    public static ProtectedReadResult<ActivationState> ReadActivationStateDetailed(string dataRoot) =>
         ReadProtected<ActivationState>(Path.Combine(dataRoot, ActivationStateFileName));
 
     public static void SaveActivationState(
@@ -168,15 +182,15 @@ internal static class OfflineActivationStore
 
     public static void UpdateLastValidatedUtc(string dataRoot, DateTime lastValidatedUtc)
     {
-        var current = ReadActivationState(dataRoot);
-        if (current == null)
+        var current = ReadActivationStateDetailed(dataRoot);
+        if (!current.Success || current.Value == null)
             return;
 
-        if (current.LastValidatedUtc >= lastValidatedUtc.ToUniversalTime())
+        if (current.Value.LastValidatedUtc >= lastValidatedUtc.ToUniversalTime())
             return;
 
-        current.LastValidatedUtc = lastValidatedUtc.ToUniversalTime();
-        WriteProtected(Path.Combine(dataRoot, ActivationStateFileName), current);
+        current.Value.LastValidatedUtc = lastValidatedUtc.ToUniversalTime();
+        WriteProtected(Path.Combine(dataRoot, ActivationStateFileName), current.Value);
     }
 
     public static void ClearActivationState(string dataRoot)
@@ -187,30 +201,70 @@ internal static class OfflineActivationStore
     public static string ActivationStatePath(string dataRoot) =>
         Path.Combine(dataRoot, ActivationStateFileName);
 
-    private static InstallationState? ReadInstallationState(string dataRoot) =>
+    private static ProtectedReadResult<InstallationState> ReadInstallationStateDetailed(string dataRoot) =>
         ReadProtected<InstallationState>(Path.Combine(dataRoot, InstallationStateFileName));
 
-    private static T? ReadProtected<T>(string path) where T : class
+    private static ProtectedReadResult<T> ReadProtected<T>(string path) where T : class
     {
         try
         {
             if (!File.Exists(path))
-                return null;
+            {
+                return new ProtectedReadResult<T>
+                {
+                    Exists = false,
+                    Success = false,
+                    Error = "",
+                    Value = null
+                };
+            }
 
             byte[] cipher = File.ReadAllBytes(path);
             if (cipher.Length == 0)
-                return null;
+            {
+                return new ProtectedReadResult<T>
+                {
+                    Exists = true,
+                    Success = false,
+                    Error = "Protected state file is empty.",
+                    Value = null
+                };
+            }
 
             byte[] plain = ProtectedData.Unprotect(
                 cipher,
                 Entropy,
                 DataProtectionScope.LocalMachine);
 
-            return JsonSerializer.Deserialize<T>(plain);
+            var value = JsonSerializer.Deserialize<T>(plain);
+            if (value == null)
+            {
+                return new ProtectedReadResult<T>
+                {
+                    Exists = true,
+                    Success = false,
+                    Error = "Protected state payload could not be deserialized.",
+                    Value = null
+                };
+            }
+
+            return new ProtectedReadResult<T>
+            {
+                Exists = true,
+                Success = true,
+                Error = "",
+                Value = value
+            };
         }
-        catch
+        catch (Exception ex)
         {
-            return null;
+            return new ProtectedReadResult<T>
+            {
+                Exists = File.Exists(path),
+                Success = false,
+                Error = ex.Message,
+                Value = null
+            };
         }
     }
 
