@@ -8,10 +8,11 @@
 
     <!-- Outer list card -->
     <Style x:Key="ModuleListShellStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
-        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="ClipToBounds" Value="True"/>
     </Style>
@@ -19,9 +20,9 @@
     <!-- Compact KPI strip inside the shell -->
     <Style x:Key="ModuleListKpiStripStyle" TargetType="Border">
         <Setter Property="Padding" Value="{DynamicResource DensityStripPadding}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -64,9 +65,9 @@
     <!-- Filter / toolbar row -->
     <Style x:Key="ModuleListFilterBarStyle" TargetType="Border">
         <Setter Property="Padding" Value="16,12"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource DividerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
