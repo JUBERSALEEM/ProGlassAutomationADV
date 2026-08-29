@@ -2199,13 +2199,4 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         }
 
     }
-}lid status change.";
-                return;
-            }
-
-            Status = newStatus;
-            await SaveAsync();
-        }
-
-    }
 }
