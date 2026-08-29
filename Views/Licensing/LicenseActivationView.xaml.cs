@@ -8,15 +8,32 @@
 // signature against the embedded trusted-key ring BEFORE storing
 // anything; a key that fails verification changes nothing and the
 // automatic trial keeps the app running.
+//
+// CODE-ONLY CONTROL (2026-08-29):
+//   This view was converted from XAML + code-behind to a fully
+//   code-constructed UserControl. The XAML-generated partial class
+//   (InitializeComponent + the x:Name fields) proved to be a recurring
+//   build breakage point: any local XAML/csproj divergence silently
+//   removed the generated members and produced a wall of CS0103
+//   errors (InitializeComponent, HeadlineText, SubheadText, ...).
+//   A code-only control has NO generated partial, so that entire
+//   failure class is structurally impossible — the same pattern as
+//   LicenseActivatedDialog. The public surface (IsClosable,
+//   Activated/Closed events) is unchanged for MainWindow and the
+//   Settings license section.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Win32;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
+using ThemeManager = ProGlassAutomation.Services.ThemeManager;
 // NOTE: ProGlass.Licensing is deliberately NOT imported here — the
 // contract defines a LicenseService type that would collide with the
 // app's own LicenseService (CS0104). Contract types used below are
@@ -26,8 +43,9 @@ namespace ProGlassAutomation.Views.Licensing
 {
     /// <summary>
     /// In-app license page: paste the key → instant activation.
+    /// Code-only control — see the file header for why.
     /// </summary>
-    public partial class LicenseActivationView : UserControl
+    public class LicenseActivationView : UserControl
     {
         public static readonly DependencyProperty
             IsClosableProperty = DependencyProperty.Register(
@@ -35,7 +53,8 @@ namespace ProGlassAutomation.Views.Licensing
                 typeof(LicenseActivationView),
                 new FrameworkPropertyMetadata(
                     true,
-                    FrameworkPropertyMetadataOptions.AffectsRender));
+                    FrameworkPropertyMetadataOptions.AffectsRender,
+                    OnIsClosableChanged));
 
         public bool IsClosable
         {
@@ -46,10 +65,34 @@ namespace ProGlassAutomation.Views.Licensing
         public event EventHandler? Activated;
         public event EventHandler? Closed;
 
+        // ── Named elements (built in code — no generated partial) ──────
+        private TextBlock HeadlineText = null!;
+        private TextBlock SubheadText = null!;
+        private TextBlock StatusBadgeText = null!;
+        private TextBlock StatusDetailText = null!;
+        private Grid LicenseDetailsGrid = null!;
+        private TextBlock EditionValue = null!;
+        private TextBlock CustomerValue = null!;
+        private TextBlock ExpiresValue = null!;
+        private TextBlock LicenseIdValue = null!;
+        private TextBlock SourceValue = null!;
+        private TextBlock ErrorText = null!;
+        private TextBlock HintText = null!;
+        private TextBox KeyPasteTextBox = null!;
+        private TextBox InstallationIdBox = null!;
+        private TextBox FingerprintDisplayBox = null!;
+        private RadioButton Plan7Radio = null!;
+        private RadioButton Plan30Radio = null!;
+        private RadioButton Plan6mRadio = null!;
+        private RadioButton Plan1yRadio = null!;
+        private RadioButton Plan2yRadio = null!;
+        private Button CloseButton = null!;
+
         public LicenseActivationView()
         {
-            InitializeComponent();
+            BuildUi();
             LicenseService.StatusChanged += OnLicenseStatusChanged;
+            ThemeManager.ThemeChanged += OnThemeChanged;
             Unloaded += OnLicenseViewUnloaded;
 
             InstallationIdBox.Text = LicenseService.CurrentInstallationId;
@@ -61,17 +104,54 @@ namespace ProGlassAutomation.Views.Licensing
                 "The 30-day trial keeps the app fully usable until the key is applied.";
         }
 
+        private static void OnIsClosableChanged(
+            DependencyObject d, DependencyPropertyChangedEventArgs e)
+            => ((LicenseActivationView)d).ApplyClosable((bool)e.NewValue);
+
+        private void ApplyClosable(bool closable)
+        {
+            if (CloseButton != null)
+                CloseButton.Visibility = closable
+                    ? Visibility.Visible
+                    : Visibility.Collapsed;
+        }
+
         private void OnLicenseViewUnloaded(object sender, RoutedEventArgs e)
         {
             try
             {
                 LicenseService.StatusChanged -= OnLicenseStatusChanged;
+                ThemeManager.ThemeChanged -= OnThemeChanged;
                 Unloaded -= OnLicenseViewUnloaded;
             }
             catch (Exception ex)
             {
                 AppLogService.Debug("[LicenseActivationView] View cleanup failed: " + ex.Message);
             }
+        }
+
+        private void OnThemeChanged(object? sender, EventArgs e)
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.BeginInvoke(new Action(RebuildForTheme));
+                return;
+            }
+            RebuildForTheme();
+        }
+
+        /// <summary>
+        /// Theme swaps re-tint every brush in the app; this control
+        /// builds from resolved brush instances, so it rebuilds its
+        /// tree (keeping the pasted text) instead of going stale.
+        /// </summary>
+        private void RebuildForTheme()
+        {
+            string pasted = KeyPasteTextBox?.Text ?? string.Empty;
+            BuildUi();
+            if (!string.IsNullOrEmpty(pasted))
+                KeyPasteTextBox.Text = pasted;
+            RefreshFromService();
         }
 
         private void OnLicenseStatusChanged(object? sender, LicenseVerificationResult e)
@@ -468,5 +548,396 @@ namespace ProGlassAutomation.Views.Licensing
             try { Closed?.Invoke(this, EventArgs.Empty); }
             catch (Exception ex) { AppLogService.Debug("[LicenseActivationView] RaiseClosed failed: " + ex.Message); }
         }
+
+        // ────────────────────────────────────────────────────────────────────
+        // Code-built UI (replaces the XAML tree + generated partial)
+        // ────────────────────────────────────────────────────────────────────
+
+        private void BuildUi()
+        {
+            double body = Sz("TextBody", 13);
+            double caption = Sz("TextCaption", 12);
+            double bodyLarge = Sz("TextBodyLarge", 14);
+            double section = Sz("TextSection", 15);
+            double displayLarge = Sz("TextDisplayLarge", 28);
+            CornerRadius corner = Cr("CardCornerRadius", new CornerRadius(12));
+
+            var root = new Border { Padding = new Thickness(28, 24) };
+            root.SetResourceReference(Border.BackgroundProperty, "WindowBackgroundBrush");
+
+            var scroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+            };
+            var stack = new StackPanel
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Top
+            };
+
+            // ── Header ────────────────────────────────────────────────
+            HeadlineText = new TextBlock
+            {
+                Text = "Activate ProGlass Automation",
+                FontSize = displayLarge,
+                FontWeight = FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap
+            };
+            HeadlineText.SetResourceReference(TextElement.ForegroundProperty, "PrimaryForegroundBrush");
+            stack.Children.Add(HeadlineText);
+
+            SubheadText = new TextBlock
+            {
+                Text = "Paste the license key your vendor sent you. A 30-day trial is already running, so the app is fully usable while you wait for your key.",
+                FontSize = bodyLarge,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 4, 0, 24)
+            };
+            SubheadText.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+            stack.Children.Add(SubheadText);
+
+            // ── Card 1 · LICENSE KEY — PASTE TO ACTIVATE ──────────────
+            var card1 = MakeCard(corner);
+            var c1 = new StackPanel();
+            c1.Children.Add(CardLabel("LICENSE KEY — PASTE TO ACTIVATE"));
+            c1.Children.Add(Para(
+                "Your vendor sends you a single text block starting with PGKEY1. Paste it here and click Apply — that is the entire process.",
+                body));
+            KeyPasteTextBox = new TextBox
+            {
+                AcceptsReturn = true,
+                AcceptsTab = true,
+                TextWrapping = TextWrapping.Wrap,
+                MinHeight = 110,
+                MaxHeight = 200,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                FontFamily = new FontFamily("Consolas"),
+                FontSize = body,
+                Margin = new Thickness(0, 0, 0, 12)
+            };
+            c1.Children.Add(KeyPasteTextBox);
+
+            var row1 = new StackPanel { Orientation = Orientation.Horizontal };
+            var apply = MakeButton("APPLY LICENSE KEY", primary: true);
+            apply.Click += KeyApplyButton_Click;
+            row1.Children.Add(apply);
+            var browse = MakeButton("OPEN KEY FILE…", primary: false);
+            browse.Click += KeyBrowseButton_Click;
+            browse.Margin = new Thickness(10, 0, 0, 0);
+            row1.Children.Add(browse);
+            c1.Children.Add(row1);
+
+            card1.Child = c1;
+            stack.Children.Add(card1);
+
+            // ── Card 2 · PLANS — GET A LICENSE KEY ────────────────────
+            var card2 = MakeCard(corner);
+            var c2 = new StackPanel();
+            c2.Children.Add(CardLabel("PLANS — GET A LICENSE KEY"));
+            c2.Children.Add(Para(
+                "Choose the plan you want, then press GET LICENSE KEY. It copies a ready-to-send request with this PC's ID — send it to your vendor, and they reply with a PGKEY1 key to paste in the box above.",
+                body));
+
+            var wrap = new WrapPanel();
+            Plan7Radio = MakePlanCard("7 DAYS", "Short evaluation");
+            Plan30Radio = MakePlanCard("30 DAYS", "Monthly key");
+            Plan6mRadio = MakePlanCard("6 MONTHS", "Half-year key");
+            Plan1yRadio = MakePlanCard("1 YEAR", "Annual key");
+            Plan2yRadio = MakePlanCard("2 YEARS", "Two-year key");
+            foreach (var radio in new[] { Plan7Radio, Plan30Radio, Plan6mRadio, Plan1yRadio, Plan2yRadio })
+            {
+                radio.GroupName = "CustomerPlan";
+                wrap.Children.Add(radio);
+            }
+            Plan1yRadio.IsChecked = true;
+            c2.Children.Add(wrap);
+
+            var getKey = MakeButton("GET LICENSE KEY", primary: true);
+            getKey.Click += GetLicenseKeyButton_Click;
+            getKey.HorizontalAlignment = HorizontalAlignment.Left;
+            getKey.Margin = new Thickness(0, 4, 0, 0);
+            c2.Children.Add(getKey);
+
+            card2.Child = c2;
+            stack.Children.Add(card2);
+
+            // ── Card 3 · CURRENT LICENSE STATE ────────────────────────
+            var card3 = MakeCard(corner);
+            var c3 = new StackPanel();
+            c3.Children.Add(CardCaption("CURRENT LICENSE STATE"));
+
+            StatusBadgeText = new TextBlock
+            {
+                Text = "Trial",
+                FontSize = section,
+                FontWeight = FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap
+            };
+            StatusBadgeText.SetResourceReference(TextElement.ForegroundProperty, "AccentBrush");
+            c3.Children.Add(StatusBadgeText);
+
+            StatusDetailText = new TextBlock
+            {
+                FontSize = body,
+                Margin = new Thickness(0, 4, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            };
+            StatusDetailText.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+            c3.Children.Add(StatusDetailText);
+
+            LicenseDetailsGrid = new Grid
+            {
+                Margin = new Thickness(0, 12, 0, 0),
+                Visibility = Visibility.Collapsed
+            };
+            LicenseDetailsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(160) });
+            LicenseDetailsGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            for (int i = 0; i < 5; i++)
+                LicenseDetailsGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+
+            EditionValue = new TextBlock();
+            CustomerValue = new TextBlock();
+            ExpiresValue = new TextBlock();
+            LicenseIdValue = new TextBlock { TextWrapping = TextWrapping.Wrap };
+            SourceValue = new TextBlock { TextWrapping = TextWrapping.Wrap };
+            string[] detailLabels = { "Edition", "Customer", "Expires", "License ID", "Source" };
+            TextBlock[] detailValues = { EditionValue, CustomerValue, ExpiresValue, LicenseIdValue, SourceValue };
+            for (int i = 0; i < 5; i++)
+            {
+                var lab = new TextBlock
+                {
+                    Text = detailLabels[i],
+                    FontSize = body,
+                    Margin = new Thickness(0, i == 0 ? 0 : 4, 0, 0)
+                };
+                lab.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+                Grid.SetRow(lab, i);
+                Grid.SetColumn(lab, 0);
+
+                detailValues[i].FontSize = body;
+                detailValues[i].Margin = new Thickness(0, i == 0 ? 0 : 4, 0, 0);
+                detailValues[i].SetResourceReference(TextElement.ForegroundProperty, "PrimaryForegroundBrush");
+                Grid.SetRow(detailValues[i], i);
+                Grid.SetColumn(detailValues[i], 1);
+
+                LicenseDetailsGrid.Children.Add(lab);
+                LicenseDetailsGrid.Children.Add(detailValues[i]);
+            }
+            c3.Children.Add(LicenseDetailsGrid);
+
+            card3.Child = c3;
+            stack.Children.Add(card3);
+
+            // ── Card 4 · YOUR PC ID ───────────────────────────────────
+            var card4 = MakeCard(corner);
+            var c4 = new StackPanel();
+            c4.Children.Add(CardCaption("YOUR PC ID"));
+            c4.Children.Add(Para(
+                "Send this to your vendor ONLY if they ask for it (a key bound to this machine). You normally do not need it.",
+                body));
+
+            FingerprintDisplayBox = new TextBox
+            {
+                IsReadOnly = true,
+                FontFamily = new FontFamily("Consolas"),
+                FontSize = body,
+                TextWrapping = TextWrapping.Wrap
+            };
+            c4.Children.Add(FingerprintDisplayBox);
+
+            var installCaption = new TextBlock
+            {
+                Text = "Installation ID",
+                FontSize = caption,
+                Margin = new Thickness(0, 10, 0, 0)
+            };
+            installCaption.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+            c4.Children.Add(installCaption);
+
+            InstallationIdBox = new TextBox
+            {
+                IsReadOnly = true,
+                FontSize = body,
+                Margin = new Thickness(0, 2, 0, 0)
+            };
+            c4.Children.Add(InstallationIdBox);
+
+            card4.Child = c4;
+            stack.Children.Add(card4);
+
+            // ── Error / hint / close ──────────────────────────────────
+            ErrorText = new TextBlock
+            {
+                Margin = new Thickness(0, 8, 0, 0),
+                FontSize = body,
+                TextWrapping = TextWrapping.Wrap,
+                Visibility = Visibility.Collapsed
+            };
+            ErrorText.SetResourceReference(TextElement.ForegroundProperty, "DangerBrush");
+            stack.Children.Add(ErrorText);
+
+            HintText = new TextBlock
+            {
+                Margin = new Thickness(0, 8, 0, 0),
+                FontSize = caption,
+                TextWrapping = TextWrapping.Wrap
+            };
+            HintText.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+            stack.Children.Add(HintText);
+
+            var footer = new StackPanel
+            {
+                Orientation = Orientation.Horizontal,
+                HorizontalAlignment = HorizontalAlignment.Right,
+                Margin = new Thickness(0, 16, 0, 0)
+            };
+            CloseButton = MakeButton("CLOSE", primary: false);
+            CloseButton.Click += CloseButton_Click;
+            footer.Children.Add(CloseButton);
+            stack.Children.Add(footer);
+
+            scroll.Content = stack;
+            root.Child = scroll;
+            Content = root;
+
+            ApplyClosable(IsClosable);
+        }
+
+        private Border MakeCard(CornerRadius corner)
+        {
+            var card = new Border
+            {
+                Margin = new Thickness(0, 0, 0, 16),
+                Padding = new Thickness(20),
+                CornerRadius = corner,
+                BorderThickness = new Thickness(1)
+            };
+            card.SetResourceReference(Border.BackgroundProperty, "ModuleBackgroundBrush");
+            card.SetResourceReference(Border.BorderBrushProperty, "DividerBrush");
+            return card;
+        }
+
+        private TextBlock CardLabel(string text) => CardCaption(text);
+
+        private TextBlock CardCaption(string text)
+        {
+            var label = new TextBlock
+            {
+                Text = text,
+                FontSize = Sz("TextBody", 13),
+                FontWeight = FontWeights.Bold
+            };
+            label.SetResourceReference(TextElement.ForegroundProperty, "AccentBrush");
+            return label;
+        }
+
+        private TextBlock Para(string text, double size)
+        {
+            var para = new TextBlock
+            {
+                Text = text,
+                FontSize = size,
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(0, 6, 0, 12)
+            };
+            para.SetResourceReference(TextElement.ForegroundProperty, "PrimaryForegroundBrush");
+            return para;
+        }
+
+        private RadioButton MakePlanCard(string title, string caption)
+        {
+            var body = new StackPanel();
+            var titleText = new TextBlock
+            {
+                Text = title,
+                FontSize = Sz("TextBody", 13),
+                FontWeight = FontWeights.Bold
+            };
+            titleText.SetResourceReference(TextElement.ForegroundProperty, "PrimaryForegroundBrush");
+            body.Children.Add(titleText);
+
+            var captionText = new TextBlock
+            {
+                Text = caption,
+                FontSize = Sz("TextCaption", 12),
+                Margin = new Thickness(0, 2, 0, 0)
+            };
+            captionText.SetResourceReference(TextElement.ForegroundProperty, "SecondaryForegroundBrush");
+            body.Children.Add(captionText);
+
+            var radio = new RadioButton
+            {
+                Content = body,
+                Cursor = Cursors.Hand,
+                Margin = new Thickness(0, 0, 10, 10)
+            };
+
+            // Rounded plan card template: accent ring on hover /
+            // selection, divider ring otherwise.
+            var template = new ControlTemplate(typeof(RadioButton));
+            var fef = new FrameworkElementFactory(typeof(Border), "PlanCard");
+            fef.SetValue(Border.BackgroundProperty, B("ModuleBackgroundBrush", Brushes.Transparent));
+            fef.SetValue(Border.BorderBrushProperty, B("DividerBrush", Brushes.Gray));
+            fef.SetValue(Border.BorderThicknessProperty, new Thickness(1.5));
+            fef.SetValue(Border.CornerRadiusProperty, Cr("CardCornerRadius", new CornerRadius(12)));
+            fef.SetValue(Border.PaddingProperty, new Thickness(16, 14));
+            fef.SetValue(Border.MinWidthProperty, 150d);
+            fef.SetValue(Border.SnapsToDevicePixelsProperty, true);
+            fef.AppendChild(new FrameworkElementFactory(typeof(ContentPresenter)));
+            template.VisualTree = fef;
+
+            var hover = new Trigger { Property = UIElement.IsMouseOverProperty, Value = true };
+            hover.Setters.Add(new Setter(Border.BorderBrushProperty,
+                B("AccentBrush", Brushes.DodgerBlue), "PlanCard"));
+            template.Triggers.Add(hover);
+
+            var checkedTrigger = new Trigger { Property = RadioButton.IsCheckedProperty, Value = true };
+            checkedTrigger.Setters.Add(new Setter(Border.BorderBrushProperty,
+                B("AccentBrush", Brushes.DodgerBlue), "PlanCard"));
+            checkedTrigger.Setters.Add(new Setter(Border.BorderThicknessProperty,
+                new Thickness(2), "PlanCard"));
+            template.Triggers.Add(checkedTrigger);
+
+            radio.Template = template;
+            return radio;
+        }
+
+        private Button MakeButton(string text, bool primary)
+        {
+            var button = new Button
+            {
+                Content = text,
+                Padding = new Thickness(18, 8, 18, 8),
+                FontWeight = FontWeights.Bold,
+                Cursor = Cursors.Hand,
+                MinWidth = primary ? 170 : 130
+            };
+            if (primary)
+            {
+                button.SetResourceReference(Control.BackgroundProperty, "AccentBrush");
+                button.SetResourceReference(Control.ForegroundProperty, "OnAccentForegroundBrush");
+                button.BorderThickness = new Thickness(0);
+            }
+            else
+            {
+                button.Background = Brushes.Transparent;
+                button.SetResourceReference(Control.BorderBrushProperty, "AccentBrush");
+                button.SetResourceReference(Control.ForegroundProperty, "AccentBrush");
+                button.BorderThickness = new Thickness(1.5);
+            }
+            return button;
+        }
+
+        // ── Theme-resource helpers (never throw) ──────────────────────
+
+        private double Sz(string key, double fallback) =>
+            TryFindResource(key) is double d ? d : fallback;
+
+        private Brush B(string key, Brush fallback) =>
+            TryFindResource(key) as Brush ?? fallback;
+
+        private CornerRadius Cr(string key, CornerRadius fallback) =>
+            TryFindResource(key) is CornerRadius c ? c : fallback;
     }
 }

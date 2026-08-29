@@ -215,25 +215,18 @@
 	</ItemGroup>
 
 	<!--
-	     Licensing activation view — keep this XAML/code-behind pair
-	     explicit. The view is shared by MainWindow and Settings, and
-	     its generated partial class supplies InitializeComponent plus
-	     the named controls used by LicenseActivationView.xaml.cs.
-	     Removing the SDK default items first makes this safe whether
-	     the default WPF globs are enabled by the current SDK or by an
-	     IDE design-time build.
+	     Licensing activation view — CODE-ONLY CONTROL (2026-08-29).
+	     The XAML + generated partial (InitializeComponent + x:Name
+	     fields) was a recurring build breakage point; the view is now
+	     fully code-constructed, so only a plain Compile entry is
+	     needed and no markup-compilation failure can ever remove its
+	     members. Removing the SDK default item first keeps this safe
+	     whether the default WPF globs are enabled by the current SDK
+	     or by an IDE design-time build.
 	-->
 	<ItemGroup>
-		<Page Remove="Views\Licensing\LicenseActivationView.xaml" />
 		<Compile Remove="Views\Licensing\LicenseActivationView.xaml.cs" />
-		<Page Include="Views\Licensing\LicenseActivationView.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Include="Views\Licensing\LicenseActivationView.xaml.cs">
-			<DependentUpon>LicenseActivationView.xaml</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
+		<Compile Include="Views\Licensing\LicenseActivationView.xaml.cs" />
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════════

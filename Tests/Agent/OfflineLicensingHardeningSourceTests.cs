@@ -32,14 +32,23 @@ public sealed class OfflineLicensingHardeningSourceTests
     [Fact]
     public void Activation_view_uses_key_paste_and_plan_language_not_request_response_language()
     {
-        string xaml = File.ReadAllText(Path.Combine(Root(),
-            "Views", "Licensing", "LicenseActivationView.xaml"));
+        // The view is a CODE-ONLY control (2026-08-29) — the XAML and
+        // its generated partial are gone, so the language is pinned in
+        // the code-behind and the whole InitializeComponent/x:Name
+        // failure class is structurally impossible.
+        string code = File.ReadAllText(Path.Combine(Root(),
+            "Views", "Licensing", "LicenseActivationView.xaml.cs"));
 
-        Assert.Contains("APPLY LICENSE KEY", xaml, StringComparison.Ordinal);
-        Assert.Contains("GET LICENSE KEY", xaml, StringComparison.Ordinal);
-        Assert.Contains("PLANS — GET A LICENSE KEY", xaml, StringComparison.Ordinal);
-        Assert.DoesNotContain("GENERATE ACTIVATION REQUEST", xaml, StringComparison.Ordinal);
-        Assert.DoesNotContain("IMPORT SIGNED ACTIVATION RESPONSE", xaml, StringComparison.Ordinal);
+        Assert.Contains("APPLY LICENSE KEY", code, StringComparison.Ordinal);
+        Assert.Contains("GET LICENSE KEY", code, StringComparison.Ordinal);
+        Assert.Contains("PLANS — GET A LICENSE KEY", code, StringComparison.Ordinal);
+        Assert.DoesNotContain("GENERATE ACTIVATION REQUEST", code, StringComparison.Ordinal);
+        Assert.DoesNotContain("IMPORT SIGNED ACTIVATION RESPONSE", code, StringComparison.Ordinal);
+
+        Assert.False(File.Exists(Path.Combine(Root(),
+                "Views", "Licensing", "LicenseActivationView.xaml")),
+            "LicenseActivationView must stay code-only — the XAML-generated " +
+            "partial was a recurring CS0103 failure point.");
     }
 
     [Fact]

@@ -116,3 +116,25 @@
   app themes — in Dark theme the page text rendered unreadable. The
   view now uses the real keys (`WindowBackgroundBrush`,
   `PrimaryForegroundBrush`, `SecondaryForegroundBrush`, …).
+
+## 8. Update (2026-08-29, later) — code-only licensing view
+
+After a third round of CS0103 storms (InitializeComponent + every
+x:Name field missing) on the user's local clone — whose XAML/csproj
+state diverges from the branch in ways that cannot be reproduced in
+the pushed tree — the licensing page was converted from XAML +
+code-behind to a fully CODE-ONLY UserControl:
+
+- `Views/Licensing/LicenseActivationView.xaml` deleted; the whole UI
+  tree is built in C# (same cards: paste-to-activate, PLANS with the
+  five rounded plan cards, current license state, YOUR PC ID; same
+  theme brushes via SetResourceReference; same plan-mismatch guard).
+- No generated partial class exists anymore, so the entire
+  InitializeComponent/x:Name failure class is structurally
+  impossible — identical to LicenseActivatedDialog, which stopped
+  erroring the moment it went code-only.
+- Public surface unchanged (IsClosable dependency property,
+  Activated/Closed events) — MainWindow and the Settings license
+  section consume it exactly as before.
+- csproj: plain `<Compile Include>` replaces the Page pairing.
+- Source test pins the decision: the XAML file must not reappear.
