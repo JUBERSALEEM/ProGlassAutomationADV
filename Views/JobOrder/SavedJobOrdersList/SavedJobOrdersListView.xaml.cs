@@ -173,8 +173,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var deleteItem = new MenuItem
             {
                 Header = "\uE74D  Delete Job Order",
-                Foreground = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
+                Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };

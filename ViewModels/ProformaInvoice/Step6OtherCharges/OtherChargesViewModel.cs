@@ -756,6 +756,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         /// </summary>
         public void RefreshWorkspace()
         {
+            // Force-refresh outer/inner glass colors from spec names
+            // for ALL glass types (SGU, DGU, LAM, DGU+LAM). This ensures
+            // wastage suggestions always have color data, fixing the
+            // "outer and inner not getting selected automatically" issue
+            // when the user enters Step 6 after editing Step 4/5.
+            foreach (var group in _dataGridVM.SpecGroups)
+                group.RefreshColorsFromSpecName();
+
             SyncLaminationColorsFromStep4();
             MetricHub.Refresh();
             SyncTargetSelectionsFromHub();

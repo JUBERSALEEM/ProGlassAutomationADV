@@ -239,7 +239,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var deleteItem = new MenuItem
             {
                 Header = $"🗑  Delete latest DN ({group.LatestDnId})",
-                Foreground = Brushes.Firebrick,
+                Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };
@@ -352,7 +352,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var deleteItem = new MenuItem
             {
                 Header = "🗑  Delete Delivery Note",
-                Foreground = Brushes.Firebrick,
+                Foreground = (System.Windows.Media.Brush)FindResource("DangerBrush"),
                 Style = (Style)FindResource("ModernMenuItemStyle"),
                 Padding = new Thickness(8, 6, 20, 6)
             };

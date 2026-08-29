@@ -728,6 +728,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             InnerGlassColor = innerColor ?? "";
         }
 
+        /// <summary>
+        /// Public entry point for Step 6's RefreshWorkspace to force a
+        /// re-extraction of outer/inner glass colors from the current
+        /// spec name. Ensures wastage suggestions always have color data
+        /// even when the spec group was populated before Step 6 opened.
+        /// </summary>
+        public void RefreshColorsFromSpecName() => RefreshGlassColorsFromSpecName();
+
         private void RefreshGlassColorsFromSpecName()
         {
             if (string.Equals(_selectedGlassType, "LAM", StringComparison.OrdinalIgnoreCase)
