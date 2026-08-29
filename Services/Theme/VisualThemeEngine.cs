@@ -591,8 +591,10 @@ namespace ProGlassAutomation.Services.Theme
             Color fallback, double opacity, bool dark)
         {
             Color baseColor = ThemeManager.GetThemeColor(key, fallback);
+            // Light: 0.10 keeps the pane WHITE (water glass) instead of
+            // the old 0.22 blue wash. Dark: 0.26 unchanged.
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.26 : 0.22);
+                dark ? 0.26 : 0.10);
 
             if (ThemeManager.UseGradients)
             {
@@ -688,9 +690,9 @@ namespace ProGlassAutomation.Services.Theme
             // desktop (real iOS glass); without it, keep the opaque
             // gradient so the UI never loses contrast.
             Color stageA = dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                                : Color.FromRgb(0xEE, 0xF4, 0xFB);
+                                : Color.FromRgb(0xF0, 0xF6, 0xFE);
             Color stageB = dark ? Color.FromRgb(0x12, 0x22, 0x44)
-                                : Color.FromRgb(0xE4, 0xED, 0xF9);
+                                : Color.FromRgb(0xE4, 0xEE, 0xFA);
             if (chrome)
             {
                 stageA = ColorMath.WithAlpha(stageA, 0x3C);
@@ -706,24 +708,27 @@ namespace ProGlassAutomation.Services.Theme
             // card (the glass look). With chrome active the frost sits
             // lighter (like Apple's thin materials); without it the
             // higher alphas keep text contrast over the opaque stage.
+            // Light = clean WHITE water glass (2026-08-29): the old
+            // 0.62/0.70/0.78 muddied the white and the no-chrome ramp
+            // (0.78/0.84/0.86) was effectively opaque.
             var accent = ThemeManager.AccentColor;
             resources["ModuleBackgroundBrush"] = GlassSurface(
                 resources, "ModuleBackgroundBrush", accent,
                 Colors.White, dark ? (chrome ? 0.58 : 0.86)
-                                   : (chrome ? 0.62 : 0.78), dark);
+                                   : (chrome ? 0.52 : 0.66), dark);
             resources["ElevatedSurfaceBrush"] = GlassSurface(
                 resources, "ElevatedSurfaceBrush", accent,
                 Colors.White, dark ? (chrome ? 0.66 : 0.92)
-                                   : (chrome ? 0.70 : 0.84), dark);
+                                   : (chrome ? 0.62 : 0.74), dark);
             resources["SideMenuBackgroundBrush"] = GlassSurface(
                 resources, "SideMenuBackgroundBrush", accent,
                 Colors.White, dark ? (chrome ? 0.74 : 0.94)
-                                   : (chrome ? 0.78 : 0.86), dark);
+                                   : (chrome ? 0.70 : 0.78), dark);
             resources["MenuHoverBrush"] = GlassSurface(
                 resources, "MenuHoverBrush", accent,
                 Color.FromRgb(0xF3, 0xF4, 0xF6),
                 dark ? (chrome ? 0.40 : 0.60)
-                     : (chrome ? 0.45 : 0.55), dark);
+                     : (chrome ? 0.36 : 0.48), dark);
 
             // Softer radii suit the frosted material.
             resources["CardCornerRadius"] = new CornerRadius(14);
@@ -738,11 +743,19 @@ namespace ProGlassAutomation.Services.Theme
         // ── GLASSY — the About page's look, app-wide ─────────────────
         //
         // The About view earned the "glass page" identity: a rich
-        // diagonal stage, two soft light orbs, and cards filled with
-        // the near-transparent GlassCard ramp (dark theme: #2E→#0D
-        // alpha = 0.18 → 0.05) using the About text palette
-        // (GlassSnow / GlassCerulean / GlassMuted). Glassy moves that
-        // identity from one page to the WHOLE application:
+        // diagonal stage, two soft light orbs, and frosted cards.
+        // Glassy moves that identity from one page to the WHOLE
+        // application — with a per-theme material ramp (2026-08-29):
+        //
+        //   * DARK  = deep-frost glass: low-alpha white veil
+        //     (0.05 → 0.30) over the navy stage — the original
+        //     About-page ramp.
+        //   * LIGHT = WHITE WATER GLASS: high-alpha white panes
+        //     (0.58 → 0.95, top-lit fade) over the bright ice stage
+        //     and the DWM white acrylic backdrop — the
+        //     iPhone-17-style light material. The old code applied
+        //     the dark 0.18→0.05 ramp to BOTH themes, which on the
+        //     pale light stage made every card surface invisible.
         //
         //   * WindowBackgroundBrush becomes the About stage itself
         //     (navy/ice diagonal + the same two radial light orbs), so
@@ -751,21 +764,19 @@ namespace ProGlassAutomation.Services.Theme
         //     tiles, the top bar, side menu, sidebar cards, dashboard
         //     glass, shell glass, hover, and DataGrid rows (which ride
         //     ModuleBackgroundBrush / MenuHoverBrush) — becomes that
-        //     same near-transparent accent-tinted glass, so the stage
-        //     or wallpaper reads through everything, inside and outside
-        //     the cards alike.
+        //     same translucent glass, so the stage or wallpaper reads
+        //     through everything, inside and outside the cards alike.
         //   * Status tint cards/chips (TintIndigo/Blue/Green/Red/
         //     Amber/Purple/Gray — used directly and through
         //     BrushKeyConverter in VM-driven templates, which
         //     re-resolves keys live) keep their hue but drop to glass
         //     alpha, so status colour is preserved while fills go
         //     transparent.
-        //   * Typography auto-adapts: the About page's own text palette
-        //     is applied as Primary/Secondary/MutedForeground, read
-        //     from the ACTIVE theme's Glass* keys — so a Light/Dark
-        //     swap re-reads the matching palette and text can never sit
-        //     invisible over the transparent cards (muted #64748B on
-        //     navy is exactly the case this fixes).
+        //   * Typography auto-adapts: dark reads the dark About text
+        //     palette (GlassSnow / GlassCerulean / GlassMuted); light
+        //     uses fixed ink/slate constants — decoupled from the
+        //     surface keys so the white glass can be recoloured
+        //     without ever washing the text out.
 
         private static void ApplyGlassy(ResourceDictionary resources)
         {
@@ -786,35 +797,52 @@ namespace ProGlassAutomation.Services.Theme
                 dark, accent,
                 GlassChromeService.IsSupported ? (byte)0x40 : (byte)0xFF);
 
-            // ── 2) CARD SURFACES — About-GlassCard transparency ───────
-            // Main cards use the About page's exact dark GlassCard ramp
-            // (0.18 → 0.05). Slightly nested levels get a touch more
-            // alpha for hierarchy while staying fully see-through.
-            resources["ModuleBackgroundBrush"] = GlassFill(
-                accent, 0.18, 0.05);          // main cards + DataGrid bg/rows
-            resources["ElevatedSurfaceBrush"] = GlassFill(
-                accent, 0.24, 0.08);          // tiles / inner cards
-            resources["SideMenuBackgroundBrush"] = GlassFill(
-                accent, 0.30, 0.10);          // top bar + drawer
-            resources["MenuHoverBrush"] = GlassFill(
-                accent, 0.20, 0.10);          // hover + alternating rows
-            resources["SidebarCardBrush"] = GlassFill(
-                accent, 0.22, 0.08);          // sidebar nested cards
-            resources["ShellGlassBrush"] = GlassFill(
-                accent, 0.26, 0.08);          // shell / top-bar glass
-            resources["DashGlassSurfaceBrush"] = GlassFill(
-                accent, 0.20, 0.08);          // dashboard glass panels
+            // ── 2) CARD SURFACES — white water glass (light) /
+            //        deep-frost glass (dark) ──────────────────────────
+            // iOS light materials are HIGH-alpha white panes: the
+            // backdrop blur plus a strong white veil with a top-lit
+            // fade. Dark materials are LOW-alpha frost. The old single
+            // ramp (dark's 0.18 → 0.05) was applied to BOTH themes —
+            // on the pale light stage a 5-18% white veil is invisible,
+            // so every card surface vanished and the app read as one
+            // flat washed-out sheet ("glass broken"). Each theme now
+            // gets its own material ramp.
+            if (dark)
+            {
+                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.18, 0.05);
+                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.24, 0.08);
+                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.30, 0.10);
+                resources["MenuHoverBrush"] = GlassFill(accent, 0.20, 0.10);
+                resources["SidebarCardBrush"] = GlassFill(accent, 0.22, 0.08);
+                resources["ShellGlassBrush"] = GlassFill(accent, 0.26, 0.08);
+                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.20, 0.08);
 
-            // ── 3) DASHBOARD AMBIENT — blend into the stage ──────────
-            // The dashboard paints its own navy ambient + blobs behind
-            // its cards; in Glassy that would hide the window stage, so
-            // it becomes a faint accent glow that merges with it.
-            resources["DashAmbientBrush"] = GlassFill(
-                accent, dark ? 0.14 : 0.10, dark ? 0.06 : 0.04);
-            resources["DashAmbientBlob1Brush"] =
-                SolidGlass(accent, dark ? 0.10 : 0.08);
-            resources["DashAmbientBlob2Brush"] =
-                SolidGlass(accent, dark ? 0.08 : 0.06);
+                // ── 3) DASHBOARD AMBIENT — blend into the stage ──────
+                resources["DashAmbientBrush"] = GlassFill(accent, 0.14, 0.06);
+                resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.10);
+                resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.08);
+            }
+            else
+            {
+                // WHITE WATER GLASS (2026-08-29): translucent white
+                // panes, densest at the top, see-through at the lower
+                // edge — the iPhone-17-style light material over the
+                // bright ice stage / blurred desktop.
+                resources["ModuleBackgroundBrush"] = GlassFill(accent, 0.88, 0.58);
+                resources["ElevatedSurfaceBrush"] = GlassFill(accent, 0.92, 0.64);
+                resources["SideMenuBackgroundBrush"] = GlassFill(accent, 0.95, 0.70);
+                resources["MenuHoverBrush"] = GlassFill(accent, 0.52, 0.34);
+                resources["SidebarCardBrush"] = GlassFill(accent, 0.86, 0.56);
+                resources["ShellGlassBrush"] = GlassFill(accent, 0.92, 0.62);
+                resources["DashGlassSurfaceBrush"] = GlassFill(accent, 0.88, 0.58);
+
+                // ── 3) DASHBOARD AMBIENT — soft blue glow under the
+                //        white panes (slightly stronger than dark's so
+                //        it reads through the denser frost). ──────────
+                resources["DashAmbientBrush"] = GlassFill(accent, 0.20, 0.08);
+                resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.16);
+                resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.12);
+            }
 
             // ── 4) STATUS TINTS — hue kept, fill made glass ──────────
             // The tint keys drive status cards and the
@@ -922,22 +950,34 @@ namespace ProGlassAutomation.Services.Theme
         private static void SetGlassTextPalette(
             ResourceDictionary resources, bool dark)
         {
-            // Light mode: GlassSnow (#0F172A) reads as "completely
-            // black" on the ice stage — use GlassFrost (#334155)
-            // instead: a soft dark slate, clearly readable, never a
-            // harsh pure black.
-            resources["PrimaryForegroundBrush"] =
-                FrozenGlassText(dark ? "GlassSnow" : "GlassFrost",
-                    dark ? Color.FromRgb(0xF8, 0xFA, 0xFC)
-                         : Color.FromRgb(0x33, 0x41, 0x55));
-            resources["SecondaryForegroundBrush"] =
-                FrozenGlassText("GlassCerulean",
-                    dark ? Color.FromRgb(0x93, 0xC5, 0xFD)
-                         : Color.FromRgb(0x1D, 0x4E, 0xD8));
-            resources["MutedForegroundBrush"] =
-                FrozenGlassText("GlassMuted",
-                    dark ? Color.FromRgb(0x8F, 0xB3, 0xE6)
-                         : Color.FromRgb(0x47, 0x55, 0x69));
+            // Dark mode reads the dark About text palette keys
+            // (GlassSnow / GlassCerulean / GlassMuted). LIGHT mode uses
+            // fixed ink/slate constants — decoupled from the Glass*
+            // SURFACE keys (2026-08-29) so the white water-glass
+            // surfaces can be recoloured freely without ever washing
+            // the text out (previously light text read GlassFrost, a
+            // surface-named key, so re-colouring the frost would have
+            // made light text white-on-white).
+            resources["PrimaryForegroundBrush"] = dark
+                ? FrozenGlassText("GlassSnow",
+                    Color.FromRgb(0xF8, 0xFA, 0xFC))
+                : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
+            resources["SecondaryForegroundBrush"] = dark
+                ? FrozenGlassText("GlassCerulean",
+                    Color.FromRgb(0x93, 0xC5, 0xFD))
+                : FrozenSolid(Color.FromRgb(0x1D, 0x4E, 0xD8));
+            resources["MutedForegroundBrush"] = dark
+                ? FrozenGlassText("GlassMuted",
+                    Color.FromRgb(0x8F, 0xB3, 0xE6))
+                : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
+        }
+
+        /// <summary>Frozen solid brush from a constant colour.</summary>
+        private static Brush FrozenSolid(Color color)
+        {
+            var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
         }
 
         /// <summary>
@@ -1067,13 +1107,16 @@ namespace ProGlassAutomation.Services.Theme
                     bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
                     Color accent = ThemeManager.AccentColor;
 
-                    // DWM tint: deep slate (dark) or icy white (light),
-                    // pulled a quarter of the way toward the accent so
-                    // the backdrop belongs to the user's colour.
+                    // DWM tint: deep slate (dark) or clean white water
+                    // glass (light), pulled gently toward the accent so
+                    // the backdrop belongs to the user's colour. Light
+                    // keeps a near-pure white so the blur reads as
+                    // iPhone-style white glass (2026-08-29).
                     Color baseTint = dark
                         ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                        : Color.FromRgb(0xE9, 0xF2, 0xFD);
-                    Color tint = ColorMath.Mix(baseTint, accent, 0.28);
+                        : Color.FromRgb(0xF8, 0xFB, 0xFF);
+                    Color tint = ColorMath.Mix(baseTint, accent,
+                        dark ? 0.28 : 0.12);
 
                     GlassChromeService.Apply(
                         ColorMath.WithAlpha(tint, 0xB0));
@@ -1139,13 +1182,13 @@ namespace ProGlassAutomation.Services.Theme
             }
             else
             {
-                // Deeper ice than a plain light theme: if the stage is
-                // near-white, the white glass frost on top of it is
-                // invisible and Glassy reads as "settings not applied".
-                // A visibly blue stage makes the transparency obvious.
-                baseA = Color.FromRgb(0xDF, 0xEA, 0xF7);           // ice
+                // White water-ice stage (2026-08-29): bright ice with a
+                // soft accent under-tint — bright enough that the new
+                // HIGH-alpha white frost reads as luminous water glass,
+                // not as "settings not applied".
+                baseA = Color.FromRgb(0xEC, 0xF4, 0xFD);           // ice white
                 baseB = ColorMath.Tint(
-                    accent, Color.FromRgb(0xC2, 0xD8, 0xF0), 0.42);
+                    accent, Color.FromRgb(0xD8, 0xE8, 0xFA), 0.30);
             }
 
             // iOS-glass mode: the stage base becomes a translucent veil
@@ -1220,8 +1263,8 @@ namespace ProGlassAutomation.Services.Theme
             // Stops are the XAML values verbatim (AARRGGBB in the files):
             //   Dark  A: #4D82F6FF / #1D4ED84D / #1D4ED800
             //   Dark  B: #60A5FA66 / #3B82F633 / #3B82F600
-            //   Light A: #3360A5FA / #1A2563EB / #002563EB
-            //   Light B: #403B82F6 / #262563EB / #002563EB
+            //   Light A: #6660A5FA / #332563EB / #002563EB   (2026-08-29 boost)
+            //   Light B: #7A3B82F6 / #3D2563EB / #002563EB   (2026-08-29 boost)
             var (c0, c1, c2) = dark
                 ? orbA
                     ? (Color.FromArgb(0x4D, 0x82, 0xF6, 0xFF),
@@ -1231,11 +1274,11 @@ namespace ProGlassAutomation.Services.Theme
                        Color.FromArgb(0x33, 0x82, 0xF6, 0x33),
                        Color.FromArgb(0x00, 0x82, 0xF6, 0x33))
                 : orbA
-                    ? (Color.FromArgb(0x33, 0x60, 0xA5, 0xFA),
-                       Color.FromArgb(0x1A, 0x25, 0x63, 0xEB),
+                    ? (Color.FromArgb(0x66, 0x60, 0xA5, 0xFA),
+                       Color.FromArgb(0x33, 0x25, 0x63, 0xEB),
                        Color.FromArgb(0x00, 0x25, 0x63, 0xEB))
-                    : (Color.FromArgb(0x40, 0x3B, 0x82, 0xF6),
-                       Color.FromArgb(0x26, 0x25, 0x63, 0xEB),
+                    : (Color.FromArgb(0x7A, 0x3B, 0x82, 0xF6),
+                       Color.FromArgb(0x3D, 0x25, 0x63, 0xEB),
                        Color.FromArgb(0x00, 0x25, 0x63, 0xEB));
 
             var orb = new RadialGradientBrush
@@ -1263,8 +1306,11 @@ namespace ProGlassAutomation.Services.Theme
             Color accent, Color baseColor, bool dark,
             double topAlpha, double bottomAlpha)
         {
+            // Light: a WHISPER of accent over clean white (0.06) — the
+            // white water-glass material stays white. Dark: the
+            // original 0.22 keeps the deep-frost hue.
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.22 : 0.14);
+                dark ? 0.22 : 0.06);
 
             byte topA = (byte)Math.Round(topAlpha * 255);
             byte bottomA = (byte)Math.Round(bottomAlpha * 255);

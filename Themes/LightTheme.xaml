@@ -86,33 +86,43 @@
     <SolidColorBrush x:Key="GlassMuted"
                      Color="#475569"
                      po:Freeze="True"/>
-    <!-- Frosted card fill (near-opaque white → pale slate so the card
-         reads against the white module surface) + sheen. -->
+    <!-- Frosted card fill — TRUE white water glass (2026-08-29):
+         translucent white, densest at the top where iOS light
+         materials catch the light, thinning toward the bottom edge so
+         the stage / wallpaper / blurred backdrop reads through
+         (alpha 0xE6 → 0xBF). Previously opaque #FFFFFFFF → #F1F5F9:
+         solid white, no translucency — not glass. -->
     <LinearGradientBrush x:Key="GlassCard"
                          StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
-        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#F1F5F9" Offset="1.0"/>
+        <GradientStop Color="#E6FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#D1FFFFFF" Offset="0.45"/>
+        <GradientStop Color="#BFFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
+    <!-- Top-light specular sheen: strong white highlight at the top
+         corner fading out — the "water glass" catch-light. Previously
+         #33FFFFFF, invisible on a white card. -->
     <LinearGradientBrush x:Key="GlassSheen"
                          StartPoint="0,0" EndPoint="1,1"
                          po:Freeze="True">
-        <GradientStop Color="#33FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.45"/>
     </LinearGradientBrush>
-    <!-- Decorative aurora orbs (soft blue glows over the light stage). -->
+    <!-- Decorative aurora orbs — boosted for the light stage so the
+         blue glow actually reads through the white glass (previously
+         ~20% alpha: invisible on the pale ice stage). -->
     <RadialGradientBrush x:Key="GlassOrbA"
                          Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
                          po:Freeze="True">
-        <GradientStop Color="#3360A5FA" Offset="0.0"/>
-        <GradientStop Color="#1A2563EB" Offset="0.55"/>
+        <GradientStop Color="#6660A5FA" Offset="0.0"/>
+        <GradientStop Color="#332563EB" Offset="0.55"/>
         <GradientStop Color="#002563EB" Offset="1.0"/>
     </RadialGradientBrush>
     <RadialGradientBrush x:Key="GlassOrbB"
                          Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
                          po:Freeze="True">
-        <GradientStop Color="#403B82F6" Offset="0.0"/>
-        <GradientStop Color="#262563EB" Offset="0.55"/>
+        <GradientStop Color="#7A3B82F6" Offset="0.0"/>
+        <GradientStop Color="#3D2563EB" Offset="0.55"/>
         <GradientStop Color="#002563EB" Offset="1.0"/>
     </RadialGradientBrush>
 
