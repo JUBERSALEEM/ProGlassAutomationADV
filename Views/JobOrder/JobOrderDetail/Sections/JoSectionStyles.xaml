@@ -18,13 +18,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,4"/>
-        </Style>
-        <Style x:Key="MultiLineInputStyle" TargetType="TextBox"
+<Style x:Key="MultiLineInputStyle" TargetType="TextBox"
                BasedOn="{StaticResource FieldInputStyle}">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
             <Setter Property="AcceptsReturn" Value="True"/>
@@ -63,18 +57,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
-
-        <Style x:Key="SpecGroupCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-            <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- Production form card — a light surface that groups related
+<!-- Production form card — a light surface that groups related
              fields (Status & Delivery / Site Delivery / Assignment /
              Factory Floor) so the production panel reads as labelled
              sections instead of one endless column of full-width inputs.

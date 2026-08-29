@@ -18,6 +18,7 @@
                      every shared dictionary so they can BasedOn/Static
                      reference it; it wins over theme defaults. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassDesign.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ShellStyles.xaml"/>
 
                 <!-- ── Global type scale (TextXSmall…TextDisplayLarge).
                      Every FontSize below 30 DIPs references these tokens. ── -->
@@ -28,6 +29,7 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/SharedSectionStyles.xaml"/>
 
                 <!-- v2 design system: shared module-screen primitives -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>

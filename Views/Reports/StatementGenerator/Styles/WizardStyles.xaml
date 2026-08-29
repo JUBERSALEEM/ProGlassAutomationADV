@@ -482,4 +482,28 @@
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
     </Style>
 
+
+    <!-- ═══ Shared Statement Generator Resources ═══
+         Previously duplicated in FilterStep.xaml and ExecuteStep.xaml -->
+
+    <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}"/>
+
+    <SolidColorBrush x:Key="VioletAccent" Color="{DynamicResource AccentColor}"/>
+
+    <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}"/>
+
+    <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
+
+    <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
+
+
+    <RadialGradientBrush x:Key="GreenLed">
+        <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
+        <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
+    </RadialGradientBrush>
+
+    <DropShadowEffect x:Key="GreenLedGlow"
+                      BlurRadius="8" ShadowDepth="0"
+                      Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
+
 </ResourceDictionary>

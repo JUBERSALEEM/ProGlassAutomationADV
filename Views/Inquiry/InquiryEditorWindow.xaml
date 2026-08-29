@@ -31,7 +31,6 @@
             <ResourceDictionary.MergedDictionaries>
 
             </ResourceDictionary.MergedDictionaries>
-            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
             <!-- Right-click field context menu. One shared definition so the
                  Cut / Copy / Paste / Select all pattern is consistent across

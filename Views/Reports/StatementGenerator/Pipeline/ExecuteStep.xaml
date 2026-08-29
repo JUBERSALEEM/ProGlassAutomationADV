@@ -45,15 +45,9 @@
              THEME-ALIASED BRUSHES (no hardcoded hex)
         ══════════════════════════════════════════════════════════ -->
         <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="VioletAccent" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="AmberAccent" Color="{DynamicResource WarningColor}"/>
+<SolidColorBrush x:Key="AmberAccent" Color="{DynamicResource WarningColor}"/>
         <SolidColorBrush x:Key="RedAccent" Color="{DynamicResource DangerColor}"/>
-
-        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
-        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
-        <SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}"/>
+<SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}"/>
 
         <!-- Processing log surface — theme-adaptive. -->
         <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource ModuleBackgroundColor}"/>
@@ -81,18 +75,9 @@
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="GreenLed">
-            <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
-        </RadialGradientBrush>
-
         <DropShadowEffect x:Key="ProgressCardShadow"
                           BlurRadius="18" ShadowDepth="3"
                           Opacity="0.08" Color="{DynamicResource AccentColor}"/>
-
-        <DropShadowEffect x:Key="GreenLedGlow"
-                          BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
 
         <!-- ══════════════════════════════════════════════════════════
              FLAT PIPELINE STEP ROW — tinted + thin border line

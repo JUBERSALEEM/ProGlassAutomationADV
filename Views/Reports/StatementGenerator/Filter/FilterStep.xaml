@@ -42,13 +42,7 @@
         <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoLight" Color="{DynamicResource TintIndigoColor}"/>
-        <SolidColorBrush x:Key="VioletAccent" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="CyanAccent" Color="{DynamicResource AccentLightColor}"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}"/>
-
-        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}"/>
-        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}"/>
         <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}"/>
         <SolidColorBrush x:Key="BorderHover" Color="{DynamicResource BorderColor}"/>
         <SolidColorBrush x:Key="ChevronBrush" Color="{DynamicResource MutedForegroundColor}"/>
@@ -83,11 +77,6 @@
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
         </LinearGradientBrush>
 
-        <RadialGradientBrush x:Key="GreenLed">
-            <GradientStop Color="{DynamicResource SuccessColor}" Offset="0"/>
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
-        </RadialGradientBrush>
-
         <!-- ══════════════════════════════════════════════════════════
              FROZEN EFFECTS
         ══════════════════════════════════════════════════════════ -->
@@ -112,10 +101,6 @@
                           BlurRadius="20" ShadowDepth="4"
                           Opacity="0.15" Color="Black"
                           po:Freeze="True"/>
-
-        <DropShadowEffect x:Key="GreenLedGlow"
-                          BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"/>
 
         <DropShadowEffect x:Key="OptionCardHoverShadow"
                           BlurRadius="16" ShadowDepth="4"

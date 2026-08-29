@@ -1,0 +1,535 @@
+<!--
+    FILE: Themes/Styles/ShellStyles.xaml
+    PROJECT: ProGlassAutomation
+    VERSION: Phase 2 — Extracted from MainWindow.xaml
+
+    Contains: Shell shadows, gradients, top-bar styles, sidebar styles.
+    DataTemplates remain in MainWindow.xaml (depend on local xmlns).
+    Converters remain in App.xaml (globally shared).
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             FROZEN SHADOWS &amp; GRADIENTS (theme-based accent)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <DropShadowEffect x:Key="CardShadow"
+                          BlurRadius="4" ShadowDepth="1"
+                          Opacity="0.03" Color="#000000" Direction="270"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="LogoGlow"
+                          BlurRadius="10" ShadowDepth="3"
+                          Opacity="0.30" Color="{DynamicResource AccentColor}"/>
+
+        <DropShadowEffect x:Key="DrawerLeftShadow"
+                          BlurRadius="30" ShadowDepth="6"
+                          Opacity="0.15" Color="Black" Direction="0"
+                          po:Freeze="True"/>
+
+        <!-- Glow behind the active sidebar item (theme-accent). -->
+        <DropShadowEffect x:Key="NavActiveGlow"
+                          BlurRadius="14" ShadowDepth="0"
+                          Opacity="0.45" Color="{DynamicResource AccentColor}"/>
+
+        <!-- Theme-based accent gradients (use AccentColor resources so they
+             follow the chosen accent + Light/Dark). -->
+        <LinearGradientBrush x:Key="LogoBrandGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             >
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AvatarGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             >
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="DateTimeIconGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             >
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AiPillGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             >
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="StorageBarGradient"
+                             StartPoint="0,0" EndPoint="1,0"
+                             >
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="SidebarActiveGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             >
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             ViewModel → View mappings (23 modules — preserved verbatim)
+        ═══════════════════════════════════════════════════════════════ -->
+
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             TOP-BAR ICON BUTTON (40×40 rounded, theme-based)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- Top panel pill radius — every control in the top bar (search,
+             theme toggle, AI agent, date/time, connectivity, user card and
+             the icon buttons) shares this 14px rounded-pill corner. -->
+        <CornerRadius x:Key="TopPillCornerRadius">14</CornerRadius>
+
+        <Style x:Key="TopIconButton" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{StaticResource TopPillCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="{StaticResource TextSubhead}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Shared top-bar pill typography — one treatment for every pill. -->
+        <Style x:Key="TopPillTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="TopPillCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             AI AGENT PILL — a real Button (keyboard + pressed states).
+             Matches the other top-bar controls: 36px, ControlCornerRadius,
+             1px accent border, tinted fill.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="TopAiPillStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Height="36"
+                                Padding="12,0"
+                                Background="{DynamicResource TintBlueBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{StaticResource TopPillCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Grid Width="12" Height="12" Margin="0,0,10,0">
+                                    <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
+                                        <Ellipse.RenderTransform>
+                                            <ScaleTransform x:Name="AiPulseScale"
+                                                            ScaleX="1" ScaleY="1"
+                                                            CenterX="6" CenterY="6"/>
+                                        </Ellipse.RenderTransform>
+                                        <Ellipse.Triggers>
+                                            <EventTrigger RoutedEvent="Loaded">
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever">
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetName="AiPulseScale"
+                                                            Storyboard.TargetProperty="ScaleX"
+                                                            From="1" To="2.5" Duration="0:0:2"/>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetName="AiPulseScale"
+                                                            Storyboard.TargetProperty="ScaleY"
+                                                            From="1" To="2.5" Duration="0:0:2"/>
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            From="0.5" To="0" Duration="0:0:2"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                        </Ellipse.Triggers>
+                                    </Ellipse>
+                                    <Ellipse Width="10" Height="10"
+                                             Fill="{DynamicResource SuccessBrush}"
+                                             HorizontalAlignment="Center"
+                                             VerticalAlignment="Center"/>
+                                </Grid>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="AI AGENT"
+                                               Style="{StaticResource TopPillCaptionStyle}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="Assistant"
+                                               Style="{StaticResource TopPillTitleStyle}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,1,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR GROUP LABEL (MAIN / SALES / etc.)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR — modern 2050 glass style
+             Section headers, icon-chip nav tiles, animated group headers
+             and frosted sub-menu cards. Click accordion behavior is kept
+             (groups open/close on click only).
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="24,22,24,10"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType"/>
+        </Style>
+
+        <!-- NAV ITEM — icon chip + label, active indicator + keyboard focus.
+             Active state: compares CommandParameter to DataContext.CurrentModuleKey
+             (via StringEqualsMultiConverter) so the open module is always lit. -->
+        <Style x:Key="SidebarNavItem" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="14,4,14,4"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="8,0"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <!-- Icon chip -->
+                                    <Border x:Name="Chip"
+                                            Width="34" Height="34"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Background="{DynamicResource MenuHoverBrush}"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,12,0"
+                                            SnapsToDevicePixels="True">
+                                        <TextBlock x:Name="Icon"
+                                                   Text="{TemplateBinding Tag}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="{StaticResource TextSection}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <!-- Active accent bar (right edge) -->
+                                <Border x:Name="Accent"
+                                        Width="3"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Stretch"
+                                        Margin="0,10,0,10"
+                                        CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                            <!-- Active module -->
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
+                                <Setter TargetName="Chip" Property="Effect" Value="{StaticResource NavActiveGlow}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- GROUP TOGGLE — icon chip + chevron, animated open state -->
+        <Style x:Key="SidebarGroupToggle" TargetType="ToggleButton">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="14,4,14,4"/>
+            <Setter Property="Height" Value="46"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="8,0"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border x:Name="Chip"
+                                            Width="34" Height="34"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Background="{DynamicResource MenuHoverBrush}"
+                                            VerticalAlignment="Center"
+                                            Margin="0,0,12,0"
+                                            SnapsToDevicePixels="True">
+                                        <TextBlock x:Name="Icon"
+                                                   Text="{TemplateBinding Tag}"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="{StaticResource TextSection}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="Chevron"
+                                           Text="&#xE76C;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="{StaticResource TextBody}"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <RotateTransform x:Name="ChevronRotate" Angle="0"/>
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Chip" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Chip" Property="Background" Value="{StaticResource SidebarActiveGradient}"/>
+                                <Setter TargetName="Chip" Property="Effect" Value="{StaticResource NavActiveGlow}"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ChevronRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="0" To="90" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ChevronRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="90" To="0" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- SUB-MENU CONTAINER — frosted rounded card -->
+        <Style x:Key="SidebarSubMenuCard" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource SidebarCardBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+            <Setter Property="Margin" Value="24,6,24,10"/>
+            <Setter Property="Padding" Value="8,10"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- SUB-ITEM — dot + label with active indicator (no hover chevron:
+             the group chevron already means expand/collapse; sub-items keep
+             a clear dot + accent bar for the active module). -->
+        <Style x:Key="SidebarSubItem" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="2,2,2,2"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="10,0"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Border x:Name="Dot"
+                                            Width="6" Height="6"
+                                            CornerRadius="3"
+                                            Background="{DynamicResource MutedForegroundBrush}"
+                                            Margin="0,0,10,0"
+                                            VerticalAlignment="Center"
+                                            SnapsToDevicePixels="True"/>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="{StaticResource TextBodyLarge}"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <!-- Active accent bar (right edge) -->
+                                <Border x:Name="Accent"
+                                        Width="3"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Stretch"
+                                        Margin="0,8,0,8"
+                                        CornerRadius="2"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Opacity="0"
+                                        IsHitTestVisible="False"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                            </Trigger>
+                            <!-- Active module -->
+                            <DataTrigger Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource StringEqualsMultiConverter}">
+                                        <Binding Path="CommandParameter" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                        <Binding Path="DataContext.CurrentModuleKey" RelativeSource="{RelativeSource TemplatedParent}"/>
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+                                <Setter TargetName="Dot" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="Bold"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+</ResourceDictionary>
