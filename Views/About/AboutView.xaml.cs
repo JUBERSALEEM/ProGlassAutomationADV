@@ -59,7 +59,7 @@ namespace ProGlassAutomation.Views.About
                 Text = "About page could not be loaded",
                 FontSize = 20,
                 FontWeight = FontWeights.Bold,
-                Foreground = (System.Windows.Media.Brush)FindResource("OnAccentForegroundBrush"),
+                Foreground = (System.Windows.Media.Brush)Application.Current.FindResource("OnAccentForegroundBrush"),
                 Margin = new Thickness(36, 44, 36, 10),
             };
 
@@ -70,7 +70,7 @@ namespace ProGlassAutomation.Views.About
                        "(Help → Diagnostics). Nothing else in the app is affected.",
                 TextWrapping = TextWrapping.Wrap,
                 FontSize = 13,
-                Foreground = (System.Windows.Media.Brush)FindResource("OnAccentForegroundBrush"),
+                Foreground = (System.Windows.Media.Brush)Application.Current.FindResource("OnAccentForegroundBrush"),
                 Opacity = 0.85,
                 Margin = new Thickness(36, 0, 36, 36),
             };
@@ -79,8 +79,7 @@ namespace ProGlassAutomation.Views.About
             panel.Children.Add(title);
             panel.Children.Add(detail);
 
-            var bg = (SolidColorBrush)FindResource("ModuleBackgroundBrush");
-            bg.Freeze();
+            var bg = (System.Windows.Media.Brush)Application.Current.FindResource("ModuleBackgroundBrush");
 
             return new Border
             {
