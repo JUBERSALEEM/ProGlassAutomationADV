@@ -42,8 +42,14 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("LicenseService.Create", core);
             Assert.Contains("LicenseService.VerifyAndValidate", core);
             Assert.Contains("ProductionSigningKey", core);
-            Assert.Contains("\"7 Days\"", core);
-            Assert.Contains("\"2 Years\"", core);
+            Assert.Contains("LicensePlanCatalog", core);
+
+            // The plan set itself lives in the global catalog shared
+            // with the customer app (single source of truth).
+            string catalog = File.ReadAllText(Path.Combine(root,
+                "Licensing", "Contracts", "LicensePlanCatalog.cs"));
+            Assert.Contains("\"7 Days\"", catalog);
+            Assert.Contains("\"2 Years\"", catalog);
 
             // The activation request/response signing path is gone.
             Assert.DoesNotContain("OfflineActivationService.SignResponseJson", core);

@@ -3,17 +3,19 @@
 
   ONE ACTION: paste the license key your vendor sent you (a single text
   block starting with PGKEY1) and click Apply. The app verifies the
-  vendor's RSA signature against its embedded trusted-key ring and
-  activates instantly.
+  vendor's RSA signature against its embedded trusted-key ring, checks
+  the key's plan against the selected/active plan (wrong-plan guard),
+  and activates instantly.
 
   Supporting behaviour (automatic — nothing to configure):
     • A 30-day trial starts on first run, recorded in the tamper-evident
-      machine ledger. If a key is later removed or expires inside the
-      trial window, the app falls back to the trial automatically; after
-      the window the app runs read-only with all data preserved.
-    • A signed license always takes precedence over the trial.
-    • The PC ID below is read-only reference info — the vendor only needs
-      it when issuing a key bound to this machine.
+      machine ledger. A signed license always wins; a removed/expired
+      key falls back to the trial while the window is open; after the
+      window the app runs read-only with all data preserved.
+    • The PC ID below is read-only reference info — the vendor only
+      needs it when issuing a key bound to this machine.
+    • The five plan cards come from the global LicensePlanCatalog —
+      the same catalog the generator tool signs with.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.Licensing.LicenseActivationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -28,9 +30,44 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- Selectable plan card (radio restyled as a rounded card).
+                 Selected/hover = accent ring; default = divider ring. -->
+            <Style x:Key="PlanCardStyle" TargetType="RadioButton">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Margin" Value="0,0,10,10"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RadioButton">
+                            <Border x:Name="PlanCard"
+                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    BorderBrush="{DynamicResource DividerBrush}"
+                                    BorderThickness="1.5"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
+                                    Padding="16,14"
+                                    MinWidth="150"
+                                    SnapsToDevicePixels="True">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="PlanCard" Property="BorderBrush"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="PlanCard" Property="BorderBrush"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                    <Setter TargetName="PlanCard" Property="BorderThickness" Value="2"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Border Background="{DynamicResource BackgroundBrush}"
+    <Border Background="{DynamicResource WindowBackgroundBrush}"
             Padding="28,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
@@ -40,7 +77,7 @@
                 <TextBlock x:Name="HeadlineText"
                            Text="Activate ProGlass Automation"
                            FontSize="{StaticResource TextDisplayLarge}" FontWeight="SemiBold"
-                           Foreground="{DynamicResource ForegroundBrush}"/>
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock x:Name="SubheadText"
                            TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
                            Margin="0,4,0,24"
@@ -55,7 +92,7 @@
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
-                                   Foreground="{DynamicResource ForegroundBrush}">
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="Your vendor sends you a single text block starting with PGKEY1. Paste it here and click Apply — that is the entire process."/>
                         </TextBlock>
                         <TextBox x:Name="KeyPasteTextBox"
@@ -85,32 +122,72 @@
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
-                                   Margin="0,6,0,10"
-                                   Foreground="{DynamicResource ForegroundBrush}">
+                                   Margin="0,6,0,12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="Choose the plan you want, then press GET LICENSE KEY. It copies a ready-to-send request with this PC's ID — send it to your vendor, and they reply with a PGKEY1 key to paste in the box above."/>
                         </TextBlock>
-                        <StackPanel>
+                        <WrapPanel>
                             <RadioButton x:Name="Plan7Radio" GroupName="CustomerPlan"
-                                         Content="7 DAYS — short evaluation key"
-                                         Margin="0,0,0,4"/>
+                                         Style="{StaticResource PlanCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="7 DAYS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Short evaluation" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan30Radio" GroupName="CustomerPlan"
-                                         Content="30 DAYS — monthly key"
-                                         Margin="0,0,0,4"/>
+                                         Style="{StaticResource PlanCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="30 DAYS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Monthly key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan6mRadio" GroupName="CustomerPlan"
-                                         Content="6 MONTHS — half-year key"
-                                         Margin="0,0,0,4"/>
+                                         Style="{StaticResource PlanCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="6 MONTHS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Half-year key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan1yRadio" GroupName="CustomerPlan"
-                                         Content="1 YEAR — annual key"
-                                         IsChecked="True"
-                                         Margin="0,0,0,4"/>
+                                         Style="{StaticResource PlanCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="1 YEAR" FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Annual key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan2yRadio" GroupName="CustomerPlan"
-                                         Content="2 YEARS — two-year key"/>
-                        </StackPanel>
+                                         Style="{StaticResource PlanCardStyle}">
+                                <StackPanel>
+                                    <TextBlock Text="2 YEARS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Two-year key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
+                        </WrapPanel>
                         <Button Style="{StaticResource PrimaryPillButton}"
                                 Content="GET LICENSE KEY"
                                 Click="GetLicenseKeyButton_Click"
                                 HorizontalAlignment="Left"
-                                Margin="0,12,0,0"/>
+                                Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
@@ -148,30 +225,30 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Edition"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="EditionValue"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"/>
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="CustomerValue"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Expires"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ExpiresValue"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="License ID"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LicenseIdValue"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Source"
                                        FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="SourceValue"
-                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </Grid>
                     </StackPanel>
@@ -185,7 +262,7 @@
                                    Margin="0,0,0,6"/>
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,0,0,8"
-                                   Foreground="{DynamicResource ForegroundBrush}">
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="Send this to your vendor ONLY if they ask for it (a key bound to this machine). You normally do not need it."/>
                         </TextBlock>
                         <TextBox x:Name="FingerprintDisplayBox"

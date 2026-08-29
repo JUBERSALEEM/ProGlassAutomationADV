@@ -63,27 +63,58 @@
                                    Text="Choose how long the customer's key stays valid, then press GENERATE. The key comes out as one text block (PGKEY1…) — copy it and send it by email or chat."/>
 
                         <TextBlock Text="PLAN" Style="{StaticResource LabelText}" Margin="0,16,0,6"/>
-                        <StackPanel>
+                        <WrapPanel>
                             <RadioButton x:Name="Plan7DaysRadio" GroupName="LicensePlan"
-                                         Content="7 DAYS — short evaluation key"
-                                         Checked="PlanRadio_Checked"
-                                         Margin="0,0,0,6"/>
+                                         Style="{StaticResource PlanCardRadio}"
+                                         Checked="PlanRadio_Checked">
+                                <StackPanel>
+                                    <TextBlock Text="7 DAYS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="Short evaluation" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{StaticResource TextDimBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan30DaysRadio" GroupName="LicensePlan"
-                                         Content="30 DAYS — monthly key"
-                                         Checked="PlanRadio_Checked"
-                                         Margin="0,0,0,6"/>
+                                         Style="{StaticResource PlanCardRadio}"
+                                         Checked="PlanRadio_Checked">
+                                <StackPanel>
+                                    <TextBlock Text="30 DAYS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="Monthly key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{StaticResource TextDimBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan6MonthsRadio" GroupName="LicensePlan"
-                                         Content="6 MONTHS — half-year key"
-                                         Checked="PlanRadio_Checked"
-                                         Margin="0,0,0,6"/>
+                                         Style="{StaticResource PlanCardRadio}"
+                                         Checked="PlanRadio_Checked">
+                                <StackPanel>
+                                    <TextBlock Text="6 MONTHS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="Half-year key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{StaticResource TextDimBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan1YearRadio" GroupName="LicensePlan"
-                                         Content="1 YEAR — annual key"
-                                         Checked="PlanRadio_Checked"
-                                         Margin="0,0,0,6"/>
+                                         Style="{StaticResource PlanCardRadio}"
+                                         Checked="PlanRadio_Checked">
+                                <StackPanel>
+                                    <TextBlock Text="1 YEAR" FontSize="{StaticResource TextBody}"
+                                               FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="Annual key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{StaticResource TextDimBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
                             <RadioButton x:Name="Plan2YearsRadio" GroupName="LicensePlan"
-                                         Content="2 YEARS — two-year key"
-                                         Checked="PlanRadio_Checked"/>
-                        </StackPanel>
+                                         Style="{StaticResource PlanCardRadio}"
+                                         Checked="PlanRadio_Checked">
+                                <StackPanel>
+                                    <TextBlock Text="2 YEARS" FontSize="{StaticResource TextBody}"
+                                               FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+                                    <TextBlock Text="Two-year key" FontSize="{StaticResource TextCaption}"
+                                               Foreground="{StaticResource TextDimBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </RadioButton>
+                        </WrapPanel>
 
                         <TextBlock x:Name="KeyPreviewText"
                                    Style="{StaticResource HelpText}" Margin="0,12,0,0"

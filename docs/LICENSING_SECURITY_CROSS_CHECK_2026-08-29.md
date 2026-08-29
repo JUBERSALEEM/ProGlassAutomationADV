@@ -83,3 +83,36 @@
 - Structural audits: 174 XAML files parse; both changed views have no
   duplicate `x:Name`s and every wired handler exists; generator resource
   keys resolve; all changed C# files lexer-clean.
+
+## 7. Update (2026-08-29, later) — plan-mismatch guard, dialog fix, global catalog
+
+- **Wrong-plan paste guard** (`LicenseActivationView`): before anything is
+  stored, a pasted key is decoded and signature-verified, then its plan
+  (via the global `LicensePlanCatalog`) is compared against:
+  1. the ACTIVE license — a shorter plan than the active one triggers a
+     strong "A longer license is already active … this is usually the
+     wrong key" warning (Yes/No);
+  2. the same plan already active → replace confirmation;
+  3. nothing active → pasted plan vs the plan selected in the PLANS
+     cards → "Plan mismatch — possible wrong key" warning.
+  Downgrade-by-mistake (1 Year key replaced by a 7 Days key) now needs
+  an explicit confirmation.
+- **Activation popup fixed**: the dialog previously used a FIXED
+  430 px height while its content needed more — the bottom of the card
+  was clipped ("collapsing"). It now uses `SizeToContent=Height` and
+  reads every color from theme resources (correct in Light AND Dark
+  themes), with a new PLAN fact row.
+- **Global plan service**: `Licensing/Contracts/LicensePlanCatalog.cs`
+  is the single source of truth for the five plans, used by the
+  generator signer, the generator picker, the app plan cards and the
+  paste guard — the two sides can never disagree about plan names or
+  day counts. Contract tests pin the mapping (exact + nearest +
+  open-ended).
+- **Plan cards**: both the app and the generator now show the five
+  plans as rounded-corner selectable cards (accent ring on
+  hover/selection).
+- **Theme-key bug fixed**: the licensing page referenced
+  `BackgroundBrush`/`ForegroundBrush`, which are NOT defined in the
+  app themes — in Dark theme the page text rendered unreadable. The
+  view now uses the real keys (`WindowBackgroundBrush`,
+  `PrimaryForegroundBrush`, `SecondaryForegroundBrush`, …).

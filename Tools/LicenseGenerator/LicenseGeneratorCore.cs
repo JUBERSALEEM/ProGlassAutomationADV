@@ -31,18 +31,22 @@
 //   • Every key is self-verified before it is shown: the contract
 //     Create() re-reads and VerifyAndValidate-s the exact JSON it
 //     signed, so a tampered or mismatched key can never be emitted.
+//   • The plan set is the global LicensePlanCatalog — the customer app
+//     uses the same catalog for its plan-mismatch paste warnings.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using ProGlass.Licensing;
 
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
 /// <summary>
 /// Stateless signing core for the single-click plan-based flow.
+/// The plan definitions come from the global
+/// <see cref="LicensePlanCatalog"/> — the SAME catalog the customer
+/// app uses for its plan cards and plan-mismatch warnings.
 /// </summary>
 public static class LicenseGeneratorCore
 {
@@ -54,28 +58,8 @@ public static class LicenseGeneratorCore
         "ProGlassAutomation",
         "Licensing");
 
-    /// <summary>The five sellable plans, in UI order.</summary>
-    public static IReadOnlyList<LicensePlan> Plans { get; } = new[]
-    {
-        new LicensePlan("7 Days", 7),
-        new LicensePlan("30 Days", 30),
-        new LicensePlan("6 Months", 182),
-        new LicensePlan("1 Year", 365),
-        new LicensePlan("2 Years", 730)
-    };
-
-    /// <summary>A sellable validity window.</summary>
-    public sealed class LicensePlan
-    {
-        public string Name { get; }
-        public int Days { get; }
-
-        public LicensePlan(string name, int days)
-        {
-            Name = name;
-            Days = days;
-        }
-    }
+    /// <summary>The five sellable plans, in UI order (global catalog).</summary>
+    public static IReadOnlyList<LicensePlanCatalog.Plan> Plans => LicensePlanCatalog.All;
 
     public sealed class LicenseKeyIssueResult
     {
@@ -96,7 +80,7 @@ public static class LicenseGeneratorCore
     /// exact JSON, so the returned key is guaranteed to verify against
     /// the public half the customer app embeds.
     /// </summary>
-    public static LicenseKeyIssueResult GenerateLicenseKey(LicensePlan plan)
+    public static LicenseKeyIssueResult GenerateLicenseKey(LicensePlanCatalog.Plan plan)
     {
         try
         {

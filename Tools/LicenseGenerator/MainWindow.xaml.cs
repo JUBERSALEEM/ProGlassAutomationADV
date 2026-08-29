@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
+using ProGlass.Licensing;
 
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
@@ -41,7 +42,7 @@ public partial class MainWindow : Window
     // Plan + generate
     // ────────────────────────────────────────────────────────────────────
 
-    private LicenseGeneratorCore.LicensePlan SelectedPlan()
+    private LicensePlanCatalog.Plan SelectedPlan()
     {
         if (Plan7DaysRadio.IsChecked == true) return LicenseGeneratorCore.Plans[0];
         if (Plan30DaysRadio.IsChecked == true) return LicenseGeneratorCore.Plans[1];
@@ -54,23 +55,16 @@ public partial class MainWindow : Window
     {
         if (KeyPreviewText == null) return;
 
-        LicenseGeneratorCore.LicensePlan plan = SelectedPlan();
-        string duration = plan.Days switch
-        {
-            7 => "seven days",
-            30 => "thirty days",
-            182 => "six months",
-            365 => "one year",
-            _ => "two years"
-        };
+        LicensePlanCatalog.Plan plan = SelectedPlan();
         KeyPreviewText.Text =
-            plan.Name + " — the customer's key expires " + duration +
+            plan.Name + " — the customer's key expires " +
+            LicensePlanCatalog.DurationLabel(plan.Days) +
             " from the moment it is generated.";
     }
 
     private void GenerateLicenseKeyButton_Click(object sender, RoutedEventArgs e)
     {
-        LicenseGeneratorCore.LicensePlan plan = SelectedPlan();
+        LicensePlanCatalog.Plan plan = SelectedPlan();
         LicenseGeneratorCore.LicenseKeyIssueResult result =
             LicenseGeneratorCore.GenerateLicenseKey(plan);
 

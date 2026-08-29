@@ -185,4 +185,35 @@
         <Setter Property="Padding" Value="24,10"/>
     </Style>
 
+    <!-- Selectable plan card (radio restyled as a rounded card) -->
+    <Style TargetType="RadioButton" x:Key="PlanCardRadio">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Margin" Value="0,0,10,10"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="PlanCard"
+                            Background="{StaticResource CardAltBrush}"
+                            BorderBrush="{StaticResource BorderSoftBrush}"
+                            BorderThickness="1.5"
+                            CornerRadius="12"
+                            Padding="18,14"
+                            MinWidth="150"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PlanCard" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="PlanCard" Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+                            <Setter TargetName="PlanCard" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

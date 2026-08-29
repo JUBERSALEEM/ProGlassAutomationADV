@@ -43,6 +43,22 @@ public sealed class OfflineLicensingHardeningSourceTests
     }
 
     [Fact]
+    public void Activation_view_enforces_plan_mismatch_guards_on_paste()
+    {
+        // 2026-08-29: pasting a key must go through armor check →
+        // signature verification → plan-conflict dialogs → install.
+        string code = File.ReadAllText(Path.Combine(Root(),
+            "Views", "Licensing", "LicenseActivationView.xaml.cs"));
+
+        Assert.Contains("LicenseKeyArmor.IsArmoredBlock", code, StringComparison.Ordinal);
+        Assert.Contains("ProGlassLicense.VerifyText", code, StringComparison.Ordinal);
+        Assert.Contains("LicensePlanCatalog", code, StringComparison.Ordinal);
+        Assert.Contains("ConfirmPlanChange", code, StringComparison.Ordinal);
+        Assert.Contains("already active", code, StringComparison.Ordinal);
+        Assert.Contains("wrong key", code, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void License_service_exposes_secure_activation_request_api()
     {
         string src = File.ReadAllText(Path.Combine(Root(),
