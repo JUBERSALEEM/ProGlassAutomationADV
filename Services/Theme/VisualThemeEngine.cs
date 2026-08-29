@@ -697,6 +697,13 @@ namespace ProGlassAutomation.Services.Theme
                 resources, "MenuHoverBrush", accent,
                 Color.FromRgb(0xF3, 0xF4, 0xF6), 0.62, dark);
 
+            // Shell sidebar — opaque, accent-tinted surface (not transparent).
+            // The base theme defines ShellLiquidBrush with ~5% alpha which
+            // makes the sidebar see-through. Override with an opaque brush.
+            resources["ShellLiquidBrush"] = FrostSurface(
+                resources, "ShellLiquidBrush", accent,
+                Colors.White, 0.94, dark);
+
             // Softer, rounder cards fit the artistic look.
             resources["CardCornerRadius"] = new CornerRadius(18);
             resources["CardCornerRadiusLarge"] = new CornerRadius(24);
@@ -764,9 +771,15 @@ namespace ProGlassAutomation.Services.Theme
             ResourceDictionary resources, string key, Color accent,
             Color fallback, double opacity, bool dark)
         {
-            Color baseColor = ThemeManager.GetThemeColor(key, fallback);
-            // Light: 0.10 keeps the pane WHITE (water glass) instead of
-            // the old 0.22 blue wash. Dark: 0.26 unchanged.
+            // Use an opaque base color instead of reading from theme
+            // (DarkTheme defines ModuleBackgroundBrush as #00000000 which
+            // stays transparent even after tinting). For Monet we want
+            // solid, opaque surfaces that derive from the accent.
+            Color baseColor = dark
+                ? Color.FromRgb(0x0F, 0x17, 0x2A)  // Dark slate
+                : Color.FromRgb(0xF8, 0xFA, 0xFC); // Light grey
+            
+            // Tint the opaque base with the accent color
             Color tinted = ColorMath.Tint(accent, baseColor,
                 dark ? 0.26 : 0.10);
 
