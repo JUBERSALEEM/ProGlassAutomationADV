@@ -41,11 +41,20 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Light_glassy_veil_is_thinner_than_dark_for_clear_blur()
+        public void Glass_window_stages_are_opaque_and_self_contained()
         {
-            // Light windows let the DWM blur read through more clearly
-            // (0x30 vs dark 0x40) — the white water-glass identity.
-            Assert.Contains("dark ? (byte)0x40 : (byte)0x30", Engine, StringComparison.Ordinal);
+            // 2026-08-29 white-fade regression: an alpha veil over an
+            // opaque WPF window surface blends toward the white clear
+            // color on Windows 11 / transparency-off machines — the
+            // whole app faded to a white sheet. The stage must be
+            // opaque and visibly more colourful than the white panes.
+            string engine = Engine;
+            Assert.DoesNotContain("dark ? (byte)0x40 : (byte)0x30", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("WithAlpha(stageA", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("WithAlpha(stageB", engine, StringComparison.Ordinal);
+            Assert.Contains("(byte)0xFF)", engine, StringComparison.Ordinal);
+            Assert.Contains("0xC9, 0xDD, 0xF5", engine, StringComparison.Ordinal);
+            Assert.Contains("0xD7, 0xE5, 0xF9", engine, StringComparison.Ordinal);
         }
 
         [Fact]

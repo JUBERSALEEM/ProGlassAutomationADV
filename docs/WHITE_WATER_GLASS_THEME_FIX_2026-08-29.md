@@ -111,3 +111,26 @@ the material further instead of re-applying the previous fix:
   design: light ramp numbers, thin veil, translucent GlassCard,
   XAML↔engine orb verbatim equality, decoupled text constants,
   DynamicResource surface consumption, dark ramp untouched.
+
+## 7. Third pass (2026-08-29, runtime report) — "full fade white" fix
+
+User runtime report: switching to Glass/Glassy fades the whole app to
+white. Root cause identified and fixed:
+
+- The Glass/Glassy window stage was painted as a translucent veil
+  (alpha 0x30/0x40) on the assumption that the DWM acrylic backdrop
+  shows THROUGH an opaque WPF window surface. It does not: on Windows
+  11 (and whenever "Transparency effects" is off, in RDP, or with a
+  bright desktop behind) the veil alpha-blends against the window's
+  white clear color. White veil + white glass panes = a white sheet.
+- Fix: the glass scene is now painted INSIDE the window, always
+  opaque and self-contained (Mica / iOS-in-app technique):
+  * ApplyGlass: opaque sky-ice stage (#C9DDF5 → #B4CFF0 light,
+    navy dark), single per-mode surface ramp.
+  * ApplyGlassy: BuildGlassStageBrush always called with 0xFF;
+    light ice stage deepened (#D7E5F9 → accent-tinted #AECBF0) so
+    the white frost visibly reads as glass instead of white-on-white.
+  * DWM tint alpha 0xB0 → 0x80 (subtle fallback tint only).
+- The stage must stay noticeably more colourful than the panes —
+  that contrast is what makes white water glass visible.
+- Regression test updated: Glass_window_stages_are_opaque_and_self_contained.

@@ -696,52 +696,49 @@ namespace ProGlassAutomation.Services.Theme
         private static void ApplyGlass(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
-            bool chrome = GlassChromeService.IsSupported;
 
-            // Cool glass stage. With the DWM acrylic backdrop active the
-            // window surface becomes a translucent veil over the blurred
-            // desktop (real iOS glass); without it, keep the opaque
-            // gradient so the UI never loses contrast.
+            // WINDOW STAGE — ALWAYS OPAQUE (2026-08-29 fix).
+            //
+            // The previous design painted the window surface as a
+            // translucent veil expecting the DWM acrylic backdrop to
+            // show through. An opaque WPF window surface does NOT let
+            // the backdrop through, so the veil alpha-blended against
+            // the window's white clear color — on Windows 11 (and
+            // whenever "Transparency effects" is off or the desktop
+            // behind is bright) the whole app faded to a white sheet.
+            //
+            // The glass scene is now painted INSIDE the window: a rich
+            // sky-ice stage with frosted panes on top (the Mica /
+            // iOS-in-app technique) — identical on every machine, no
+            // OS dependency. The stage must stay noticeably more
+            // colourful than the white panes, or the glass reads as
+            // flat white-on-white.
             Color stageA = dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                                : Color.FromRgb(0xF0, 0xF6, 0xFE);
+                                : Color.FromRgb(0xC9, 0xDD, 0xF5);
             Color stageB = dark ? Color.FromRgb(0x12, 0x22, 0x44)
-                                : Color.FromRgb(0xE4, 0xEE, 0xFA);
-            if (chrome)
-            {
-                stageA = ColorMath.WithAlpha(stageA, 0x3C);
-                stageB = ColorMath.WithAlpha(stageB, 0x52);
-            }
+                                : Color.FromRgb(0xB4, 0xCF, 0xF0);
             var window = new LinearGradientBrush(
                 stageA, stageB, new Point(0, 0), new Point(1, 1));
             window.Freeze();
             resources["WindowBackgroundBrush"] = window;
 
-            // Frosted surfaces — translucent and lightly accent-tinted so
-            // the blurred backdrop + stage gradient reads through each
-            // card (the glass look). With chrome active the frost sits
-            // lighter (like Apple's thin materials); without it the
-            // higher alphas keep text contrast over the opaque stage.
-            // Light = clean WHITE water glass (2026-08-29): the old
-            // 0.62/0.70/0.78 muddied the white and the no-chrome ramp
-            // (0.78/0.84/0.86) was effectively opaque.
+            // Frosted panes — translucent white with a whisper of
+            // accent, ONE ramp per mode (no chrome/no-chrome split:
+            // the stage is always the in-window scene now).
             var accent = ThemeManager.AccentColor;
             resources["ModuleBackgroundBrush"] = GlassSurface(
                 resources, "ModuleBackgroundBrush", accent,
-                Colors.White, dark ? (chrome ? 0.58 : 0.86)
-                                   : (chrome ? 0.52 : 0.66), dark);
+                Colors.White, dark ? 0.58 : 0.66, dark);
             resources["ElevatedSurfaceBrush"] = GlassSurface(
                 resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, dark ? (chrome ? 0.66 : 0.92)
-                                   : (chrome ? 0.62 : 0.74), dark);
+                Colors.White, dark ? 0.66 : 0.74, dark);
             resources["SideMenuBackgroundBrush"] = GlassSurface(
                 resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, dark ? (chrome ? 0.74 : 0.94)
-                                   : (chrome ? 0.70 : 0.78), dark);
+                Colors.White, dark ? 0.74 : 0.78, dark);
             resources["MenuHoverBrush"] = GlassSurface(
                 resources, "MenuHoverBrush", accent,
                 Color.FromRgb(0xF3, 0xF4, 0xF6),
-                dark ? (chrome ? 0.40 : 0.60)
-                     : (chrome ? 0.36 : 0.48), dark);
+                dark ? 0.40 : 0.48, dark);
 
             // Softer radii suit the frosted material.
             resources["CardCornerRadius"] = new CornerRadius(14);
@@ -803,20 +800,13 @@ namespace ProGlassAutomation.Services.Theme
             // brush with the image afterwards, exactly like every other
             // family — the glass surfaces then sit on the picture.
             //
-            // With the DWM acrylic backdrop active the stage base is a
-            // translucent veil (alpha ~0x40) so the blurred desktop
-            // shows through the whole window — the orbs keep their glow
-            // on top. Without it the stage stays opaque so Glassy still
-            // reads correctly on systems without backdrop blur.
-            // iOS-glass mode: the stage base becomes a translucent veil
-            // over the DWM acrylic backdrop. LIGHT gets a thinner veil
-            // (0x30) than dark (0x40) so the white water-glass window
-            // lets the blurred desktop shine through clearly.
+            // Window stage is ALWAYS OPAQUE (2026-08-29 fix) — see
+            // ApplyGlass: an alpha veil over an opaque WPF surface
+            // blends toward the white clear color on Windows 11 /
+            // transparency-off machines (the "full fade white" bug).
+            // The glass reads against the in-window stage instead.
             resources["WindowBackgroundBrush"] = BuildGlassStageBrush(
-                dark, accent,
-                GlassChromeService.IsSupported
-                    ? (dark ? (byte)0x40 : (byte)0x30)
-                    : (byte)0xFF);
+                dark, accent, (byte)0xFF);
 
             // ── 2) CARD SURFACES — white water glass (light) /
             //        deep-frost glass (dark) ──────────────────────────
@@ -1266,9 +1256,9 @@ namespace ProGlassAutomation.Services.Theme
 
                     // DWM tint: deep slate (dark) or clean white water
                     // glass (light), pulled gently toward the accent so
-                    // the backdrop belongs to the user's colour. Light
-                    // keeps a near-pure white so the blur reads as
-                    // iPhone-style white glass (2026-08-29).
+                    // the backdrop belongs to the user's colour. Alpha
+                    // lowered (0x80, was 0xB0) so any solid fallback
+                    // tint stays subtle behind the opaque stage.
                     Color baseTint = dark
                         ? Color.FromRgb(0x0B, 0x14, 0x2A)
                         : Color.FromRgb(0xF8, 0xFB, 0xFF);
@@ -1276,7 +1266,7 @@ namespace ProGlassAutomation.Services.Theme
                         dark ? 0.28 : 0.12);
 
                     GlassChromeService.Apply(
-                        ColorMath.WithAlpha(tint, 0xB0));
+                        ColorMath.WithAlpha(tint, 0x80));
                 }
                 else
                 {
@@ -1339,17 +1329,20 @@ namespace ProGlassAutomation.Services.Theme
             }
             else
             {
-                // White water-ice stage (2026-08-29): bright ice with a
-                // soft accent under-tint — bright enough that the new
-                // HIGH-alpha white frost reads as luminous water glass,
-                // not as "settings not applied".
-                baseA = Color.FromRgb(0xEC, 0xF4, 0xFD);           // ice white
+                // White water-ice stage: ice blue with an accent
+                // under-tint — deliberately NOT near-white (2026-08-29
+                // fix): white glass panes on a near-white stage read
+                // as one flat white sheet. A visible sky-ice stage is
+                // what makes the white frost read as water glass.
+                baseA = Color.FromRgb(0xD7, 0xE5, 0xF9);           // ice
                 baseB = ColorMath.Tint(
-                    accent, Color.FromRgb(0xD8, 0xE8, 0xFA), 0.30);
+                    accent, Color.FromRgb(0xAE, 0xCB, 0xF0), 0.42);
             }
 
-            // iOS-glass mode: the stage base becomes a translucent veil
-            // over the DWM acrylic backdrop (alpha < 0xFF).
+            // The stage is painted OPAQUE (alpha always 0xFF from the
+            // callers since the 2026-08-29 white-fade fix); the alpha
+            // path is kept only so a future layered-window mode can
+            // reuse the builder.
             baseA = ColorMath.WithAlpha(baseA, alpha);
             baseB = ColorMath.WithAlpha(baseB, alpha);
 
