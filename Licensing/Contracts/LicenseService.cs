@@ -15,6 +15,8 @@
 //   result is a failure — we never report a success for a broken license.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.IO;
+
 namespace ProGlass.Licensing;
 
 /// <summary>Input for creating a new license.</summary>

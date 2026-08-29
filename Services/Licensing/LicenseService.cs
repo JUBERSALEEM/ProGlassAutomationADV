@@ -614,7 +614,13 @@ public static class LicenseService
             : LicenseEdition.Business;
     }
 
-    private static bool LegacyLicenseArtifactExists(string dataRoot)
+    /// <summary>
+    /// Returns the path of the first legacy license artifact found in
+    /// the data root (license.lic or license.json), or null when none
+    /// exists. The offline-activation read path uses this to hand the
+    /// migration inspector the exact artifact to describe. Never throws.
+    /// </summary>
+    private static string? FindLegacyLicenseArtifactPath(string dataRoot)
     {
         string[] candidates =
         {
@@ -627,7 +633,7 @@ public static class LicenseService
             try
             {
                 if (File.Exists(path))
-                    return true;
+                    return path;
             }
             catch
             {
@@ -635,7 +641,7 @@ public static class LicenseService
             }
         }
 
-        return false;
+        return null;
     }
 
     private static string NormalizeLicenseId(string? input) =>
