@@ -201,12 +201,16 @@
         <Border Grid.Row="0"
                 Height="48"
                 Background="{DynamicResource GlassSurfaceElevated}"
-                BorderBrush="{DynamicResource GlassBorderSoft}"
-                BorderThickness="0,0,0,0.5"
+                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
+                BorderThickness="0,0,0,1"
                 Panel.ZIndex="50"
                 SnapsToDevicePixels="True">
-
-            <Grid Margin="16,0">
+            <!-- Top bar glass composition: specular highlight at top edge -->
+            <Grid>
+                <Border Height="1" VerticalAlignment="Top"
+                        Background="{DynamicResource GlassSpecularHighlight}"
+                        Opacity="0.5" IsHitTestVisible="False"/>
+                <Grid Margin="16,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/><!-- Hamburger -->
                         <ColumnDefinition Width="Auto"/><!-- Logo -->
@@ -517,6 +521,7 @@
                     </Button>
 
                 </StackPanel>
+                </Grid>
             </Grid>
         </Border>
 
@@ -566,9 +571,10 @@
             <Border Width="292"
                     HorizontalAlignment="Left"
                     Margin="12"
-                    BorderThickness="0"
+                    BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
+                    BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
                     Panel.ZIndex="10"
                     Effect="{DynamicResource ShadowElevated}"
                     SnapsToDevicePixels="True"
@@ -1132,14 +1138,7 @@
                                            />
         </Popup>
 
-        <!-- Liquid Glass catch-light: the white top highlight that makes
-             the whole window read as frosted glass, layered over the
-             app background. Purely decorative, never hit-testable. -->
-        <Border IsHitTestVisible="False"
-                Height="140"
-                VerticalAlignment="Top"
-                Background="{DynamicResource GlassTopReflection}"
-                Opacity="0.45"
-                Panel.ZIndex="99"/>
+        <!-- Liquid Glass catch-light removed — the top bar and sidebar
+             now have their own layered glass composition. -->
 </Grid>
 </Window>

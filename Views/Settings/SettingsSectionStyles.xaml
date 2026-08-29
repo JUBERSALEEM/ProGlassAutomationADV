@@ -173,14 +173,13 @@
          4. CONTROLS
     ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- iOS-style animated toggle switch. -->
+    <!-- iOS-style animated toggle switch — uses the canonical Liquid
+         Glass switch template with proper dimensions for the thumb
+         track, spring animation, and layered glass composition. -->
     <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton"
            BasedOn="{StaticResource LiquidGlassToggleSwitch}">
-        <!-- 2026-08-29: the app's toggle is now the canonical Liquid
-             Glass switch (frosted track, white top glare, blue liquid
-             active state, squish press, sliding thumb). -->
-        <Setter Property="Width"  Value="56"/>
-        <Setter Property="Height" Value="28"/>
+        <Setter Property="Width"  Value="62"/>
+        <Setter Property="Height" Value="36"/>
     </Style>
 
     <!-- Rounded password box (API keys). -->
