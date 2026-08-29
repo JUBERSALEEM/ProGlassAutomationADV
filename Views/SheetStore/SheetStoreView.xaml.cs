@@ -98,7 +98,7 @@ namespace ProGlassAutomation.Views.SheetStore
                     vm.SelectedSheet = sheet;
 
                     // Highlight the row
-                    row.Background = new SolidColorBrush(Color.FromRgb(224, 231, 255)); // Light blue
+                    row.Background = (System.Windows.Media.Brush)FindResource("LiquidSelectionBrush");
                     if (Application.Current.Resources["AccentBrush"] is SolidColorBrush accent)
                         row.BorderBrush = accent;
 

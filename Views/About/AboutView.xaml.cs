@@ -79,7 +79,7 @@ namespace ProGlassAutomation.Views.About
             panel.Children.Add(title);
             panel.Children.Add(detail);
 
-            var bg = new SolidColorBrush(Color.FromRgb(0x0B, 0x10, 0x26));
+            var bg = (SolidColorBrush)FindResource("ModuleBackgroundBrush");
             bg.Freeze();
 
             return new Border
