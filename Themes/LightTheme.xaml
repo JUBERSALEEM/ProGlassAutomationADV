@@ -508,4 +508,79 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#59061724" po:Freeze="True"/>
     <Color x:Key="LiquidShadowColor">#4D0B1B2E</Color>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID GLASS DESIGN SYSTEM — CANONICAL TOKENS (LIGHT MODE)
+         2026-08-29: Moved from LiquidGlassDesign.xaml so the glass
+         system is theme-aware. DarkTheme.xaml provides dark variants.
+         LiquidGlassDesign.xaml's control templates reference these
+         via {DynamicResource} so Light↔Dark swap re-tints everything.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Glass text -->
+    <Color x:Key="TextPrimaryColor">#1D1D1F</Color>
+    <Color x:Key="TextSecondaryColor">#8C1E2832</Color>
+    <Color x:Key="AccentBlueColor">#28BEFF</Color>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
+
+    <!-- Glass surfaces — near-transparent white tints on light stage -->
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#06FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0DFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF" po:Freeze="True"/>
+
+    <!-- Glass borders — bright white edges on light stage -->
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#D9FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#F2FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#B8FFFFFF" po:Freeze="True"/>
+
+    <!-- Glass gradients -->
+    <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#28FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#05FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassGradientActive" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#B728BEFF" Offset="0.0"/>
+        <GradientStop Color="#6682E1FF" Offset="0.5"/>
+        <GradientStop Color="#A632AFF5" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#BFFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- App background — soft radial sky for light mode -->
+    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#D7EDF9" Offset="0.0"/>
+        <GradientStop Color="#FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#D5EAF7" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Semantic glass -->
+    <SolidColorBrush x:Key="GlassDangerBrush" Color="#B91C1C" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#E2B91C1C" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#3D1E2832" po:Freeze="True"/>
+
+    <!-- Glass shadows — cool blue tint for light mode depth -->
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+
+    <!-- Switch / toggle internal colors — light mode -->
+    <SolidColorBrush x:Key="GlassSwitchInnerHighlightBrush" Color="#F2FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSwitchShineFillBrush" Color="#E6FFFFFF" po:Freeze="True"/>
+    <Color x:Key="GlassSwitchThumbColor1">#FFFFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbColor2">#B7FFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbColor3">#4DD2F0FF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor1">#FFFFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor2">#D8EBFAFF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor3">#59AAE6FF</Color>
+
 </ResourceDictionary>

@@ -471,4 +471,80 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#99031026" po:Freeze="True"/>
     <Color x:Key="LiquidShadowColor">#FF000410</Color>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID GLASS DESIGN SYSTEM — CANONICAL TOKENS (DARK MODE)
+         2026-08-29: Dark variants of the glass tokens. Light mode
+         uses white-based tints; dark mode uses subtle dark tints
+         with light crystal edges. The control templates in
+         LiquidGlassDesign.xaml reference these via {DynamicResource}
+         so the entire glass system re-tints on theme swap.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Glass text — light on dark -->
+    <Color x:Key="TextPrimaryColor">#F5F5F7</Color>
+    <Color x:Key="TextSecondaryColor">#8CF5F5F7</Color>
+    <Color x:Key="AccentBlueColor">#28BEFF</Color>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
+
+    <!-- Glass surfaces — subtle dark tints on dark stage -->
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#0A1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#142D3B4F" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1E374A5E" po:Freeze="True"/>
+
+    <!-- Glass borders — subtle light edges on dark stage -->
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#4DFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#66FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#33FFFFFF" po:Freeze="True"/>
+
+    <!-- Glass gradients — dark-based -->
+    <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#1E2D3B4F" Offset="0.0"/>
+        <GradientStop Color="#0A1E293B" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassGradientActive" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#9928BEFF" Offset="0.0"/>
+        <GradientStop Color="#4D82E1FF" Offset="0.5"/>
+        <GradientStop Color="#8032AFF5" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#4DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- App background — deep dark blue for dark mode -->
+    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#0A1628" Offset="0.0"/>
+        <GradientStop Color="#0F1D32" Offset="0.5"/>
+        <GradientStop Color="#0A1628" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Semantic glass — same danger colors, adjusted veil -->
+    <SolidColorBrush x:Key="GlassDangerBrush" Color="#EF4444" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#99EF4444" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#59000000" po:Freeze="True"/>
+
+    <!-- Glass shadows — subtler for dark mode -->
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+
+    <!-- Switch / toggle internal colors — dark mode -->
+    <SolidColorBrush x:Key="GlassSwitchInnerHighlightBrush" Color="#66FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSwitchShineFillBrush" Color="#99FFFFFF" po:Freeze="True"/>
+    <Color x:Key="GlassSwitchThumbColor1">#FFCCCCCC</Color>
+    <Color x:Key="GlassSwitchThumbColor2">#99AAAAAA</Color>
+    <Color x:Key="GlassSwitchThumbColor3">#3388BBCC</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor1">#FFFFFFFF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor2">#CCEBFAFF</Color>
+    <Color x:Key="GlassSwitchThumbActiveColor3">#66AAE6FF</Color>
+
 </ResourceDictionary>

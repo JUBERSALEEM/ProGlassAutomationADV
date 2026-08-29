@@ -49,7 +49,7 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="{TemplateBinding Padding}"
                     Height="{TemplateBinding Height}"
-                    Effect="{StaticResource GlassShadowSoftBorder}"
+                    Effect="{DynamicResource GlassShadowSoftBorder}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center"

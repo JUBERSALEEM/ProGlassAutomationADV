@@ -2,89 +2,17 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ══════════════════════════════════════════════════════════════
-         Liquid Glass Design System — canonical reference (2026-08-29)
-         THE single source of truth for the frosted glass look.
-
-         Every shared style dictionary and view resolves through this
-         file's brushes, effects, typography and control styles.
-         Merged FIRST in App.xaml so all other dictionaries can
-         BasedOn / StaticResource these keys.
+         Liquid Glass Design System — CONTROL TEMPLATES (2026-08-29)
+         
+         This file contains ONLY control templates and typography styles.
+         All color/brush/effect TOKENS are defined in the theme files:
+           • Themes/LightTheme.xaml  (light mode glass tokens)
+           • Themes/DarkTheme.xaml   (dark mode glass tokens)
+         
+         Templates reference tokens via {DynamicResource} so the
+         entire glass system re-tints on Light↔Dark theme swap.
+         Merged AFTER the theme dictionary in App.xaml.
     ══════════════════════════════════════════════════════════════ -->
-
-    <!-- ====================================================================== -->
-    <!-- 1. CORE COLORS & BRUSHES                                               -->
-    <!-- ====================================================================== -->
-
-    <Color x:Key="TextPrimaryColor">#1D1D1F</Color>
-    <Color x:Key="TextSecondaryColor">#8C1E2832</Color> <!-- rgba(30,40,50,0.55) -->
-    <Color x:Key="AccentBlueColor">#28BEFF</Color>
-
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
-
-    <!-- Ultra-Transparent (Main Panels) 2.5% opacity -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#06FFFFFF"/>
-
-    <!-- Standard Surface (Cards/Settings) 5% opacity -->
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0DFFFFFF"/>
-
-    <!-- Frosted (Hover / Elevated) 10% opacity -->
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF"/>
-
-    <!-- Border Brushes -->
-    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#D9FFFFFF"/>      <!-- 85% -->
-    <SolidColorBrush x:Key="GlassBorderBright" Color="#F2FFFFFF"/>       <!-- 95% -->
-    <SolidColorBrush x:Key="GlassBorderSoft" Color="#B8FFFFFF"/>         <!-- 72% -->
-
-    <!-- Glass Gradients (For OFF/Idle states) -->
-    <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#28FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#05FFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- ACTIVE STATE (Blue Liquid) -->
-    <LinearGradientBrush x:Key="GlassGradientActive" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#B728BEFF" Offset="0.0"/>
-        <GradientStop Color="#6682E1FF" Offset="0.5"/>
-        <GradientStop Color="#A632AFF5" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- TOP REFLECTION (Applied to top of all glass surfaces) -->
-    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1">
-        <GradientStop Color="#BFFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- App Background (Soft radial "sky" background) -->
-    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#D7EDF9" Offset="0.0"/>
-        <GradientStop Color="#FFFFFF" Offset="0.5"/>
-        <GradientStop Color="#D5EAF7" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- Semantic glass brushes (danger / overlay) — defined here so no
-         style anywhere needs a hardcoded colour. -->
-    <SolidColorBrush x:Key="GlassDangerBrush" Color="#B91C1C"/>
-    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#E2B91C1C"/>
-    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#3D1E2832"/>
-
-    <!-- ====================================================================== -->
-    <!-- 2. SHADOW EFFECTS                                                      -->
-    <!-- ====================================================================== -->
-
-    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
-
-    <!-- Effect bridges: one Freezable instance per target type, so the
-         same shadow can be assigned to any control's Effect property. -->
-    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
 
     <!-- ====================================================================== -->
     <!-- 3. TYPOGRAPHY                                                          -->
@@ -357,7 +285,7 @@
                         <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
                         <!-- Inner Highlight -->
-                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="#F2FFFFFF" Opacity="0.8" Margin="1"/>
+                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="{DynamicResource GlassSwitchInnerHighlightBrush}" Opacity="0.8" Margin="1"/>
 
                         <!-- Thumb -->
                         <Border x:Name="Thumb" Width="30" Height="30" CornerRadius="15"
@@ -368,13 +296,13 @@
                             </Border.RenderTransform>
                             <Border.Background>
                                 <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
-                                    <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-                                    <GradientStop Color="#B7FFFFFF" Offset="0.3"/>
-                                    <GradientStop Color="#4DD2F0FF" Offset="0.7"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor1}" Offset="0.0"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor2}" Offset="0.3"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor3}" Offset="0.7"/>
                                 </RadialGradientBrush>
                             </Border.Background>
                             <!-- Thumb Shine -->
-                            <Ellipse Width="16" Height="9" Fill="#E6FFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
+                            <Ellipse Width="16" Height="9" Fill="{DynamicResource GlassSwitchShineFillBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
                                 <Ellipse.Effect>
                                     <BlurEffect Radius="2"/>
                                 </Ellipse.Effect>
@@ -389,9 +317,9 @@
                             <Setter TargetName="Thumb" Property="Background">
                                 <Setter.Value>
                                     <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
-                                        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-                                        <GradientStop Color="#D8EBFAFF" Offset="0.35"/>
-                                        <GradientStop Color="#59AAE6FF" Offset="0.75"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor1}" Offset="0.0"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor2}" Offset="0.35"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor3}" Offset="0.75"/>
                                     </RadialGradientBrush>
                                 </Setter.Value>
                             </Setter>
@@ -466,7 +394,7 @@
                                 Effect="{DynamicResource GlassShadowSoftBorder}"/>
                         <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
-                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="#F2FFFFFF" Opacity="0.8" Margin="1"/>
+                        <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="{DynamicResource GlassSwitchInnerHighlightBrush}" Opacity="0.8" Margin="1"/>
                         <Border x:Name="Thumb" Width="30" Height="30" CornerRadius="15"
                                 HorizontalAlignment="Left" Margin="3,0,0,0"
                                 BorderBrush="{DynamicResource GlassBorderBright}" BorderThickness="1">
@@ -475,12 +403,12 @@
                             </Border.RenderTransform>
                             <Border.Background>
                                 <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
-                                    <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-                                    <GradientStop Color="#B7FFFFFF" Offset="0.3"/>
-                                    <GradientStop Color="#4DD2F0FF" Offset="0.7"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor1}" Offset="0.0"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor2}" Offset="0.3"/>
+                                    <GradientStop Color="{DynamicResource GlassSwitchThumbColor3}" Offset="0.7"/>
                                 </RadialGradientBrush>
                             </Border.Background>
-                            <Ellipse Width="16" Height="9" Fill="#E6FFFFFF" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
+                            <Ellipse Width="16" Height="9" Fill="{DynamicResource GlassSwitchShineFillBrush}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,4,0,0">
                                 <Ellipse.Effect>
                                     <BlurEffect Radius="2"/>
                                 </Ellipse.Effect>
@@ -493,9 +421,9 @@
                             <Setter TargetName="Thumb" Property="Background">
                                 <Setter.Value>
                                     <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
-                                        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
-                                        <GradientStop Color="#D8EBFAFF" Offset="0.35"/>
-                                        <GradientStop Color="#59AAE6FF" Offset="0.75"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor1}" Offset="0.0"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor2}" Offset="0.35"/>
+                                        <GradientStop Color="{DynamicResource GlassSwitchThumbActiveColor3}" Offset="0.75"/>
                                     </RadialGradientBrush>
                                 </Setter.Value>
                             </Setter>
