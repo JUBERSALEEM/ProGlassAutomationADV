@@ -433,7 +433,7 @@
                                                     </Border.Background>
                                                     <StackPanel Orientation="Horizontal">
                                                         <Border Width="4" CornerRadius="2"
-                                                                Background="{DynamicResource GlassSurfaceStandard}"
+                                                                Background="{DynamicResource GlassSurfaceBrush}"
                                                                 Margin="0,0,10,0"/>
                                                         <TextBlock Text="SPEC:  "
                                                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"

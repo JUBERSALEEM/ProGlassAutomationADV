@@ -77,7 +77,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
                             CornerRadius="10"
-                            Background="{DynamicResource GlassSurfaceStandard}"
+                            Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
@@ -130,7 +130,7 @@
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
                             CornerRadius="10"
-                            Background="{DynamicResource GlassSurfaceStandard}"
+                            Background="{DynamicResource GlassSurfaceBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
@@ -186,7 +186,7 @@
                         <Border x:Name="Box"
                                 Width="18" Height="18"
                                 CornerRadius="5"
-                                Background="{DynamicResource GlassSurfaceStandard}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
                                 BorderBrush="{DynamicResource GlassBorderSoft}"
                                 BorderThickness="1"
                                 VerticalAlignment="Center"

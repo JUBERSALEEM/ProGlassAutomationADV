@@ -46,7 +46,7 @@
          erased the coloured card edges the user relies on - do not repeat
          that. Neutral hairlines belong on plain surfaces, not on these. -->
     <Style x:Key="SectionCardStyle" TargetType="Border">
-        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="CornerRadius"        Value="14"/>
@@ -82,7 +82,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -189,7 +189,7 @@
         <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Background"               Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background"               Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="Foreground"               Value="{DynamicResource TextPrimaryBrush}"/>
         <Setter Property="BorderThickness"          Value="1.5"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource GlassBorderSoft}"/>
@@ -363,7 +363,7 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -534,7 +534,7 @@
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="BorderBrush"         Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background"          Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>

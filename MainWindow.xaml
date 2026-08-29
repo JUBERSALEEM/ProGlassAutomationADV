@@ -85,7 +85,7 @@
         FontWeight="{DynamicResource AppFontWeight}"
         FontStyle="{DynamicResource AppFontStyle}"
         Icon="pack://application:,,,/favicon.ico"
-        Background="{DynamicResource AppBackgroundBrush}"
+        Background="{DynamicResource WindowBackgroundBrush}"
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Fixed"
@@ -570,7 +570,7 @@
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     Background="{DynamicResource ShellLiquidBrush}"
                     Panel.ZIndex="10"
-                    Effect="{StaticResource GlassShadowPanelBorder}"
+                    Effect="{DynamicResource ShadowElevated}"
                     SnapsToDevicePixels="True"
                     ClipToBounds="True">
                 <Border.Style>
@@ -1043,7 +1043,7 @@
                     ClipToBounds="True"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    Effect="{StaticResource GlassShadowPanelBorder}"
+                    Effect="{DynamicResource ShadowElevated}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
