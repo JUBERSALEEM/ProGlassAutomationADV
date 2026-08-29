@@ -626,10 +626,24 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             TotalProfit = Math.Round(rows.Sum(r => r.Profit), 2);
             LossCount = rows.Count(r => r.IsLoss);
 
-            // Overall profit margin: profit / net * 100 (same as Step 4/9 formula)
-            OverallMarginPercent = TotalNet > 0m
-                ? Math.Round(TotalProfit / TotalNet * 100m, 1)
-                : 0m;
+            // Overall profit margin: (TotalProfit / TotalNet) * 100
+            // Same formula as Step 4/9: profit as percentage of net revenue
+            // 
+            // IMPORTANT: This is calculated from the TOTALS, not averaged from
+            // individual margins. This is the correct portfolio-level margin.
+            //
+            // Edge case: if TotalNet is very small relative to TotalProfit,
+            // the margin can exceed ±100% (e.g., net=10, profit=-121 → -1210%).
+            // This is mathematically correct but may seem unexpected.
+            if (TotalNet > 0m)
+            {
+                decimal margin = (TotalProfit * 100m) / TotalNet;
+                OverallMarginPercent = Math.Round(margin, 1);
+            }
+            else
+            {
+                OverallMarginPercent = 0m;
+            }
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
         }

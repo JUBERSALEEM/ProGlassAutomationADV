@@ -257,7 +257,8 @@
             </Border>
 
             <!-- Overall Profit Margin % -->
-            <Border Grid.Column="6">
+            <Border Grid.Column="6"
+                    ToolTip="Overall portfolio margin: (Total Profit ÷ Total Net) × 100.&#x0a;Calculated from totals, not averaged from individual margins.&#x0a;Can exceed ±100% when costs greatly exceed revenue.">
                 <Border.Style>
                     <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
                         <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
