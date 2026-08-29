@@ -1,5 +1,15 @@
 # License Generator — Complete Rewrite as a Single-Purpose Key Signer (2026-08-29)
 
+> **SUPERSEDED the same day** by
+> [`PLAN_BASED_LICENSING_AND_NEVER_BLOCKING_STARTUP_2026-08-29.md`](./PLAN_BASED_LICENSING_AND_NEVER_BLOCKING_STARTUP_2026-08-29.md):
+> the external `.pgkey` loading step described below was removed
+> entirely — the generator now embeds the production signing pair and
+> offers a single-click plan picker (7 days → 2 years). The sign-only
+> security analysis below remains valid; only the key PROVISIONING
+> model changed.
+>
+> Original record follows.
+
 > Senior analysis & implementation record. Supersedes the "advanced toggle"
 > approach recorded in `LICENSING_WORKFLOW_SIMPLIFICATION_2026-08-29.md §8`:
 > the request/response UI no longer exists in the generator AT ALL — it was

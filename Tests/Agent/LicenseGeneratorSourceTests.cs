@@ -39,19 +39,28 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Generator_window_is_key_only_and_uses_external_key_loading()
+        public void Generator_window_is_a_single_click_plan_based_signer()
         {
             string root = LocateProjectRoot();
+            string xaml = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "MainWindow.xaml"));
             string code = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
 
-            Assert.Contains("IssuerKeyMaterial.LoadFromFile", code);
+            // The five sellable plans are the whole choice surface.
+            Assert.Contains("Plan7DaysRadio", xaml);
+            Assert.Contains("Plan30DaysRadio", xaml);
+            Assert.Contains("Plan6MonthsRadio", xaml);
+            Assert.Contains("Plan1YearRadio", xaml);
+            Assert.Contains("Plan2YearsRadio", xaml);
+
+            // One button signs with the embedded production key.
             Assert.Contains("LicenseGeneratorCore.GenerateLicenseKey", code);
             Assert.Contains("result.ArmoredKey", code);
-            Assert.Contains("LicenseGeneratorCore.RunSelfTest", code);
 
-            // The 2026 simple-flow rewrite removed the activation
-            // request/response UI from the generator entirely.
+            // No key-file UI and no request/response machinery remain.
+            Assert.DoesNotContain("LOAD .PGKEY", xaml);
+            Assert.DoesNotContain("CREATE NEW .PGKEY", xaml);
             Assert.DoesNotContain("GenerateActivationResponse", code);
             Assert.DoesNotContain("ActivationRequestBox", code);
             Assert.DoesNotContain("private bool _uiReady;", code);

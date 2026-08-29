@@ -22,11 +22,15 @@ public static class LicensePublicKey
     public static bool IsPlaceholder =>
         PublicKeyXml.StartsWith("PLACEHOLDER_", System.StringComparison.Ordinal);
 
+    /// <summary>
+    /// Public half of the generator's embedded production signing key.
+    /// MUST stay byte-identical to
+    /// Tools/LicenseGenerator/ProductionSigningKey.PublicKeyXml — a
+    /// source test pins this equality so the app always accepts exactly
+    /// what the generator signs (and nothing else).
+    /// </summary>
     public static string GeneratorCompatiblePublicKeyXml { get; } =
-        "<RSAKeyValue>" +
-        "<Modulus>tzD0mVm083BrnW8Y535QKNPI32B7bDVWqawsH+5UscgXqod+9AsIOw7mk76E9m25VUbTWr/fO7/wCQQV7CYZusXRNPwGSiVxwaIXQ+yib3uFVRLsiii+XmbMfvT0Aur5oDVfzo/l3vj3gj71xnfZ8xuobeCidpI8CypwZY3utnMDJ5EC37XCvrh0mjiR6ruUB8LHBvrayXDXdPNZ4BQfAXHRUkFj1bPJP4FWMsAfLywod1zyyJV+/8EPUxcyi/s/V2A3Hmtci+Ml3NUFEuc0yEuVEVAkUrIEE97oE+3qsIX+hi3jiybhAMi2Y6LcnqNdfV+ekCLUOio8bgn1ChfVDQ==</Modulus>" +
-        "<Exponent>AQAB</Exponent>" +
-        "</RSAKeyValue>";
+        "<RSAKeyValue><Modulus>w565u0lCLzyH43JlW9LT+ukiazU63OiL1Q4hA46mja9i2eGGNn/EyAR0h1ntUaj89IYYMPfao4etT5aZTuED9MeTD5HYS8LSXLflf/FmQ2CLzKj+cA51JXFRg+A//mOT7EDyaq7GRoQqY810NT6gySTNEkAzeIc5E4jm0jzl4WE162N5EPUZV3WiVFyN/lXvhCsGlmr+DXftGV2hG6PL8JLa8axdIL0RVL3X56TKwSmQuWIOVBbINGlhPiY5wjKl2IhDHmtuPVSntMLnkdfElmG36HU2aGoOqHuiwzuppvvqz6Zt7V9QlM97m3K42sO6GcxO18iluMAFIv6seri1NQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>";
 
     public static IReadOnlyList<string> ProductionPublicKeys => new[]
     {

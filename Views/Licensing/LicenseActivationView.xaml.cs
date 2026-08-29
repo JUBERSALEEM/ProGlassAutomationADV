@@ -203,8 +203,7 @@ namespace ProGlassAutomation.Views.Licensing
             OnActivated(result);
         }
 
-        private void KeyBrowseButton_Click(object sender, RoutedEventArgs e)
-        {
+        private void KeyBrowseButton_Click(object sender, RoutedEventArgs e)        {
             var dialog = new OpenFileDialog
             {
                 Title = "Select a license key file",
@@ -232,6 +231,49 @@ namespace ProGlassAutomation.Views.Licensing
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
             RaiseClosed();
+        }
+
+        private string SelectedPlanName()
+        {
+            if (Plan7Radio.IsChecked == true) return "7 DAYS";
+            if (Plan30Radio.IsChecked == true) return "30 DAYS";
+            if (Plan6mRadio.IsChecked == true) return "6 MONTHS";
+            if (Plan2yRadio.IsChecked == true) return "2 YEARS";
+            return "1 YEAR";
+        }
+
+        /// <summary>
+        /// Copies a ready-to-send plan request (plan + PC ID). The vendor
+        /// replies with a PGKEY1 key the customer pastes in the box
+        /// above — the generator tool produces it with one click.
+        /// </summary>
+        private void GetLicenseKeyButton_Click(object sender, RoutedEventArgs e)
+        {
+            string message =
+                "Hi — I would like a ProGlass Automation license key.\n" +
+                "Plan: " + SelectedPlanName() + "\n" +
+                "My PC ID (only needed if you bind the key to my machine): " +
+                LicenseService.CurrentMachineFingerprint;
+
+            try
+            {
+                Clipboard.SetText(message);
+            }
+            catch
+            {
+                // Clipboard can be locked by another process; the text is
+                // still shown in the dialog so nothing is lost.
+            }
+
+            MessageBox.Show(Window.GetWindow(this) ?? Application.Current.MainWindow,
+                "Your request is copied to the clipboard — send it to your vendor " +
+                "(email, WhatsApp, chat). They will reply with a single key block " +
+                "starting with PGKEY1; paste it in the box at the top and press " +
+                "APPLY LICENSE KEY to activate instantly.\n\n" +
+                "Request preview:\n" + message,
+                "Get license key",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         private void OnActivated(LicenseVerificationResult result)

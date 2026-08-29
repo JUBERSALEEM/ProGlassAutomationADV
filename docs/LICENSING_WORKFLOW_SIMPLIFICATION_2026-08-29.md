@@ -281,3 +281,27 @@ scratch** around the single generate → paste → instant-active flow:
   `LicenseService.Create`; the generator's self-test now runs fully
   in-memory (no scratch file).
 - Full record: [`LICENSE_GENERATOR_SIMPLE_FLOW_REWRITE_2026-08-29.md`](./LICENSE_GENERATOR_SIMPLE_FLOW_REWRITE_2026-08-29.md).
+
+## 10. Errata (2026-08-29, later) — plan-based activation & never-block startup
+
+The single-click direction was taken further after user feedback:
+
+- **Never-block startup**: `LicenseService` normalizes every startup
+  result — corrupt store, legacy artifact, ledger rollback or exhausted
+  trial all resolve to trial-while-open, else READ-ONLY open. The
+  full-screen gate overlay is now dormant (`IsLicenseRequired` is
+  always false). Tamper evidence degrades access instead of granting
+  anything.
+- **Plan-based generator**: the `.pgkey` file flow was deleted
+  entirely. The generator embeds the production signing pair
+  (`ProductionSigningKey.cs`) and offers exactly five plans
+  (7 days / 30 days / 6 months / 1 year / 2 years) behind ONE
+  GENERATE button. The app embeds only the public half
+  (`GeneratorCompatiblePublicKeyXml`); a source test pins their
+  byte-equality, which is what makes "only keys from the generator
+  app" enforceable.
+- **Plans in the app**: `LicenseActivationView` shows the five plans
+  with a GET LICENSE KEY button that copies a ready-to-send request
+  (plan + PC ID).
+- Full record:
+  [`PLAN_BASED_LICENSING_AND_NEVER_BLOCKING_STARTUP_2026-08-29.md`](./PLAN_BASED_LICENSING_AND_NEVER_BLOCKING_STARTUP_2026-08-29.md).

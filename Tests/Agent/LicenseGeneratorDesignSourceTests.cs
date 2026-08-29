@@ -1,15 +1,17 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Tests/Agent/LicenseGeneratorDesignSourceTests.cs
 // PROJECT: ProGlassAutomation.Tests
-// MODULE: Source-level invariants for the License Generator (2026 simple
-//         flow). These tests pin the DESIGN of the vendor tool the way
-//         a style/lint gate would: the tool signs license keys only,
-//         never embeds private keys, and keeps the old activation
-//         request/response machinery out of the UI.
+// MODULE: Source-level invariants for the License Generator (2026
+//         single-click plan flow). These tests pin the DESIGN of the
+//         vendor tool: one embedded production key, plan-based signing,
+//         armored keys, and the guarantee that the app trusts EXACTLY
+//         the public half the generator signs with.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.IO;
+using System.Text.RegularExpressions;
+using ProGlassAutomation.Services.Licensing;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
@@ -29,7 +31,7 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Generator_core_signs_armored_license_keys_and_never_raw_base64_blobs()
+        public void Generator_core_signs_plan_based_armored_keys_and_never_raw_blobs()
         {
             string root = LocateProjectRoot();
             string core = File.ReadAllText(Path.Combine(root,
@@ -39,50 +41,52 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("LicenseKeyArmor.Encode", core);
             Assert.Contains("LicenseService.Create", core);
             Assert.Contains("LicenseService.VerifyAndValidate", core);
+            Assert.Contains("ProductionSigningKey", core);
+            Assert.Contains("\"7 Days\"", core);
+            Assert.Contains("\"2 Years\"", core);
 
-            // The activation request/response signing path was removed
-            // from the tool core in the simple-flow rewrite.
+            // The activation request/response signing path is gone.
             Assert.DoesNotContain("OfflineActivationService.SignResponseJson", core);
             Assert.DoesNotContain("GenerateActivationResponse", core);
             Assert.DoesNotContain("Convert.ToBase64String", core);
-            Assert.DoesNotContain("TryDecodeLicenseJson", core);
         }
 
         [Fact]
-        public void Generator_uses_public_trust_hints_only_and_external_key_material_for_signing()
+        public void App_trust_ring_accepts_exactly_the_generator_s_embedded_public_key()
         {
             string root = LocateProjectRoot();
-            string keys = File.ReadAllText(Path.Combine(root,
-                "Tools", "LicenseGenerator", "AppCompatibleIssuerKeys.cs"));
-            string keyMaterial = File.ReadAllText(Path.Combine(root,
-                "Tools", "LicenseGenerator", "IssuerKeyMaterial.cs"));
-            string appKeys = File.ReadAllText(Path.Combine(root,
-                "Services", "Licensing", "LicensePublicKey.cs"));
+            string src = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "ProductionSigningKey.cs"));
 
-            Assert.Contains("TrustedPublicKeys", keys);
-            Assert.DoesNotContain("PrivateKeyXml =>", keys);
-            Assert.Contains("privateKeyXml", keyMaterial, StringComparison.OrdinalIgnoreCase);
-            Assert.Contains("Generate(string keyId, string purpose)", keyMaterial);
-            Assert.Contains("GeneratorCompatiblePublicKeyXml", appKeys);
+            // The first <RSAKeyValue>…</RSAKeyValue> literal in the file
+            // is the PublicKeyXml constant; it must be byte-identical to
+            // the public half embedded in the customer app. That is what
+            // makes "generate → paste → instant active" airtight: the app
+            // can never accept a key this generator did not sign.
+            var match = Regex.Match(src, "<RSAKeyValue>.*?</RSAKeyValue>", RegexOptions.Singleline);
+            Assert.True(match.Success, "ProductionSigningKey must embed a public RSAKeyValue literal.");
+
+            Assert.Equal(LicensePublicKey.GeneratorCompatiblePublicKeyXml, match.Value);
+            Assert.Contains("PrivateKeyXml", src);
         }
 
         [Fact]
-        public void Generator_ui_is_worded_as_the_key_generation_flow()
+        public void Generator_ui_is_worded_as_the_single_click_plan_flow()
         {
             string root = LocateProjectRoot();
             string xaml = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml"));
-            string code = File.ReadAllText(Path.Combine(root,
-                "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
 
-            Assert.Contains("LOAD .PGKEY", xaml);
             Assert.Contains("GENERATE LICENSE KEY", xaml);
             Assert.Contains("COPY KEY", xaml);
-            Assert.Contains("GenerateLicenseKey", code);
-            Assert.Contains("IssuerKeyMaterial.LoadFromFile", code);
-            Assert.Contains("LicenseGeneratorCore.RunSelfTest", code);
+            Assert.Contains("7 DAYS", xaml);
+            Assert.Contains("30 DAYS", xaml);
+            Assert.Contains("6 MONTHS", xaml);
+            Assert.Contains("1 YEAR", xaml);
+            Assert.Contains("2 YEARS", xaml);
 
-            // The request/response flow must not appear in the UI.
+            // No key-file or request/response surface remains.
+            Assert.DoesNotContain("LOAD .PGKEY", xaml);
             Assert.DoesNotContain("LOAD .PGREQUEST", xaml);
             Assert.DoesNotContain("GENERATE RESPONSE", xaml);
             Assert.DoesNotContain("ActivationRequestBox", xaml);

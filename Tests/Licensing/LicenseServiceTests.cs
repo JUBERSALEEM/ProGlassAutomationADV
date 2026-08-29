@@ -450,25 +450,47 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void Legacy_license_artifact_without_secure_state_is_rejected()
+        public void Legacy_license_artifact_without_secure_state_falls_back_to_the_trial()
         {
+            // 2026-08-29: a legacy artifact is no longer allowed to
+            // hard-block the app. The automatic trial takes over while
+            // its window is open; the app never lands in a non-runnable
+            // state at startup.
             string legacyPath = Path.Combine(_tempFolder, LicenseService.DefaultLicenseFileName);
             File.WriteAllText(legacyPath, "{\"legacy\":true}");
 
             var result = LicenseService.Initialize();
-            Assert.Equal(LicenseStatus.Invalid, result.Status);
-            Assert.Contains("legacy license artifact", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(LicenseStatus.Trial, result.Status);
+            Assert.True(result.CanRun);
         }
 
         [Fact]
-        public void Corrupt_protected_activation_state_fails_closed_as_Invalid()
+        public void Corrupt_protected_activation_state_falls_back_to_the_automatic_trial()
         {
-            string path = Path.Combine(_tempFolder, "offline-activation.bin");
+            string path = Path.Combine(_tempFolder, OfflineActivationStore.ActivationStateFileName);
             File.WriteAllText(path, "garbage-state");
 
             var result = LicenseService.Initialize();
-            Assert.Equal(LicenseStatus.Invalid, result.Status);
-            Assert.Contains("protected installed activation state", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+
+            // The corrupt store is tamper evidence, but it must never
+            // hard-block the app: the ledger-governed trial takes over
+            // while its window is open. Corrupting the store cannot buy
+            // trial time — the trial is anchored in the tamper-evident
+            // ledger, not in this file.
+            Assert.Equal(LicenseStatus.Trial, result.Status);
+            Assert.True(result.CanRun);
+        }
+
+        [Fact]
+        public void Corrupt_protected_license_key_state_falls_back_to_the_automatic_trial()
+        {
+            string path = Path.Combine(_tempFolder, OfflineActivationStore.LicenseKeyStateFileName);
+            File.WriteAllText(path, "garbage-key-state");
+
+            var result = LicenseService.Initialize();
+
+            Assert.Equal(LicenseStatus.Trial, result.Status);
+            Assert.True(result.CanRun);
         }
 
         [Fact]

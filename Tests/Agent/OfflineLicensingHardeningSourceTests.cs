@@ -7,12 +7,12 @@ namespace ProGlassAutomation.Tests.Agent;
 public sealed class OfflineLicensingHardeningSourceTests
 {
     [Fact]
-    public void Generator_public_trust_file_does_not_embed_a_private_key_literal()
+    public void Customer_app_embeds_no_private_key_material()
     {
         string src = File.ReadAllText(Path.Combine(Root(),
-            "Tools", "LicenseGenerator", "AppCompatibleIssuerKeys.cs"));
+            "Services", "Licensing", "LicensePublicKey.cs"));
 
-        Assert.DoesNotContain("PrivateKeyXml =>", src, StringComparison.Ordinal);
+        Assert.DoesNotContain("PrivateKeyXml", src, StringComparison.Ordinal);
         Assert.DoesNotContain("<D>", src, StringComparison.Ordinal);
         Assert.DoesNotContain("<P>", src, StringComparison.Ordinal);
         Assert.DoesNotContain("<Q>", src, StringComparison.Ordinal);
@@ -30,14 +30,16 @@ public sealed class OfflineLicensingHardeningSourceTests
     }
 
     [Fact]
-    public void Activation_view_uses_request_response_language_not_base64_license_key_language()
+    public void Activation_view_uses_key_paste_and_plan_language_not_request_response_language()
     {
         string xaml = File.ReadAllText(Path.Combine(Root(),
             "Views", "Licensing", "LicenseActivationView.xaml"));
 
-        Assert.Contains("GENERATE ACTIVATION REQUEST", xaml, StringComparison.Ordinal);
-        Assert.Contains("IMPORT SIGNED ACTIVATION RESPONSE", xaml, StringComparison.Ordinal);
-        Assert.DoesNotContain("PASTE A LICENSE KEY", xaml, StringComparison.Ordinal);
+        Assert.Contains("APPLY LICENSE KEY", xaml, StringComparison.Ordinal);
+        Assert.Contains("GET LICENSE KEY", xaml, StringComparison.Ordinal);
+        Assert.Contains("PLANS — GET A LICENSE KEY", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("GENERATE ACTIVATION REQUEST", xaml, StringComparison.Ordinal);
+        Assert.DoesNotContain("IMPORT SIGNED ACTIVATION RESPONSE", xaml, StringComparison.Ordinal);
     }
 
     [Fact]

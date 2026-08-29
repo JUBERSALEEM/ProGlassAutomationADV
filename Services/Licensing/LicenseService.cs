@@ -585,29 +585,39 @@ public static class LicenseService
         try { machine = RequireMachineFingerprint(); }
         catch (Exception ex)
         {
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.Invalid,
-                ErrorDetail = ex.Message
-            };
+            return ResolveStartupFallback(
+                new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail = ex.Message
+                },
+                dataRoot,
+                string.Empty);
         }
 
         // 1) Simple signed license key — the primary 2026 flow.
         var keyStateRead = OfflineActivationStore.ReadLicenseKeyStateDetailed(dataRoot);
         if (keyStateRead.Exists && !keyStateRead.Success)
         {
-            // Corruption is tampering evidence — fail closed. The trial
-            // fallback only applies to a CLEANLY absent or expired key.
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.Invalid,
-                ErrorDetail =
-                    "The protected installed license key state could not be read on this machine and cannot be trusted."
-            };
+            // Corruption is tampering evidence: the key is discarded
+            // from the running state and the app NEVER hard-blocks —
+            // it falls back to the machine's automatic trial, or to
+            // read-only mode when the trial window has passed. The
+            // trial itself is governed by the tamper-evident ledger,
+            // so corrupting this store cannot buy trial time.
+            return ResolveStartupFallback(
+                new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail =
+                        "The protected installed license key state could not be read on this machine and was not used."
+                },
+                dataRoot,
+                machine);
         }
         if (keyStateRead.Value != null)
         {
-            return PreferTrialFallback(
+            return ResolveStartupFallback(
                 VerifyInstalledKey(keyStateRead.Value, dataRoot),
                 dataRoot,
                 machine);
@@ -617,12 +627,15 @@ public static class LicenseService
         var storedRead = OfflineActivationStore.ReadActivationStateDetailed(dataRoot);
         if (storedRead.Exists && !storedRead.Success)
         {
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.Invalid,
-                ErrorDetail =
-                    "The protected installed activation state could not be read on this machine and cannot be trusted."
-            };
+            return ResolveStartupFallback(
+                new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail =
+                        "The protected installed activation state could not be read on this machine and was not used."
+                },
+                dataRoot,
+                machine);
         }
         var stored = storedRead.Value;
         if (stored == null)
@@ -630,15 +643,23 @@ public static class LicenseService
             string? legacyArtifactPath = FindLegacyLicenseArtifactPath(dataRoot);
             if (legacyArtifactPath != null)
             {
-                return new LicenseVerificationResult
-                {
-                    Status = LicenseStatus.Invalid,
-                    ErrorDetail = LegacyLicenseMigrationInspector.BuildMigrationPrompt(legacyArtifactPath)
-                };
+                return ResolveStartupFallback(
+                    new LicenseVerificationResult
+                    {
+                        Status = LicenseStatus.Invalid,
+                        ErrorDetail = LegacyLicenseMigrationInspector.BuildMigrationPrompt(legacyArtifactPath)
+                    },
+                    dataRoot,
+                    machine);
             }
 
             // 3) Fresh install / nothing installed → automatic trial.
-            return AutoTrialManager.Resolve(dataRoot, machine);
+            //    Even a ledger hard-fail must not block the app: it
+            //    degrades to read-only instead.
+            LicenseVerificationResult trial = AutoTrialManager.Resolve(dataRoot, machine);
+            return trial.Status == LicenseStatus.Invalid
+                ? DegradeToReadOnly(trial, string.Empty)
+                : trial;
         }
 
         var verify = OfflineActivationService.VerifyResponse(
@@ -650,7 +671,7 @@ public static class LicenseService
             expectedRequestNonce: stored.RequestNonce,
             utcNow: DateTime.UtcNow);
 
-        return PreferTrialFallback(
+        return ResolveStartupFallback(
             MapLoadVerificationToStatus(verify, stored, machine, dataRoot),
             dataRoot,
             machine);
@@ -812,35 +833,66 @@ public static class LicenseService
     }
 
     /// <summary>
-    /// The machine's automatic trial window outranks every non-runnable
-    /// or read-only signed state, so the customer keeps working after a
-    /// key is removed or expires — but a valid signed license ALWAYS
-    /// wins, and a ledger rollback always hard-fails.
+    /// Startup normalization: the app NEVER hard-blocks on a license
+    /// state (product decision 2026-08-29). A runnable signed state
+    /// wins; otherwise the machine's automatic trial takes over while
+    /// its window is open; when the window has passed — or the ledger
+    /// hard-fails on clock rollback — the app still opens, but in
+    /// READ-ONLY mode with all data preserved. A pasted license key
+    /// restores full access at any time.
+    ///
+    /// Security note: tamper evidence (corrupt store, ledger rollback)
+    /// can therefore never GRANT anything — it only degrades access to
+    /// read-only. The trial itself remains ledger-governed.
     /// </summary>
-    private static LicenseVerificationResult PreferTrialFallback(
+    private static LicenseVerificationResult ResolveStartupFallback(
         LicenseVerificationResult signedResult, string dataRoot, string machine)
     {
-        if (signedResult.Status is LicenseStatus.Valid
-            or LicenseStatus.ExpiringSoon
-            or LicenseStatus.Trial)
-        {
+        if (signedResult.CanRun)
             return signedResult;
+
+        LicenseVerificationResult fallback;
+        try
+        {
+            fallback = AutoTrialManager.Resolve(dataRoot, machine);
+        }
+        catch (Exception ex)
+        {
+            return DegradeToReadOnly(signedResult,
+                "The automatic trial could not be started (" + ex.Message + ").");
         }
 
-        LicenseVerificationResult fallback = AutoTrialManager.Resolve(dataRoot, machine);
-
-        // Clock-rollback detection is a security hard stop — it wins.
-        if (fallback.Status == LicenseStatus.Invalid)
-            return fallback;
-
-        // Trial window still open → carry the user over the removed /
-        // expired / broken license state.
+        // Trial window still open → the customer keeps working.
         if (fallback.Status == LicenseStatus.Trial)
             return fallback;
 
-        // Trial exhausted → the signed artifact's own state stands
-        // (read-only grace, expired, machine mismatch, invalid, …).
-        return signedResult;
+        // Trial exhausted OR ledger hard-fail (clock rollback) →
+        // degrade to read-only instead of blocking the app.
+        string reason = fallback.Status == LicenseStatus.Invalid
+                        && !string.IsNullOrWhiteSpace(fallback.ErrorDetail)
+            ? fallback.ErrorDetail
+            : "The trial window has ended.";
+        return DegradeToReadOnly(signedResult, reason);
+    }
+
+    private static LicenseVerificationResult DegradeToReadOnly(
+        LicenseVerificationResult signedResult, string reason)
+    {
+        string detail = string.IsNullOrWhiteSpace(signedResult.ErrorDetail)
+            ? (string.IsNullOrWhiteSpace(reason)
+                ? "The license state could not be verified."
+                : reason) +
+              " Paste a license key from your vendor to restore full access — until then the app opens in read-only mode."
+            : signedResult.ErrorDetail +
+              (string.IsNullOrWhiteSpace(reason) ? "" : " " + reason) +
+              " The app opens in read-only mode so your data remains available; paste a license key from your vendor to restore full access.";
+
+        return new LicenseVerificationResult
+        {
+            Status = LicenseStatus.TrialExpired,
+            Payload = signedResult.Payload,
+            ErrorDetail = detail
+        };
     }
 
     /// <summary>

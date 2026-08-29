@@ -1497,10 +1497,14 @@
                  (invalid signature/state, machine-mismatch, clock
                  rollback, or an expired paid license outside its signed
                  grace policy AND outside the machine's automatic trial
-                 window). A fresh install lands in an automatic 30-day
-                 trial, so the overlay no longer appears on first run.
-                 Trial and read-only grace states do NOT trigger this
-                 overlay. See LicenseStatusViewModel for the exact rules.
+                 DORMANT SAFETY NET (2026-08-29): the app never
+                 hard-blocks on a license state. LicenseService
+                 normalizes every startup result to a runnable state
+                 (valid license → automatic trial → read-only with data
+                 preserved), so LicenseStatusViewModel.IsLicenseRequired
+                 is always false and this overlay never appears. It is
+                 kept only as a dormant safety net in case a future
+                 status enum value falls through unnormalized.
 
                  Visibility is bound to
                  LicenseStatusViewModel.Instance.IsLicenseRequired

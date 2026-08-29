@@ -417,12 +417,15 @@ namespace ProGlassAutomation.ViewModels.Licensing
         ///     <see cref="LicenseStatus.ExpiringSoon"/> /
         ///     <see cref="LicenseStatus.GracePeriod"/>
         ///
-        /// PRODUCT DECISION (2026 workflow simplification):
-        /// A fresh install now lands in an automatic 30-day trial, so this
-        /// overlay appears only in genuinely hard-broken states (clock
-        /// rollback, legacy artifact migration, unverifiable installed
-        /// license outside the machine's trial window). Read-only states
-        /// still stay inside the shell so customer data remains accessible.
+        /// PRODUCT DECISION (2026-08-29): the app NEVER hard-blocks on a
+        /// license state. LicenseService normalizes every startup result
+        /// to a runnable state (valid license → trial → read-only), so a
+        /// fresh install, a removed key or even a corrupt store always
+        /// opens the shell. Read-only states show the slim banner plus
+        /// the license page instead of a full-screen gate; pasting a
+        /// license key restores full access. The blocking overlay is
+        /// kept only as a dormant safety net for states that cannot
+        /// occur through the normalized load path.
         /// </summary>
         public bool IsLicenseRequired
         {
@@ -438,10 +441,10 @@ namespace ProGlassAutomation.ViewModels.Licensing
                     case LicenseStatus.GracePeriod:
                     case LicenseStatus.TrialExpired:
                         return false;
-                    // Hard broken — no productive work is
-                    // possible until the user acts.
+                    // Never block (see decision above) — the read-only
+                    // banner and the license page handle these states.
                     default:
-                        return true;
+                        return false;
                 }
             }
         }

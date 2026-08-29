@@ -81,6 +81,41 @@
 
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
+                        <TextBlock Text="PLANS — GET A LICENSE KEY"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
+                                   Margin="0,6,0,10"
+                                   Foreground="{DynamicResource ForegroundBrush}">
+                            <Run Text="Choose the plan you want, then press GET LICENSE KEY. It copies a ready-to-send request with this PC's ID — send it to your vendor, and they reply with a PGKEY1 key to paste in the box above."/>
+                        </TextBlock>
+                        <StackPanel>
+                            <RadioButton x:Name="Plan7Radio" GroupName="CustomerPlan"
+                                         Content="7 DAYS — short evaluation key"
+                                         Margin="0,0,0,4"/>
+                            <RadioButton x:Name="Plan30Radio" GroupName="CustomerPlan"
+                                         Content="30 DAYS — monthly key"
+                                         Margin="0,0,0,4"/>
+                            <RadioButton x:Name="Plan6mRadio" GroupName="CustomerPlan"
+                                         Content="6 MONTHS — half-year key"
+                                         Margin="0,0,0,4"/>
+                            <RadioButton x:Name="Plan1yRadio" GroupName="CustomerPlan"
+                                         Content="1 YEAR — annual key"
+                                         IsChecked="True"
+                                         Margin="0,0,0,4"/>
+                            <RadioButton x:Name="Plan2yRadio" GroupName="CustomerPlan"
+                                         Content="2 YEARS — two-year key"/>
+                        </StackPanel>
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Content="GET LICENSE KEY"
+                                Click="GetLicenseKeyButton_Click"
+                                HorizontalAlignment="Left"
+                                Margin="0,12,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
                         <TextBlock Text="CURRENT LICENSE STATE"
                                    FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"

@@ -47,7 +47,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="License" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Paste your vendor-signed license key to activate, or review the automatic trial state."
+            <TextBlock Text="Choose a plan and request a key, or paste your vendor-signed key to activate. The 30-day trial starts automatically."
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
@@ -121,7 +121,7 @@
                 <!-- ═══════ GROUP: ACTIVATION ═══════ -->
                 <TextBlock Text="ACTIVATION"
                            Style="{StaticResource SettingsGroupHeaderTextStyle}"/>
-                <TextBlock Text="Paste a license key to activate. The trial starts automatically; the PC ID below is only needed for machine-bound keys."
+                <TextBlock Text="Pick a plan and press GET LICENSE KEY, or paste a vendor key. The trial starts automatically; the PC ID is only needed for machine-bound keys."
                            Style="{StaticResource SettingsGroupCaptionStyle}"/>
 
                 <!-- Reuses the same UserControl the main window used to show
