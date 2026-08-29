@@ -44,8 +44,17 @@ namespace ProGlassAutomation.Views.Licensing
     /// <summary>
     /// In-app license page: paste the key → instant activation.
     /// Code-only control — see the file header for why.
+    ///
+    /// Declared PARTIAL on purpose: if a stale copy of the deleted
+    /// LicenseActivationView.xaml still lingers on a machine (a sync
+    /// that never deletes files), the WPF compiler generates a second
+    /// partial declaration from it. Partial merging keeps that
+    /// scenario COMPILABLE — and this code never calls
+    /// InitializeComponent or any x:Name field, so the stale
+    /// generated members are simply unused. With or without the
+    /// stale XAML, the build succeeds.
     /// </summary>
-    public class LicenseActivationView : UserControl
+    public partial class LicenseActivationView : UserControl
     {
         public static readonly DependencyProperty
             IsClosableProperty = DependencyProperty.Register(
