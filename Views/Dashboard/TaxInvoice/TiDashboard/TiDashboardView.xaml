@@ -364,10 +364,10 @@
                         </Border>
                         <Button Content="New Invoice" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding CreateTaxInvoiceCommand}"/>
+                                Command="{Binding CreateTaxInvoiceCommand}" ToolTip="New Invoice"/>
                         <Button Content="View All" Tag="&#xE8FD;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewAllInvoicesCommand}"/>
+                                Command="{Binding ViewAllInvoicesCommand}" ToolTip="View All"/>
                     </StackPanel>
                 </Grid>
 
@@ -551,6 +551,7 @@
                                            HorizontalAlignment="Right"/>
                             </Grid>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                MaxHeight="400"
                                           HorizontalScrollBarVisibility="Disabled"
                                           behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           Visibility="{Binding HasRecentInvoices,
@@ -588,6 +589,8 @@
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                MaxHeight="400"
+                                behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasTopCustomers,
                                               Converter={StaticResource BoolToVisibilityConverter}}">
@@ -616,6 +619,8 @@
                                            Style="{StaticResource SoftSectionSubtitleStyle}"/>
                             </StackPanel>
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                MaxHeight="400"
+                                behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                           HorizontalScrollBarVisibility="Disabled"
                                           Visibility="{Binding HasAgingData,
                                               Converter={StaticResource BoolToVisibilityConverter}}">

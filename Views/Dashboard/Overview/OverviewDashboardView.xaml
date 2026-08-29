@@ -57,15 +57,19 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
+                        <TextBlock Text="{Binding LastRefreshed}"
+                                   Style="{StaticResource SoftMetaStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
                         <Button Content="New Invoice" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding NewInvoiceCommand}"/>
+                                Command="{Binding NewInvoiceCommand}" ToolTip="Create new tax invoice"/>
                         <Button Content="Jobs" Tag="&#xE9F9;"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewJobsCommand}"/>
+                                Command="{Binding ViewJobsCommand}" ToolTip="View all job orders"/>
                         <Button Content="Deliveries" Tag="&#xE806;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding ViewDeliveriesCommand}"/>
+                                Command="{Binding ViewDeliveriesCommand}" ToolTip="View all delivery notes"/>
                     </StackPanel>
                 </Grid>
 
@@ -76,6 +80,17 @@
                     <TextBlock Text="Loading live business data…"
                                Style="{StaticResource SoftKpiFootStyle}"/>
                 </Border>
+                <Border Grid.Row="1" Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,12"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        Visibility="{Binding HasError,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <TextBlock Text="{Binding ErrorMessage}"
+                               FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource DangerBrush}"/>
+                </Border>
+
 
                 <!-- ROW: pulse | mix | in-prod / overdue / pending -->
                 <Grid Grid.Row="2" Margin="0,0,0,20">
@@ -249,7 +264,7 @@
                                  no more "stuck" / no-scroll Recent documents. -->
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled"
-                                          CanContentScroll="True"
+                                          CanContentScroll="False"
                                           PanningMode="VerticalOnly"
                                           MaxHeight="480"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True"

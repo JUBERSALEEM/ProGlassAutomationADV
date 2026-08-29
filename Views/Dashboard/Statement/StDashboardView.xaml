@@ -235,12 +235,16 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
+                        <TextBlock Text="{Binding LastRefreshed}"
+                                   Style="{StaticResource SoftMetaStyle}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
                         <Button Content="New Statement" Tag="&#xE710;"
                                 Style="{StaticResource SoftPillAccentStyle}"
-                                Command="{Binding NewStatementCommand}"/>
+                                Command="{Binding NewStatementCommand}" ToolTip="Generate new customer statement"/>
                         <Button Content="View All" Tag="&#xE8FD;" Margin="0"
                                 Style="{StaticResource SoftPillButtonStyle}"
-                                Command="{Binding GoToStatementsCommand}"/>
+                                Command="{Binding GoToStatementsCommand}" ToolTip="View all generated statements"/>
                     </StackPanel>
                 </Grid>
 
@@ -251,6 +255,16 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="Loading statements…"
                                    Style="{StaticResource SoftKpiFootStyle}"/>
+                    </Border>
+                    <Border Style="{StaticResource SoftSectionStyle}"
+                            Padding="16,12"
+                            Background="{DynamicResource TintRedBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            Visibility="{Binding HasError,
+                                Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
+                                   Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
                 </StackPanel>
 
@@ -349,11 +363,13 @@
                                         Margin="0"
                                         HorizontalAlignment="Center"
                                         Style="{StaticResource SoftPillAccentStyle}"
-                                        Command="{Binding NewStatementCommand}"/>
+                                        Command="{Binding NewStatementCommand}" ToolTip="Generate new customer statement"/>
                             </StackPanel>
                         </Border>
 
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
+                            MaxHeight="400"
+                            behaviors:SmartScrollBubblingBehavior.IsEnabled="True"
                                       HorizontalScrollBarVisibility="Disabled"
                                       Visibility="{Binding HasStatements,
                                           Converter={StaticResource BoolToVisibilityConverter}}">
