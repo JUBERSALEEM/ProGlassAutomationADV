@@ -66,6 +66,8 @@ public sealed class OfflineLicensingHardeningSourceTests
         // LicenseService. Any file importing both namespaces AND using
         // the bare name must carry the using-alias that pins it to the
         // APP service — otherwise Visual Studio reports CS0104.
+        // (The two app VIEW files go further: they never import the
+        // contract namespace at all — see the next test.)
         const string alias =
             "using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;";
 
@@ -88,6 +90,26 @@ public sealed class OfflineLicensingHardeningSourceTests
                     "namespaces — add the using-alias pinning it to the app service.");
             }
         }
+    }
+
+    [Fact]
+    public void App_licensing_views_never_import_the_contract_namespace()
+    {
+        // CS0104 regression guard (stronger form, 2026-08-29): the two
+        // app licensing views must NOT import ProGlass.Licensing at
+        // all — contract types are fully qualified. With only the app
+        // namespace imported, a bare LicenseService can never be
+        // ambiguous in these files.
+        string view = File.ReadAllText(Path.Combine(Root(),
+            "Views", "Licensing", "LicenseActivationView.xaml.cs"));
+        string dialog = File.ReadAllText(Path.Combine(Root(),
+            "Views", "Licensing", "LicenseActivatedDialog.cs"));
+
+        Assert.DoesNotContain("using ProGlass.Licensing;", view, StringComparison.Ordinal);
+        Assert.DoesNotContain("using ProGlass.Licensing;", dialog, StringComparison.Ordinal);
+        Assert.Contains("ProGlass.Licensing.LicenseKeyArmor", view, StringComparison.Ordinal);
+        Assert.Contains("ProGlass.Licensing.LicensePlanCatalog", view, StringComparison.Ordinal);
+        Assert.Contains("ProGlass.Licensing.LicensePlanCatalog", dialog, StringComparison.Ordinal);
     }
 
     [Fact]

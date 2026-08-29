@@ -15,13 +15,12 @@ using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using Microsoft.Win32;
-using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.Services.Logging;
-// Both licensing namespaces are imported above, and the contract also
-// defines a LicenseService type — the alias pins every bare
-// "LicenseService" reference in this file to the APP service.
-using LicenseService = ProGlassAutomation.Services.Licensing.LicenseService;
+// NOTE: ProGlass.Licensing is deliberately NOT imported here — the
+// contract defines a LicenseService type that would collide with the
+// app's own LicenseService (CS0104). Contract types used below are
+// written fully qualified (ProGlass.Licensing.*).
 
 namespace ProGlassAutomation.Views.Licensing
 {
@@ -239,19 +238,19 @@ namespace ProGlassAutomation.Views.Licensing
                 return false;
             }
 
-            if (!LicenseKeyArmor.IsArmoredBlock(text))
+            if (!ProGlass.Licensing.LicenseKeyArmor.IsArmoredBlock(text))
             {
                 ShowError(
                     "Only license keys produced by the License Key Generator are accepted. " +
-                    "Paste the single-line block starting with \"" + LicenseKeyArmor.Prefix +
+                    "Paste the single-line block starting with \"" + ProGlass.Licensing.LicenseKeyArmor.Prefix +
                     "\" exactly as generated.");
                 return false;
             }
 
             // Decode + verify BEFORE any warning dialogs, so the plan
             // checks below always run against a key we would accept.
-            string? json = LicenseKeyArmor.TryExtractJson(text);
-            LicenseValidationResult? validation = null;
+            string? json = ProGlass.Licensing.LicenseKeyArmor.TryExtractJson(text);
+            ProGlass.Licensing.LicenseValidationResult? validation = null;
             if (!string.IsNullOrWhiteSpace(json))
             {
                 try
@@ -276,7 +275,8 @@ namespace ProGlassAutomation.Views.Licensing
             }
 
             // ── Plan-mismatch guard ────────────────────────────────────
-            LicensePlanCatalog.Plan? pastedPlan = LicensePlanCatalog.Of(validation.Document);
+            ProGlass.Licensing.LicensePlanCatalog.Plan? pastedPlan =
+                ProGlass.Licensing.LicensePlanCatalog.Of(validation.Document);
             if (!ConfirmPlanChange(pastedPlan))
                 return false;
 
@@ -304,14 +304,14 @@ namespace ProGlassAutomation.Views.Licensing
         ///      selected in the PLANS cards → "you are pasting the wrong
         ///      plan key" warning.
         /// </summary>
-        private bool ConfirmPlanChange(LicensePlanCatalog.Plan? pastedPlan)
+        private bool ConfirmPlanChange(ProGlass.Licensing.LicensePlanCatalog.Plan? pastedPlan)
         {
             if (pastedPlan == null)
                 return true;   // open-ended / non-plan key: no plan logic
 
             Window owner = OwnerWindow();
             var current = LicenseService.Current;
-            LicensePlanCatalog.Plan? activePlan =
+            ProGlass.Licensing.LicensePlanCatalog.Plan? activePlan =
                 current.Status is LicenseStatus.Valid or LicenseStatus.ExpiringSoon
                     ? PlanOfPayload(current.Payload)
                     : null;
@@ -362,7 +362,7 @@ namespace ProGlassAutomation.Views.Licensing
             return true;
         }
 
-        private static LicensePlanCatalog.Plan? PlanOfPayload(LicensePayload? payload)
+        private static ProGlass.Licensing.LicensePlanCatalog.Plan? PlanOfPayload(LicensePayload? payload)
         {
             if (payload == null) return null;
             DateTime issued = payload.IssuedAt == default
@@ -372,7 +372,7 @@ namespace ProGlassAutomation.Views.Licensing
                 payload.ExpiresAt == default || payload.ExpiresAt == DateTime.MaxValue
                     ? null
                     : payload.ExpiresAt.ToUniversalTime();
-            return LicensePlanCatalog.FromValidityWindow(issued, expires);
+            return ProGlass.Licensing.LicensePlanCatalog.FromValidityWindow(issued, expires);
         }
 
         private static string? SafeLocalDate(DateTime? utc)

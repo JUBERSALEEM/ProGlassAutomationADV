@@ -1,10 +1,13 @@
-using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
+// NOTE: ProGlass.Licensing is deliberately NOT imported here — the
+// contract defines a LicenseService type that would collide with the
+// app's own LicenseService. The contract plan catalog used below is
+// written fully qualified (ProGlass.Licensing.LicensePlanCatalog).
 
 namespace ProGlassAutomation.Views.Licensing
 {
@@ -41,7 +44,7 @@ namespace ProGlassAutomation.Views.Licensing
             }
             catch { }
 
-            LicensePlanCatalog.Plan? plan = PlanOfPayload(payload);
+            ProGlass.Licensing.LicensePlanCatalog.Plan? plan = PlanOfPayload(payload);
 
             string scope = string.IsNullOrWhiteSpace(payload?.MachineFingerprint)
                 ? (payload == null
@@ -205,7 +208,7 @@ namespace ProGlassAutomation.Views.Licensing
             dialog.ShowDialog();
         }
 
-        private static LicensePlanCatalog.Plan? PlanOfPayload(LicensePayload? payload)
+        private static ProGlass.Licensing.LicensePlanCatalog.Plan? PlanOfPayload(LicensePayload? payload)
         {
             if (payload == null) return null;
             DateTime issued = payload.IssuedAt == default
@@ -215,7 +218,7 @@ namespace ProGlassAutomation.Views.Licensing
                 payload.ExpiresAt == default || payload.ExpiresAt == DateTime.MaxValue
                     ? null
                     : payload.ExpiresAt.ToUniversalTime();
-            return LicensePlanCatalog.FromValidityWindow(issued, expires);
+            return ProGlass.Licensing.LicensePlanCatalog.FromValidityWindow(issued, expires);
         }
 
         private static void AddFact(Grid grid, int row, string label, string value)
