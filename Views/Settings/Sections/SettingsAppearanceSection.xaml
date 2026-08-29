@@ -66,43 +66,97 @@
                 <!-- 2026-08-25: one-tap factory reset for everything the
                      Appearance module owns (theme, accent, gradients, card
                      shape, density, zoom, font, wallpapers, PDF layout). -->
-                <Button Style="{StaticResource SettingsActionButtonStyle}"
-                        Content="RESET APPEARANCE TO DEFAULTS"
-                        Tag="&#xE777;"
+                <Button AutomationProperties.AutomationId="Appearance.ResetDefaults"
                         Command="{Binding ResetAppearanceCommand}"
-                        AutomationProperties.AutomationId="Appearance.ResetDefaults"
                         ToolTip="Restore theme, accent, card shape, density, zoom, font and wallpapers to factory defaults"
                         HorizontalAlignment="Left"
-                        Padding="18,8"
-                        Margin="0,2,0,10"/>
+                        Padding="0"
+                        Margin="0,2,0,10">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource SettingsActionButtonStyle}">
+                            <Setter Property="Content">
+                                <Setter.Value>
+                                    <StackPanel Orientation="Horizontal" Margin="18,8">
+                                        <TextBlock Text="&#xE777;" 
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="RESET APPEARANCE TO DEFAULTS"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Setter.Value>
+                            </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsResettingAppearance}" Value="True">
+                                    <Setter Property="IsEnabled" Value="False"/>
+                                    <Setter Property="Content">
+                                        <Setter.Value>
+                                            <StackPanel Orientation="Horizontal" Margin="18,8">
+                                                <ProgressBar IsIndeterminate="True"
+                                                             Width="16"
+                                                             Height="16"
+                                                             VerticalAlignment="Center"
+                                                             Margin="0,0,8,0"/>
+                                                <TextBlock Text="RESETTING..."
+                                                           VerticalAlignment="Center"
+                                                           FontWeight="SemiBold"/>
+                                            </StackPanel>
+                                        </Setter.Value>
+                                    </Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
 
                 <!-- Loading indicator for reset operation -->
                 <Border Margin="0,0,0,10"
-                        Padding="12,8"
+                        Padding="16,12"
                         CornerRadius="{DynamicResource CardCornerRadius}"
-                        Background="{DynamicResource AccentBrush}"
-                        Opacity="0.9">
+                        BorderThickness="1">
                     <Border.Style>
                         <Style TargetType="Border">
                             <Setter Property="Visibility" Value="Collapsed"/>
+                            <Setter Property="Opacity" Value="0"/>
+                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsResettingAppearance}" Value="True">
                                     <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger.EnterActions>
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                 From="0" To="1"
+                                                                 Duration="0:0:0.3"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </DataTrigger.EnterActions>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Border.Style>
-                    <StackPanel Orientation="Horizontal">
-                        <ProgressBar IsIndeterminate="True"
-                                     Width="100"
-                                     Height="4"
-                                     VerticalAlignment="Center"
-                                     Margin="0,0,12,0"
-                                     Foreground="White"/>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                            <ProgressBar IsIndeterminate="True"
+                                         Width="120"
+                                         Height="4"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,12,0"
+                                         Foreground="White"/>
+                            <TextBlock Text="Resetting Appearance"
+                                       Foreground="White"
+                                       FontWeight="Bold"
+                                       FontSize="14"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Text="{Binding ResetStatusMessage}"
                                    Foreground="White"
                                    FontWeight="SemiBold"
-                                   VerticalAlignment="Center"/>
+                                   FontSize="12"
+                                   Opacity="0.9"
+                                   Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
 
