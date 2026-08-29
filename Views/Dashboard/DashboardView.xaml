@@ -224,7 +224,7 @@
                  clipping the last segment. -->
             <Border Grid.Column="1"
                     Background="{DynamicResource ElevatedSurfaceBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="3"
@@ -253,7 +253,7 @@
                         Margin="16,0,0,0">
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="9,5"
@@ -275,7 +275,7 @@
                 </Border>
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="7,4"

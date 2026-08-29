@@ -238,11 +238,11 @@
              model's medal emoji.
         ═══════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="TiTopCustomerTemplate">
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,0,0,10"
+            <Border BorderBrush="{DynamicResource GlassBorderGradientSoft}" BorderThickness="1" Margin="0,0,0,10"
                     Padding="12,10"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
-                    Background="{DynamicResource TintGrayBrush}">
+                    Background="{DynamicResource GlassUltraClearBrush}">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -573,7 +573,7 @@
                 </Grid>
 
                 <!-- ROW: top customers + ageing brackets — even split -->
-                <Grid Grid.Row="4" Margin="0,16,0,0">
+                <Grid Grid.Row="4" Margin="0,20,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
@@ -607,7 +607,7 @@
                         </DockPanel>
                     </Border>
 
-                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="14,0,0,0">
+                    <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Ageing brackets"

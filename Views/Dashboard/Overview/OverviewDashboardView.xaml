@@ -131,7 +131,7 @@
                                     <Viewbox HorizontalAlignment="Left" Stretch="Uniform"
                                              StretchDirection="DownOnly" Margin="0,8,12,4">
                                         <TextBlock Text="{Binding PulseDisplay}"
-                                                   Foreground="White"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    FontSize="30" FontWeight="Bold"
                                                    Margin="0"/>
                                     </Viewbox>
@@ -286,7 +286,7 @@
                                           ItemsPanel="{StaticResource SoftKpiRowPanel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="14,0,0,0">
+                    <Border Grid.Column="2" Style="{StaticResource SoftCardStyle}" Margin="18,0,0,0">
                         <StackPanel>
                             <TextBlock Text="Sheet store" Style="{StaticResource SoftSectionTitleStyle}" Margin="0,0,0,8"/>
                             <ItemsControl ItemsSource="{Binding InventoryTiles}"
