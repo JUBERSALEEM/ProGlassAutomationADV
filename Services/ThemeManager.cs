@@ -394,7 +394,12 @@ namespace ProGlassAutomation.Services
             // Liquid* palette. Re-publish it from the current accent so
             // About finally follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
-            PublishAboutPalette(resources, core, surface, dark, h, s, l);
+            //
+            // SKIP when Ultra Transparent is active — that family uses the
+            // theme XAML values directly (already transparent crystal glass).
+            // Overriding them here would repaint every About surface opaque.
+            if (VisualThemeEngine.Current != VisualThemeEngine.UltraTransparent)
+                PublishAboutPalette(resources, core, surface, dark, h, s, l);
 
             // ── Dashboard ambience — derived, never hard-coded ──────
             // The dashboards consume these via DynamicResource, so the

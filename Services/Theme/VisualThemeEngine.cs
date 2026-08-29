@@ -1603,97 +1603,34 @@ namespace ProGlassAutomation.Services.Theme
             var accent = ThemeManager.AccentColor;
 
             // ══════════════════════════════════════════════════════════
-            //  ULTRA TRANSPARENT — White Crystal Glass
+            //  ULTRA TRANSPARENT — Crystal Clear Glass
             //
-            //  EXACT SPEC (from CSS reference):
-            //    Card background: rgba(255,255,255, 0.055)
-            //    Border: 1px solid rgba(255,255,255, 0.24)
-            //    Shadow: 0 24px 70px rgba(0,0,0, 0.10)
-            //    Inner highlight: inset 0 1px 0 rgba(255,255,255, 0.38)
+            //  PRINCIPLE: The theme XAML already defines the exact
+            //  transparent glass values. ClearOverrides() above removed
+            //  any application-level overrides, so those theme values
+            //  are now active. PublishAboutPalette is also skipped for
+            //  this family (see ThemeManager.ApplyAccent guard).
             //
-            //  WPF TRANSLATION:
-            //    Fill: #0EFFFFFF (5.5% white)
-            //    Border: #3DFFFFFF (24% white)
-            //    Shadow: BlurRadius=35 ShadowDepth=12 Opacity=0.10
-            //    Highlight: top gradient stop #61FFFFFF (38% white)
+            //  This method ONLY sets what the theme XAML doesn't:
+            //    1. Aurora stage (window background)
+            //    2. Crystal shadows
+            //    3. Crystal borders (OutlineBrush)
+            //    4. Typography
+            //    5. Corner radii
+            //    6. Status tints
+            //    7. Hover + interaction states
+            //    8. Liquid glass edge/reflection tokens
             //
-            //  The blue liquid wallpaper must show THROUGH every
-            //  surface. Cards are defined by crystal edge + highlight.
+            //  Everything else — ModuleBackground, GlassUltraClear,
+            //  LiquidCard, AboutInteractive, ElevatedSurface — flows
+            //  through from the theme XAML untouched.
             // ══════════════════════════════════════════════════════════
 
             // ── 1) WINDOW — aurora stage (blue liquid wallpaper) ───
             resources["WindowBackgroundBrush"] =
                 BuildLiquidStageBrush(dark, accent);
 
-            // ── 2) CARD FILL — 5.5% white with inner highlight ─────
-            // A vertical gradient simulates:
-            //   • 38% white top line (inset highlight)
-            //   • 5.5% white body (the glass)
-            //   • 8% white bottom rim (gathered light)
-            //
-            // This is the ONE material used for EVERY surface in the
-            // app — cards, panels, sidebars, dashboards, dialogs.
-            Brush crystalFill;
-            if (ThemeManager.UseGradients)
-            {
-                var ramp = new LinearGradientBrush
-                {
-                    StartPoint = new Point(0, 0),
-                    EndPoint = new Point(0, 1),
-                    GradientStops =
-                    {
-                        // Inner highlight: 38% white at the very top
-                        new GradientStop(Color.FromArgb(0x61, 0xFF, 0xFF, 0xFF), 0.00),
-                        // Drop to 5.5% fill immediately
-                        new GradientStop(Color.FromArgb(0x0E, 0xFF, 0xFF, 0xFF), 0.03),
-                        // Transparent center — wallpaper shows through
-                        new GradientStop(Color.FromArgb(0x08, 0xFF, 0xFF, 0xFF), 0.50),
-                        // Slight light gather at bottom
-                        new GradientStop(Color.FromArgb(0x0E, 0xFF, 0xFF, 0xFF), 0.97),
-                        new GradientStop(Color.FromArgb(0x14, 0xFF, 0xFF, 0xFF), 1.00)
-                    }
-                };
-                ramp.Freeze();
-                crystalFill = ramp;
-            }
-            else
-            {
-                // Flat: just the 5.5% white
-                var flat = new SolidColorBrush(
-                    Color.FromArgb(0x0E, 0xFF, 0xFF, 0xFF));
-                flat.Freeze();
-                crystalFill = flat;
-            }
-
-            // Apply the same crystal fill to EVERY surface.
-            resources["ModuleBackgroundBrush"] = crystalFill;
-            resources["ElevatedSurfaceBrush"] = crystalFill;
-            resources["SideMenuBackgroundBrush"] = crystalFill;
-            resources["SidebarCardBrush"] = crystalFill;
-            resources["ShellLiquidBrush"] = crystalFill;
-            resources["DashLiquidSurfaceBrush"] = crystalFill;
-
-            // Hover — slightly more visible: 10% white
-            var hoverFill = new SolidColorBrush(
-                Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
-            hoverFill.Freeze();
-            resources["MenuHoverBrush"] = hoverFill;
-
-            // Dashboard ambient blobs — pure white whisper
-            var ambientGlow = new SolidColorBrush(
-                Color.FromArgb(0x0A, 0xFF, 0xFF, 0xFF));
-            ambientGlow.Freeze();
-            resources["DashAmbientBrush"] = ambientGlow;
-
-            var blobGlow = new SolidColorBrush(
-                Color.FromArgb(0x06, 0xFF, 0xFF, 0xFF));
-            blobGlow.Freeze();
-            resources["DashAmbientBlob1Brush"] = blobGlow;
-            resources["DashAmbientBlob2Brush"] = blobGlow;
-
-            // ── 3) SHADOWS — deep soft crystal shadow ──────────────
-            // CSS: 0 24px 70px rgba(0,0,0,0.10)
-            // WPF: BlurRadius=35, ShadowDepth=12, Opacity=0.10
+            // ── 2) SHADOWS — deep soft crystal shadow ──────────────
             var crystalShadow = new System.Windows.Media.Effects.DropShadowEffect
             {
                 Color = Colors.Black,
@@ -1705,8 +1642,6 @@ namespace ProGlassAutomation.Services.Theme
             crystalShadow.Freeze();
             resources["ShadowSoft"] = crystalShadow;
             resources["ShadowElevated"] = crystalShadow;
-
-            // Also override the GlassShadow* variants
             resources["GlassShadowSoft"] = crystalShadow;
             resources["GlassShadowSoftBorder"] = crystalShadow;
             resources["GlassShadowSoftButton"] = crystalShadow;
@@ -1714,51 +1649,33 @@ namespace ProGlassAutomation.Services.Theme
             resources["GlassShadowSoftTextBox"] = crystalShadow;
             resources["GlassShadowSoftToggle"] = crystalShadow;
 
-            // ── 4) CRYSTAL BORDER — 24% white ──────────────────────
-            // CSS: 1px solid rgba(255,255,255, 0.24)
-            // A uniform white border that defines every card shape.
+            // ── 3) CRYSTAL BORDER — 24% white ──────────────────────
             var crystalBorder = new SolidColorBrush(
                 Color.FromArgb(0x3D, 0xFF, 0xFF, 0xFF));
             crystalBorder.Freeze();
 
-            // Override GlassBorderGradientCrystal (used by cards/dashboards)
             var crystalBorderGradient = new LinearGradientBrush
             {
                 StartPoint = new Point(0, 0),
                 EndPoint = new Point(1, 1),
                 GradientStops =
                 {
-                    // Top-left: brighter (catches light)
                     new GradientStop(Color.FromArgb(0x50, 0xFF, 0xFF, 0xFF), 0.0),
-                    // Mid: 24% white
                     new GradientStop(Color.FromArgb(0x3D, 0xFF, 0xFF, 0xFF), 0.5),
-                    // Bottom-right: slightly dimmer
                     new GradientStop(Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF), 1.0)
                 }
             };
             crystalBorderGradient.Freeze();
             resources["GlassBorderGradientCrystal"] = crystalBorderGradient;
 
-            // OutlineBrush — the universal card keyline (320 consumers)
             resources["OutlineBrush"] = crystalBorder;
             resources["OutlineDefaultBrush"] = crystalBorder;
             resources["BorderBrush"] = crystalBorder;
             resources["DividerBrush"] = new SolidColorBrush(
                 Color.FromArgb(0x20, 0xFF, 0xFF, 0xFF));
-
-            // GlassBorderSoft — used by some card styles
             resources["GlassBorderSoft"] = crystalBorder;
 
-            // ── 5) STATUS TINTS — barely visible hue ───────────────
-            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.10, 0.05);
-            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.10, 0.05);
-            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.10, 0.05);
-            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.10, 0.05);
-            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.10, 0.05);
-            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
-            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
-
-            // ── 6) TYPOGRAPHY — readable on crystal glass ──────────
+            // ── 4) TYPOGRAPHY ──────────────────────────────────────
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
@@ -1772,52 +1689,32 @@ namespace ProGlassAutomation.Services.Theme
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
                 : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
 
-            // ── 7) SHAPE — larger radii for crystal glass ──────────
+            // ── 5) SHAPE — larger radii ────────────────────────────
             resources["CardCornerRadius"] = new CornerRadius(16);
             resources["CardCornerRadiusLarge"] = new CornerRadius(20);
             resources["ControlCornerRadius"] = new CornerRadius(12);
 
-            // ── Also override the theme-level glass brushes ────────
-            // These are used by DashboardStyles, CardStyles, DialogStyles,
-            // ListPageStyles, LiquidGlassDesign — 75+ consumers.
-            resources["GlassUltraClearBrush"] = crystalFill;
-            resources["GlassSurfaceBrush"] = crystalFill;
-            resources["GlassSurfaceElevated"] = crystalFill;
-            resources["GlassSurfaceUltra"] = crystalFill;
-            resources["GlassSurfaceStandard"] = crystalFill;
-            resources["GlassCrystalBrush"] = crystalFill;
-            resources["GlassWaterBrush"] = crystalFill;
-            resources["GlassFrostedBrush"] = crystalFill;
+            // ── 6) STATUS TINTS — barely visible hue ───────────────
+            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.10, 0.05);
+            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.10, 0.05);
+            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.10, 0.05);
+            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.10, 0.05);
+            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.10, 0.05);
+            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.10, 0.05);
+            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.10, 0.05);
 
-            // About module card fill (DynamicResource LiquidCard)
-            resources["LiquidCard"] = crystalFill;
+            // ── 7) HOVER — 10% white ───────────────────────────────
+            var hoverFill = new SolidColorBrush(
+                Color.FromArgb(0x1A, 0xFF, 0xFF, 0xFF));
+            hoverFill.Freeze();
+            resources["MenuHoverBrush"] = hoverFill;
 
-            // About module inner panels, chips, icon tiles, license panels
-            // — all use AboutInteractiveBrush (40 consumers)
-            resources["AboutInteractiveBrush"] = crystalFill;
-            resources["AboutInteractiveHoverBrush"] = hoverFill;
-            resources["AboutInteractiveBorderBrush"] = crystalBorder;
-            resources["AboutInteractiveBorderStrongBrush"] =
-                new SolidColorBrush(Color.FromArgb(0x61, 0xFF, 0xFF, 0xFF));
-            resources["AboutCardBorderBrush"] = crystalBorder;
-            resources["AboutDividerBrush"] =
-                new SolidColorBrush(Color.FromArgb(0x20, 0xFF, 0xFF, 0xFF));
-
-            // ── 8) LIQUID GLASS DESIGN TOKENS ──────────────────────
-            // The LiquidGlassDesign.xaml control system uses these.
-            resources["LiquidGlassBrush"] = crystalFill;
-            resources["LiquidGlassSubtleBrush"] = crystalFill;
-            resources["LiquidGlassStrongBrush"] = crystalFill;
-
+            // ── 8) LIQUID GLASS TOKENS — edge + reflection only ────
             resources["LiquidEdgeBrush"] = CrystalEdge(accent, dark);
-
-            // Stronger inner highlight for the crystal spec
             resources["LiquidInnerHighlightBrush"] =
                 HorizontalSheen(dark ? (byte)0x70 : (byte)0xDD);
             resources["LiquidReflectionBrush"] =
                 DiagonalSheen(dark ? (byte)0x30 : (byte)0x66);
-
-            // Interaction states — pure white, no accent tint
             resources["LiquidControlHoverBrush"] = hoverFill;
 
             var pressed = new SolidColorBrush(
@@ -1832,8 +1729,6 @@ namespace ProGlassAutomation.Services.Theme
 
             resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
                 0x50, accent.R, accent.G, accent.B));
-
-            // Selection + primary button — accent but transparent
             resources["LiquidSelectionBrush"] =
                 AccentCrystal(accent, dark ? (0x28, 0x18) : (0x30, 0x1A));
             resources["LiquidPrimaryButtonBrush"] =
