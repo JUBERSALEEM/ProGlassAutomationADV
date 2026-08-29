@@ -84,13 +84,14 @@ the Desktop Window Manager.
 3. **Apple-thin material alphas** — Glass surfaces drop to 0.58–0.78 (dark/light)
    when chrome is active, so cards genuinely frost over the blur; the old
    contrast-safe 0.78–0.94 values remain for the no-blur fallback.
-4. **Specular top edge** — new `GlassEdgeBrush` (transparent default in both theme
-   dictionaries; white α 0x30 dark / 0x5A light in Glass/Glassy). The four shared
-   card styles — `BaseCardStyle`, `ModuleSectionCardStyle`, `SoftCardStyle`,
-   `SettingsTileStyle` (~120 consumers) — are now templated cards that overlay the
-   crisp 1px top light, Apple-style. `TemplateBinding` preserves every inline
-   Background/BorderBrush/Padding override; outside glass families the edge is
-   invisible, so non-glass visuals are pixel-identical to before.
+4. **Soft top-light sheen** — the iOS "lit from above" identity is delivered at
+   the brush level: the Glassy frost gradient now runs vertically (denser, brighter
+   alpha at the top of every card fading downward) instead of diagonally, so every
+   surface that consumes the glass keys — cards, DataGrid rows, hover, shell —
+   carries the soft sheen automatically. (A crisp 1px specular overlay was
+   attempted first via Style setters on `Border`, but `Border` has no `Template`
+   property — MC4005/XDG0012/XLS0431 — so the brush-level sheen is the correct,
+   template-free mechanism. See §9.)
 5. **Accent-aware chrome tint** — the DWM backdrop tint mixes the theme base (deep
    slate / icy white) 28% toward the user accent; `SyncGlassChrome()` runs inside
    `Apply()`/`ApplyModule()`, and `MainWindow` calls `ReapplyWindowChrome()` after
@@ -149,7 +150,7 @@ Remaining known trade-offs (documented, deliberately not bulk-edited):
   raw, comments, chars, braces, `#if` nesting): **0 issues** after the fragment fix.
 - XML parse of **all 174 XAML files**: 0 issues.
 - Sweep verification: no literal `FontSize` < 30 remains in any XAML; 2,185 token
-  references; `GlassEdgeBrush` defined in both themes + set/cleared by the engine.
+  references.
 - No .NET SDK is available in this workspace (no network to dot.net), so a full
   `dotnet build` could not be run here — please do one build in Visual Studio on
   Windows. The changes are deliberately mechanical (attribute remaps, additive
@@ -195,3 +196,21 @@ clearly visible on pale light surfaces (dark stays 0.26).
 - SalesReport navy hero, DeliveryNote progress banner, agent chat white
   input bar: white-on-accent pairs — kept (self-consistent surfaces).
 - Wizard stepper dots / sales hero overlays: decorative on colored fills — kept.
+
+## 9. Correction — Border styles cannot carry a Template (build errors)
+
+The specular-edge overlay in commit `1592221` set `Style.Template` on four
+styles whose TargetType is `Border` (`BaseCardStyle`, `ModuleSectionCardStyle`,
+`SoftCardStyle`, `SettingsTileStyle`). `Border` derives from `FrameworkElement`,
+not `Control`, so it has no `Template` property — the designer reported
+MC4005 / XDG0012 / XLS0431 at those four lines.
+
+**Resolution (corrected commit):**
+- The four styles are restored to their original setter-only form —
+  pixel-identical to the pre-glass build outside the glass families.
+- `GlassEdgeBrush` is removed everywhere (both theme dictionaries,
+  `ManagedKeys`, the engine helper).
+- The iOS sheen is delivered at the brush level instead: `FrostBrush`'s
+  gradient is now vertical (bright top alpha fading down) so every glass
+  surface carries the soft top-light sheen with no template required.
+
