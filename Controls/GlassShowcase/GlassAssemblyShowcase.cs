@@ -160,31 +160,49 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             double h = ActualHeight;
             if (w < 40 || h < 40) return;
 
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             var outline = ThemeColor("OutlineBrush", Color.FromRgb(0x94, 0xA3, 0xB8));
             var well = ThemeColor("MenuHoverBrush", Color.FromRgb(0xEE, 0xF2, 0xF7));
             var text = ThemeColor("PrimaryForegroundBrush", Color.FromRgb(0x0F, 0x17, 0x2A));
             var muted = ThemeColor("SecondaryForegroundBrush", Color.FromRgb(0x64, 0x74, 0x8B));
             var accent = ThemeColor("AccentBrush", Color.FromRgb(0x1D, 0x4E, 0xD8));
 
+            // ── AutoCAD-style background ──────────────────────────────
             if (ShowWell)
             {
-                var wellBrush = new SolidColorBrush(well);
-                wellBrush.Freeze();
-                dc.DrawRoundedRectangle(wellBrush, null, new Rect(0, 0, w, h), 12, 12);
+                // Blueprint grid background
+                Color gridBg = dark ? Color.FromRgb(0x1A, 0x23, 0x32) : Color.FromRgb(0xF8, 0xFA, 0xFC);
+                Color gridLine = dark ? Color.FromArgb(30, 100, 160, 220) : Color.FromArgb(25, 50, 100, 180);
+                Color gridMajor = dark ? Color.FromArgb(50, 100, 160, 220) : Color.FromArgb(40, 50, 100, 180);
+
+                var bgBrush = new SolidColorBrush(gridBg);
+                bgBrush.Freeze();
+                dc.DrawRoundedRectangle(bgBrush, null, new Rect(0, 0, w, h), 8, 8);
+
+                // Minor grid (20px)
+                var minorPen = new Pen(new SolidColorBrush(gridLine), 0.3);
+                minorPen.Freeze();
+                for (double x = 20; x < w; x += 20)
+                    dc.DrawLine(minorPen, new Point(x, 0), new Point(x, h));
+                for (double y = 20; y < h; y += 20)
+                    dc.DrawLine(minorPen, new Point(0, y), new Point(w, y));
+
+                // Major grid (100px)
+                var majorPen = new Pen(new SolidColorBrush(gridMajor), 0.6);
+                majorPen.Freeze();
+                for (double x = 100; x < w; x += 100)
+                    dc.DrawLine(majorPen, new Point(x, 0), new Point(x, h));
+                for (double y = 100; y < h; y += 100)
+                    dc.DrawLine(majorPen, new Point(0, y), new Point(w, y));
+
+                // Border frame
+                var framePen = new Pen(new SolidColorBrush(outline), 1.2);
+                framePen.Freeze();
+                dc.DrawRoundedRectangle(null, framePen, new Rect(2, 2, w - 4, h - 4), 6, 6);
             }
 
-            // Ground plane so the 3D sandwich reads as a product, not a flat glyph.
-            var shadow = new RadialGradientBrush
-            {
-                Center = new Point(0.5, 0.5),
-                GradientOrigin = new Point(0.5, 0.5),
-                RadiusX = 0.55,
-                RadiusY = 0.28
-            };
-            shadow.GradientStops.Add(new GradientStop(Color.FromArgb(70, 0, 0, 0), 0));
-            shadow.GradientStops.Add(new GradientStop(Color.FromArgb(0, 0, 0, 0), 1));
-            shadow.Freeze();
-            dc.DrawEllipse(shadow, null, new Point(w * 0.52, h * 0.90), w * 0.34, 11);
+            // ── Title block ────────────────────────────────────────────
+            DrawTitleBlock(dc, w, h, text, muted, outline, dark);
 
             switch (Kind)
             {
@@ -203,23 +221,168 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             }
         }
 
+        // ── AutoCAD Title Block ─────────────────────────────────────────
+        private void DrawTitleBlock(DrawingContext dc, double w, double h, Color text, Color muted, Color outline, bool dark)
+        {
+            double tbH = 28;
+            double tbY = h - tbH - 4;
+            var tbBg = dark ? Color.FromArgb(180, 26, 35, 50) : Color.FromArgb(200, 241, 245, 249);
+            var brush = new SolidColorBrush(tbBg);
+            brush.Freeze();
+            var pen = new Pen(new SolidColorBrush(outline), 0.8);
+            pen.Freeze();
+            dc.DrawRectangle(brush, pen, new Rect(4, tbY, w - 8, tbH));
+
+            string kindLabel = Kind switch
+            {
+                GlassAssemblyKind.Sgu => "SGU — SINGLE GLAZING UNIT",
+                GlassAssemblyKind.Dgu => "DGU — DOUBLE GLAZING UNIT (IGU)",
+                GlassAssemblyKind.Lam => "LAM — LAMINATED GLASS",
+                GlassAssemblyKind.DguLam => "DGU+LAM — IGU WITH LAMINATED INNER",
+                _ => "GLASS ASSEMBLY"
+            };
+
+            var ft = Format(kindLabel, 9, FontWeights.Bold, text);
+            dc.DrawText(ft, new Point(12, tbY + 4));
+
+            string scale = "SCALE: NTS   |   ISOMETRIC VIEW   |   ALL DIMS IN mm";
+            var ft2 = Format(scale, 8, FontWeights.Normal, muted);
+            dc.DrawText(ft2, new Point(12, tbY + 16));
+        }
+
+        // ── Dimension line with arrows and label ────────────────────────
+        private static void DrawDimensionLine(DrawingContext dc, Point start, Point end, string label, Color color, bool horizontal = true)
+        {
+            var pen = new Pen(new SolidColorBrush(color), 0.8);
+            pen.Freeze();
+
+            // Main line
+            dc.DrawLine(pen, start, end);
+
+            // Arrow heads
+            double arrowSize = 4;
+            if (horizontal)
+            {
+                // Left arrow
+                dc.DrawLine(pen, start, new Point(start.X + arrowSize, start.Y - arrowSize * 0.6));
+                dc.DrawLine(pen, start, new Point(start.X + arrowSize, start.Y + arrowSize * 0.6));
+                // Right arrow
+                dc.DrawLine(pen, end, new Point(end.X - arrowSize, end.Y - arrowSize * 0.6));
+                dc.DrawLine(pen, end, new Point(end.X - arrowSize, end.Y + arrowSize * 0.6));
+            }
+            else
+            {
+                // Top arrow
+                dc.DrawLine(pen, start, new Point(start.X - arrowSize * 0.6, start.Y + arrowSize));
+                dc.DrawLine(pen, start, new Point(start.X + arrowSize * 0.6, start.Y + arrowSize));
+                // Bottom arrow
+                dc.DrawLine(pen, end, new Point(end.X - arrowSize * 0.6, end.Y - arrowSize));
+                dc.DrawLine(pen, end, new Point(end.X + arrowSize * 0.6, end.Y - arrowSize));
+            }
+
+            // Label centered on line
+            var ft = Format(label, 8, FontWeights.SemiBold, color);
+            double midX = (start.X + end.X) * 0.5;
+            double midY = (start.Y + end.Y) * 0.5;
+            dc.DrawText(ft, new Point(midX - ft.Width * 0.5, midY - ft.Height - 2));
+        }
+
+        // ── Leader line with annotation ─────────────────────────────────
+        private static void DrawLeaderAnnotation(DrawingContext dc, Point from, Point to, string label, Color color)
+        {
+            var pen = new Pen(new SolidColorBrush(color), 0.7);
+            pen.Freeze();
+
+            // Leader line
+            dc.DrawLine(pen, from, to);
+
+            // Dot at start
+            var dotBrush = new SolidColorBrush(color);
+            dotBrush.Freeze();
+            dc.DrawEllipse(dotBrush, null, from, 2.5, 2.5);
+
+            // Label at end
+            var ft = Format(label, 8, FontWeights.SemiBold, color);
+            double textX = to.X > from.X ? to.X + 4 : to.X - ft.Width - 4;
+            dc.DrawText(ft, new Point(textX, to.Y - ft.Height * 0.5));
+        }
+
+        // ── Cross-hatching for glass sections ───────────────────────────
+        private static void DrawCrossHatch(DrawingContext dc, Point a, Point b, Point c, Point d, Color color, double spacing = 4)
+        {
+            var pen = new Pen(new SolidColorBrush(Color.FromArgb(60, color.R, color.G, color.B)), 0.4);
+            pen.Freeze();
+
+            var geo = new StreamGeometry();
+            using (var ctx = geo.Open())
+            {
+                // Diagonal lines across the quad
+                double minX = Math.Min(Math.Min(a.X, b.X), Math.Min(c.X, d.X));
+                double maxX = Math.Max(Math.Max(a.X, b.X), Math.Max(c.X, d.X));
+                double minY = Math.Min(Math.Min(a.Y, b.Y), Math.Min(c.Y, d.Y));
+                double maxY = Math.Max(Math.Max(a.Y, b.Y), Math.Max(c.Y, d.Y));
+
+                bool first = true;
+                for (double offset = minX + minY; offset < maxX + maxY; offset += spacing)
+                {
+                    double x1 = Math.Max(minX, offset - maxY);
+                    double y1 = offset - x1;
+                    double x2 = Math.Min(maxX, offset - minY);
+                    double y2 = offset - x2;
+
+                    if (y1 > maxY) { y1 = maxY; x1 = offset - y1; }
+                    if (y1 < minY) { y1 = minY; x1 = offset - y1; }
+                    if (y2 > maxY) { y2 = maxY; x2 = offset - y2; }
+                    if (y2 < minY) { y2 = minY; x2 = offset - y2; }
+
+                    if (x1 >= minX && x1 <= maxX && x2 >= minX && x2 <= maxX)
+                    {
+                        if (first) { ctx.BeginFigure(new Point(x1, y1), false, false); first = false; }
+                        ctx.LineTo(new Point(x2, y2), true, false);
+                        ctx.BeginFigure(new Point(x1, y1), false, false);
+                    }
+                }
+            }
+            geo.Freeze();
+            dc.DrawGeometry(null, pen, geo);
+        }
+
         // Wide hero pane — matches the SGU mockup sheet.
         private void DrawSguSheet(DrawingContext dc, double w, double h, Color text, Color outline)
         {
-            double paneW = w * 0.86;
-            double depth = Math.Min(h * 0.42, 110);
+            double paneW = w * 0.82;
+            double depth = Math.Min(h * 0.38, 100);
             double thick = VisualThickness(OuterThickness, 14, 28);
             double left = (w - paneW) * 0.5;
-            double frontY = h * 0.52;
+            double frontY = h * 0.50;
 
             DrawWidePane(dc, left, frontY, paneW, depth, thick, GlassTint(OuterColor), outline);
 
-            if (ShowCaption)
+            // AutoCAD dimension lines
+            Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
+                ? Color.FromRgb(0x60, 0xA5, 0xFA) : Color.FromRgb(0x25, 0x63, 0xEB);
+
+            // Width dimension
+            DrawDimensionLine(dc,
+                new Point(left, frontY + thick + 20),
+                new Point(left + paneW, frontY + thick + 20),
+                "WIDTH", dimColor, horizontal: true);
+
+            // Thickness dimension (vertical)
+            DrawDimensionLine(dc,
+                new Point(left - 20, frontY),
+                new Point(left - 20, frontY + thick),
+                OuterThickness ?? "6mm", dimColor, horizontal: false);
+
+            // Leader annotations
+            DrawLeaderAnnotation(dc,
+                new Point(left + paneW * 0.5, frontY - depth * 0.3),
+                new Point(left + paneW * 0.5 + 40, frontY - depth * 0.3 - 20),
+                BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment), dimColor);
+
+            if (ShowCaption && !string.IsNullOrWhiteSpace(Caption))
             {
-                string label = string.IsNullOrWhiteSpace(Caption)
-                    ? BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)
-                    : Caption;
-                var ft = Format(label, 13, FontWeights.SemiBold, text);
+                var ft = Format(Caption, 13, FontWeights.SemiBold, text);
                 dc.DrawText(ft, new Point((w - ft.Width) * 0.5, frontY - depth * 0.38 - ft.Height * 0.5));
             }
         }
@@ -227,46 +390,96 @@ namespace ProGlassAutomation.Controls.GlassShowcase
         // Packed IGU — two lites + visible air cavity, isometric product shot.
         private void DrawDguSandwich(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
         {
-            double paneW = Math.Min(w * 0.78, 520);
-            double depth = Math.Min(h * 0.36, 96);
+            double paneW = Math.Min(w * 0.74, 480);
+            double depth = Math.Min(h * 0.32, 88);
             double outerT = VisualThickness(OuterThickness, 12, 22);
             double innerT = VisualThickness(InnerThickness, 12, 22);
             double gap = Math.Clamp(ParseMm(SpacerWidth) * 1.6, 18, 36);
             double left = (w - paneW) * 0.52;
-            double y = h * 0.34;
+            double y = h * 0.30;
 
             DrawWidePane(dc, left + 22, y + gap + outerT + 6, paneW - 10, depth, innerT, GlassTint(InnerColor), outline);
             DrawSpacerBar(dc, left + 10, y + outerT + 4, paneW - 8, depth * 0.62, gap - 2, outline, accent);
             DrawWidePane(dc, left, y, paneW, depth, outerT, GlassTint(OuterColor), outline);
 
-            DrawSideLabel(dc, left - 6, y + 2, "OUTER", muted, true);
-            DrawSideLabel(dc, left - 6, y + outerT + gap * 0.3, SpacerWidth ?? "ASP", muted, true);
-            DrawSideLabel(dc, left + 10, y + gap + outerT + 8, "INNER", muted, true);
+            // AutoCAD dimension lines
+            Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
+                ? Color.FromRgb(0x60, 0xA5, 0xFA) : Color.FromRgb(0x25, 0x63, 0xEB);
+
+            // Total thickness dimension (vertical)
+            double totalThick = outerT + gap + innerT;
+            DrawDimensionLine(dc,
+                new Point(left - 24, y),
+                new Point(left - 24, y + totalThick + 6),
+                "TOTAL", dimColor, horizontal: false);
+
+            // Leader annotations for each layer
+            DrawLeaderAnnotation(dc,
+                new Point(left + 10, y + outerT * 0.5),
+                new Point(left - 30, y - 10),
+                $"OUTER: {BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(left + paneW * 0.5, y + outerT + gap * 0.5),
+                new Point(left + paneW + 20, y + outerT + gap * 0.5),
+                $"ASP: {SpacerWidth}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(left + 30, y + gap + outerT + 6 + innerT * 0.5),
+                new Point(left - 30, y + totalThick + 30),
+                $"INNER: {BuildPaneLabel(InnerThickness, InnerColor, InnerTreatment)}", dimColor);
         }
 
         // Exploded LAM — three distinct panes with a large air gap, amber interlayer.
         private void DrawLamExploded(DrawingContext dc, double w, double h, Color muted, Color outline)
         {
-            double paneW = Math.Min(w * 0.72, 380);
-            double depth = Math.Min(h * 0.22, 72);
+            double paneW = Math.Min(w * 0.68, 360);
+            double depth = Math.Min(h * 0.20, 66);
             double outerT = VisualThickness(OuterThickness, 11, 18);
             double innerT = VisualThickness(InnerThickness, 11, 18);
             double filmT = Math.Clamp(ParseMm(InterlayerThickness) * 4.0, 10, 18);
-            double explode = Math.Max(h * 0.20, 36);
+            double explode = Math.Max(h * 0.18, 32);
             double cx = (w - paneW) * 0.28;
-            double top = h * 0.12;
+            double top = h * 0.10;
 
             DrawWidePane(dc, cx + explode * 0.55, top + explode * 2 + 8, paneW, depth, innerT, GlassTint(InnerColor), outline);
             DrawWidePane(dc, cx + explode * 0.28, top + explode + 4, paneW, depth, filmT,
                 InterlayerTint(InterlayerColor, InterlayerType), outline, film: true);
             DrawWidePane(dc, cx, top, paneW, depth, outerT, GlassTint(OuterColor), outline);
+
+            // AutoCAD dimension lines
+            Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
+                ? Color.FromRgb(0x60, 0xA5, 0xFA) : Color.FromRgb(0x25, 0x63, 0xEB);
+
+            // Leader annotations for each layer
+            DrawLeaderAnnotation(dc,
+                new Point(cx + 10, top + outerT * 0.5),
+                new Point(cx - 40, top - 10),
+                $"OUTER: {BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(cx + explode * 0.28 + 10, top + explode + 4 + filmT * 0.5),
+                new Point(cx - 40, top + explode),
+                InterlayerLabel(), dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(cx + explode * 0.55 + 10, top + explode * 2 + 8 + innerT * 0.5),
+                new Point(cx - 40, top + explode * 2 + 20),
+                $"INNER: {BuildPaneLabel(InnerThickness, InnerColor, InnerTreatment)}", dimColor);
+
+            // Total assembly thickness
+            double totalY = top + explode * 2 + 8 + innerT;
+            DrawDimensionLine(dc,
+                new Point(cx + paneW + 20, top),
+                new Point(cx + paneW + 20, totalY),
+                "TOTAL", dimColor, horizontal: false);
         }
 
         // Standing IGU cutaway: outer lite + cavity + laminated pair, all vertical.
         private void DrawDguLamCutaway(DrawingContext dc, double w, double h, Color muted, Color outline, Color accent)
         {
-            double baseY = h * 0.88;
-            double liteH = h * 0.72;
+            double baseY = h * 0.85;
+            double liteH = h * 0.68;
             double x = w * 0.10;
             double tOuter = Math.Clamp(w * 0.07, 14, 26);
             double cavity = Math.Clamp(ParseMm(SpacerWidth) * 1.8, 16, 32);
@@ -290,8 +503,42 @@ namespace ProGlassAutomation.Controls.GlassShowcase
             DrawStandingLite(dc, lx + tLamOut + tFilm + 4, baseY + 4, tLamIn, liteH * 0.84,
                 GlassTint(LamInnerColor), outline);
 
-            DrawSideLabel(dc, x, baseY - liteH - 2, "OUTER", muted, false);
-            DrawSideLabel(dc, lx, baseY - liteH * 0.92 - 2, "LAM", muted, false);
+            // AutoCAD dimension lines
+            Color dimColor = ThemeManager.CurrentTheme == AppTheme.Dark
+                ? Color.FromRgb(0x60, 0xA5, 0xFA) : Color.FromRgb(0x25, 0x63, 0xEB);
+
+            // Total assembly width dimension (horizontal)
+            double totalWidth = tOuter + 3 + cavity + 4 + tLamOut + 2 + tFilm + 4 + tLamIn;
+            DrawDimensionLine(dc,
+                new Point(x, baseY + 16),
+                new Point(x + totalWidth, baseY + 16),
+                "TOTAL WIDTH", dimColor, horizontal: true);
+
+            // Leader annotations for each layer
+            DrawLeaderAnnotation(dc,
+                new Point(x + tOuter * 0.5, baseY - liteH * 0.5),
+                new Point(x - 30, baseY - liteH * 0.7),
+                $"OUTER: {BuildPaneLabel(OuterThickness, OuterColor, OuterTreatment)}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(cavX + cavity * 0.5, baseY - liteH * 0.5),
+                new Point(cavX + cavity * 0.5, baseY - liteH - 10),
+                $"ASP: {SpacerWidth}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(lx + tLamOut * 0.5, baseY - liteH * 0.45),
+                new Point(lx - 30, baseY - liteH * 0.3),
+                $"LAM OUTER: {LamOuterThickness} {LamOuterColor}", dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(lx + tLamOut + 2 + tFilm * 0.5, baseY - liteH * 0.42),
+                new Point(lx + tLamOut + tFilm + 20, baseY - liteH * 0.6),
+                InterlayerLabel(), dimColor);
+
+            DrawLeaderAnnotation(dc,
+                new Point(lx + tLamOut + tFilm + 4 + tLamIn * 0.5, baseY - liteH * 0.40),
+                new Point(lx + totalWidth + 20, baseY - liteH * 0.4),
+                $"LAM INNER: {LamInnerThickness} {LamInnerColor}", dimColor);
         }
 
         private static void DrawStandingLite(
