@@ -164,10 +164,13 @@ namespace ProGlassAutomation.Services.Theme
 
         private static void OnAccentChanged(object? sender, EventArgs e)
         {
-            // Monet AND Glassy derive their surfaces and window stage
-            // from the active accent colour, so both must re-derive
-            // when the user changes the accent.
-            if (Current != Monet && Current != Glassy) return;
+            // Monet, Glass and Glassy all derive their surfaces and
+            // window stage from the active accent colour, so all three
+            // must re-derive when the user changes the accent. (Glass
+            // was missed here previously: its GlassSurface tints kept
+            // the OLD accent until the next full theme re-apply.)
+            if (Current != Monet && Current != Glassy && Current != Glass)
+                return;
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
             ApplyModule(LastRequestedModule, App.Config?.Appearance);
         }
