@@ -1,4 +1,4 @@
-﻿# Themes/Styles/ — Shared Style Library
+# Themes/Styles/ — Shared Style Library
 
 ## Purpose
 
@@ -12,10 +12,11 @@ ResourceDictionary.
 
 ## Contents
 
-    TypographyStyles.xaml    Text hierarchy (13 styles)
-    IconBadgeStyles.xaml     Colored icon squares (10 styles)
-    PillStyles.xaml          Status + priority + tag pills (16 styles)
-    CardStyles.xaml          Card containers + hero gradients (13 styles)
+    TypeScaleTokens.xaml      Global font-size scale (11 tokens, canonical)
+    TypographyStyles.xaml     Text hierarchy (13 styles)
+    IconBadgeStyles.xaml      Colored icon squares (10 styles)
+    PillStyles.xaml           Status + priority + tag pills (16 styles)
+    CardStyles.xaml           Card containers + hero gradients (13 styles)
 
 Each `.xaml` has a matching `.xaml.cs` stub required by WPF's
 ResourceDictionary partial-class generation. The stubs contain
@@ -23,13 +24,31 @@ only `InitializeComponent()` — no logic.
 
 ## Load Order (App.xaml)
 
-The 4 dictionaries are merged in this order to satisfy dependencies:
+The dictionaries are merged in this order to satisfy dependencies:
 
     1. LightTheme.xaml           (base brushes)
-    2. TypographyStyles.xaml     (no dependencies)
-    3. IconBadgeStyles.xaml      (uses theme brushes)
-    4. PillStyles.xaml           (uses theme brushes)
-    5. CardStyles.xaml           (uses theme brushes + BrushKeyConverter)
+    2. TypeScaleTokens.xaml      (font-size tokens, no dependencies)
+    3. TypographyStyles.xaml     (no dependencies)
+    4. IconBadgeStyles.xaml      (uses theme brushes)
+    5. PillStyles.xaml           (uses theme brushes)
+    6. CardStyles.xaml           (uses theme brushes + BrushKeyConverter)
+
+## Type Scale Tokens
+
+`TypeScaleTokens.xaml` is the canonical font-size scale. Every
+`FontSize` below 30 DIPs uses `{StaticResource Text…}`:
+
+    TextXSmall      11      fine print / legend glyphs
+    TextCaption     12      column headers / labels / hints / pills
+    TextBody        13      body / inputs / buttons / table cells
+    TextBodyLarge   14      list-row primary text / menu items
+    TextSection     15      card titles / section headers
+    TextSubhead     16      emphasis sub-headings
+    TextTitle       18      page titles
+    TextTitleLarge  20      dashboard / hero titles
+    TextHeadline    22      big section headlines
+    TextDisplay     24      large numbers
+    TextDisplayLarge 28     hero KPI numbers
 
 ## Typography Styles
 

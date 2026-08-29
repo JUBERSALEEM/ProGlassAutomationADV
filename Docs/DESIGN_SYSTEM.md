@@ -26,14 +26,31 @@ tokens to that one value so nothing looks rounder than the slider.
 For one-sided corners (table headers) use the matching literal, e.g.
 `12,12,0,0` for a `CardCornerRadius` top edge.
 
-### Type scale — `Themes/Styles/DesignTokens.xaml` + `TypographyStyles.xaml`
-| Size / weight | Use | Shared style |
+### Type scale — `Themes/Styles/TypeScaleTokens.xaml` (canonical)
+One coherent font-size scale, merged in `App.xaml` right after the base
+theme. Every `FontSize` below 30 DIPs references these tokens —
+`{StaticResource Text…}` — never a hard-coded number (2,185 attributes
+migrated 2026-08-29).
+
+| Token | Size | Use |
 |---|---|---|
-| 24 Bold | module page title | `ModulePageTitleStyle` |
-| 12 Normal | page subtitle | `ModulePageSubtitleStyle` |
-| 10 Bold uppercase | column headers / labels | `ModuleColumnHeaderStyle` |
-| 13 Normal | body / inputs | (default) |
-| 11 Normal | secondary / meta | (default) |
+| `TextXSmall` | 11 | fine print / legend glyphs |
+| `TextCaption` | 12 | column headers / labels / hints / pills |
+| `TextBody` | 13 | body / inputs / buttons / table cells |
+| `TextBodyLarge` | 14 | list-row primary text / menu items |
+| `TextSection` | 15 | card titles / section headers |
+| `TextSubhead` | 16 | emphasis sub-headings |
+| `TextTitle` | 18 | page titles |
+| `TextTitleLarge` | 20 | dashboard / hero titles |
+| `TextHeadline` | 22 | big section headlines |
+| `TextDisplay` | 24 | large numbers |
+| `TextDisplayLarge` | 28 | hero KPI numbers |
+
+Density presets (Compact / Normal / Comfortable) keep driving
+`DensityTitleFontSize` / `DensityKpiValueFontSize` /
+`DensityBodyFontSize` for density-bound chrome. The shared named styles
+(`TypographyStyles.xaml`) continue to exist for headers/numbers above
+the body range.
 
 ### Color
 Never hardcode a brand color in a view. Use theme brushes:

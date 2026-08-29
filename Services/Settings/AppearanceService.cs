@@ -31,6 +31,23 @@ namespace ProGlassAutomation.Services.Settings
                     App.Config?.Appearance?.WallpaperPath ?? "",
                     App.Config?.Appearance?.WallpaperOpacity ?? 0.85);
 
+                // Re-layer the module wallpaper / system wallpaper so the
+                // module surface keeps its picture after the swap (same
+                // ordering the Settings path uses).
+                VisualThemeEngine.ApplyModule(
+                    VisualThemeEngine.LastRequestedModule,
+                    App.Config?.Appearance);
+
+                // Persist the base colour mode so it survives restarts
+                // (the AI-agent path changes theme too, not only the
+                // Settings toggle).
+                if (App.Config?.Appearance != null)
+                {
+                    App.Config.Appearance.Theme =
+                        isDark ? "Dark" : "Light";
+                    SaveConfig();
+                }
+
                 // Re-derive every accent-dependent surface AGAIN after the
                 // visual family has rebuilt its own module brushes. This is
                 // the same ordering guarantee used by SettingsViewModel:

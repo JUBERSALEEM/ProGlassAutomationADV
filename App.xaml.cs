@@ -601,9 +601,16 @@ namespace ProGlassAutomation
             //     MotionDuration* / TargetFps resources for the XAML.
             PerformanceProfileService.Apply();
 
-            // 9d) Visual theme family + wallpaper
-            //     (Normal / Monet / Professional / Glass / Glassy / Ocean).
-            //
+            // 9d) Base colour mode (Light/Dark) + visual theme family +
+            //     wallpaper (Normal / Monet / Professional / Glass /
+            //     Glassy / Ocean). The base theme is restored FIRST so
+            //     the family derives its surfaces against the right
+            //     palette.
+            ProGlassAutomation.Services.ThemeManager.ApplyTheme(
+                Config.Appearance?.Theme == "Dark"
+                    ? ProGlassAutomation.Services.AppTheme.Dark
+                    : ProGlassAutomation.Services.AppTheme.Light);
+
             //     The gradient-surface preference is restored FIRST:
             //     Monet's glass/window surfaces read it while building.
             ProGlassAutomation.Services.ThemeManager.ApplyGradientPreference(

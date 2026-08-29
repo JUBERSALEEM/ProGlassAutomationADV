@@ -640,6 +640,14 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
 
+                // Persist the base colour mode so it restores on the
+                // next launch.
+                if (App.Config?.Appearance != null)
+                {
+                    App.Config.Appearance.Theme = value ? "Dark" : "Light";
+                    SaveConfig();
+                }
+
                 // Rebuild the visual family (Monet glass, Professional
                 // surfaces, wallpaper layers) against the fresh theme
                 // colours — otherwise derived surfaces stay stale.
@@ -966,6 +974,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             // 1) Reset the persisted values to factory defaults.
             ap.VisualTheme = "Normal";
+            ap.Theme = "Light";
             ap.UseDefinedOutline = false;
             ap.UseGradientSurfaces = true;
             ap.CardBorderThickness = 1.5;
@@ -987,6 +996,7 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             // 2) Push each one through the same apply-path the matching
             //    control uses, so the UI restyles immediately.
+            ThemeManager.ApplyTheme(AppTheme.Light);
             ThemeManager.ApplyGradientPreference(true);
             ThemeManager.ApplyOutline(false);
             ThemeManager.ApplyCardBorderThickness(1.5);

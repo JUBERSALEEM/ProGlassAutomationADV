@@ -581,6 +581,9 @@ namespace ProGlassAutomation.Services.Theme
         /// 2026-08-25 (richness fix): the tint ratios were raised from
         /// 0.12/0.18 to 0.18/0.26 — at the old values the glass barely
         /// carried the chosen colour and Monet read as "too light".
+        /// 2026-08-29: the LIGHT-mode ratio was nudged 0.18 → 0.22 so
+        /// Monet's colour adaptation is clearly visible on the pale
+        /// light surfaces too (dark stays 0.26).
         /// When gradient surfaces are enabled (the Appearance toggle)
         /// the surface is a diagonal gradient from the tint to a lifted
         /// tint, which gives Material-You style depth without any
@@ -593,7 +596,7 @@ namespace ProGlassAutomation.Services.Theme
         {
             Color baseColor = ThemeManager.GetThemeColor(key, fallback);
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.26 : 0.18);
+                dark ? 0.26 : 0.22);
 
             if (ThemeManager.UseGradients)
             {

@@ -18,6 +18,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     public class AppearanceSettings
     {
         /// <summary>
+        /// Base colour mode — "Light" (default) or "Dark". Restored at
+        /// startup and persisted on every toggle (Settings UI and the
+        /// AI-agent path). The visual theme family (VisualTheme) layers
+        /// on top of this base.
+        /// </summary>
+        public string Theme { get; set; } = "Light";
+
+        /// <summary>
         /// "Normal" | "Monet" | "Professional" | "Glass" | "Glassy"
         /// | "Ocean" — see VisualThemeEngine for what each does.
         /// </summary>

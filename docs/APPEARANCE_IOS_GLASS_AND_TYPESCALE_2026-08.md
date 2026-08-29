@@ -162,3 +162,36 @@ Remaining known trade-offs (documented, deliberately not bulk-edited):
 2. `a36a2cc` — global typography system (type-scale tokens + 2,185 remaps + density floors).
 3. `5ae8e6c` — iOS-style glass: DWM acrylic backdrop + translucent stage veil + thin-material alphas.
 4. `1592221` — specular card edges + frost polish (GlassEdgeBrush, 4 templated card styles).
+5. `6376a90` — appearance senior audit: Glass accent re-derive fix + audit doc.
+
+## 8. Continuation round — settings debug fixes & colour polish
+
+**8.1 Light/Dark theme was never persisted (found & fixed).**
+`AppearanceSettings` had no base-theme field, nothing restored it at startup
+and `ThemeManager._currentTheme` always started `Light` — dark mode was lost
+on every restart.
+
+- New `AppearanceSettings.Theme` (`"Light"` default).
+- Startup (App step 9d) restores it **before** the visual family applies so
+  Monet/Glass/Glassy derive against the right palette.
+- Persisted on both change paths: the Settings toggle and the AI-agent path
+  (`AppearanceService.ApplyTheme`, which also now re-layers the module
+  wallpaper — parity with the Settings path).
+- Reset Appearance resets the base theme to Light through the same
+  `ApplyTheme` path.
+
+**8.2 Theme-aware buttons.**
+`StatementListView` (New Statement) and the wizard's Clear All button used
+hard-coded `Background="White"` — a stark white slab in dark and glass
+families. Both now use `ElevatedSurfaceBrush` + `OutlineBrush` border, so
+they stay light in Light mode and adapt everywhere else.
+
+**8.3 Monet colour enhancement (light mode).**
+Light-mode glass tint raised 0.18 → 0.22 so Monet's colour adaptation is
+clearly visible on pale light surfaces (dark stays 0.26).
+
+**8.4 Hard-coded colour audit (reviewed, intentional survivors).**
+- CrashReportDialog: deliberately self-contained light-theme modal — kept.
+- SalesReport navy hero, DeliveryNote progress banner, agent chat white
+  input bar: white-on-accent pairs — kept (self-consistent surfaces).
+- Wizard stepper dots / sales hero overlays: decorative on colored fills — kept.
