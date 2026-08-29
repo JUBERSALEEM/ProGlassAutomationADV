@@ -158,7 +158,7 @@
                                     Click="SaveLicenseKeyButton_Click"
                                     Margin="10,0,0,0"/>
                         </StackPanel>
-                        <TextBox x:Name="KeyOutputBox"
+                        <TextBox x:Name="LicenseKeyOutputBox"
                                  Style="{StaticResource CodeTextBox}"
                                  MinHeight="140" MaxHeight="320"
                                  IsReadOnly="True" TextWrapping="Wrap"

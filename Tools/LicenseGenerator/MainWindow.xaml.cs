@@ -254,13 +254,13 @@ public partial class MainWindow : Window
 
             if (!result.Success)
             {
-                KeyOutputBox.Text = string.Empty;
+                LicenseKeyOutputBox.Text = string.Empty;
                 _lastLicenseKey = null;
                 SetStatus(result.Message, StatusKind.Error);
                 return;
             }
 
-            KeyOutputBox.Text = result.ArmoredKey;
+            LicenseKeyOutputBox.Text = result.ArmoredKey;
             _lastLicenseKey = result.ArmoredKey;
             SetStatus(result.Message + " Send the PGKEY1 block to the customer.", StatusKind.Success);
         }
