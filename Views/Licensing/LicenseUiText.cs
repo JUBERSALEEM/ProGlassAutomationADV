@@ -51,26 +51,25 @@ namespace ProGlassAutomation.Views.Licensing
         public static string StatusDescription(LicenseStatus status) => status switch
         {
             LicenseStatus.NotActivated =>
-                "No signed offline activation response is currently active on this machine. " +
-                "Generate an activation request in Settings → License, send it to your vendor, and import the signed response they return.",
+                "No license is active on this machine yet. Paste the license key your vendor sent you in Settings → License, or use the advanced activation request flow.",
             LicenseStatus.Invalid =>
-                "The installed activation state could not be trusted. The response may be corrupt, bound to a different request, signed with an unknown key, or from the legacy insecure format. Generate a fresh request and ask your vendor to re-issue it.",
+                "The installed license state could not be trusted. The key or response may be corrupt, signed with an unknown key, or from the legacy insecure format. Paste a fresh vendor-signed license key and try again.",
             LicenseStatus.GracePeriod =>
-                "The signed activation response is past its main expiry date but still inside its signed offline grace window. The app runs in read-only mode until the grace period ends. Renew the activation response to restore full access.",
+                "The license is past its main expiry date but still inside its signed grace window. The app runs in read-only mode until the grace period ends. Install a renewed license key to restore full access.",
             LicenseStatus.Expired =>
-                "The signed activation response is expired and its grace period has elapsed. Generate a fresh request and obtain a renewed response from your vendor.",
+                "The license is expired and its grace period has elapsed. Install a renewed license key from your vendor to restore full access.",
             LicenseStatus.ExpiringSoon =>
-                "The signed activation response is valid but expires within 14 days. Contact your vendor to renew before it expires.",
+                "The license is valid but expires within 14 days. Contact your vendor to renew before it expires.",
             LicenseStatus.Valid =>
-                "The signed offline activation response is valid and the licensed features are available.",
+                "A vendor-signed license is active and the licensed features are available.",
             LicenseStatus.Trial =>
-                "A vendor-issued offline trial response is active. Renew it or replace it with a full signed activation response before the trial window ends.",
+                "A trial is active on this machine. Install a vendor-signed license key before the trial window ends to keep working without interruption.",
             LicenseStatus.TrialExpired =>
-                "The signed offline trial response has expired. All your data is preserved, but the app is now in read-only mode until you import a renewed signed response or a full activation.",
+                "The trial has ended. All your data is preserved, but the app is now in read-only mode until you install a vendor-signed license key.",
             LicenseStatus.MachineMismatch =>
-                "This activation response is bound to a different machine fingerprint. Generate a fresh activation request from this PC and ask the vendor to re-issue it.",
+                "This license is bound to a different machine fingerprint. Ask your vendor for a key bound to this PC's ID, or generate a fresh activation request from this PC.",
             LicenseStatus.ActivationLimit =>
-                "The legacy activation-limit state was reached. Re-issue the license under the new offline activation flow.",
+                "The legacy activation-limit state was reached. Re-issue the license as a signed license key.",
             _ => ""
         };
     }

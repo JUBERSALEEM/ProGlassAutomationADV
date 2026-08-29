@@ -15,6 +15,7 @@ public partial class MainWindow : Window
     private IssuerKeyMaterial? _loadedKeyMaterial;
     private OfflineActivationRequestDocument? _loadedRequest;
     private string? _lastResponseJson;
+    private string? _lastLicenseKey;
 
     public MainWindow()
     {
@@ -205,6 +206,116 @@ public partial class MainWindow : Window
         {
             SetStatus("Generation failed: " + ex.Message, StatusKind.Error);
             MessageBox.Show(this, ex.Message, "Generate response", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // LICENSE KEY — simple flow handlers
+    // ────────────────────────────────────────────────────────────────────
+
+    private string SelectedKeyEdition() =>
+        (KeyEditionCombo.SelectedItem as ComboBoxItem)?.Content as string ?? "Business";
+
+    private void KeyEditionCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Trial keys have a fixed 30-day window; keep the days box honest.
+        if (string.Equals(SelectedKeyEdition(), "Trial", StringComparison.OrdinalIgnoreCase))
+            KeyDaysBox.Text = "30";
+    }
+
+    private void GenerateLicenseKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_loadedKeyMaterial == null)
+        {
+            SetStatus("Load an issuer key file first.", StatusKind.Warning);
+            return;
+        }
+
+        try
+        {
+            if (!int.TryParse((KeyDaysBox.Text ?? string.Empty).Trim(), out int days))
+                days = 0;
+            if (days < 0) days = 0;
+
+            string edition = SelectedKeyEdition();
+            var result = LicenseGeneratorCore.GenerateLicenseKey(
+                new LicenseGeneratorCore.LicenseKeyIssueRequest
+                {
+                    Edition = edition,
+                    CustomerId = (KeyCustomerIdBox.Text ?? string.Empty).Trim(),
+                    CompanyName = (KeyCompanyBox.Text ?? string.Empty).Trim(),
+                    DaysValid = days,
+                    DeviceFingerprint = string.IsNullOrWhiteSpace(KeyFingerprintBox.Text)
+                        ? null
+                        : KeyFingerprintBox.Text.Trim(),
+                    Features = LicenseGeneratorCore.DefaultFeatures(edition).ToList()
+                },
+                _loadedKeyMaterial);
+
+            if (!result.Success)
+            {
+                KeyOutputBox.Text = string.Empty;
+                _lastLicenseKey = null;
+                SetStatus(result.Message, StatusKind.Error);
+                return;
+            }
+
+            KeyOutputBox.Text = result.ArmoredKey;
+            _lastLicenseKey = result.ArmoredKey;
+            SetStatus(result.Message + " Send the PGKEY1 block to the customer.", StatusKind.Success);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("License key generation failed: " + ex.Message, StatusKind.Error);
+        }
+    }
+
+    private void CopyLicenseKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_lastLicenseKey))
+        {
+            SetStatus("Generate a license key first.", StatusKind.Warning);
+            return;
+        }
+
+        try
+        {
+            Clipboard.SetText(_lastLicenseKey);
+            SetStatus("License key copied to clipboard — send it to the customer.", StatusKind.Success);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Copy failed: " + ex.Message, StatusKind.Error);
+        }
+    }
+
+    private void SaveLicenseKeyButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(_lastLicenseKey))
+        {
+            SetStatus("Generate a license key first.", StatusKind.Warning);
+            return;
+        }
+
+        var dialog = new SaveFileDialog
+        {
+            Title = "Save license key",
+            Filter = "License key (*.lic)|*.lic|Text (*.txt)|*.txt|All files (*.*)|*.*",
+            DefaultExt = ".lic",
+            AddExtension = true,
+            FileName = "license-key-" + DateTime.UtcNow.ToString("yyyy-MM-dd") + ".lic"
+        };
+
+        if (dialog.ShowDialog(this) != true) return;
+
+        try
+        {
+            File.WriteAllText(dialog.FileName, _lastLicenseKey, new UTF8Encoding(false));
+            SetStatus("License key saved to " + dialog.FileName, StatusKind.Success);
+        }
+        catch (Exception ex)
+        {
+            SetStatus("Save failed: " + ex.Message, StatusKind.Error);
         }
     }
 

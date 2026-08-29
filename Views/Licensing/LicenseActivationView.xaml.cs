@@ -42,8 +42,8 @@ namespace ProGlassAutomation.Views.Licensing
             RefreshFromService();
 
             HintText.Text =
-                "Secure offline activation stores the installed response in Windows-protected local storage. " +
-                "Generate a request file, send it to your vendor, then import the signed response they return.";
+                "A 30-day trial starts automatically the first time the app runs on this PC. " +
+                "Paste a vendor-signed license key to activate permanently — the key always takes precedence over the trial.";
         }
 
         private void OnLicenseViewUnloaded(object sender, RoutedEventArgs e)
@@ -83,49 +83,59 @@ namespace ProGlassAutomation.Views.Licensing
             switch (current.Status)
             {
                 case LicenseStatus.Trial:
-                    HeadlineText.Text = "Vendor-issued trial active";
-                    SubheadText.Text =
-                        "A signed offline trial response is active on this machine. " +
-                        "Request a renewed signed response before the trial ends.";
-                    break;
+                    {
+                        bool autoTrial = current.Payload != null
+                            && string.Equals(current.Payload.TrialSource,
+                                LicenseService.AutoTrialSourceMarker,
+                                StringComparison.Ordinal);
+                        HeadlineText.Text = autoTrial
+                            ? "Trial active — app fully usable"
+                            : "Trial active";
+                        SubheadText.Text = autoTrial
+                            ? "A 30-day automatic evaluation trial is running on this machine. " +
+                              "Install a vendor-signed license key before it ends to keep working without interruption."
+                            : "A vendor-issued trial is active on this machine. " +
+                              "Install a full license key before the trial ends.";
+                        break;
+                    }
                 case LicenseStatus.TrialExpired:
-                    HeadlineText.Text = "Trial expired";
+                    HeadlineText.Text = "Trial ended — read-only mode";
                     SubheadText.Text =
-                        "The signed offline trial response has expired. " +
-                        "Generate a fresh request and ask your vendor for renewal or a full license response.";
+                        "The trial window has ended and all data is preserved, but the app is now in read-only mode. " +
+                        "Paste a vendor-signed license key to continue creating and editing.";
                     break;
                 case LicenseStatus.NotActivated:
                     HeadlineText.Text = "Activate ProGlass Automation";
                     SubheadText.Text =
-                        "Generate an activation request, send it to your vendor, and import the signed activation response they return.";
+                        "Paste the license key your vendor sent you, or use the advanced request flow below.";
                     break;
                 case LicenseStatus.Invalid:
                     HeadlineText.Text = "License problem";
                     SubheadText.Text =
-                        "The installed activation state could not be trusted. " +
-                        "Generate a fresh request and re-import a vendor-signed response.";
+                        "The installed license state could not be trusted. " +
+                        "Paste a fresh vendor-signed license key, or generate a new activation request and re-import the signed response.";
                     break;
                 case LicenseStatus.MachineMismatch:
                     HeadlineText.Text = "Wrong machine";
                     SubheadText.Text =
-                        "This activation response was issued for a different machine fingerprint. " +
-                        "Generate a new request from this PC and ask your vendor to re-issue it.";
+                        "This license is bound to a different machine fingerprint. " +
+                        "Ask your vendor for a key bound to this PC's ID, or generate a new activation request from this PC.";
                     break;
                 case LicenseStatus.GracePeriod:
                     HeadlineText.Text = "Read-only grace mode";
                     SubheadText.Text =
-                        "The signed activation response is past expiry but still inside its signed grace policy. " +
-                        "Renew before the grace window ends.";
+                        "The license is past expiry but still inside its signed grace policy. " +
+                        "Paste a renewed license key before the grace window ends.";
                     break;
                 case LicenseStatus.Expired:
                     HeadlineText.Text = "License expired";
                     SubheadText.Text =
-                        "The signed activation response has expired. Generate a fresh request and obtain a renewed response from your vendor.";
+                        "The license has expired. Paste a renewed license key from your vendor to restore full access.";
                     break;
                 case LicenseStatus.ExpiringSoon:
                     HeadlineText.Text = "License expires soon";
                     SubheadText.Text =
-                        "The current signed activation response is valid but nearing expiry. Renew it before the signed window ends.";
+                        "The current license is valid but nearing expiry. Ask your vendor for a renewed key before it expires.";
                     break;
                 default:
                     HeadlineText.Text = "ProGlass Automation";
@@ -147,7 +157,9 @@ namespace ProGlassAutomation.Views.Licensing
                 LicenseIdValue.Text = string.IsNullOrEmpty(p.LicenseId)
                     ? "(none)"
                     : p.LicenseId;
-                SourceValue.Text = "Signed offline activation response";
+                SourceValue.Text = LicenseService.IsLicenseKeyActive
+                    ? "Vendor-signed license key"
+                    : "Signed offline activation response";
                 LicenseDetailsGrid.Visibility = Visibility.Visible;
             }
             else
@@ -179,14 +191,10 @@ namespace ProGlassAutomation.Views.Licensing
         {
             try
             {
-                string licenseReference = (LicenseReferenceBox.Text ?? string.Empty).Trim();
-                if (licenseReference.Length == 0)
-                {
-                    ShowError("Enter the vendor license reference before generating the activation request.");
-                    return;
-                }
-
-                _lastRequestJson = LicenseService.CreateActivationRequestJson(licenseReference);
+                // 2026 workflow simplification: no vendor license reference
+                // is required anymore. The request binds this installation,
+                // machine fingerprint and a fresh nonce on its own.
+                _lastRequestJson = LicenseService.CreateActivationRequestJson(string.Empty);
                 RequestOutputBox.Text = _lastRequestJson;
                 ErrorText.Visibility = Visibility.Collapsed;
                 SetHint(
@@ -196,6 +204,54 @@ namespace ProGlassAutomation.Views.Licensing
             {
                 ShowError("Could not generate activation request: " + ex.Message);
             }
+        }
+
+        private void KeyApplyButton_Click(object sender, RoutedEventArgs e)
+        {
+            string text = KeyPasteTextBox.Text ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                ShowError("Paste the license key your vendor sent you (starts with PGKEY1), then click Apply.");
+                return;
+            }
+
+            ErrorText.Visibility = Visibility.Collapsed;
+            var result = LicenseService.InstallKeyText(text);
+            if (!result.CanRun)
+            {
+                ShowError("License key was not applied: " + (result.ErrorDetail
+                    ?? LicenseUiText.StatusDescription(result.Status)));
+                return;
+            }
+
+            KeyPasteTextBox.Text = string.Empty;
+            OnActivated(result);
+        }
+
+        private void KeyBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Select a license key file",
+                Filter =
+                    "License key (*.lic;*.pgkey;*.proglasslicense;*.json)|*.lic;*.pgkey;*.proglasslicense;*.json|" +
+                    "All files (*.*)|*.*",
+                CheckFileExists = true,
+                Multiselect = false
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            ErrorText.Visibility = Visibility.Collapsed;
+            var result = LicenseService.InstallKeyFile(dialog.FileName);
+            if (!result.CanRun)
+            {
+                ShowError("License key was not applied: " + (result.ErrorDetail
+                    ?? LicenseUiText.StatusDescription(result.Status)));
+                return;
+            }
+
+            OnActivated(result);
         }
 
         private void SaveRequestButton_Click(object sender, RoutedEventArgs e)

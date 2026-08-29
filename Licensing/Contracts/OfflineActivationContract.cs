@@ -26,6 +26,15 @@ public sealed class OfflineActivationRequestDocument
     [JsonPropertyName("productId")]
     public string ProductId { get; set; } = ProductIds.ProGlassAutomation;
 
+    /// <summary>
+    /// Optional issuer-supplied license reference. Empty is legal — the
+    /// workflow simplification removed the requirement that the customer
+    /// obtain a vendor license reference before requesting activation.
+    /// When empty the request still binds the installation, machine
+    /// fingerprint and nonce; the vendor may fill the reference on their
+    /// side. Informational only: the app never makes security decisions
+    /// based on this value.
+    /// </summary>
     [JsonPropertyName("licenseId")]
     public string LicenseId { get; set; } = "";
 

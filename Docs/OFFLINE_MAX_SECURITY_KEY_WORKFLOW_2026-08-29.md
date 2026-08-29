@@ -1,5 +1,15 @@
 # ProGlassAutomation Offline Licensing — Key Management Workflow (2026-08-29)
 
+> **UPDATED 2026-08-29 (same day, later change):** the WORKFLOW portion of
+> this document is superseded in part by the licensing workflow
+> simplification — see
+> [`LICENSING_WORKFLOW_SIMPLIFICATION_2026-08-29.md`](./LICENSING_WORKFLOW_SIMPLIFICATION_2026-08-29.md).
+> The vendor-license-reference requirement is gone, a signed **license key
+> (PGKEY1)** is now the primary issuance path, and an automatic 30-day
+> trial is active again. The KEY-SECURITY rules below (private keys only
+> in operator-held external `.pgkey` files, public keys only in the app)
+> are unchanged and still apply to both issuance paths.
+
 ## Purpose
 
 Define the **safe operator workflow** for production offline-license issuance after the max-security redesign.

@@ -13,6 +13,9 @@ namespace ProGlassAutomation.Tests.Licensing
         private readonly string _tempFolder;
         private readonly string _savedPublicKey;
         private readonly string? _savedOverride;
+        private readonly string? _savedProgramDataOverride;
+        private readonly bool _savedSkipRegistry;
+        private readonly bool _savedSkipConfig;
 
         public LicenseStatusViewModelTests()
         {
@@ -23,6 +26,16 @@ namespace ProGlassAutomation.Tests.Licensing
 
             _savedOverride = LicenseService.TestDataFolderOverride;
             LicenseService.TestDataFolderOverride = _tempFolder;
+
+            // Scope the automatic-trial ledger so a trial issued during
+            // a test never pollutes real machine anchors.
+            _savedProgramDataOverride = TrialLedger.TestProgramDataOverride;
+            _savedSkipRegistry = TrialLedger.SkipRegistryAnchorForTests;
+            _savedSkipConfig = TrialLedger.SkipConfigAnchorForTests;
+            TrialLedger.TestProgramDataOverride = _tempFolder;
+            TrialLedger.SkipRegistryAnchorForTests = true;
+            TrialLedger.SkipConfigAnchorForTests = true;
+
             _savedPublicKey = SwapPublicKey(
                 "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML");
         }
@@ -31,19 +44,25 @@ namespace ProGlassAutomation.Tests.Licensing
         {
             SwapPublicKey(_savedPublicKey);
             LicenseService.TestDataFolderOverride = _savedOverride;
+            TrialLedger.TestProgramDataOverride = _savedProgramDataOverride;
+            TrialLedger.SkipRegistryAnchorForTests = _savedSkipRegistry;
+            TrialLedger.SkipConfigAnchorForTests = _savedSkipConfig;
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort */ }
         }
 
         [Fact]
-        public void VM_reflects_no_license_when_secure_store_is_empty()
+        public void VM_reflects_automatic_trial_when_secure_store_is_empty()
         {
+            // 2026 workflow simplification: a fresh install lands in an
+            // automatic trial, not the old hard NotActivated state.
             LicenseService.Reload();
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
-            Assert.True(vm.IsNotActivated);
+            Assert.False(vm.IsNotActivated);
+            Assert.True(vm.IsTrial);
             Assert.False(vm.IsValid);
-            Assert.Equal("—", vm.EditionDisplay);
+            Assert.Equal("Trial", vm.EditionDisplay);
         }
 
         [Fact]

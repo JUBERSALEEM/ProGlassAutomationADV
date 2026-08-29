@@ -172,6 +172,126 @@ public static class LicenseGeneratorCore
         }
     }
 
+    // ────────────────────────────────────────────────────────────────────
+    // SIMPLE LICENSE KEY (2026 workflow simplification)
+    //
+    // The primary licensing flow: the vendor generates a signed
+    // .proglasslicense key with the operator's external issuer key and
+    // hands the customer ONE copy-paste text block (PGKEY1.…). No
+    // activation request, no license reference, no PC-ID round-trip.
+    // An optional PC ID (machine fingerprint) can be supplied to bind
+    // the key to a single machine.
+    // ────────────────────────────────────────────────────────────────────
+
+    public sealed class LicenseKeyIssueRequest
+    {
+        public string Edition { get; set; } = "Business";
+        public string CustomerId { get; set; } = "";
+        public string CompanyName { get; set; } = "";
+        public string Notes { get; set; } = "";
+        public int DaysValid { get; set; } = 365;   // <= 0 → no expiry (Lifetime)
+        public string? DeviceFingerprint { get; set; }  // empty → portable
+        public IReadOnlyList<string> Features { get; set; } = Array.Empty<string>();
+    }
+
+    public sealed class LicenseKeyIssueResult
+    {
+        public bool Success { get; init; }
+        public string Message { get; init; } = "";
+        public string ArmoredKey { get; init; } = "";
+        public string? OutputPath { get; init; }
+        public string? SigningKeyId { get; init; }
+        public LicenseDocument? Document { get; init; }
+    }
+
+    /// <summary>
+    /// Generate a signed license key and armor it into the single-line
+    /// PGKEY1 block the customer pastes into the app. The contract
+    /// library signs (RSA-2048-PSS) and self-verifies the document
+    /// exactly as the app will; the armor is transport only.
+    /// </summary>
+    public static LicenseKeyIssueResult GenerateLicenseKey(
+        LicenseKeyIssueRequest request,
+        IssuerKeyMaterial keyMaterial,
+        string? outputPath = null)
+    {
+        try
+        {
+            if (request == null)
+                return new LicenseKeyIssueResult { Success = false, Message = "License key request is required." };
+
+            keyMaterial.Validate();
+
+            string edition = NormalizeEdition(request.Edition);
+            bool isTrial = string.Equals(edition, "Trial", StringComparison.OrdinalIgnoreCase);
+            bool isLifetime = request.DaysValid <= 0 && !isTrial;
+
+            // License TYPE mapping for the signed document:
+            //   Trial        → "Trial"    (fixed 30-day window)
+            //   days > 0     → "Subscription" (expires issuedAt + days)
+            //   days <= 0    → "Lifetime" (no expiry)
+            string licenseType = isTrial ? "Trial" : (isLifetime ? "Lifetime" : "Subscription");
+            int days = isTrial ? 30 : request.DaysValid;
+
+            var features = (request.Features ?? Array.Empty<string>())
+                .Where(f => !string.IsNullOrWhiteSpace(f))
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            var gen = LicenseService.Create(
+                new LicenseRequest
+                {
+                    CustomerId = request.CustomerId ?? "",
+                    CustomerName = request.CompanyName ?? "",
+                    Company = request.CompanyName ?? "",
+                    Notes = request.Notes ?? "",
+                    LicenseType = licenseType,
+                    DaysValid = days,
+                    Features = features,
+                    DeviceBinding = string.IsNullOrWhiteSpace(request.DeviceFingerprint)
+                        ? "Unbound"
+                        : "SingleDevice",
+                    DeviceFingerprint = request.DeviceFingerprint
+                },
+                keyMaterial.PrivateKeyXml,
+                keyMaterial.KeyId,
+                outputPath);
+
+            if (!gen.Success || string.IsNullOrWhiteSpace(gen.LicenseJson))
+            {
+                return new LicenseKeyIssueResult
+                {
+                    Success = false,
+                    Message = gen.Message ?? "License key generation failed.",
+                    SigningKeyId = gen.KeyId,
+                    Document = gen.Document
+                };
+            }
+
+            string armored = LicenseKeyArmor.Encode(gen.LicenseJson);
+
+            return new LicenseKeyIssueResult
+            {
+                Success = true,
+                Message =
+                    $"Signed {edition} license key generated for " +
+                    (string.IsNullOrWhiteSpace(request.CompanyName) ? "(unnamed customer)" : request.CompanyName) +
+                    (isLifetime ? " — no expiry." : $" — valid {days} day(s).") +
+                    (string.IsNullOrWhiteSpace(request.DeviceFingerprint)
+                        ? " Portable: the key works on any PC."
+                        : " Bound to the supplied PC ID."),
+                ArmoredKey = armored,
+                OutputPath = gen.OutputPath,
+                SigningKeyId = gen.KeyId,
+                Document = gen.Document
+            };
+        }
+        catch (Exception ex)
+        {
+            return new LicenseKeyIssueResult { Success = false, Message = "License key generation failed: " + ex.Message };
+        }
+    }
+
     public static InspectionResult InspectResponseFile(
         string path,
         IReadOnlyDictionary<string, string> trustedPublicKeys)

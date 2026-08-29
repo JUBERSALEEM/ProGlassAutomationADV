@@ -9,10 +9,13 @@ namespace ProGlassAutomation.Services.Licensing;
 /// <summary>
 /// Local protected storage for the offline activation redesign.
 ///
-/// Stores three machine-scoped artifacts under the app data root:
+/// Stores four machine-scoped artifacts under the app data root:
 ///   1. installation identity
 ///   2. last generated activation request context (licenseId + nonce)
 ///   3. installed signed activation response + anti-rollback timestamp
+///   4. installed signed license key (the 2026 workflow-simplification
+///      simple-key flow — a .proglasslicense document imported from the
+///      single-line PGKEY1 text block or a key file)
 ///
 /// Everything is protected with Windows DPAPI LocalMachine scope so the state
 /// is no longer ordinary plaintext JSON on disk.
@@ -22,6 +25,7 @@ internal static class OfflineActivationStore
     public const string InstallationStateFileName = "offline-installation.bin";
     public const string PendingRequestStateFileName = "offline-request.bin";
     public const string ActivationStateFileName = "offline-activation.bin";
+    public const string LicenseKeyStateFileName = "license-key.bin";
 
     private const int StateFormatVersion = 1;
 
@@ -97,6 +101,34 @@ internal static class OfflineActivationStore
 
         [JsonPropertyName("signedResponseJson")]
         public string SignedResponseJson { get; set; } = "";
+
+        [JsonPropertyName("lastValidatedUtc")]
+        public DateTime LastValidatedUtc { get; set; }
+    }
+
+    /// <summary>
+    /// Installed signed license key (simple-key flow). The key itself is
+    /// the .proglasslicense JSON document the vendor signed; it is stored
+    /// protected (DPAPI) exactly like the activation response. A key and
+    /// an activation response never coexist — installing one clears the
+    /// other, so the load path has a single source of truth.
+    /// </summary>
+    internal sealed class LicenseKeyState
+    {
+        [JsonPropertyName("formatVersion")]
+        public int FormatVersion { get; set; } = StateFormatVersion;
+
+        [JsonPropertyName("licenseId")]
+        public string LicenseId { get; set; } = "";
+
+        [JsonPropertyName("keyId")]
+        public string KeyId { get; set; } = "";
+
+        [JsonPropertyName("licenseJson")]
+        public string LicenseJson { get; set; } = "";
+
+        [JsonPropertyName("installedAtUtc")]
+        public DateTime InstalledAtUtc { get; set; }
 
         [JsonPropertyName("lastValidatedUtc")]
         public DateTime LastValidatedUtc { get; set; }
@@ -201,6 +233,54 @@ internal static class OfflineActivationStore
 
     public static string ActivationStatePath(string dataRoot) =>
         Path.Combine(dataRoot, ActivationStateFileName);
+
+    // ─── License key store (simple-key flow) ─────────────────────────
+
+    public static LicenseKeyState? ReadLicenseKeyState(string dataRoot) =>
+        ReadLicenseKeyStateDetailed(dataRoot).Value;
+
+    public static ProtectedReadResult<LicenseKeyState> ReadLicenseKeyStateDetailed(string dataRoot) =>
+        ReadProtected<LicenseKeyState>(Path.Combine(dataRoot, LicenseKeyStateFileName));
+
+    public static void SaveLicenseKeyState(
+        string dataRoot,
+        string licenseId,
+        string keyId,
+        string licenseJson,
+        DateTime lastValidatedUtc)
+    {
+        var state = new LicenseKeyState
+        {
+            LicenseId = licenseId ?? "",
+            KeyId = keyId ?? "",
+            LicenseJson = licenseJson ?? "",
+            InstalledAtUtc = DateTime.UtcNow,
+            LastValidatedUtc = lastValidatedUtc.ToUniversalTime()
+        };
+
+        WriteProtected(Path.Combine(dataRoot, LicenseKeyStateFileName), state);
+    }
+
+    public static void UpdateLicenseKeyLastValidatedUtc(string dataRoot, DateTime lastValidatedUtc)
+    {
+        var current = ReadLicenseKeyStateDetailed(dataRoot);
+        if (!current.Success || current.Value == null)
+            return;
+
+        if (current.Value.LastValidatedUtc >= lastValidatedUtc.ToUniversalTime())
+            return;
+
+        current.Value.LastValidatedUtc = lastValidatedUtc.ToUniversalTime();
+        WriteProtected(Path.Combine(dataRoot, LicenseKeyStateFileName), current.Value);
+    }
+
+    public static void ClearLicenseKeyState(string dataRoot)
+    {
+        TryDelete(Path.Combine(dataRoot, LicenseKeyStateFileName));
+    }
+
+    public static string LicenseKeyStatePath(string dataRoot) =>
+        Path.Combine(dataRoot, LicenseKeyStateFileName);
 
     private static ProtectedReadResult<InstallationState> ReadInstallationStateDetailed(string dataRoot) =>
         ReadProtected<InstallationState>(Path.Combine(dataRoot, InstallationStateFileName));

@@ -133,7 +133,6 @@ public static class OfflineActivationService
         }
 
         if (string.IsNullOrWhiteSpace(request.ProductId)
-            || string.IsNullOrWhiteSpace(request.LicenseId)
             || string.IsNullOrWhiteSpace(request.InstallationId)
             || string.IsNullOrWhiteSpace(request.MachineFingerprint)
             || string.IsNullOrWhiteSpace(request.RequestNonce))
@@ -142,7 +141,7 @@ public static class OfflineActivationService
             {
                 Success = false,
                 ErrorCode = OfflineActivationErrorCode.MissingRequestFields,
-                Message = "Activation request is missing product, license, installation, machine or nonce fields."
+                Message = "Activation request is missing product, installation, machine or nonce fields."
             };
         }
 
@@ -258,7 +257,6 @@ public static class OfflineActivationService
         }
 
         if (string.IsNullOrWhiteSpace(response.Payload.ProductId)
-            || string.IsNullOrWhiteSpace(response.Payload.LicenseId)
             || string.IsNullOrWhiteSpace(response.Payload.ActivationId)
             || string.IsNullOrWhiteSpace(response.Payload.InstallationId)
             || string.IsNullOrWhiteSpace(response.Payload.MachineFingerprint)

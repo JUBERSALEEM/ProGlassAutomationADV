@@ -50,15 +50,24 @@ public sealed class LicenseValidationResult
     public string? SigningKeyId { get; init; }
 }
 
-/// <summary>
-/// Result of generating + self-verifying a license.
-/// </summary>
-public sealed class LicenseGenerationResult
-{
-    public bool Success { get; init; }
-    public LicenseErrorCode ErrorCode { get; init; } = LicenseErrorCode.None;
-    public string? Message { get; init; }
-    public string? KeyId { get; init; }
-    public string? OutputPath { get; init; }
-    public LicenseDocument? Document { get; init; }
-}
+    /// <summary>
+    /// Result of generating + self-verifying a license.
+    /// </summary>
+    public sealed class LicenseGenerationResult
+    {
+        public bool Success { get; init; }
+        public LicenseErrorCode ErrorCode { get; init; } = LicenseErrorCode.None;
+        public string? Message { get; init; }
+        public string? KeyId { get; init; }
+        public string? OutputPath { get; init; }
+        public LicenseDocument? Document { get; init; }
+
+        /// <summary>
+        /// The signed license JSON produced by the generation run
+        /// (the same bytes that were self-verified). Empty on failure.
+        /// Populated so callers can wrap it with
+        /// <see cref="LicenseKeyArmor.Encode"/> without re-reading the
+        /// output file.
+        /// </summary>
+        public string? LicenseJson { get; init; }
+    }

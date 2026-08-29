@@ -159,6 +159,16 @@ namespace ProGlassAutomation.Services.Licensing
             System.ComponentModel.EditorBrowsableState.Never)]
         public static bool SkipRegistryAnchorForTests { get; set; }
 
+        /// <summary>
+        /// True to skip the Roaming AppConfig anchor, read and write
+        /// (used by tests so a trial is never stamped into the
+        /// developer's real config file). Never touched by production
+        /// code.
+        /// </summary>
+        [System.ComponentModel.EditorBrowsable(
+            System.ComponentModel.EditorBrowsableState.Never)]
+        public static bool SkipConfigAnchorForTests { get; set; }
+
         // ══════════════════════════════════════════════════════════════
         //  READ
         // ══════════════════════════════════════════════════════════════
@@ -189,7 +199,8 @@ namespace ProGlassAutomation.Services.Licensing
             // the CURRENT machine's fingerprint.
             try
             {
-                if (App.Config != null && App.Config.AutoTrialWasIssued)
+                if (!SkipConfigAnchorForTests
+                    && App.Config != null && App.Config.AutoTrialWasIssued)
                 {
                     string cfgFp = (App.Config.AutoTrialFingerprint ?? "").Trim();
                     bool issuedOnThisMachine = cfgFp.Length == 0
@@ -304,7 +315,8 @@ namespace ProGlassAutomation.Services.Licensing
             // machine-scoped on read — see Read() anchor 1.
             try
             {
-                if (App.Config != null && !App.Config.AutoTrialWasIssued)
+                if (!SkipConfigAnchorForTests
+                    && App.Config != null && !App.Config.AutoTrialWasIssued)
                 {
                     App.Config.AutoTrialWasIssued = true;
                     App.Config.AutoTrialFingerprint = machineFingerprint ?? "";

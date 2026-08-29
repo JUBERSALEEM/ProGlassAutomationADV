@@ -178,7 +178,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _featuresDisplay = "—";
                 _featureSummaryDisplay = "No active feature set";
                 _activationModeDisplay = "No active activation response";
-                _licenseSourceDisplay = "Generate an activation request and import the vendor-signed offline response in Settings → License.";
+                _licenseSourceDisplay = "Paste a vendor-signed license key in Settings → License, or use the advanced activation request flow.";
                 _licenseWindowDisplay = "—";
                 _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = "";
@@ -204,8 +204,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _featureSummaryDisplay = BuildFeatureSummary(p.Features);
                 _activationModeDisplay = BuildActivationMode(p);
                 _licenseSourceDisplay = string.IsNullOrEmpty(p.TrialSource)
-                    ? "Vendor-issued signed offline activation response."
-                    : $"{p.TotalDays}-day vendor-issued offline trial response.";
+                    ? (LicenseService.IsLicenseKeyActive
+                        ? "Vendor-signed license key."
+                        : "Vendor-issued signed offline activation response.")
+                    : string.Equals(p.TrialSource, LicenseService.AutoTrialSourceMarker, StringComparison.Ordinal)
+                        ? $"{p.TotalDays}-day automatic evaluation trial (issued on this machine)."
+                        : string.Equals(p.TrialSource, "vendor-license-key", StringComparison.Ordinal)
+                            ? $"{p.TotalDays}-day vendor-issued trial license key."
+                            : $"{p.TotalDays}-day vendor-issued offline trial response.";
                 _licenseWindowDisplay = $"{_issuedDisplay} → {_expiresDisplay}";
                 _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = p.Notes ?? "";
@@ -411,11 +417,11 @@ namespace ProGlassAutomation.ViewModels.Licensing
         ///     <see cref="LicenseStatus.ExpiringSoon"/> /
         ///     <see cref="LicenseStatus.GracePeriod"/>
         ///
-        /// PRODUCT DECISION:
-        /// The secure offline redesign removes client-side self-issued
-        /// trial activation. A fresh install therefore shows the
-        /// LicenseActivationView until the operator generates an activation
-        /// request and imports the vendor-signed response. Read-only states
+        /// PRODUCT DECISION (2026 workflow simplification):
+        /// A fresh install now lands in an automatic 30-day trial, so this
+        /// overlay appears only in genuinely hard-broken states (clock
+        /// rollback, legacy artifact migration, unverifiable installed
+        /// license outside the machine's trial window). Read-only states
         /// still stay inside the shell so customer data remains accessible.
         /// </summary>
         public bool IsLicenseRequired
@@ -463,6 +469,14 @@ namespace ProGlassAutomation.ViewModels.Licensing
         {
             if (payload == null)
                 return "No active license";
+
+            // The automatic evaluation trial is scoped to this machine by
+            // design (ledger), but it is not a machine-bound LICENSE —
+            // label it accordingly.
+            if (string.Equals(payload.TrialSource,
+                    LicenseService.AutoTrialSourceMarker,
+                    StringComparison.Ordinal))
+                return "Automatic evaluation trial · scoped to this machine";
 
             if (!string.IsNullOrWhiteSpace(payload.MachineFingerprint))
                 return "Machine-bound · only the licensed fingerprint may run this license";

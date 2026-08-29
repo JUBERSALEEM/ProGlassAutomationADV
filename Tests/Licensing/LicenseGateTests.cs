@@ -12,6 +12,9 @@ namespace ProGlassAutomation.Tests.Licensing
         private readonly string _tempFolder;
         private readonly string _savedPublicKey;
         private readonly string? _savedOverride;
+        private readonly string? _savedProgramDataOverride;
+        private readonly bool _savedSkipRegistry;
+        private readonly bool _savedSkipConfig;
 
         public LicenseGateTests()
         {
@@ -22,6 +25,16 @@ namespace ProGlassAutomation.Tests.Licensing
 
             _savedOverride = LicenseService.TestDataFolderOverride;
             LicenseService.TestDataFolderOverride = _tempFolder;
+
+            // Scope the automatic-trial ledger so a trial issued during
+            // a test never pollutes real machine anchors.
+            _savedProgramDataOverride = TrialLedger.TestProgramDataOverride;
+            _savedSkipRegistry = TrialLedger.SkipRegistryAnchorForTests;
+            _savedSkipConfig = TrialLedger.SkipConfigAnchorForTests;
+            TrialLedger.TestProgramDataOverride = _tempFolder;
+            TrialLedger.SkipRegistryAnchorForTests = true;
+            TrialLedger.SkipConfigAnchorForTests = true;
+
             _savedPublicKey = SwapPublicKey(
                 "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML");
         }
@@ -30,6 +43,9 @@ namespace ProGlassAutomation.Tests.Licensing
         {
             SwapPublicKey(_savedPublicKey);
             LicenseService.TestDataFolderOverride = _savedOverride;
+            TrialLedger.TestProgramDataOverride = _savedProgramDataOverride;
+            TrialLedger.SkipRegistryAnchorForTests = _savedSkipRegistry;
+            TrialLedger.SkipConfigAnchorForTests = _savedSkipConfig;
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort */ }
         }
@@ -67,7 +83,11 @@ namespace ProGlassAutomation.Tests.Licensing
         [InlineData("Optimization")]
         public void Cutting_modules_denied_without_Cutting_feature(string moduleKey)
         {
-            LicenseService.Reload();
+            // 2026 workflow simplification: a fresh install now lands in
+            // an active trial (which behaves like premium), so the deny
+            // path is exercised with a REAL Business license that lacks
+            // the Cutting.* feature set.
+            InstallActivation(new[] { "Inquiry.*", "Proforma.*" }, edition: "Business");
             var result = LicenseGate.CanNavigate(moduleKey);
             Assert.False(result.Allowed);
             Assert.Contains("Cutting.*", result.Reason);

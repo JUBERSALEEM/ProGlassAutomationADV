@@ -155,7 +155,8 @@ public static class LicenseService
                 Success = true,
                 KeyId = signed.Signature.KeyId,
                 OutputPath = outputPath,
-                Document = doc
+                Document = doc,
+                LicenseJson = selfCheckJson
             };
         }
         catch (Exception ex)

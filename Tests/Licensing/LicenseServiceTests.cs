@@ -12,6 +12,9 @@ namespace ProGlassAutomation.Tests.Licensing
         private readonly string _tempFolder;
         private readonly string _savedPublicKey;
         private readonly string? _savedOverride;
+        private readonly string? _savedProgramDataOverride;
+        private readonly bool _savedSkipRegistry;
+        private readonly bool _savedSkipConfig;
 
         public LicenseServiceTests()
         {
@@ -22,6 +25,17 @@ namespace ProGlassAutomation.Tests.Licensing
 
             _savedOverride = LicenseService.TestDataFolderOverride;
             LicenseService.TestDataFolderOverride = _tempFolder;
+
+            // Scope the automatic-trial ledger to this temp folder so a
+            // trial issued during a test never pollutes the machine's
+            // real ProgramData / registry / config anchors.
+            _savedProgramDataOverride = TrialLedger.TestProgramDataOverride;
+            _savedSkipRegistry = TrialLedger.SkipRegistryAnchorForTests;
+            _savedSkipConfig = TrialLedger.SkipConfigAnchorForTests;
+            TrialLedger.TestProgramDataOverride = _tempFolder;
+            TrialLedger.SkipRegistryAnchorForTests = true;
+            TrialLedger.SkipConfigAnchorForTests = true;
+
             _savedPublicKey = SwapPublicKey(
                 "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML");
         }
@@ -30,16 +44,31 @@ namespace ProGlassAutomation.Tests.Licensing
         {
             SwapPublicKey(_savedPublicKey);
             LicenseService.TestDataFolderOverride = _savedOverride;
+            TrialLedger.TestProgramDataOverride = _savedProgramDataOverride;
+            TrialLedger.SkipRegistryAnchorForTests = _savedSkipRegistry;
+            TrialLedger.SkipConfigAnchorForTests = _savedSkipConfig;
             try { Directory.Delete(_tempFolder, recursive: true); }
             catch { /* best effort */ }
         }
 
         [Fact]
-        public void FeatureAllowed_returns_false_when_no_activation_response_exists()
+        public void Fresh_store_initializes_with_automatic_trial_and_full_features()
         {
-            LicenseService.Initialize();
-            Assert.False(LicenseService.FeatureAllowed("Inquiry.View"));
-            Assert.False(LicenseService.FeatureAllowed("*"));
+            var result = LicenseService.Initialize();
+
+            // 2026 workflow simplification: a fresh install lands in an
+            // active 30-day trial instead of the old hard NotActivated.
+            Assert.Equal(LicenseStatus.Trial, result.Status);
+            Assert.True(result.CanRun);
+            Assert.True(LicenseService.IsFullyActive);
+            Assert.NotNull(result.Payload);
+            Assert.Equal(LicenseEdition.Trial, result.Payload!.Edition);
+            Assert.Equal(LicenseService.AutoTrialSourceMarker, result.Payload.TrialSource);
+            Assert.Equal(LicenseService.AutoTrialDays, result.Payload.TotalDays);
+
+            // The trial grants every module (wildcarded feature set).
+            Assert.True(LicenseService.FeatureAllowed("Inquiry.View"));
+            Assert.True(LicenseService.FeatureAllowed("*"));
         }
 
         [Fact]
@@ -53,6 +82,23 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal(ProGlassLicense.ProductId, parsed.Request!.ProductId);
             Assert.Equal("LIC-REF-001", parsed.Request.LicenseId);
             Assert.Equal(LicenseService.CurrentInstallationId, parsed.Request.InstallationId);
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Request.MachineFingerprint));
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Request.RequestNonce));
+        }
+
+        [Fact]
+        public void CreateActivationRequestJson_no_longer_requires_vendor_reference()
+        {
+            // 2026 workflow simplification: the vendor license reference
+            // is optional. An empty reference must not throw and must
+            // still produce a valid, machine-bound request.
+            string json = LicenseService.CreateActivationRequestJson(string.Empty);
+            var parsed = OfflineActivationService.ReadRequest(json);
+
+            Assert.True(parsed.Success, parsed.Message);
+            Assert.NotNull(parsed.Request);
+            Assert.Equal(string.Empty, parsed.Request!.LicenseId);
+            Assert.False(string.IsNullOrWhiteSpace(parsed.Request.InstallationId));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Request.MachineFingerprint));
             Assert.False(string.IsNullOrWhiteSpace(parsed.Request.RequestNonce));
         }
@@ -242,12 +288,165 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void InstallTrial_is_disabled_in_secure_offline_redesign()
+        public void InstallKeyText_accepts_valid_signed_license_key()
         {
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    CustomerId = "CUST-KEY",
+                    Company = "Key Customer LLC",
+                    LicenseType = "Subscription",
+                    DaysValid = 365,
+                    Features = new() { "Inquiry.*", "Reports.*" }
+                },
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+            Assert.False(string.IsNullOrWhiteSpace(gen.LicenseJson));
+            string armored = LicenseKeyArmor.Encode(gen.LicenseJson!);
+            Assert.StartsWith(LicenseKeyArmor.Prefix, armored, StringComparison.Ordinal);
+
+            var result = LicenseService.InstallKeyText(armored);
+
+            Assert.Equal(LicenseStatus.Valid, result.Status);
+            Assert.NotNull(result.Payload);
+            Assert.Equal("CUST-KEY", result.Payload!.CustomerId);
+            // Reports.* preset → Business edition derivation.
+            Assert.Equal(LicenseEdition.Business, result.Payload.Edition);
+            Assert.True(LicenseService.IsLicenseKeyActive);
+            Assert.True(LicenseService.FeatureAllowed("Inquiry.View"));
+            Assert.False(LicenseService.FeatureAllowed("Cutting.Optimize"));
+        }
+
+        [Fact]
+        public void InstallKeyText_accepts_raw_license_json_as_well_as_armored()
+        {
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    CustomerId = "CUST-RAW",
+                    LicenseType = "Subscription",
+                    DaysValid = 30,
+                    Features = new() { "Inquiry.*" }
+                },
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+
+            var result = LicenseService.InstallKeyText(gen.LicenseJson!);
+
+            Assert.Equal(LicenseStatus.Valid, result.Status);
+            Assert.True(LicenseService.IsLicenseKeyActive);
+        }
+
+        [Fact]
+        public void InstallKeyText_rejects_tampered_key_and_keeps_trial()
+        {
+            LicenseService.Initialize();
+            Assert.Equal(LicenseStatus.Trial, LicenseService.Current.Status);
+
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    LicenseType = "Subscription",
+                    DaysValid = 365,
+                    Features = new() { "Inquiry.*" }
+                },
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+
+            // Tamper with the feature set WITHOUT re-signing: the
+            // signature must fail and nothing may be stored.
+            string tampered = gen.LicenseJson!.Replace("\"Inquiry.*\"", "\"*\"");
+            var result = LicenseService.InstallKeyText(LicenseKeyArmor.Encode(tampered));
+
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.False(LicenseService.IsLicenseKeyActive);
+            Assert.Equal(LicenseStatus.Trial, LicenseService.Current.Status);
+        }
+
+        [Fact]
+        public void InstallKeyText_rejects_key_signed_by_unknown_issuer()
+        {
+            // Do NOT swap the public key: this key was signed by a key
+            // that is not in the app's trusted ring.
+            (_, string privateXml) = LicenseCrypto.GenerateKeyPair();
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    LicenseType = "Subscription",
+                    DaysValid = 365,
+                    Features = new() { "Inquiry.*" }
+                },
+                privateXml,
+                "attacker-key-id");
+
+            Assert.True(gen.Success, gen.Message);
+
+            var result = LicenseService.InstallKeyText(LicenseKeyArmor.Encode(gen.LicenseJson!));
+
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.False(LicenseService.IsLicenseKeyActive);
+        }
+
+        [Fact]
+        public void InstallKeyText_rejects_key_bound_to_another_machine()
+        {
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    LicenseType = "Subscription",
+                    DaysValid = 365,
+                    Features = new() { "Inquiry.*" },
+                    DeviceBinding = "SingleDevice",
+                    DeviceFingerprint = "SOME-OTHER-MACHINE-FP"
+                },
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+
+            var result = LicenseService.InstallKeyText(LicenseKeyArmor.Encode(gen.LicenseJson!));
+
+            Assert.Equal(LicenseStatus.MachineMismatch, result.Status);
+            Assert.False(LicenseService.IsLicenseKeyActive);
+        }
+
+        [Fact]
+        public void InstallKeyText_rejects_non_key_text()
+        {
+            var result = LicenseService.InstallKeyText("not-a-license-key");
+            Assert.Equal(LicenseStatus.Invalid, result.Status);
+            Assert.Contains("not a license key", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void InstallTrial_resolves_the_automatic_trial_window()
+        {
+            // 2026 workflow simplification: the trial is automatic. The
+            // legacy entry point now resolves the machine's trial window
+            // and reloads instead of rejecting the request.
             var result = LicenseService.InstallTrial(30);
-            Assert.Equal(LicenseStatus.NotActivated, result.Status);
-            Assert.Contains("self-signed trials were removed",
-                result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal(LicenseStatus.Trial, result.Status);
+            Assert.NotNull(result.Payload);
+            Assert.Equal(LicenseService.AutoTrialSourceMarker, result.Payload!.TrialSource);
         }
 
         [Fact]

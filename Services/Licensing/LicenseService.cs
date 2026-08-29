@@ -8,18 +8,38 @@ using ProGlassAutomation.Services.Logging;
 namespace ProGlassAutomation.Services.Licensing;
 
 /// <summary>
-/// Runtime licensing state for the offline max-security redesign.
+/// Runtime licensing state for ProGlass Automation.
+///
+/// 2026 WORKFLOW SIMPLIFICATION — the licensing model now has three
+/// cooperating tracks, all behind the same secured verification:
+///
+///   1. SIMPLE LICENSE KEY (new, primary) — the vendor generates a signed
+///      .proglasslicense key with the License Generator and sends the
+///      single-line PGKEY1 text block to the customer, who pastes it in
+///      Settings → License. No request, no reference, no PC-ID round-trip.
+///      InstallKeyText / InstallKeyFile verify the vendor RSA-2048-PSS
+///      signature, keyId, product, dates, version policy and (optional)
+///      machine binding before storing the key DPAPI-protected.
+///
+///   2. OFFLINE ACTIVATION REQUEST (kept for advanced cases) — the
+///      customer exports a request bound to this PC's fingerprint and the
+///      vendor returns a signed response. The old "vendor license
+///      reference" requirement is GONE: a request can be generated with
+///      no reference at all.
+///
+///   3. AUTOMATIC TRIAL (restored) — on a fresh install the app issues a
+///      30-day evaluation trial through the tamper-evident TrialLedger
+///      (see AutoTrialManager). A valid signed license ALWAYS wins; when
+///      a key/response is removed or expires while the machine's trial
+///      window is still open, the app falls back to the trial. When the
+///      window has passed the app runs in the existing read-only mode.
 ///
 /// Public surface is intentionally kept stable for the rest of the app:
 /// - Current
 /// - Initialize / Reload
-/// - InstallFile
+/// - InstallFile / InstallText / InstallKeyText / InstallKeyFile
 /// - FeatureAllowed
 /// - IsReadOnlyMode
-///
-/// Internally, authority now comes from a protected, signed offline activation
-/// response stored with DPAPI protection instead of trusting plaintext legacy
-/// license files or client-side trial issuance.
 /// </summary>
 public static class LicenseService
 {
@@ -49,11 +69,18 @@ public static class LicenseService
     public const string ActivationResponseFileExtension = ".lic";
 
     /// <summary>
-    /// Legacy constants preserved so older callers still compile. New secure
-    /// flow does not auto-issue trials or self-sign client-side artifacts.
+    /// Length of the automatic evaluation trial, in days. Shared by the
+    /// UI copy and <see cref="AutoTrialManager"/>.
     /// </summary>
     public const int AutoTrialDays = 30;
-    public const string AutoTrialSourceMarker = "legacy-auto-trial-removed";
+
+    /// <summary>
+    /// Provenance marker written into the projected payload's
+    /// TrialSource when the ACTIVE trial is the automatic evaluation
+    /// trial (as opposed to a vendor-issued trial activation or trial
+    /// license key). UI surfaces branch on this marker.
+    /// </summary>
+    public const string AutoTrialSourceMarker = "auto-trial";
 
     private static readonly object _lock = new();
     private static LicenseVerificationResult _current =
@@ -84,6 +111,14 @@ public static class LicenseService
 
     public static bool IsReadOnlyMode => Current.ReadOnly;
 
+    /// <summary>
+    /// True when the active license source is a signed license key
+    /// (the simple-key flow) rather than an activation response or the
+    /// automatic trial. UI surfaces use this to label the license source.
+    /// </summary>
+    public static bool IsLicenseKeyActive =>
+        OfflineActivationStore.ReadLicenseKeyState(DataRoot) != null;
+
     public static string? ResolvedLicensePath
     {
         get { lock (_lock) return _licensePath; }
@@ -108,7 +143,10 @@ public static class LicenseService
         lock (_lock)
         {
             string dataRoot = DataRoot;
-            _licensePath = OfflineActivationStore.ActivationStatePath(dataRoot);
+            _licensePath =
+                OfflineActivationStore.ReadLicenseKeyState(dataRoot) != null
+                    ? OfflineActivationStore.LicenseKeyStatePath(dataRoot)
+                    : OfflineActivationStore.ActivationStatePath(dataRoot);
             _current = LoadSecureOfflineLicense(dataRoot);
 
             try
@@ -141,9 +179,11 @@ public static class LicenseService
 
     public static string CreateActivationRequestJson(string licenseId)
     {
+        // 2026 workflow simplification: a vendor license reference is NO
+        // LONGER required. The request binds the installation identity,
+        // machine fingerprint and a fresh nonce; an empty reference is
+        // carried through as an empty (informational) licenseId field.
         string normalized = NormalizeLicenseId(licenseId);
-        if (normalized.Length == 0)
-            throw new InvalidOperationException("A vendor license reference is required before generating an activation request.");
 
         string installationId = OfflineActivationStore.GetInstallationId(DataRoot);
         string machine = RequireMachineFingerprint();
@@ -213,7 +253,18 @@ public static class LicenseService
             };
         }
 
-        var pending = OfflineActivationStore.ReadPendingRequest(DataRoot);
+        var pendingRead = OfflineActivationStore.ReadPendingRequestDetailed(DataRoot);
+        if (pendingRead.Exists && !pendingRead.Success)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail =
+                    "The protected pending activation request state could not be read on this machine and cannot be trusted. " +
+                    "Generate a fresh activation request and import the signed response again."
+            };
+        }
+        var pending = pendingRead.Value;
         if (pending == null)
         {
             return new LicenseVerificationResult
@@ -259,6 +310,9 @@ public static class LicenseService
             trimmed,
             DateTime.UtcNow);
         OfflineActivationStore.ClearPendingRequest(DataRoot);
+        // One active license at a time: the new activation response
+        // replaces any previously installed license key.
+        OfflineActivationStore.ClearLicenseKeyState(DataRoot);
 
         return Reload();
     }
@@ -317,19 +371,185 @@ public static class LicenseService
         return result;
     }
 
+    // ── Simple license key flow (2026 workflow simplification) ────────
+
+    /// <summary>
+    /// Install a vendor-signed license key from its single-line PGKEY1
+    /// text block (or raw .proglasslicense JSON). The key is signature-
+    /// verified against the embedded trusted key ring before anything is
+    /// stored; invalid, expired, tampered or foreign keys are rejected
+    /// outright and change nothing.
+    /// </summary>
+    public static LicenseVerificationResult InstallKeyText(string keyText)
+    {
+        if (string.IsNullOrWhiteSpace(keyText))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "License key text is empty."
+            };
+        }
+
+        if (keyText.Length > 700_000)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "License key exceeds the allowed size limit."
+            };
+        }
+
+        string? licenseJson = LicenseKeyArmor.TryExtractJson(keyText);
+        if (string.IsNullOrWhiteSpace(licenseJson))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail =
+                    "The pasted text is not a license key. Paste the single-line key block " +
+                    "(starts with \"" + LicenseKeyArmor.Prefix + "\") exactly as your vendor sent it, " +
+                    "or import the key file instead."
+            };
+        }
+
+        if (licenseJson.Length > 512_000)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "License key exceeds the allowed size limit."
+            };
+        }
+
+        LicenseValidationResult validation;
+        try
+        {
+            validation = ProGlassLicense.VerifyText(licenseJson);
+        }
+        catch (Exception ex)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "Could not verify the license key: " + ex.Message
+            };
+        }
+
+        if (!validation.IsValid || validation.Document == null)
+            return MapKeyValidationFailure(validation);
+
+        var doc = validation.Document;
+        OfflineActivationStore.SaveLicenseKeyState(
+            DataRoot,
+            doc.LicenseId ?? "",
+            validation.SigningKeyId ?? "",
+            licenseJson,
+            DateTime.UtcNow);
+        OfflineActivationStore.ClearActivationState(DataRoot);
+
+        try
+        {
+            AuditService.Log(
+                AuditSections.Settings,
+                "License key installed",
+                "licenseId=" + (doc.LicenseId ?? "") +
+                "; keyId=" + (validation.SigningKeyId ?? "?") +
+                "; licenseType=" + (doc.LicenseType ?? "?"));
+        }
+        catch
+        {
+            // audit must not block installation
+        }
+
+        return Reload();
+    }
+
+    /// <summary>
+    /// Install a license key from a file (PGKEY1 block or raw
+    /// .proglasslicense JSON). Same verification path as
+    /// <see cref="InstallKeyText"/>.
+    /// </summary>
+    public static LicenseVerificationResult InstallKeyFile(string sourcePath)
+    {
+        if (string.IsNullOrWhiteSpace(sourcePath) || !File.Exists(sourcePath))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "License key file does not exist: " + sourcePath
+            };
+        }
+
+        string text;
+        try
+        {
+            var info = new FileInfo(sourcePath);
+            if (info.Length > 700_000L)
+            {
+                return new LicenseVerificationResult
+                {
+                    Status = LicenseStatus.Invalid,
+                    ErrorDetail = "License key file exceeds the safe size limit."
+                };
+            }
+
+            text = File.ReadAllText(sourcePath);
+        }
+        catch (Exception ex)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "Could not read the license key file: " + ex.Message
+            };
+        }
+
+        LicenseVerificationResult result = InstallKeyText(text);
+        if (result.CanRun)
+        {
+            try
+            {
+                AuditService.Log(
+                    AuditSections.Settings,
+                    "License key file installed",
+                    "source=" + sourcePath);
+            }
+            catch
+            {
+                // audit must not block import
+            }
+        }
+
+        return result;
+    }
+
     public static bool IsDeveloperMachine => false;
 
     public static LicenseVerificationResult DevResetActivations() => Reload();
 
     public static LicenseVerificationResult InstallTrial(int days = 30)
     {
-        return new LicenseVerificationResult
+        // 2026 workflow simplification: the automatic evaluation trial is
+        // no longer a manually triggered action. This legacy entry point
+        // resolves the machine's trial window (issuing it on first call)
+        // and reloads, so any old callers get the current trial state.
+        string machine;
+        try { machine = RequireMachineFingerprint(); }
+        catch (Exception ex)
         {
-            Status = LicenseStatus.NotActivated,
-            ErrorDetail =
-                "Client-side self-signed trials were removed by the offline max-security redesign. " +
-                "Generate an activation request and ask your vendor for a signed offline trial or full activation response."
-        };
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = ex.Message
+            };
+        }
+
+        LicenseVerificationResult resolved = AutoTrialManager.Resolve(DataRoot, machine);
+        if (resolved.Status != LicenseStatus.Trial)
+            return resolved;
+
+        return Reload();
     }
 
     public static bool FeatureAllowed(string feature)
@@ -361,7 +581,50 @@ public static class LicenseService
 
     private static LicenseVerificationResult LoadSecureOfflineLicense(string dataRoot)
     {
-        var stored = OfflineActivationStore.ReadActivationState(dataRoot);
+        string machine;
+        try { machine = RequireMachineFingerprint(); }
+        catch (Exception ex)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = ex.Message
+            };
+        }
+
+        // 1) Simple signed license key — the primary 2026 flow.
+        var keyStateRead = OfflineActivationStore.ReadLicenseKeyStateDetailed(dataRoot);
+        if (keyStateRead.Exists && !keyStateRead.Success)
+        {
+            // Corruption is tampering evidence — fail closed. The trial
+            // fallback only applies to a CLEANLY absent or expired key.
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail =
+                    "The protected installed license key state could not be read on this machine and cannot be trusted."
+            };
+        }
+        if (keyStateRead.Value != null)
+        {
+            return PreferTrialFallback(
+                VerifyInstalledKey(keyStateRead.Value, dataRoot),
+                dataRoot,
+                machine);
+        }
+
+        // 2) Signed offline activation response — the advanced PC-ID flow.
+        var storedRead = OfflineActivationStore.ReadActivationStateDetailed(dataRoot);
+        if (storedRead.Exists && !storedRead.Success)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail =
+                    "The protected installed activation state could not be read on this machine and cannot be trusted."
+            };
+        }
+        var stored = storedRead.Value;
         if (stored == null)
         {
             string? legacyArtifactPath = FindLegacyLicenseArtifactPath(dataRoot);
@@ -374,23 +637,8 @@ public static class LicenseService
                 };
             }
 
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.NotActivated,
-                ErrorDetail =
-                    "No offline activation response is installed. Generate an activation request and import the vendor-signed response."
-            };
-        }
-
-        string machine;
-        try { machine = RequireMachineFingerprint(); }
-        catch (Exception ex)
-        {
-            return new LicenseVerificationResult
-            {
-                Status = LicenseStatus.Invalid,
-                ErrorDetail = ex.Message
-            };
+            // 3) Fresh install / nothing installed → automatic trial.
+            return AutoTrialManager.Resolve(dataRoot, machine);
         }
 
         var verify = OfflineActivationService.VerifyResponse(
@@ -402,7 +650,10 @@ public static class LicenseService
             expectedRequestNonce: stored.RequestNonce,
             utcNow: DateTime.UtcNow);
 
-        return MapLoadVerificationToStatus(verify, stored, machine, dataRoot);
+        return PreferTrialFallback(
+            MapLoadVerificationToStatus(verify, stored, machine, dataRoot),
+            dataRoot,
+            machine);
     }
 
     private static LicenseVerificationResult MapLoadVerificationToStatus(
@@ -473,6 +724,178 @@ public static class LicenseService
         }
 
         return MapVerificationFailure(verify, payload);
+    }
+
+    // ── Simple license key: load-time verification + projection ───────
+
+    /// <summary>
+    /// Verify the DPAPI-stored license key against the trusted key ring
+    /// and project it into the runtime status model. Called on every
+    /// Initialize so expiry / machine-binding are re-checked, never
+    /// trusted from the install moment.
+    /// </summary>
+    private static LicenseVerificationResult VerifyInstalledKey(
+        OfflineActivationStore.LicenseKeyState keyState, string dataRoot)
+    {
+        LicenseValidationResult validation;
+        try
+        {
+            validation = ProGlassLicense.VerifyText(keyState.LicenseJson);
+        }
+        catch (Exception ex)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = "The installed license key could not be verified: " + ex.Message
+            };
+        }
+
+        if (!validation.IsValid || validation.Document == null)
+            return MapKeyValidationFailure(validation);
+
+        var doc = validation.Document;
+        OfflineActivationStore.UpdateLicenseKeyLastValidatedUtc(dataRoot, DateTime.UtcNow);
+        return BuildKeyRuntimeStatus(doc, ProjectKeyPayload(doc));
+    }
+
+    private static LicenseVerificationResult BuildKeyRuntimeStatus(
+        LicenseDocument doc, LicensePayload payload)
+    {
+        DateTime now = DateTime.UtcNow;
+        DateTime? expires = doc.ExpiresAtUtc?.ToUniversalTime();
+        if (expires.HasValue && (expires.Value - now).TotalDays <= LicenseVerifier.ExpiryWarningDays)
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.ExpiringSoon,
+                Payload = payload,
+                ErrorDetail =
+                    "The installed license key expires soon. Ask your vendor for a renewed key before it expires."
+            };
+        }
+
+        return new LicenseVerificationResult
+        {
+            Status = string.Equals(doc.LicenseType, "Trial", StringComparison.OrdinalIgnoreCase)
+                ? LicenseStatus.Trial
+                : LicenseStatus.Valid,
+            Payload = payload
+        };
+    }
+
+    private static LicenseVerificationResult MapKeyValidationFailure(LicenseValidationResult validation)
+    {
+        return validation.ErrorCode switch
+        {
+            LicenseErrorCode.Expired => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Expired,
+                ErrorDetail = validation.Message ?? "The license key has expired."
+            },
+            LicenseErrorCode.MachineMismatch => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.MachineMismatch,
+                ErrorDetail = validation.Message ?? "The license key is bound to a different machine."
+            },
+            LicenseErrorCode.NotYetValid => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = validation.Message ?? "The license key is not valid yet."
+            },
+            _ => new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail = validation.Message ?? "The license key could not be verified."
+            }
+        };
+    }
+
+    /// <summary>
+    /// The machine's automatic trial window outranks every non-runnable
+    /// or read-only signed state, so the customer keeps working after a
+    /// key is removed or expires — but a valid signed license ALWAYS
+    /// wins, and a ledger rollback always hard-fails.
+    /// </summary>
+    private static LicenseVerificationResult PreferTrialFallback(
+        LicenseVerificationResult signedResult, string dataRoot, string machine)
+    {
+        if (signedResult.Status is LicenseStatus.Valid
+            or LicenseStatus.ExpiringSoon
+            or LicenseStatus.Trial)
+        {
+            return signedResult;
+        }
+
+        LicenseVerificationResult fallback = AutoTrialManager.Resolve(dataRoot, machine);
+
+        // Clock-rollback detection is a security hard stop — it wins.
+        if (fallback.Status == LicenseStatus.Invalid)
+            return fallback;
+
+        // Trial window still open → carry the user over the removed /
+        // expired / broken license state.
+        if (fallback.Status == LicenseStatus.Trial)
+            return fallback;
+
+        // Trial exhausted → the signed artifact's own state stands
+        // (read-only grace, expired, machine mismatch, invalid, …).
+        return signedResult;
+    }
+
+    /// <summary>
+    /// Project a signed license-key document into the runtime payload
+    /// shape shared by all three licensing tracks.
+    /// </summary>
+    private static LicensePayload ProjectKeyPayload(LicenseDocument doc)
+    {
+        DateTime expires = doc.ExpiresAtUtc?.ToUniversalTime() ?? DateTime.MaxValue;
+        bool isTrial = string.Equals(doc.LicenseType, "Trial", StringComparison.OrdinalIgnoreCase);
+        return new LicensePayload
+        {
+            SchemaVersion = 1,
+            LicenseId = doc.LicenseId ?? "",
+            Edition = DeriveKeyEdition(doc),
+            CustomerId = doc.Customer?.Id ?? "",
+            CompanyName = doc.Customer?.Company ?? "",
+            IssuedAt = doc.IssuedAtUtc == default
+                ? DateTime.UtcNow
+                : doc.IssuedAtUtc.ToUniversalTime(),
+            ExpiresAt = expires,
+            MaxActivations = doc.DevicePolicy?.DeviceLimit ?? 1,
+            Features = (doc.Features ?? new List<string>()).ToArray(),
+            MachineFingerprint = doc.DevicePolicy is { IsBound: true }
+                ? doc.DevicePolicy.Fingerprint
+                : null,
+            Notes = doc.Customer?.Notes ?? "",
+            TrialSource = isTrial ? "vendor-license-key" : "",
+            TrialExpiresAt = isTrial ? expires : default
+        };
+    }
+
+    /// <summary>
+    /// The license-key contract carries a license TYPE (Trial /
+    /// Subscription / Lifetime / …), not an edition label. The edition
+    /// shown to the customer is derived deterministically from the type
+    /// and the granted feature set — matching the presets the License
+    /// Generator fills in for each edition.
+    /// </summary>
+    private static LicenseEdition DeriveKeyEdition(LicenseDocument doc)
+    {
+        string type = (doc.LicenseType ?? string.Empty).Trim();
+        if (string.Equals(type, "Trial", StringComparison.OrdinalIgnoreCase))
+            return LicenseEdition.Trial;
+        if (string.Equals(type, "Enterprise", StringComparison.OrdinalIgnoreCase))
+            return LicenseEdition.Enterprise;
+
+        var features = doc.Features ?? new List<string>();
+        bool Has(string prefix) => features.Any(f =>
+            !string.IsNullOrWhiteSpace(f)
+            && f.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        if (Has("Cutting.")) return LicenseEdition.Factory;
+        if (Has("Reports.") || Has("AI.")) return LicenseEdition.Business;
+        return LicenseEdition.Basic;
     }
 
     private static LicenseVerificationResult BuildRuntimeStatus(

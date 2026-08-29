@@ -36,7 +36,7 @@
                         <TextBlock Text="ProGlass Offline Activation Generator"
                                    Style="{StaticResource HeaderText}"/>
                         <TextBlock Style="{StaticResource HelpText}" Margin="0,2,0,0"
-                                   Text="Vendor tool — imports customer activation requests and signs structured offline activation responses. No embedded production private key."/>
+                                   Text="Vendor tool — generates signed license keys (simple flow) and signs offline activation responses (advanced PC-ID flow). No embedded production private key."/>
                     </StackPanel>
                 </StackPanel>
                 <Border Grid.Column="2" Background="{StaticResource CardAltBrush}"
@@ -97,10 +97,81 @@
 
                 <Border Style="{StaticResource Card}" Margin="0,0,0,16">
                     <StackPanel>
-                        <TextBlock Text="CUSTOMER ACTIVATION REQUEST" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Text="LICENSE KEY — SIMPLE FLOW (GENERATE &amp; SEND)" Style="{StaticResource SectionLabel}"/>
+                        <TextBlock Style="{StaticResource HelpText}"
+                                   Text="Generate a signed license key the customer pastes into the app (a single text block starting with PGKEY1). No request needed. Leave PC ID empty for a portable key, or paste the customer's PC ID to bind the key to that machine."/>
+                        <Grid Margin="0,14,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/><ColumnDefinition Width="16"/><ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="Edition" Style="{StaticResource LabelText}"/>
+                                <ComboBox x:Name="KeyEditionCombo"
+                                          SelectedIndex="1"
+                                          SelectionChanged="KeyEditionCombo_SelectionChanged">
+                                    <ComboBoxItem Content="Basic"/>
+                                    <ComboBoxItem Content="Business"/>
+                                    <ComboBoxItem Content="Factory"/>
+                                    <ComboBoxItem Content="Enterprise"/>
+                                    <ComboBoxItem Content="Trial"/>
+                                </ComboBox>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Validity (days · 0 = never expires)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="KeyDaysBox" Text="365"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="1" Grid.Column="0" Margin="0,0,0,12">
+                                <TextBlock Text="Customer code (optional)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="KeyCustomerIdBox"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="1" Grid.Column="2" Margin="0,0,0,12">
+                                <TextBlock Text="Company name (optional)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="KeyCompanyBox"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,4">
+                                <TextBlock Text="PC ID / machine fingerprint (optional — leave empty for a portable key)" Style="{StaticResource LabelText}"/>
+                                <TextBox x:Name="KeyFingerprintBox"
+                                         FontFamily="Consolas" FontSize="{StaticResource TextBody}"/>
+                            </StackPanel>
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <Button x:Name="GenerateLicenseKeyButton"
+                                    Style="{StaticResource PrimaryButton}"
+                                    Content="GENERATE LICENSE KEY"
+                                    Click="GenerateLicenseKeyButton_Click"/>
+                            <Button x:Name="CopyLicenseKeyButton"
+                                    Style="{StaticResource GhostButton}"
+                                    Content="COPY KEY"
+                                    Click="CopyLicenseKeyButton_Click"
+                                    Margin="10,0,0,0"/>
+                            <Button x:Name="SaveLicenseKeyButton"
+                                    Style="{StaticResource GhostButton}"
+                                    Content="SAVE KEY FILE…"
+                                    Click="SaveLicenseKeyButton_Click"
+                                    Margin="10,0,0,0"/>
+                        </StackPanel>
+                        <TextBox x:Name="KeyOutputBox"
+                                 Style="{StaticResource CodeTextBox}"
+                                 MinHeight="140" MaxHeight="320"
+                                 IsReadOnly="True" TextWrapping="Wrap"
+                                 Margin="0,14,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="CUSTOMER ACTIVATION REQUEST (ADVANCED PC-ID FLOW)" Style="{StaticResource SectionLabel}"/>
                         <TextBlock x:Name="RequestDetailText"
                                    Style="{StaticResource HelpText}"
-                                   Text="Import the .pgrequest file exported by the customer machine. The signed response will be bound to that installation ID, machine fingerprint and request nonce."/>
+                                   Text="Only needed for machine-bound licenses. Import the .pgrequest file exported by the customer machine. The signed response will be bound to that installation ID, machine fingerprint and request nonce."/>
                         <TextBox x:Name="ActivationRequestBox"
                                  AcceptsReturn="True"
                                  TextWrapping="Wrap"

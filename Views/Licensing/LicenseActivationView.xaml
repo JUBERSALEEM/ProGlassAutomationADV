@@ -1,13 +1,20 @@
 <!--
-  LicenseActivationView — secure offline activation page.
+  LicenseActivationView — licensing page (2026 workflow simplification).
 
-  Max-security redesign direction:
-    • no client-side self-signed trial issuance
-    • no whole-license base64 activation blobs
-    • customer generates an activation request
-    • vendor returns a signed offline activation response
-    • app verifies product, keyId, signature, installation, nonce,
-      machine fingerprint and dates before activating
+  THREE TRACKS, ALL SECURED:
+    • LICENSE KEY (primary): the vendor generates a signed license key
+      with the License Generator and sends ONE copy-paste text block
+      (PGKEY1.…). The customer pastes it and the app verifies the
+      vendor's RSA-2048-PSS signature, keyId, product, dates and any
+      machine binding before activating. No request, no reference,
+      no PC-ID round-trip.
+    • ACTIVATION REQUEST (advanced): for machine-bound licenses when the
+      vendor needs this PC's ID. The old "vendor license reference"
+      requirement is gone — a request can be generated straight away.
+    • AUTOMATIC TRIAL: a 30-day evaluation trial starts on first run
+      (tamper-evident ledger, see AutoTrialManager). A signed license
+      always wins; if a key is removed or expires while the trial
+      window is open, the app falls back to the trial automatically.
 -->
 <UserControl x:Class="ProGlassAutomation.Views.Licensing.LicenseActivationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -39,7 +46,7 @@
                            TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
                            Margin="0,4,0,24"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
-                    <Run Text="This build uses secure offline activation. Generate an activation request, send it to your vendor, and then import the signed activation response they return."/>
+                    <Run Text="Paste the license key your vendor sent you. A 30-day trial starts automatically on first run, so you can keep working while you get your key."/>
                 </TextBlock>
 
                 <Border Style="{StaticResource SectionCardStyle}">
@@ -49,7 +56,7 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock x:Name="StatusBadgeText"
-                                   Text="Not activated"
+                                   Text="Trial"
                                    FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>
@@ -107,13 +114,44 @@
 
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="STEP 1 — GENERATE ACTIVATION REQUEST"
+                        <TextBlock Text="LICENSE KEY — QUICKEST WAY TO ACTIVATE"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Enter the vendor license reference you were given. The request binds this machine fingerprint and installation identity into a signed-response workflow."/>
+                            <Run Text="Your vendor generates a key and sends it as a single text block starting with PGKEY1. Paste it here — the app verifies the vendor signature and activates instantly. Nothing else to configure."/>
+                        </TextBlock>
+                        <TextBox x:Name="KeyPasteTextBox"
+                                 AcceptsReturn="True" AcceptsTab="True"
+                                 TextWrapping="Wrap" MinHeight="110"
+                                 MaxHeight="200"
+                                 VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas" FontSize="{StaticResource TextBody}"
+                                 Margin="0,0,0,12"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Content="APPLY LICENSE KEY"
+                                    Click="KeyApplyButton_Click"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="BROWSE FOR KEY FILE…"
+                                    Click="KeyBrowseButton_Click"
+                                    Margin="10,0,0,0"
+                                    HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="ADVANCED — ACTIVATION REQUEST (WHEN YOUR VENDOR NEEDS THIS PC)"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
+                                   Margin="0,6,0,12"
+                                   Foreground="{DynamicResource ForegroundBrush}">
+                            <Run Text="Only needed when your vendor issues machine-bound licenses. Generate the request, send it to your vendor, then import the signed response they return."/>
                         </TextBlock>
                         <Grid Margin="0,0,0,12">
                             <Grid.ColumnDefinitions>
@@ -122,27 +160,21 @@
                                 <ColumnDefinition Width="*"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Vendor license reference"
-                                           FontSize="{StaticResource TextBody}"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <TextBox x:Name="LicenseReferenceBox"/>
-                            </StackPanel>
-                            <StackPanel Grid.Column="2">
                                 <TextBlock Text="Installation ID"
                                            FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox x:Name="InstallationIdBox" IsReadOnly="True"/>
                             </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="PC ID (machine fingerprint)"
+                                           FontSize="{StaticResource TextBody}"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <TextBox x:Name="FingerprintDisplayBox"
+                                         IsReadOnly="True"
+                                         FontFamily="Consolas"
+                                         TextWrapping="Wrap"/>
+                            </StackPanel>
                         </Grid>
-                        <TextBlock Text="Current machine fingerprint"
-                                   FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBox x:Name="FingerprintDisplayBox"
-                                 IsReadOnly="True"
-                                 FontFamily="Consolas"
-                                 FontSize="{StaticResource TextBody}"
-                                 Margin="0,4,0,12"
-                                 TextWrapping="Wrap"/>
                         <TextBlock Text="Activation request JSON"
                                    FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -177,13 +209,13 @@
 
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="STEP 2 — IMPORT SIGNED ACTIVATION RESPONSE"
+                        <TextBlock Text="IMPORT SIGNED ACTIVATION RESPONSE"
                                    FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Your vendor returns a signed response file or raw signed JSON. Base64-wrapped whole-license strings are no longer accepted in this secure flow."/>
+                            <Run Text="Your vendor returns a signed response file or raw signed JSON. Base64-wrapped whole-license strings are not accepted in this flow."/>
                         </TextBlock>
                         <TextBox x:Name="PasteTextBox"
                                  AcceptsReturn="True" AcceptsTab="True"

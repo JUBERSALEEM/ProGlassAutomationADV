@@ -1495,12 +1495,13 @@
 
                  Shown ONLY when LicenseStatusViewModel.IsLicenseRequired
                  is true — i.e. the licence is in a hard-broken state
-                 (invalid signature/state, machine-mismatch,
-                 expired paid license outside its signed grace policy,
-                 or a fresh install with no signed activation response).
-                 Vendor-issued trial and read-only grace states do
-                 NOT trigger this overlay. See LicenseStatusViewModel
-                 for the exact rules.
+                 (invalid signature/state, machine-mismatch, clock
+                 rollback, or an expired paid license outside its signed
+                 grace policy AND outside the machine's automatic trial
+                 window). A fresh install lands in an automatic 30-day
+                 trial, so the overlay no longer appears on first run.
+                 Trial and read-only grace states do NOT trigger this
+                 overlay. See LicenseStatusViewModel for the exact rules.
 
                  Visibility is bound to
                  LicenseStatusViewModel.Instance.IsLicenseRequired
