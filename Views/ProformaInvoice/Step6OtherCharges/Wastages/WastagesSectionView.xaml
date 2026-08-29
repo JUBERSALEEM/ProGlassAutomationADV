@@ -243,19 +243,28 @@
 
                                                     <Grid Margin="0,0,0,10">
                                                         <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="10"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-                                                        <TextBlock Text="OPTIMIZATION FORMULA"
-                                                                   Style="{StaticResource PiFieldLabelStyle}"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="0,0,10,0"/>
-                                                        <ToggleButton Grid.Column="1"
-                                                                      Style="{StaticResource PiToggleSwitch}"
-                                                                      IsChecked="{Binding UseOptimizationFormula}"
-                                                                      HorizontalAlignment="Left"
-                                                                      VerticalAlignment="Center"
-                                                                      AutomationProperties.Name="Optimization wastage formula"/>
+                                                        <StackPanel>
+                                                            <TextBlock Text="COLOR"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <TextBox Text="{Binding ColorName, Mode=OneWay}"
+                                                                     Style="{StaticResource RowInputStyle}"
+                                                                     IsReadOnly="True"/>
+                                                        </StackPanel>
+                                                        <StackPanel Grid.Column="2">
+                                                            <TextBlock Text="OPTIMIZATION FORMULA"
+                                                                       Style="{StaticResource PiFieldLabelStyle}"
+                                                                       Margin="0,0,0,2"/>
+                                                            <ToggleButton Style="{StaticResource PiToggleSwitch}"
+                                                                          IsChecked="{Binding UseOptimizationFormula}"
+                                                                          HorizontalAlignment="Left"
+                                                                          VerticalAlignment="Center"
+                                                                          AutomationProperties.Name="Optimization wastage formula"/>
+                                                        </StackPanel>
                                                     </Grid>
 
                                                     <Grid Margin="0,0,0,10">
