@@ -19,8 +19,8 @@
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="18"/>
-        <Setter Property="Padding"         Value="16,14"/>
+        <Setter Property="CornerRadius"    Value="12"/>
+        <Setter Property="Padding"         Value="12,8"/>
         <Setter Property="Effect"          Value="{DynamicResource GlassShadowSoftBorder}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
@@ -271,7 +271,7 @@
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="14"/>
+        <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="MinHeight"       Value="56"/>
         <Setter Property="Padding"         Value="12,8"/>
         <Setter Property="Margin"          Value="0,0,0,14"/>
@@ -290,7 +290,7 @@
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="CornerRadius"    Value="14"/>
+        <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="Padding"         Value="10,8"/>
         <Setter Property="Margin"          Value="0,0,6,0"/>
         <Setter Property="Effect"          Value="{DynamicResource GlassShadowSoftBorder}"/>
@@ -547,8 +547,8 @@
 
     <Style x:Key="PiWorkDeckStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
-        <Setter Property="CornerRadius"    Value="24"/>
-        <Setter Property="Padding"         Value="16,12"/>
+        <Setter Property="CornerRadius"    Value="0"/>
+        <Setter Property="Padding"         Value="8,4"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -689,9 +689,9 @@
         <Setter Property="Background"      Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="CornerRadius"    Value="12,12,0,0"/>
-        <Setter Property="Padding"         Value="12,10,12,10"/>
-        <Setter Property="Margin"          Value="0,0,0,12"/>
+        <Setter Property="CornerRadius"    Value="8,8,0,0"/>
+        <Setter Property="Padding"         Value="8,6,8,6"/>
+        <Setter Property="Margin"          Value="0,0,0,6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

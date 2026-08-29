@@ -1047,12 +1047,12 @@
                     IsHitTestVisible="False"
                     SnapsToDevicePixels="True"/>
 
-            <!-- CONTENT CARD -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Margin="16"
+            <!-- CONTENT CARD — iOS glass: transparent, minimal margin -->
+            <Border Background="Transparent"
+                    BorderBrush="{DynamicResource GlassBorderSoft}"
+                    BorderThickness="0"
+                    CornerRadius="0"
+                    Margin="0"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>

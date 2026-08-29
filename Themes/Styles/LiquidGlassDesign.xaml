@@ -53,20 +53,20 @@
     </Style>
 
     <Style x:Key="LiquidGlassPanel" TargetType="Border">
-        <Setter Property="CornerRadius" Value="42"/>
+        <Setter Property="CornerRadius" Value="14"/>
         <Setter Property="Background" Value="{DynamicResource GlassSurfaceUltra}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="32,20"/>
+        <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Effect" Value="{DynamicResource GlassShadowPanelBorder}"/>
     </Style>
 
     <Style x:Key="LiquidGlassCard" TargetType="Border">
-        <Setter Property="CornerRadius" Value="26"/>
+        <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="18"/>
+        <Setter Property="Padding" Value="12"/>
         <Setter Property="Effect" Value="{DynamicResource GlassShadowSoftBorder}"/>
         <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
         <Style.Triggers>

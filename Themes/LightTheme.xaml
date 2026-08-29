@@ -31,21 +31,24 @@
 
     <!-- ── Surfaces ─────────────────────────────────────────────────── -->
     <!-- iOS glass backdrop — subtle gradient that makes glass surfaces visible -->
-    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#E8EDF5" Offset="0.0"/>
-        <GradientStop Color="#E0E8F4" Offset="0.3"/>
-        <GradientStop Color="#DDE5F0" Offset="0.6"/>
-        <GradientStop Color="#E4E9F2" Offset="1.0"/>
+    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="0.8,1">
+        <GradientStop Color="#C7D2FE" Offset="0.0"/>
+        <GradientStop Color="#A5B4FC" Offset="0.2"/>
+        <GradientStop Color="#93C5FD" Offset="0.4"/>
+        <GradientStop Color="#7DD3FC" Offset="0.6"/>
+        <GradientStop Color="#A5F3FC" Offset="0.8"/>
+        <GradientStop Color="#C4B5FD" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Glass backdrop overlay — optional tinted layer behind glass cards -->
-    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
-        <GradientStop Color="#C7D2FE" Offset="0.0"/>
-        <GradientStop Color="#BFDBFE" Offset="0.35"/>
-        <GradientStop Color="#A5F3FC" Offset="0.65"/>
-        <GradientStop Color="#C7D2FE" Offset="1.0"/>
+    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0,0.2" EndPoint="1,0.8">
+        <GradientStop Color="#818CF8" Offset="0.0"/>
+        <GradientStop Color="#60A5FA" Offset="0.25"/>
+        <GradientStop Color="#34D399" Offset="0.5"/>
+        <GradientStop Color="#FBBF24" Offset="0.75"/>
+        <GradientStop Color="#F472B6" Offset="1.0"/>
     </LinearGradientBrush>
     <SolidColorBrush x:Key="ModuleBackgroundBrush"
-                     Color="#E6FFFFFF"
+                     Color="#00FFFFFF"
                      po:Freeze="True"/>
     <Color x:Key="ModuleBackgroundColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush"
@@ -407,12 +410,12 @@
     <!-- Card shapes — one source of truth for corner radii. -->
     <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
-    <CornerRadius x:Key="CardCornerRadiusLarge">12</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
 
     <!-- Card border thickness — one source of truth for every card/panel
          edge. Driven by the Appearance > Border Thickness setting; cards
          reference this via {DynamicResource CardBorderThickness}. -->
-    <Thickness x:Key="CardBorderThickness">1.5</Thickness>
+    <Thickness x:Key="CardBorderThickness">0.5</Thickness>
 
     <!-- Display density — Compact defaults (laptop). ThemeManager overwrites. -->
     <sys:Double x:Key="DensityInputHeight">30</sys:Double>
@@ -542,14 +545,14 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
 
     <!-- Glass surfaces — near-transparent white tints on light stage -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#14FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#29FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#3DFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#08FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#0FFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1AFFFFFF" po:Freeze="True"/>
 
     <!-- Glass borders — bright white edges on light stage -->
-    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#D9FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderBright" Color="#F2FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderSoft" Color="#B8FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#33FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#4DFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#1AFFFFFF" po:Freeze="True"/>
 
     <!-- Glass gradients -->
     <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
@@ -579,16 +582,16 @@
     <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#3D1E2832" po:Freeze="True"/>
 
     <!-- Glass shadows — cool blue tint for light mode depth -->
-    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#3C78A0" Opacity="0.10" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#3C78A0" Opacity="0.15" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.32" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#3C78A0" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#32B4FF" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#3C78A0" Opacity="0.04" BlurRadius="8" ShadowDepth="2" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#3C78A0" Opacity="0.06" BlurRadius="12" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#32B4FF" Opacity="0.08" BlurRadius="10" ShadowDepth="3" Direction="270"/>
 
     <!-- Switch / toggle internal colors — light mode -->
     <SolidColorBrush x:Key="GlassSwitchInnerHighlightBrush" Color="#F2FFFFFF" po:Freeze="True"/>

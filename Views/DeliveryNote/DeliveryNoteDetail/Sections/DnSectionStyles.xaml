@@ -77,7 +77,7 @@
                     Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
         <Style x:Key="CompactStatTileStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
