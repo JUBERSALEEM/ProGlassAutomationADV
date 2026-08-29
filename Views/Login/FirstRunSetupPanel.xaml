@@ -42,7 +42,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="AuthGlassStyles.xaml"/>
+                <ResourceDictionary Source="AuthSurfaceStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -60,7 +60,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{StaticResource GlassCard}"
+                Background="{StaticResource LiquidCard}"
                 BorderBrush="#66FFFFFF"
                 BorderThickness="1"
                 Effect="{StaticResource CardShadow}"
@@ -157,7 +157,7 @@
                                     Margin="0,14,0,0" Padding="13,10"
                                     CornerRadius="10"
                                     Background="#33DC2626"
-                                    BorderBrush="{StaticResource DangerOnGlass}"
+                                    BorderBrush="{StaticResource DangerOnLiquid}"
                                     BorderThickness="1"
                                     Visibility="Collapsed">
                                 <StackPanel Orientation="Horizontal">
@@ -166,12 +166,12 @@
                                                FontSize="{StaticResource TextSection}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"
-                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                               Foreground="{StaticResource DangerOnLiquid}"/>
                                     <TextBlock x:Name="ErrorText"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                               Foreground="{StaticResource DangerOnLiquid}"/>
                                 </StackPanel>
                             </Border>
 

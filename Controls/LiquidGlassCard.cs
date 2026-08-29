@@ -8,7 +8,7 @@
 // center + soft shadow) needs a dedicated ContentControl. The default
 // style lives in Themes/Styles/LiquidGlassStyles.xaml and resolves
 // every colour through DynamicResource, so Light/Dark swaps and the
-// Glass/Glassy visual families re-tint all cards live.
+// iOS Liquid Glass family re-tints all cards live.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Windows;
@@ -17,7 +17,7 @@ using System.Windows.Controls;
 namespace ProGlassAutomation.Controls
 {
     /// <summary>Surface density of a liquid glass card.</summary>
-    public enum GlassSurface
+    public enum LiquidSurface
     {
         /// <summary>Nearly transparent center — clear water glass.</summary>
         Subtle = 0,
@@ -45,13 +45,13 @@ namespace ProGlassAutomation.Controls
                     new CornerRadius(16),
                     FrameworkPropertyMetadataOptions.AffectsRender));
 
-        public static readonly DependencyProperty GlassIntensityProperty =
+        public static readonly DependencyProperty LiquidIntensityProperty =
             DependencyProperty.Register(
-                nameof(GlassIntensity),
-                typeof(GlassSurface),
+                nameof(LiquidIntensity),
+                typeof(LiquidSurface),
                 typeof(LiquidGlassCard),
                 new FrameworkPropertyMetadata(
-                    GlassSurface.Standard,
+                    LiquidSurface.Standard,
                     FrameworkPropertyMetadataOptions.AffectsRender));
 
         /// <summary>Roundedness of the crystal edge (default 16).</summary>
@@ -62,10 +62,10 @@ namespace ProGlassAutomation.Controls
         }
 
         /// <summary>Center transparency: Subtle / Standard / Strong.</summary>
-        public GlassSurface GlassIntensity
+        public LiquidSurface LiquidIntensity
         {
-            get => (GlassSurface)GetValue(GlassIntensityProperty);
-            set => SetValue(GlassIntensityProperty, value);
+            get => (LiquidSurface)GetValue(LiquidIntensityProperty);
+            set => SetValue(LiquidIntensityProperty, value);
         }
 
         static LiquidGlassCard()

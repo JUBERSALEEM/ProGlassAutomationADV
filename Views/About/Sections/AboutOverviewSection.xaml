@@ -88,7 +88,7 @@
                                 <TextBlock Text="OVERVIEW" Style="{StaticResource AboutPanelKickerStyle}"/>
                                 <TextBlock Style="{StaticResource AboutPanelTextStyle}">
                                     <Run Text="ProGlass Automation is a purpose-built Windows desktop application designed specifically for "/>
-                                    <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=". It replaces spreadsheet-driven workflows with a fully integrated system covering raw material inventory, quoting, production planning, delivery tracking, and financial reporting — all in one place."/>
                                 </TextBlock>
                             </StackPanel>
@@ -98,13 +98,13 @@
                             <StackPanel>
                                 <TextBlock Text="ENGINEERING PRINCIPLES" Style="{StaticResource AboutPanelKickerStyle}"/>
                                 <TextBlock Style="{StaticResource AboutPanelTextStyle}">
-                                    <Run Text="• Deterministic calculations —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="• Deterministic calculations —" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=" every formula produces the same result every time, with no hidden state or race conditions."/>
                                     <LineBreak/><LineBreak/>
-                                    <Run Text="• Modular isolation —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="• Modular isolation —" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=" each business domain has its own data boundary, limiting blast radius when defects occur."/>
                                     <LineBreak/><LineBreak/>
-                                    <Run Text="• AI-safe architecture —" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="• AI-safe architecture —" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=" strict MVVM conventions keep the codebase maintainable for long-term enterprise use."/>
                                 </TextBlock>
                             </StackPanel>
@@ -125,7 +125,7 @@
                                 <TextBlock Text="FINANCIAL &amp; COMPLIANCE" Style="{StaticResource AboutPanelKickerStyle}"/>
                                 <TextBlock Style="{StaticResource AboutPanelTextStyle}">
                                     <Run Text="All monetary values are stored and displayed in "/>
-                                    <Run Text="AED (UAE Dirham)" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="AED (UAE Dirham)" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=" with full precision. UAE 5% VAT, zero-rated export support and invoice traceability are built into the workflow so finance and operations stay aligned."/>
                                 </TextBlock>
                             </StackPanel>
@@ -136,7 +136,7 @@
                                 <TextBlock Text="EXTENSIBILITY &amp; FUTURE" Style="{StaticResource AboutPanelKickerStyle}"/>
                                 <TextBlock Style="{StaticResource AboutPanelTextStyle}">
                                     <Run Text="The current release ships with "/>
-                                    <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource GlassSnow}"/>
+                                    <Run Text="{Binding Modules.Count, Mode=OneWay}" FontWeight="Bold" Foreground="{DynamicResource LiquidSnow}"/>
                                     <Run Text=" active modules across the commercial and production lifecycle. Upcoming production-stage modules will slot into the same shell without database rewrites, while AI assistance remains optional and fully operator-controlled."/>
                                 </TextBlock>
                             </StackPanel>
@@ -192,18 +192,18 @@
                         <TextBlock Text="&#xE72E;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="{StaticResource TextSection}"
-                                   Foreground="{DynamicResource GlassAccent}"
+                                   Foreground="{DynamicResource LiquidAccent}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
                         <TextBlock Text="Privacy"
                                    FontSize="{StaticResource TextSubhead}"
                                    FontWeight="Bold"
-                                   Foreground="{DynamicResource GlassSnow}"
+                                   Foreground="{DynamicResource LiquidSnow}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="Local-first data handling, operator control, and practical privacy boundaries"
                                FontSize="{StaticResource TextBody}"
-                               Foreground="{DynamicResource GlassCerulean}"
+                               Foreground="{DynamicResource LiquidCerulean}"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
                 </StackPanel>
@@ -216,13 +216,13 @@
                                     <TextBlock Text="•"
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource GlassAccent}"
+                                               Foreground="{DynamicResource LiquidAccent}"
                                                Margin="0,0,9,0"/>
                                     <TextBlock Text="{Binding}"
                                                FontSize="{StaticResource TextBody}"
                                                TextWrapping="Wrap"
                                                LineHeight="20"
-                                               Foreground="{DynamicResource GlassFrost}"/>
+                                               Foreground="{DynamicResource LiquidFrost}"/>
                                 </StackPanel>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>

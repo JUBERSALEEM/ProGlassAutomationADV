@@ -37,13 +37,9 @@ namespace ProGlassAutomation
         {
             InitializeComponent();
 
-            // iOS-style glass chrome: attach the DWM acrylic backdrop
-            // service, then re-sync it with the visual theme family that
-            // startup already applied (the engine ran before this window
-            // existed). Glass/Glassy get the blur; everything else stays
-            // a normal opaque window.
-            GlassChromeService.Attach(this);
-            VisualThemeEngine.ReapplyWindowChrome();
+            // The active visual family paints its own self-contained
+            // window stage in-window (VisualThemeEngine) — no OS-
+            // level chrome service to attach.
 
             // Shutdown safety guard
             Closing += MainWindow_Closing;

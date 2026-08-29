@@ -1,22 +1,27 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: Tests/Agent/GlassThemeSourceTests.cs
+// FILE: Tests/Agent/LiquidGlassThemeSourceTests.cs
 // PROJECT: ProGlassAutomation.Tests
-// MODULE: Source-level invariants for the white water-glass theme
-//         (2026-08-29, transparency pass 2)
+// MODULE: Source-level invariants for the iOS Liquid Glass theme system
+//         (2026-08-29 — system-wide rewrite + completion sweep)
 //
-// Pins the DESIGN of the Glass/Glassy families so a future edit cannot
-// silently revert the light glass to opaque slabs or re-apply the dark
-// ramp to light mode (the two defects that made the glass "completely
-// broken").
+// Pins the DESIGN of the iOS Liquid Glass family AND the COMPLETENESS of
+// the system-wide rewrite: the legacy "Glass"/"Glassy" families, their
+// resource keys, identifiers, file names and UI wording must stay
+// deleted; the opaque in-window stage must stay self-contained (no DWM
+// veil); the per-mode ramps (white water glass in Light, deep frost in
+// Dark) must stay per-mode; and the Liquid* token surface must stay
+// identical across BOTH theme dictionaries.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace ProGlassAutomation.Tests.Agent
 {
-    public sealed class GlassThemeSourceTests
+    public sealed class LiquidGlassThemeSourceTests
     {
         private static string Read(string relative) =>
             File.ReadAllText(Path.Combine(Root(), relative));
@@ -56,6 +61,15 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("WithAlpha(stageB", engine, StringComparison.Ordinal);
             Assert.Contains("0xD7, 0xE5, 0xF9", engine, StringComparison.Ordinal);
             Assert.Contains("0xAE, 0xCB, 0xF0", engine, StringComparison.Ordinal);
+
+            // 2026-08-29 completion sweep: the DWM chrome service that
+            // used to veil the window surface is DELETED outright — no
+            // OS-backdrop code path exists anymore.
+            Assert.DoesNotContain("GlassChromeService", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("SyncGlassChrome", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("ReapplyWindowChrome", engine, StringComparison.Ordinal);
+            Assert.DoesNotContain("GlassChromeService", Read("MainWindow.xaml.cs"),
+                StringComparison.Ordinal);
         }
 
         [Fact]
@@ -86,7 +100,7 @@ namespace ProGlassAutomation.Tests.Agent
         [Fact]
         public void Light_glass_card_is_translucent_white_not_opaque()
         {
-            // The second original defect: GlassCard was #FFFFFFFF
+            // The second original defect: the light card was #FFFFFFFF
             // (opaque white) — a solid slab, not glass.
             Assert.Contains("#DBFFFFFF", LightTheme, StringComparison.Ordinal);
             Assert.Contains("#BDFFFFFF", LightTheme, StringComparison.Ordinal);
@@ -109,7 +123,7 @@ namespace ProGlassAutomation.Tests.Agent
         public void Light_glass_text_is_decoupled_from_surface_keys()
         {
             // Light glass text uses fixed ink/slate constants; it must
-            // never read the surface-named Glass* keys again (that
+            // never read the surface-named Liquid* keys again (that
             // coupling would white-out text when surfaces are
             // recoloured).
             Assert.Contains("FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55))", Engine, StringComparison.Ordinal);
@@ -122,8 +136,8 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // Runtime overrides (Application.Resources) only reach
             // consumers bound with DynamicResource. The card styles
-            // must never switch back to StaticResource, or the Glass/
-            // Glassy surfaces would silently stay opaque.
+            // must never switch back to StaticResource, or the iOS
+            // Liquid Glass surfaces would silently stay opaque.
             string cardStyles = Read("Themes/Styles/CardStyles.xaml");
             string settings = Read("Views/Settings/SettingsSectionStyles.xaml");
 
@@ -139,7 +153,7 @@ namespace ProGlassAutomation.Tests.Agent
             // The global liquid glass system (2026-08-29): one shared
             // dictionary merged in App.xaml; every token it consumes is
             // defined in BOTH theme files so Light/Dark switching and
-            // the Glass/Glassy family overrides always resolve.
+            // the iOS Liquid Glass family overrides always resolve.
             string app = Read("App.xaml");
             string light = LightTheme;
             string dark = Read("Themes/DarkTheme.xaml");
@@ -151,10 +165,10 @@ namespace ProGlassAutomation.Tests.Agent
             string[] tokens =
             {
                 "LiquidGlassBrush", "LiquidGlassSubtleBrush", "LiquidGlassStrongBrush",
-                "GlassEdgeBrush", "GlassInnerHighlightBrush", "GlassReflectionBrush",
-                "GlassControlHoverBrush", "GlassControlPressedBrush", "GlassControlDisabledBrush",
-                "GlassFocusBrush", "GlassSelectionBrush", "GlassPrimaryButtonBrush",
-                "GlassOverlayBrush", "GlassShadowColor"
+                "LiquidEdgeBrush", "LiquidInnerHighlightBrush", "LiquidReflectionBrush",
+                "LiquidControlHoverBrush", "LiquidControlPressedBrush", "LiquidControlDisabledBrush",
+                "LiquidFocusBrush", "LiquidSelectionBrush", "LiquidPrimaryButtonBrush",
+                "LiquidOverlayBrush", "LiquidShadowColor"
             };
             foreach (string token in tokens)
             {
@@ -175,26 +189,26 @@ namespace ProGlassAutomation.Tests.Agent
             foreach (string token in new[]
                      {
                          "LiquidGlassBrush", "LiquidGlassSubtleBrush", "LiquidGlassStrongBrush",
-                         "GlassEdgeBrush", "GlassInnerHighlightBrush", "GlassReflectionBrush",
-                         "GlassControlHoverBrush", "GlassControlPressedBrush", "GlassControlDisabledBrush",
-                         "GlassFocusBrush", "GlassSelectionBrush", "GlassPrimaryButtonBrush",
-                         "GlassOverlayBrush", "GlassShadowColor"
+                         "LiquidEdgeBrush", "LiquidInnerHighlightBrush", "LiquidReflectionBrush",
+                         "LiquidControlHoverBrush", "LiquidControlPressedBrush", "LiquidControlDisabledBrush",
+                         "LiquidFocusBrush", "LiquidSelectionBrush", "LiquidPrimaryButtonBrush",
+                         "LiquidOverlayBrush", "LiquidShadowColor"
                      })
             {
                 Assert.DoesNotContain("{StaticResource " + token + "}", styles, StringComparison.Ordinal);
             }
             Assert.Contains("{DynamicResource LiquidGlassBrush}", styles, StringComparison.Ordinal);
-            Assert.Contains("{DynamicResource GlassEdgeBrush}", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource LiquidEdgeBrush}", styles, StringComparison.Ordinal);
         }
 
         [Fact]
-        public void Engine_publishes_the_liquid_glass_tokens_for_glass_families()
+        public void Engine_publishes_the_liquid_glass_tokens_for_the_liquid_family()
         {
             string engine = Engine;
             Assert.Contains("ApplyLiquidGlassTokens", engine, StringComparison.Ordinal);
-            Assert.Contains("\"GlassEdgeBrush\"", engine, StringComparison.Ordinal);
-            Assert.Contains("\"GlassSelectionBrush\"", engine, StringComparison.Ordinal);
-            Assert.Contains("\"GlassPrimaryButtonBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidEdgeBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidSelectionBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"LiquidPrimaryButtonBrush\"", engine, StringComparison.Ordinal);
             Assert.Contains("CrystalEdge", engine, StringComparison.Ordinal);
         }
 
@@ -202,13 +216,13 @@ namespace ProGlassAutomation.Tests.Agent
         public void Liquid_glass_card_control_exposes_intensity_and_radius()
         {
             string control = Read("Controls/LiquidGlassCard.cs");
-            Assert.Contains("GlassIntensityProperty", control, StringComparison.Ordinal);
-            Assert.Contains("enum GlassSurface", control, StringComparison.Ordinal);
+            Assert.Contains("LiquidIntensityProperty", control, StringComparison.Ordinal);
+            Assert.Contains("enum LiquidSurface", control, StringComparison.Ordinal);
             Assert.Contains("CornerRadiusProperty", control, StringComparison.Ordinal);
         }
 
         [Fact]
-        public void Dark_glass_ramp_untouched_by_the_light_pass()
+        public void Dark_frost_ramp_untouched_by_the_light_pass()
         {
             // Dark deep-frost materials are the original About look;
             // the light-transparency pass must never change them.
@@ -216,6 +230,143 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("#2EFFFFFF", dark, StringComparison.Ordinal);
             Assert.Contains("#0DFFFFFF", dark, StringComparison.Ordinal);
         }
+
+        [Fact]
+        public void Theme_dictionaries_define_no_glass_prefixed_resource_keys()
+        {
+            // The old Glass* token surface is gone: no theme/style
+            // dictionary may define a resource whose key contains
+            // "Glass" unless it is the NEW family's own name
+            // (LiquidGlass*).
+            foreach (var file in new[]
+                     {
+                         LightTheme,
+                         Read("Themes/DarkTheme.xaml"),
+                         Read("Themes/Styles/LiquidGlassStyles.xaml"),
+                         Read("Views/Login/AuthSurfaceStyles.xaml"),
+                         Read("Views/Splash/SplashView.xaml"),
+                         Read("Styles/DashboardStyles.xaml"),
+                         Read("Views/Reports/StatementGenerator/Filter/FilterStep.xaml")
+                     })
+            {
+                foreach (Match m in Regex.Matches(file, "x:Key=\"([^\"]+)\""))
+                {
+                    string key = m.Groups[1].Value;
+                    Assert.False(
+                        key.Contains("Glass", StringComparison.Ordinal) &&
+                        !key.StartsWith("LiquidGlass", StringComparison.Ordinal),
+                        "Resource key still carries the legacy Glass family name: " + key);
+                }
+            }
+        }
+
+        [Fact]
+        public void No_legacy_glass_family_identifiers_remain_in_source()
+        {
+            // 2026-08-29 completion sweep: the rewrite must not leave a
+            // single legacy-family identifier behind. Word-boundary
+            // matching keeps the NEW family intact (LiquidGlassCard,
+            // LiquidGlassBrush etc. do not contain these identifiers).
+            var root = Root();
+            var sep = Path.DirectorySeparatorChar;
+            var banned = new[]
+            {
+                "GlassChromeService", "ReapplyWindowChrome", "SyncGlassChrome",
+                "GlassSurface", "GlassIntensity", "SolidGlass", "HueGlass",
+                "AccentGlass", "FrozenGlassText", "AuthGlassStyles",
+                "GlassPlate", "GlassGlow", "DangerOnGlass", "WarningOnGlass",
+                "DashGlassSurfaceBrush", "DashGlassBorderBrush",
+                "ShellGlassBrush", "ShellGlassBorderBrush",
+                "GlassOrbA", "GlassOrbB", "GlassEdgeBrush",
+                "GlassInnerHighlightBrush", "GlassReflectionBrush",
+                "GlassControlHoverBrush", "GlassControlPressedBrush",
+                "GlassControlDisabledBrush", "GlassFocusBrush",
+                "GlassSelectionBrush", "GlassPrimaryButtonBrush",
+                "GlassOverlayBrush", "GlassShadowColor",
+                "GlassIce", "GlassFrost", "GlassCerulean", "GlassSnow",
+                "GlassAccentDeep", "GlassAccent", "GlassMuted",
+                "GlassCard", "GlassSheen"
+            };
+
+            foreach (var path in Directory.EnumerateFiles(root, "*.*",
+                         SearchOption.AllDirectories)
+                     .Where(p => p.EndsWith(".cs", StringComparison.Ordinal) ||
+                                 p.EndsWith(".xaml", StringComparison.Ordinal))
+                     .Where(p => !p.Contains(sep + "bin" + sep) &&
+                                 !p.Contains(sep + "obj" + sep) &&
+                                 !p.Contains(sep + ".arena" + sep) &&
+                                 !p.Contains(sep + ".claude" + sep) &&
+                                 !Path.GetFileName(p).Equals(
+                                     "LiquidGlassThemeSourceTests.cs",
+                                     StringComparison.Ordinal)))
+            {
+                string text = File.ReadAllText(path);
+                foreach (var name in banned)
+                {
+                    Assert.False(
+                        Regex.IsMatch(text, @"\b" + Regex.Escape(name) + @"\b"),
+                        Path.GetFileName(path) + " still contains " + name);
+                }
+            }
+        }
+
+        [Fact]
+        public void Appearance_page_contains_no_legacy_family_wording()
+        {
+            // The user-facing Appearance page must not mention the
+            // deleted families anywhere — captions, hints or options.
+            string section = Read(
+                "Views/Settings/Sections/SettingsAppearanceSection.xaml");
+            Assert.DoesNotContain("Glassy", section, StringComparison.Ordinal);
+            Assert.DoesNotContain("over transparent glass", section, StringComparison.Ordinal);
+            Assert.DoesNotContain("Glass or Glassy", section, StringComparison.Ordinal);
+            Assert.DoesNotContain("Glass, Glassy", section, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Every_liquid_token_is_defined_in_both_theme_dictionaries()
+        {
+            // Light and Dark must carry the SAME liquid token surface:
+            // the design system and the engine resolve every token via
+            // DynamicResource, so a missing per-mode definition would
+            // silently drop a material at runtime.
+            var light = ResourceKeys(LightTheme)
+                .Where(k => k.StartsWith("Liquid", StringComparison.Ordinal) ||
+                            k.StartsWith("DashLiquid", StringComparison.Ordinal) ||
+                            k.StartsWith("ShellLiquid", StringComparison.Ordinal))
+                .OrderBy(k => k, StringComparer.Ordinal)
+                .ToArray();
+            var dark = ResourceKeys(Read("Themes/DarkTheme.xaml"))
+                .Where(k => k.StartsWith("Liquid", StringComparison.Ordinal) ||
+                            k.StartsWith("DashLiquid", StringComparison.Ordinal) ||
+                            k.StartsWith("ShellLiquid", StringComparison.Ordinal))
+                .OrderBy(k => k, StringComparer.Ordinal)
+                .ToArray();
+
+            Assert.NotEmpty(light);
+            Assert.Equal(light, dark);
+        }
+
+        [Fact]
+        public void Filter_step_uses_liquid_key_names()
+        {
+            // The statement-generator filter step carried local
+            // Glass*-named styles into the new family; they were
+            // renamed to the Liquid* surface in the completion sweep.
+            string filter = Read(
+                "Views/Reports/StatementGenerator/Filter/FilterStep.xaml");
+            Assert.Contains("LiquidComboBoxStyle", filter, StringComparison.Ordinal);
+            Assert.Contains("LiquidDatePickerStyle", filter, StringComparison.Ordinal);
+            Assert.Contains("LiquidFieldLabelStyle", filter, StringComparison.Ordinal);
+            Assert.DoesNotContain("GlassComboBoxStyle", filter, StringComparison.Ordinal);
+            Assert.DoesNotContain("GlassDatePickerStyle", filter, StringComparison.Ordinal);
+            Assert.DoesNotContain("GlassFieldLabelStyle", filter, StringComparison.Ordinal);
+        }
+
+        private static string[] ResourceKeys(string xaml) =>
+            Regex.Matches(xaml, "x:Key=\"([^\"]+)\"")
+                .Select(m => m.Groups[1].Value)
+                .ToArray();
 
         private static string Root()
         {

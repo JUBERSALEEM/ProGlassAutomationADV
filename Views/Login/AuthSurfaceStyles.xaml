@@ -1,14 +1,14 @@
 <!-- ═══════════════════════════════════════════════════════════════════
-     FILE: Views/Login/AuthGlassStyles.xaml
+     FILE: Views/Login/AuthSurfaceStyles.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Authentication — shared glass visual language
+     MODULE: Authentication — shared crystal visual language
 
      ONE source of truth for the entire sign-in flow. Merged by:
        • LoginPanel.xaml            (hosted on the splash stage)
        • ResetPasswordWindow.xaml   (Forgot password →)
        • ForcePasswordChangeWindow.xaml (default-password gate)
 
-     Frosted-glass inputs, navy stage, glass card, accent-gradient
+     Frosted inputs, navy stage, liquid card, accent-gradient
      primary button, text links. Every key here is theme-aware through
      DynamicResource where appropriate and frozen where static.
 ═══════════════════════════════════════════════════════════════════════ -->
@@ -34,7 +34,7 @@
     </RadialGradientBrush>
 
     <!-- ═══ FROSTED CARD ═══ -->
-    <LinearGradientBrush x:Key="GlassCard" StartPoint="0,0" EndPoint="0,1">
+    <LinearGradientBrush x:Key="LiquidCard" StartPoint="0,0" EndPoint="0,1">
         <GradientStop Color="#26FFFFFF" Offset="0.0"/>
         <GradientStop Color="#0CFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
@@ -55,8 +55,8 @@
     <SolidColorBrush x:Key="Frost" Color="#BFDBFE" po:Freeze="True"/>
     <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
     <SolidColorBrush x:Key="Snow" Color="#F8FAFC" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerOnGlass" Color="#FCA5A5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="WarningOnGlass" Color="#FCD34D" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerOnLiquid" Color="#FCA5A5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="WarningOnLiquid" Color="#FCD34D" po:Freeze="True"/>
 
     <!-- ═══ FIELD LABEL ═══ -->
     <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -66,7 +66,7 @@
         <Setter Property="Margin" Value="2,0,0,6"/>
     </Style>
 
-    <!-- ═══ TEXT INPUT — frosted glass, icon chip, rounded ═══ -->
+    <!-- ═══ TEXT INPUT — frosted surface, icon chip, rounded ═══ -->
     <Style x:Key="RoundedTextBox" TargetType="TextBox">
         <Setter Property="Height" Value="42"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
@@ -78,7 +78,7 @@
                     <Border x:Name="Chrome"
                             CornerRadius="10"
                             Background="{DynamicResource LiquidGlassSubtleBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
                         <Grid>
@@ -119,7 +119,7 @@
         </Setter>
     </Style>
 
-    <!-- ═══ PASSWORD INPUT — frosted glass ═══ -->
+    <!-- ═══ PASSWORD INPUT — frosted surface ═══ -->
     <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
         <Setter Property="Height" Value="42"/>
         <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
@@ -131,7 +131,7 @@
                     <Border x:Name="Chrome"
                             CornerRadius="10"
                             Background="{DynamicResource LiquidGlassSubtleBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
                         <Grid>
@@ -187,7 +187,7 @@
                                 Width="18" Height="18"
                                 CornerRadius="5"
                                 Background="{DynamicResource LiquidGlassSubtleBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">

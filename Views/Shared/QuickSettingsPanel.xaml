@@ -9,8 +9,8 @@
              SnapsToDevicePixels="True">
 
     <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-            Background="{DynamicResource ShellGlassBrush}"
-            BorderBrush="{DynamicResource ShellGlassBorderBrush}"
+            Background="{DynamicResource ShellLiquidBrush}"
+            BorderBrush="{DynamicResource ShellLiquidBorderBrush}"
             BorderThickness="1"
             ClipToBounds="True">
         <Border.Effect>

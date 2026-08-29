@@ -31,7 +31,7 @@
          (translucent white gradient + light border + top sheen +
          soft shadow).
 
-         ALL visual resources come from the shared AuthGlassStyles
+         ALL visual resources come from the shared AuthSurfaceStyles
          dictionary — one source of truth for the whole auth flow
          (login, forgot-password reset, forced password change).
 
@@ -45,7 +45,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="AuthGlassStyles.xaml"/>
+                <ResourceDictionary Source="AuthSurfaceStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -71,7 +71,7 @@
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Background="{StaticResource GlassCard}"
+                Background="{StaticResource LiquidCard}"
                 BorderBrush="#66FFFFFF"
                 BorderThickness="1"
                 Effect="{StaticResource CardShadow}"
@@ -128,7 +128,7 @@
                                     Margin="0,14,0,0" Padding="12,9"
                                     CornerRadius="10"
                                     Background="#22F59E0B"
-                                    BorderBrush="{StaticResource WarningOnGlass}"
+                                    BorderBrush="{StaticResource WarningOnLiquid}"
                                     BorderThickness="1"
                                     Visibility="Collapsed">
                                 <StackPanel Orientation="Horizontal">
@@ -137,7 +137,7 @@
                                                FontSize="{StaticResource TextSection}"
                                                VerticalAlignment="Top"
                                                Margin="0,1,10,0"
-                                               Foreground="{StaticResource WarningOnGlass}"/>
+                                               Foreground="{StaticResource WarningOnLiquid}"/>
                                     <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
                                                Foreground="{StaticResource Ice}">
                                         <Run Text="First run:" FontWeight="Bold"/>
@@ -228,7 +228,7 @@
                                     Margin="0,14,0,0" Padding="13,10"
                                     CornerRadius="10"
                                     Background="#33DC2626"
-                                    BorderBrush="{StaticResource DangerOnGlass}"
+                                    BorderBrush="{StaticResource DangerOnLiquid}"
                                     BorderThickness="1"
                                     Visibility="Collapsed">
                                 <StackPanel Orientation="Horizontal">
@@ -237,12 +237,12 @@
                                                FontSize="{StaticResource TextSection}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"
-                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                               Foreground="{StaticResource DangerOnLiquid}"/>
                                     <TextBlock x:Name="ErrorText"
                                                FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                TextWrapping="Wrap"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource DangerOnGlass}"/>
+                                               Foreground="{StaticResource DangerOnLiquid}"/>
                                 </StackPanel>
                             </Border>
 

@@ -7,8 +7,8 @@
       • +DashAmbientBrush              (gradient, glass blue wash)
       • +DashAmbientBlob1Brush          (top-right blue radial)
       • +DashAmbientBlob2Brush          (bottom-left deep blue radial)
-      • +DashGlassSurfaceBrush          (white @ 82% opacity)
-      • +DashGlassBorderBrush           (white → soft blue border)
+      • +DashLiquidSurfaceBrush          (white @ 82% opacity)
+      • +DashLiquidBorderBrush           (white → soft blue border)
       • +DashAccentTextBrush            (rich blue text on glass)
       • +DashCardShadowEffect           (blue-tinted card shadow)
       • +DashInteractiveShadowEffect    (blue glow for buttons)
@@ -57,7 +57,7 @@
                      po:Freeze="True"/>
 
     <!-- ── About page glass palette (light) ───────────────────────────
-         2026-08-25: companion to the dark Glass* palette in
+         2026-08-25: companion to the dark Liquid* palette in
          DarkTheme.xaml. Dark-ink text + strong blue accents so the
          About page stays readable on the light module surface; the
          frosted card is near-opaque white so it lifts against the
@@ -65,25 +65,25 @@
          module consumes these via DynamicResource, so Light/Dark
          swap, visual-family change and wallpaper layering all re-tint
          all three About sections live. -->
-    <SolidColorBrush x:Key="GlassIce"
+    <SolidColorBrush x:Key="LiquidIce"
                      Color="#1E293B"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassFrost"
+    <SolidColorBrush x:Key="LiquidFrost"
                      Color="#334155"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassCerulean"
+    <SolidColorBrush x:Key="LiquidCerulean"
                      Color="#1D4ED8"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSnow"
+    <SolidColorBrush x:Key="LiquidSnow"
                      Color="#0F172A"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassAccent"
+    <SolidColorBrush x:Key="LiquidAccent"
                      Color="#2563EB"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassAccentDeep"
+    <SolidColorBrush x:Key="LiquidAccentDeep"
                      Color="#1D4ED8"
                      po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassMuted"
+    <SolidColorBrush x:Key="LiquidMuted"
                      Color="#475569"
                      po:Freeze="True"/>
     <!-- Frosted card fill — TRUE white water glass (2026-08-29,
@@ -92,7 +92,7 @@
          bottom edge so the stage / wallpaper / blurred desktop reads
          through (alpha 0.86 → 0.74 → 0.62). Previously opaque
          #FFFFFFFF → #F1F5F9: solid white, no translucency — not glass. -->
-    <LinearGradientBrush x:Key="GlassCard"
+    <LinearGradientBrush x:Key="LiquidCard"
                          StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
         <GradientStop Color="#DBFFFFFF" Offset="0.0"/>
@@ -102,7 +102,7 @@
     <!-- Top-light specular sheen: strong white highlight at the top
          corner fading out — the "water glass" catch-light. Previously
          #33FFFFFF, invisible on a white card. -->
-    <LinearGradientBrush x:Key="GlassSheen"
+    <LinearGradientBrush x:Key="LiquidSheen"
                          StartPoint="0,0" EndPoint="1,1"
                          po:Freeze="True">
         <GradientStop Color="#8CFFFFFF" Offset="0.0"/>
@@ -111,14 +111,14 @@
     <!-- Decorative aurora orbs — boosted for the light stage so the
          blue glow actually reads through the white glass (previously
          ~20% alpha: invisible on the pale ice stage). -->
-    <RadialGradientBrush x:Key="GlassOrbA"
+    <RadialGradientBrush x:Key="LiquidOrbA"
                          Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
                          po:Freeze="True">
         <GradientStop Color="#6660A5FA" Offset="0.0"/>
         <GradientStop Color="#332563EB" Offset="0.55"/>
         <GradientStop Color="#002563EB" Offset="1.0"/>
     </RadialGradientBrush>
-    <RadialGradientBrush x:Key="GlassOrbB"
+    <RadialGradientBrush x:Key="LiquidOrbB"
                          Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
                          po:Freeze="True">
         <GradientStop Color="#7A3B82F6" Offset="0.0"/>
@@ -321,13 +321,13 @@
     </RadialGradientBrush>
 
     <!-- Glass card fill — white at 82% opacity. -->
-    <SolidColorBrush x:Key="DashGlassSurfaceBrush"
+    <SolidColorBrush x:Key="DashLiquidSurfaceBrush"
                      Color="#FFFFFF"
                      Opacity="0.82"
                      po:Freeze="True"/>
 
     <!-- Glass card border sheen — white → soft blue diagonal. -->
-    <LinearGradientBrush x:Key="DashGlassBorderBrush"
+    <LinearGradientBrush x:Key="DashLiquidBorderBrush"
                          StartPoint="0,0" EndPoint="1,1"
                          po:Freeze="True">
         <GradientStop Color="#FFFFFF" Offset="0.0"/>
@@ -418,13 +418,13 @@
          Frosted white surfaces over the light stage; subtle dark hairline
          + soft shadow carry the depth.
     ═══════════════════════════════════════════════════════════════════ -->
-    <LinearGradientBrush x:Key="ShellGlassBrush" StartPoint="0,0" EndPoint="0,1"
+    <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
         <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
         <GradientStop Color="#E6FFFFFF" Offset="0.5"/>
         <GradientStop Color="#D9FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="ShellGlassBorderBrush" Color="#24000000" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#24000000" po:Freeze="True"/>
     <SolidColorBrush x:Key="ShellSheenBrush" Color="#B3FFFFFF" po:Freeze="True"/>
     <RadialGradientBrush x:Key="AuroraA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
                          po:Freeze="True">
@@ -443,8 +443,9 @@
          Clear water glass: near-transparent centers, bright crystal
          edges, soft cool refraction. These are the BASE values used
          by every family; VisualThemeEngine overrides them at runtime
-         for Glass/Glassy (accent-tinted) and removes them again on
-         family switch. All brushes frozen — zero runtime cost.
+         for the iOS Liquid Glass family (accent-tinted) and removes
+         them again on family switch. All brushes frozen — zero
+         runtime cost.
     ═══════════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#D9FFFFFF" Offset="0.0"/>
@@ -460,32 +461,32 @@
         <GradientStop Color="#D6FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Crystal edge: bright top, soft sides, slightly deeper lower edge. -->
-    <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+    <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
         <GradientStop Color="#59B9D1EE" Offset="0.5"/>
         <GradientStop Color="#73A9C4DE" Offset="1.0"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+    <LinearGradientBrush x:Key="LiquidInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
         <GradientStop Color="#00FFFFFF" Offset="0.0"/>
         <GradientStop Color="#B3FFFFFF" Offset="0.5"/>
         <GradientStop Color="#00FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+    <LinearGradientBrush x:Key="LiquidReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#59FFFFFF" Offset="0.0"/>
         <GradientStop Color="#00FFFFFF" Offset="0.45"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="GlassControlHoverBrush" Color="#99FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassControlPressedBrush" Color="#B3FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassControlDisabledBrush" Color="#59FFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassFocusBrush" Color="#B33B82F6" po:Freeze="True"/>
-    <LinearGradientBrush x:Key="GlassSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+    <SolidColorBrush x:Key="LiquidControlHoverBrush" Color="#99FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidControlPressedBrush" Color="#B3FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidControlDisabledBrush" Color="#59FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidFocusBrush" Color="#B33B82F6" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="LiquidSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#663B82F6" Offset="0.0"/>
         <GradientStop Color="#403B82F6" Offset="1.0"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassPrimaryButtonBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+    <LinearGradientBrush x:Key="LiquidPrimaryButtonBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#E8368CF5" Offset="0.0"/>
         <GradientStop Color="#A62F7DE6" Offset="1.0"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="GlassOverlayBrush" Color="#59061724" po:Freeze="True"/>
-    <Color x:Key="GlassShadowColor">#4D0B1B2E</Color>
+    <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#59061724" po:Freeze="True"/>
+    <Color x:Key="LiquidShadowColor">#4D0B1B2E</Color>
 </ResourceDictionary>

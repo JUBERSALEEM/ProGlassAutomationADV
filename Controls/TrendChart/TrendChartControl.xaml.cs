@@ -637,7 +637,7 @@ namespace ProGlassAutomation.Controls.TrendChart
                     Width = 10,
                     Height = 10,
                     Fill = accent,
-                    Stroke = Res("DashGlassSurfaceBrush", Brushes.White),
+                    Stroke = Res("DashLiquidSurfaceBrush", Brushes.White),
                     StrokeThickness = 2
                 };
                 HoverLayer.Children.Add(_marker);

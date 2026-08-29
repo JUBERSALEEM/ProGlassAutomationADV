@@ -10,10 +10,10 @@
 // are derived by mixing the chosen colour toward the theme's neutral
 // slate, so headings, captions and hints keep their contrast order
 // whatever colour is chosen — text never sits invisible over the
-// transparent Glassy glass.
+// transparent frosted surfaces.
 //
 // "Auto" (empty config value) means "no override": every family keeps
-// its own palette (Glassy = the About page's GlassSnow/Cerulean/Muted,
+// its own palette (iOS Liquid Glass = the About page's LiquidSnow/Cerulean/Muted,
 // all others = the Light/Dark theme defaults).
 // ═══════════════════════════════════════════════════════════════════════
 

@@ -3,11 +3,11 @@
      PROJECT: ProGlassAutomation
      MODULE: Splash Screen — industrial glass identity
 
-     Professional glassmorphism composition on the deep-navy stage:
+     Professional crystal composition on the deep-navy stage:
        • aurora backdrop (layered soft orbs)
        • top frosted trust chips (MADE IN INDIA / ENTERPRISE · vX /
          OFFLINE · SECURE)
-       • centered glass logo tile with halo + orbit ring + sheen
+       • centered crystal logo tile with halo + orbit ring + sheen
        • product name (metallic gradient) + tagline
        • circular module orbs (static, one uniform fade — no marketing
          flash, no stagger)
@@ -61,7 +61,7 @@
         <BlurEffect x:Key="OrbBlur"  Radius="80" RenderingBias="Performance"/>
         <BlurEffect x:Key="HaloBlur" Radius="26" RenderingBias="Performance"/>
 
-        <!-- ═══ PALETTE (frozen once) — blueish glass spectrum ═══ -->
+        <!-- ═══ PALETTE (frozen once) — blueish crystal spectrum ═══ -->
         <SolidColorBrush x:Key="Azure"    Color="#60A5FA" po:Freeze="True"/>
         <SolidColorBrush x:Key="Cerulean" Color="#93C5FD" po:Freeze="True"/>
         <SolidColorBrush x:Key="Frost"    Color="#BFDBFE" po:Freeze="True"/>
@@ -74,7 +74,7 @@
             <GradientStop Color="#0B2A6E" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Blurred aurora orbs (glass backdrop) -->
+        <!-- Blurred aurora orbs (frost backdrop) -->
         <RadialGradientBrush x:Key="OrbRight"
                              Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
             <GradientStop Color="#4D82F6FF" Offset="0.0"/>
@@ -94,14 +94,14 @@
             <GradientStop Color="#60A5FA00" Offset="1.0"/>
         </RadialGradientBrush>
 
-        <!-- ═══ BRAND NAME — metallic glass gradient + glow ═══ -->
+        <!-- ═══ BRAND NAME — metallic crystal gradient + glow ═══ -->
         <LinearGradientBrush x:Key="NameGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="#FFFFFF" Offset="0.0"/>
             <GradientStop Color="#BFDBFE" Offset="0.45"/>
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ═══ ICON HALO + GLASS ═══ -->
+        <!-- ═══ ICON HALO + CRYSTAL ═══ -->
         <RadialGradientBrush x:Key="IconHalo"
                              Center="0.5,0.5" GradientOrigin="0.5,0.5"
                              RadiusX="0.5" RadiusY="0.5">
@@ -110,13 +110,13 @@
             <GradientStop Color="#4F8EF700" Offset="1.0"/>
         </RadialGradientBrush>
 
-        <LinearGradientBrush x:Key="GlassPlate" StartPoint="0,0" EndPoint="1,1">
+        <LinearGradientBrush x:Key="SplashPlate" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Color="#F7FFFFFF" Offset="0.0"/>
             <GradientStop Color="#E8F1FAFF" Offset="0.5"/>
             <GradientStop Color="#D0E2F5FF" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Top-edge highlight on the logo tile (glass sheen). -->
+        <!-- Top-edge highlight on the logo tile (crystal sheen). -->
         <LinearGradientBrush x:Key="TileSheen" StartPoint="0,0" EndPoint="0,1">
             <GradientStop Color="#99FFFFFF" Offset="0.0"/>
             <GradientStop Color="#00FFFFFF" Offset="0.45"/>
@@ -129,10 +129,10 @@
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- ═══ GLASS SHADOWS ═══ -->
+        <!-- ═══ CRYSTAL SHADOWS ═══ -->
         <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
                           BlurRadius="48" ShadowDepth="0" Opacity="0.7"/>
-        <DropShadowEffect x:Key="GlassGlow" Color="{DynamicResource AccentColor}"
+        <DropShadowEffect x:Key="SplashGlow" Color="{DynamicResource AccentColor}"
                           BlurRadius="20" ShadowDepth="0" Opacity="0.45"/>
 
         <!-- ═══ FROSTED TRUST CHIP (top badges) ═══ -->
@@ -150,7 +150,7 @@
             <Setter Property="CornerRadius" Value="17"/>
             <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="16,0"/>
-            <Setter Property="Effect" Value="{StaticResource GlassGlow}"/>
+            <Setter Property="Effect" Value="{StaticResource SplashGlow}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
@@ -341,7 +341,7 @@
                         MaxWidth="860"
                         Margin="8,18">
 
-                <!-- Logo — glass tile + halo + orbit ring + sheen -->
+                <!-- Logo — crystal tile + halo + orbit ring + sheen -->
                 <Border x:Name="LogoBorder" Width="136" Height="136"
                         HorizontalAlignment="Center"
                         RenderOptions.BitmapScalingMode="HighQuality"
@@ -357,7 +357,7 @@
                                  StrokeDashArray="4 8"/>
                         <Border Width="96" Height="96" CornerRadius="22"
                                 Effect="{StaticResource IconShadow}"
-                                Background="{StaticResource GlassPlate}"
+                                Background="{StaticResource SplashPlate}"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Border Width="88" Height="88" CornerRadius="18"
@@ -369,7 +369,7 @@
                                                     RenderOptions.BitmapScalingMode="HighQuality"/>
                                     </Border.Background>
                                 </Border>
-                                <!-- Top-edge glass sheen on the tile -->
+                                <!-- Top-edge crystal sheen on the tile -->
                                 <Border Width="88" Height="88" CornerRadius="18"
                                         Background="{StaticResource TileSheen}"
                                         IsHitTestVisible="False"/>
@@ -487,7 +487,7 @@
             <login:FirstRunSetupPanel x:Name="SetupGate"/>
         </Grid>
 
-        <!-- ═══ TERMS GATE — FULL PAGE (glass scrim) ═══ -->
+        <!-- ═══ TERMS GATE — FULL PAGE (crystal scrim) ═══ -->
         <Grid x:Name="TermsPanel"
               Background="{DynamicResource WindowBackgroundBrush}"
               Visibility="Collapsed"
@@ -520,7 +520,7 @@
                            Opacity="0.5" Fill="{DynamicResource AccentBrush}"/>
             </StackPanel>
 
-            <!-- Glass terms card -->
+            <!-- Crystal terms card -->
             <Border Grid.Row="1"
                     MaxWidth="980"
                     Margin="60,26,60,10"
@@ -575,7 +575,7 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- Glass accept bar -->
+            <!-- Crystal accept bar -->
             <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"

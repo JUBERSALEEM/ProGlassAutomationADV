@@ -57,7 +57,7 @@
             <Style x:Key="AboutTabItemStyle" TargetType="ListBoxItem">
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassFrost}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidFrost}"/>
                 <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="Margin" Value="0,0,8,0"/>
@@ -80,8 +80,8 @@
                                     <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource AboutInteractiveHoverBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource GlassAccentDeep}"/>
-                                    <Setter TargetName="TabBg" Property="BorderBrush" Value="{DynamicResource GlassAccent}"/>
+                                    <Setter TargetName="TabBg" Property="Background" Value="{DynamicResource LiquidAccentDeep}"/>
+                                    <Setter TargetName="TabBg" Property="BorderBrush" Value="{DynamicResource LiquidAccent}"/>
                                     <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
@@ -103,13 +103,13 @@
                                      made translucent by the theme engine
                                      when a wallpaper is active.
          So the About page now behaves exactly like every other module:
-         Light/Dark swap, visual family (Monet / Professional / Glass /
-         Ocean), accent changes and wallpaper layering all re-tint the
+         Light/Dark swap, visual family (Monet / Professional /
+         iOS Liquid Glass / Ocean), accent changes and wallpaper layering all re-tint the
          page live through DynamicResource — in ALL THREE sections
-         (About / Modules / Developer share the Glass* palette).
+         (About / Modules / Developer share the Liquid* palette).
 
          The only stage-specific decoration is the two soft aurora orbs
-         (theme-aware brushes GlassOrbA / GlassOrbB, defined per theme
+         (theme-aware brushes LiquidOrbA / LiquidOrbB, defined per theme
          in Themes/DarkTheme.xaml + LightTheme.xaml).
 
          Transparency is safe by construction: the host card ALWAYS
@@ -122,11 +122,11 @@
         <Ellipse Width="560" Height="560"
                  HorizontalAlignment="Right" VerticalAlignment="Top"
                  Margin="0,-180,-140,0" IsHitTestVisible="False"
-                 Fill="{DynamicResource GlassOrbA}"/>
+                 Fill="{DynamicResource LiquidOrbA}"/>
         <Ellipse Width="420" Height="420"
                  HorizontalAlignment="Left" VerticalAlignment="Bottom"
                  Margin="-120,0,0,-120" IsHitTestVisible="False"
-                 Fill="{DynamicResource GlassOrbB}"/>
+                 Fill="{DynamicResource LiquidOrbB}"/>
 
         <ScrollViewer x:Name="RootScrollViewer"
                       VerticalScrollBarVisibility="Auto"
@@ -142,7 +142,7 @@
                 <!-- ═══ HERO — frosted identity strip ═══ -->
                 <Border Style="{StaticResource HeroCardStyle}">
                     <Grid>
-                        <Border Background="{DynamicResource GlassSheen}"
+                        <Border Background="{DynamicResource LiquidSheen}"
                                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 IsHitTestVisible="False"/>
 
@@ -160,7 +160,7 @@
                             <!-- App icon -->
                             <Grid Grid.Row="0" Grid.Column="0" Margin="0,0,26,0">
                                 <Ellipse Width="104" Height="104"
-                                         Stroke="{DynamicResource GlassAccent}"
+                                         Stroke="{DynamicResource LiquidAccent}"
                                          StrokeThickness="1" StrokeDashArray="4 6"
                                          Opacity="0.5" IsHitTestVisible="False"/>
                                 <Border Width="84" Height="84"
@@ -196,13 +196,13 @@
                                 <TextBlock Text="{Binding AppName}"
                                            FontSize="30"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource GlassSnow}"
+                                           Foreground="{DynamicResource LiquidSnow}"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                                 <TextBlock Text="{Binding AppTagline}"
                                            FontSize="{StaticResource TextBodyLarge}"
                                            Margin="0,5,0,0"
-                                           Foreground="{DynamicResource GlassCerulean}"
+                                           Foreground="{DynamicResource LiquidCerulean}"
                                            TextWrapping="Wrap"
                                            IsHitTestVisible="False"/>
                             </StackPanel>
@@ -213,7 +213,7 @@
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Right"
                                         Width="210">
-                                <Border Background="{DynamicResource GlassAccentDeep}"
+                                <Border Background="{DynamicResource LiquidAccentDeep}"
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="16,8"
                                         HorizontalAlignment="Stretch"
@@ -233,7 +233,7 @@
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="SemiBold"
                                                TextAlignment="Center"
-                                               Foreground="{DynamicResource GlassAccent}"
+                                               Foreground="{DynamicResource LiquidAccent}"
                                                IsHitTestVisible="False"/>
                                 </Border>
                                 <Border Style="{StaticResource ChipStyle}" Margin="0,8,0,0"
@@ -242,7 +242,7 @@
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                TextAlignment="Center"
-                                               Foreground="{DynamicResource GlassAccent}"
+                                               Foreground="{DynamicResource LiquidAccent}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                 </Border>
@@ -252,7 +252,7 @@
                                                FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                TextAlignment="Center"
-                                               Foreground="{DynamicResource GlassSnow}"
+                                               Foreground="{DynamicResource LiquidSnow}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                 </Border>

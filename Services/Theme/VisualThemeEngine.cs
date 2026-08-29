@@ -9,9 +9,9 @@
 //   Normal        — clean, practical default (no surface overrides).
 //   Monet         — colour-adaptive artistic look (Material-You style):
 //                   the palette is DERIVED from the user's accent
-//                   colour — hue-tinted glass surfaces, tinted fallback
+//                   colour — hue-tinted frosted surfaces, tinted fallback
 //                   gradient — and re-derives live when the accent
-//                   changes. Wallpaper reads through the glass.
+//                   changes. Wallpaper reads through the frost.
 //   Professional  — premium corporate finish: cool slate gradient
 //                   window, crisp cooler surfaces, tighter radii,
 //                   restrained hover — visibly distinct from Normal.
@@ -77,33 +77,33 @@ namespace ProGlassAutomation.Services.Theme
 
             // Status-tint cards/chips (InfoCard + the BrushKeyConverter
             // chips in dashboards/lists). The iOS Liquid Glass family
-            // renders these as see-through hue glass (hue kept, alpha
+            // renders these as see-through hue frost (hue kept, alpha
             // dropped), so the overrides must be cleaned up on family
             // switch exactly like the surfaces above.
             "TintIndigoBrush", "TintBlueBrush", "TintGreenBrush",
             "TintRedBrush", "TintAmberBrush", "TintPurpleBrush",
             "TintGrayBrush",
 
-            // Dashboard glass + ambient layer, and the shell (top bar)
-            // glass — the iOS family re-skins these to the glass stage.
-            "DashGlassSurfaceBrush", "DashAmbientBrush",
+            // Dashboard surface + ambient layer, and the shell (top bar)
+            // — the iOS family re-skins these to the aurora stage.
+            "DashLiquidSurfaceBrush", "DashAmbientBrush",
             "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
-            "ShellGlassBrush", "SidebarCardBrush",
+            "ShellLiquidBrush", "SidebarCardBrush",
 
             // Liquid Glass design system tokens (2026-08-29): the
-            // Glass/Glassy families write accent-tinted crystal values;
+            // iOS Liquid Glass family writes accent-tinted crystal values;
             // every other family restores the theme-file defaults.
             "LiquidGlassBrush", "LiquidGlassSubtleBrush",
             "LiquidGlassStrongBrush",
-            "GlassEdgeBrush", "GlassInnerHighlightBrush",
-            "GlassReflectionBrush",
-            "GlassControlHoverBrush", "GlassControlPressedBrush",
-            "GlassControlDisabledBrush",
-            "GlassFocusBrush", "GlassSelectionBrush",
-            "GlassPrimaryButtonBrush", "GlassOverlayBrush",
-            "GlassShadowColor",
+            "LiquidEdgeBrush", "LiquidInnerHighlightBrush",
+            "LiquidReflectionBrush",
+            "LiquidControlHoverBrush", "LiquidControlPressedBrush",
+            "LiquidControlDisabledBrush",
+            "LiquidFocusBrush", "LiquidSelectionBrush",
+            "LiquidPrimaryButtonBrush", "LiquidOverlayBrush",
+            "LiquidShadowColor",
 
-            // Glass typography: the About page's text palette is
+            // Liquid typography: the About page's text palette is
             // applied so text auto-adapts when every card goes
             // transparent.
             "PrimaryForegroundBrush",
@@ -239,11 +239,6 @@ namespace ProGlassAutomation.Services.Theme
                 // over whatever the family/wallpaper just wrote.
                 ApplyFontPreference(resources, false);
 
-                // Window-level acrylic blur follows the family: Glass and
-                // Glassy get the DWM accent backdrop, everything else
-                // restores the normal window surface.
-                SyncGlassChrome();
-
                 AppLogService.Info(
                     $"Visual theme applied: {Current}",
                     new LogContext
@@ -348,8 +343,6 @@ namespace ProGlassAutomation.Services.Theme
                         // Global font colour preference still wins last.
                         ApplyFontPreference(resources, true);
 
-                        // Window chrome follows the family.
-                        SyncGlassChrome();
                         return;
                     }
                 }
@@ -371,8 +364,6 @@ namespace ProGlassAutomation.Services.Theme
                 // user-chosen text palette always wins.
                 ApplyFontPreference(resources, systemWallpaperLayered);
 
-                // Window-level acrylic blur follows the family.
-                SyncGlassChrome();
             }
             catch (Exception ex)
             {
@@ -507,20 +498,20 @@ namespace ProGlassAutomation.Services.Theme
                 }
             }
 
-            // Glass surfaces — the active base theme's colours tinted
+            // Frosted surfaces — the active base theme's colours tinted
             // toward the accent hue, then made translucent so the
             // wallpaper reads through. Tint strength is deliberately
             // visible so the colour adaptation is unmistakable.
-            resources["ModuleBackgroundBrush"] = GlassSurface(
+            resources["ModuleBackgroundBrush"] = FrostSurface(
                 resources, "ModuleBackgroundBrush", accent,
                 Colors.White, 0.74, dark);
-            resources["ElevatedSurfaceBrush"] = GlassSurface(
+            resources["ElevatedSurfaceBrush"] = FrostSurface(
                 resources, "ElevatedSurfaceBrush", accent,
                 Colors.White, 0.82, dark);
-            resources["SideMenuBackgroundBrush"] = GlassSurface(
+            resources["SideMenuBackgroundBrush"] = FrostSurface(
                 resources, "SideMenuBackgroundBrush", accent,
                 Colors.White, 0.88, dark);
-            resources["MenuHoverBrush"] = GlassSurface(
+            resources["MenuHoverBrush"] = FrostSurface(
                 resources, "MenuHoverBrush", accent,
                 Color.FromRgb(0xF3, 0xF4, 0xF6), 0.62, dark);
 
@@ -529,7 +520,7 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadiusLarge"] = new CornerRadius(24);
             resources["ControlCornerRadius"] = new CornerRadius(12);
 
-            // Keyline derived from the SAME accent hue as the glass
+            // Keyline derived from the SAME accent hue as the frosted
             // surfaces, so the outline belongs to the material instead
             // of sitting on it as a foreign grey. Lightness is pinned to
             // a value that keeps roughly 2-3:1 against the card it
@@ -587,7 +578,7 @@ namespace ProGlassAutomation.Services.Theme
         /// hard-coded colour.
         /// </para>
         /// </summary>
-        private static Brush GlassSurface(
+        private static Brush FrostSurface(
             ResourceDictionary resources, string key, Color accent,
             Color fallback, double opacity, bool dark)
         {
@@ -679,8 +670,6 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0x8C, 0x9C, 0xB0));
         }
 
-        // ── GLASS — frosted translucency (premium glass identity) ─────
-
         // ── iOS LIQUID GLASS — the default family (2026-08-29) ────────
         //
         // ONE coherent crystal design system, adaptive to Light/Dark.
@@ -698,8 +687,8 @@ namespace ProGlassAutomation.Services.Theme
         //     high-alpha white water glass in Light, deep frost in
         //     Dark. The stage must stay noticeably more colourful
         //     than the panes — that contrast is what makes glass
-        //     read as glass instead of white-on-white.
-        //   * STATUS TINTS — hue kept, fill made glass.
+        //     read as crystal instead of white-on-white.
+        //   * STATUS TINTS — hue kept, fill made frost.
         //   * TYPOGRAPHY — About-page text palette in Dark, fixed
         //     ink/slate in Light (decoupled from surface keys).
         //   * LIQUID GLASS TOKENS — crystal edge, reflections and
@@ -723,13 +712,13 @@ namespace ProGlassAutomation.Services.Theme
                 resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.32, 0.11);
                 resources["MenuHoverBrush"] = FrostFill(accent, 0.22, 0.11);
                 resources["SidebarCardBrush"] = FrostFill(accent, 0.24, 0.09);
-                resources["ShellGlassBrush"] = FrostFill(accent, 0.28, 0.09);
-                resources["DashGlassSurfaceBrush"] = FrostFill(accent, 0.22, 0.09);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.28, 0.09);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.22, 0.09);
 
                 // ── 3) DASHBOARD AMBIENT — soft glow under the frost ─
                 resources["DashAmbientBrush"] = FrostFill(accent, 0.14, 0.06);
-                resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.10);
-                resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.08);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.10);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.08);
             }
             else
             {
@@ -741,23 +730,23 @@ namespace ProGlassAutomation.Services.Theme
                 resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.94, 0.72);
                 resources["MenuHoverBrush"] = FrostFill(accent, 0.50, 0.30);
                 resources["SidebarCardBrush"] = FrostFill(accent, 0.82, 0.52);
-                resources["ShellGlassBrush"] = FrostFill(accent, 0.88, 0.58);
-                resources["DashGlassSurfaceBrush"] = FrostFill(accent, 0.84, 0.56);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.88, 0.58);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.84, 0.56);
 
                 // ── 3) DASHBOARD AMBIENT — blue glow under the panes ─
                 resources["DashAmbientBrush"] = FrostFill(accent, 0.20, 0.08);
-                resources["DashAmbientBlob1Brush"] = SolidGlass(accent, 0.16);
-                resources["DashAmbientBlob2Brush"] = SolidGlass(accent, 0.12);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.16);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.12);
             }
 
             // ── 4) STATUS TINTS — hue kept, fill made glass ─────────
-            resources["TintIndigoBrush"] = HueGlass("TintIndigoBrush", 0.30, 0.14);
-            resources["TintBlueBrush"] = HueGlass("TintBlueBrush", 0.30, 0.14);
-            resources["TintGreenBrush"] = HueGlass("TintGreenBrush", 0.30, 0.14);
-            resources["TintRedBrush"] = HueGlass("TintRedBrush", 0.30, 0.14);
-            resources["TintAmberBrush"] = HueGlass("TintAmberBrush", 0.30, 0.14);
-            resources["TintPurpleBrush"] = HueGlass("TintPurpleBrush", 0.30, 0.14);
-            resources["TintGrayBrush"] = HueGlass("TintGrayBrush", 0.30, 0.14);
+            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.30, 0.14);
+            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.30, 0.14);
+            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.30, 0.14);
+            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.30, 0.14);
+            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.30, 0.14);
+            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.30, 0.14);
+            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.30, 0.14);
 
             // ── 5) TYPOGRAPHY — per-mode text palette ───────────────
             SetLiquidTextPalette(resources, dark);
@@ -792,7 +781,7 @@ namespace ProGlassAutomation.Services.Theme
         /// A flat, accent-tinted glass at one fixed alpha (decorative
         /// glows such as the dashboard ambient blobs).
         /// </summary>
-        private static Brush SolidGlass(Color accent, double alpha)
+        private static Brush SolidFrost(Color accent, double alpha)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
             return FrostBrush(accent, Colors.White, dark,
@@ -805,7 +794,7 @@ namespace ProGlassAutomation.Services.Theme
         /// (green = success, red = danger, ...) but the fill becomes
         /// transparent. Gradient when Gradient Surfaces is on.
         /// </summary>
-        private static Brush HueGlass(
+        private static Brush HueFrost(
             string key, double topAlpha, double bottomAlpha)
         {
             Color hue = ThemeManager.GetThemeColor(
@@ -832,33 +821,33 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>
         /// The About page's text palette, applied as the app's
-        /// Primary/Secondary/Muted foreground: primary = GlassSnow
-        /// (near-white on the navy stage), secondary = GlassCerulean,
-        /// muted = GlassMuted — the exact colours the About page's
+        /// Primary/Secondary/Muted foreground: primary = LiquidSnow
+        /// (near-white on the navy stage), secondary = LiquidCerulean,
+        /// muted = LiquidMuted — the exact colours the About page's
         /// headings and captions use, read from the ACTIVE theme's
-        /// Glass* keys so Light/Dark swaps auto-select the match.
+        /// Liquid* keys so Light/Dark swaps auto-select the match.
         /// </summary>
         private static void SetLiquidTextPalette(
             ResourceDictionary resources, bool dark)
         {
             // Dark mode reads the dark About text palette keys
-            // (GlassSnow / GlassCerulean / GlassMuted). LIGHT mode uses
-            // fixed ink/slate constants — decoupled from the Glass*
+            // (LiquidSnow / LiquidCerulean / LiquidMuted). LIGHT mode uses
+            // fixed ink/slate constants — decoupled from the Liquid*
             // SURFACE keys (2026-08-29) so the white water-glass
             // surfaces can be recoloured freely without ever washing
-            // the text out (previously light text read GlassFrost, a
+            // the text out (previously light text read LiquidFrost, a
             // surface-named key, so re-colouring the frost would have
             // made light text white-on-white).
             resources["PrimaryForegroundBrush"] = dark
-                ? FrozenGlassText("GlassSnow",
+                ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
                 : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
             resources["SecondaryForegroundBrush"] = dark
-                ? FrozenGlassText("GlassCerulean",
+                ? FrozenLiquidText("LiquidCerulean",
                     Color.FromRgb(0x93, 0xC5, 0xFD))
                 : FrozenSolid(Color.FromRgb(0x1D, 0x4E, 0xD8));
             resources["MutedForegroundBrush"] = dark
-                ? FrozenGlassText("GlassMuted",
+                ? FrozenLiquidText("LiquidMuted",
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
                 : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
         }
@@ -873,9 +862,9 @@ namespace ProGlassAutomation.Services.Theme
 
         // ── LIQUID GLASS DESIGN SYSTEM TOKENS (2026-08-29) ────────────
         //
-        // The Glass/Glassy families publish the full crystal material
+        // The iOS Liquid Glass family publishes the full crystal material
         // here: edge, reflections, control states, selection, focus,
-        // primary glass — accent-tinted and per-mode. The
+        // primary crystal — accent-tinted and per-mode. The
         // LiquidGlassStyles.xaml dictionary consumes every token via
         // DynamicResource, so one family switch re-tints the entire
         // card/button/switch/input/grid/dialog system live.
@@ -901,34 +890,34 @@ namespace ProGlassAutomation.Services.Theme
                 resources["ElevatedSurfaceBrush"];
 
             // Crystal edges + reflections.
-            resources["GlassEdgeBrush"] = CrystalEdge(accent, dark);
-            resources["GlassInnerHighlightBrush"] =
+            resources["LiquidEdgeBrush"] = CrystalEdge(accent, dark);
+            resources["LiquidInnerHighlightBrush"] =
                 HorizontalSheen(dark ? (byte)0x59 : (byte)0xB3);
-            resources["GlassReflectionBrush"] =
+            resources["LiquidReflectionBrush"] =
                 DiagonalSheen(dark ? (byte)0x26 : (byte)0x59);
 
             // Interaction states — white glass at state alphas.
-            resources["GlassControlHoverBrush"] =
-                SolidGlass(accent, dark ? 0.30 : 0.60);
-            resources["GlassControlPressedBrush"] =
-                SolidGlass(accent, dark ? 0.22 : 0.70);
-            resources["GlassControlDisabledBrush"] =
-                SolidGlass(accent, dark ? 0.14 : 0.35);
+            resources["LiquidControlHoverBrush"] =
+                SolidFrost(accent, dark ? 0.30 : 0.60);
+            resources["LiquidControlPressedBrush"] =
+                SolidFrost(accent, dark ? 0.22 : 0.70);
+            resources["LiquidControlDisabledBrush"] =
+                SolidFrost(accent, dark ? 0.14 : 0.35);
 
             // Focus / selection / primary — accent-tinted crystal.
-            resources["GlassFocusBrush"] = FrozenSolid(Color.FromArgb(
+            resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
                 dark ? (byte)0x99 : (byte)0xB3,
                 accent.R, accent.G, accent.B));
-            resources["GlassSelectionBrush"] =
-                AccentGlass(accent, dark ? (0x4D, 0x33) : (0x66, 0x40));
-            resources["GlassPrimaryButtonBrush"] =
-                AccentGlass(accent, dark ? (0xA6, 0x73) : (0xE8, 0xA6));
+            resources["LiquidSelectionBrush"] =
+                AccentCrystal(accent, dark ? (0x4D, 0x33) : (0x66, 0x40));
+            resources["LiquidPrimaryButtonBrush"] =
+                AccentCrystal(accent, dark ? (0xA6, 0x73) : (0xE8, 0xA6));
 
             // Dialog veil + soft shadow tint.
-            resources["GlassOverlayBrush"] = FrozenSolid(dark
+            resources["LiquidOverlayBrush"] = FrozenSolid(dark
                 ? Color.FromArgb(0x99, 0x03, 0x10, 0x26)
                 : Color.FromArgb(0x59, 0x06, 0x17, 0x24));
-            resources["GlassShadowColor"] = dark
+            resources["LiquidShadowColor"] = dark
                 ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
                 : Color.FromArgb(0x4D, 0x0B, 0x1B, 0x2E);
         }
@@ -988,10 +977,10 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// Accent-tinted crystal glass (top-lit vertical gradient at
+        /// Accent-tinted crystal fill (top-lit vertical gradient at
         /// the given alphas) — selection and primary fills. Frozen.
         /// </summary>
-        private static Brush AccentGlass(
+        private static Brush AccentCrystal(
             Color accent, (int top, int bottom) alphas)
         {
             var brush = new LinearGradientBrush(
@@ -1004,11 +993,11 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>
         /// Frozen solid brush for one of the About page's text palette
-        /// keys (GlassSnow / GlassFrost / GlassCerulean / GlassMuted)
+        /// keys (LiquidSnow / LiquidFrost / LiquidCerulean / LiquidMuted)
         /// read from the ACTIVE theme dictionary — falling back to the
         /// given colour if the key is ever missing.
         /// </summary>
-        private static Brush FrozenGlassText(string key, Color fallback)
+        private static Brush FrozenLiquidText(string key, Color fallback)
         {
             var brush = new SolidColorBrush(
                 ThemeManager.GetThemeColor(key, fallback));
@@ -1023,8 +1012,8 @@ namespace ProGlassAutomation.Services.Theme
         // Secondary and muted are derived by mixing the chosen colour
         // toward the theme's neutral slate, so the heading/caption/hint
         // contrast order survives whatever colour is picked — this is
-        // the tool that guarantees text visibility when Glassy makes
-        // every card transparent.
+        // the tool that guarantees text visibility when iOS Liquid
+        // Glass makes every card transparent.
         //
         // Called at the END of Apply and ApplyModule, so it runs after
         // the family baseline AND after any wallpaper typography
@@ -1032,8 +1021,9 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>
         /// Applies (or removes) the persisted global font colour
-        /// preference. Auto (""/null) restores ownership: Glassy gets
-        /// its About-page palette, every other family gets the Light/
+        /// preference. Auto (""/null) restores ownership: iOS Liquid
+        /// Glass gets its About-page palette, every other family gets
+        /// the Light/
         /// Dark theme defaults (with the wallpaper contrast adaptation
         /// re-applied when a wallpaper is on screen).
         /// </summary>
@@ -1072,7 +1062,7 @@ namespace ProGlassAutomation.Services.Theme
                 if (chosen == null) return; // invalid persisted hex — keep current
 
                 // (isDark, not dark — that name is already taken by the
-                // Glassy branch above; overlapping scopes may not
+                // iOS Liquid Glass branch above; overlapping scopes may not
                 // redeclare a local name in C#.)
                 Color primary = chosen.Value;
                 bool isDark = ThemeManager.CurrentTheme == AppTheme.Dark;
@@ -1104,69 +1094,9 @@ namespace ProGlassAutomation.Services.Theme
             }
         }
 
-        // ── WINDOW-LEVEL ACRYLIC BLUR (iOS-style glass) ───────────────
-        //
-        // Glass and Glassy are the two frosted families. When the OS
-        // supports it, GlassChromeService applies the DWM accent policy
-        // (acrylic on Win10 1809+/Win11, blur-behind on Win10 1507+),
-        // and these families paint the window surface as a translucent
-        // veil instead of an opaque gradient — the blurred backdrop then
-        // reads through every translucent card, which is the actual
-        // iOS-glass material effect. Every other family restores the
-        // normal window surface. Runs inside Apply/ApplyModule so theme
-        // swaps, accent changes and module navigation all stay in sync.
-
-        /// <summary>
-        /// Turns the window acrylic backdrop on (Glass/Glassy) or off
-        /// (every other family), with an accent-derived DWM tint.
-        /// </summary>
-        private static void SyncGlassChrome()
-        {
-            try
-            {
-                if (Current == LiquidGlass)
-                {
-                    bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
-                    Color accent = ThemeManager.AccentColor;
-
-                    // DWM tint: deep slate (dark) or clean white water
-                    // glass (light), pulled gently toward the accent so
-                    // the backdrop belongs to the user's colour. Alpha
-                    // lowered (0x80, was 0xB0) so any solid fallback
-                    // tint stays subtle behind the opaque stage.
-                    Color baseTint = dark
-                        ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                        : Color.FromRgb(0xF8, 0xFB, 0xFF);
-                    Color tint = ColorMath.Mix(baseTint, accent,
-                        dark ? 0.28 : 0.12);
-
-                    GlassChromeService.Apply(
-                        ColorMath.WithAlpha(tint, 0x80));
-                }
-                else
-                {
-                    GlassChromeService.Remove();
-                }
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    $"Glass chrome sync failed: {ex.Message}",
-                    new LogContext
-                    {
-                        Module = "Themes",
-                        Class = nameof(VisualThemeEngine)
-                    });
-            }
-        }
-
-        /// <summary>
-        /// Re-runs the window chrome sync for the CURRENT family. Called
-        /// once by MainWindow after it attaches GlassChromeService (the
-        /// engine applied the family before the window existed).
-        /// </summary>
-        public static void ReapplyWindowChrome()
-            => SyncGlassChrome();
+        // WINDOW SURFACE — painted entirely in-window by the active
+        // family (opaque aurora stage for iOS Liquid Glass). No OS-
+        // level chrome service is required or attached.
 
         /// <summary>Frozen SolidColorBrush helper for the font palette.</summary>
         private static void FrozenAndSet(
@@ -1184,8 +1114,8 @@ namespace ProGlassAutomation.Services.Theme
         /// <para>
         /// The colours are the About page's own — the stage gradient
         /// that preceded the transparent-stage refactor and the exact
-        /// GlassOrbA / GlassOrbB stops from the theme files — so Glassy
-        /// makes the entire app read as the About scene instead of only
+        /// LiquidOrbA / LiquidOrbB stops from the theme files — so the whole app
+        /// reads as the About scene instead of only
         /// one page. The mid-stop carries a light accent tint, which is
         /// what lets an accent change re-tint the stage (the engine
         /// re-applies on AccentChanged).
@@ -1274,7 +1204,7 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>
         /// One About-stage orb: the exact radial stops the About page
-        /// uses (GlassOrbA / GlassOrbB in the theme files), frozen.
+        /// uses (LiquidOrbA / LiquidOrbB in the theme files), frozen.
         /// </summary>
         private static Brush LiquidOrb(bool dark, bool orbA)
         {
@@ -1316,7 +1246,7 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
-        /// Core frost builder shared by every Glassy surface: base
+        /// Core frost builder shared by every frosted surface: base
         /// colour tinted toward the accent + diagonal alpha fade.
         /// Flat average alpha when Gradient Surfaces is off.
         /// </summary>

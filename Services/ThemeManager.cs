@@ -236,9 +236,9 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "DividerBrush",
                 ColorMath.Mix(keyline, surface, 0.62));
 
-            // ── About / Glassy palette — accent-aware, never hard-coded ──
-            // The About page and the Glassy visual family share the
-            // Glass* palette. Re-publish it from the current accent so
+            // ── About / Liquid palette — accent-aware, never hard-coded ──
+            // The About page and the iOS Liquid Glass family share the
+            // Liquid* palette. Re-publish it from the current accent so
             // About finally follows custom accents, theme-family swaps
             // and live Settings changes instead of staying fixed to one accent.
             PublishAboutPalette(resources, core, surface, dark, h, s, l);
@@ -253,10 +253,11 @@ namespace ProGlassAutomation.Services
         }
 
         /// <summary>
-        /// Re-derives the About / Glassy palette from the active accent.
-        /// This keeps the About module's glass chrome, tab strip, chips,
-        /// orbs and shared Glassy family resources aligned with live accent
-        /// changes instead of freezing them to the theme's original blue.
+        /// Re-derives the About / Liquid palette from the active accent.
+        /// This keeps the About module's crystal chrome, tab strip,
+        /// chips, orbs and shared iOS Liquid Glass family resources
+        /// aligned with live accent changes instead of freezing them to
+        /// the theme's original blue.
         /// </summary>
         private static void PublishAboutPalette(
             ResourceDictionary resources,
@@ -277,9 +278,9 @@ namespace ProGlassAutomation.Services
                 ? ColorMath.Lighten(core, 0.18)
                 : ColorMath.FromHsl(h, Math.Max(0.34, s * 0.58), Math.Min(0.40, Math.Max(0.28, l - 0.12)));
 
-            FreezeAndSet(resources, "GlassAccent", accent);
-            FreezeAndSet(resources, "GlassAccentDeep", accentDeep);
-            FreezeAndSet(resources, "GlassCerulean", cerulean);
+            FreezeAndSet(resources, "LiquidAccent", accent);
+            FreezeAndSet(resources, "LiquidAccentDeep", accentDeep);
+            FreezeAndSet(resources, "LiquidCerulean", cerulean);
 
             var card = new LinearGradientBrush
             {
@@ -300,7 +301,7 @@ namespace ProGlassAutomation.Services
                 card.GradientStops.Add(new GradientStop(
                     ColorMath.Tint(accentDeep, Color.FromRgb(255, 255, 255), 0.05), 1.0));
             }
-            FreezeAndSetBrush(resources, "GlassCard", card);
+            FreezeAndSetBrush(resources, "LiquidCard", card);
 
             var sheen = new LinearGradientBrush
             {
@@ -310,7 +311,7 @@ namespace ProGlassAutomation.Services
             sheen.GradientStops.Add(new GradientStop(
                 ColorMath.WithAlpha(dark ? cerulean : accent, dark ? (byte)0x34 : (byte)0x18), 0.0));
             sheen.GradientStops.Add(new GradientStop(Color.FromArgb(0, accent.R, accent.G, accent.B), 0.65));
-            FreezeAndSetBrush(resources, "GlassSheen", sheen);
+            FreezeAndSetBrush(resources, "LiquidSheen", sheen);
 
             var orbA = new RadialGradientBrush
             {
@@ -325,7 +326,7 @@ namespace ProGlassAutomation.Services
                 ColorMath.WithAlpha(accentDeep, dark ? (byte)0x2A : (byte)0x16), 0.55));
             orbA.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, accentDeep.R, accentDeep.G, accentDeep.B), 1.0));
-            FreezeAndSetBrush(resources, "GlassOrbA", orbA);
+            FreezeAndSetBrush(resources, "LiquidOrbA", orbA);
 
             var orbB = new RadialGradientBrush
             {
@@ -340,7 +341,7 @@ namespace ProGlassAutomation.Services
                 ColorMath.WithAlpha(accent, dark ? (byte)0x24 : (byte)0x12), 0.55));
             orbB.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, accent.R, accent.G, accent.B), 1.0));
-            FreezeAndSetBrush(resources, "GlassOrbB", orbB);
+            FreezeAndSetBrush(resources, "LiquidOrbB", orbB);
 
             Color panelFill = dark
                 ? ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.20), 0x24)
@@ -400,11 +401,11 @@ namespace ProGlassAutomation.Services
             // glass transparency — the "dashboards don't accept the
             // setting" bug. DashAccentTextBrush below stays
             // accent-driven in every family.
-            bool glassyActive =
+            bool liquidActive =
                 VisualThemeEngine.Current == VisualThemeEngine.LiquidGlass;
 
             ambient.Freeze();
-            if (!glassyActive)
+            if (!liquidActive)
                 resources["DashAmbientBrush"] = ambient;
 
             // Top-right glow blob.
@@ -419,7 +420,7 @@ namespace ProGlassAutomation.Services
             blob1.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, core.R, core.G, core.B), 1.0));
             blob1.Freeze();
-            if (!glassyActive)
+            if (!liquidActive)
                 resources["DashAmbientBlob1Brush"] = blob1;
 
             // Bottom-left deep blob.
@@ -435,16 +436,16 @@ namespace ProGlassAutomation.Services
             blob2.GradientStops.Add(new GradientStop(
                 Color.FromArgb(0, deep.R, deep.G, deep.B), 1.0));
             blob2.Freeze();
-            if (!glassyActive)
+            if (!liquidActive)
                 resources["DashAmbientBlob2Brush"] = blob2;
 
-            // Glass card fill.
+            // Liquid card fill.
             var glass = new SolidColorBrush(
                 ColorMath.Tint(core, surface, dark ? 0.06 : 0.03))
             { Opacity = 0.82 };
             glass.Freeze();
-            if (!glassyActive)
-                resources["DashGlassSurfaceBrush"] = glass;
+            if (!liquidActive)
+                resources["DashLiquidSurfaceBrush"] = glass;
 
             // Accent text on the dashboard.
             FreezeAndSet(resources, "DashAccentTextBrush",

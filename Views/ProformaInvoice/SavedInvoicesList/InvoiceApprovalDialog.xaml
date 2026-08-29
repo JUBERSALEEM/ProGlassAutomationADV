@@ -106,7 +106,7 @@
 
     </Window.Resources>
 
-    <!-- Glassy card, theme-driven.
+    <!-- Liquid glass card, theme-driven.
          FIXED window height (no SizeToContent): the dialog never
          re-measures, never jumps, never collapses. The validation
          strip is ALWAYS laid out (Visibility=Hidden when clean) at a

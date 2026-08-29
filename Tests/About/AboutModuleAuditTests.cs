@@ -116,13 +116,13 @@ namespace ProGlassAutomation.Tests.About
             Assert.Contains("PublishAboutPalette", src);
             foreach (var key in new[]
             {
-                "GlassAccent",
-                "GlassAccentDeep",
-                "GlassCerulean",
-                "GlassCard",
-                "GlassSheen",
-                "GlassOrbA",
-                "GlassOrbB",
+                "LiquidAccent",
+                "LiquidAccentDeep",
+                "LiquidCerulean",
+                "LiquidCard",
+                "LiquidSheen",
+                "LiquidOrbA",
+                "LiquidOrbB",
                 "AboutInteractiveBrush",
                 "AboutInteractiveHoverBrush",
                 "AboutInteractiveBorderBrush",

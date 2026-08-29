@@ -87,18 +87,18 @@
                                     <TextBlock Text="{Binding DeveloperName}"
                                                FontSize="{StaticResource TextHeadline}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource GlassSnow}"
+                                               Foreground="{DynamicResource LiquidSnow}"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="Principal developer · product design · workflow engineering"
                                                FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource GlassMuted}"
+                                               Foreground="{DynamicResource LiquidMuted}"
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="Made in India · {Binding Country}"
                                                FontSize="{StaticResource TextBody}"
-                                               Foreground="{DynamicResource GlassCerulean}"
+                                               Foreground="{DynamicResource LiquidCerulean}"
                                                Margin="0,6,0,0"
                                                TextWrapping="Wrap"
                                                IsHitTestVisible="False"/>
@@ -119,12 +119,12 @@
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                VerticalAlignment="Center"
-                                               Foreground="{DynamicResource GlassAccent}"
+                                               Foreground="{DynamicResource LiquidAccent}"
                                                Margin="0,0,8,0"/>
                                     <TextBlock Text="{Binding Email}"
                                                FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Bold"
-                                               Foreground="{DynamicResource GlassAccent}"
+                                               Foreground="{DynamicResource LiquidAccent}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -235,14 +235,14 @@
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
-                           Foreground="{DynamicResource GlassSnow}"
+                           Foreground="{DynamicResource LiquidSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Copyright}"
                            FontSize="{StaticResource TextBody}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
                            Margin="0,8,0,0"
-                           Foreground="{DynamicResource GlassMuted}"
+                           Foreground="{DynamicResource LiquidMuted}"
                            TextWrapping="Wrap"
                            IsHitTestVisible="False"/>
             </StackPanel>

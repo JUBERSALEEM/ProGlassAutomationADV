@@ -28,8 +28,8 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>
         /// "Normal" | "Monet" | "Professional" | "iOS Liquid Glass"
         /// | "Ocean" — see VisualThemeEngine for what each does.
-        /// "Glass"/"Glassy" were removed in the 2026-08-29 rewrite and
-        /// are migrated automatically to the iOS family.
+        /// Legacy theme entries from before the 2026-08-29 rewrite are
+        /// migrated automatically to the iOS family.
         /// Default: iOS Liquid Glass.
         /// </summary>
         public string VisualTheme { get; set; } = "iOS Liquid Glass";

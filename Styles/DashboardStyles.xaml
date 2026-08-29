@@ -89,13 +89,13 @@
          SURFACES
     ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- Primary card. DashGlass* are defined in both themes
+    <!-- Primary card. DashLiquid* are defined in both themes
          (#FFFFFF light / #273449 dark) so one style serves both. -->
     <Style x:Key="DashCardStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource DashGlassSurfaceBrush}"/>
+                Value="{DynamicResource DashLiquidSurfaceBrush}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource DashGlassBorderBrush}"/>
+                Value="{DynamicResource DashLiquidBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>

@@ -10,15 +10,15 @@
          glassmorphism, NOT opaque white cards. The effect comes from
          LAYERS, not from a single translucent fill:
 
-           • crystal edge       — GlassEdgeBrush (bright top, soft
+           • crystal edge       — LiquidEdgeBrush (bright top, soft
                                   sides, slightly darker lower edge)
-           • inner top reflection — GlassInnerHighlightBrush line
-           • diagonal sweep     — GlassReflectionBrush
-           • nearly transparent center — LiquidGlass* surfaces
-           • soft shadow        — GlassShadowColor (low opacity)
+           • inner top reflection — LiquidInnerHighlightBrush line
+           • diagonal sweep     — LiquidReflectionBrush
+           • nearly transparent center — LiquidLiquid* surfaces
+           • soft shadow        — LiquidShadowColor (low opacity)
 
          Every colour resolves through DynamicResource, so runtime
-         Light/Dark switching AND the Glass/Glassy visual families
+         Light/Dark switching AND the iOS Liquid Glass family
          (VisualThemeEngine overrides the tokens at Application level)
          re-tint every surface live. No StaticResource on theme
          colours anywhere in this dictionary.
@@ -45,7 +45,7 @@
                 <ControlTemplate TargetType="{x:Type controls:LiquidGlassCard}">
                     <Border x:Name="Edge"
                             Background="{DynamicResource LiquidGlassBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1.2"
                             CornerRadius="{TemplateBinding CornerRadius}"
                             SnapsToDevicePixels="True">
@@ -53,7 +53,7 @@
                             <DropShadowEffect BlurRadius="18"
                                               ShadowDepth="4"
                                               Opacity="0.22"
-                                              Color="{DynamicResource GlassShadowColor}"/>
+                                              Color="{DynamicResource LiquidShadowColor}"/>
                         </Border.Effect>
                         <Grid>
                             <!-- top reflection line -->
@@ -61,23 +61,23 @@
                                     Height="1"
                                     VerticalAlignment="Top"
                                     Margin="10,1,10,0"
-                                    Background="{DynamicResource GlassInnerHighlightBrush}"/>
+                                    Background="{DynamicResource LiquidInnerHighlightBrush}"/>
                             <!-- diagonal specular sweep -->
                             <Border x:Name="Sweep"
-                                    Background="{DynamicResource GlassReflectionBrush}"
+                                    Background="{DynamicResource LiquidReflectionBrush}"
                                     Opacity="0.35"
                                     IsHitTestVisible="False"/>
                             <ContentPresenter Margin="{TemplateBinding Padding}"/>
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=GlassIntensity}"
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=LiquidIntensity}"
                                      Value="Subtle">
                             <Setter TargetName="Edge"
                                     Property="Background"
                                     Value="{DynamicResource LiquidGlassSubtleBrush}"/>
                         </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=GlassIntensity}"
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource Self}, Path=LiquidIntensity}"
                                      Value="Strong">
                             <Setter TargetName="Edge"
                                     Property="Background"
@@ -91,7 +91,7 @@
 
     <Style x:Key="LiquidGlassPanelStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.2"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding" Value="16"/>
@@ -100,7 +100,7 @@
 
     <Style x:Key="LiquidGlassSubtleCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassSubtleBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="14"/>
         <Setter Property="Padding" Value="14"/>
@@ -109,7 +109,7 @@
 
     <Style x:Key="LiquidGlassStrongCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassStrongBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.2"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding" Value="18"/>
@@ -119,7 +119,7 @@
                 <DropShadowEffect BlurRadius="20"
                                   ShadowDepth="5"
                                   Opacity="0.25"
-                                  Color="{DynamicResource GlassShadowColor}"/>
+                                  Color="{DynamicResource LiquidShadowColor}"/>
             </Setter.Value>
         </Setter>
     </Style>
@@ -147,8 +147,8 @@
                             </TransformGroup>
                         </Grid.RenderTransform>
                         <Border x:Name="Edge"
-                                Background="{DynamicResource GlassPrimaryButtonBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                Background="{DynamicResource LiquidPrimaryButtonBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="10"
                                 Padding="{TemplateBinding Padding}">
@@ -156,7 +156,7 @@
                                 <Border Height="1"
                                         VerticalAlignment="Top"
                                         Margin="6,1,6,0"
-                                        Background="{DynamicResource GlassInnerHighlightBrush}"/>
+                                        Background="{DynamicResource LiquidInnerHighlightBrush}"/>
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Grid>
@@ -220,12 +220,12 @@
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Edge" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlDisabledBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlDisabledBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -251,7 +251,7 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Edge"
                                 Background="{DynamicResource LiquidGlassSubtleBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="10"
                                 Padding="{TemplateBinding Padding}">
@@ -259,7 +259,7 @@
                                 <Border Height="1"
                                         VerticalAlignment="Top"
                                         Margin="6,1,6,0"
-                                        Background="{DynamicResource GlassInnerHighlightBrush}"/>
+                                        Background="{DynamicResource LiquidInnerHighlightBrush}"/>
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Grid>
@@ -267,7 +267,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -294,7 +294,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlPressedBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlPressedBrush}"/>
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
@@ -325,7 +325,7 @@
                             </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Edge" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -358,12 +358,12 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidGlassSubtleBrush}"/>
-                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
                             <Setter TargetName="Edge" Property="BorderThickness" Value="1"/>
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlPressedBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Edge" Property="Opacity" Value="0.4"/>
@@ -386,7 +386,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Edge"
                             Background="{DynamicResource LiquidGlassSubtleBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1"
                             CornerRadius="20">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -394,13 +394,13 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource GlassControlPressedBrush}"/>
+                            <Setter TargetName="Edge" Property="Background" Value="{DynamicResource LiquidControlPressedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Edge" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Edge" Property="BorderThickness" Value="1.8"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -430,7 +430,7 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Edge"
                                 Background="{DynamicResource DangerBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="10"
                                 Padding="{TemplateBinding Padding}">
@@ -438,7 +438,7 @@
                                 <Border Height="1"
                                         VerticalAlignment="Top"
                                         Margin="6,1,6,0"
-                                        Background="{DynamicResource GlassInnerHighlightBrush}"/>
+                                        Background="{DynamicResource LiquidInnerHighlightBrush}"/>
                                 <ContentPresenter HorizontalAlignment="Center"
                                                   VerticalAlignment="Center"/>
                             </Grid>
@@ -529,13 +529,13 @@
                     <Grid>
                         <Border x:Name="Track"
                                 Background="{DynamicResource LiquidGlassSubtleBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="15">
                             <Border Height="1"
                                     VerticalAlignment="Top"
                                     Margin="8,1,8,0"
-                                    Background="{DynamicResource GlassInnerHighlightBrush}"/>
+                                    Background="{DynamicResource LiquidInnerHighlightBrush}"/>
                         </Border>
                         <Border x:Name="Thumb"
                                 Width="22"
@@ -544,7 +544,7 @@
                                 VerticalAlignment="Center"
                                 Margin="4,0,0,0"
                                 Background="{DynamicResource LiquidGlassStrongBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1"
                                 CornerRadius="11"
                                 RenderTransformOrigin="0.5,0.5">
@@ -555,7 +555,7 @@
                                 <DropShadowEffect BlurRadius="8"
                                                   ShadowDepth="2"
                                                   Opacity="0.25"
-                                                  Color="{DynamicResource GlassShadowColor}"/>
+                                                  Color="{DynamicResource LiquidShadowColor}"/>
                             </Border.Effect>
                         </Border>
                     </Grid>
@@ -575,8 +575,8 @@
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassSelectionBrush}"/>
-                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource LiquidSelectionBrush}"/>
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="False">
                             <Trigger.EnterActions>
@@ -595,7 +595,7 @@
                             </Trigger.EnterActions>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter TargetName="Track" Property="Opacity" Value="0.45"/>
@@ -622,7 +622,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
                             Background="{DynamicResource LiquidGlassSubtleBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1.2"
                             CornerRadius="{DynamicResource ControlCornerRadius}">
                         <ScrollViewer x:Name="PART_ContentHost"
@@ -632,17 +632,17 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="1.8"/>
                         </Trigger>
                         <Trigger Property="Validation.HasError" Value="True">
                             <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlDisabledBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlDisabledBrush}"/>
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.8"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -671,7 +671,7 @@
                 <ControlTemplate TargetType="PasswordBox">
                     <Border x:Name="Chrome"
                             Background="{DynamicResource LiquidGlassSubtleBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="1.2"
                             CornerRadius="{DynamicResource ControlCornerRadius}">
                         <ScrollViewer x:Name="PART_ContentHost"
@@ -681,14 +681,14 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="1.8"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlDisabledBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlDisabledBrush}"/>
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.8"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -708,7 +708,7 @@
                     <Grid>
                         <Border x:Name="Chrome"
                                 Background="{DynamicResource LiquidGlassSubtleBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="{DynamicResource ControlCornerRadius}">
                             <Grid>
@@ -752,7 +752,7 @@
                                PopupAnimation="Slide">
                             <Border Margin="0,4,0,0"
                                     Background="{DynamicResource LiquidGlassStrongBrush}"
-                                    BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                    BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                     BorderThickness="1.2"
                                     CornerRadius="12"
                                     Padding="4"
@@ -762,7 +762,7 @@
                                     <DropShadowEffect BlurRadius="16"
                                                       ShadowDepth="3"
                                                       Opacity="0.25"
-                                                      Color="{DynamicResource GlassShadowColor}"/>
+                                                      Color="{DynamicResource LiquidShadowColor}"/>
                                 </Border.Effect>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter/>
@@ -772,14 +772,14 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="1.8"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlDisabledBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlDisabledBrush}"/>
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.8"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -799,7 +799,7 @@
                     <Grid>
                         <Border x:Name="Chrome"
                                 Background="{DynamicResource LiquidGlassSubtleBrush}"
-                                BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                 BorderThickness="1.2"
                                 CornerRadius="{DynamicResource ControlCornerRadius}">
                             <Grid>
@@ -852,7 +852,7 @@
                                PopupAnimation="Slide">
                             <Border Margin="0,4,0,0"
                                     Background="{DynamicResource LiquidGlassStrongBrush}"
-                                    BorderBrush="{DynamicResource GlassEdgeBrush}"
+                                    BorderBrush="{DynamicResource LiquidEdgeBrush}"
                                     BorderThickness="1.2"
                                     CornerRadius="12"
                                     Padding="4"
@@ -862,7 +862,7 @@
                                     <DropShadowEffect BlurRadius="16"
                                                       ShadowDepth="3"
                                                       Opacity="0.25"
-                                                      Color="{DynamicResource GlassShadowColor}"/>
+                                                      Color="{DynamicResource LiquidShadowColor}"/>
                                 </Border.Effect>
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter/>
@@ -875,14 +875,14 @@
                             <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="1.8"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource GlassControlDisabledBrush}"/>
+                            <Setter TargetName="Chrome" Property="Background" Value="{DynamicResource LiquidControlDisabledBrush}"/>
                             <Setter TargetName="Chrome" Property="Opacity" Value="0.8"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -896,7 +896,7 @@
          full re-template. -->
     <Style x:Key="LiquidGlassDatePickerStyle" TargetType="DatePicker">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassSubtleBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.2"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Padding" Value="10,6"/>
@@ -919,14 +919,14 @@
                 <ControlTemplate TargetType="DataGridColumnHeader">
                     <Border x:Name="HeaderChrome"
                             Background="{DynamicResource LiquidGlassStrongBrush}"
-                            BorderBrush="{DynamicResource GlassEdgeBrush}"
+                            BorderBrush="{DynamicResource LiquidEdgeBrush}"
                             BorderThickness="0,0,0,1"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="HeaderChrome" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="HeaderChrome" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -940,10 +940,10 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource GlassSelectionBrush}"/>
+                <Setter Property="Background" Value="{DynamicResource LiquidSelectionBrush}"/>
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             </Trigger>
         </Style.Triggers>
@@ -961,7 +961,7 @@
                 <Setter Property="Background" Value="Transparent"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter Property="BorderBrush" Value="{DynamicResource GlassFocusBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource LiquidFocusBrush}"/>
                 <Setter Property="BorderThickness" Value="1.2"/>
             </Trigger>
         </Style.Triggers>
@@ -969,12 +969,12 @@
 
     <Style x:Key="LiquidGlassDataGridStyle" TargetType="DataGrid">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.2"/>
         <Setter Property="RowBackground" Value="Transparent"/>
         <Setter Property="AlternatingRowBackground" Value="{DynamicResource LiquidGlassSubtleBrush}"/>
         <Setter Property="GridLinesVisibility" Value="Horizontal"/>
-        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource GlassControlHoverBrush}"/>
+        <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource LiquidControlHoverBrush}"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="RowHeaderWidth" Value="0"/>
         <Setter Property="ColumnHeaderStyle" Value="{StaticResource LiquidGlassDataGridColumnHeaderStyle}"/>
@@ -1006,7 +1006,7 @@
                                     Height="1"
                                     VerticalAlignment="Top"
                                     Margin="10,1,10,0"
-                                    Background="{DynamicResource GlassInnerHighlightBrush}"
+                                    Background="{DynamicResource LiquidInnerHighlightBrush}"
                                     Opacity="0"/>
                             <ContentPresenter VerticalAlignment="Center"
                                               HorizontalAlignment="Left"/>
@@ -1014,11 +1014,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Capsule" Property="Background" Value="{DynamicResource GlassControlHoverBrush}"/>
+                            <Setter TargetName="Capsule" Property="Background" Value="{DynamicResource LiquidControlHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Capsule" Property="Background" Value="{DynamicResource LiquidGlassBrush}"/>
-                            <Setter TargetName="Capsule" Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+                            <Setter TargetName="Capsule" Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
                             <Setter TargetName="Capsule" Property="BorderThickness" Value="1.2"/>
                             <Setter TargetName="Sheen" Property="Opacity" Value="1"/>
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -1038,7 +1038,7 @@
 
     <Style x:Key="LiquidGlassDialogCardStyle" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource LiquidGlassStrongBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassEdgeBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource LiquidEdgeBrush}"/>
         <Setter Property="BorderThickness" Value="1.2"/>
         <Setter Property="CornerRadius" Value="16"/>
         <Setter Property="Padding" Value="24"/>
@@ -1048,13 +1048,13 @@
                 <DropShadowEffect BlurRadius="24"
                                   ShadowDepth="6"
                                   Opacity="0.28"
-                                  Color="{DynamicResource GlassShadowColor}"/>
+                                  Color="{DynamicResource LiquidShadowColor}"/>
             </Setter.Value>
         </Setter>
     </Style>
 
     <Style x:Key="LiquidGlassDialogOverlayStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassOverlayBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource LiquidOverlayBrush}"/>
     </Style>
 
 </ResourceDictionary>

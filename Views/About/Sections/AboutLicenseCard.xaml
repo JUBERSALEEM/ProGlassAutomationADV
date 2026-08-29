@@ -39,7 +39,7 @@
             <Style x:Key="LicenseMetricLabelStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassCerulean}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidCerulean}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
             </Style>
@@ -47,7 +47,7 @@
             <Style x:Key="LicenseMetricValueStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,8,0,0"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
@@ -56,7 +56,7 @@
             <Style x:Key="LicenseCodeValueStyle" TargetType="TextBlock" BasedOn="{StaticResource LicenseFieldValueStyle}">
                 <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
                 <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,6,0,0"/>
             </Style>
@@ -91,7 +91,7 @@
                                FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                TextAlignment="Center"
-                               Foreground="{DynamicResource GlassAccent}"/>
+                               Foreground="{DynamicResource LiquidAccent}"/>
                 </Border>
             </Grid>
 
@@ -108,7 +108,7 @@
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <TextBlock Text="{Binding StatusDescription}"
                                    FontSize="{StaticResource TextBody}"
-                                   Foreground="{DynamicResource GlassFrost}"
+                                   Foreground="{DynamicResource LiquidFrost}"
                                    TextWrapping="Wrap"
                                    LineHeight="20"/>
                     </StackPanel>

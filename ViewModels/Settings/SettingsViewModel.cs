@@ -801,7 +801,7 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  One colour drives the whole UI's Primary/Secondary/Muted
         //  foregrounds (the VisualThemeEngine derives the hierarchy so
         //  headings/captions/hints keep their contrast order). "Auto"
-        //  hands ownership back to the theme/visual family — in Glassy
+        //  hands ownership back to the theme/visual family — in iOS Liquid Glass
         //  that is the About page's text palette. Persists like the
         //  accent, applies live like the accent, works in EVERY
         //  visual family — the visibility dial for transparent UIs.
@@ -1757,10 +1757,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional /
-        //       iOS Liquid Glass / Ocean). "Glass" and "Glassy" were
-        //       removed in the 2026-08-29 rewrite; saved configs using
-        //       them resolve to iOS Liquid Glass via the engine's
-        //       Normalize mapping.
+        //       iOS Liquid Glass / Ocean). The legacy theme entries were
+        //       removed in the 2026-08-29 rewrite; saved configs still
+        //       resolve to iOS Liquid Glass via the engine's Normalize
+        //       mapping.
         // ══════════════════════════════════════════════════════════════
 
         public List<string> VisualThemeOptions { get; } = new()

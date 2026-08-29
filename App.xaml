@@ -52,11 +52,11 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DialogStyles.xaml"/>
 
                 <!-- Liquid Glass design system (2026-08-29): crystal card
-                     surface (Controls/LiquidGlassCard), glass button
-                     hierarchy, iPhone-style liquid switch, glass inputs,
-                     glass DataGrid, navigation capsule, dialog chrome.
+                     surface (Controls/LiquidGlassCard), crystal button
+                     hierarchy, iPhone-style liquid switch, crystal inputs,
+                     crystal DataGrid, navigation capsule, dialog chrome.
                      Every colour resolves via DynamicResource so
-                     Light/Dark and the Glass/Glassy families re-tint
+                     Light/Dark and the iOS Liquid Glass family re-tint
                      the whole system live. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassStyles.xaml"/>
 

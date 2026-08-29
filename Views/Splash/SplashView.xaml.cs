@@ -3,7 +3,7 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Splash Screen — industrial glass identity
 //
-// Professional glass choreography (~2.5s, finishes inside App.xaml.cs
+// Professional crystal choreography (~2.5s, finishes inside App.xaml.cs
 // startup delay with margin):
 //   0ms   top trust chips fade in (frame effect, 100ms stagger)
 //   100ms logo settles (fade + gentle scale)
@@ -60,7 +60,7 @@ namespace ProGlassAutomation.Views.Splash
         private int _loadingDotsCount;
 
         // ══════════════════════════════════════════════════════════════════
-        //  FEATURE MODULE DATA — frosted glass chips
+        //  FEATURE MODULE DATA — frosted crystal chips
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>

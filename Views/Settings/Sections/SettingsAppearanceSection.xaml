@@ -102,7 +102,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Font Color"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="One global text colour for every view. Auto follows the theme (Glassy uses the About palette); pick a colour so text always stays visible over transparent glass."/>
+                                       Text="One global text colour for every view. Auto follows the theme — iOS Liquid Glass uses the About palette. Pick a colour so text always stays visible over frosted surfaces."/>
                             <!-- Chips generated from SettingsViewModel.FontColorPalette
                                  (Auto + FontColorPresets.All) — the swatch shown IS
                                  the exact primary colour that gets applied. -->

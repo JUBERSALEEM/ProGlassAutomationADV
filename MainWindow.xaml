@@ -1086,7 +1086,7 @@
                     Margin="12"
                     BorderThickness="0"
                     CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                    Background="{DynamicResource ShellGlassBrush}"
+                    Background="{DynamicResource ShellLiquidBrush}"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
                     SnapsToDevicePixels="True"

@@ -12,7 +12,7 @@
        ✓ All DropShadowEffects extracted to frozen resources
        ✓ RenderOptions hints at root for antialiasing efficiency
 
-     DESIGN PATTERN: Neo-Glassmorphism
+     DESIGN PATTERN: Neo-crystal surfaces
        Reference: Linear.app + Vercel + Stripe design systems
 ═══════════════════════════════════════════════════════════════ -->
 <UserControl
@@ -147,7 +147,7 @@
         <!-- ══════════════════════════════════════════════════════════
              MODERN COMBOBOX STYLE
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="GlassComboBoxStyle" TargetType="ComboBox">
+        <Style x:Key="LiquidComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="44"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -276,7 +276,7 @@
         <!-- ══════════════════════════════════════════════════════════
              MODERN DATEPICKER STYLE
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="GlassDatePickerStyle" TargetType="DatePicker">
+        <Style x:Key="LiquidDatePickerStyle" TargetType="DatePicker">
             <Setter Property="Height" Value="44"/>
             <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -369,7 +369,7 @@
         <!-- ══════════════════════════════════════════════════════════
              FIELD LABEL
         ══════════════════════════════════════════════════════════ -->
-        <Style x:Key="GlassFieldLabelStyle" TargetType="TextBlock">
+        <Style x:Key="LiquidFieldLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
@@ -706,44 +706,44 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="2" Grid.Column="0">
-                                    <TextBlock Text="Company" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <ComboBox Style="{StaticResource GlassComboBoxStyle}"
+                                    <TextBlock Text="Company" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Companies}"
                                               Text="{Binding FilterCompany, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="Select the supplier / factory company"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="2" Grid.Column="2">
-                                    <TextBlock Text="Salesman" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <ComboBox Style="{StaticResource GlassComboBoxStyle}"
+                                    <TextBlock Text="Salesman" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Salesmen}"
                                               Text="{Binding FilterSalesman, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="Filter by sales representative"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="4" Grid.Column="0">
-                                    <TextBlock Text="Customer" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <ComboBox Style="{StaticResource GlassComboBoxStyle}"
+                                    <TextBlock Text="Customer" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Customers}"
                                               Text="{Binding FilterCustomer, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="Select the billing customer"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="4" Grid.Column="2">
-                                    <TextBlock Text="Project" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <ComboBox Style="{StaticResource GlassComboBoxStyle}"
+                                    <TextBlock Text="Project" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <ComboBox Style="{StaticResource LiquidComboBoxStyle}"
                                               ItemsSource="{Binding Projects}"
                                               Text="{Binding FilterProject, UpdateSourceTrigger=PropertyChanged}"
                                               ToolTip="Filter by project reference"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Row="6" Grid.Column="0">
-                                    <TextBlock Text="Date From" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <DatePicker Style="{StaticResource GlassDatePickerStyle}"
+                                    <TextBlock Text="Date From" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateFrom}"
                                                 ToolTip="Invoices issued on or after this date"/>
                                 </StackPanel>
                                 <StackPanel Grid.Row="6" Grid.Column="2">
-                                    <TextBlock Text="Date To" Style="{StaticResource GlassFieldLabelStyle}"/>
-                                    <DatePicker Style="{StaticResource GlassDatePickerStyle}"
+                                    <TextBlock Text="Date To" Style="{StaticResource LiquidFieldLabelStyle}"/>
+                                    <DatePicker Style="{StaticResource LiquidDatePickerStyle}"
                                                 SelectedDate="{Binding DateTo}"
                                                 ToolTip="Invoices issued on or before this date"/>
                                 </StackPanel>

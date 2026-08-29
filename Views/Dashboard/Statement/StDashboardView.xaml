@@ -12,7 +12,7 @@
      OutlineButtonStyle, PdfChipButtonStyle and three DropShadowEffects,
      plus a header comment asserting that "DynamicResource brush
      resolution is FAILING for this view". That claim was wrong: the
-     brushes it blamed (DashAmbient*, DashGlass*) are declared in BOTH
+     brushes it blamed (DashAmbient*, DashLiquid*) are declared in BOTH
      Themes/LightTheme.xaml and Themes/DarkTheme.xaml — verified, 51
      keys, identical key sets. The real cause of the original symptom
      was the ambient gradient sitting behind translucent glass cards.

@@ -34,7 +34,7 @@
             <Style x:Key="CrashMetaLabelStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassMuted}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidMuted}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
             </Style>
@@ -42,7 +42,7 @@
             <Style x:Key="CrashMetaValueStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,5,0,0"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
@@ -52,7 +52,7 @@
                 <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
                 <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
+                <Setter Property="Foreground" Value="{DynamicResource LiquidSnow}"/>
                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
                 <Setter Property="IsHitTestVisible" Value="False"/>
             </Style>
@@ -97,7 +97,7 @@
                         <Button x:Name="ClearAllButton"
                                 Style="{StaticResource AboutPillButtonStyle}"
                                 Content="CLEAR ALL"
-                                Foreground="{DynamicResource GlassMuted}"
+                                Foreground="{DynamicResource LiquidMuted}"
                                 Click="ClearAllButton_Click"/>
                     </WrapPanel>
                 </StackPanel>
@@ -162,7 +162,7 @@
                                                        Margin="0,14,0,0"/>
                                             <TextBlock Text="{Binding SizeDisplay}"
                                                        FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource GlassFrost}"
+                                                       Foreground="{DynamicResource LiquidFrost}"
                                                        Margin="0,5,0,0"/>
                                         </StackPanel>
 
@@ -177,12 +177,12 @@
                                             <TextBlock Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
                                                        FontSize="{StaticResource TextBody}"
                                                        FontWeight="Bold"
-                                                       Foreground="{DynamicResource GlassMuted}"
+                                                       Foreground="{DynamicResource LiquidMuted}"
                                                        TextWrapping="Wrap"
                                                        IsHitTestVisible="False"/>
                                             <TextBlock Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
                                                        FontSize="{StaticResource TextBody}"
-                                                       Foreground="{DynamicResource GlassIce}"
+                                                       Foreground="{DynamicResource LiquidIce}"
                                                        TextWrapping="Wrap"
                                                        TextTrimming="CharacterEllipsis"
                                                        MaxHeight="38"

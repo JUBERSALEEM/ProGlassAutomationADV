@@ -81,3 +81,59 @@ Switching base theme re-derives the entire scene through the existing
   *Glass_and_glassy_are_removed_and_ios_liquid_glass_is_the_default_family*.
 - DynamicResource-only tokens unchanged; LiquidGlassStyles.xaml
   untouched and fully compatible.
+
+---
+
+## Completion sweep — 2026-08-29 (single follow-up commit)
+
+A second full-repo audit (run as if the rewrite never happened) found the
+old family still half-entrenched under the new one, plus one user-facing
+leftover. All of it is resolved in ONE commit — no incremental patching.
+
+### What the audit found
+
+1. **Appearance-page wording** — the Font Color tile caption still said
+   "(Glassy uses the About palette)" — visible to the user in Settings.
+2. **26 old `Glass*` resource tokens** still carried the new family in
+   BOTH theme dictionaries, the engine, ThemeManager, the About pages,
+   login, splash, dashboard styles and the TrendChart code-behind.
+3. **GlassChromeService** — the DWM accent-policy service that produced
+   the original "full fade white" bug was still attached to the window,
+   and `SyncGlassChrome` still applied a translucent tint for the iOS
+   family. Dead residue of the deleted veil path.
+4. **Old-family names on the new control** — `GlassSurface` enum,
+   `GlassIntensity` DP; engine helpers `GlassSurface`, `SolidGlass`,
+   `HueGlass`, `AccentGlass`, `FrozenGlassText`; the `glassyActive`
+   variable in ThemeManager; `AuthGlassStyles.xaml`; splash keys
+   `GlassPlate`/`GlassGlow`; `GlassComboBoxStyle`/`GlassDatePickerStyle`/
+   `GlassFieldLabelStyle` in FilterStep.xaml; the test file/class name.
+
+### What this sweep did
+
+| Area | Change |
+|---|---|
+| UI wording | Appearance caption now: "iOS Liquid Glass uses the About palette … over frosted surfaces" — zero legacy family text on the page |
+| Tokens | Full `Liquid*` surface: `GlassIce→LiquidIce`, `GlassFrost→LiquidFrost`, `GlassCerulean→LiquidCerulean`, `GlassSnow→LiquidSnow`, `GlassAccent(Deep)→LiquidAccent(Deep)`, `GlassMuted→LiquidMuted`, `GlassCard→LiquidCard`, `GlassSheen→LiquidSheen`, `GlassOrbA/B→LiquidOrbA/B`, `DashGlass*→DashLiquid*`, `ShellGlass*→ShellLiquid*`, `GlassEdge/InnerHighlight/Reflection/Control*/Focus/Selection/PrimaryButton/Overlay/ShadowColor→Liquid*` |
+| DWM machinery | **`GlassChromeService.cs` DELETED** (class, file, `MainWindow.Attach`, engine `SyncGlassChrome`/`ReapplyWindowChrome` and all 3 call sites). No OS-backdrop code path exists — the white-fade failure class is structurally impossible |
+| Control API | `GlassSurface→LiquidSurface`, `GlassIntensity→LiquidIntensity` (LiquidGlassCard + LiquidGlassStyles triggers) |
+| Engine helpers | `GlassSurface→FrostSurface`, `SolidGlass→SolidFrost`, `HueGlass→HueFrost`, `AccentGlass→AccentCrystal`, `FrozenGlassText→FrozenLiquidText` |
+| Files | `AuthGlassStyles.xaml→AuthSurfaceStyles.xaml` (4 merge refs updated); `GlassThemeSourceTests.cs→LiquidGlassThemeSourceTests.cs` |
+| Login keys | `GlassCard` (local override), `DangerOnGlass→DangerOnLiquid`, `WarningOnGlass→WarningOnLiquid` |
+| Splash | `GlassPlate→SplashPlate`, `GlassGlow→SplashGlow`; glassmorphism comments → crystal |
+| FilterStep | `Glass*Style` keys → `Liquid*Style` |
+| Comments/docs | Every stale "Glass/Glassy family" reference rewired; the ONLY remaining legacy-name mentions are the engine's `Normalize` migration map, the engine header migration note, and the tests that pin the removal |
+
+### Verification
+
+- Repo-wide word-boundary scan: **0** occurrences of any of the 40 legacy
+  identifiers (tokens, DP, enum, helpers, service, file names).
+- **0** `x:Key="…Glass…"` outside the new `LiquidGlass*` family; **0**
+  non-Liquid `{Static/DynamicResource …Glass…}` references.
+- Liquid token surface identical across LightTheme/DarkTheme (29 keys each);
+  every engine-written Liquid key is defined in the themes; every
+  DynamicResource in LiquidGlassStyles.xaml resolves.
+- All changed XAML parses; all changed C# balances; all existing test
+  anchors (hex stops, ramps, decoupling, defaults, migration map) intact.
+- Tests: `Tests/Agent/LiquidGlassThemeSourceTests.cs` now pins **17 facts**
+  (was 12) — including no-glass-prefixed-keys, no-legacy-identifiers,
+  no-legacy-wording, and light/dark token-surface equality.
