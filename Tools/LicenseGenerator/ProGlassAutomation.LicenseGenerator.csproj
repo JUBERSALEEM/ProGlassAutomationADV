@@ -14,15 +14,8 @@
     <WarningsNotAsErrors>CS8600;CS8601;CS8602;CS8603;CS8604;CS8605;CS8618;CS8625;CA1305;CA1307;CA1416</WarningsNotAsErrors>
   </PropertyGroup>
 
-  <!--
-    The generator must emit the EXACT .lic envelope the main app already
-    accepts today. Rather than re-implement that contract again, link the
-    authoritative payload + signer source files directly into this vendor-only
-    tool. That keeps the file format in lockstep with the app.
-  -->
   <ItemGroup>
-    <Compile Include="..\..\Services\Licensing\LicensePayload.cs" Link="Compatibility\LicensePayload.cs" />
-    <Compile Include="..\..\Services\Licensing\LicenseSigner.cs" Link="Compatibility\LicenseSigner.cs" />
+    <ProjectReference Include="..\..\Licensing\ProGlass.Licensing.csproj" />
   </ItemGroup>
 
 </Project>

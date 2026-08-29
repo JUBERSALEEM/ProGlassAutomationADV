@@ -18,9 +18,9 @@
 //
 // WHAT IT DOES NOT DO
 //   • Does not call any other service. The About / Settings
-//     pages are read-only surfaces — clicking "Activate" or
-//     "Start Trial" is the welcome view's job, which already
-//     uses LicenseService directly.
+//     pages are read-only surfaces — activation/export/import work
+//     belongs to the dedicated licensing UI, which already uses
+//     LicenseService directly.
 //   • Does not format dates for the user's locale. The
 //     Windows-DateFormat is what the OS would show anyway,
 //     and it matches every other VM in the codebase.
@@ -177,8 +177,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _machineFingerprint = "—";
                 _featuresDisplay = "—";
                 _featureSummaryDisplay = "No active feature set";
-                _activationModeDisplay = "No active license";
-                _licenseSourceDisplay = "Paste a license key or browse a .lic file in Settings → License.";
+                _activationModeDisplay = "No active activation response";
+                _licenseSourceDisplay = "Generate an activation request and import the vendor-signed offline response in Settings → License.";
                 _licenseWindowDisplay = "—";
                 _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = "";
@@ -204,8 +204,8 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 _featureSummaryDisplay = BuildFeatureSummary(p.Features);
                 _activationModeDisplay = BuildActivationMode(p);
                 _licenseSourceDisplay = string.IsNullOrEmpty(p.TrialSource)
-                    ? "Customer-issued full license — accepted as .lic file or pasted activation key."
-                    : $"{p.TotalDays}-day auto-issued trial — accepted by the same activation screen as paid licenses.";
+                    ? "Vendor-issued signed offline activation response."
+                    : $"{p.TotalDays}-day vendor-issued offline trial response.";
                 _licenseWindowDisplay = $"{_issuedDisplay} → {_expiresDisplay}";
                 _trustedIssuerDisplay = LicenseVerifier.EmbeddedPublicKeyFingerprint;
                 _notesDisplay = p.Notes ?? "";
@@ -378,7 +378,7 @@ namespace ProGlassAutomation.ViewModels.Licensing
                 if (!IsTrial) return "";
                 int total = _trialTotalDays > 0
                     ? _trialTotalDays
-                    : ProGlassAutomation.Services.Licensing.LicenseService.AutoTrialDays;
+                    : 30;
                 if (_daysRemaining <= 0) return "trial ending today";
                 return _daysRemaining + " of " + total + " days remaining";
             }
@@ -399,15 +399,10 @@ namespace ProGlassAutomation.ViewModels.Licensing
             $"{CustomerDisplay} · {EditionDisplay} · {ActivationModeDisplay} · trusted key ring {TrustedIssuerDisplay}";
 
         /// <summary>
-        /// True ONLY when the app is in a hard-broken
-        /// licensing state that the user cannot navigate
-        /// past — invalid signature, machine-mismatch,
-        /// exceeded activations, an expired paid license,
-        /// or a fresh install where the auto-trial could
-        /// not be issued (placeholder key pair). In every
-        /// one of those cases the app boots into the
-        /// LicenseActivationView because no productive
-        /// work is possible.
+        /// True ONLY when the app is in a hard-broken licensing state
+        /// that prevents productive work — no signed activation response,
+        /// invalid signature/state, wrong machine binding, or expired paid
+        /// license outside any signed read-only grace policy.
         ///
         /// EXPLICITLY excluded from this flag:
         ///   • <see cref="LicenseStatus.Trial"/>
@@ -417,17 +412,11 @@ namespace ProGlassAutomation.ViewModels.Licensing
         ///     <see cref="LicenseStatus.GracePeriod"/>
         ///
         /// PRODUCT DECISION:
-        /// The old behaviour showed the LicenseActivationView
-        /// as the default main screen on every fresh launch
-        /// until a licence was accepted. That defeats the
-        /// point of an out-of-the-box trial — nobody wants
-        /// their industrial app to greet them with a
-        /// licensing form. The 30-day auto-trial (see
-        /// <see cref="LicenseService.AutoTrialDays"/>) covers
-        /// the fresh-install case; TrialExpired flips the app
-        /// to read-only and shows a slim banner, not a full
-        /// overlay. The Settings → License page is where the
-        /// user manages activation on their own schedule.
+        /// The secure offline redesign removes client-side self-issued
+        /// trial activation. A fresh install therefore shows the
+        /// LicenseActivationView until the operator generates an activation
+        /// request and imports the vendor-signed response. Read-only states
+        /// still stay inside the shell so customer data remains accessible.
         /// </summary>
         public bool IsLicenseRequired
         {
@@ -461,11 +450,9 @@ namespace ProGlassAutomation.ViewModels.Licensing
         public bool IsReadOnly => LicenseService.Current.ReadOnly;
 
         /// <summary>
-        /// True when the app is in read-only mode BECAUSE the
-        /// auto-trial ended. The read-only banner uses this to
-        /// pick the right copy ("Your trial ended — activate to
-        /// keep editing") vs. the paid grace-period copy
-        /// ("Your licence has expired — renew to keep editing").
+        /// True when the app is in read-only mode because a vendor-issued
+        /// trial response expired. The read-only banner uses this to pick
+        /// the trial wording vs. the paid grace-period wording.
         /// </summary>
         public bool IsTrialExpiredReadOnly =>
             LicenseService.Current.Status == LicenseStatus.TrialExpired;

@@ -1,50 +1,39 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
-using ProGlassAutomation.Services.Licensing;
+using ProGlass.Licensing;
 
 namespace ProGlassAutomation.Tools.LicenseGenerator;
 
 /// <summary>
-/// Vendor-side app-compatible .lic issuer.
+/// Vendor-side offline activation response generator.
 ///
-/// This tool intentionally emits the EXACT legacy .lic envelope the current
-/// ProGlassAutomation app already accepts in Settings/About activation. That
-/// means:
-///   • payload shape = <see cref="LicensePayload"/>
-///   • canonicalization/signature = <see cref="LicenseSigner"/>
-///   • file extension = .lic
-///   • pasted activation text = base64 of that same JSON envelope
-///
-/// The app verifier trusts the matching public key as a secondary production
-/// key, so licenses generated here activate without rebuilding the app.
+/// This tool no longer embeds a production private key and no longer emits a
+/// whole-license base64 blob. It signs structured offline activation response
+/// JSON with an operator-supplied external key file.
 /// </summary>
 public static class LicenseGeneratorCore
 {
-    public const string LicenseFileExtension = ".lic";
-    public const int UnlimitedPortableActivations = 9999;
+    public const string ActivationRequestExtension = ".pgrequest";
+    public const string ActivationResponseExtension = ".lic";
+    public const string IssuerKeyExtension = ".pgkey";
 
     public static string DefaultOutputFolder => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
         "ProGlassAutomation",
-        "Licenses");
+        "OfflineLicensing");
 
     public sealed class IssueRequest
     {
+        public OfflineActivationRequestDocument ActivationRequest { get; set; } = new();
         public string CustomerId { get; set; } = "";
         public string CompanyName { get; set; } = "";
         public string Notes { get; set; } = "";
-        public string LicenseIdOverride { get; set; } = "";
-        public LicenseEdition Edition { get; set; } = LicenseEdition.Business;
+        public string Edition { get; set; } = "Business";
+        public string LicenseType { get; set; } = "Subscription";
+        public string LicenseStatus { get; set; } = "Active";
         public int ValidDays { get; set; } = 365;
-        public int MaxActivations { get; set; } = 5;
-        public string? MachineFingerprint { get; set; }
+        public int GraceDays { get; set; } = 7;
+        public bool ReadOnlyOnExpiry { get; set; } = true;
         public IReadOnlyList<string> Features { get; set; } = Array.Empty<string>();
-        public DateTime? IssuedAtUtc { get; set; }
     }
 
     public sealed class IssueResult
@@ -52,38 +41,27 @@ public static class LicenseGeneratorCore
         public bool Success { get; init; }
         public string Message { get; init; } = "";
         public string OutputPath { get; init; } = "";
-        public string LicenseJson { get; init; } = "";
-        public string PasteKey { get; init; } = "";
-        public LicensePayload? Payload { get; init; }
+        public string ResponseJson { get; init; } = "";
+        public OfflineActivationResponseDocument? Payload { get; init; }
+        public string? SigningKeyId { get; init; }
     }
 
     public sealed class InspectionResult
     {
         public bool IsValid { get; init; }
         public string Message { get; init; } = "";
-        public string LicenseJson { get; init; } = "";
-        public string PasteKey { get; init; } = "";
-        public LicensePayload? Payload { get; init; }
+        public string ResponseJson { get; init; } = "";
+        public OfflineActivationResponseDocument? Payload { get; init; }
+        public string? SigningKeyId { get; init; }
     }
 
-    private sealed class Envelope
+    public static IReadOnlyList<string> DefaultFeatures(string edition)
     {
-        public int EnvelopeVersion { get; set; }
-        public LicensePayload? Payload { get; set; }
-        public string Signature { get; set; } = "";
-    }
-
-    public static IReadOnlyList<string> DefaultFeatures(LicenseEdition edition)
-    {
-        return edition switch
+        return NormalizeEdition(edition) switch
         {
-            LicenseEdition.Trial => new[] { "*" },
-            LicenseEdition.Basic => new[]
-            {
-                "Inquiry.*",
-                "Proforma.*"
-            },
-            LicenseEdition.Business => new[]
+            "Trial" => new[] { "*" },
+            "Basic" => new[] { "Inquiry.*", "Proforma.*" },
+            "Business" => new[]
             {
                 "Inquiry.*",
                 "Proforma.*",
@@ -94,7 +72,7 @@ public static class LicenseGeneratorCore
                 "Reports.*",
                 "AI.*"
             },
-            LicenseEdition.Factory => new[]
+            "Factory" => new[]
             {
                 "Inquiry.*",
                 "Proforma.*",
@@ -106,68 +84,82 @@ public static class LicenseGeneratorCore
                 "AI.*",
                 "Cutting.*"
             },
-            LicenseEdition.Enterprise => new[] { "*" },
-            _ => new[] { "*" }
+            "Enterprise" => new[] { "*" },
+            _ => new[] { "Inquiry.*", "Proforma.*" }
         };
     }
 
-    public static int SuggestedActivationLimit(LicenseEdition edition)
+    public static OfflineActivationRequestReadResult ReadActivationRequest(string text) =>
+        OfflineActivationService.ReadRequest(text);
+
+    public static OfflineActivationRequestReadResult ReadActivationRequestFile(string path)
     {
-        return edition switch
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
         {
-            LicenseEdition.Trial => 1,
-            LicenseEdition.Basic => 1,
-            LicenseEdition.Business => 5,
-            LicenseEdition.Factory => UnlimitedPortableActivations,
-            LicenseEdition.Enterprise => UnlimitedPortableActivations,
-            _ => 1
-        };
+            return new OfflineActivationRequestReadResult
+            {
+                Success = false,
+                ErrorCode = OfflineActivationErrorCode.EmptyRequest,
+                Message = "Activation request file does not exist."
+            };
+        }
+
+        return OfflineActivationService.ReadRequest(File.ReadAllText(path));
     }
 
-    public static string PublicKeyFingerprint => ComputeFingerprint(AppCompatibleIssuerKeys.PublicKeyXml);
-
-    public static IssueResult GenerateLicense(IssueRequest request, string? outputPath = null)
+    public static IssueResult GenerateActivationResponse(
+        IssueRequest request,
+        IssuerKeyMaterial keyMaterial,
+        string? outputPath = null)
     {
         try
         {
-            if (request == null)
-                return Fail("No request supplied.");
+            if (request?.ActivationRequest == null)
+                return Fail("Activation request is required.");
 
-            string customerId = (request.CustomerId ?? "").Trim();
-            string company = (request.CompanyName ?? "").Trim();
-            if (customerId.Length == 0)
-                return Fail("Customer ID is required.");
-            if (company.Length == 0)
+            keyMaterial.Validate();
+            if (string.IsNullOrWhiteSpace(request.CustomerId))
+                return Fail("Customer code is required.");
+            if (string.IsNullOrWhiteSpace(request.CompanyName))
                 return Fail("Company name is required.");
 
-            var payload = BuildPayload(request);
+            var requestCheck = OfflineActivationService.ReadRequest(
+                OfflineActivationService.CreateRequestJson(request.ActivationRequest));
+            if (!requestCheck.Success || requestCheck.Request == null)
+                return Fail(requestCheck.Message ?? "Activation request is invalid.");
+
+            var payload = BuildResponsePayload(request, requestCheck.Request);
+            string json = OfflineActivationService.SignResponseJson(payload, keyMaterial.PrivateKeyXml, keyMaterial.KeyId);
+
             string finalPath = string.IsNullOrWhiteSpace(outputPath)
                 ? BuildDefaultOutputPath(payload)
                 : outputPath!;
-
             Directory.CreateDirectory(Path.GetDirectoryName(finalPath) ?? DefaultOutputFolder);
-            LicenseSigner.SignToFile(payload, AppCompatibleIssuerKeys.PrivateKeyXml, finalPath);
+            File.WriteAllText(finalPath, json, new System.Text.UTF8Encoding(false));
 
-            string json = File.ReadAllText(finalPath, Encoding.UTF8);
-            var verify = InspectText(json);
+            var verify = OfflineActivationService.VerifyResponse(
+                json,
+                new Dictionary<string, string>(StringComparer.Ordinal)
+                {
+                    [keyMaterial.KeyId] = keyMaterial.PublicKeyXml
+                },
+                expectedProductId: payload.ProductId,
+                expectedInstallationId: payload.InstallationId,
+                expectedMachineFingerprint: payload.MachineFingerprint,
+                expectedRequestNonce: payload.RequestNonce,
+                utcNow: DateTime.UtcNow);
+
             if (!verify.IsValid)
-            {
-                return Fail(
-                    "Generator self-check failed: " + verify.Message,
-                    finalPath,
-                    json,
-                    Convert.ToBase64String(Encoding.UTF8.GetBytes(json)),
-                    payload);
-            }
+                return Fail("Self-verification failed: " + verify.Message, finalPath, json, payload, keyMaterial.KeyId);
 
             return new IssueResult
             {
                 Success = true,
-                Message = BuildSuccessMessage(payload, finalPath),
+                Message = BuildSuccessMessage(payload, keyMaterial, finalPath),
                 OutputPath = finalPath,
-                LicenseJson = json,
-                PasteKey = verify.PasteKey,
-                Payload = payload
+                ResponseJson = json,
+                Payload = payload,
+                SigningKeyId = keyMaterial.KeyId
             };
         }
         catch (Exception ex)
@@ -176,101 +168,73 @@ public static class LicenseGeneratorCore
         }
     }
 
-    public static InspectionResult InspectFile(string path)
+    public static InspectionResult InspectResponseFile(
+        string path,
+        IReadOnlyDictionary<string, string> trustedPublicKeys)
     {
-        try
-        {
-            if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
-            {
-                return new InspectionResult
-                {
-                    IsValid = false,
-                    Message = "Selected file does not exist."
-                };
-            }
-
-            string text = File.ReadAllText(path, Encoding.UTF8);
-            return InspectText(text);
-        }
-        catch (Exception ex)
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
         {
             return new InspectionResult
             {
                 IsValid = false,
-                Message = "Inspection failed: " + ex.Message
+                Message = "Response file does not exist."
             };
         }
+
+        return InspectResponseText(File.ReadAllText(path), trustedPublicKeys);
     }
 
-    public static InspectionResult InspectText(string text)
+    public static InspectionResult InspectResponseText(
+        string text,
+        IReadOnlyDictionary<string, string> trustedPublicKeys)
     {
         try
         {
-            if (!TryDecodeLicenseJson(text, out string json, out string decodeError))
+            if (string.IsNullOrWhiteSpace(text))
             {
                 return new InspectionResult
                 {
                     IsValid = false,
-                    Message = decodeError
+                    Message = "Response text is empty."
                 };
             }
 
-            var envelope = JsonSerializer.Deserialize<Envelope>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var parsed = JsonSerializer.Deserialize<SignedOfflineActivationResponse>(text,
+                new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    AllowTrailingCommas = true,
+                    ReadCommentHandling = JsonCommentHandling.Skip
+                });
 
-            if (envelope?.Payload == null)
+            if (parsed?.Payload == null)
             {
                 return new InspectionResult
                 {
                     IsValid = false,
-                    LicenseJson = json,
-                    Message = "License JSON is missing payload data."
+                    Message = "Response JSON is missing payload data.",
+                    ResponseJson = text
                 };
             }
 
-            if (envelope.EnvelopeVersion != LicenseSigner.EnvelopeSchemaVersion)
-            {
-                return new InspectionResult
-                {
-                    IsValid = false,
-                    LicenseJson = json,
-                    Payload = envelope.Payload,
-                    PasteKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(json)),
-                    Message = "Unsupported envelope version " + envelope.EnvelopeVersion + "."
-                };
-            }
-
-            if (string.IsNullOrWhiteSpace(envelope.Signature))
-            {
-                return new InspectionResult
-                {
-                    IsValid = false,
-                    LicenseJson = json,
-                    Payload = envelope.Payload,
-                    PasteKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(json)),
-                    Message = "License JSON is missing the signature."
-                };
-            }
-
-            byte[] signature = Convert.FromBase64String(envelope.Signature);
-            byte[] message = Encoding.UTF8.GetBytes(envelope.Payload.ToCanonicalJson());
-
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(AppCompatibleIssuerKeys.PublicKeyXml);
-            bool ok = rsa.VerifyData(message, signature,
-                        HashAlgorithmName.SHA256, RSASignaturePadding.Pss)
-                || rsa.VerifyData(message, signature,
-                        HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            var verify = OfflineActivationService.VerifyResponse(
+                text,
+                trustedPublicKeys,
+                expectedProductId: parsed.Payload.ProductId,
+                expectedInstallationId: parsed.Payload.InstallationId,
+                expectedMachineFingerprint: parsed.Payload.MachineFingerprint,
+                expectedRequestNonce: parsed.Payload.RequestNonce,
+                utcNow: DateTime.UtcNow);
 
             return new InspectionResult
             {
-                IsValid = ok,
-                LicenseJson = json,
-                PasteKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(json)),
-                Payload = envelope.Payload,
-                Message = ok
-                    ? BuildInspectionMessage(envelope.Payload)
-                    : "Signature does not match the app-compatible signing key."
+                IsValid = verify.IsValid,
+                Message = verify.IsValid
+                    ? BuildInspectionMessage(parsed.Payload, parsed.Signature.KeyId)
+                    : (verify.Message ?? "Response verification failed."),
+                ResponseJson = text,
+                Payload = parsed.Payload,
+                SigningKeyId = parsed.Signature.KeyId
             };
         }
         catch (Exception ex)
@@ -278,238 +242,190 @@ public static class LicenseGeneratorCore
             return new InspectionResult
             {
                 IsValid = false,
-                Message = "Inspection failed: " + ex.Message
+                Message = "Inspection failed: " + ex.Message,
+                ResponseJson = text
             };
         }
     }
 
-    public static InspectionResult RunSelfTest()
+    public static InspectionResult RunSelfTest(IssuerKeyMaterial keyMaterial)
     {
-        string temp = Path.Combine(
+        keyMaterial.Validate();
+
+        string tempPath = Path.Combine(
             Path.GetTempPath(),
-            "proglass-license-selftest-" + Guid.NewGuid().ToString("N") + LicenseFileExtension);
+            "proglass-offline-selftest-" + Guid.NewGuid().ToString("N") + ActivationResponseExtension);
 
         try
         {
-            var result = GenerateLicense(new IssueRequest
+            var request = new OfflineActivationRequestDocument
             {
-                CustomerId = "SELFTEST",
-                CompanyName = "Generator self test",
-                Edition = LicenseEdition.Business,
-                ValidDays = 30,
-                MaxActivations = 2,
-                Features = DefaultFeatures(LicenseEdition.Business),
-                Notes = "Self-test probe generated by the vendor tool."
-            }, temp);
+                ProductId = ProductIds.ProGlassAutomation,
+                LicenseId = "SELFTEST-LIC-001",
+                InstallationId = "SELFTEST-INSTALL-001",
+                MachineFingerprint = "SELFTEST-MACHINE-ABC",
+                RequestNonce = Guid.NewGuid().ToString("N"),
+                RequestedAtUtc = DateTime.UtcNow,
+                ApplicationVersion = "2.0.0"
+            };
+
+            var result = GenerateActivationResponse(
+                new IssueRequest
+                {
+                    ActivationRequest = request,
+                    CustomerId = "SELFTEST",
+                    CompanyName = "Generator self test",
+                    Edition = "Business",
+                    LicenseType = "Subscription",
+                    LicenseStatus = "Active",
+                    ValidDays = 30,
+                    Features = DefaultFeatures("Business")
+                },
+                keyMaterial,
+                tempPath);
 
             return new InspectionResult
             {
                 IsValid = result.Success,
                 Message = result.Success
-                    ? "Self-test passed. The generator produced an app-compatible .lic signed with fingerprint " + PublicKeyFingerprint + "."
+                    ? "Self-test passed. The generator created a signed offline activation response with keyId '" + keyMaterial.KeyId + "'."
                     : result.Message,
-                LicenseJson = result.LicenseJson,
-                PasteKey = result.PasteKey,
-                Payload = result.Payload
+                ResponseJson = result.ResponseJson,
+                Payload = result.Payload,
+                SigningKeyId = result.SigningKeyId
             };
         }
         finally
         {
-            try { if (File.Exists(temp)) File.Delete(temp); } catch { }
+            try { if (File.Exists(tempPath)) File.Delete(tempPath); } catch { }
         }
     }
 
-    public static LicenseEdition ParseEdition(string? text)
+    public static string NormalizeEdition(string? text)
     {
-        return Enum.TryParse<LicenseEdition>((text ?? "").Trim(), true, out var edition)
-            ? edition
-            : LicenseEdition.Business;
+        string value = (text ?? string.Empty).Trim();
+        if (value.Equals("Trial", StringComparison.OrdinalIgnoreCase)) return "Trial";
+        if (value.Equals("Basic", StringComparison.OrdinalIgnoreCase)) return "Basic";
+        if (value.Equals("Business", StringComparison.OrdinalIgnoreCase)) return "Business";
+        if (value.Equals("Factory", StringComparison.OrdinalIgnoreCase)) return "Factory";
+        if (value.Equals("Enterprise", StringComparison.OrdinalIgnoreCase)) return "Enterprise";
+        return "Business";
     }
 
-    private static IssueResult Fail(
-        string message,
-        string? outputPath = null,
-        string? json = null,
-        string? pasteKey = null,
-        LicensePayload? payload = null)
+    private static OfflineActivationResponseDocument BuildResponsePayload(
+        IssueRequest request,
+        OfflineActivationRequestDocument activationRequest)
     {
-        return new IssueResult
+        string edition = NormalizeEdition(request.Edition);
+        string licenseType = string.IsNullOrWhiteSpace(request.LicenseType)
+            ? "Subscription"
+            : request.LicenseType.Trim();
+
+        DateTime issued = DateTime.UtcNow;
+        DateTime? expires = RequiresExpiry(licenseType)
+            ? issued.AddDays(Math.Max(1, Math.Min(3650, request.ValidDays)))
+            : null;
+
+        return new OfflineActivationResponseDocument
         {
-            Success = false,
-            Message = message,
-            OutputPath = outputPath ?? "",
-            LicenseJson = json ?? "",
-            PasteKey = pasteKey ?? "",
-            Payload = payload
-        };
-    }
-
-    private static LicensePayload BuildPayload(IssueRequest request)
-    {
-        DateTime issued = (request.IssuedAtUtc ?? DateTime.UtcNow).ToUniversalTime();
-        int days = request.ValidDays <= 0 ? 365 : request.ValidDays;
-        if (days > 3650) days = 3650;
-
-        string? fingerprint = string.IsNullOrWhiteSpace(request.MachineFingerprint)
-            ? null
-            : request.MachineFingerprint.Trim();
-
-        int maxActivations = fingerprint != null
-            ? 1
-            : Math.Max(1, request.MaxActivations);
-
-        var features = NormalizeFeatures(request.Features, request.Edition);
-
-        return new LicensePayload
-        {
-            LicenseId = string.IsNullOrWhiteSpace(request.LicenseIdOverride)
-                ? GenerateLicenseId(request.CustomerId)
-                : request.LicenseIdOverride.Trim(),
-            Edition = request.Edition,
-            CustomerId = request.CustomerId.Trim(),
-            CompanyName = request.CompanyName.Trim(),
-            IssuedAt = issued,
-            ExpiresAt = issued.AddDays(days),
-            MaxActivations = maxActivations,
-            Features = features,
-            MachineFingerprint = fingerprint,
-            Notes = (request.Notes ?? "").Trim(),
-            TrialSource = string.Empty,
-            TrialExpiresAt = default
+            ProtocolVersion = OfflineActivationProtocol.Version,
+            ProductId = activationRequest.ProductId,
+            LicenseId = activationRequest.LicenseId,
+            ActivationId = Guid.NewGuid().ToString("N"),
+            InstallationId = activationRequest.InstallationId,
+            RequestNonce = activationRequest.RequestNonce,
+            MachineFingerprint = activationRequest.MachineFingerprint,
+            CustomerId = (request.CustomerId ?? string.Empty).Trim(),
+            CompanyName = (request.CompanyName ?? string.Empty).Trim(),
+            Edition = edition,
+            LicenseType = licenseType,
+            LicenseStatus = string.IsNullOrWhiteSpace(request.LicenseStatus) ? "Active" : request.LicenseStatus.Trim(),
+            IssuedAtUtc = issued,
+            NotBeforeUtc = issued,
+            ExpiresAtUtc = expires,
+            FeatureEntitlements = NormalizeFeatures(request.Features, edition).ToList(),
+            Notes = (request.Notes ?? string.Empty).Trim(),
+            OfflinePolicy = new OfflineActivationPolicy
+            {
+                ClockRollbackToleranceMinutes = 1440,
+                GraceDays = Math.Max(0, Math.Min(90, request.GraceDays)),
+                ReadOnlyOnExpiry = request.ReadOnlyOnExpiry
+            }
         };
     }
 
     private static IReadOnlyList<string> NormalizeFeatures(
-        IReadOnlyList<string> requested,
-        LicenseEdition edition)
+        IReadOnlyList<string>? requested,
+        string edition)
     {
         var parsed = (requested ?? Array.Empty<string>())
-            .SelectMany(x => (x ?? "").Split(new[] { ',', ';', '\n', '\r' },
+            .SelectMany(x => (x ?? string.Empty).Split(new[] { ',', ';', '\n', '\r' },
                 StringSplitOptions.RemoveEmptyEntries))
             .Select(x => x.Trim())
             .Where(x => x.Length > 0)
             .Distinct(StringComparer.Ordinal)
             .ToList();
 
-        return parsed.Count > 0 ? parsed : DefaultFeatures(edition).ToList();
+        return parsed.Count > 0
+            ? parsed
+            : DefaultFeatures(edition).ToList();
     }
 
-    private static string BuildDefaultOutputPath(LicensePayload payload)
+    private static bool RequiresExpiry(string licenseType)
     {
-        string company = SanitizeFileName(string.IsNullOrWhiteSpace(payload.CompanyName)
-            ? payload.CustomerId
-            : payload.CompanyName);
+        return !string.Equals(licenseType, "Lifetime", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(licenseType, "PerpetualVersion", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string BuildDefaultOutputPath(OfflineActivationResponseDocument payload)
+    {
+        string company = Sanitise(payload.CompanyName.Length == 0 ? payload.CustomerId : payload.CompanyName);
         string stamp = DateTime.UtcNow.ToString("yyyy-MM-dd");
-        return Path.Combine(DefaultOutputFolder, company + "-" + stamp + LicenseFileExtension);
+        return Path.Combine(DefaultOutputFolder, company + "-" + stamp + ActivationResponseExtension);
     }
 
-    private static string GenerateLicenseId(string customerId)
+    private static IssueResult Fail(
+        string message,
+        string? outputPath = null,
+        string? responseJson = null,
+        OfflineActivationResponseDocument? payload = null,
+        string? keyId = null)
     {
-        string prefix = SanitizeFileName(customerId).ToUpperInvariant();
-        if (prefix.Length == 0) prefix = "CUST";
-        return prefix + "-" + DateTime.UtcNow.ToString("yyyyMMdd") + "-" +
-               Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+        return new IssueResult
+        {
+            Success = false,
+            Message = message,
+            OutputPath = outputPath ?? string.Empty,
+            ResponseJson = responseJson ?? string.Empty,
+            Payload = payload,
+            SigningKeyId = keyId
+        };
     }
 
-    private static bool TryDecodeLicenseJson(string input, out string json, out string error)
+    private static string BuildSuccessMessage(
+        OfflineActivationResponseDocument payload,
+        IssuerKeyMaterial keyMaterial,
+        string path)
     {
-        json = "";
-        error = "";
-
-        string text = (input ?? "").Trim();
-        text = text.TrimStart('\uFEFF', '\u200B', ' ', '\t', '\r', '\n');
-        if (text.Length == 0)
-        {
-            error = "No license text supplied.";
-            return false;
-        }
-
-        if (text.StartsWith("{", StringComparison.Ordinal))
-        {
-            json = text;
-            return true;
-        }
-
-        try
-        {
-            string b64 = text
-                .Replace("-----BEGIN LICENSE-----", "", StringComparison.OrdinalIgnoreCase)
-                .Replace("-----END LICENSE-----", "", StringComparison.OrdinalIgnoreCase)
-                .Replace("-----BEGIN PROGLASS LICENSE-----", "", StringComparison.OrdinalIgnoreCase)
-                .Replace("-----END PROGLASS LICENSE-----", "", StringComparison.OrdinalIgnoreCase);
-            b64 = string.Concat(b64.Where(c => !char.IsWhiteSpace(c)));
-            byte[] bytes = Convert.FromBase64String(b64);
-            string decoded = Encoding.UTF8.GetString(bytes);
-            if (!decoded.TrimStart().StartsWith("{", StringComparison.Ordinal))
-                throw new FormatException("Base64 decoded value is not JSON.");
-            json = decoded;
-            return true;
-        }
-        catch (Exception ex)
-        {
-            error = "The text is neither raw .lic JSON nor a base64 activation key: " + ex.Message;
-            return false;
-        }
-    }
-
-    private static string BuildSuccessMessage(LicensePayload payload, string path)
-    {
-        string mode = string.IsNullOrWhiteSpace(payload.MachineFingerprint)
-            ? $"portable · {payload.MaxActivations} activation(s)"
-            : "machine-bound · 1 activation";
-        return payload.Edition + " license ready · " + mode +
-               " · expires " + payload.ExpiresAt.ToString("yyyy-MM-dd") +
+        return payload.Edition + " offline activation response ready · keyId " +
+               keyMaterial.KeyId + " · fingerprint " + keyMaterial.Fingerprint +
+               " · expires " + (payload.ExpiresAtUtc?.ToString("yyyy-MM-dd") ?? "(no expiry)") +
                " · file " + path;
     }
 
-    private static string BuildInspectionMessage(LicensePayload payload)
+    private static string BuildInspectionMessage(OfflineActivationResponseDocument payload, string? keyId)
     {
-        string mode = string.IsNullOrWhiteSpace(payload.MachineFingerprint)
-            ? $"portable · {payload.MaxActivations} activation(s)"
-            : "machine-bound";
-        return "App-compatible .lic verified · " + payload.Edition +
-               " · customer " + (payload.CustomerId.Length == 0 ? "(blank)" : payload.CustomerId) +
-               " · " + mode;
+        return "Signed offline activation response verified · keyId " +
+               (keyId ?? "(none)") + " · edition " + payload.Edition +
+               " · customer " + payload.CustomerId +
+               " · install " + payload.InstallationId;
     }
 
-    private static bool TryVerifyWithAnyKey(
-        IEnumerable<string> keys,
-        byte[] message,
-        byte[] signature)
+    private static string Sanitise(string? name)
     {
-        foreach (var key in keys ?? Array.Empty<string>())
-        {
-            if (string.IsNullOrWhiteSpace(key))
-                continue;
-
-            using var rsa = RSA.Create();
-            rsa.FromXmlString(key);
-            bool ok = rsa.VerifyData(message, signature,
-                         HashAlgorithmName.SHA256, RSASignaturePadding.Pss)
-                || rsa.VerifyData(message, signature,
-                         HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            if (ok) return true;
-        }
-
-        return false;
-    }
-
-    private static string ComputeFingerprint(string publicKeyXml)
-    {
-        using var rsa = RSA.Create();
-        rsa.FromXmlString(publicKeyXml);
-        var p = rsa.ExportParameters(false);
-        byte[] hash = SHA256.HashData(p.Modulus ?? Array.Empty<byte>());
-        var sb = new StringBuilder(16);
-        for (int i = 0; i < Math.Min(8, hash.Length); i++)
-            sb.Append(hash[i].ToString("x2"));
-        return sb.ToString();
-    }
-
-    private static string SanitizeFileName(string? text)
-    {
-        string source = string.IsNullOrWhiteSpace(text) ? "LICENSE" : text.Trim();
-        var invalid = Path.GetInvalidFileNameChars();
-        return new string(source.Select(c => invalid.Contains(c) ? '_' : c).ToArray());
+        char[] invalid = Path.GetInvalidFileNameChars();
+        return new string((string.IsNullOrWhiteSpace(name) ? "Activation" : name.Trim())
+            .Select(c => invalid.Contains(c) ? '_' : c)
+            .ToArray());
     }
 }

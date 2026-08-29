@@ -1,37 +1,13 @@
 <!--
-  LicenseActivationView — in-app license activation page.
+  LicenseActivationView — secure offline activation page.
 
-  Commit 3 of the licensing refactor replaces the pre-login
-  WelcomeView with this in-app activation page. The view
-  is reused in two places by Commit 4:
-
-    1) The first-launch modal window that the app shows
-       when no usable license is present (replaces the
-       old WelcomeView).
-    2) The "License required" mode the main shell falls
-       into when an auto-trial expires and the user
-       tries to keep using the app. Same control, hosted
-       as a page in MainWindow's content region.
-
-  The view itself is just an in-app form: paste a
-  license key, browse for a .lic file, or read the
-  current license details. The OLD "Continue Read-Only"
-  button is intentionally NOT present — the new model
-  has no read-only escape hatch. The OLD "Start a 30-day
-  trial" button is also gone because Commit 2's
-  LicenseService.IssueAutoTrialIfEligible auto-issues a
-  30-day trial on first launch without any user action.
-
-  Visual: same SectionCardStyle / PrimaryPillButton /
-  OutlinedPillButton / DangerButton chrome as
-  WelcomeView. No new theme work.
-
-  The view raises an Activated event when the user
-  successfully installs a license, and a Cancelled
-  event when the user closes the dialog without
-  activating. The host window reads these to decide
-  whether to advance the app to the main window
-  (Commit 4) or stay put.
+  Max-security redesign direction:
+    • no client-side self-signed trial issuance
+    • no whole-license base64 activation blobs
+    • customer generates an activation request
+    • vendor returns a signed offline activation response
+    • app verifies product, keyId, signature, installation, nonce,
+      machine fingerprint and dates before activating
 -->
 <UserControl x:Class="ProGlassAutomation.Views.Licensing.LicenseActivationView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -43,12 +19,6 @@
              SnapsToDevicePixels="True">
     <UserControl.Resources>
         <ResourceDictionary>
-            <!--
-              SectionCardStyle is local to Settings and not
-              merged into the global dictionary. Re-merge it
-              here so the cards look the same as every other
-              Settings panel.
-            -->
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="/Views/Settings/SettingsSectionStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
@@ -58,12 +28,9 @@
             Padding="28,24">
         <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
-            <!-- Full width: no MaxWidth cap, so the activation cards span the
-                 whole settings content column (no empty right side). -->
             <StackPanel HorizontalAlignment="Stretch"
                         VerticalAlignment="Top">
 
-                <!-- Title + headline -->
                 <TextBlock x:Name="HeadlineText"
                            Text="Activate ProGlass Automation"
                            FontSize="26" FontWeight="SemiBold"
@@ -72,15 +39,12 @@
                            TextWrapping="Wrap" FontSize="13"
                            Margin="0,4,0,24"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
-                    <Run Text="Paste the license key your vendor sent you. The app verifies the signature and activates instantly."/>
+                    <Run Text="This build uses secure offline activation. Generate an activation request, send it to your vendor, and then import the signed activation response they return."/>
                 </TextBlock>
 
-                <!-- Current license card (always shown so the user
-                     can see what the app is currently configured
-                     to use). -->
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="CURRENT LICENSE"
+                        <TextBlock Text="CURRENT LICENSE STATE"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,6"/>
@@ -141,77 +105,107 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Option 1: Paste a license key (text) -->
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="PASTE A LICENSE KEY"
+                        <TextBlock Text="STEP 1 — GENERATE ACTIVATION REQUEST"
                                    FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock TextWrapping="Wrap" FontSize="12"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="Paste the single license key your vendor sent you. It is one long string — paste it all and click Apply."/>
+                            <Run Text="Enter the vendor license reference you were given. The request binds this machine fingerprint and installation identity into a signed-response workflow."/>
+                        </TextBlock>
+                        <Grid Margin="0,0,0,12">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Vendor license reference"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <TextBox x:Name="LicenseReferenceBox"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Installation ID"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <TextBox x:Name="InstallationIdBox" IsReadOnly="True"/>
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Text="Current machine fingerprint"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBox x:Name="FingerprintDisplayBox"
+                                 IsReadOnly="True"
+                                 FontFamily="Consolas"
+                                 FontSize="11"
+                                 Margin="0,4,0,12"
+                                 TextWrapping="Wrap"/>
+                        <TextBlock Text="Activation request JSON"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBox x:Name="RequestOutputBox"
+                                 IsReadOnly="True"
+                                 AcceptsReturn="True"
+                                 TextWrapping="Wrap"
+                                 MinHeight="120"
+                                 MaxHeight="220"
+                                 VerticalScrollBarVisibility="Auto"
+                                 FontFamily="Consolas"
+                                 FontSize="11"
+                                 Margin="0,4,0,12"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Content="GENERATE REQUEST"
+                                    Click="GenerateRequestButton_Click"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="SAVE REQUEST FILE…"
+                                    Click="SaveRequestButton_Click"
+                                    Margin="10,0,0,0"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="COPY REQUEST"
+                                    Click="CopyRequestButton_Click"
+                                    Margin="10,0,0,0"
+                                    HorizontalAlignment="Stretch"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="STEP 2 — IMPORT SIGNED ACTIVATION RESPONSE"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                                   Margin="0,6,0,12"
+                                   Foreground="{DynamicResource ForegroundBrush}">
+                            <Run Text="Your vendor returns a signed response file or raw signed JSON. Base64-wrapped whole-license strings are no longer accepted in this secure flow."/>
                         </TextBlock>
                         <TextBox x:Name="PasteTextBox"
                                  AcceptsReturn="True" AcceptsTab="True"
                                  TextWrapping="Wrap" MinHeight="120"
-                                 MaxHeight="200"
+                                 MaxHeight="220"
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas" FontSize="11"
                                  Margin="0,0,0,12"/>
-                        <Button Style="{StaticResource PrimaryPillButton}"
-                                Content="APPLY PASTED LICENSE"
-                                Click="PasteApplyButton_Click"
-                                HorizontalAlignment="Stretch"/>
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Content="APPLY SIGNED RESPONSE JSON"
+                                    Click="PasteApplyButton_Click"
+                                    HorizontalAlignment="Stretch"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Content="BROWSE FOR RESPONSE FILE…"
+                                    Click="BrowseButton_Click"
+                                    Margin="10,0,0,0"
+                                    HorizontalAlignment="Stretch"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- Option 2: Drop / browse a .lic file -->
-                <Border Style="{StaticResource SectionCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="INSTALL A .LIC FILE"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock TextWrapping="Wrap" FontSize="12"
-                                   Margin="0,6,0,12"
-                                   Foreground="{DynamicResource ForegroundBrush}">
-                            <Run Text="If your vendor sent you a "/>
-                            <Run FontWeight="SemiBold" Text=".lic"/>
-                            <Run Text=" file (typically named after your company), browse to it here."/>
-                        </TextBlock>
-                        <Button Style="{StaticResource OutlinedPillButton}"
-                                Content="BROWSE FOR .LIC FILE…"
-                                Click="BrowseButton_Click"
-                                HorizontalAlignment="Stretch"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Developer-only: appears only when the status is an
-                     activation limit AND this machine holds a signing
-                     key pair (vendor / developer machine). One tap
-                     clears the activation ledger so this machine
-                     re-registers — the recovery path for the
-                     "activation limit reached" lockout caused by
-                     stale fingerprint entries. -->
-                <Border x:Name="DevResetCard"
-                        Style="{StaticResource SectionCardStyle}"
-                        Visibility="Collapsed">
-                    <StackPanel>
-                        <TextBlock Text="DEVELOPER RECOVERY"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock TextWrapping="Wrap" FontSize="12"
-                                   Margin="0,6,0,12"
-                                   Foreground="{DynamicResource ForegroundBrush}"
-                                   Text="This machine holds a signing key pair, so you can clear the activation ledger and re-register this device without contacting the vendor."/>
-                        <Button Style="{StaticResource OutlinedPillButton}"
-                                Content="CLEAR ACTIVATION LEDGER + RE-REGISTER THIS MACHINE"
-                                Click="DevResetButton_Click"
-                                HorizontalAlignment="Stretch"/>
-                    </StackPanel>
-                </Border>
-
-                <!-- Footer: error label + close button -->
                 <TextBlock x:Name="ErrorText"
                            Margin="0,8,0,0"
                            FontSize="11"

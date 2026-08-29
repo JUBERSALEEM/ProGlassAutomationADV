@@ -1,62 +1,25 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Licensing/LicensePayload.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Commercial licensing — payload model
+// MODULE: Licensing — runtime projection model
 //
-// WHAT THIS IS
-// ────────────
-// The on-disk format of a ProGlass Automation license file (.lic).
-// A license is a JSON envelope containing the customer/company
-// record PLUS an RSA-2048-PSS signature over the canonicalised
-// record. The signature is verified by the app on every load —
-// the private key only ever exists in the separate
-// LicenseGenerator tool, never in the app's source tree.
+// WHAT THIS IS NOW
+// ────────────────
+// This type is no longer the authoritative on-disk licensing contract.
+// The offline max-security redesign moved authority to the structured
+// `ProGlass.Licensing` contracts plus a signed offline activation-response
+// envelope.
 //
-// FILE SHAPE (illustrative — actual JSON is produced by
-// LicenseSigner and consumed by LicenseVerifier):
+// `LicensePayload` remains as the APP-SIDE projection model consumed by:
+//   • About / Settings diagnostics
+//   • status banners and activation success UI
+//   • feature-gating convenience helpers
 //
-//   {
-//     "envelopeVersion": 1,
-//     "payload": {
-//       "schemaVersion": 1,
-//       "licenseId":     "uuid",
-//       "edition":       "Business",     // Trial | Basic | Business | Factory | Enterprise
-//       "customerId":    "CUST-2026-001",
-//       "companyName":   "Acme Glass LLC",
-//       "issuedAt":      "2026-08-23T10:00:00Z",
-//       "expiresAt":     "2027-08-23T10:00:00Z",
-//       "maxActivations": 3,
-//       "features":      ["Inquiry.*", "Proforma.*", "JobOrder.*"],
-//       "machineFingerprint": null,    // null = portable; non-null = locked
-//       "notes":         "Issued by J. Saleem 2026-08-23"
-//     },
-//     "signature": "base64(256 bytes RSA-2048-PSS over canonical JSON)"
-//   }
+// In other words:
+//   signed offline activation response  → verified runtime context → LicensePayload
 //
-// SIGNING MODEL
-// ─────────────
-//   • RSA-2048, PSS padding, SHA-256, via the BCL.
-//   • Public key embedded as an XML const string in
-//     LicensePublicKey.cs.
-//   • Private key only ever lives in the LicenseGenerator tool,
-//     stored on the developer's machine outside the source tree
-//     (see %AppData%\ProGlassAutomation\license-keys.json).
-//   • The signature is over the canonical JSON of the payload
-//     (sorted keys, no whitespace), NOT over the pretty-printed
-//     JSON the operator sees. This makes verification robust to
-//     formatting changes. The round-trip tests guard this.
-//
-// WHY RSA, NOT ED25519
-// ────────────────────
-//   • Universal .NET support across every version back to .NET
-//     Framework 2.0 — no risk of API rename in a future
-//     release breaking every shipped license.
-//   • .NET 8's Ed25519 class is in flux across previews.
-//   • The rest of this codebase already uses RSA (PasswordHasher,
-//     UpdateSignatureVerifier, DPAPI). One family for the whole
-//     app means one toolset for the developer.
-//   • 256-byte signatures are larger than Ed25519's 64 bytes,
-//     but invisible to a customer.
+// The fields are intentionally kept stable so the wider WPF app can keep
+// using the same bindings while the underlying trust model is replaced.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -233,49 +196,37 @@ namespace ProGlassAutomation.Services.Licensing
         [JsonPropertyName("notes")]
         public string Notes { get; init; } = "";
 
-        // ── Trial provenance (commit 1 of the licensing refactor) ─────
+        // ── Trial provenance ───────────────────────────────────────
         //
-        // A 7-day trial is auto-issued by the app itself on first
-        // launch (no .lic on disk, no vendor signature needed) so the
-        // user can boot the app without going through the
-        // LicenseGenerator tool first. To keep that auto-trial
-        // auditable and strict-expiry-friendly, two new fields are
-        // added here:
+        // In the secure offline redesign the APP no longer self-issues
+        // trials. A trial, when present, is expected to be vendor-issued
+        // through the signed offline activation-response flow.
         //
-        //   • TrialSource: who issued the trial.
-        //       ""           — not a trial (a real customer-issued license)
-        //       "auto-7d"    — the app auto-issued this on first launch
-        //       "auto-1d"    — emergency 1-day extension (future use)
-        //       "<vendor>"   — a future on-vendor-approval trial
-        //   • TrialExpiresAt: separate from ExpiresAt so the auto-
-        //     issued trial can use a different value (e.g. 7 days from
-        //     IssuedAt) than the canonical ExpiresAt field that real
-        //     licenses use. The verifier checks TrialExpiresAt FIRST
-        //     when TrialSource is non-empty, then falls back to
-        //     ExpiresAt.
+        // These fields remain because the wider UI already understands them,
+        // and the runtime projection model uses them to distinguish:
+        //   • normal paid activation
+        //   • vendor-issued trial activation
+        //   • trial expiry display
         //
-        // Backwards compatibility: both fields are init-only with
-        // empty/default initialisers, so a payload serialised by an
-        // older build (or a real customer license with no trial
-        // metadata) deserialises cleanly. The verifier treats empty
-        // TrialSource as "not a trial" and uses ExpiresAt as before.
+        // TrialSource empty  => not a trial
+        // TrialSource set    => some form of vendor-issued trial provenance
+        // TrialExpiresAt     => authoritative trial window when present
 
         /// <summary>
-        /// Identifies how a trial was issued. Empty string means
-        /// "this license is not a trial at all" (a real customer
-        /// license). Any non-empty value means the payload was
-        /// auto-issued by the app or a vendor tool, and the
-        /// <see cref="TrialExpiresAt"/> value takes precedence
-        /// over <see cref="ExpiresAt"/> for expiry checks.
+        /// Identifies trial provenance. Empty string means this runtime
+        /// payload is not a trial. Any non-empty value means the payload
+        /// represents a vendor-issued trial and <see cref="TrialExpiresAt"/>
+        /// takes precedence over <see cref="ExpiresAt"/> for display and
+        /// expiry checks.
         /// </summary>
         [JsonPropertyName("trialSource")]
         public string TrialSource { get; init; } = "";
 
         /// <summary>
-        /// The expiry timestamp for an auto-issued trial. Only
-        /// consulted when <see cref="TrialSource"/> is non-empty.
-        /// For real (non-trial) licenses, leave at the default
-        /// and let <see cref="ExpiresAt"/> drive expiry.
+        /// The expiry timestamp for a vendor-issued trial. Only consulted
+        /// when <see cref="TrialSource"/> is non-empty. For real
+        /// (non-trial) licenses, leave at the default and let
+        /// <see cref="ExpiresAt"/> drive expiry.
         /// </summary>
         [JsonPropertyName("trialExpiresAt")]
         public DateTime TrialExpiresAt { get; init; }
@@ -377,12 +328,10 @@ namespace ProGlassAutomation.Services.Licensing
                 writer.WriteString("notes", Notes ?? "");
                 // Trial provenance — see comment on the fields above.
                 // Always written (even when empty / default) so the
-                // canonical JSON shape is stable across real licenses
-                // and auto-issued trials. Older verifiers that don't
-                // know about these fields will still validate the
-                // signature (the field is just an opaque string + a
-                // date), and the new verifier uses them for strict
-                // 7-day trial enforcement.
+                // canonical JSON shape is stable across paid activations
+                // and vendor-issued trials. Older verifiers that don't
+                // know about these fields still see a deterministic,
+                // signed field shape.
                 writer.WriteString("trialSource", TrialSource ?? "");
                 writer.WriteString("trialExpiresAt",
                     TrialExpiresAt == default

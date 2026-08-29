@@ -34,12 +34,11 @@ namespace ProGlassAutomation.Views.Licensing
             LicenseStatus.Trial => "Trial",
             LicenseStatus.MachineMismatch => "Wrong machine",
             LicenseStatus.ActivationLimit => "Activation limit reached",
-            // Auto-issued 30-day trial that has ended. The
-            // .lic file is preserved (customer data is never
-            // touched); the app runs in read-only mode until
-            // the user activates a real license. The badge
-            // is deliberately explicit so it stands out from
-            // the paid "License expired" state.
+            // Trial response that has ended. The app remains
+            // in read-only mode until the user imports a new
+            // signed response. The badge is deliberately
+            // explicit so it stands out from the paid
+            // "License expired" state.
             LicenseStatus.TrialExpired => "Trial ended · read-only",
             _ => status.ToString()
         };
@@ -52,49 +51,26 @@ namespace ProGlassAutomation.Views.Licensing
         public static string StatusDescription(LicenseStatus status) => status switch
         {
             LicenseStatus.NotActivated =>
-                "No licence is currently active on this machine. " +
-                "If your 30-day trial has already ended, only a full " +
-                "licence key can re-activate the app — the trial is " +
-                "one-time per machine.",
+                "No signed offline activation response is currently active on this machine. " +
+                "Generate an activation request in Settings → License, send it to your vendor, and import the signed response they return.",
             LicenseStatus.Invalid =>
-                "The license file is present but its signature " +
-                "could not be verified. The file may be corrupt, " +
-                "signed with a different key, or for an older " +
-                "app version. Re-issue the license from the " +
-                "vendor.",
+                "The installed activation state could not be trusted. The response may be corrupt, bound to a different request, signed with an unknown key, or from the legacy insecure format. Generate a fresh request and ask your vendor to re-issue it.",
             LicenseStatus.GracePeriod =>
-                "The license is past its expiry date but the " +
-                "grace period is still active. The app runs in " +
-                "read-only mode until the grace period ends. " +
-                "Renew the license to restore full access.",
+                "The signed activation response is past its main expiry date but still inside its signed offline grace window. The app runs in read-only mode until the grace period ends. Renew the activation response to restore full access.",
             LicenseStatus.Expired =>
-                "The license is expired and the grace period has " +
-                "elapsed. The app cannot run until a valid " +
-                "license is activated.",
+                "The signed activation response is expired and its grace period has elapsed. Generate a fresh request and obtain a renewed response from your vendor.",
             LicenseStatus.ExpiringSoon =>
-                "The license is valid but expires within 14 days. " +
-                "Contact your vendor to renew before it expires.",
+                "The signed activation response is valid but expires within 14 days. Contact your vendor to renew before it expires.",
             LicenseStatus.Valid =>
-                "The license is valid and all licensed features " +
-                "are available.",
+                "The signed offline activation response is valid and the licensed features are available.",
             LicenseStatus.Trial =>
-                "A 30-day trial is active. Every module is " +
-                "unlocked while the trial runs; activate a full " +
-                "license before it ends to keep creating and " +
-                "editing records without interruption.",
+                "A vendor-issued offline trial response is active. Renew it or replace it with a full signed activation response before the trial window ends.",
             LicenseStatus.TrialExpired =>
-                "The 30-day trial has ended. All your data is " +
-                "preserved, but the app is now in read-only mode " +
-                "— activate a full license from Settings → License " +
-                "to continue creating and editing records.",
+                "The signed offline trial response has expired. All your data is preserved, but the app is now in read-only mode until you import a renewed signed response or a full activation.",
             LicenseStatus.MachineMismatch =>
-                "This license is bound to a different machine. " +
-                "Ask the vendor to re-issue the license for this " +
-                "machine's fingerprint (Settings → About).",
+                "This activation response is bound to a different machine fingerprint. Generate a fresh activation request from this PC and ask the vendor to re-issue it.",
             LicenseStatus.ActivationLimit =>
-                "This license has been activated on the maximum " +
-                "number of devices. Deactivate another device " +
-                "or contact your vendor to increase the limit.",
+                "The legacy activation-limit state was reached. Re-issue the license under the new offline activation flow.",
             _ => ""
         };
     }

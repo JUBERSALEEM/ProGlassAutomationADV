@@ -116,6 +116,9 @@ public sealed class OfflineActivationResponseDocument
     [JsonPropertyName("featureEntitlements")]
     public List<string> FeatureEntitlements { get; set; } = new();
 
+    [JsonPropertyName("notes")]
+    public string Notes { get; set; } = "";
+
     [JsonPropertyName("offlinePolicy")]
     public OfflineActivationPolicy OfflinePolicy { get; set; } = new();
 }
@@ -211,6 +214,8 @@ public static class OfflineActivationCanonical
                 writer.WriteStringValue(feature);
             }
             writer.WriteEndArray();
+
+            writer.WriteString("notes", response.Notes ?? "");
 
             writer.WritePropertyName("offlinePolicy");
             writer.WriteStartObject();
