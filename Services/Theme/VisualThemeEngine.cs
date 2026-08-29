@@ -62,6 +62,10 @@ namespace ProGlassAutomation.Services.Theme
         public const string Professional = "Professional";
         /// <summary>The default family — iOS Liquid Glass (2026-08-29).</summary>
         public const string LiquidGlass = "iOS Liquid Glass";
+        /// <summary>Fully transparent glass — surfaces are nearly invisible,
+        /// only crystal edges define the shape. The aurora stage shows
+        /// through everything.</summary>
+        public const string UltraTransparent = "Ultra Transparent";
         public const string Ocean = "Ocean";
 
         /// <summary>Keys the engine may override (removed on Normal).</summary>
@@ -174,7 +178,7 @@ namespace ProGlassAutomation.Services.Theme
             // Monet and iOS Liquid Glass derive their surfaces and
             // window stage from the active accent colour, so both must
             // re-derive when the user changes the accent.
-            if (Current != Monet && Current != LiquidGlass)
+            if (Current != Monet && Current != LiquidGlass && Current != UltraTransparent)
                 return;
             Apply(Current, _lastWallpaperPath, _lastWallpaperOpacity);
             ApplyModule(LastRequestedModule, App.Config?.Appearance);
@@ -213,6 +217,10 @@ namespace ProGlassAutomation.Services.Theme
 
                     case LiquidGlass:
                         ApplyLiquidGlass(resources);
+                        break;
+
+                    case UltraTransparent:
+                        ApplyUltraTransparent(resources);
                         break;
 
                     case Ocean:
@@ -306,6 +314,9 @@ namespace ProGlassAutomation.Services.Theme
                         break;
                     case LiquidGlass:
                         ApplyLiquidGlass(resources);
+                        break;
+                    case UltraTransparent:
+                        ApplyUltraTransparent(resources);
                         break;
                     case Ocean:
                         ApplyOcean(resources);
@@ -859,43 +870,38 @@ namespace ProGlassAutomation.Services.Theme
                 BuildLiquidStageBrush(dark, accent);
 
             // ── 2) CARD SURFACES — one material ramp per mode ───────
-            // ── ULTRA-TRANSPARENT GLASS (iOS Liquid Glass 110%) ──────
-            // All surfaces are now very low alpha so the aurora stage
-            // shows through every card, matching the iPhone liquid
-            // glass effect where surfaces are near-invisible and only
-            // the crystal edge defines the shape.
             if (dark)
             {
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.10, 0.03);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.12, 0.04);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.14, 0.05);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.10, 0.04);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.10, 0.04);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.12, 0.04);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.10, 0.04);
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.20, 0.06);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.26, 0.09);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.32, 0.11);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.22, 0.11);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.24, 0.09);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.28, 0.09);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.22, 0.09);
 
                 // ── 3) DASHBOARD AMBIENT — soft glow under the frost ─
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.08, 0.03);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.06);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.05);
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.14, 0.06);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.10);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.08);
             }
             else
             {
-                // Ultra-transparent white glass: near-invisible panes
-                // with just enough alpha to catch the crystal edge.
-                // The aurora stage shows through clearly.
-                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.18, 0.06);
-                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.14, 0.05);
-                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.16, 0.06);
-                resources["MenuHoverBrush"] = FrostFill(accent, 0.12, 0.06);
-                resources["SidebarCardBrush"] = FrostFill(accent, 0.14, 0.05);
-                resources["ShellLiquidBrush"] = FrostFill(accent, 0.16, 0.06);
-                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.14, 0.05);
+                // White water glass: translucent white panes, densest
+                // at the top (iOS light materials catch the light),
+                // see-through toward the lower edge.
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.84, 0.54);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.90, 0.62);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.94, 0.72);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.50, 0.30);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.82, 0.52);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.88, 0.58);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.84, 0.56);
 
-                // ── 3) DASHBOARD AMBIENT — soft glow under the panes ─
-                resources["DashAmbientBrush"] = FrostFill(accent, 0.10, 0.04);
-                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.08);
-                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.06);
+                // ── 3) DASHBOARD AMBIENT — blue glow under the panes ─
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.20, 0.08);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.16);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.12);
             }
 
             // ── 4) STATUS TINTS — hue kept, fill made glass ─────────
@@ -1009,13 +1015,11 @@ namespace ProGlassAutomation.Services.Theme
             resources["PrimaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidSnow",
                     Color.FromRgb(0xF8, 0xFA, 0xFC))
-                : FrozenSolid(Color.FromRgb(0x1E, 0x29, 0x3B));
-            var accentColor = ThemeManager.AccentColor;
-            var (ah, as_, _) = ColorMath.ToHsl(accentColor);
+                : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
             resources["SecondaryForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidCerulean",
                     Color.FromRgb(0x93, 0xC5, 0xFD))
-                : FrozenSolid(ColorMath.FromHsl(ah, Math.Max(0.42, as_ * 0.70), 0.36));
+                : FrozenSolid(Color.FromRgb(0x1D, 0x4E, 0xD8));
             resources["MutedForegroundBrush"] = dark
                 ? FrozenLiquidText("LiquidMuted",
                     Color.FromRgb(0x8F, 0xB3, 0xE6))
@@ -1212,7 +1216,7 @@ namespace ProGlassAutomation.Services.Theme
 
                 if (string.IsNullOrWhiteSpace(hex))
                 {
-                    if (Current == LiquidGlass)
+                    if (Current == LiquidGlass || Current == UltraTransparent)
                     {
                         bool dark = ThemeManager.CurrentTheme ==
                             AppTheme.Dark;
@@ -1352,12 +1356,12 @@ namespace ProGlassAutomation.Services.Theme
 
             // Orb A — top-right, the About page's larger orb.
             stage.Children.Add(new GeometryDrawing(
-                LiquidOrb(dark, accent, orbA: true), null,
+                LiquidOrb(dark, orbA: true), null,
                 new EllipseGeometry(new Point(0.87, 0.10), 0.45, 0.45)));
 
             // Orb B — bottom-left, the About page's smaller orb.
             stage.Children.Add(new GeometryDrawing(
-                LiquidOrb(dark, accent, orbA: false), null,
+                LiquidOrb(dark, orbA: false), null,
                 new EllipseGeometry(new Point(0.06, 0.94), 0.36, 0.36)));
 
             // Orb C — small accent bloom, center-top: the third light
@@ -1401,20 +1405,28 @@ namespace ProGlassAutomation.Services.Theme
         /// One About-stage orb: the exact radial stops the About page
         /// uses (LiquidOrbA / LiquidOrbB in the theme files), frozen.
         /// </summary>
-    private static Brush LiquidOrb(bool dark, Color accent, bool orbA)
+    private static Brush LiquidOrb(bool dark, bool orbA)
     {
-        // Accent-derived orb colors — no more hardcoded blue.
-        // The orb center is the accent at moderate alpha, fading
-        // through a deep accent tint to fully transparent.
-        var (h, s, l) = ColorMath.ToHsl(accent);
-        Color deep = ColorMath.FromHsl(h, Math.Min(1.0, s + 0.06), Math.Max(0.22, l - 0.18));
-
-        byte centerA = dark ? (byte)(orbA ? 0x40 : 0x4D) : (byte)(orbA ? 0x50 : 0x5A);
-        byte midA    = dark ? (byte)(orbA ? 0x18 : 0x26) : (byte)(orbA ? 0x28 : 0x30);
-
-        var c0 = Color.FromArgb(centerA, accent.R, accent.G, accent.B);
-        var c1 = Color.FromArgb(midA, deep.R, deep.G, deep.B);
-        var c2 = Color.FromArgb(0x00, deep.R, deep.G, deep.B);
+        // Stops are the XAML values verbatim (AARRGGBB in the files):
+        //   Dark  A: #4D82F6FF / #1D4ED84D / #1D4ED800
+        //   Dark  B: #60A5FA66 / #3B82F633 / #3B82F600
+        //   Light A: #6660A5FA / #332563EB / #002563EB   (2026-08-29 boost)
+        //   Light B: #7A3B82F6 / #3D2563EB / #002563EB   (2026-08-29 boost)
+        var (c0, c1, c2) = dark
+                ? orbA
+                    ? (Color.FromArgb(0x4D, 0x82, 0xF6, 0xFF),
+                       Color.FromArgb(0x1D, 0x4E, 0xD8, 0x4D),
+                       Color.FromArgb(0x00, 0x4E, 0xD8, 0x4D))
+                    : (Color.FromArgb(0x60, 0xA5, 0xFA, 0x66),
+                       Color.FromArgb(0x33, 0x82, 0xF6, 0x33),
+                       Color.FromArgb(0x00, 0x82, 0xF6, 0x33))
+                : orbA
+                    ? (Color.FromArgb(0x66, 0x60, 0xA5, 0xFA),
+                       Color.FromArgb(0x33, 0x25, 0x63, 0xEB),
+                       Color.FromArgb(0x00, 0x25, 0x63, 0xEB))
+                    : (Color.FromArgb(0x7A, 0x3B, 0x82, 0xF6),
+                       Color.FromArgb(0x3D, 0x25, 0x63, 0xEB),
+                       Color.FromArgb(0x00, 0x25, 0x63, 0xEB));
 
             var orb = new RadialGradientBrush
             {
@@ -1558,6 +1570,131 @@ namespace ProGlassAutomation.Services.Theme
             return flat;
         }
 
+        // ── ULTRA TRANSPARENT — fully see-through glass (iPhone 110%) ──
+        //
+        // Every surface is nearly invisible. The aurora stage shows
+        // through cards, sidebars, dashboards — everything. Only the
+        // crystal edges (white border + specular highlight) define the
+        // shape. Text stays dark/light for readability. This is what
+        // real iPhone liquid glass looks like: you see the wallpaper
+        // behind every element.
+
+        private static void ApplyUltraTransparent(
+            ResourceDictionary resources)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            var accent = ThemeManager.AccentColor;
+
+            // ── 1) WINDOW — same aurora stage as Liquid Glass ─────
+            resources["WindowBackgroundBrush"] =
+                BuildLiquidStageBrush(dark, accent);
+
+            // ── 2) SURFACES — near-zero alpha (truly transparent) ─
+            // All surfaces are 2–8% white — almost invisible.
+            // The aurora stage shows through completely.
+            if (dark)
+            {
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.08, 0.02);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.10, 0.03);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.12, 0.04);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.08, 0.03);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.08, 0.03);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.10, 0.03);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.08, 0.03);
+
+                // Dashboard ambient — very subtle glow
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.06, 0.02);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.04);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.03);
+            }
+            else
+            {
+                // Light mode: 2–10% white — nearly invisible
+                resources["ModuleBackgroundBrush"] = FrostFill(accent, 0.10, 0.03);
+                resources["ElevatedSurfaceBrush"] = FrostFill(accent, 0.12, 0.04);
+                resources["SideMenuBackgroundBrush"] = FrostFill(accent, 0.14, 0.05);
+                resources["MenuHoverBrush"] = FrostFill(accent, 0.10, 0.04);
+                resources["SidebarCardBrush"] = FrostFill(accent, 0.10, 0.04);
+                resources["ShellLiquidBrush"] = FrostFill(accent, 0.12, 0.04);
+                resources["DashLiquidSurfaceBrush"] = FrostFill(accent, 0.10, 0.04);
+
+                // Dashboard ambient — soft glow
+                resources["DashAmbientBrush"] = FrostFill(accent, 0.08, 0.03);
+                resources["DashAmbientBlob1Brush"] = SolidFrost(accent, 0.06);
+                resources["DashAmbientBlob2Brush"] = SolidFrost(accent, 0.04);
+            }
+
+            // ── 3) STATUS TINTS — hue kept, ultra-transparent ───────
+            resources["TintIndigoBrush"] = HueFrost("TintIndigoBrush", 0.18, 0.08);
+            resources["TintBlueBrush"] = HueFrost("TintBlueBrush", 0.18, 0.08);
+            resources["TintGreenBrush"] = HueFrost("TintGreenBrush", 0.18, 0.08);
+            resources["TintRedBrush"] = HueFrost("TintRedBrush", 0.18, 0.08);
+            resources["TintAmberBrush"] = HueFrost("TintAmberBrush", 0.18, 0.08);
+            resources["TintPurpleBrush"] = HueFrost("TintPurpleBrush", 0.18, 0.08);
+            resources["TintGrayBrush"] = HueFrost("TintGrayBrush", 0.18, 0.08);
+
+            // ── 4) TYPOGRAPHY — readable on transparent background ─
+            resources["PrimaryForegroundBrush"] = dark
+                ? FrozenLiquidText("LiquidSnow",
+                    Color.FromRgb(0xF8, 0xFA, 0xFC))
+                : FrozenSolid(Color.FromRgb(0x1E, 0x29, 0x3B));
+            resources["SecondaryForegroundBrush"] = dark
+                ? FrozenLiquidText("LiquidCerulean",
+                    Color.FromRgb(0x93, 0xC5, 0xFD))
+                : FrozenSolid(Color.FromRgb(0x33, 0x41, 0x55));
+            resources["MutedForegroundBrush"] = dark
+                ? FrozenLiquidText("LiquidMuted",
+                    Color.FromRgb(0x8F, 0xB3, 0xE6))
+                : FrozenSolid(Color.FromRgb(0x47, 0x55, 0x69));
+
+            // ── 5) SHAPE — slightly larger radii for glass feel ───
+            resources["CardCornerRadius"] = new CornerRadius(16);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(20);
+            resources["ControlCornerRadius"] = new CornerRadius(12);
+
+            // ── 6) STRONG CRYSTAL EDGES — white borders visible ────
+            Color edgeColor = dark
+                ? Color.FromRgb(0x80, 0x90, 0xA0)
+                : Color.FromRgb(0xD0, 0xD8, 0xE0);
+            ApplyKeyline(resources, edgeColor);
+
+            // ── 7) LIQUID GLASS TOKENS — ultra-transparent variant ─
+            resources["LiquidGlassBrush"] =
+                resources["ModuleBackgroundBrush"];
+            resources["LiquidGlassSubtleBrush"] =
+                resources["MenuHoverBrush"];
+            resources["LiquidGlassStrongBrush"] =
+                resources["ElevatedSurfaceBrush"];
+
+            resources["LiquidEdgeBrush"] = CrystalEdge(accent, dark);
+            resources["LiquidInnerHighlightBrush"] =
+                HorizontalSheen(dark ? (byte)0x66 : (byte)0xCC);
+            resources["LiquidReflectionBrush"] =
+                DiagonalSheen(dark ? (byte)0x30 : (byte)0x66);
+
+            resources["LiquidControlHoverBrush"] =
+                SolidFrost(accent, dark ? 0.18 : 0.25);
+            resources["LiquidControlPressedBrush"] =
+                SolidFrost(accent, dark ? 0.14 : 0.30);
+            resources["LiquidControlDisabledBrush"] =
+                SolidFrost(accent, dark ? 0.08 : 0.15);
+
+            resources["LiquidFocusBrush"] = FrozenSolid(Color.FromArgb(
+                dark ? (byte)0x66 : (byte)0x80,
+                accent.R, accent.G, accent.B));
+            resources["LiquidSelectionBrush"] =
+                AccentCrystal(accent, dark ? (0x30, 0x20) : (0x40, 0x28));
+            resources["LiquidPrimaryButtonBrush"] =
+                AccentCrystal(accent, dark ? (0x80, 0x50) : (0xA0, 0x60));
+
+            resources["LiquidOverlayBrush"] = FrozenSolid(dark
+                ? Color.FromArgb(0x99, 0x03, 0x10, 0x26)
+                : Color.FromArgb(0x59, 0x06, 0x17, 0x24));
+            resources["LiquidShadowColor"] = dark
+                ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
+                : Color.FromArgb(0x4D, 0x0B, 0x1B, 0x2E);
+        }
+
         // ── OCEAN — deep teal corporate ───────────────────────────────
 
         private static void ApplyOcean(ResourceDictionary resources)
@@ -1640,11 +1777,15 @@ namespace ProGlassAutomation.Services.Theme
                 Monet => Monet,
                 Professional => Professional,
                 LiquidGlass => LiquidGlass,
+                UltraTransparent => UltraTransparent,
                 // Legacy families removed in the 2026-08-29 rewrite —
                 // saved configs pointing at them resolve to the new
                 // iOS Liquid Glass family instead of breaking.
                 "Glass" => LiquidGlass,
                 "Glassy" => LiquidGlass,
+                "Transparent" => UltraTransparent,
+                "Clear" => UltraTransparent,
+                "Crystal" => UltraTransparent,
                 Ocean => Ocean,
                 _ => Normal
             };

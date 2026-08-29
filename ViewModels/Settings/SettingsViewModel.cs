@@ -1774,6 +1774,7 @@ namespace ProGlassAutomation.ViewModels.Settings
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.LiquidGlass,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.UltraTransparent,
             ProGlassAutomation.Services.Theme.VisualThemeEngine.Ocean
         };
 
