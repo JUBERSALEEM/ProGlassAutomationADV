@@ -36,7 +36,7 @@
          FIELD LABEL
     ══════════════════════════════════════════════════════════════ -->
     <Style x:Key="Step4LabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"   Value="SemiBold"/>
         <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,2"/>
@@ -52,7 +52,7 @@
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="8,0"/>
         <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -96,7 +96,7 @@
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="FontSize"                 Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Padding"                  Value="6,0"/>
         <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -204,14 +204,14 @@
                                                Grid.Column="0"
                                                Text="&#xE76C;"
                                                FontFamily="Segoe MDL2 Assets"
-                                               FontSize="9"
+                                               FontSize="{StaticResource TextXSmall}"
                                                Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"/>
 
                                     <TextBlock Grid.Column="1"
                                                Text="{TemplateBinding Header}"
-                                               FontSize="10"
+                                               FontSize="{StaticResource TextCaption}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -219,7 +219,7 @@
                                     <!-- Live summary of the collapsed contents -->
                                     <TextBlock Grid.Column="2"
                                                Text="{TemplateBinding Tag}"
-                                               FontSize="10"
+                                               FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                VerticalAlignment="Center"
                                                Margin="12,0,0,0"

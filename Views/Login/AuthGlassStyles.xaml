@@ -60,7 +60,7 @@
 
     <!-- ═══ FIELD LABEL ═══ -->
     <Style x:Key="FieldLabel" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11.5"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{StaticResource Frost}"/>
         <Setter Property="Margin" Value="2,0,0,6"/>
@@ -69,7 +69,7 @@
     <!-- ═══ TEXT INPUT — frosted glass, icon chip, rounded ═══ -->
     <Style x:Key="RoundedTextBox" TargetType="TextBox">
         <Setter Property="Height" Value="42"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
         <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
         <Setter Property="Template">
@@ -89,7 +89,7 @@
                             <TextBlock Grid.Column="0"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{StaticResource Cerulean}"/>
@@ -122,7 +122,7 @@
     <!-- ═══ PASSWORD INPUT — frosted glass ═══ -->
     <Style x:Key="RoundedPasswordBox" TargetType="PasswordBox">
         <Setter Property="Height" Value="42"/>
-        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Foreground" Value="{StaticResource Snow}"/>
         <Setter Property="CaretBrush" Value="{StaticResource Ice}"/>
         <Setter Property="Template">
@@ -142,7 +142,7 @@
                             <TextBlock Grid.Column="0"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Margin="16,0,0,0"
                                        VerticalAlignment="Center"
                                        Foreground="{StaticResource Cerulean}"/>
@@ -177,7 +177,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="{StaticResource Frost}"/>
-        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -194,7 +194,7 @@
                             <TextBlock x:Name="Glyph"
                                        Text="&#xE73E;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        Foreground="{StaticResource Ice}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -223,7 +223,7 @@
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -267,7 +267,7 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="{StaticResource Cerulean}"/>
-        <Setter Property="FontSize" Value="12.5"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">

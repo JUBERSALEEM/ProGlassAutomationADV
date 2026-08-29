@@ -4,13 +4,13 @@
     <!-- Shared styles for Job Order detail sections (also merged by the
          detail view itself - single source, no duplication). -->
         <Style x:Key="CardLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
         <Style x:Key="FieldInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize"    Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"     Value="10,8"/>
             <Setter Property="Margin"      Value="0,0,0,14"/>
             <Setter Property="Background"  Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -19,7 +19,7 @@
             <Setter Property="BorderThickness" Value="1"/>
         </Style>
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,4"/>
@@ -33,33 +33,33 @@
             <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         </Style>
         <Style x:Key="ReadOnlyFieldStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="0,1,0,0"/>
         </Style>
         <Style x:Key="ReadOnlyLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         </Style>
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="18"/>
+            <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
         <Style x:Key="SpecDataCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"          Value="9"/>
+            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Padding"           Value="6,4"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="SpecHeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="9"/>
+            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="Padding"    Value="6,5"/>
         </Style>
         <Style x:Key="SubSectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
@@ -130,7 +130,7 @@
         </Style>
 
         <Style x:Key="JoFieldTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"          Value="14"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
             <Setter Property="FontWeight"        Value="Bold"/>
             <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -138,7 +138,7 @@
         </Style>
 
         <Style x:Key="JoCompactLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,3"/>
@@ -147,7 +147,7 @@
 
         <Style x:Key="JoCompactInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"     Value="8,6"/>
             <Setter Property="Margin"      Value="0,0,0,0"/>
             <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
@@ -166,7 +166,7 @@
         </Style>
 
         <Style x:Key="JoCompactComboStyle" TargetType="ComboBox">
-            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"     Value="6,4"/>
             <Setter Property="Margin"      Value="0,0,0,0"/>
             <Setter Property="Height"      Value="30"/>
@@ -175,7 +175,7 @@
         </Style>
 
         <Style x:Key="JoCompactDateStyle" TargetType="DatePicker">
-            <Setter Property="FontSize"    Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"     Value="6,4"/>
             <Setter Property="Margin"      Value="0,0,0,0"/>
             <Setter Property="Height"      Value="30"/>

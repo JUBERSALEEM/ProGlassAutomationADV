@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 7 terms checklist. Compact rows, not a card per clause.
     All edit / reorder / payment-subline bindings kept.
 -->
@@ -26,7 +26,7 @@
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="MinHeight" Value="28"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -77,21 +77,21 @@
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
                                             ToolTip="Move up">
-                                        <TextBlock Text="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                        <TextBlock Text="&#xE70E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
                                             ToolTip="Move down">
-                                        <TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                        <TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Button>
                                     <Button Command="{Binding DataContext.RemoveClauseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
                                             Style="{StaticResource PiIconButtonStyle}"
                                             ToolTip="Delete clause">
-                                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="11" FontWeight="Bold"
+                                        <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                     </Button>
                                 </StackPanel>
@@ -157,7 +157,7 @@
                                                 </Grid.ColumnDefinitions>
                                                 <TextBox Text="{Binding Mode=OneWay}"
                                                          Style="{StaticResource InputBoxStyle}"
-                                                         FontSize="11"
+                                                         FontSize="{StaticResource TextBody}"
                                                          IsReadOnly="True"
                                                          ToolTip="To edit, remove this line and add a new one"/>
                                                 <Button Grid.Column="1"
@@ -167,7 +167,7 @@
                                                         ToolTip="Remove line">
                                                     <TextBlock Text="&#xE711;"
                                                                FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="10" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Button>
                                             </Grid>
@@ -182,7 +182,7 @@
         </ItemsControl>
 
         <TextBlock Text="No terms configured. Add a clause or reset to defaults."
-                   FontSize="11"
+                   FontSize="{StaticResource TextBody}"
                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                    Margin="0,8,0,0">
             <TextBlock.Style>

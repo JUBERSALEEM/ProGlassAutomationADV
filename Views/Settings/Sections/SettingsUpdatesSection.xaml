@@ -80,9 +80,9 @@
                                         Padding="14,10" Margin="0,0,6,0">
                                     <StackPanel>
                                         <TextBlock Text="CURRENT VERSION"
-                                                   FontSize="10" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        <TextBlock FontSize="16" FontWeight="Bold"
+                                        <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
                                             <Run Text="v"/>
@@ -96,9 +96,9 @@
                                         Padding="14,10" Margin="6,0,0,0">
                                     <StackPanel>
                                         <TextBlock Text="LATEST RELEASE"
-                                                   FontSize="10" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        <TextBlock FontSize="16" FontWeight="Bold"
+                                        <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    Text="{Binding LatestVersionDisplay}"/>
@@ -108,7 +108,7 @@
 
                             <TextBlock Text="{Binding UpdateStatus}"
                                        Style="{StaticResource SettingsTileCaptionStyle}"
-                                       FontSize="13" FontWeight="SemiBold"/>
+                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
                             <TextBlock Text="{Binding LastCheckedDisplay}"
                                        Style="{StaticResource SettingsTileFooterHintStyle}"/>
 
@@ -165,7 +165,7 @@
                                         Tag="&#xE74E;" Content="INSTALL &amp; RESTART"
                                         Command="{Binding InstallUpdateCommand}"/>
                                 <TextBlock Text="…or install later — the file stays in your Downloads folder."
-                                           FontSize="10"
+                                           FontSize="{StaticResource TextCaption}"
                                            Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            TextWrapping="Wrap"
@@ -221,14 +221,14 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="&#xE7B8;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
+                                           FontSize="{StaticResource TextSection}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{Binding ReleaseNameDisplay}"
-                                           FontSize="13" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock FontSize="11"
+                                <TextBlock FontSize="{StaticResource TextBody}"
                                            Margin="10,0,0,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}">
@@ -237,7 +237,7 @@
                                 </TextBlock>
                             </StackPanel>
                             <TextBlock Text="{Binding ReleaseNotesPreview}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
                                        MaxHeight="90"
@@ -282,7 +282,7 @@
                                                         <ColumnDefinition Width="*"/>
                                                     </Grid.ColumnDefinitions>
                                                     <TextBlock Grid.Column="0"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource TextBody}"
                                                                VerticalAlignment="Center"
                                                                Foreground="{DynamicResource MutedForegroundBrush}">
                                                         <Run Text="{Binding TimestampUtc, Mode=OneWay,
@@ -310,11 +310,11 @@
                                                             </Style>
                                                         </Border.Style>
                                                         <TextBlock Text="{Binding EventType}"
-                                                                   FontSize="10" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     </Border>
                                                     <TextBlock Grid.Column="2"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource TextBody}"
                                                                Margin="10,0,0,0"
                                                                VerticalAlignment="Center"
                                                                TextTrimming="CharacterEllipsis"

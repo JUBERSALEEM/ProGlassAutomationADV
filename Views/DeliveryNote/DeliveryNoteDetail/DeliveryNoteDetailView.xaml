@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.DeliveryNoteDetailView"
+<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.DeliveryNoteDetailView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -41,12 +41,12 @@
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14"
+                                           FontSize="{StaticResource TextSection}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,10,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="13" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -69,7 +69,7 @@
 
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="16,8"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -104,7 +104,7 @@
 
         <Style x:Key="ExportButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="1.5"/>
@@ -139,7 +139,7 @@
 
         <Style x:Key="HeaderUploadButtonStyle" TargetType="Button">
             <Setter Property="MinHeight" Value="30"/>
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="10,4"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -223,7 +223,7 @@
 
         <!-- SELECT ALL REMAINING button -->
         <Style x:Key="FillRemainingButtonStyle" TargetType="Button">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="14,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -265,7 +265,7 @@
 
         <!-- RESET QTY button — muted grey, companion to FillRemaining -->
         <Style x:Key="ResetQtyButtonStyle" TargetType="Button">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="14,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -310,7 +310,7 @@
 
         <!-- Create from Master button -->
         <Style x:Key="CreateFromMasterButtonStyle" TargetType="Button">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="16,8"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -482,29 +482,29 @@
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding DeliveryType}"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
                     <Border Style="{StaticResource MasterDnBadgeStyle}">
 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
-                                       FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center" Margin="0,0,5,0"/>
                             <TextBlock Text="MASTER DN — READ ONLY"
-                                       FontSize="10" FontWeight="Bold"
+                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource FocBadgeStyle}">
                         <TextBlock Text="FREE OF CHARGE"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </Border>
                 </StackPanel>
@@ -604,13 +604,13 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="0" Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="28" VerticalAlignment="Center"
+                           FontSize="{StaticResource TextDisplayLarge}" VerticalAlignment="Center"
                            Margin="0,0,14,0"/>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock Text="MASTER DELIVERY NOTE — REFERENCE TRACKER"
-                               FontSize="13" FontWeight="Bold"
+                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    <TextBlock FontSize="11" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                    <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                Margin="0,4,0,0" TextWrapping="Wrap">
                         <Run Text="Auto-created from Job Order. Read-only."/>
                         <Run Text=" Updates automatically after each dispatch."/>
@@ -622,7 +622,7 @@
                             HorizontalAlignment="Right"
                             Margin="20,0,0,0" MinWidth="140">
                     <TextBlock HorizontalAlignment="Right"
-                               FontSize="13" FontWeight="Bold"
+                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,0,0,4">
                         <Run Text="{Binding DeliveryProgressPercent,
                                     Mode=OneWay, StringFormat={}{0:0.#}}"/>
@@ -643,7 +643,7 @@
                         </Border>
                     </Border>
                     <TextBlock HorizontalAlignment="Right"
-                               FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                Margin="0,4,0,0">
                         <Run Text="{Binding TotalBalanceQty, Mode=OneWay}"
                              FontWeight="Bold"/>
@@ -665,7 +665,7 @@
                     Style="{StaticResource ModuleErrorBannerStyle}">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="13" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                            TextWrapping="Wrap"/>
             </Border>
         </StackPanel>

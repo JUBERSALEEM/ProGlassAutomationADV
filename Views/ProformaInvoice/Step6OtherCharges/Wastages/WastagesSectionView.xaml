@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages.WastagesSectionView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages.WastagesSectionView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -20,7 +20,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Padding" Value="8,0"/>
             <Setter Property="Height" Value="28"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -36,7 +36,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Padding" Value="8,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -56,7 +56,7 @@
                                 </Grid.ColumnDefinitions>
                                 <ContentPresenter Grid.Column="0" VerticalAlignment="Center"/>
                                 <TextBlock Grid.Column="1" Text="&#xE70D;"
-                                           FontFamily="Segoe MDL2 Assets" FontSize="10"
+                                           FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            VerticalAlignment="Center" Margin="6,0,0,0"/>
                             </Grid>
@@ -82,7 +82,7 @@
                     Command="{Binding AddWastageCommand}"
                     Style="{StaticResource PiGhostChipButton}">
                 <TextBlock Text="+ ADD ROW"
-                           FontSize="11" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"/>
             </Button>
         </Grid>
@@ -161,7 +161,7 @@
                                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                                 <StackPanel>
                                                     <TextBlock Text="CHOOSE SQM SOURCES"
-                                                               FontSize="10"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                Margin="0,0,0,10"/>
@@ -173,10 +173,10 @@
                                                                           Cursor="Hand">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="{Binding DisplayLabel}"
-                                                                                   FontSize="12"
+                                                                                   FontSize="{StaticResource TextBody}"
                                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                                         <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
-                                                                                   FontSize="11" FontWeight="Bold"
+                                                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                                                    Foreground="{DynamicResource AccentBrush}"
                                                                                    Margin="10,0,0,0"/>
                                                                     </StackPanel>
@@ -185,7 +185,7 @@
                                                         </ItemsControl.ItemTemplate>
                                                     </ItemsControl>
                                                     <TextBlock Text="{Binding SourceSummaryText}"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource TextBody}"
                                                                FontWeight="Bold"
                                                                Foreground="{DynamicResource AccentBrush}"
                                                                TextWrapping="Wrap"
@@ -197,7 +197,7 @@
                                 </Grid>
                                 <TextBlock Grid.Column="3"
                                            Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
-                                           FontSize="12" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -212,7 +212,7 @@
                                                   Style="{StaticResource SourceToggleButtonStyle}"
                                                   ToolTip="Open wastage setup">
                                         <TextBlock Text="SETUP"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center"/>
                                     </ToggleButton>
@@ -236,7 +236,7 @@
                                                                Style="{StaticResource PiSectionLabelStyle}"
                                                                Margin="0,0,0,10"/>
                                                     <TextBlock Text="{Binding SourceSummaryText}"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="0,0,0,10"/>
@@ -327,7 +327,7 @@
                                                     </Grid>
 
                                                     <TextBlock Text="{Binding OptimizationSummaryText}"
-                                                               FontSize="11"
+                                                               FontSize="{StaticResource TextBody}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextWrapping="Wrap"
                                                                Margin="0,10,0,0"/>
@@ -338,7 +338,7 @@
                                 </Grid>
                                 <TextBlock Grid.Column="6"
                                            Text="{Binding FormulaDisplay}"
-                                           FontSize="11" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            TextAlignment="Right"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SuccessBrush}"
@@ -350,7 +350,7 @@
                                         ToolTip="Remove wastage row">
                                     <TextBlock Text="&#xE711;"
                                                FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11" FontWeight="Bold"
+                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                Foreground="{DynamicResource DangerBrush}"/>
                                 </Button>
                             </Grid>
@@ -361,7 +361,7 @@
         </ItemsControl>
 
         <TextBlock Text="No wastage rows. Add a colour-side scrap charge if needed."
-                   FontSize="11"
+                   FontSize="{StaticResource TextBody}"
                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                    Margin="0,8,0,0">
             <TextBlock.Style>

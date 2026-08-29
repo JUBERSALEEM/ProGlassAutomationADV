@@ -41,14 +41,14 @@
                 </Grid.ColumnDefinitions>
                 <Border Width="38" Height="38" CornerRadius="10"
                         Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                    <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                    <TextBlock x:Name="IconGlyph" Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
-                    <TextBlock x:Name="NameText" FontSize="13" FontWeight="Bold" TextTrimming="CharacterEllipsis"
+                    <TextBlock x:Name="NameText" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold" TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock x:Name="MetaText" FontSize="10" Margin="0,2,0,0"
+                    <TextBlock x:Name="MetaText" FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
                 <Button Grid.Column="2" Content="Open with system app" Click="OpenExternal_Click" Cursor="Hand"
@@ -68,14 +68,14 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="16"
                             Background="{DynamicResource TintRedBrush}" HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                        <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource DangerBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="File not found on disk" FontSize="16" FontWeight="Bold" Margin="0,16,0,0"
+                    <TextBlock Text="File not found on disk" FontSize="{StaticResource TextTitle}" FontWeight="Bold" Margin="0,16,0,0"
                                HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock x:Name="MissingDetail" FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center"
+                    <TextBlock x:Name="MissingDetail" FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center"
                                TextAlignment="Center" TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="The attachment metadata exists, but the stored file cannot be found. It may have been moved or deleted outside ProGlass."/>
@@ -86,14 +86,14 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="470">
                     <Border Width="62" Height="62" CornerRadius="16"
                             Background="{DynamicResource TintGrayBrush}" HorizontalAlignment="Center">
-                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="26"
+                        <TextBlock Text="&#xE7C3;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplayLarge}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
-                    <TextBlock Text="In-app preview is not available for this file type" FontSize="15" FontWeight="Bold"
+                    <TextBlock Text="In-app preview is not available for this file type" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                Margin="0,16,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock FontSize="12" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
+                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,8,0,0" HorizontalAlignment="Center" TextAlignment="Center"
                                TextWrapping="Wrap" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="Drawings and spreadsheets open with their system application."/>
                 </StackPanel>

@@ -97,10 +97,10 @@
 
                                                 <StackPanel Grid.Column="0">
                                                     <TextBlock Text="{Binding DisplayName}"
-                                                               FontSize="13" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                IsHitTestVisible="False"/>
-                                                    <TextBlock FontSize="10"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
@@ -111,7 +111,7 @@
                                                         <Run Text="{Binding Speed, Mode=OneWay}"/>
                                                     </TextBlock>
                                                     <TextBlock Text="{Binding Description}"
-                                                               FontSize="10"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                Margin="0,3,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextWrapping="Wrap"
@@ -121,7 +121,7 @@
                                                 <TextBlock Grid.Column="1"
                                                            Text="&#xE73E;"
                                                            FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="14"
+                                                           FontSize="{StaticResource TextSection}"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource AccentBrush}"
                                                            VerticalAlignment="Center"
@@ -170,7 +170,7 @@
                                 <Border DockPanel.Dock="Right"
                                         VerticalAlignment="Center"
                                         Style="{StaticResource StatusBadgeStyle}">
-                                    <TextBlock FontSize="10" FontWeight="Bold" IsHitTestVisible="False">
+                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="Bold" IsHitTestVisible="False">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
                                                 <Setter Property="Text" Value="NOT INSTALLED"/>
@@ -206,7 +206,7 @@
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBlock FontSize="10"
+                                        <TextBlock FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False">
                                             <TextBlock.Style>
@@ -232,21 +232,21 @@
                                              Style="{StaticResource DownloadProgressBarStyle}"
                                              HorizontalAlignment="Stretch"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock FontSize="11" FontWeight="Bold"
+                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"
                                                IsHitTestVisible="False">
                                         <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
                                     </TextBlock>
                                     <TextBlock Text="{Binding DownloadSizeText}"
-                                               FontSize="11" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" Margin="10,0,0,0"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadSpeedText}"
-                                               FontSize="11" FontWeight="Bold" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" FontWeight="Bold" Margin="10,0,0,0"
                                                Foreground="{DynamicResource SuccessBrush}"
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding DownloadEtaText}"
-                                               FontSize="11" Margin="10,0,0,0"
+                                               FontSize="{StaticResource TextBody}" Margin="10,0,0,0"
                                                Foreground="{DynamicResource MutedForegroundBrush}"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -272,7 +272,7 @@
                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                         MinWidth="180"
                                         Height="34"
-                                        FontSize="11">
+                                        FontSize="{StaticResource TextBody}">
                                     <Button.Style>
                                         <Style TargetType="Button"
                                                BasedOn="{StaticResource PrimaryPillButton}">
@@ -306,7 +306,7 @@
 
                             <!-- Unified status text (hidden while downloading — progress bar takes over) -->
                             <TextBlock Text="{Binding VoiceStatus}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        TextWrapping="Wrap"
                                        Margin="0,8,0,0"
@@ -330,7 +330,7 @@
                                        Visibility="{Binding IsWhisperModelReady,
                                             Converter={StaticResource BoolToVisibilityConverter}}"/>
                             <TextBlock Text="{Binding ModelFilePath}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontFamily="Consolas, Courier New, monospace"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobProfitabilityView"
+<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobProfitabilityView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -16,7 +16,7 @@
     <UserControl.Resources>
 
         <Style x:Key="JpLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,6"/>
@@ -28,7 +28,7 @@
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="1"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"                  Value="12,0"/>
             <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -40,7 +40,7 @@
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="1"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding"                  Value="10,0"/>
             <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -55,27 +55,27 @@
         </Style>
 
         <Style x:Key="JpTileCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,8"/>
         </Style>
 
         <Style x:Key="JpTileValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="20"/>
+            <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
 
         <Style x:Key="JpHeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="JpCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -111,20 +111,20 @@
                             Margin="0,0,10,0">
                         <TextBlock Text="&#xE7BF;"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="13"
+                                   FontSize="{StaticResource TextBodyLarge}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="{Binding Title}"
-                               FontSize="16"
+                               FontSize="{StaticResource TextTitle}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <TextBlock Text="{Binding Subtitle}"
-                           FontSize="12"
+                           FontSize="{StaticResource TextBody}"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,0,0,16"/>
@@ -426,12 +426,12 @@
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,0,0,12"/>
                         <TextBlock Text="No jobs to show"
-                                   FontSize="14"
+                                   FontSize="{StaticResource TextSection}"
                                    FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="Save a proforma invoice, or clear the filters above."
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    HorizontalAlignment="Center"
                                    Margin="0,4,0,0"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -447,7 +447,7 @@
                 Margin="20,12,20,20"
                 Padding="4,0">
             <TextBlock Text="{Binding StatusMessage}"
-                       FontSize="11"
+                       FontSize="{StaticResource TextBody}"
                        TextWrapping="Wrap"
                        Foreground="{DynamicResource MutedForegroundBrush}"/>
         </Border>

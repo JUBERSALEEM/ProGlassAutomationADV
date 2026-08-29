@@ -92,7 +92,7 @@
                     <TextBlock Text="{Binding ConvertedDisplay}"
                                VerticalAlignment="Center"
                                Margin="12,0,0,0"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                 </StackPanel>
 
@@ -155,7 +155,7 @@
                     Style="{StaticResource ModuleErrorBannerStyle}">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="12" TextWrapping="Wrap"/>
+                           FontSize="{StaticResource TextBody}" TextWrapping="Wrap"/>
             </Border>
         </StackPanel>
 

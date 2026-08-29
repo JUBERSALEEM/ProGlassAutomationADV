@@ -274,7 +274,7 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Foreground="{TemplateBinding Foreground}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -300,13 +300,13 @@
 
         <!-- Shared top-bar pill typography — one treatment for every pill. -->
         <Style x:Key="TopPillTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="TopPillCaptionStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
             <Setter Property="FontWeight" Value="Medium"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -405,7 +405,7 @@
         ═══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin" Value="24,22,24,10"/>
@@ -446,14 +446,14 @@
                                         <TextBlock x:Name="Icon"
                                                    Text="{TemplateBinding Tag}"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="14"
+                                                   FontSize="{StaticResource TextSection}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="13.5"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -535,14 +535,14 @@
                                         <TextBlock x:Name="Icon"
                                                    Text="{TemplateBinding Tag}"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="14"
+                                                   FontSize="{StaticResource TextSection}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="13.5"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -550,7 +550,7 @@
                                 <TextBlock x:Name="Chevron"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            HorizontalAlignment="Right"
                                            VerticalAlignment="Center"
@@ -643,7 +643,7 @@
                                             SnapsToDevicePixels="True"/>
                                     <TextBlock x:Name="Label"
                                                Text="{TemplateBinding Content}"
-                                               FontSize="13"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Medium"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -756,10 +756,10 @@
                     </Border>
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
                         <TextBlock Text="ProGlass"
-                                   FontSize="15" FontWeight="Bold"
+                                   FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="AUTOMATION SUITE"
-                                   FontSize="9" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
@@ -854,7 +854,7 @@
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="13"
+                                           FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="White"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"/>
@@ -865,7 +865,7 @@
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding CurrentTimeText}"
                                            Style="{StaticResource TopPillTitleStyle}"
-                                           FontSize="12" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Margin="0,1,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -892,7 +892,7 @@
                         </Border.Style>
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        Foreground="White"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0">
@@ -994,7 +994,7 @@
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
                                                        Foreground="White"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        FontWeight="Bold"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
@@ -1002,7 +1002,7 @@
                                         <StackPanel VerticalAlignment="Center">
                                             <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=&apos;User&apos;}"
                                                        Style="{StaticResource TopPillTitleStyle}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextTrimming="CharacterEllipsis"
                                                        MaxWidth="120"/>
                                             <TextBlock Text="{Binding CurrentUserRole, FallbackValue=&apos;User&apos;}"
@@ -1012,7 +1012,7 @@
                                         </StackPanel>
                                         <TextBlock Text="&#xE70D;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="8,0,0,0"/>
@@ -1393,11 +1393,11 @@
                         <StackPanel>
                             <Grid Margin="0,0,0,6">
                                 <TextBlock Text="STORAGE"
-                                           FontSize="9" FontWeight="Bold"
+                                           FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 <TextBlock Text="{Binding StorageDisplay, FallbackValue=&apos;--&apos;}"
                                            HorizontalAlignment="Right"
-                                           FontSize="10" FontWeight="Bold"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             </Grid>
                             <Border Height="6"
@@ -1409,7 +1409,7 @@
                                         Background="{StaticResource StorageBarGradient}"/>
                             </Border>
                             <TextBlock Text="{Binding StorageSubtitle, FallbackValue=&apos;Storage unavailable&apos;}"
-                                       FontSize="10"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="0,6,0,0"
                                        TextWrapping="Wrap"/>
@@ -1461,16 +1461,16 @@
                     <TextBlock Grid.Column="0"
                                Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="18"
+                               FontSize="{StaticResource TextTitle}"
                                Foreground="#FF3D2C00"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"/>
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="Read-only mode — your data is safe."
-                                   FontSize="13" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="#FF3D2C00"/>
-                        <TextBlock FontSize="12"
+                        <TextBlock FontSize="{StaticResource TextBody}"
                                    Foreground="#FF3D2C00"
                                    TextWrapping="Wrap"
                                    Text="{Binding StatusDescription,

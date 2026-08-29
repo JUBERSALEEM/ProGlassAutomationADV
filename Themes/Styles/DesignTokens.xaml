@@ -13,12 +13,23 @@
                                        (Settings → Appearance slider)
        CardCornerRadiusLarge    = 12   dialogs, heroes (same as card)
 
-     TYPE SCALE:
-       20 Bold     page title
-       12 Normal   page subtitle
-       10 Bold     column headers / labels (uppercase)
-       13 Normal   body / inputs
-       11 Normal   secondary / meta text
+     TYPE SCALE (canonical — TypeScaleTokens.xaml, merged in App.xaml):
+       TextXSmall       11   fine print / legend glyphs
+       TextCaption      12   column headers / labels / hints / pills
+       TextBody         13   body / inputs / buttons / table cells
+       TextBodyLarge    14   list-row primary text / menu items
+       TextSection      15   card titles / section headers
+       TextSubhead      16   emphasis sub-headings
+       TextTitle        18   page titles
+       TextTitleLarge   20   dashboard/hero titles
+       TextHeadline     22   big section headlines
+       TextDisplay      24   large numbers
+       TextDisplayLarge 28   hero KPI numbers
+
+     Every FontSize below 30 DIPs is a {StaticResource Text…} token —
+     never a hard-coded number. Density presets keep driving
+     DensityTitleFontSize / DensityKpiValueFontSize / DensityBodyFontSize
+     for the density-bound chrome.
 
      RULES FOR MIGRATING A MODULE (see Docs/DESIGN_SYSTEM.md):
        1. Replace hardcoded CornerRadius with the tokens above.
@@ -35,8 +46,8 @@
     <sys:Double x:Key="DensityButtonHeight">30</sys:Double>
     <sys:Double x:Key="DensityRowHeight">26</sys:Double>
     <sys:Double x:Key="DensityTitleFontSize">17</sys:Double>
-    <sys:Double x:Key="DensityKpiValueFontSize">15</sys:Double>
-    <sys:Double x:Key="DensityBodyFontSize">12</sys:Double>
+    <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
+    <sys:Double x:Key="DensityBodyFontSize">13</sys:Double>
     <sys:Double x:Key="DensityButtonMinWidth">84</sys:Double>
 
     <!-- ══ PAGE HEADER ════════════════════════════════════════════════ -->
@@ -49,7 +60,7 @@
     </Style>
 
     <Style x:Key="ModulePageSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Margin" Value="0,3,0,0"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -72,7 +83,7 @@
     <!-- ══ COLUMN / FIELD LABELS ═════════════════════════════════════ -->
 
     <Style x:Key="ModuleColumnHeaderStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource MutedForegroundBrush}"/>
@@ -85,7 +96,7 @@
          matching every other button and card in the app. -->
     <Style x:Key="ModuleToolbarPrimaryButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -150,7 +161,7 @@
     <!-- ══ DETAIL / WIZARD HEADERS (Phase 9 remainder) ═══════════════ -->
 
     <Style x:Key="ModuleDetailTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Foreground"
@@ -209,7 +220,7 @@
     </Style>
 
     <Style x:Key="ModuleFieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -217,7 +228,7 @@
     </Style>
 
     <Style x:Key="ModuleInlineWarningStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource WarningBrush}"/>
         <Setter Property="Margin" Value="2,4,0,0"/>
@@ -227,7 +238,7 @@
 
     <Style x:Key="ModuleTabPillStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource SecondaryForegroundBrush}"/>

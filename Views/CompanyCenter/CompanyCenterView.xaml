@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/CompanyCenter/CompanyCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Company Center (Phase 1)
@@ -19,7 +19,7 @@
 
     <UserControl.Resources>
         <Style x:Key="CcFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
@@ -27,7 +27,7 @@
         <Style x:Key="CcTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -46,10 +46,10 @@
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
                     <TextBlock Text="Company Center"
-                               FontSize="24" FontWeight="Bold"
+                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="Your companies — identity, TRN, banking and logo. The default company pre-fills every new proforma invoice."
-                               FontSize="12" Margin="0,4,0,0"
+                               FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal"
@@ -107,7 +107,7 @@
                                             Background="{DynamicResource TintIndigoBrush}">
                                         <TextBlock Text="&#xE822;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="18"
+                                                   FontSize="{StaticResource TextTitle}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -116,10 +116,10 @@
                                     <StackPanel Grid.Column="1" Margin="12,0,8,0"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding CompanyName}"
-                                                   FontSize="13.5" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="10.5" Margin="0,2,0,0"
+                                        <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run Text="TRN:"/>
                                             <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
@@ -144,7 +144,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="DEFAULT" FontSize="10"
+                                            <TextBlock Text="DEFAULT" FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
@@ -175,7 +175,7 @@
                         Padding="24,20">
                     <StackPanel>
                         <TextBlock Text="{Binding EditorTitle}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>
 
@@ -253,7 +253,7 @@
                                         Command="{Binding ClearLogoCommand}"
                                         Margin="10,0,0,0"/>
                                 <TextBlock Text="{Binding LogoPath}"
-                                           FontSize="10.5" Margin="12,0,0,0"
+                                           FontSize="{StaticResource TextCaption}" Margin="12,0,0,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"
@@ -281,7 +281,7 @@
                         </StackPanel>
 
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="11" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,10,0,0"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>

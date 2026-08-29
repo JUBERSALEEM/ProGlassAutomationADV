@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Controls/EmptyState/EmptyStateControl.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared UI — empty / no-data state (§30)
@@ -55,14 +55,14 @@
             </Border>
 
             <TextBlock Text="{Binding Title, ElementName=Root}"
-                       FontSize="16" FontWeight="Bold"
+                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        Margin="0,16,0,6"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
             <TextBlock Text="{Binding Message, ElementName=Root}"
-                       FontSize="12"
+                       FontSize="{StaticResource TextBody}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
@@ -104,7 +104,7 @@
                     </ControlTemplate>
                 </Button.Template>
                 <TextBlock Text="{Binding ActionText, ElementName=Root}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            Foreground="White"/>
             </Button>
         </StackPanel>

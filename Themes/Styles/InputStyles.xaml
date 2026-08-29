@@ -17,7 +17,7 @@
 
     <!-- ── TextBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernTextBoxStyle" TargetType="TextBox">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -56,7 +56,7 @@
 
     <!-- ── PasswordBox ───────────────────────────────────────────────── -->
     <Style x:Key="ModernPasswordBoxStyle" TargetType="PasswordBox">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -106,7 +106,7 @@
          a VM string property) sees what the user types.
     ──────────────────────────────────────────────────────────────── -->
     <Style x:Key="ModernEditableComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
@@ -153,7 +153,7 @@
                                           Cursor="Hand">
                                 <TextBlock Text="&#xE70D;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="10"
+                                           FontSize="{StaticResource TextCaption}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </ToggleButton>
@@ -199,7 +199,7 @@
 
     <!-- ── ComboBox ──────────────────────────────────────────────────── -->
     <Style x:Key="ModernComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
@@ -243,7 +243,7 @@
                                           Cursor="Hand">
                                 <TextBlock Text="&#xE70D;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="10"
+                                           FontSize="{StaticResource TextCaption}"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </ToggleButton>
@@ -311,7 +311,7 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Padding" Value="12,8"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">

@@ -1,4 +1,4 @@
-﻿<!-- LAYOUT-03 BENTO MOSAIC — Sheet Store. Bindings unchanged. -->
+<!-- LAYOUT-03 BENTO MOSAIC — Sheet Store. Bindings unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.SheetStore.SheetStoreDashboardView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -48,7 +48,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -73,7 +73,7 @@
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="12" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
                 </StackPanel>

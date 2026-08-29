@@ -28,26 +28,26 @@
 
     <!-- Base text styles -->
     <Style TargetType="TextBlock" x:Key="LabelText">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="{StaticResource TextDimBrush}"/>
         <Setter Property="Margin" Value="0,0,0,4"/>
     </Style>
 
     <Style TargetType="TextBlock" x:Key="HeaderText">
-        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
     </Style>
 
     <Style TargetType="TextBlock" x:Key="SectionLabel">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
         <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
 
     <Style TargetType="TextBlock" x:Key="HelpText">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="{StaticResource TextDimBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
@@ -61,7 +61,7 @@
         <Setter Property="Padding" Value="10,7"/>
         <Setter Property="CaretBrush" Value="{StaticResource TextBrush}"/>
         <Setter Property="SelectionBrush" Value="{StaticResource AccentBrush}"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -72,19 +72,19 @@
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="8,6"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
     </Style>
 
     <Style TargetType="CheckBox">
         <Setter Property="Foreground" Value="{StaticResource TextBrush}"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <!-- Buttons: base + variants -->
     <Style TargetType="Button" x:Key="ButtonBase">
         <Setter Property="FontFamily" Value="{StaticResource AppFont}"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="16,10"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -152,7 +152,7 @@
         <Setter Property="Background" Value="{StaticResource CodeBgBrush}"/>
         <Setter Property="Foreground" Value="{StaticResource CodeTextBrush}"/>
         <Setter Property="FontFamily" Value="Consolas"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="AcceptsReturn" Value="True"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>

@@ -32,10 +32,10 @@
 
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
             <TextBlock Text="What changed"
-                       FontSize="17" FontWeight="Bold"
+                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             <TextBlock x:Name="SubtitleText"
-                       FontSize="12" Margin="0,3,0,0"
+                       FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
@@ -64,7 +64,7 @@
                                     <StackPanel Grid.Column="0" Margin="0,0,12,0">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding Field}"
-                                                       FontSize="12" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="8,0,0,0"
                                                     CornerRadius="{DynamicResource CardCornerRadius}"
@@ -72,7 +72,7 @@
                                                     VerticalAlignment="Center"
                                                     Background="{DynamicResource TintBlueBrush}">
                                                 <TextBlock Text="{Binding Kind}"
-                                                           FontSize="10" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="{DynamicResource InfoBrush}"/>
                                             </Border>
                                         </StackPanel>
@@ -84,12 +84,12 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="&#xE7BA;"
                                                            FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="11"
+                                                           FontSize="{StaticResource TextBody}"
                                                            Foreground="{DynamicResource DangerBrush}"
                                                            VerticalAlignment="Center"
                                                            Margin="0,0,7,0"/>
                                                 <TextBlock Text="{Binding Before}"
-                                                           FontSize="12"
+                                                           FontSize="{StaticResource TextBody}"
                                                            TextWrapping="Wrap"
                                                            Foreground="{DynamicResource DangerBrush}"/>
                                             </StackPanel>
@@ -105,12 +105,12 @@
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE73E;"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SuccessBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,7,0"/>
                                             <TextBlock Text="{Binding After}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextWrapping="Wrap"
                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                         </StackPanel>
@@ -141,7 +141,7 @@
                 </ControlTemplate>
             </Button.Template>
             <TextBlock Text="Close" Foreground="White"
-                       FontSize="13" FontWeight="SemiBold"/>
+                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"/>
         </Button>
     </Grid>
 </Window>

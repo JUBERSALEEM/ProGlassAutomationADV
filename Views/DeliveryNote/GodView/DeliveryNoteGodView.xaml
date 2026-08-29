@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/DeliveryNote/GodView/DeliveryNoteGodView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Delivery Note — God View tab
@@ -60,10 +60,10 @@
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <TextBlock Text="Delivery Notes — God View"
-                           FontSize="18" FontWeight="Bold"
+                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Text="Every delivery note in the system, at a glance"
-                           FontSize="12" Margin="0,2,0,0"
+                           FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
@@ -80,7 +80,7 @@
                 <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                          BorderThickness="0"
                          Background="Transparent"
-                         FontSize="13"
+                         FontSize="{StaticResource TextBodyLarge}"
                          VerticalAlignment="Center"
                          ToolTip="Search DN / JO / customer / project / status"/>
             </Border>
@@ -166,7 +166,7 @@
                             <DataTemplate>
                                 <Button Content="Open"
                                         Cursor="Hand"
-                                        FontSize="11"
+                                        FontSize="{StaticResource TextBody}"
                                         Padding="10,3"
                                         BorderThickness="0"
                                         Background="{DynamicResource AccentBrush}"

@@ -16,12 +16,12 @@
                         HorizontalAlignment="Center"
                         IsHitTestVisible="False">
                 <TextBlock x:Name="CenterValue"
-                           FontSize="18" FontWeight="Bold"
+                           FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Typography.NumeralAlignment="Tabular"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock x:Name="CenterLabel"
-                           FontSize="10" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -32,12 +32,12 @@
                         Visibility="Collapsed">
                 <TextBlock Text="&#xE9D9;"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="20"
+                           FontSize="{StaticResource TextTitleLarge}"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                 <TextBlock x:Name="EmptyText"
                            Text="No data"
-                           FontSize="11"
+                           FontSize="{StaticResource TextBody}"
                            Margin="0,6,0,0"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>

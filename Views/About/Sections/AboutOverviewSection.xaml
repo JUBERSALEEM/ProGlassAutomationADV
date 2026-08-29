@@ -191,18 +191,18 @@
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE72E;"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
+                                   FontSize="{StaticResource TextSection}"
                                    Foreground="{DynamicResource GlassAccent}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
                         <TextBlock Text="Privacy"
-                                   FontSize="15"
+                                   FontSize="{StaticResource TextSubhead}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource GlassSnow}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="Local-first data handling, operator control, and practical privacy boundaries"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource GlassCerulean}"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
@@ -214,12 +214,12 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
                                     <TextBlock Text="•"
-                                               FontSize="12"
+                                               FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource GlassAccent}"
                                                Margin="0,0,9,0"/>
                                     <TextBlock Text="{Binding}"
-                                               FontSize="12"
+                                               FontSize="{StaticResource TextBody}"
                                                TextWrapping="Wrap"
                                                LineHeight="20"
                                                Foreground="{DynamicResource GlassFrost}"/>

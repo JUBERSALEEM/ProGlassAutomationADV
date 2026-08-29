@@ -25,7 +25,7 @@
     </Style>
 
     <Style x:Key="PiSectionLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Margin"     Value="0,0,0,8"/>
@@ -33,7 +33,7 @@
 
     <Style x:Key="PiFieldLabelStyle" TargetType="TextBlock"
            BasedOn="{StaticResource ModuleFieldLabelStyle}">
-        <Setter Property="FontSize"   Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>
     </Style>
@@ -73,13 +73,13 @@
     </Style>
 
     <Style x:Key="PiKpiCaptionStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="9"/>
+        <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
     </Style>
 
     <Style x:Key="PiKpiValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="15"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Margin"     Value="0,2,0,0"/>
@@ -104,12 +104,12 @@
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="14"
+                                       FontSize="{StaticResource TextSection}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="{TemplateBinding Content}"
-                                       FontSize="13" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -156,7 +156,7 @@
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Background"      Value="Transparent"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
         <Setter Property="Foreground"      Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Template">
@@ -193,7 +193,7 @@
         <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground"      Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -291,7 +291,7 @@
     </Style>
 
     <Style x:Key="PiLayerTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -300,7 +300,7 @@
 
     <Style x:Key="PiSpecLineStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Consolas"/>
-        <Setter Property="FontSize"   Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -333,7 +333,7 @@
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="10,0"/>
         <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -353,7 +353,7 @@
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1"/>
         <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="12,0"/>
         <Setter Property="Height"                   Value="34"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -407,7 +407,7 @@
             <Setter.Value>
                 <Style TargetType="TabItem">
                     <Setter Property="Padding"    Value="12,6"/>
-                    <Setter Property="FontSize"   Value="11"/>
+                    <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                     <Setter Property="FontWeight" Value="SemiBold"/>
                     <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                     <Setter Property="Template">
@@ -448,7 +448,7 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Cursor"          Value="Hand"/>
         <Setter Property="Padding"         Value="0"/>
-        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"      Value="SemiBold"/>
         <Setter Property="Foreground"      Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Template">
@@ -475,7 +475,7 @@
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Padding"         Value="0"/>
         <Setter Property="Foreground"      Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="FontSize"        Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"      Value="Bold"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
@@ -506,14 +506,14 @@
     </Style>
 
     <Style x:Key="PiBandTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin"     Value="0,12,0,6"/>
     </Style>
 
     <Style x:Key="PiInlineMetaStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
@@ -602,14 +602,14 @@
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"/>
                         <TextBlock x:Name="OffLabel" Text="OFF"
-                                   FontSize="8" FontWeight="Bold"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    Margin="0,0,7,0"
                                    IsHitTestVisible="False"/>
                         <TextBlock x:Name="OnLabel" Text="ON"
-                                   FontSize="8" FontWeight="Bold"
+                                   FontSize="{StaticResource TextXSmall}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
@@ -686,7 +686,7 @@
 
     <Style x:Key="PiStationCodeStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Consolas"/>
-        <Setter Property="FontSize"   Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -694,14 +694,14 @@
     </Style>
 
     <Style x:Key="PiStationTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="PiStationHintStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="12,0,0,0"/>

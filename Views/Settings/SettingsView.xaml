@@ -73,17 +73,17 @@
                                 VerticalAlignment="Center">
                             <TextBlock Text="&#xE713;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="16"
+                                       FontSize="{StaticResource TextTitle}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                             <TextBlock Text="Settings"
-                                       FontSize="18" FontWeight="Bold"
+                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text="ProGlass Automation"
-                                       FontSize="10"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
                     </StackPanel>

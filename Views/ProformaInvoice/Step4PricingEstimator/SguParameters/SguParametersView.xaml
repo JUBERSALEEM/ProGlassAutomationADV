@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters.SguParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters.SguParametersView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -28,7 +28,7 @@
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
             <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="20,18">
                 <StackPanel>
-                    <TextBlock Text="Single lite" FontSize="16" FontWeight="Bold"
+                    <TextBlock Text="Single lite" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="One pane. Thickness, colour and treatment drive the 3D build and the rate."
                                Style="{StaticResource ModulePageSubtitleStyle}" Margin="0,2,0,16"/>

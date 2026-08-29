@@ -100,7 +100,7 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <TextBlock Text="{Binding FilterBannerText}" FontSize="11"
+                    <TextBlock Text="{Binding FilterBannerText}" FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
                     <Button Margin="12,0,0,0" Command="{Binding ClearClientFilterCommand}"
                             Style="{StaticResource PiViewAllLinkStyle}">
@@ -108,7 +108,7 @@
                     </Button>
                 </StackPanel>
 
-                <TextBlock Margin="0,12,0,0" FontSize="12" Foreground="{DynamicResource SuccessBrush}">
+                <TextBlock Margin="0,12,0,0" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -134,11 +134,11 @@
                 </StackPanel>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         Style="{StaticResource PiIconButtonStyle}" ToolTip="Refresh saved projects from database">
-                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
             </Grid>
-            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="12"
+            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -151,7 +151,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="12"
+            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -165,7 +165,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <TextBlock DockPanel.Dock="Top" Text="No saved projects yet."
-                       FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -189,7 +189,7 @@
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
-                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
+                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
                     <Run Text="View all ("/><Run Text="{Binding TotalProjectCount, Mode=OneWay}"/><Run Text=")"/>
                 </TextBlock>
             </Button>
@@ -221,15 +221,15 @@
                                         <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding DisplayProjectName}" FontSize="12" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding DisplayProjectName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
+                                        <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextTrimming="CharacterEllipsis">
                                             <Run Text="{Binding ReferencePreview, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
                                             <Run Text="{Binding ProjectContractNo, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="10"
+                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>

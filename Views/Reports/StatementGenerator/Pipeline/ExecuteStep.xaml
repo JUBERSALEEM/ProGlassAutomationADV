@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Reports/StatementGenerator/Pipeline/ExecuteStep.xaml
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Wizard Step 3: EXECUTE
@@ -185,17 +185,17 @@
                                 VerticalAlignment="Center"
                                 Margin="0,0,12,0"/>
                         <TextBlock Text="STEP 3 OF 4"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource IndigoPrimary}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
                     <TextBlock Text="Execute Pipeline"
-                               FontSize="28"
+                               FontSize="{StaticResource TextDisplayLarge}"
                                FontWeight="Bold"
                                Foreground="{StaticResource TextPrimary}"/>
                     <TextBlock Text="8-step workflow processing your data in real-time. Watch each step complete and review the live output below."
-                               FontSize="14"
+                               FontSize="{StaticResource TextSection}"
                                Foreground="{StaticResource TextSecondary}"
                                TextWrapping="Wrap"
                                Margin="0,8,0,0"/>
@@ -234,14 +234,14 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,12,0"/>
                             <TextBlock Text="{Binding LastWorkflowStatusText}"
-                                       FontSize="16" FontWeight="Bold"
+                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="{StaticResource TextPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <TextBlock Grid.Row="0" Grid.Column="2"
                                    Text="{Binding LastWorkflowProgressDisplay}"
-                                   FontSize="24" FontWeight="Bold"
+                                   FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                    Foreground="{StaticResource VioletAccent}"
                                    VerticalAlignment="Center"/>
 
@@ -282,11 +282,11 @@
                     <Border Grid.Column="0" Style="{StaticResource MetricTileStyle}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding OrderedQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricOrdered}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="Ordered"
-                                       FontSize="11" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
@@ -296,11 +296,11 @@
                     <Border Grid.Column="2" Style="{StaticResource MetricTileStyle}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DeliveredQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricDelivered}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="Delivered"
-                                       FontSize="11" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
@@ -310,11 +310,11 @@
                     <Border Grid.Column="4" Style="{StaticResource MetricTileStyle}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding BalanceQtyDisplay}"
-                                       FontSize="24" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricBalance}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="Balance"
-                                       FontSize="11" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
@@ -324,11 +324,11 @@
                     <Border Grid.Column="6" Style="{StaticResource MetricTileStyle}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="{Binding DeliveryRateDisplay}"
-                                       FontSize="24" FontWeight="Bold"
+                                       FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                        Foreground="{StaticResource MetricRate}"
                                        HorizontalAlignment="Center"/>
                             <TextBlock Text="Rate"
-                                       FontSize="11" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{StaticResource TextSecondary}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"/>
@@ -357,7 +357,7 @@
                                     Margin="0,0,12,0"
                                     Background="{StaticResource IndigoPrimary}"/>
                             <TextBlock Text="PIPELINE STEPS"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{StaticResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -375,14 +375,14 @@
                                             <Border Grid.Column="0"
                                                     Style="{StaticResource PipelineStepBadgeStyle}">
                                                 <TextBlock Text="{Binding StatusIcon}"
-                                                           FontSize="13" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
                                             </Border>
 
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock FontSize="12" FontWeight="Bold"
+                                                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                            Foreground="{StaticResource TextPrimary}">
                                                     <Run Text="Step "/>
                                                     <Run Text="{Binding Order, Mode=OneWay}"/>
@@ -390,7 +390,7 @@
                                                     <Run Text="{Binding Title, Mode=OneWay}"/>
                                                 </TextBlock>
                                                 <TextBlock Text="{Binding CurrentMessage}"
-                                                           FontSize="10"
+                                                           FontSize="{StaticResource TextCaption}"
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis"
                                                            Margin="0,4,0,0"
@@ -426,7 +426,7 @@
                                 <Ellipse Width="9" Height="9" Fill="{DynamicResource SuccessBrush}"
                                          VerticalAlignment="Center" Margin="0,0,14,0"/>
                                 <TextBlock Text="PROCESSING LOG"
-                                           FontSize="10" FontWeight="Bold"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{StaticResource TerminalTitle}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -445,7 +445,7 @@
                                         <DataTemplate>
                                             <TextBlock Text="{Binding Text}"
                                                        FontFamily="Consolas"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Margin="0,1"
                                                        TextWrapping="Wrap"
                                                        Foreground="{Binding SeverityColor,
@@ -485,7 +485,7 @@
                                     Background="{StaticResource AmberAccent}"/>
                             <TextBlock Grid.Column="1"
                                        Text="WARNINGS &amp; ALERTS"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{StaticResource AmberAccent}"
                                        VerticalAlignment="Center"/>
                             <Border Grid.Column="2"
@@ -494,7 +494,7 @@
                                     Padding="10,3"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding WarningSummaryDisplay}"
-                                           FontSize="10" FontWeight="Bold"
+                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
                         </Grid>
@@ -527,18 +527,18 @@
                                             <StackPanel Grid.Column="1">
                                                 <!-- Originating step (same detail as pipeline steps) -->
                                                 <TextBlock Text="{Binding StepLabel}"
-                                                           FontSize="10" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="{StaticResource TextMuted}"
                                                            Margin="0,0,0,4"/>
 
                                                 <TextBlock Text="{Binding Title}"
-                                                           FontSize="13" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                            Margin="0,0,0,4"
                                                            Foreground="{Binding TitleBrushKey,
                                                                Converter={StaticResource BrushKeyConverter}}"/>
 
                                                 <TextBlock Text="{Binding Detail}"
-                                                           FontSize="11"
+                                                           FontSize="{StaticResource TextBody}"
                                                            Foreground="{StaticResource TextSecondary}"
                                                            TextWrapping="Wrap"
                                                            Margin="0,0,0,8"/>
@@ -552,9 +552,9 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Ordered " FontSize="10"
+                                                            <TextBlock Text="Ordered " FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
-                                                            <TextBlock Text="{Binding OrderedText}" FontSize="10" FontWeight="Bold"
+                                                            <TextBlock Text="{Binding OrderedText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{StaticResource TextPrimary}"/>
                                                         </StackPanel>
                                                     </Border>
@@ -562,9 +562,9 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3" Margin="0,0,8,0">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Delivered " FontSize="10"
+                                                            <TextBlock Text="Delivered " FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
-                                                            <TextBlock Text="{Binding DeliveredText}" FontSize="10" FontWeight="Bold"
+                                                            <TextBlock Text="{Binding DeliveredText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
                                                     </Border>
@@ -572,9 +572,9 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="Diff " FontSize="10"
+                                                            <TextBlock Text="Diff " FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{StaticResource TextMuted}"/>
-                                                            <TextBlock Text="{Binding DifferenceText}" FontSize="10" FontWeight="Bold"
+                                                            <TextBlock Text="{Binding DifferenceText}" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                        Foreground="{DynamicResource DangerBrush}"/>
                                                         </StackPanel>
                                                     </Border>
@@ -582,7 +582,7 @@
 
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding AmountDisplay}"
-                                                               FontSize="12" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,12,0"
                                                                Foreground="{Binding AmountBrushKey,
@@ -609,13 +609,13 @@
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="&#xE76B;"
                                                                                    FontFamily="Segoe MDL2 Assets"
-                                                                                   FontSize="10"
+                                                                                   FontSize="{StaticResource TextCaption}"
                                                                                    Foreground="{Binding ActionBrushKey,
                                                                                        Converter={StaticResource BrushKeyConverter}}"
                                                                                    Margin="0,0,6,0"
                                                                                    VerticalAlignment="Center"/>
                                                                         <TextBlock Text="{Binding ActionLabel}"
-                                                                                   FontSize="10" FontWeight="SemiBold"
+                                                                                   FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                                                    Foreground="{Binding ActionBrushKey,
                                                                                        Converter={StaticResource BrushKeyConverter}}"
                                                                                    VerticalAlignment="Center"/>

@@ -190,7 +190,7 @@
                                         <TextBlock Text="Google Gemini"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
                                         <TextBlock Text="15 req/min · 1,500/day · best quality"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
@@ -225,9 +225,9 @@
                                     Command="{Binding TestGeminiCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="11"/>
+                                    FontSize="{StaticResource TextBody}"/>
                             <TextBlock Text="{Binding GeminiTestStatus}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -260,7 +260,7 @@
                                         <TextBlock Text="Groq"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
                                         <TextBlock Text="Fast Llama · Very generous free tier"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
@@ -295,9 +295,9 @@
                                     Command="{Binding TestGroqCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="11"/>
+                                    FontSize="{StaticResource TextBody}"/>
                             <TextBlock Text="{Binding GroqTestStatus}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -330,7 +330,7 @@
                                         <TextBlock Text="Cohere"
                                                    Style="{StaticResource SettingsTileTitleStyle}"/>
                                         <TextBlock Text="Enterprise-grade · Command family"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </StackPanel>
@@ -365,9 +365,9 @@
                                     Command="{Binding TestCohereCommand}"
                                     HorizontalAlignment="Stretch"
                                     Height="32"
-                                    FontSize="11"/>
+                                    FontSize="{StaticResource TextBody}"/>
                             <TextBlock Text="{Binding CohereTestStatus}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,8,0,0"
                                        TextWrapping="Wrap"
@@ -385,7 +385,7 @@
                             <TextBlock Text="All provider keys are encrypted at rest with Windows DPAPI and stored at:"
                                        Style="{StaticResource SettingsTileCaptionStyle}"/>
                             <TextBlock Text="{Binding ConfigFilePath}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontFamily="Consolas, Courier New, monospace"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"

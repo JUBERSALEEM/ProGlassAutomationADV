@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      MIGRATION LOG — Button Standardization (master prompt v1.0)
      Date: 2026-08-15 — SheetStore module batch
      • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
@@ -31,20 +31,20 @@
 
     <Window.Resources>
         <Style x:Key="ColumnHeader" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="RowLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Padding" Value="12,10"/>
         </Style>
         <Style x:Key="RowValue" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -68,18 +68,18 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center"/>
+                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
                 <StackPanel Margin="12,0,0,0">
                     <TextBlock Text="DUPLICATE SHEET DETECTED"
-                               FontSize="18" FontWeight="Bold"
+                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding HeaderText}"
-                               FontSize="11" FontWeight="Bold"
+                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
             <TextBlock Text="This sheet already exists. Choose how to handle it:"
-                       FontSize="12" Margin="0,8,0,0"
+                       FontSize="{StaticResource TextBody}" Margin="0,8,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
@@ -91,7 +91,7 @@
                 CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
             <TextBlock Text="{Binding SheetLabel}"
-                       FontSize="13" FontWeight="SemiBold"
+                       FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
         </Border>
 
@@ -121,7 +121,7 @@
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="0" Grid.Column="0"
                         Background="{DynamicResource MenuHoverBrush}"
                         Padding="10,10" CornerRadius="12,0,0,0">
-                    <TextBlock Text="FIELD" FontSize="11" FontWeight="SemiBold"
+                    <TextBlock Text="FIELD" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
                 </Border>
@@ -214,7 +214,7 @@
         <CheckBox Grid.Row="3"
                   Content="Apply this action to all remaining duplicates"
                   IsChecked="{Binding ApplyToRemaining, Mode=TwoWay}"
-                  FontSize="12"
+                  FontSize="{StaticResource TextBody}"
                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                   Margin="0,16,0,12"
                   Cursor="Hand"/>

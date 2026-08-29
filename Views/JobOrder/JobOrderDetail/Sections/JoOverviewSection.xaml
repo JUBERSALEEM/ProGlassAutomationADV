@@ -85,10 +85,10 @@
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <TextBlock Text="COMPANY" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
-                                           FontSize="13" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock FontSize="11"
+                                <TextBlock FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Company.CompanyTrn, Mode=OneWay, FallbackValue=—}"/>
@@ -100,10 +100,10 @@
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <TextBlock Text="CLIENT" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
-                                           FontSize="13" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock FontSize="11"
+                                <TextBlock FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis">
                                     <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Client.CustomerTrn, Mode=OneWay, FallbackValue=—}"/>
@@ -115,11 +115,11 @@
                             <StackPanel Grid.Column="4" VerticalAlignment="Center">
                                 <TextBlock Text="PROJECT" Style="{StaticResource CardLabelStyle}"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
-                                           FontSize="13" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference, FallbackValue=—}"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -141,7 +141,7 @@
                                Style="{StaticResource CardLabelStyle}"
                                Margin="0,0,0,4"/>
                     <TextBlock Text="Production ticket — sizes, qty, SQM and TOTAL SQM"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,0,0,8"/>
 
@@ -161,13 +161,13 @@
                                                         Background="{DynamicResource AccentBrush}"
                                                         Margin="0,0,8,0">
                                                     <TextBlock Text="{Binding GroupNumber}"
-                                                               FontSize="11" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                                 <TextBlock Text="{Binding SelectedSpecName, FallbackValue=—}"
-                                                           FontSize="12" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"/>
@@ -256,7 +256,7 @@
                                         </ItemsControl>
 
                                         <Border Style="{StaticResource LineItemsFooterStyle}">
-                                            <TextBlock FontSize="11"
+                                            <TextBlock FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                 <Run Text="Glass type  " FontWeight="SemiBold"/>
                                                 <Run Text="{Binding SelectedGlassType, FallbackValue=SGU, Mode=OneWay}"

@@ -157,14 +157,14 @@
 
         <Style x:Key="ChipGlyphStyle" TargetType="TextBlock">
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,8,0"/>
         </Style>
 
         <Style x:Key="ChipTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -195,13 +195,13 @@
                     <TextBlock Grid.Column="0"
                                Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{Binding BorderBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Grid.Column="1"
                                Text="{Binding Label}"
-                               FontSize="11.5"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center"
@@ -216,7 +216,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -244,7 +244,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -380,7 +380,7 @@
 
                 <TextBlock x:Name="AppNameText"
                            Text="ProGlass Automation"
-                           FontSize="28" FontWeight="Bold"
+                           FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,18,0,0"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -392,7 +392,7 @@
 
                 <TextBlock x:Name="TaglineText"
                            Text="Made in India for the UAE glass industry"
-                           FontSize="13.5"
+                           FontSize="{StaticResource TextBodyLarge}"
                            HorizontalAlignment="Center"
                            Margin="0,7,0,0"
                            Foreground="{DynamicResource AccentBrush}"
@@ -435,11 +435,11 @@
                     <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
                         <TextBlock x:Name="LoadingText"
                                    Text="Starting workspace"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock x:Name="LoadingDots"
                                    Text=""
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </Border>
@@ -454,7 +454,7 @@
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     Background="{DynamicResource MenuHoverBrush}">
-                <TextBlock FontSize="11"
+                <TextBlock FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Opacity="0.8"
                            HorizontalAlignment="Center">
@@ -503,7 +503,7 @@
                         HorizontalAlignment="Center"
                         Margin="0,46,0,0">
                 <TextBlock Text="TERMS OF USE"
-                           FontSize="26" FontWeight="Bold"
+                           FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource PrimaryForegroundBrush}">
                     <TextBlock.Effect>
@@ -512,7 +512,7 @@
                     </TextBlock.Effect>
                 </TextBlock>
                 <TextBlock Text="United Arab Emirates · Please read before continuing"
-                           FontSize="12.5"
+                           FontSize="{StaticResource TextBodyLarge}"
                            HorizontalAlignment="Center"
                            Margin="0,6,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -533,7 +533,7 @@
                               HorizontalScrollBarVisibility="Disabled"
                               PanningMode="VerticalOnly">
                     <TextBlock Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               FontSize="13.5"
+                               FontSize="{StaticResource TextBodyLarge}"
                                LineHeight="25"
                                TextWrapping="Wrap">
                         <Run Text="1. Tax compliance is yours, not the software's." FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -602,7 +602,7 @@
                     <CheckBox x:Name="AcceptTermsCheck"
                               VerticalAlignment="Center"
                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                              FontSize="12.5"
+                              FontSize="{StaticResource TextBodyLarge}"
                               Cursor="Hand"
                               Margin="0,8,0,0"
                               Checked="AcceptTerms_Changed"

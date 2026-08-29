@@ -329,12 +329,12 @@
                                     VerticalAlignment="Center">
                             <TextBlock Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text="{TemplateBinding Content}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -376,12 +376,12 @@
                                     VerticalAlignment="Center">
                             <TextBlock Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Text="{TemplateBinding Content}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
@@ -465,7 +465,7 @@
                                      Converter={StaticResource BrushKeyConverter}}">
                     <TextBlock Text="{Binding Icon}"
                                Style="{StaticResource DashGlyphStyle}"
-                               FontSize="13"/>
+                               FontSize="{StaticResource TextBodyLarge}"/>
                 </Border>
 
                 <StackPanel Grid.Column="1">
@@ -489,7 +489,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="DashEmptyStateGlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource MutedForegroundBrush}"/>
@@ -766,7 +766,7 @@
          colour font, ignore Foreground and look like clip-art. -->
     <Style x:Key="SoftBadgeGlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"          Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize"            Value="16"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="VerticalAlignment"   Value="Center"/>
         <Setter Property="Foreground"          Value="{DynamicResource OnAccentForegroundBrush}"/>
@@ -809,7 +809,7 @@
                             <TextBlock x:Name="Glyph"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        Margin="0,0,8,0"
                                        VerticalAlignment="Center"
                                        Foreground="{TemplateBinding Foreground}"/>
@@ -915,7 +915,7 @@
                                Style="{StaticResource SoftKpiLabelStyle}"
                                TextWrapping="Wrap"
                                TextTrimming="CharacterEllipsis"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                LineHeight="15"/>
                     <Viewbox HorizontalAlignment="Left"
                              Stretch="Uniform"
@@ -999,7 +999,7 @@
                                      Converter={StaticResource BrushKeyConverter}}">
                     <TextBlock Text="{Binding Icon}"
                                Style="{StaticResource SoftBadgeGlyphStyle}"
-                               FontSize="14"/>
+                               FontSize="{StaticResource TextSection}"/>
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">

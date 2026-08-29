@@ -90,7 +90,7 @@
                             SnapsToDevicePixels="True"
                             Background="{Binding StatusColor,
                                          Converter={StaticResource BrushKeyConverter}}">
-                        <TextBlock FontSize="14">
+                        <TextBlock FontSize="{StaticResource TextSection}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock"
                                        BasedOn="{StaticResource SoftBadgeGlyphStyle}">
@@ -123,11 +123,11 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding InvoiceNumber}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock FontSize="11"
+                        <TextBlock FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
@@ -141,7 +141,7 @@
                                 VerticalAlignment="Center"
                                 Margin="10,0,0,0">
                         <TextBlock Text="{Binding AmountDisplay}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Right"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -153,7 +153,7 @@
                                 Background="{Binding StatusColor,
                                              Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding Status}"
-                                       FontSize="10"
+                                       FontSize="{StaticResource TextCaption}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Border>
@@ -186,21 +186,21 @@
 
                         <TextBlock Grid.Column="0"
                                    Text="{Binding Label}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
                         <TextBlock Grid.Column="1"
                                    Text="{Binding CountDisplay}"
-                                   FontSize="10"
+                                   FontSize="{StaticResource TextCaption}"
                                    Margin="10,0,0,0"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    HorizontalAlignment="Right"
                                    Foreground="{Binding SeverityColor,
@@ -260,7 +260,7 @@
                                 Background="{Binding BarColor,
                                              Converter={StaticResource ColorStringConverter}}">
                             <TextBlock Text="{Binding Rank}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -271,18 +271,18 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,8,0">
                             <TextBlock Text="{Binding CustomerName}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        TextTrimming="CharacterEllipsis"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text="{Binding InvoiceCountDisplay}"
-                                       FontSize="10"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding AmountDisplay}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Right"
@@ -358,7 +358,7 @@
                                 <Ellipse Width="8" Height="8" Margin="0,0,6,0"
                                          VerticalAlignment="Center"
                                          Fill="{DynamicResource SuccessBrush}"/>
-                                <TextBlock Text="Live" FontSize="11" FontWeight="SemiBold"
+                                <TextBlock Text="Live" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
@@ -386,7 +386,7 @@
                             Visibility="{Binding HasError,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="{Binding ErrorMessage}"
-                                   FontSize="12" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
                     <Border Style="{StaticResource SoftSectionStyle}"
@@ -400,7 +400,7 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock FontSize="12" FontWeight="Bold"
+                            <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource DangerBrush}">
                                 <Run Text="{Binding OverdueCount, Mode=OneWay}"/>

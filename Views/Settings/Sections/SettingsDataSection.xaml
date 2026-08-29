@@ -131,12 +131,12 @@
                                         <StackPanel Orientation="Horizontal" Margin="2">
                                             <TextBlock Text="&#xE968;"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Margin="0,0,8,0"
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        IsHitTestVisible="False"/>
-                                            <TextBlock VerticalAlignment="Center" FontSize="12"
+                                            <TextBlock VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
                                                        IsHitTestVisible="False">
                                                 <Run Text="{Binding CreatedAt, Mode=OneWay,
                                                              StringFormat='dd MMM yyyy  HH:mm'}"/>
@@ -221,17 +221,17 @@
                                     <TextBlock Grid.Column="0"
                                                Text="&#xE73E;"
                                                FontFamily="Segoe MDL2 Assets"
-                                               FontSize="13"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock FontSize="12" FontWeight="SemiBold">
+                                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold">
                                             <Run Text="License: "/>
                                             <Run Text="{Binding LicenseStatus.StatusBadge, Mode=OneWay}"/>
                                         </TextBlock>
                                         <TextBlock Text="{Binding LicenseStatus.StatusDescription}"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    TextWrapping="Wrap"
                                                    Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -271,20 +271,20 @@
                                                 <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="*"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="12"
+                                            <TextBlock Grid.Column="0" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
                                                        Text="{Binding DisplayName}"
                                                        TextTrimming="CharacterEllipsis"/>
-                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="11"
+                                            <TextBlock Grid.Column="1" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Text="{Binding Status}"/>
-                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="11"
+                                            <TextBlock Grid.Column="2" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
                                                        Text="{Binding TotalRowsDisplay}"
                                                        TextAlignment="Right"/>
-                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="11"
+                                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        Text="{Binding FileSizeDisplay}"
                                                        TextAlignment="Right"/>
-                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="10"
+                                            <TextBlock Grid.Column="4" VerticalAlignment="Center" FontSize="{StaticResource TextCaption}"
                                                        TextWrapping="Wrap"
                                                        Margin="8,0,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"

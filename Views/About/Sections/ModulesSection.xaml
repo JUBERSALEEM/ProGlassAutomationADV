@@ -96,7 +96,7 @@
                                 <TextBlock Text="SALES CYCLE"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
                                 <TextBlock Text="From sheet availability to released production paperwork"
-                                           FontSize="12"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource GlassFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -130,7 +130,7 @@
                                 <TextBlock Text="PRODUCTION STAGES (UPCOMING)"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
                                 <TextBlock Text="Planned factory execution stages that will slot into the same controlled workflow shell"
-                                           FontSize="12"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource GlassFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>
@@ -164,7 +164,7 @@
                                 <TextBlock Text="DISPATCH &amp; BILLING"
                                            Style="{StaticResource WorkflowGroupLabelStyle}"/>
                                 <TextBlock Text="Delivery evidence, invoicing, and reporting closed out under one financial trail"
-                                           FontSize="12"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource GlassFrost}"
                                            TextWrapping="Wrap"/>
                             </StackPanel>

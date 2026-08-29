@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 7 left form: label + field rows. Not icon line-items.
     Bindings unchanged.
 -->
@@ -19,12 +19,12 @@
 
     <UserControl.Resources>
         <Style x:Key="SummaryLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="SummaryValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -36,7 +36,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="8,4"/>
             <Setter Property="Height" Value="32"/>
@@ -105,13 +105,13 @@
                      Style="{StaticResource NumericInputStyle}"/>
             <TextBlock Grid.Column="3"
                        Text="{Binding DiscountUnitLabel}"
-                       FontSize="11" FontWeight="Bold"
+                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="4"
                        Text="{Binding DiscountAmount, StringFormat=- AED {0:N2}}"
-                       FontSize="12" FontWeight="Bold"
+                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource DangerBrush}"
                        VerticalAlignment="Center"/>
         </Grid>
@@ -144,7 +144,7 @@
                           AutomationProperties.Name="VAT applicable"/>
             <TextBlock Grid.Column="1"
                        Text="VAT"
-                       FontSize="12" FontWeight="SemiBold"
+                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
@@ -154,13 +154,13 @@
                      IsEnabled="{Binding IsVatApplicable}"/>
             <TextBlock Grid.Column="4"
                        Text="%"
-                       FontSize="11" FontWeight="Bold"
+                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        VerticalAlignment="Center"
                        Margin="6,0,12,0"/>
             <TextBlock Grid.Column="5"
                        Text="{Binding VatAmount, StringFormat=+ AED {0:N2}}"
-                       FontSize="12" FontWeight="Bold"
+                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                        Foreground="{DynamicResource SuccessBrush}"
                        VerticalAlignment="Center"/>
         </Grid>
@@ -171,12 +171,12 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="GRAND TOTAL AED"
-                       FontSize="14" FontWeight="Bold"
+                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                        VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1"
                        Text="{Binding GrandTotalVatInclusive, StringFormat=AED {0:N2}}"
-                       FontSize="20" FontWeight="Bold"
+                       FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
         </Grid>
     </StackPanel>

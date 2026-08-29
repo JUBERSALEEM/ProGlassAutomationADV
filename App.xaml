@@ -12,6 +12,10 @@
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
+                <!-- ── Global type scale (TextXSmall…TextDisplayLarge).
+                     Every FontSize below 30 DIPs references these tokens. ── -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypeScaleTokens.xaml"/>
+
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypographyStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
@@ -102,8 +106,8 @@
             <sys:Double x:Key="DensityButtonHeight">30</sys:Double>
             <sys:Double x:Key="DensityRowHeight">26</sys:Double>
             <sys:Double x:Key="DensityTitleFontSize">17</sys:Double>
-            <sys:Double x:Key="DensityKpiValueFontSize">15</sys:Double>
-            <sys:Double x:Key="DensityBodyFontSize">12</sys:Double>
+            <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
+            <sys:Double x:Key="DensityBodyFontSize">13</sys:Double>
             <sys:Double x:Key="DensityButtonMinWidth">84</sys:Double>
             <sys:Double x:Key="UiScale">1.0</sys:Double>
 

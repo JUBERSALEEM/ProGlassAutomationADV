@@ -89,14 +89,14 @@
     </Style>
 
     <Style x:Key="AboutHeaderBadgeTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource GlassAccent}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="AboutPanelKickerStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource GlassAccent}"/>
         <Setter Property="Margin" Value="0,0,0,8"/>
@@ -105,7 +105,7 @@
     </Style>
 
     <Style x:Key="AboutPanelTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="{DynamicResource GlassIce}"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="LineHeight" Value="22"/>
@@ -118,7 +118,7 @@
     </Style>
 
     <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="19"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassSnow}"/>
         <Setter Property="Margin"            Value="0,0,0,4"/>
@@ -126,14 +126,14 @@
     </Style>
 
     <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassCerulean}"/>
         <Setter Property="Margin"            Value="0,0,0,18"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassAccent}"/>
         <Setter Property="Margin"            Value="0,16,0,8"/>
@@ -143,13 +143,13 @@
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
         <Setter Property="TextWrapping"      Value="Wrap"/>
         <Setter Property="LineHeight"        Value="24"/>
-        <Setter Property="FontSize"          Value="13.5"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassIce}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassMuted}"/>
         <Setter Property="Margin"            Value="0,0,0,8"/>
@@ -157,14 +157,14 @@
     </Style>
 
     <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="9"/>
+        <Setter Property="FontSize" Value="{StaticResource TextXSmall}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassMuted}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
     </Style>
 
     <Style x:Key="InfoValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"        Value="SemiBold"/>
         <Setter Property="Foreground"        Value="{DynamicResource GlassSnow}"/>
         <Setter Property="IsHitTestVisible"  Value="False"/>
@@ -208,19 +208,19 @@
             <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                 <TextBlock Text="{Binding Icon}"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="20"
+                           FontSize="{StaticResource TextTitleLarge}"
                            Foreground="{DynamicResource GlassAccent}"
                            HorizontalAlignment="Center"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Value}"
-                           FontSize="15"
+                           FontSize="{StaticResource TextSubhead}"
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,5,0,0"
                            Foreground="{DynamicResource GlassSnow}"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Label}"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            HorizontalAlignment="Center"
                            Margin="0,3,0,0"
@@ -253,7 +253,7 @@
                     </Grid.ColumnDefinitions>
 
                     <TextBlock Text="LIVE MODULE"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource GlassMuted}"
                                VerticalAlignment="Center"
@@ -268,7 +268,7 @@
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True">
                         <TextBlock Text="ACTIVE"
-                                   FontSize="10"
+                                   FontSize="{StaticResource TextCaption}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource GlassAccent}"
                                    IsHitTestVisible="False"/>
@@ -288,20 +288,20 @@
                             VerticalAlignment="Top">
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="19"
+                                   FontSize="{StaticResource TextTitleLarge}"
                                    Style="{StaticResource GlyphStyle}"/>
                     </Border>
 
                     <StackPanel Grid.Column="2"
                                 VerticalAlignment="Center">
                         <TextBlock Text="{Binding Name}"
-                                   FontSize="14"
+                                   FontSize="{StaticResource TextSection}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource GlassSnow}"
                                    TextWrapping="Wrap"
                                    IsHitTestVisible="False"/>
                         <TextBlock Text="{Binding Description}"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource GlassFrost}"
                                    TextWrapping="Wrap"
                                    LineHeight="18"
@@ -337,7 +337,7 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="18"
+                               FontSize="{StaticResource TextTitle}"
                                Style="{StaticResource GlyphStyle}"/>
                 </Border>
 
@@ -369,11 +369,11 @@
                         HorizontalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="22"
+                               FontSize="{StaticResource TextHeadline}"
                                Style="{StaticResource GlyphStyle}"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
-                           FontSize="14"
+                           FontSize="{StaticResource TextSection}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource GlassSnow}"
                            HorizontalAlignment="Center"
@@ -382,7 +382,7 @@
                            Margin="0,12,0,6"
                            IsHitTestVisible="False"/>
                 <TextBlock Text="{Binding Description}"
-                           FontSize="11"
+                           FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource GlassFrost}"
                            HorizontalAlignment="Center"
                            TextAlignment="Center"
@@ -411,7 +411,7 @@
 
                 <TextBlock Grid.Row="0"
                            Text="WORKFLOW STAGE"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource GlassMuted}"
                            HorizontalAlignment="Center"
@@ -427,11 +427,11 @@
                             HorizontalAlignment="Center">
                         <TextBlock Text="{Binding Icon}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="21"
+                                   FontSize="{StaticResource TextHeadline}"
                                    Style="{StaticResource GlyphStyle}"/>
                     </Border>
                     <TextBlock Text="{Binding Name}"
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource GlassSnow}"
                                HorizontalAlignment="Center"
@@ -440,7 +440,7 @@
                                Margin="0,12,0,6"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Description}"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource GlassFrost}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
@@ -464,7 +464,7 @@
       ═══════════════════════════════════════════════════════
     -->
     <Style x:Key="LicenseFieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource GlassCerulean}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
@@ -472,7 +472,7 @@
     </Style>
 
     <Style x:Key="LicenseFieldValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"   Value="{DynamicResource GlassSnow}"/>
         <Setter Property="Margin"       Value="0,0,12,4"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
@@ -486,7 +486,7 @@
     -->
     <Style x:Key="AboutPillButtonStyle" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource GlassAccent}"/>
         <Setter Property="Background"   Value="Transparent"/>

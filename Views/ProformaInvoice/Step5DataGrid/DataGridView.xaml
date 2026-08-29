@@ -155,7 +155,7 @@
 
                     <TextBlock Grid.Column="2"
                                Text="{Binding IoStatus}"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
@@ -178,7 +178,7 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <TextBlock Text="SPECS"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    VerticalAlignment="Center"
@@ -189,7 +189,7 @@
                                 MinWidth="36"
                                 Margin="0,0,10,0">
                             <TextBlock Text="{Binding TotalSpecGroups}"
-                                       FontSize="13"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"/>
@@ -238,7 +238,7 @@
                                             VerticalAlignment="Bottom"
                                             Margin="0,0,0,1">
                                         <TextBlock Text="{Binding GroupNumber}"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
@@ -284,18 +284,18 @@
                                             ToolTip="Remove spec group">
                                         <TextBlock Text="&#xE74D;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource TextBodyLarge}"
                                                    Foreground="{DynamicResource DangerBrush}"/>
                                     </Button>
                                 </Grid>
 
                                 <StackPanel Margin="0,0,0,8">
                                     <TextBlock Text="{Binding SpecDisplayName}"
-                                               FontSize="13"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <TextBlock Text="{Binding SheetSelectionSummary}"
-                                               FontSize="10"
+                                               FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap"
                                                Margin="0,4,0,0">
@@ -413,7 +413,7 @@
                                                         CommandParameter="{Binding}"
                                                         Style="{StaticResource PiIconButtonStyle}"
                                                         ToolTip="Delete row (Ctrl+Delete)">
-                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="10" FontWeight="Bold"
+                                                    <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Button>
                                             </Grid>
@@ -456,20 +456,20 @@
                                         <!-- Total QTY under QTY column -->
                                         <TextBlock Grid.Column="6"
                                                    Text="{Binding FooterTotalQty, Mode=OneWay}"
-                                                   FontSize="12" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total SQM under TOTAL SQM column -->
                                         <TextBlock Grid.Column="8"
                                                    Text="{Binding FooterTotalSqm, StringFormat={}{0:0.00}, Mode=OneWay}"
-                                                   FontSize="12" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 
                                         <!-- Total value under VALUE column -->
                                         <TextBlock Grid.Column="10"
-                                                   FontSize="12" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource SuccessBrush}"
                                                    HorizontalAlignment="Right" VerticalAlignment="Center"
                                                    Margin="0,0,4,0">

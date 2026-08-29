@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Reports/StatementGenerator/Filter/FilterStep.xaml
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Step 1: FILTER (Chat 22 v5.2 — Perf Hardened)
@@ -149,7 +149,7 @@
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="GlassComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="44"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -242,7 +242,7 @@
         <!-- ComboBox items -->
         <Style TargetType="ComboBoxItem">
             <Setter Property="Padding" Value="12,10"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
@@ -278,7 +278,7 @@
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="GlassDatePickerStyle" TargetType="DatePicker">
             <Setter Property="Height" Value="44"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -370,7 +370,7 @@
              FIELD LABEL
         ══════════════════════════════════════════════════════════ -->
         <Style x:Key="GlassFieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="Margin" Value="2,0,0,8"/>
@@ -429,7 +429,7 @@
                     </Border>
 
                     <TextBlock Text="{Binding StatusLabel}"
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource TextPrimary}"
                                VerticalAlignment="Center"/>
@@ -446,7 +446,7 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock x:Name="countText"
                                    Text="{Binding CountDisplay}"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource CountBadgeText}"
                                    HorizontalAlignment="Center"/>
@@ -513,7 +513,7 @@
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0"/>
                             <TextBlock Text="STEP 1 OF 4"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        Foreground="{StaticResource IndigoPrimary}"
                                        VerticalAlignment="Center"/>
@@ -523,7 +523,7 @@
                                    FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimary}"/>
                         <TextBlock Text="Narrow invoices by company, salesman, customer, project, dates, or status. Preview updates automatically as you type."
-                                   FontSize="14"
+                                   FontSize="{StaticResource TextSection}"
                                    Foreground="{StaticResource TextSecondary}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
@@ -549,13 +549,13 @@
                                         Background="{StaticResource GreenLed}"
                                         Effect="{StaticResource GreenLedGlow}"/>
                                 <TextBlock Text="LIVE MATCH COUNT"
-                                           FontSize="10"
+                                           FontSize="{StaticResource TextCaption}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextMuted}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <TextBlock Text="{Binding MatchCountDisplay}"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        FontWeight="SemiBold"
                                        Foreground="{StaticResource TextPrimary}"
                                        Margin="0,8,0,0"
@@ -607,11 +607,11 @@
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="Statement Filters"
-                                           FontSize="18"
+                                           FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimary}"/>
                                 <TextBlock Text="Configure business dimensions and invoice status"
-                                           FontSize="13"
+                                           FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -646,7 +646,7 @@
                                                       Margin="0,0,12,0"/>
                                                 <TextBlock x:Name="tx"
                                                            Text="Clear filters"
-                                                           FontSize="13"
+                                                           FontSize="{StaticResource TextBodyLarge}"
                                                            FontWeight="SemiBold"
                                                            Foreground="{StaticResource TextPrimary}"
                                                            VerticalAlignment="Center"/>
@@ -699,7 +699,7 @@
                                             Margin="0,0,12,0"
                                             Background="{StaticResource IndigoAccentBar}"/>
                                     <TextBlock Text="BUSINESS DIMENSIONS"
-                                               FontSize="11"
+                                               FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{StaticResource IndigoPrimary}"
                                                VerticalAlignment="Center"/>
@@ -765,14 +765,14 @@
                                             Margin="0,0,12,0"
                                             Background="{StaticResource CyanAccentBar}"/>
                                     <TextBlock Text="INVOICE STATUS"
-                                               FontSize="11"
+                                               FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{StaticResource CyanAccent}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
 
                                 <TextBlock Text="Select statuses to include"
-                                           FontSize="13"
+                                           FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,6,0,16"/>
 
@@ -794,11 +794,11 @@
                                                         <StackPanel MaxWidth="240">
                                                             <TextBlock Text="{Binding StatusLabel}"
                                                                        FontWeight="Bold"
-                                                                       FontSize="12"
+                                                                       FontSize="{StaticResource TextBody}"
                                                                        Foreground="White"
                                                                        TextWrapping="Wrap"/>
                                                             <TextBlock Text="Click to toggle. Number shows current match count."
-                                                                       FontSize="11"
+                                                                       FontSize="{StaticResource TextBody}"
                                                                        Foreground="{DynamicResource OutlineBrush}"
                                                                        TextWrapping="Wrap"
                                                                        Margin="0,4,0,0"/>
@@ -850,11 +850,11 @@
 
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="PDF Generation Options"
-                                           FontSize="18"
+                                           FontSize="{StaticResource TextTitle}"
                                            FontWeight="Bold"
                                            Foreground="{StaticResource TextPrimary}"/>
                                 <TextBlock Text="Choose what to include in the final merged report"
-                                           FontSize="13"
+                                           FontSize="{StaticResource TextBodyLarge}"
                                            Foreground="{StaticResource TextSecondary}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
@@ -870,10 +870,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="Include Attachments"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="Merge tax invoices &amp; delivery notes"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
@@ -888,10 +888,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="DN Line Items"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="Show delivery note details in body"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
@@ -906,10 +906,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="Balance Analysis"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="Ordered vs delivered comparison"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
@@ -924,10 +924,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="Aging Chart"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="Visual aging bucket breakdown"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
@@ -942,10 +942,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="Insert Placeholders"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="Pages for failed invoice regenerations"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>
@@ -960,10 +960,10 @@
                                           VerticalContentAlignment="Top">
                                     <StackPanel Margin="10,0,0,0">
                                         <TextBlock Text="Warnings Summary"
-                                                   FontSize="14" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                                    Foreground="{StaticResource TextPrimary}"/>
                                         <TextBlock Text="All alerts and warnings in report"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{StaticResource TextSecondary}"
                                                    TextWrapping="Wrap" Margin="0,4,0,0"/>
                                     </StackPanel>

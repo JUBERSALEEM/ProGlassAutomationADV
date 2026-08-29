@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      MIGRATION LOG — Button Standardization (master prompt v1.0)
      Date: 2026-08-15 — SheetStore module batch
      • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
@@ -35,7 +35,7 @@
 
         <!-- Field label — 11 SemiBold UPPERCASE + MutedForeground -->
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
         </Style>
@@ -62,12 +62,12 @@
             <!-- Header -->
             <StackPanel Margin="0,0,0,16">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center"/>
-                    <TextBlock Text="BUY STOCK" FontSize="22" FontWeight="Bold" Margin="12,0,0,0"
+                    <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
+                    <TextBlock Text="BUY STOCK" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 </StackPanel>
                 <TextBlock Text="Add more sheets to inventory"
-                           FontSize="12" Margin="0,4,0,0"
+                           FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
@@ -78,40 +78,40 @@
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14" Margin="0,0,0,16"
                     SnapsToDevicePixels="True">
                 <StackPanel>
-                    <TextBlock Text="{Binding Sheet.Category}" FontSize="16" FontWeight="Bold"
+                    <TextBlock Text="{Binding Sheet.Category}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="12" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.Color}" FontSize="12"
+                        <TextBlock Text="{Binding Sheet.Color}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="12"
+                        <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <TextBlock Text="Total stock: " FontSize="11"
+                        <TextBlock Text="Total stock: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.Stock}" FontSize="11" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.Stock}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="  •  Used: " FontSize="11"
+                        <TextBlock Text="  •  Used: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.Used}" FontSize="11" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.Used}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}"/>
-                        <TextBlock Text="  •  Balance: " FontSize="11"
+                        <TextBlock Text="  •  Balance: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.Balance}" FontSize="11" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="Price: " FontSize="11"
+                        <TextBlock Text="Price: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.PurchasePricePerSqm, StringFormat={}{0:0.##}}"
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text=" AED/SQM  •  SQM/sheet: " FontSize="11"
+                        <TextBlock Text=" AED/SQM  •  SQM/sheet: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.SqmPerSheet, StringFormat={}{0:N4}}"
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </StackPanel>
                 </StackPanel>
@@ -141,7 +141,7 @@
                         <TextBox Grid.Column="1"
                                  Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
                                  behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                 FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                                 FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" TextAlignment="Center"
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -165,35 +165,35 @@
                                Style="{StaticResource FieldLabelStyle}"
                                Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="Total SQM" FontSize="12"
+                        <TextBlock Text="Total SQM" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="New total stock" FontSize="12"
+                        <TextBlock Text="New total stock" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding NewStockAfterBuy}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="New balance (available)" FontSize="12"
+                        <TextBlock Text="New balance (available)" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding NewBalanceAfterBuy}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource SuccessBrush}"
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <Separator Opacity="0.3" Margin="0,6"/>
                     <DockPanel Margin="0,8,0,0">
-                        <TextBlock Text="Total Cost" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="Total Cost" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>
                 </StackPanel>

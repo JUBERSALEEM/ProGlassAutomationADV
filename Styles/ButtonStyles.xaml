@@ -61,7 +61,7 @@
                             <TextBlock x:Name="Icon"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0">
@@ -79,7 +79,7 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="12"
+                                              TextElement.FontSize="{StaticResource TextBody}"
                                               TextElement.FontWeight="Bold"
                                               TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
@@ -127,7 +127,7 @@
                             <TextBlock x:Name="Icon"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0">
@@ -145,7 +145,7 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="12"
+                                              TextElement.FontSize="{StaticResource TextBody}"
                                               TextElement.FontWeight="Bold"
                                               TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
@@ -192,7 +192,7 @@
                             <TextBlock x:Name="Icon"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
+                                       FontSize="{StaticResource TextBodyLarge}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0">
@@ -210,7 +210,7 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="12"
+                                              TextElement.FontSize="{StaticResource TextBody}"
                                               TextElement.FontWeight="Bold"
                                               TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         </StackPanel>
@@ -257,7 +257,7 @@
                             <TextBlock x:Name="Icon"
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource DangerBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0">
@@ -275,7 +275,7 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <ContentPresenter VerticalAlignment="Center"
-                                              TextElement.FontSize="11"
+                                              TextElement.FontSize="{StaticResource TextBody}"
                                               TextElement.FontWeight="Bold"
                                               TextElement.Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
@@ -323,7 +323,7 @@
                         VerticalAlignment="Center">
                 <TextBlock Text="{TemplateBinding Tag}"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            Foreground="{TemplateBinding Foreground}"
                            VerticalAlignment="Center"
                            Margin="0,0,6,0">
@@ -341,7 +341,7 @@
                     </TextBlock.Style>
                 </TextBlock>
                 <ContentPresenter VerticalAlignment="Center"
-                                  TextElement.FontSize="10"
+                                  TextElement.FontSize="{StaticResource TextCaption}"
                                   TextElement.FontWeight="Bold"
                                   TextElement.Foreground="{TemplateBinding Foreground}"/>
             </StackPanel>

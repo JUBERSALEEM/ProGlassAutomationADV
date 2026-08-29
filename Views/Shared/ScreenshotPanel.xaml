@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Shared.ScreenshotPanel"
+<UserControl x:Class="ProGlassAutomation.Views.Shared.ScreenshotPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -30,10 +30,10 @@
                     Padding="16,12">
                 <StackPanel>
                     <TextBlock Text="Capture Screenshot"
-                               FontSize="13" FontWeight="Bold"
+                               FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="Choose a resolution and capture"
-                               FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
@@ -41,14 +41,14 @@
             <StackPanel Grid.Row="1" Margin="12,12,12,14">
                 <CheckBox x:Name="FullPageCheck"
                           Content="Full module (capture the entire scrollable page)"
-                          FontSize="11"
+                          FontSize="{StaticResource TextBody}"
                           Foreground="{DynamicResource PrimaryForegroundBrush}"
                           Margin="0,0,0,10"
                           IsChecked="False"
                           ToolTip="Scrolls the active module top-to-bottom and stitches every section into one continuous screenshot so no rows are cut off"/>
                 <StackPanel x:Name="QualityList"/>
                 <TextBlock x:Name="CaptureStatus"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            Margin="0,8,0,0"
                            TextWrapping="Wrap"/>

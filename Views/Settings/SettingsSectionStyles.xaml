@@ -89,7 +89,7 @@
          3. TYPOGRAPHY
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -97,7 +97,7 @@
     </Style>
 
     <Style x:Key="InfoCardBodyStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="LineHeight"       Value="20"/>
         <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
@@ -106,7 +106,7 @@
     </Style>
 
     <Style x:Key="InfoCardBulletStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="LineHeight"       Value="19"/>
         <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
@@ -115,7 +115,7 @@
     </Style>
 
     <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="Margin"           Value="0,0,0,10"/>
@@ -123,42 +123,42 @@
     </Style>
 
     <Style x:Key="RowTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style x:Key="HintTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="LabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="ValueStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"   Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
     </Style>
 
     <!-- Page header used at the top of every section. -->
     <Style x:Key="PageTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="24"/>
+        <Setter Property="FontSize" Value="{StaticResource TextDisplay}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
     </Style>
 
     <Style x:Key="PageSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Margin"           Value="0,4,0,0"/>
         <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
@@ -198,14 +198,14 @@
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True"/>
                         <TextBlock x:Name="OffLabel" Text="OFF"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="White"
                                    HorizontalAlignment="Right"
                                    VerticalAlignment="Center"
                                    Margin="0,0,9,0"
                                    IsHitTestVisible="False"/>
                         <TextBlock x:Name="OnLabel" Text="ON"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="White"
                                    HorizontalAlignment="Left"
                                    VerticalAlignment="Center"
@@ -289,7 +289,7 @@
     <!-- Rounded password box (API keys). -->
     <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
         <Setter Property="Height"                   Value="42"/>
-        <Setter Property="FontSize"                 Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding"                  Value="14,0"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -340,7 +340,7 @@
         <Setter Property="Height"              Value="34"/>
         <Setter Property="Padding"             Value="12,0"/>
         <Setter Property="Margin"              Value="0,0,8,8"/>
-        <Setter Property="FontSize"            Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"          Value="SemiBold"/>
         <Setter Property="Foreground"          Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -390,7 +390,7 @@
         <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Height"              Value="28"/>
         <Setter Property="Padding"             Value="12,0"/>
-        <Setter Property="FontSize"            Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"          Value="Bold"/>
         <Setter Property="BorderThickness"     Value="0"/>
         <Setter Property="Cursor"              Value="Hand"/>
@@ -530,7 +530,7 @@
     <!-- Icon slot in a nav item (Segoe MDL2 Assets glyph). -->
     <Style x:Key="NavGlyphStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize"          Value="15"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Width"             Value="22"/>
         <Setter Property="TextAlignment"     Value="Center"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -540,7 +540,7 @@
 
     <!-- Label slot in a nav item. -->
     <Style x:Key="NavLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="12.5"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight"        Value="SemiBold"/>
         <Setter Property="Margin"            Value="10,0,0,0"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -562,7 +562,7 @@
 
     <Style x:Key="InfoGlyphTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"             Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize"               Value="15"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
         <Setter Property="Foreground"             Value="{DynamicResource AccentBrush}"/>
         <Setter Property="HorizontalAlignment"    Value="Center"/>
         <Setter Property="VerticalAlignment"      Value="Center"/>
@@ -614,7 +614,7 @@
     ═══════════════════════════════════════════════════════════════ -->
 
     <Style x:Key="SettingsGroupHeaderTextStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Margin"           Value="0,4,0,0"/>
@@ -622,7 +622,7 @@
     </Style>
 
     <Style x:Key="SettingsGroupCaptionStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin"           Value="0,4,0,14"/>
         <Setter Property="TextWrapping"     Value="Wrap"/>
@@ -668,7 +668,7 @@
 
     <Style x:Key="SettingsTileIconStyle" TargetType="TextBlock">
         <Setter Property="FontFamily"        Value="Segoe MDL2 Assets"/>
-        <Setter Property="FontSize"          Value="16"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="Width"             Value="20"/>
         <Setter Property="TextAlignment"     Value="Center"/>
         <Setter Property="Margin"            Value="0,0,10,0"/>
@@ -678,7 +678,7 @@
     </Style>
 
     <Style x:Key="SettingsTileTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"          Value="14"/>
+        <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
         <Setter Property="FontWeight"        Value="Bold"/>
         <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
@@ -686,7 +686,7 @@
     </Style>
 
     <Style x:Key="SettingsTileCaptionStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin"           Value="0,0,0,12"/>
         <Setter Property="LineHeight"       Value="16"/>
@@ -695,7 +695,7 @@
     </Style>
 
     <Style x:Key="SettingsTileFooterHintStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"         Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="Margin"           Value="0,10,0,0"/>
         <Setter Property="LineHeight"       Value="15"/>
@@ -704,7 +704,7 @@
     </Style>
 
     <Style x:Key="SettingsTileHeroStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"            Value="22"/>
+        <Setter Property="FontSize" Value="{StaticResource TextHeadline}"/>
         <Setter Property="FontWeight"          Value="Bold"/>
         <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -742,7 +742,7 @@
         <Setter Property="MinWidth" Value="{DynamicResource DensityButtonMinWidth}"/>
         <Setter Property="Padding" Value="14,0"/>
         <Setter Property="Margin" Value="0,0,8,0"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -881,7 +881,7 @@
                         <!-- Centered value label -->
                         <TextBlock HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
-                                   FontSize="15" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextSubhead}" FontWeight="SemiBold"
                                    Foreground="White"
                                    IsHitTestVisible="False">
                             <TextBlock.Text>

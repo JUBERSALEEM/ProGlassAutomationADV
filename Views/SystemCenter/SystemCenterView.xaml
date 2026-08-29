@@ -24,7 +24,7 @@
     <UserControl.Resources>
 
         <Style x:Key="ScFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -34,7 +34,7 @@
         <Style x:Key="ScTextBox" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Padding" Value="10,7"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Background"
                     Value="{DynamicResource MenuHoverBrush}"/>
             <Setter Property="Foreground"
@@ -73,14 +73,14 @@
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE90F;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="18" VerticalAlignment="Center"
+                           FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
                            Margin="0,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
                 <TextBlock Text="System Center"
-                           FontSize="20" FontWeight="Bold"
+                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             </StackPanel>
-            <TextBlock FontSize="12" Margin="0,3,0,0"
+            <TextBlock FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                 <Run Text="User management &amp; audit trail — signed in as "/>
                 <Run Text="{Binding CurrentUserDisplay, Mode=OneWay}"
@@ -188,12 +188,12 @@
 <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                             <TextBlock Text="&#xE710;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="16"
+                                       FontSize="{StaticResource TextTitle}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="Create User"
-                                       FontSize="15" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -212,13 +212,13 @@
                         <ComboBox ItemsSource="{Binding RoleOptions}"
                                   SelectedItem="{Binding SelectedRole}"
                                   Padding="10,7"
-                                  FontSize="13"/>
+                                  FontSize="{StaticResource TextBodyLarge}"/>
 
                         <TextBlock Text="PASSWORD" Style="{StaticResource ScFieldLabel}"
                                    Margin="0,10,0,5"/>
                         <PasswordBox x:Name="NewPasswordBox"
                                      Padding="10,7"
-                                     FontSize="13"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      BorderThickness="0"
@@ -232,7 +232,7 @@
                                 Command="{Binding CreateUserCommand}"/>
 
                         <TextBlock Text="{Binding UserFormMessage}"
-                                   FontSize="11" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -249,17 +249,17 @@
 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE895;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="16"
+                                       FontSize="{StaticResource TextTitle}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="Switch Active User"
-                                       FontSize="15" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="All future actions are recorded under the active user."
-                                   FontSize="11" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,12"/>
 
@@ -271,7 +271,7 @@
                                    Margin="0,10,0,5"/>
                         <PasswordBox x:Name="SwitchPasswordBox"
                                      Padding="10,7"
-                                     FontSize="13"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Background="{DynamicResource MenuHoverBrush}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      BorderThickness="0"
@@ -285,7 +285,7 @@
                                 Command="{Binding SwitchUserCommand}"/>
 
                         <TextBlock Text="{Binding SwitchMessage}"
-                                   FontSize="11" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource AccentBrush}"/>
@@ -303,23 +303,23 @@
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
                             <TextBlock Text="&#xE839;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="Online On Your Network"
-                                       FontSize="14" FontWeight="Bold"
+                                       FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="Colleagues running ProGlass on the same LAN appear here automatically."
-                                   FontSize="11" TextWrapping="Wrap"
+                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,10"/>
 
                         <!-- Empty state -->
                         <TextBlock Text="No other users detected right now."
-                                   FontSize="12" FontStyle="Italic">
+                                   FontSize="{StaticResource TextBody}" FontStyle="Italic">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -352,9 +352,9 @@
                                                      Margin="0,0,9,0"/>
                                             <StackPanel Grid.Column="1">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="12" FontWeight="SemiBold"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock FontSize="10" Margin="0,1,0,0"
+                                                <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,1,0,0"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                     <Run Text="{Binding Username, Mode=OneWay}"/>
                                                     <Run Text="  •  "/>
@@ -435,7 +435,7 @@
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="&#xE77B;"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="16"
+                                                       FontSize="{StaticResource TextTitle}"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
@@ -446,7 +446,7 @@
                                                     VerticalAlignment="Center">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding DisplayName}"
-                                                           FontSize="13" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
@@ -464,11 +464,11 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="ACTIVE NOW"
-                                                               FontSize="10" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Border>
                                             </StackPanel>
-                                            <TextBlock FontSize="11" Margin="0,2,0,0"
+                                            <TextBlock FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                 <Run Text="{Binding Username, Mode=OneWay}"/>
                                                 <Run Text="  •  "/>
@@ -482,7 +482,7 @@
 
                                         <TextBlock Grid.Column="2"
                                                    VerticalAlignment="Center"
-                                                   FontSize="11" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Margin="0,0,10,0">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
@@ -573,7 +573,7 @@
                         Margin="0,0,0,12">
 
                 <TextBlock Text="Section:"
-                           FontSize="12"
+                           FontSize="{StaticResource TextBody}"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 <ComboBox ItemsSource="{Binding SectionFilters}"
@@ -581,7 +581,7 @@
                           Margin="8,0,0,0"
                           MinWidth="180"
                           Padding="10,6"
-                          FontSize="12"
+                          FontSize="{StaticResource TextBody}"
                           VerticalAlignment="Center"/>
 
                 <Button Style="{StaticResource PrimaryPillButton}"
@@ -640,12 +640,12 @@
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
                         <TextBlock Text="No activity recorded yet"
-                                   FontSize="14" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,3"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Every action in every section is recorded here automatically."
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
 
@@ -678,7 +678,7 @@
 
                                             <TextBlock Grid.Column="0"
                                                        Text="{Binding TimeDisplay}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
 
@@ -689,7 +689,7 @@
                                                     HorizontalAlignment="Left"
                                                     VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding Section}"
-                                                           FontSize="10" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            TextTrimming="CharacterEllipsis"
                                                            Foreground="{DynamicResource InfoBrush}"/>
                                             </Border>
@@ -697,14 +697,14 @@
                                             <TextBlock Grid.Column="2"
                                                        Margin="10,0"
                                                        Text="{Binding Action}"
-                                                       FontSize="11" FontWeight="SemiBold"
+                                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
                                             <TextBlock Grid.Column="3"
                                                        Text="{Binding Details}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        VerticalAlignment="Center"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"

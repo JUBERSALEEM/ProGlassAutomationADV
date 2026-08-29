@@ -97,12 +97,12 @@
                         Visibility="Collapsed">
                 <TextBlock Text="&#xE9D9;"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="22"
+                           FontSize="{StaticResource TextHeadline}"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                 <TextBlock x:Name="EmptyText"
                            Text="No data available for this period."
-                           FontSize="11"
+                           FontSize="{StaticResource TextBody}"
                            Margin="0,7,0,0"
                            HorizontalAlignment="Center"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -133,11 +133,11 @@
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock x:Name="TipLabel"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     <TextBlock x:Name="TipValue"
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                FontWeight="Bold"
                                Margin="0,1,0,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>

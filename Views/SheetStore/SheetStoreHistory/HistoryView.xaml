@@ -33,7 +33,7 @@
 
         <!-- Field label — 11 SemiBold UPPERCASE (spec) -->
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="4,0,0,6"/>
@@ -45,7 +45,7 @@
         <Style x:Key="CloseButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="40"/>
             <Setter Property="Width" Value="110"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -120,19 +120,19 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center"/>
-                <TextBlock Text="HISTORY LOG" FontSize="22" FontWeight="Bold"
+                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
+                <TextBlock Text="HISTORY LOG" FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                            Margin="12,0,0,0" VerticalAlignment="Center"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <Border Background="{DynamicResource AccentBrush}"
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4"
                         VerticalAlignment="Center" Margin="14,2,0,0">
                     <TextBlock Text="{Binding TotalEntries, StringFormat={}{0} entries}"
-                               FontSize="11" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                               FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </Border>
             </StackPanel>
             <TextBlock Text="Every change to Sheet Store is recorded here."
-                       FontSize="12" Margin="0,4,0,0"
+                       FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
@@ -162,7 +162,7 @@
                         <TextBlock Text="ACTION" Style="{StaticResource FieldLabelStyle}"/>
                         <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
                                   SelectedValuePath="Content"
-                                  Height="38" Padding="10,6" FontSize="12"
+                                  Height="38" Padding="10,6" FontSize="{StaticResource TextBody}"
                                   Background="{DynamicResource MenuHoverBrush}"
                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                   VerticalContentAlignment="Center">
@@ -178,7 +178,7 @@
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="FROM DATE" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
-                                    Height="38" FontSize="12"
+                                    Height="38" FontSize="{StaticResource TextBody}"
                                     Background="{DynamicResource MenuHoverBrush}"
                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
                                     VerticalContentAlignment="Center"/>
@@ -187,14 +187,14 @@
                     <StackPanel Grid.Column="4">
                         <TextBlock Text="TO DATE" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
-                                    Height="38" FontSize="12"
+                                    Height="38" FontSize="{StaticResource TextBody}"
                                     Background="{DynamicResource MenuHoverBrush}"
                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
                                     VerticalContentAlignment="Center"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
-                        <TextBlock Text=" " FontSize="11" Margin="0,0,0,6"/>
+                        <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,6"/>
                         <Button Style="{StaticResource DangerButton}"
                                 Tag="&#xE711;" Content="CLEAR DATES"
                                 ToolTip="Clear the date filter"
@@ -203,7 +203,7 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
-                        <TextBlock Text=" " FontSize="11" Margin="0,0,0,6"/>
+                        <TextBlock Text=" " FontSize="{StaticResource TextBody}" Margin="0,0,0,6"/>
                         <Button Style="{StaticResource PrimaryPillButton}"
                                 Tag="&#xE72C;" Content="REFRESH"
                                 ToolTip="Reload history"
@@ -216,10 +216,10 @@
                         CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,8" Margin="0,12,0,0"
                         SnapsToDevicePixels="True">
                     <DockPanel>
-                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                         <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                  BorderThickness="0" Background="Transparent"
-                                 VerticalAlignment="Center" FontSize="13"
+                                 VerticalAlignment="Center" FontSize="{StaticResource TextBodyLarge}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </DockPanel>
                 </Border>
@@ -242,11 +242,11 @@
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                     <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="60" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Text="No history yet" FontSize="18" FontWeight="SemiBold"
+                    <TextBlock Text="No history yet" FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                Margin="0,16,0,4" HorizontalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="Actions on Sheet Store will appear here"
-                               FontSize="12" HorizontalAlignment="Center"
+                               FontSize="{StaticResource TextBody}" HorizontalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
 
@@ -292,23 +292,23 @@
                                             <SolidColorBrush Color="{Binding ActionColor, Converter={StaticResource ColorStringConverter}}"/>
                                         </Border.Background>
                                         <TextBlock Text="{Binding Action}"
-                                                   FontSize="11" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="White"/>
                                     </Border>
 
                                     <!-- Content -->
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="{Binding SheetDescription}"
-                                                   FontSize="13" FontWeight="SemiBold"
+                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                         <TextBlock Text="{Binding Details}"
-                                                   FontSize="12" TextWrapping="Wrap"
+                                                   FontSize="{StaticResource TextBody}" TextWrapping="Wrap"
                                                    Margin="0,3,0,0"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="11" VerticalAlignment="Center"/>
+                                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" VerticalAlignment="Center"/>
                                             <TextBlock Text="{Binding UserName}"
-                                                       FontSize="11" Margin="4,0,0,0"
+                                                       FontSize="{StaticResource TextBody}" Margin="4,0,0,0"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         </StackPanel>
                                     </StackPanel>
@@ -316,15 +316,15 @@
                                     <!-- Timestamp -->
                                     <StackPanel Grid.Column="3" HorizontalAlignment="Right">
                                         <TextBlock Text="{Binding DateDisplay}"
-                                                   FontSize="12" FontWeight="SemiBold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                         <TextBlock Text="{Binding DayDisplay}"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    HorizontalAlignment="Right"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         <TextBlock Text="{Binding TimeDisplay}"
-                                                   FontSize="11" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    HorizontalAlignment="Right" Margin="0,4,0,0"
                                                    Foreground="{DynamicResource AccentBrush}"/>
                                     </StackPanel>

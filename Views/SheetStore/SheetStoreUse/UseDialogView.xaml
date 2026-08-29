@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      MIGRATION LOG — Button Standardization (master prompt v1.0)
      Date: 2026-08-15 — SheetStore module batch
      • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
@@ -30,12 +30,12 @@
             <!-- Header -->
             <StackPanel Margin="0,0,0,16">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center"/>
-                    <TextBlock Text="USE STOCK" FontSize="22" FontWeight="Bold" Margin="12,0,0,0"
+                    <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextDisplay}" VerticalAlignment="Center"/>
+                    <TextBlock Text="USE STOCK" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Margin="12,0,0,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 </StackPanel>
                 <TextBlock Text="Consume sheets from inventory for production"
-                           FontSize="12" Margin="0,4,0,0"
+                           FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
@@ -43,27 +43,27 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,12" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="{Binding Sheet.Category}" FontSize="16" FontWeight="Bold"
+                    <TextBlock Text="{Binding Sheet.Category}" FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="12" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.Color}" FontSize="12"
+                        <TextBlock Text="{Binding Sheet.Color}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
-                        <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="12"
+                        <TextBlock Text="{Binding Sheet.SizeDisplay}" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                        <TextBlock Text="Available: " FontSize="11"
+                        <TextBlock Text="Available: " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.Balance}" FontSize="11" FontWeight="Bold"
+                        <TextBlock Text="{Binding Sheet.Balance}" FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
-                        <TextBlock Text=" sheets  •  " FontSize="11"
+                        <TextBlock Text=" sheets  •  " FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.TotalSqmBalance, StringFormat={}{0:N2}}"
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text=" SQM" FontSize="11"
+                        <TextBlock Text=" SQM" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                 </StackPanel>
@@ -73,10 +73,10 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="JOB ORDER REFERENCE (optional)" FontSize="10" FontWeight="Bold"
+                    <TextBlock Text="JOB ORDER REFERENCE (optional)" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
                     <TextBox Text="{Binding JobOrderReference, UpdateSourceTrigger=PropertyChanged}"
-                             Height="36" FontSize="13" Padding="12,6"
+                             Height="36" FontSize="{StaticResource TextBodyLarge}" Padding="12,6"
                              VerticalContentAlignment="Center"
                              Background="{DynamicResource MenuHoverBrush}"
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -84,7 +84,7 @@
                              BorderBrush="{DynamicResource MenuHoverBrush}"
                              ToolTip="e.g., JO-2025-001 or customer name"/>
                     <TextBlock Text="Track which job order or customer is consuming these sheets"
-                               FontSize="10" FontStyle="Italic" Margin="4,4,0,0"
+                               FontSize="{StaticResource TextCaption}" FontStyle="Italic" Margin="4,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
             </Border>
@@ -93,7 +93,7 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="QUANTITY TO USE (sheets)" FontSize="10" FontWeight="Bold"
+                    <TextBlock Text="QUANTITY TO USE (sheets)" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8"/>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -107,7 +107,7 @@
                                 Command="{Binding DecreaseCommand}"/>
                         <TextBox Grid.Column="1"
                                  Text="{Binding Quantity, UpdateSourceTrigger=PropertyChanged}"
-                                 FontSize="28" FontWeight="Bold" TextAlignment="Center"
+                                 FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" TextAlignment="Center"
                                  VerticalContentAlignment="Center" Height="44"
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -124,29 +124,29 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
-                    <TextBlock Text="USAGE PREVIEW" FontSize="10" FontWeight="Bold"
+                    <TextBlock Text="USAGE PREVIEW" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="SQM being used" FontSize="12"
+                        <TextBlock Text="SQM being used" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:N2}}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,6">
-                        <TextBlock Text="Remaining balance" FontSize="12"
+                        <TextBlock Text="Remaining balance" FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding RemainingBalance}"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>
                     <Separator Opacity="0.3" Margin="0,6"/>
                     <DockPanel Margin="0,8,0,0">
-                        <TextBlock Text="Value consumed" FontSize="14" FontWeight="SemiBold"
+                        <TextBlock Text="Value consumed" FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N2} AED}"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>
                 </StackPanel>
@@ -156,7 +156,7 @@
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="12,8" Margin="0,0,0,10"
                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="12"/>
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="{StaticResource TextBody}"/>
             </Border>
 
             <!-- Buttons -->

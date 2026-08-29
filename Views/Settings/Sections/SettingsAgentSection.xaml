@@ -165,7 +165,7 @@
                                     <ComboBox ItemsSource="{Binding ProviderOptions}"
                                               SelectedItem="{Binding SelectedProvider}"
                                               Height="38"
-                                              FontSize="12.5"
+                                              FontSize="{StaticResource TextBodyLarge}"
                                               VerticalContentAlignment="Center"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
@@ -229,12 +229,12 @@
 
                                                 <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                                     <TextBlock Text="{Binding Display}"
-                                                               FontSize="12"
+                                                               FontSize="{StaticResource TextBody}"
                                                                FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     <TextBlock Text="{Binding StatusDisplay}"
-                                                               FontSize="10.5"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                Margin="0,3,0,0">
                                                         <TextBlock.Style>
                                                             <Style TargetType="TextBlock">

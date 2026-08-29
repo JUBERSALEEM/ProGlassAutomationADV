@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     LAM — 3D well left, three layer cards right (scroll, no star-row squeeze).
     Bindings unchanged.
 -->
@@ -47,7 +47,7 @@
             <StackPanel>
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="1  Outer glass" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="1  Outer glass" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -93,7 +93,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource WarningBrush}">
                     <StackPanel>
-                        <TextBlock Text="2  Interlayer" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="2  Interlayer" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -128,7 +128,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12">
                     <StackPanel>
-                        <TextBlock Text="3  Inner glass" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="3  Inner glass" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>

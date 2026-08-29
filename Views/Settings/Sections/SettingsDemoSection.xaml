@@ -65,7 +65,7 @@
                         </StackPanel>
                         <TextBlock Text="{Binding FfmpegStatus}"
                                    Style="{StaticResource SettingsTileCaptionStyle}"
-                                   FontSize="13" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Style="{StaticResource SettingsTileCaptionStyle}">
                             <Run Text="Generate will not start until ffmpeg is installed. Click DOWNLOAD &amp; INSTALL — "/>
@@ -73,7 +73,7 @@
                             <Run Text="ffmpeg.exe"/><Run Text=" and "/><Run Text="ffprobe.exe"/><Run Text=" into the tools folder automatically. Then RECHECK."/>
                         </TextBlock>
                         <TextBlock Text="{Binding FfmpegDownloadUrl}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    FontFamily="Consolas"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"
@@ -96,7 +96,7 @@
                                          VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1"
                                        Margin="10,0,0,0"
-                                       FontSize="12" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Text="{Binding FfmpegDownloadPercent, Mode=OneWay,
@@ -218,7 +218,7 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="200"
                                       Padding="10,7"
-                                      FontSize="13"/>
+                                      FontSize="{StaticResource TextBodyLarge}"/>
                         </StackPanel>
                     </Border>
 
@@ -236,7 +236,7 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="160"
                                       Padding="10,7"
-                                      FontSize="13"/>
+                                      FontSize="{StaticResource TextBodyLarge}"/>
                         </StackPanel>
                     </Border>
 
@@ -320,7 +320,7 @@
                                       IsSynchronizedWithCurrentItem="False"
                                       MinWidth="260"
                                       Padding="10,7"
-                                      FontSize="13">
+                                      FontSize="{StaticResource TextBodyLarge}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding Title}"
@@ -460,7 +460,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <StackPanel Margin="0,0,0,10">
-                                            <TextBlock FontSize="12" FontWeight="SemiBold"
+                                            <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}">
                                                 <Run Text="{Binding Module, Mode=OneWay}"/>
                                                 <Run Text=" · "/>
@@ -468,7 +468,7 @@
                                             </TextBlock>
                                             <TextBlock Text="{Binding Status}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextWrapping="Wrap"/>
                                         </StackPanel>
                                     </DataTemplate>

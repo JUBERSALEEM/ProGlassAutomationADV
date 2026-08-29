@@ -37,7 +37,7 @@
             </Style>
 
             <Style x:Key="LicenseMetricLabelStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="10"/>
+                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassCerulean}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
@@ -45,7 +45,7 @@
             </Style>
 
             <Style x:Key="LicenseMetricValueStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="14"/>
+                <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
@@ -55,7 +55,7 @@
 
             <Style x:Key="LicenseCodeValueStyle" TargetType="TextBlock" BasedOn="{StaticResource LicenseFieldValueStyle}">
                 <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
-                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
                 <Setter Property="Margin" Value="0,6,0,0"/>
@@ -88,7 +88,7 @@
                         BorderThickness="{DynamicResource CardBorderThickness}"
                         VerticalAlignment="Top">
                     <TextBlock Text="{Binding StatusBadge}"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                TextAlignment="Center"
                                Foreground="{DynamicResource GlassAccent}"/>
@@ -107,7 +107,7 @@
                         <TextBlock Text="LICENSE HEALTH"
                                    Style="{StaticResource AboutPanelKickerStyle}"/>
                         <TextBlock Text="{Binding StatusDescription}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource GlassFrost}"
                                    TextWrapping="Wrap"
                                    LineHeight="20"/>
@@ -144,13 +144,13 @@
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="ACTIVATION MODE" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="13"/>
+                        <TextBlock Text="{Binding ActivationModeDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
                     </StackPanel>
                 </Border>
                 <Border Style="{StaticResource LicenseMetricCardStyle}">
                     <StackPanel>
                         <TextBlock Text="LICENSE WINDOW" Style="{StaticResource LicenseMetricLabelStyle}"/>
-                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="13"/>
+                        <TextBlock Text="{Binding LicenseWindowDisplay}" Style="{StaticResource LicenseMetricValueStyle}" FontSize="{StaticResource TextBodyLarge}"/>
                     </StackPanel>
                 </Border>
             </UniformGrid>

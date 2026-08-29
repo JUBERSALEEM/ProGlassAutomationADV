@@ -45,7 +45,7 @@
 
     <!-- Dialog title (module-independent). -->
     <Style x:Key="DialogTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitle}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
     </Style>

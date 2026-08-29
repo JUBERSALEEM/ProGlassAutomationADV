@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Controls/StatCard/StatCardControl.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared UI — reusable statistic card (§11)
@@ -94,7 +94,7 @@
                 <TextBlock Text="{Binding Icon, ElementName=Root}"
                            FontFamily="{Binding Icon, ElementName=Root,
                                         Converter={StaticResource IconFont}}"
-                           FontSize="17"
+                           FontSize="{StaticResource TextTitle}"
                            Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
@@ -105,7 +105,7 @@
                         VerticalAlignment="Center">
 
                 <TextBlock Text="{Binding Title, ElementName=Root}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextTrimming="CharacterEllipsis"/>
 
@@ -128,7 +128,7 @@
                             </Style>
                         </StackPanel.Style>
 
-                        <TextBlock FontSize="21" FontWeight="Bold">
+                        <TextBlock FontSize="{StaticResource TextHeadline}" FontWeight="Bold">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Text"
@@ -158,14 +158,14 @@
                         </TextBlock>
 
                         <TextBlock Text="{Binding Unit, ElementName=Root}"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Margin="4,0,0,2"
                                    VerticalAlignment="Bottom"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
 
                     <!-- Loading / updating indicator -->
-                    <TextBlock Text="• • •" FontSize="14" FontWeight="Bold"
+                    <TextBlock Text="• • •" FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                Foreground="{DynamicResource MutedForegroundBrush}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -187,7 +187,7 @@
 
                 <!-- Trend / secondary line -->
                 <TextBlock Text="{Binding TrendText, ElementName=Root}"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            Margin="0,2,0,0"
                            TextTrimming="CharacterEllipsis"
                            Foreground="{DynamicResource MutedForegroundBrush}">

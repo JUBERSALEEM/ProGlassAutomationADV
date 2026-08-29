@@ -46,19 +46,19 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="11" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    Margin="0,0,6,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="STATEMENT GENERATION"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </StackPanel>
                     <TextBlock Text="{Binding StatementNumber}"
-                               FontSize="22" FontWeight="Bold"
+                               FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,4,0,0"/>
                     <TextBlock Text="{Binding CustomerName}"
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,2,0,0"/>
                 </StackPanel>
@@ -92,7 +92,7 @@
 
                 <TextBlock Grid.Column="1"
                            Text="{Binding OverallProgressText}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                            Margin="12,0,0,0"
                            VerticalAlignment="Center"
@@ -134,7 +134,7 @@
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Top">
                                         <TextBlock Text="{Binding Icon}"
-                                                   FontSize="16"
+                                                   FontSize="{StaticResource TextTitle}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
                                     </Border>
@@ -145,19 +145,19 @@
 
                                         <!-- Title -->
                                         <TextBlock Text="{Binding Title, Mode=OneWay}"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
                                         <!-- Description (subtitle) -->
                                         <TextBlock Text="{Binding Description, Mode=OneWay}"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                    Margin="0,2,0,0"/>
 
                                         <!-- Current message (colored by status) -->
                                         <TextBlock Text="{Binding CurrentMessage, Mode=OneWay}"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource TextBody}"
                                                    FontWeight="SemiBold"
                                                    Margin="0,6,0,0"
                                                    TextWrapping="Wrap"
@@ -176,7 +176,7 @@
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <TextBlock Text="{Binding}"
-                                                               FontSize="10"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                Margin="0,1,0,1"
                                                                TextWrapping="Wrap"
@@ -193,7 +193,7 @@
                                                 HorizontalAlignment="Left"
                                                 Visibility="{Binding HasWarnings,
                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <TextBlock FontSize="10"
+                                            <TextBlock FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
                                                        Foreground="White">
                                                 <Run Text="&#xE7BA; " FontFamily="Segoe MDL2 Assets"/>
@@ -216,7 +216,7 @@
                                                 Opacity="0.15"/>
                                         </Border.Background>
                                         <TextBlock Text="{Binding StatusIcon, Mode=OneWay}"
-                                                   FontSize="16"
+                                                   FontSize="{StaticResource TextTitle}"
                                                    FontWeight="Bold"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center">
@@ -255,7 +255,7 @@
                 </Border.BorderBrush>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding ResultOutcomeIcon, Mode=OneWay}"
-                               FontSize="20"
+                               FontSize="{StaticResource TextTitleLarge}"
                                FontWeight="Bold"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0">
@@ -266,7 +266,7 @@
                         </TextBlock.Foreground>
                     </TextBlock>
                     <TextBlock Text="{Binding ResultSummary, Mode=OneWay}"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap">
@@ -309,12 +309,12 @@
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="White"
                                                    VerticalAlignment="Center"
                                                    Margin="0,0,6,0"/>
                                         <TextBlock Text="VIEW WARNINGS"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    Foreground="White"
                                                    VerticalAlignment="Center"/>
@@ -336,12 +336,12 @@
                                 VerticalAlignment="Center"
                                 Visibility="{Binding IsRunning,
                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="⏳" FontSize="14"
+                        <TextBlock Text="⏳" FontSize="{StaticResource TextSection}"
                                    Foreground="{DynamicResource AccentBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,8,0"/>
                         <TextBlock Text="Processing..."
-                                   FontSize="12" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    VerticalAlignment="Center"/>
                     </StackPanel>
@@ -359,7 +359,7 @@
                                         CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="CLOSE"
-                                               FontSize="12"
+                                               FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"

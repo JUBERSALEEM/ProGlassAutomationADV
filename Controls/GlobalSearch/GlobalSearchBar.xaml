@@ -17,7 +17,7 @@
             <Setter Property="Background"               Value="Transparent"/>
             <Setter Property="Foreground"               Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="0"/>
-            <Setter Property="FontSize"                 Value="10.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight"               Value="SemiBold"/>
             <Setter Property="Height"                   Value="26"/>
             <Setter Property="Width"                    Value="120"/>
@@ -31,7 +31,7 @@
             <Setter Property="Background"               Value="Transparent"/>
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="0"/>
-            <Setter Property="FontSize"                 Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Height"                   Value="26"/>
             <Setter Property="MinWidth"                 Value="150"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -39,14 +39,14 @@
         </Style>
 
         <Style x:Key="GsResultTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
 
         <Style x:Key="GsResultSubtitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
             <Setter Property="Margin"     Value="0,2,0,0"/>
@@ -81,7 +81,7 @@
                 <!-- Search glyph -->
                 <TextBlock Text="&#xE721;"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="13"
+                           FontSize="{StaticResource TextBodyLarge}"
                            VerticalAlignment="Center"
                            Margin="2,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
@@ -99,7 +99,7 @@
                      while the query is blank. -->
                 <Grid>
                     <TextBlock Text="Search anything..."
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                Margin="2,0,0,0"
                                IsHitTestVisible="False"
@@ -127,7 +127,7 @@
                 <Button Command="{Binding ClearCommand}"
                         Content="&#xE711;"
                         FontFamily="Segoe MDL2 Assets"
-                        FontSize="10"
+                        FontSize="{StaticResource TextCaption}"
                         Width="20" Height="20"
                         Padding="0"
                         Cursor="Hand"
@@ -212,7 +212,7 @@
                                                 Background="{DynamicResource TintIndigoBrush}">
                                             <TextBlock Text="{Binding Glyph}"
                                                        FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource AccentBrush}"/>
@@ -232,7 +232,7 @@
                                                 VerticalAlignment="Center"
                                                 Background="{DynamicResource TintIndigoBrush}">
                                             <TextBlock Text="{Binding ModuleLabel}"
-                                                       FontSize="9.5"
+                                                       FontSize="{StaticResource TextXSmall}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
@@ -249,17 +249,17 @@
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="&#xE721;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="22"
+                                       FontSize="{StaticResource TextHeadline}"
                                        HorizontalAlignment="Center"
                                        Margin="0,0,0,8"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <TextBlock Text="No matches"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Text="Try a document number, customer or project name."
-                                       FontSize="10.5"
+                                       FontSize="{StaticResource TextCaption}"
                                        HorizontalAlignment="Center"
                                        Margin="0,4,0,0"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -272,7 +272,7 @@
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="0,0,12,12">
                         <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="10"
+                                   FontSize="{StaticResource TextCaption}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </Border>
                 </Grid>

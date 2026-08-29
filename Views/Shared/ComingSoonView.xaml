@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Shared/ComingSoonView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Shared — placeholder hero for not-yet-built modules
@@ -81,7 +81,7 @@
                              VerticalAlignment="Center"
                              IsHitTestVisible="False"/>
                     <TextBlock Text="COMING SOON"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="8,0,0,0"
@@ -92,7 +92,7 @@
 
             <!-- ══ Module name ════════════════════════════════════════ -->
             <TextBlock Text="{Binding ModuleName}"
-                       FontSize="28"
+                       FontSize="{StaticResource TextDisplayLarge}"
                        FontWeight="Bold"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
@@ -101,7 +101,7 @@
 
             <!-- ══ Description ════════════════════════════════════════ -->
             <TextBlock Text="{Binding Description}"
-                       FontSize="13"
+                       FontSize="{StaticResource TextBodyLarge}"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
@@ -112,7 +112,7 @@
 
             <!-- ══ Roadmap hint ═══════════════════════════════════════ -->
             <TextBlock Text="This module is in development and will be available in an upcoming release."
-                       FontSize="11"
+                       FontSize="{StaticResource TextBody}"
                        FontStyle="Italic"
                        HorizontalAlignment="Center"
                        TextAlignment="Center"

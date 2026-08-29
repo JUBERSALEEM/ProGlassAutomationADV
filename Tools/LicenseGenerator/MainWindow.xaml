@@ -29,7 +29,7 @@
                     <Border Width="40" Height="40" CornerRadius="10"
                             Background="{StaticResource AccentBrush}"
                             VerticalAlignment="Center">
-                        <TextBlock Text="◆" FontSize="18" Foreground="{StaticResource AccentTextBrush}"
+                        <TextBlock Text="◆" FontSize="{StaticResource TextTitle}" Foreground="{StaticResource AccentTextBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Margin="14,0,0,0" VerticalAlignment="Center">
@@ -42,7 +42,7 @@
                 <Border Grid.Column="2" Background="{StaticResource CardAltBrush}"
                         CornerRadius="8" Padding="12,8" VerticalAlignment="Center">
                     <TextBlock x:Name="KeyStatusText" Text="No issuer key loaded."
-                               FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource TextDimBrush}"/>
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{StaticResource TextDimBrush}"/>
                 </Border>
             </Grid>
         </Border>
@@ -106,7 +106,7 @@
                                  TextWrapping="Wrap"
                                  MinHeight="140"
                                  VerticalScrollBarVisibility="Auto"
-                                 FontFamily="Consolas" FontSize="11"
+                                 FontFamily="Consolas" FontSize="{StaticResource TextBody}"
                                  Margin="0,12,0,0"/>
                         <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
                             <Button x:Name="LoadRequestButton"
@@ -245,10 +245,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock x:Name="StatusText" Text="Ready." FontSize="12"
+                <TextBlock x:Name="StatusText" Text="Ready." FontSize="{StaticResource TextBody}"
                            Foreground="{StaticResource TextDimBrush}"
                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1" x:Name="StatusTimeText" FontSize="12"
+                <TextBlock Grid.Column="1" x:Name="StatusTimeText" FontSize="{StaticResource TextBody}"
                            Foreground="{StaticResource TextDimBrush}" Margin="16,0,0,0"
                            VerticalAlignment="Center"/>
             </Grid>

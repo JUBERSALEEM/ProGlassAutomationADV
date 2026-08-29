@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Shared.UserSwitchPanel"
+<UserControl x:Class="ProGlassAutomation.Views.Shared.UserSwitchPanel"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -32,10 +32,10 @@
                     Padding="18,12">
                 <StackPanel>
                     <TextBlock Text="Switch User"
-                               FontSize="14" FontWeight="Bold"
+                               FontSize="{StaticResource TextSection}" FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="Pick a user and enter their password to continue as them"
-                               FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Opacity="0.85" Margin="0,2,0,0"
                                TextWrapping="Wrap"/>
                 </StackPanel>
@@ -58,21 +58,21 @@
                 <StackPanel Grid.Row="1" Margin="0,12,0,0">
                     <TextBlock x:Name="PasswordLabel"
                                Text="Password for the selected user"
-                               FontSize="11" FontWeight="SemiBold"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     <PasswordBox x:Name="PasswordBox"
                                  Height="34"
                                  Margin="0,6,0,0"
                                  Padding="8,0"
                                  VerticalContentAlignment="Center"
-                                 FontSize="12"
+                                 FontSize="{StaticResource TextBody}"
                                  Background="{DynamicResource ModuleBackgroundBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderBrush="{DynamicResource BorderBrush}"
                                  BorderThickness="1"
                                  KeyDown="PasswordBox_KeyDown"/>
                     <TextBlock x:Name="ErrorText"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource DangerBrush}"
                                Margin="0,6,0,0"
                                TextWrapping="Wrap"
@@ -95,7 +95,7 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
                                Text="Double-click anywhere to close."
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                VerticalAlignment="Center"
                                TextWrapping="Wrap"/>

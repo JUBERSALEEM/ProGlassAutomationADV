@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      FILE: Views/Reports/StatementGenerator/Styles/WizardStyles.xaml
      PROJECT: ProGlassAutomation
      MODULE: Statement Generator — Wizard (Chat 22 v2 — Hardened)
@@ -94,7 +94,7 @@
     </Style>
 
     <Style x:Key="StepLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"             Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"           Value="SemiBold"/>
         <Setter Property="HorizontalAlignment"  Value="Center"/>
         <Setter Property="Margin"               Value="0,6,0,0"/>
@@ -118,7 +118,7 @@
         <Setter Property="Padding"          Value="22,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize"         Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="White"/>
         <Setter Property="Template">
@@ -157,7 +157,7 @@
         <Setter Property="Padding"          Value="22,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize"         Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight"       Value="Bold"/>
         <Setter Property="Foreground"       Value="White"/>
         <Setter Property="Template">
@@ -196,7 +196,7 @@
         <Setter Property="Padding"          Value="18,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize"         Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight"       Value="SemiBold"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -236,7 +236,7 @@
         <Setter Property="Padding"          Value="18,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize"         Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight"       Value="SemiBold"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -278,7 +278,7 @@
         <Setter Property="Padding"          Value="14,0"/>
         <Setter Property="Cursor"           Value="Hand"/>
         <Setter Property="BorderThickness"  Value="0"/>
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"       Value="SemiBold"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -290,12 +290,12 @@
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock x:Name="ic" Text="✕"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,6,0"/>
                             <TextBlock x:Name="tx" Text="Clear All"
-                                       FontSize="12" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -339,7 +339,7 @@
                              this template ensures wrapping applies. -->
                         <ContentPresenter x:Name="cp"
                                           TextElement.Foreground="White"
-                                          TextElement.FontSize="12"
+                                          TextElement.FontSize="{StaticResource TextBody}"
                                           TextElement.FontFamily="{DynamicResource AppFontFamily}">
                             <ContentPresenter.Resources>
                                 <!-- Any TextBlock created (including the
@@ -348,7 +348,7 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="TextWrapping" Value="Wrap"/>
                                     <Setter Property="Foreground" Value="White"/>
-                                    <Setter Property="FontSize" Value="12"/>
+                                    <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                                     <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
                                     <Setter Property="LineHeight" Value="17"/>
                                 </Style>
@@ -392,28 +392,28 @@
     ═════════════════════════════════════════════════════════════════ -->
 
     <Style x:Key="StepTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="20"/>
+        <Setter Property="FontSize" Value="{StaticResource TextTitleLarge}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
     </Style>
 
     <Style x:Key="StepSubtitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,16"/>
         <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style x:Key="SectionSubHeaderStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,8"/>
     </Style>
 
     <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize"     Value="10"/>
+        <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
         <Setter Property="FontWeight"   Value="Bold"/>
         <Setter Property="Foreground"   Value="{DynamicResource MutedForegroundBrush}"/>
         <Setter Property="Margin"       Value="0,0,0,4"/>
@@ -425,7 +425,7 @@
 
     <Style x:Key="FormComboBoxStyle" TargetType="ComboBox">
         <Setter Property="Height"           Value="36"/>
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Padding"          Value="10,0"/>
         <Setter Property="IsEditable"       Value="True"/>
         <Setter Property="Background"       Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -436,7 +436,7 @@
 
     <Style x:Key="FormDatePickerStyle" TargetType="DatePicker">
         <Setter Property="Height"           Value="36"/>
-        <Setter Property="FontSize"         Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Background"       Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderBrush"      Value="{DynamicResource BorderBrush}"/>

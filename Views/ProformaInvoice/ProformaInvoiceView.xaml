@@ -157,14 +157,14 @@
                                                             Margin="0,0,6,0">
                                                         <TextBlock x:Name="Num"
                                                                    Text="{Binding StationCode}"
-                                                                   FontSize="10" FontWeight="Bold"
+                                                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"
                                                                    VerticalAlignment="Center"/>
                                                     </Border>
                                                     <TextBlock x:Name="Lbl"
                                                                Text="{Binding RailLabel}"
-                                                               FontSize="12" FontWeight="SemiBold"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </StackPanel>
@@ -197,7 +197,7 @@
 
                     <TextBlock Grid.Column="4"
                                Text="{Binding StepProgressText}"
-                               FontSize="12" FontWeight="SemiBold"
+                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"/>
                 </Grid>

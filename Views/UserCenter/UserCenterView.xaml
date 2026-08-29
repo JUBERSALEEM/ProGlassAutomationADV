@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/UserCenter/UserCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: User Center (Phase 1)
@@ -21,7 +21,7 @@
 
     <UserControl.Resources>
         <Style x:Key="UcFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,4"/>
@@ -29,7 +29,7 @@
         <Style x:Key="UcTextBox" TargetType="TextBox">
             <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -39,7 +39,7 @@
         <Style x:Key="UcPasswordBox" TargetType="PasswordBox">
             <Setter Property="Height" Value="38"/>
             <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -64,15 +64,15 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="18" VerticalAlignment="Center"
+                               FontSize="{StaticResource TextTitle}" VerticalAlignment="Center"
                                Margin="0,0,12,0"
                                Foreground="{DynamicResource WarningBrush}"/>
                     <StackPanel>
                         <TextBlock Text="Default administrator password is still in use"
-                                   FontSize="13" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="The seeded 'admin' account still uses its default password. Anyone who opens this app has full administrator rights. Change it below."
-                                   FontSize="11.5" Margin="0,3,0,0"
+                                   FontSize="{StaticResource TextBody}" Margin="0,3,0,0"
                                    TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
@@ -83,9 +83,9 @@
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
                     <TextBlock Text="User Center"
-                               FontSize="24" FontWeight="Bold"
+                               FontSize="{StaticResource TextDisplay}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock FontSize="12" Margin="0,4,0,0"
+                    <TextBlock FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                         <Run Text="Signed in as"/>
                         <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="Bold"/>
@@ -142,7 +142,7 @@
                                             Background="{DynamicResource TintIndigoBrush}">
                                         <TextBlock Text="&#xE77B;"
                                                    FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="17"
+                                                   FontSize="{StaticResource TextTitle}"
                                                    Foreground="{DynamicResource AccentBrush}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -151,10 +151,10 @@
                                     <StackPanel Grid.Column="1" Margin="12,0,8,0"
                                                 VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DisplayName}"
-                                                   FontSize="13.5" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock FontSize="10.5" Margin="0,2,0,0"
+                                        <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                             <Run Text="{Binding Username, Mode=OneWay}"/>
                                             <Run Text="  ·  "/>
@@ -175,7 +175,7 @@
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
-                                            <TextBlock Text="SIGNED IN" FontSize="10"
+                                            <TextBlock Text="SIGNED IN" FontSize="{StaticResource TextCaption}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                         </Border>
@@ -202,7 +202,7 @@
                     <StackPanel>
 
                         <TextBlock Text="CREATE USER"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,14"/>
 
@@ -240,7 +240,7 @@
                                 <TextBlock Text="ROLE" Style="{StaticResource UcFieldLabel}"/>
                                 <ComboBox ItemsSource="{Binding RoleOptions}"
                                           SelectedItem="{Binding SelectedRole}"
-                                          Height="38" FontSize="12.5"
+                                          Height="38" FontSize="{StaticResource TextBodyLarge}"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="2">
@@ -276,7 +276,7 @@
                                 Background="{DynamicResource DividerBrush}"/>
 
                         <TextBlock Text="SWITCH ACTIVE USER"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="Select a user card, enter their password, and sign in as them. Prepared-by fields and the audit trail follow."
@@ -297,7 +297,7 @@
 
                         <!-- A-3 — CHANGE PASSWORD -->
                         <TextBlock Text="CHANGE PASSWORD"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock Text="Select a user card, prove their current password, then set a new one. This is the only way to rotate a password, including the seeded admin account."
@@ -333,7 +333,7 @@
                         </StackPanel>
 
                         <TextBlock Text="{Binding Status}"
-                                   FontSize="11" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Margin="0,14,0,0"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>

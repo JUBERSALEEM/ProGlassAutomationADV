@@ -1,4 +1,4 @@
-﻿<!-- Job Order list — industrial table chrome. Bindings / commands / OnLoaded / OnRowRightClick unchanged. -->
+<!-- Job Order list — industrial table chrome. Bindings / commands / OnLoaded / OnRowRightClick unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
              TextOptions.TextHintingMode="Fixed"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -58,7 +58,7 @@
                     Margin="4,0,4,12">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="12" TextWrapping="Wrap"/>
+                           FontSize="{StaticResource TextBody}" TextWrapping="Wrap"/>
             </Border>
         </StackPanel>
 
@@ -86,7 +86,7 @@
                         <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintBlueBrush}">
-                                <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -104,7 +104,7 @@
                         <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -122,7 +122,7 @@
                         <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintGreenBrush}">
-                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                            Foreground="{DynamicResource SuccessBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -140,7 +140,7 @@
                         <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Style="{StaticResource ModuleListKpiIconStyle}"
                                     Background="{DynamicResource TintRedBrush}">
-                                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}"
                                            Foreground="{DynamicResource DangerBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
@@ -280,7 +280,7 @@
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
                                             <TextBlock Text="{Binding JobOrderId}"
-                                                       FontSize="13" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                                 <Border Background="{DynamicResource TintGrayBrush}"
@@ -290,7 +290,7 @@
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
                                                     <TextBlock Text="{Binding ProjectName}"
-                                                               FontSize="10" FontWeight="SemiBold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis"
                                                                MaxWidth="140"/>
@@ -301,7 +301,7 @@
                                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         Margin="0,0,6,0">
-                                                    <TextBlock FontSize="10" FontWeight="SemiBold"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}" FontWeight="SemiBold"
                                                                Foreground="{DynamicResource AccentBrush}">
                                                         <Run Text="From "/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
                                                     </TextBlock>
@@ -320,7 +320,7 @@
                                                         </Style>
                                                     </Border.Style>
                                                     <TextBlock Text="{Binding OverdueDisplay}"
-                                                               FontSize="10" FontWeight="Bold"
+                                                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                                Foreground="{DynamicResource DangerBrush}"/>
                                                 </Border>
                                             </StackPanel>
@@ -328,7 +328,7 @@
 
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding CustomerName}"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    VerticalAlignment="Center"
@@ -337,13 +337,13 @@
 
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding DeliveryDisplay}"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"/>
 
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"
@@ -352,7 +352,7 @@
 
                                         <TextBlock Grid.Column="5"
                                                    Text="{Binding GrandTotalDisplay}"
-                                                   FontSize="13" FontWeight="Bold"
+                                                   FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Right"
@@ -370,7 +370,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="Production status">
                                                 <TextBlock Text="{Binding StatusLabel}"
-                                                           FontSize="10" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="White"/>
                                             </Border>
                                             <Border Margin="0,2,0,0"
@@ -381,7 +381,7 @@
                                                                  Converter={StaticResource BrushKeyConverter}}"
                                                     ToolTip="Delivery status">
                                                 <TextBlock Text="{Binding DisplayStatus}"
-                                                           FontSize="10" FontWeight="Bold"
+                                                           FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                            Foreground="White"/>
                                             </Border>
                                         </StackPanel>
@@ -394,7 +394,7 @@
                                                 Background="{Binding PriorityBrushKey,
                                                              Converter={StaticResource BrushKeyConverter}}">
                                             <TextBlock Text="{Binding PriorityLabel}"
-                                                       FontSize="10" FontWeight="Bold"
+                                                       FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                        Foreground="White"/>
                                         </Border>
 

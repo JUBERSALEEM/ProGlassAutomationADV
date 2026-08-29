@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Reports/SalesReportView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Central Reporting — Hub Shell & Overview Dashboard
@@ -99,7 +99,7 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE700;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Foreground="{TemplateBinding Foreground}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -153,12 +153,12 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="White" Opacity="0.92">
-                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="18" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                            <TextBlock Text="REPORTS HUB" FontSize="11" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
-                            <TextBlock Text="Intelligence Center" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
-                            <TextBlock Text="Row-level traceability" FontSize="11.5" Foreground="#BFDBFE" Margin="0,2,0,0"/>
+                            <TextBlock Text="REPORTS HUB" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="#DBEAFE" Opacity="0.95"/>
+                            <TextBlock Text="Intelligence Center" FontSize="{StaticResource TextSection}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,1,0,0"/>
+                            <TextBlock Text="Row-level traceability" FontSize="{StaticResource TextBody}" Foreground="#BFDBFE" Margin="0,2,0,0"/>
                         </StackPanel>
                         <!-- Collapse rail button (hamburger style) -->
                         <Button Grid.Column="2"
@@ -169,7 +169,7 @@
                                 Cursor="Hand"
                                 ToolTip="Collapse navigation rail"
                                 Command="{Binding ToggleRailCommand}">
-                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE76B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Button>
                     </Grid>
                 </Border>
@@ -197,20 +197,20 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Overview" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Overview" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="KPI dashboard" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="KPI dashboard" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Overview"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
                             </Grid>
                         </Button>
 
-                        <TextBlock Text="DOCUMENTS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
+                        <TextBlock Text="DOCUMENTS" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" Margin="8,10,8,4"/>
 
                         <!-- Proforma Invoice -->
                         <Button Tag="Pi" Click="Nav_Click" ToolTip="Proforma Invoices: quotes, conversion rates, and itemized rows">
@@ -225,13 +225,13 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
                                     <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Proforma Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Proforma Invoice" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Quotes &amp; conversion" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Quotes &amp; conversion" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Pi"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -251,13 +251,13 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
                                     <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Job Order" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Job Order" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Production &amp; status" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Production &amp; status" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Jo"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -277,13 +277,13 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
                                     <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Delivery" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Delivery" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Dispatched / pending" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Dispatched / pending" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Delivery"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -303,13 +303,13 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
                                     <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Tax Invoice" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Tax Invoice" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Billed &amp; overdue" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Billed &amp; overdue" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="TaxInvoice"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -329,13 +329,13 @@
                                 <Grid.ColumnDefinitions><ColumnDefinition Width="28"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                                 <Border Grid.Column="0" Width="28" Height="28" CornerRadius="7" Background="{DynamicResource MenuHoverBrush}">
                                     <Border.Style><Style TargetType="Border"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Background" Value="White"/><Setter Property="Opacity" Value="0.95"/></DataTrigger></Style.Triggers></Style></Border.Style>
-                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="12" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                                 <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
-                                    <TextBlock Text="Statement" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <TextBlock Text="Statement" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="White"/><Setter Property="FontWeight" Value="Bold"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
-                                    <TextBlock Text="Customer statements" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
+                                    <TextBlock Text="Customer statements" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,1,0,0">
                                         <TextBlock.Style><Style TargetType="TextBlock"><Style.Triggers><DataTrigger Binding="{Binding ActiveKey}" Value="Statement"><Setter Property="Foreground" Value="#E0E7FF"/></DataTrigger></Style.Triggers></Style></TextBlock.Style>
                                     </TextBlock>
                                 </StackPanel>
@@ -350,9 +350,9 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="8" Height="8" CornerRadius="4" Background="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
-                            <TextBlock Text="Central Data Layer" FontSize="11.5" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Central Data Layer" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="6,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Live totals across PI → JO → Delivery → Tax Invoice → Statement." FontSize="11.5" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
+                        <TextBlock Text="Live totals across PI → JO → Delivery → Tax Invoice → Statement." FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" TextWrapping="Wrap" Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -391,10 +391,10 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding CurrentReportTitle}"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Central Reporting"
-                                   FontSize="11.5"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    Margin="0,1,0,0"/>
                     </StackPanel>
@@ -412,7 +412,7 @@
                                     Background="{DynamicResource SuccessBrush}"
                                     VerticalAlignment="Center"/>
                             <TextBlock Text="LIVE DATA"
-                                       FontSize="11.5" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"
                                        Margin="6,0,0,0"
                                        VerticalAlignment="Center"/>
@@ -446,11 +446,11 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="REPORTS OVERVIEW" FontSize="11" FontWeight="Bold" Foreground="#DBEAFE"/>
-                                <TextBlock Text="Documents &amp; Fulfillment" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
-                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="12" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
+                                <TextBlock Text="REPORTS OVERVIEW" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="#DBEAFE"/>
+                                <TextBlock Text="Documents &amp; Fulfillment" FontSize="{StaticResource TextHeadline}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Margin="0,6,0,0"/>
+                                <TextBlock Text="Live totals across your Proforma Invoices, Job Orders, Delivery Notes and Tax Invoices — every figure straight from the database." FontSize="{StaticResource TextBody}" Foreground="#BFDBFE" Margin="0,8,0,0" TextWrapping="Wrap" MaxWidth="680"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                    <TextBlock FontSize="11" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
+                                    <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.95">
                                         <Run Text="PI"/><Run Text="  →  "/><Run Text="JO"/><Run Text="  →  "/><Run Text="DELIVERY"/><Run Text="  →  "/><Run Text="TAX INVOICE"/><Run Text="  →  "/><Run Text="STATEMENT"/>
                                     </TextBlock>
                                 </StackPanel>
@@ -487,12 +487,12 @@
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintBlueBrush}">
-                                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="PROFORMA" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="PROFORMA" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding PiReport.Summary.TotalPi}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding PiReport.Summary.TotalValue, Mode=OneWay, StringFormat={}{0:N0}}"/>
                                                 <Run Text=" · "/><Run Text="{Binding PiReport.Summary.Converted, Mode=OneWay}"/><Run Text=" converted"/>
                                             </TextBlock>
@@ -515,12 +515,12 @@
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintAmberBrush}">
-                                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE8B7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="JOB ORDER" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="JOB ORDER" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding JoReport.Summary.TotalJo}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="{Binding JoReport.Summary.AwaitingJo, Mode=OneWay}"/><Run Text=" awaiting"/>
                                                 <Run Text=" · "/><Run Text="{Binding JoReport.Summary.TotalQty, Mode=OneWay}"/><Run Text=" pcs"/>
                                             </TextBlock>
@@ -543,12 +543,12 @@
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGreenBrush}">
-                                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE814;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="DELIVERY" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="DELIVERY" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding DeliveryReport.Summary.TotalRows}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding DeliveryReport.Summary.TotalRows}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="{Binding DeliveryReport.Summary.CompletionPct, Mode=OneWay, StringFormat={}{0:0.#}}"/><Run Text="% delivered"/>
                                                 <Run Text=" · "/><Run Text="{Binding DeliveryReport.Summary.TotalDeliveredQty, Mode=OneWay}"/><Run Text=" pcs"/>
                                             </TextBlock>
@@ -571,12 +571,12 @@
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintIndigoBrush}">
-                                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="TAX INVOICE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="TAX INVOICE" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding TaxInvoiceReport.Summary.TotalInvoices}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding TaxInvoiceReport.Summary.TotalAmount, Mode=OneWay, StringFormat={}{0:N0}}"/>
                                                 <Run Text=" · "/><Run Text="{Binding TaxInvoiceReport.Summary.Overdue, Mode=OneWay}"/><Run Text=" overdue"/>
                                             </TextBlock>
@@ -599,12 +599,12 @@
                                         <StackPanel>
                                             <StackPanel Orientation="Horizontal">
                                                 <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource TintGrayBrush}">
-                                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="&#xE9F7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource NeutralBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                                 </Border>
-                                                <TextBlock Text="STATEMENT" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Text="STATEMENT" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
                                             </StackPanel>
-                                            <TextBlock Text="{Binding StatementReport.Summary.TotalCount}" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
-                                            <TextBlock FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding StatementReport.Summary.TotalCount}" FontSize="{StaticResource TextDisplayLarge}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,12,0,0"/>
+                                            <TextBlock FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" Margin="0,2,0,0">
                                                 <Run Text="AED "/><Run Text="{Binding StatementReport.Summary.ClosingBalance, Mode=OneWay, StringFormat={}{0:N0}}"/><Run Text=" outstanding"/>
                                             </TextBlock>
                                         </StackPanel>
@@ -622,9 +622,9 @@
                     <!-- Workflow hint -->
                     <Border Background="{DynamicResource ElevatedSurfaceBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12" Padding="16,14">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSection}" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                             <TextBlock Text="Trace any glass row end-to-end: PI → Job Order → Delivery → Tax Invoice → Statement. Open a report above to drill into its live rows."
-                                       FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="10,0,0,0" VerticalAlignment="Center"/>
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

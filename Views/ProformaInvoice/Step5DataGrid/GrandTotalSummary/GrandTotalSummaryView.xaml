@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     Step 5 grand-total strip. Slim table — not a gradient hero card.
     Bindings unchanged.
 -->
@@ -59,27 +59,27 @@
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0"
                                        Text="{Binding GroupNumber}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding DisplayLabel}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
                                        Text="{Binding TotalQty, StringFormat={}{0} pcs}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding TotalValue, StringFormat=AED {0:N2}}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        HorizontalAlignment="Right"
                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -111,27 +111,27 @@
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Column="1"
                            Text="GRAND TOTAL"
-                           FontSize="12"
+                           FontSize="{StaticResource TextBody}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Grid.Column="2"
                            Text="{Binding GrandTotalQty, StringFormat={}{0} pcs}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Grid.Column="3"
                            Text="{Binding GrandTotalSqm, StringFormat={}{0:0.000}}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Grid.Column="4"
                            Text="{Binding GrandTotalLm, StringFormat={}{0:0.00}}"
-                           FontSize="12" FontWeight="Bold"
+                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Grid.Column="5"
                            Text="{Binding GrandTotalValue, StringFormat=AED {0:N2}}"
-                           FontSize="13" FontWeight="Bold"
+                           FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                            HorizontalAlignment="Right"
                            Foreground="{DynamicResource SuccessBrush}"/>
             </Grid>

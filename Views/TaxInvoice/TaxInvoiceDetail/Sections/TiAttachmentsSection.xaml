@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections.TiAttachmentsSection"
+<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail.Sections.TiAttachmentsSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -43,11 +43,11 @@
                             <StackPanel Grid.Column="0">
                                 <!-- Chat 16: SelectedFamilyHeaderText updates when family entry clicked -->
                                 <TextBlock Text="{Binding SelectedFamilyHeaderText}"
-                                           FontSize="11" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="Photos + signed docs · click family entry to switch view"
-                                           FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
+                                           FontSize="{StaticResource TextCaption}" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.80"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
@@ -75,7 +75,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock FontSize="11" FontWeight="SemiBold"
+                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap">
                             <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Attachments shown are for the selected family member (not the currently loaded invoice)."/>
@@ -108,12 +108,12 @@
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                     <TextBlock Text="No attachments yet"
-                                               FontSize="13" FontWeight="SemiBold"
+                                               FontSize="{StaticResource TextBodyLarge}" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
                                                Margin="0,8,0,4"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <TextBlock Text="Add signed PI or DN PDFs here."
-                                               FontSize="11"
+                                               FontSize="{StaticResource TextBody}"
                                                HorizontalAlignment="Center"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
@@ -137,7 +137,7 @@
 
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding TypeIcon}"
-                                                           FontSize="22"
+                                                           FontSize="{StaticResource TextHeadline}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
 
@@ -145,10 +145,10 @@
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,8,0">
                                                     <TextBlock Text="{Binding FileName}"
-                                                               FontSize="12" FontWeight="SemiBold"
+                                                               FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                                TextTrimming="CharacterEllipsis"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock FontSize="10" Margin="0,2,0,0"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}" Margin="0,2,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding TypeLabel, Mode=OneWay}"/>
                                                         <Run Text="  ·  "/>
@@ -158,7 +158,7 @@
 
                                                 <ComboBox Grid.Column="2"
                                                           SelectedItem="{Binding AttachmentType}"
-                                                          FontSize="10"
+                                                          FontSize="{StaticResource TextCaption}"
                                                           Height="28"
                                                           Margin="0,0,6,0"
                                                           VerticalContentAlignment="Center">

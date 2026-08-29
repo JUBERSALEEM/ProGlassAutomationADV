@@ -690,7 +690,7 @@ namespace ProGlassAutomation.Services
             {
                 case "Comfortable":
                     inputH = 38; buttonH = 40; rowH = 34;
-                    title = 22; kpi = 20; body = 13; buttonMin = 110;
+                    title = 22; kpi = 20; body = 14; buttonMin = 110;
                     cardPad = new Thickness(16, 12, 16, 12);
                     stripPad = new Thickness(18, 12, 18, 12);
                     pageMargin = new Thickness(18, 12, 18, 12);
@@ -704,7 +704,7 @@ namespace ProGlassAutomation.Services
                     break;
                 default: // Compact — default, slightly tighter than before
                     inputH = 28; buttonH = 30; rowH = 26;
-                    title = 17; kpi = 15; body = 12; buttonMin = 84;
+                    title = 17; kpi = 16; body = 13; buttonMin = 84;
                     cardPad = new Thickness(8, 6, 8, 6);
                     stripPad = new Thickness(10, 6, 10, 6);
                     pageMargin = new Thickness(10, 6, 10, 6);

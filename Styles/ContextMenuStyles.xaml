@@ -24,7 +24,7 @@
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -53,7 +53,7 @@
     <Style x:Key="ModernMenuItemStyle" TargetType="MenuItem">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="Padding" Value="12,9"/>
         <Setter Property="Margin" Value="2,1"/>
         <Setter Property="Cursor" Value="Hand"/>
@@ -93,7 +93,7 @@
                                            Grid.Column="1"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="9"
+                                           FontSize="{StaticResource TextXSmall}"
                                            Margin="16,0,4,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
@@ -179,7 +179,7 @@
                                            Grid.Column="0"
                                            Text="&#xE73E;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Width="18"
                                            Margin="0,0,6,0"
                                            VerticalAlignment="Center"
@@ -194,7 +194,7 @@
                                            Grid.Column="2"
                                            Text="&#xE76C;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="9"
+                                           FontSize="{StaticResource TextXSmall}"
                                            Margin="16,0,4,0"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource MutedForegroundBrush}"

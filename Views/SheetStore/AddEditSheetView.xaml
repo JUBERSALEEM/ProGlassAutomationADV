@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════
      MIGRATION LOG — Button Standardization (master prompt v1.0)
      Date: 2026-08-15 — SheetStore module batch
      • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
@@ -38,7 +38,7 @@
 
         <!-- Field label — 11 SemiBold UPPERCASE per spec -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="0,12,0,6"/>
@@ -48,7 +48,7 @@
         <Style x:Key="InputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Height" Value="38"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -74,7 +74,7 @@
         <!-- ComboBox -->
         <Style x:Key="ComboStyle" TargetType="ComboBox">
             <Setter Property="Height" Value="38"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Padding" Value="10,6"/>
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -100,10 +100,10 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <TextBlock Text="{Binding DialogTitle}"
-                       FontSize="22" FontWeight="Bold"
+                       FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
             <TextBlock Text="Enter glass sheet inventory details"
-                       FontSize="12" Margin="0,4,0,0"
+                       FontSize="{StaticResource TextBody}" Margin="0,4,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
@@ -219,14 +219,14 @@
                 Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="14"
+                           FontSize="{StaticResource TextSection}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource DangerBrush}"
                            VerticalAlignment="Top"
                            Margin="0,0,10,0"/>
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}"
-                           FontSize="12"
+                           FontSize="{StaticResource TextBody}"
                            FontWeight="SemiBold"
                            TextWrapping="Wrap"/>
             </StackPanel>

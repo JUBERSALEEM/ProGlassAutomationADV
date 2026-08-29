@@ -1,4 +1,4 @@
-﻿<UserControl
+<UserControl
     x:Class="ProGlassAutomation.Views.Reports.StatementList.StatementListView"
              TextOptions.TextHintingMode="Fixed"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -38,7 +38,7 @@
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             Margin="0,0,18,0">
                         <TextBlock Text="≡"
-                                   FontSize="26"
+                                   FontSize="{StaticResource TextDisplayLarge}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
@@ -47,16 +47,16 @@
 
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="STATEMENT GENERATOR"
-                                   FontSize="10"
+                                   FontSize="{StaticResource TextCaption}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,0,0,4"/>
                         <TextBlock Text="Account Statements"
-                                   FontSize="22"
+                                   FontSize="{StaticResource TextHeadline}"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="{Binding StatusMessage}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
@@ -78,7 +78,7 @@
                                 Command="{Binding NewStatementCommand}"
                                 Height="40"
                                 Padding="20,0"
-                                FontSize="13"
+                                FontSize="{StaticResource TextBodyLarge}"
                                 FontWeight="SemiBold"
                                 Cursor="Hand"
                                 Foreground="{DynamicResource AccentBrush}"
@@ -129,16 +129,16 @@
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="STATEMENTS"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalStatements}"
-                               FontSize="28"
+                               FontSize="{StaticResource TextDisplayLarge}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Total saved"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
@@ -149,16 +149,16 @@
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="TOTAL INVOICED"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalInvoicedDisplay}"
-                               FontSize="22"
+                               FontSize="{StaticResource TextHeadline}"
                                FontWeight="Bold"
                                Foreground="White"
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Across all statements"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
@@ -169,16 +169,16 @@
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="OUTSTANDING"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalOutstandingDisplay}"
-                               FontSize="22"
+                               FontSize="{StaticResource TextHeadline}"
                                FontWeight="Bold"
                                Foreground="White"
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Total balance due"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
@@ -197,7 +197,7 @@
                 </Border.Style>
                 <StackPanel>
                     <TextBlock Text="OVERDUE"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                FontWeight="Bold">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
@@ -212,7 +212,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <TextBlock Text="{Binding TotalOverdueDisplay}"
-                               FontSize="22"
+                               FontSize="{StaticResource TextHeadline}"
                                FontWeight="Bold"
                                Margin="0,6,0,2">
                         <TextBlock.Style>
@@ -228,7 +228,7 @@
                         </TextBlock.Style>
                     </TextBlock>
                     <TextBlock Text="Past due date"
-                               FontSize="11">
+                               FontSize="{StaticResource TextBody}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Setter Property="Foreground"
@@ -277,7 +277,7 @@
                                 Background="{DynamicResource AccentBrush}"
                                 CornerRadius="10,0,0,10">
                             <TextBlock Text="⌕"
-                                       FontSize="15"
+                                       FontSize="{StaticResource TextSubhead}"
                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -285,7 +285,7 @@
 
                         <Grid Grid.Column="1" Margin="10,0,0,0">
                             <TextBlock Text="Search by number, customer, project..."
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"
@@ -293,7 +293,7 @@
                                            Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
                             <TextBox Text="{Binding SearchText,
                                          UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="13"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Background="Transparent"
                                      BorderThickness="0"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -308,7 +308,7 @@
                                 ToolTip="Clear search"
                                 Command="{Binding ClearSearchCommand}"
                                 Width="28" Height="28" MinWidth="28" Padding="0"
-                                FontSize="11"
+                                FontSize="{StaticResource TextBody}"
                                 Cursor="Hand"
                                 Foreground="{DynamicResource MutedForegroundBrush}"
                                 HorizontalAlignment="Center"
@@ -344,7 +344,7 @@
                         Command="{Binding RefreshCommand}"
                         Height="38"
                         Padding="16,0"
-                        FontSize="12"
+                        FontSize="{StaticResource TextBody}"
                         FontWeight="SemiBold"
                         Cursor="Hand"
                         Foreground="{DynamicResource OnAccentForegroundBrush}"
@@ -357,12 +357,12 @@
                                     Padding="{TemplateBinding Padding}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="↻"
-                                               FontSize="14"
+                                               FontSize="{StaticResource TextSection}"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,6,0"/>
                                     <TextBlock Text="Refresh"
-                                               FontSize="12"
+                                               FontSize="{StaticResource TextBody}"
                                                FontWeight="SemiBold"
                                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                VerticalAlignment="Center"/>
@@ -404,28 +404,28 @@
 
                 <TextBlock Grid.Column="1"
                            Text="STATEMENT  /  CUSTOMER"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            Margin="14,0,0,0"/>
                 <TextBlock Grid.Column="2"
                            Text="INVOICED"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource SuccessBrush}"/>
                 <TextBlock Grid.Column="3"
                            Text="OUTSTANDING"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource WarningBrush}"/>
                 <TextBlock Grid.Column="4"
                            Text="STATUS"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource MutedForegroundBrush}"/>
                 <TextBlock Grid.Column="5"
                            Text="ACTIONS"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            FontWeight="Bold"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            HorizontalAlignment="Right"/>
@@ -453,13 +453,13 @@
                                    VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock Text="Loading statements..."
-                               FontSize="15"
+                               FontSize="{StaticResource TextSubhead}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,18,0,0"/>
                     <TextBlock Text="Preparing data and totals"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,5,0,0"/>
@@ -499,13 +499,13 @@
                     </Border>
 
                     <TextBlock Text="No Statements Yet"
-                               FontSize="18"
+                               FontSize="{StaticResource TextTitle}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,0,0,8"/>
                     <TextBlock Text="Create your first account statement to track invoices, payments, and outstanding balances."
-                               FontSize="13"
+                               FontSize="{StaticResource TextBodyLarge}"
                                TextWrapping="Wrap"
                                TextAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -515,7 +515,7 @@
                             Command="{Binding NewStatementCommand}"
                             Height="40"
                             Padding="28,0"
-                            FontSize="13"
+                            FontSize="{StaticResource TextBodyLarge}"
                             FontWeight="SemiBold"
                             Cursor="Hand"
                             Foreground="White"
@@ -624,14 +624,14 @@
                                         <StackPanel Orientation="Horizontal"
                                                     Margin="0,0,0,7">
                                             <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
-                                                       FontSize="13"
+                                                       FontSize="{StaticResource TextBodyLarge}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="  /  "
-                                                       FontSize="13"
+                                                       FontSize="{StaticResource TextBodyLarge}"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                                             <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
-                                                       FontSize="13"
+                                                       FontSize="{StaticResource TextBodyLarge}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                         </StackPanel>
@@ -642,7 +642,7 @@
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"
                                                     Margin="0,0,8,0">
-                                                <TextBlock FontSize="10"
+                                                <TextBlock FontSize="{StaticResource TextCaption}"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource OnAccentForegroundBrush}">
                                                     <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
@@ -651,7 +651,7 @@
                                             </Border>
 
                                             <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>
@@ -662,7 +662,7 @@
                                                     Visibility="{Binding HasAttachments,
                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                                 <TextBlock Text="Attachments"
-                                                           FontSize="10"
+                                                           FontSize="{StaticResource TextCaption}"
                                                            FontWeight="Bold"
                                                            Foreground="White"/>
                                             </Border>
@@ -678,12 +678,12 @@
                                         Padding="12,10">
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="INVOICED"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
                                                    Foreground="White"/>
                                     </StackPanel>
@@ -697,18 +697,18 @@
                                         Padding="12,10">
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="OUTSTANDING"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding TotalOutstandingDisplay, Mode=OneWay}"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource TextBodyLarge}"
                                                    FontWeight="Bold"
                                                    Foreground="White"/>
                                         <!-- FIX: Overdue Runs need Mode=OneWay -->
                                         <TextBlock Visibility="{Binding HasOverdue,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,4,0,0">
@@ -735,7 +735,7 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Border.Style>
-                                    <TextBlock FontSize="11"
+                                    <TextBlock FontSize="{StaticResource TextBody}"
                                                FontWeight="Bold"
                                                Foreground="White">
                                         <TextBlock.Style>
@@ -763,7 +763,7 @@
                                                 Height="34"
                                                 Padding="12,0"
                                                 Margin="0,0,6,0"
-                                                FontSize="12"
+                                                FontSize="{StaticResource TextBody}"
                                                 FontWeight="SemiBold"
                                                 Cursor="Hand"
                                                 IsEnabled="{Binding HasPdf}"
@@ -776,7 +776,7 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="PDF"
-                                                                   FontSize="12"
+                                                                   FontSize="{StaticResource TextBody}"
                                                                    FontWeight="Bold"
                                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                                    VerticalAlignment="Center"
@@ -803,7 +803,7 @@
                                                 Height="34"
                                                 Padding="12,0"
                                                 Margin="0,0,6,0"
-                                                FontSize="12"
+                                                FontSize="{StaticResource TextBody}"
                                                 FontWeight="SemiBold"
                                                 Cursor="Hand"
                                                 Foreground="White"
@@ -815,7 +815,7 @@
                                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="Edit"
-                                                                   FontSize="12"
+                                                                   FontSize="{StaticResource TextBody}"
                                                                    FontWeight="Bold"
                                                                    Foreground="White"
                                                                    VerticalAlignment="Center"
@@ -838,7 +838,7 @@
                                                 CommandParameter="{Binding}"
                                                 Width="34"
                                                 Height="34"
-                                                FontSize="13"
+                                                FontSize="{StaticResource TextBodyLarge}"
                                                 Cursor="Hand"
                                                 BorderThickness="0">
                                             <Button.Template>
@@ -847,7 +847,7 @@
                                                             Background="{DynamicResource DangerBrush}"
                                                             CornerRadius="{DynamicResource ControlCornerRadius}">
                                                         <TextBlock Text="✕"
-                                                                   FontSize="13"
+                                                                   FontSize="{StaticResource TextBodyLarge}"
                                                                    FontWeight="Bold"
                                                                    Foreground="White"
                                                                    HorizontalAlignment="Center"

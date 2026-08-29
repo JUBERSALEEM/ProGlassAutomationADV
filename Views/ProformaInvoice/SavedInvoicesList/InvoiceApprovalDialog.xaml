@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.InvoiceApprovalDialog"
+<Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.InvoiceApprovalDialog"
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -20,7 +20,7 @@
     <Window.Resources>
 
         <Style x:Key="ApprovalFieldLabel" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10.5"/>
+            <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="2,0,0,6"/>
@@ -28,7 +28,7 @@
         </Style>
 
         <Style x:Key="ApprovalTextBox" TargetType="TextBox">
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="CaretBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Template">
@@ -63,7 +63,7 @@
         <Style x:Key="ApprovalRadioStyle" TargetType="RadioButton">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Template">
@@ -149,22 +149,22 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="20"
+                                   FontSize="{StaticResource TextTitleLarge}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Confirm Invoice Approval"
-                                   FontSize="18" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="How was this invoice confirmed by the customer?"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <!-- Bounded + wrapping so the runtime note can never
                              overflow the card's right edge. -->
                         <TextBlock x:Name="AttachmentNote"
-                                   FontSize="10.5"
+                                   FontSize="{StaticResource TextCaption}"
                                    FontWeight="SemiBold"
                                    TextWrapping="Wrap"
                                    MaxWidth="300"
@@ -227,7 +227,7 @@
                     VerticalAlignment="Top"
                     Visibility="Hidden">
                 <TextBlock x:Name="ValidationText"
-                           FontSize="11" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource DangerBrush}"/>
             </Border>

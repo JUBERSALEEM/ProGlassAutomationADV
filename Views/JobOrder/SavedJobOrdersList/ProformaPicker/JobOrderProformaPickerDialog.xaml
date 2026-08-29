@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker.JobOrderProformaPickerDialog"
+<Window x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.ProformaPicker.JobOrderProformaPickerDialog"
              TextOptions.TextHintingMode="Fixed"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -47,10 +47,10 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Create Job Order"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="Only approved Proforma Invoices can go to production"
-                                   FontSize="11" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Opacity="0.85" Margin="0,3,0,0"/>
                     </StackPanel>
 
@@ -73,7 +73,7 @@
                          Height="38"
                          VerticalContentAlignment="Center"
                          Padding="12,0"
-                         FontSize="13"
+                         FontSize="{StaticResource TextBodyLarge}"
                          TextChanged="OnSearchChanged"
                          Background="{DynamicResource ModuleBackgroundBrush}"
                          Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -90,7 +90,7 @@
                           Margin="14,0,0,0"
                           VerticalAlignment="Center"
                           Content="Show all statuses"
-                          FontSize="12"
+                          FontSize="{StaticResource TextBody}"
                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                           Checked="OnShowAllChanged"
                           Unchecked="OnShowAllChanged"
@@ -101,7 +101,7 @@
             <TextBlock x:Name="CountLabel"
                        Grid.Row="2"
                        Margin="24,10,24,0"
-                       FontSize="11"
+                       FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource MutedForegroundBrush}"
                        Text=""/>
 
@@ -126,12 +126,12 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7BA;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="16"
+                               FontSize="{StaticResource TextTitle}"
                                VerticalAlignment="Top"
                                Margin="0,1,10,0"
                                Foreground="{DynamicResource WarningBrush}"/>
                     <TextBlock x:Name="ApprovalWarningText"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                TextWrapping="Wrap"
                                MaxWidth="580"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -155,7 +155,7 @@
                     <TextBlock x:Name="SelectedLabel"
                                Grid.Column="0"
                                Text="No selection"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>

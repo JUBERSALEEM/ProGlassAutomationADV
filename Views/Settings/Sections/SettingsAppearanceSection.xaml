@@ -90,7 +90,7 @@
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       SelectedItem="{Binding SelectedVisualTheme}"
                                       HorizontalAlignment="Stretch"
-                                      Padding="10,7" FontSize="13"/>
+                                      Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                         </StackPanel>
                     </Border>
 
@@ -140,7 +140,7 @@
                                              Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
                                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding CustomFontColorHex, UpdateSourceTrigger=PropertyChanged}"
-                                             Width="96" Padding="8,5" FontSize="13"
+                                             Width="96" Padding="8,5" FontSize="{StaticResource TextBodyLarge}"
                                              FontFamily="Consolas"
                                              VerticalAlignment="Center"/>
                                     <Button Command="{Binding ApplyCustomFontColorCommand}"
@@ -207,7 +207,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE72D;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Card Border Thickness"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-                                           FontSize="12" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding CardBorderThickness, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                                     <Run Text=" DIP"/>
@@ -229,7 +229,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE7B3;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Card Corner Radius"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-                                           FontSize="12" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding CardCornerRadius, Mode=OneWay, StringFormat={}{0:0}}"/>
                                     <Run Text=" px"/>
@@ -258,7 +258,7 @@
                             <ComboBox ItemsSource="{Binding DisplayDensityOptions}"
                                       SelectedItem="{Binding DisplayDensity}"
                                       HorizontalAlignment="Stretch"
-                                      Padding="10,7" FontSize="13"/>
+                                      Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                         </StackPanel>
                     </Border>
 
@@ -269,7 +269,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileIconStyle}" Text="&#xE8A3;"/>
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="UI Scale"/>
                                 <TextBlock VerticalAlignment="Center" Margin="10,0,0,0"
-                                           FontSize="12" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}">
                                     <Run Text="{Binding UiScalePercent, Mode=OneWay}"/>
                                     <Run Text="%"/>
@@ -279,7 +279,7 @@
                                         Command="{Binding ResetUiScaleCommand}"
                                         Margin="12,0,0,0"
                                         Height="26" MinWidth="60" Padding="10,0"
-                                        FontSize="10"/>
+                                        FontSize="{StaticResource TextCaption}"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
                                        Text="Ctrl + mouse wheel zooms the app. Ctrl + 0 resets to 100 %."/>
@@ -304,7 +304,7 @@
                             <ComboBox ItemsSource="{Binding PdfLayoutOptions}"
                                       SelectedItem="{Binding PdfLayout}"
                                       HorizontalAlignment="Stretch"
-                                      Padding="10,7" FontSize="13"/>
+                                      Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="Applies to PI, JO, DN, Tax Invoice, Statement and Sheet Store on the next export."/>
                         </StackPanel>
@@ -380,7 +380,7 @@
                                              Stroke="{DynamicResource OutlineBrush}" StrokeThickness="1"
                                              VerticalAlignment="Center" Margin="0,0,10,0"/>
                                     <TextBox Text="{Binding CustomAccentHex, UpdateSourceTrigger=PropertyChanged}"
-                                             Width="110" Padding="8,6" FontSize="13"
+                                             Width="110" Padding="8,6" FontSize="{StaticResource TextBodyLarge}"
                                              FontFamily="Consolas"
                                              VerticalAlignment="Center"/>
                                     <Button Command="{Binding ApplyCustomAccentCommand}"
@@ -407,7 +407,7 @@
                                       SelectedItem="{Binding SelectedFont, Mode=TwoWay}"
                                       DisplayMemberPath="Name"
                                       HorizontalAlignment="Stretch"
-                                      Padding="10,7" FontSize="13"
+                                      Padding="10,7" FontSize="{StaticResource TextBodyLarge}"
                                       MaxDropDownHeight="320"/>
                             <TextBlock Style="{StaticResource SettingsTileFooterHintStyle}"
                                        Text="{Binding FontStatus}"/>
@@ -432,18 +432,18 @@
                                 <ComboBox Grid.Column="0"
                                           ItemsSource="{Binding FontWeightChoices}"
                                           SelectedItem="{Binding SelectedFontWeight, Mode=TwoWay}"
-                                          Padding="10,7" FontSize="13"/>
+                                          Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                                 <ComboBox Grid.Column="2"
                                           ItemsSource="{Binding FontStyleChoices}"
                                           SelectedItem="{Binding SelectedFontStyle, Mode=TwoWay}"
-                                          Padding="10,7" FontSize="13"/>
+                                          Padding="10,7" FontSize="{StaticResource TextBodyLarge}"/>
                             </Grid>
                             <WrapPanel Margin="0,12,0,0">
                                 <Button Command="{Binding ImportFontCommand}"
                                         Style="{StaticResource AccentChipStyle}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                         <TextBlock Text="IMPORT FONT…" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -451,7 +451,7 @@
                                         Style="{StaticResource AccentChipStyle}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="&#xE777;" FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                                         <TextBlock Text="RESET" VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Button>
@@ -565,7 +565,7 @@
 
                                                 <TextBlock Grid.Column="1"
                                                            Text="{Binding Label}"
-                                                           FontSize="11.5" FontWeight="SemiBold"
+                                                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                            VerticalAlignment="Center"
                                                            TextTrimming="CharacterEllipsis"
                                                            Margin="0,0,6,0"
@@ -573,7 +573,7 @@
                                                     <TextBlock.ToolTip>
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding Label}" FontWeight="SemiBold"/>
-                                                            <TextBlock Text="{Binding FileName}" FontSize="10"
+                                                            <TextBlock Text="{Binding FileName}" FontSize="{StaticResource TextCaption}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                         </StackPanel>
                                                     </TextBlock.ToolTip>
@@ -595,7 +595,7 @@
                                                                                 AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         Margin="6,0,0,0"
-                                                        FontSize="10"
+                                                        FontSize="{StaticResource TextCaption}"
                                                         Padding="8,2"/>
 
                                                 <Button Grid.Column="4"

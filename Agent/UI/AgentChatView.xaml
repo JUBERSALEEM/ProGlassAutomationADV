@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Agent/UI/AgentChatView.xaml
      PROJECT: ProGlassAutomation — ProGlass Agent (PHASE L)
      MODULE: Agent chat — the conversational surface
@@ -71,7 +71,7 @@
             <Setter Property="Height" Value="36"/>
             <Setter Property="Margin" Value="0,0,6,0"/>
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
-            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSubhead}"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -135,7 +135,7 @@
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE99A;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="17"
+                               FontSize="{StaticResource TextTitle}"
                                Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
@@ -145,9 +145,9 @@
                             Margin="14,0,20,0"
                             VerticalAlignment="Center">
                     <TextBlock Text="ProGlass Agent"
-                               FontSize="16" FontWeight="Bold"
+                               FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock FontSize="11"
+                    <TextBlock FontSize="{StaticResource TextBody}"
                                TextWrapping="Wrap"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Text="Runs locally. Reads your ERP data, never writes without asking."/>
@@ -217,7 +217,7 @@
                                     Visibility="{Binding IsUser,
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{Binding Text}"
-                                           FontSize="12.5"
+                                           FontSize="{StaticResource TextBodyLarge}"
                                            TextWrapping="Wrap"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
@@ -228,7 +228,7 @@
                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel>
                                     <TextBlock Text="{Binding Text}"
-                                               FontSize="12.5"
+                                               FontSize="{StaticResource TextBodyLarge}"
                                                TextWrapping="Wrap">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
@@ -245,7 +245,7 @@
                                     </TextBlock>
 
                                     <TextBlock Text="{Binding TimeDisplay}"
-                                               FontSize="9.5"
+                                               FontSize="{StaticResource TextXSmall}"
                                                Margin="0,6,0,0"
                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                 </StackPanel>
@@ -309,7 +309,7 @@
                                  Foreground="#1F2937"
                                  CaretBrush="#1F2937"
                                  SelectionBrush="{DynamicResource AccentBrush}"
-                                 FontSize="13"
+                                 FontSize="{StaticResource TextBodyLarge}"
                                  VerticalAlignment="Center"
                                  VerticalContentAlignment="Center"
                                  AcceptsReturn="False"
@@ -326,7 +326,7 @@
                             Width="40" Height="40"
                             Content="&#xE725;"
                             FontFamily="Segoe MDL2 Assets"
-                            FontSize="15"
+                            FontSize="{StaticResource TextSubhead}"
                             Foreground="White"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
@@ -362,7 +362,7 @@
                 </Grid>
 
                 <TextBlock Text="{Binding StatusText}"
-                           FontSize="11"
+                           FontSize="{StaticResource TextBody}"
                            Margin="2,8,0,0"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource AccentBrush}"/>

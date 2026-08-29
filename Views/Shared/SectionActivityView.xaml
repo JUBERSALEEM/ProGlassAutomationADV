@@ -50,10 +50,10 @@
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                               FontSize="16"
+                               FontSize="{StaticResource TextTitle}"
                                Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock FontSize="18" FontWeight="Bold"
+                    <TextBlock FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                VerticalAlignment="Center">
                         <Run Text="Activity — "/>
@@ -61,7 +61,7 @@
                     </TextBlock>
                 </StackPanel>
                 <TextBlock Text="Every user action in this section, recorded by the audit system"
-                           FontSize="12" Margin="0,2,0,0"
+                           FontSize="{StaticResource TextBody}" Margin="0,2,0,0"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
@@ -135,12 +135,12 @@
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
                     <TextBlock Text="No activity recorded yet"
-                               FontSize="14" FontWeight="SemiBold"
+                               FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                HorizontalAlignment="Center"
                                Margin="0,10,0,3"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="Actions you take in this section will appear here instantly."
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
 
@@ -175,7 +175,7 @@
 
                                         <TextBlock Grid.Column="0"
                                                    Text="{Binding TimeDisplay}"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    ToolTip="Date &amp; time of the action"/>
@@ -187,7 +187,7 @@
                                                 HorizontalAlignment="Left"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Action}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        FontWeight="SemiBold"
                                                        Foreground="{DynamicResource AccentBrush}"
                                                        TextTrimming="CharacterEllipsis"/>
@@ -197,14 +197,14 @@
                                         <StackPanel Grid.Column="2"
                                                     Margin="12,0,0,0"
                                                     VerticalAlignment="Center">
-                                            <TextBlock FontSize="12"
+                                            <TextBlock FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                        Text="{Binding Details}"
                                                        TextTrimming="CharacterEllipsis"
                                                        ToolTip="{Binding Details}"/>
 
                                             <!-- The human reason behind the action -->
-                                            <TextBlock FontSize="11"
+                                            <TextBlock FontSize="{StaticResource TextBody}"
                                                        FontStyle="Italic"
                                                        Margin="0,3,0,0"
                                                        Foreground="{DynamicResource AccentBrush}"
@@ -228,7 +228,7 @@
                                         <Button Grid.Column="3"
                                                 Margin="10,0,0,0"
                                                 Content="± Changes"
-                                                FontSize="10" FontWeight="Bold"
+                                                FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                                 Padding="9,3"
                                                 Cursor="Hand"
                                                 BorderThickness="0"

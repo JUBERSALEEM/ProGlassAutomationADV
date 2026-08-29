@@ -83,17 +83,17 @@
                                     Background="{DynamicResource AccentBrush}"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="{Binding StatusBadge}"
-                                           FontSize="12" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             </Border>
 
                             <StackPanel Grid.Column="1" Margin="16,0,0,0"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding EditionDisplay}"
-                                           FontSize="16" FontWeight="SemiBold"
+                                           FontSize="{StaticResource TextTitle}" FontWeight="SemiBold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                 <TextBlock Text="{Binding StatusDescription}"
-                                           FontSize="12"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            TextWrapping="Wrap"
                                            Margin="0,2,0,0"/>
@@ -103,11 +103,11 @@
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DaysRemainingDisplay}"
-                                           FontSize="20" FontWeight="Bold"
+                                           FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                            Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Right"/>
                                 <TextBlock Text="remaining"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            HorizontalAlignment="Right"/>
                             </StackPanel>

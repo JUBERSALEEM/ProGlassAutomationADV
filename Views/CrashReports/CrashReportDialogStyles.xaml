@@ -9,7 +9,7 @@
     -->
 
     <Style x:Key="CrashFieldLabel" TargetType="TextBlock">
-        <Setter Property="FontSize"  Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="#6B7280"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
@@ -17,7 +17,7 @@
     </Style>
 
     <Style x:Key="CrashFieldValue" TargetType="TextBlock">
-        <Setter Property="FontSize"  Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="Foreground" Value="#111827"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin"     Value="0,0,0,4"/>

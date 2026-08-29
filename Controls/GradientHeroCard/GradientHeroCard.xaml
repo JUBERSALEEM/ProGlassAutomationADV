@@ -70,7 +70,7 @@
                                           RelativeSource={RelativeSource AncestorType=UserControl},
                                           FallbackValue=&#xE8A5;}"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="22"
+                                   FontSize="{StaticResource TextHeadline}"
                                    Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
@@ -91,13 +91,13 @@
                             <TextBlock Text="{Binding TrendArrow,
                                               RelativeSource={RelativeSource AncestorType=UserControl},
                                               FallbackValue=↗}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        Foreground="White"
                                        VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding TrendText,
                   RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                       FontSize="11"
+                                       FontSize="{StaticResource TextBody}"
                                        FontWeight="Bold"
                                        Foreground="White"
                                        Margin="4,0,0,0"
@@ -126,7 +126,7 @@
                            Text="{Binding Label,
                                   RelativeSource={RelativeSource AncestorType=UserControl},
                                   FallbackValue='Total'}"
-                           FontSize="13"
+                           FontSize="{StaticResource TextBodyLarge}"
                            FontWeight="SemiBold"
                            Foreground="#DDFFFFFF"
                            Margin="0,4,0,0"/>

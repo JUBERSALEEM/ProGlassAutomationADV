@@ -93,12 +93,12 @@
                          VerticalAlignment="Center" Fill="#EF4444"/>
 
                 <TextBlock x:Name="HudBadge" DockPanel.Dock="Left"
-                           Text="REC" FontSize="10" FontWeight="Bold"
+                           Text="REC" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                            Foreground="#FCA5A5" VerticalAlignment="Center"
                            Margin="0,0,8,0"/>
 
                 <TextBlock x:Name="HudTime" DockPanel.Dock="Left"
-                           Text="00:00" FontSize="15" FontWeight="Bold"
+                           Text="00:00" FontSize="{StaticResource TextSubhead}" FontWeight="Bold"
                            Foreground="White" VerticalAlignment="Center"
                            MinWidth="52" TextAlignment="Right"/>
 
@@ -112,7 +112,7 @@
                             Background="#334155"
                             AutomationProperties.Name="Pause or resume recording">
                         <TextBlock Text="&#xE769;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="12" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Stop — ⏹ (Segoe MDL2) -->
@@ -123,7 +123,7 @@
                             Background="#DC2626"
                             AutomationProperties.Name="Stop and save recording">
                         <TextBlock Text="&#xE71A;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="12" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Open folder — visible after SAVED (Aug 2026 fix) -->
@@ -136,7 +136,7 @@
                             ToolTip="Open the folder where the video was saved"
                             AutomationProperties.Name="Open recording folder">
                         <TextBlock Text="&#xE8DA;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="12" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                     <!-- Dismiss after SAVED / FAILED -->
@@ -147,7 +147,7 @@
                             Visibility="Collapsed"
                             AutomationProperties.Name="Close">
                         <TextBlock Text="&#xE711;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="11" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Button>
                 </StackPanel>
@@ -156,7 +156,7 @@
             <!-- Only visible while finalizing / finished -->
             <TextBlock x:Name="HudStage"
                        Text=""
-                       FontSize="10" Foreground="#CBD5E1"
+                       FontSize="{StaticResource TextCaption}" Foreground="#CBD5E1"
                        Margin="16,4,0,0" TextWrapping="Wrap"
                        MaxWidth="260"
                        Visibility="Collapsed"/>

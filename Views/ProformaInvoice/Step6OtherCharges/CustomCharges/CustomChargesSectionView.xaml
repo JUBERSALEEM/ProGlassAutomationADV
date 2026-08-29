@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -20,7 +20,7 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
             <Setter Property="Padding" Value="8,0"/>
             <Setter Property="Height" Value="28"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -78,31 +78,31 @@
                                           AutomationProperties.Name="Custom charge on"/>
                             <TextBlock Grid.Column="1"
                                        Text="{Binding ChargeName}"
-                                       FontSize="12" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
                                        Text="{Binding Qty, StringFormat={}{0:0.###}}"
-                                       FontSize="12" FontWeight="SemiBold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding Unit}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Column="4"
                                        Text="{Binding Rate, StringFormat=AED {0:N2}}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Grid.Column="5"
                                        Text="{Binding FormulaDisplay}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                        TextAlignment="Right"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SuccessBrush}"/>
@@ -114,7 +114,7 @@
                                     ToolTip="Remove charge">
                                 <TextBlock Text="&#xE711;"
                                            FontFamily="Segoe MDL2 Assets"
-                                           FontSize="11" FontWeight="Bold"
+                                           FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                            Foreground="{DynamicResource DangerBrush}"/>
                             </Button>
                         </Grid>

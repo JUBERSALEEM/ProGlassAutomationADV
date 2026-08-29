@@ -42,7 +42,7 @@
          via DataTriggers on Background/Foreground) = solid accent pill. -->
     <Style x:Key="ModuleTabButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBodyLarge}"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,8"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -106,7 +106,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
-                               FontSize="18"
+                               FontSize="{StaticResource TextTitle}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -115,12 +115,12 @@
                             Margin="12,0,0,0"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding Value}"
-                               FontSize="20" FontWeight="Bold"
+                               FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                Foreground="{Binding ValueBrushKey,
                                             Converter={StaticResource BrushKeyConverter}}"
                                TextTrimming="CharacterEllipsis"/>
                     <TextBlock Text="{Binding Label}"
-                               FontSize="11"
+                               FontSize="{StaticResource TextBody}"
                                Margin="0,2,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextTrimming="CharacterEllipsis"/>
@@ -148,7 +148,7 @@
                 Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="RowHeight" Value="36"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="CanUserAddRows" Value="False"/>
@@ -163,7 +163,7 @@
                 Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource OnAccentForegroundBrush}"/>
-        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush"

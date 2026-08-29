@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     DGU+LAM — 3D well left, five layer cards right (scroll, no star-row squeeze).
     Spec name lives only in the Step 4 result bar. Bindings unchanged.
 -->
@@ -45,7 +45,7 @@
             <StackPanel>
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="1  Outer pane" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="1  Outer pane" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -81,7 +81,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource AccentBrush}">
                     <StackPanel>
-                        <TextBlock Text="2  Air spacer" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="2  Air spacer" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -111,7 +111,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="3  Lam outer" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="3  Lam outer" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -147,7 +147,7 @@
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10"
                         BorderBrush="{DynamicResource WarningBrush}">
                     <StackPanel>
-                        <TextBlock Text="4  Interlayer" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="4  Interlayer" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -184,7 +184,7 @@
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="{Binding InterlayerMarginDisplay}"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
@@ -193,7 +193,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12" Margin="0,0,0,10">
                     <StackPanel>
-                        <TextBlock Text="5  Lam inner" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="5  Lam inner" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -228,7 +228,7 @@
 
                 <Border Style="{StaticResource ModuleSectionCardStyle}" Padding="14,12">
                     <StackPanel>
-                        <TextBlock Text="Costing" FontSize="13" FontWeight="Bold"
+                        <TextBlock Text="Costing" FontSize="{StaticResource TextBodyLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,10"/>
                         <Grid Margin="0,0,0,10">
                             <Grid.ColumnDefinitions>
@@ -286,7 +286,7 @@
                                 <ComboBox ItemsSource="{Binding EdgePolishOptions}" SelectedItem="{Binding EdgePolish}" Style="{StaticResource Step4ComboStyle}"/>
                             </StackPanel>
                             <TextBlock Grid.Column="2" VerticalAlignment="Bottom" Margin="0,0,0,8"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                                 <Run Text="Cut "/>
                                 <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
                                 <Run Text="  ·  Temper "/>

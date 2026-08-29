@@ -38,7 +38,7 @@
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE711;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
+                                       FontSize="{StaticResource TextBody}"
                                        Foreground="{TemplateBinding Foreground}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -63,7 +63,7 @@
         <!-- ── FILENAME TEXTBOX — rounded, indigo focus glow ───────────── -->
         <Style x:Key="FileNameTextBoxStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -170,7 +170,7 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <TextBlock Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="22"
+                                   FontSize="{StaticResource TextHeadline}"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"/>
@@ -178,10 +178,10 @@
 
                     <StackPanel VerticalAlignment="Center">
                         <TextBlock Text="Save Attachment As"
-                                   FontSize="20" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Give it a meaningful name — extension stays the same."
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Margin="0,2,0,0"
                                    TextTrimming="CharacterEllipsis"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -210,7 +210,7 @@
                         Padding="16,10"
                         VerticalAlignment="Stretch">
                     <TextBlock x:Name="ExtensionLabel"
-                               FontSize="14"
+                               FontSize="{StaticResource TextSection}"
                                FontWeight="Bold"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -230,7 +230,7 @@
                     VerticalAlignment="Top"
                     Visibility="Hidden">
                 <TextBlock x:Name="ValidationText"
-                           FontSize="11" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource DangerBrush}"/>
             </Border>

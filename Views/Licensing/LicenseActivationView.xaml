@@ -33,10 +33,10 @@
 
                 <TextBlock x:Name="HeadlineText"
                            Text="Activate ProGlass Automation"
-                           FontSize="26" FontWeight="SemiBold"
+                           FontSize="{StaticResource TextDisplayLarge}" FontWeight="SemiBold"
                            Foreground="{DynamicResource ForegroundBrush}"/>
                 <TextBlock x:Name="SubheadText"
-                           TextWrapping="Wrap" FontSize="13"
+                           TextWrapping="Wrap" FontSize="{StaticResource TextBodyLarge}"
                            Margin="0,4,0,24"
                            Foreground="{DynamicResource SecondaryForegroundBrush}">
                     <Run Text="This build uses secure offline activation. Generate an activation request, send it to your vendor, and then import the signed activation response they return."/>
@@ -45,17 +45,17 @@
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
                         <TextBlock Text="CURRENT LICENSE STATE"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="0,0,0,6"/>
                         <TextBlock x:Name="StatusBadgeText"
                                    Text="Not activated"
-                                   FontSize="14" FontWeight="SemiBold"
+                                   FontSize="{StaticResource TextSection}" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
                                    TextWrapping="Wrap"/>
                         <TextBlock x:Name="StatusDetailText"
                                    Text=""
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Margin="0,4,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextWrapping="Wrap"/>
@@ -74,32 +74,32 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Edition"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" x:Name="EditionValue"
-                                       FontSize="12" Foreground="{DynamicResource ForegroundBrush}"/>
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Customer"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" x:Name="CustomerValue"
-                                       FontSize="12" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Expires"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ExpiresValue"
-                                       FontSize="12" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="License ID"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="3" Grid.Column="1" x:Name="LicenseIdValue"
-                                       FontSize="12" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Source"
-                                       FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,4,0,0"/>
                             <TextBlock Grid.Row="4" Grid.Column="1" x:Name="SourceValue"
-                                       FontSize="12" Foreground="{DynamicResource ForegroundBrush}"
+                                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource ForegroundBrush}"
                                        TextWrapping="Wrap" Margin="0,4,0,0"/>
                         </Grid>
                     </StackPanel>
@@ -108,9 +108,9 @@
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
                         <TextBlock Text="STEP 1 — GENERATE ACTIVATION REQUEST"
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                        <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
                             <Run Text="Enter the vendor license reference you were given. The request binds this machine fingerprint and installation identity into a signed-response workflow."/>
@@ -123,28 +123,28 @@
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
                                 <TextBlock Text="Vendor license reference"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox x:Name="LicenseReferenceBox"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2">
                                 <TextBlock Text="Installation ID"
-                                           FontSize="11"
+                                           FontSize="{StaticResource TextBody}"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <TextBox x:Name="InstallationIdBox" IsReadOnly="True"/>
                             </StackPanel>
                         </Grid>
                         <TextBlock Text="Current machine fingerprint"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBox x:Name="FingerprintDisplayBox"
                                  IsReadOnly="True"
                                  FontFamily="Consolas"
-                                 FontSize="11"
+                                 FontSize="{StaticResource TextBody}"
                                  Margin="0,4,0,12"
                                  TextWrapping="Wrap"/>
                         <TextBlock Text="Activation request JSON"
-                                   FontSize="11"
+                                   FontSize="{StaticResource TextBody}"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBox x:Name="RequestOutputBox"
                                  IsReadOnly="True"
@@ -154,7 +154,7 @@
                                  MaxHeight="220"
                                  VerticalScrollBarVisibility="Auto"
                                  FontFamily="Consolas"
-                                 FontSize="11"
+                                 FontSize="{StaticResource TextBody}"
                                  Margin="0,4,0,12"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Style="{StaticResource PrimaryPillButton}"
@@ -178,9 +178,9 @@
                 <Border Style="{StaticResource SectionCardStyle}">
                     <StackPanel>
                         <TextBlock Text="STEP 2 — IMPORT SIGNED ACTIVATION RESPONSE"
-                                   FontSize="11" FontWeight="Bold"
+                                   FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock TextWrapping="Wrap" FontSize="12"
+                        <TextBlock TextWrapping="Wrap" FontSize="{StaticResource TextBody}"
                                    Margin="0,6,0,12"
                                    Foreground="{DynamicResource ForegroundBrush}">
                             <Run Text="Your vendor returns a signed response file or raw signed JSON. Base64-wrapped whole-license strings are no longer accepted in this secure flow."/>
@@ -190,7 +190,7 @@
                                  TextWrapping="Wrap" MinHeight="120"
                                  MaxHeight="220"
                                  VerticalScrollBarVisibility="Auto"
-                                 FontFamily="Consolas" FontSize="11"
+                                 FontFamily="Consolas" FontSize="{StaticResource TextBody}"
                                  Margin="0,0,0,12"/>
                         <StackPanel Orientation="Horizontal">
                             <Button Style="{StaticResource PrimaryPillButton}"
@@ -208,13 +208,13 @@
 
                 <TextBlock x:Name="ErrorText"
                            Margin="0,8,0,0"
-                           FontSize="11"
+                           FontSize="{StaticResource TextBody}"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource DangerBrush}"
                            Visibility="Collapsed"/>
                 <TextBlock x:Name="HintText"
                            Margin="0,8,0,0"
-                           FontSize="10"
+                           FontSize="{StaticResource TextCaption}"
                            TextWrapping="Wrap"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 <StackPanel Orientation="Horizontal"

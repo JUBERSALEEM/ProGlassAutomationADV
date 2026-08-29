@@ -54,7 +54,7 @@
                        VerticalAlignment="Center"
                        Margin="0,0,10,0"/>
             <TextBlock Text="Status, priority, delivery and shop-floor instructions. Saving goes through the top bar."
-                       FontSize="11"
+                       FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"/>
@@ -184,7 +184,7 @@
 
         <!-- Last edited / audit hint -->
         <TextBlock Text="{Binding LastEditedDisplay}"
-                   FontSize="10" FontStyle="Italic"
+                   FontSize="{StaticResource TextCaption}" FontStyle="Italic"
                    Foreground="{DynamicResource MutedForegroundBrush}"
                    Margin="2,0,0,0"
                    IsHitTestVisible="False"/>

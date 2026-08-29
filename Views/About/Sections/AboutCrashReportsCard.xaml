@@ -32,7 +32,7 @@
             </Style>
 
             <Style x:Key="CrashMetaLabelStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="10"/>
+                <Setter Property="FontSize" Value="{StaticResource TextCaption}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassMuted}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
@@ -40,7 +40,7 @@
             </Style>
 
             <Style x:Key="CrashMetaValueStyle" TargetType="TextBlock">
-                <Setter Property="FontSize" Value="12"/>
+                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
                 <Setter Property="TextWrapping" Value="Wrap"/>
@@ -50,7 +50,7 @@
 
             <Style x:Key="CrashCodeStripTextStyle" TargetType="TextBlock">
                 <Setter Property="FontFamily" Value="Consolas, Cascadia Mono, Courier New"/>
-                <Setter Property="FontSize" Value="11"/>
+                <Setter Property="FontSize" Value="{StaticResource TextBody}"/>
                 <Setter Property="FontWeight" Value="Bold"/>
                 <Setter Property="Foreground" Value="{DynamicResource GlassSnow}"/>
                 <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
@@ -161,7 +161,7 @@
                                                        Style="{StaticResource CrashMetaLabelStyle}"
                                                        Margin="0,14,0,0"/>
                                             <TextBlock Text="{Binding SizeDisplay}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource GlassFrost}"
                                                        Margin="0,5,0,0"/>
                                         </StackPanel>
@@ -175,13 +175,13 @@
 
                                         <StackPanel Grid.Row="1" Grid.Column="2">
                                             <TextBlock Text="{Binding TopExceptionType, Mode=OneWay, FallbackValue=''}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource GlassMuted}"
                                                        TextWrapping="Wrap"
                                                        IsHitTestVisible="False"/>
                                             <TextBlock Text="{Binding TopExceptionMessage, FallbackValue='(no message)'}"
-                                                       FontSize="11"
+                                                       FontSize="{StaticResource TextBody}"
                                                        Foreground="{DynamicResource GlassIce}"
                                                        TextWrapping="Wrap"
                                                        TextTrimming="CharacterEllipsis"

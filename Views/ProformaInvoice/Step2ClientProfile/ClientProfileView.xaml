@@ -109,7 +109,7 @@
                                       Text="{Binding SalesRepresentative, UpdateSourceTrigger=PropertyChanged}"
                                       AutomationProperties.AutomationId="ProformaInvoice.SalesRepresentative"
                                       AutomationProperties.Name="Sales representative"/>
-                            <TextBlock Text="…" FontSize="11" Foreground="{DynamicResource AccentBrush}"
+                            <TextBlock Text="…" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,28,0" IsHitTestVisible="False">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
@@ -169,7 +169,7 @@
                              AutomationProperties.Name="Billing address"/>
                 </StackPanel>
 
-                <TextBlock Margin="0,12,0,0" FontSize="12" Foreground="{DynamicResource SuccessBrush}">
+                <TextBlock Margin="0,12,0,0" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SuccessBrush}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -192,11 +192,11 @@
                 <TextBlock Text="SAVED" Style="{StaticResource PiSectionLabelStyle}" Margin="0" VerticalAlignment="Center"/>
                 <Button HorizontalAlignment="Right" Command="{Binding RefreshCardsCommand}"
                         Style="{StaticResource PiIconButtonStyle}" ToolTip="Refresh saved clients from database">
-                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                    <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextBodyLarge}"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Button>
             </Grid>
-            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="12"
+            <TextBlock DockPanel.Dock="Top" Text="Loading…" FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -209,7 +209,7 @@
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
-            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="12"
+            <TextBlock DockPanel.Dock="Top" Text="{Binding CardsErrorMessage}" FontSize="{StaticResource TextBody}"
                        Foreground="{DynamicResource DangerBrush}" TextWrapping="Wrap" Margin="0,0,0,8">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
@@ -223,7 +223,7 @@
                 </TextBlock.Style>
             </TextBlock>
             <TextBlock DockPanel.Dock="Top" Text="No saved clients yet."
-                       FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
+                       FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -247,7 +247,7 @@
                         </Style.Triggers>
                     </Style>
                 </Button.Style>
-                <TextBlock FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
+                <TextBlock FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" TextDecorations="Underline">
                     <Run Text="View all ("/><Run Text="{Binding TotalClientCount, Mode=OneWay}"/><Run Text=")"/>
                 </TextBlock>
             </Button>
@@ -279,12 +279,12 @@
                                         <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <StackPanel>
-                                        <TextBlock Text="{Binding CustomerName}" FontSize="12" FontWeight="SemiBold"
+                                        <TextBlock Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding TrnMasked}" FontSize="11"
+                                        <TextBlock Text="{Binding TrnMasked}" FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="10"
+                                    <TextBlock Grid.Column="1" Text="{Binding UsageBadgeText}" FontSize="{StaticResource TextCaption}"
                                                Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                                 </Grid>
                             </Border>

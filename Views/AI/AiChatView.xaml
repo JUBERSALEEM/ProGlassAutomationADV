@@ -49,7 +49,7 @@
             <Setter Property="Height"          Value="32"/>
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="Foreground"      Value="White"/>
-            <Setter Property="FontSize"        Value="14"/>
+            <Setter Property="FontSize" Value="{StaticResource TextSection}"/>
             <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
@@ -91,7 +91,7 @@
                             <TextBlock Text="&#xE724;"
                                        FontFamily="Segoe MDL2 Assets"
                                        Foreground="White"
-                                       FontSize="16"
+                                       FontSize="{StaticResource TextTitle}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -267,7 +267,7 @@
                                 Background="#33FFFFFF"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
-                            <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="20"
+                            <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitleLarge}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -277,11 +277,11 @@
                                     Margin="12,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="ProGlass AI"
-                                       FontSize="16" FontWeight="Bold"
+                                       FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                        Foreground="White"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
-                                       FontSize="10"
+                                       FontSize="{StaticResource TextCaption}"
                                        Foreground="#E0E0FF"
                                        Opacity="0.9"
                                        IsHitTestVisible="False"/>
@@ -335,14 +335,14 @@
                         </Border>
 
                         <TextBlock Text="Hello! I'm ProGlass AI"
-                                   FontSize="18" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,16,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="Ask me about glass production, invoices, job orders, or your business data."
-                                   FontSize="12"
+                                   FontSize="{StaticResource TextBody}"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
                                    MaxWidth="300"
@@ -350,7 +350,7 @@
                                    IsHitTestVisible="False"/>
 
                         <TextBlock Text="TRY ASKING"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -364,7 +364,7 @@
                                             Tag="{Binding}"
                                             MouseLeftButtonDown="Suggestion_MouseLeftButtonDown">
                                         <TextBlock Text="{Binding}"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
@@ -403,11 +403,11 @@
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="White"
-                                                           FontSize="13"
+                                                           FontSize="{StaticResource TextBodyLarge}"
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
                                                            Foreground="#FFFFFFAA"
-                                                           FontSize="10"
+                                                           FontSize="{StaticResource TextCaption}"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,4,0,0"
                                                            IsHitTestVisible="False"/>
@@ -418,11 +418,11 @@
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           FontSize="13"
+                                                           FontSize="{StaticResource TextBodyLarge}"
                                                            TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,6,0,0">
-                                                    <TextBlock FontSize="10"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                IsHitTestVisible="False">
                                                         <Run Text="{Binding ProviderIcon, Mode=OneWay}"/>
@@ -438,7 +438,7 @@
                                         <Border Style="{StaticResource ErrBubble}">
                                             <TextBlock Text="{Binding Text}"
                                                        Foreground="{DynamicResource DangerBrush}"
-                                                       FontSize="12"
+                                                       FontSize="{StaticResource TextBody}"
                                                        TextWrapping="Wrap"/>
                                         </Border>
                                     </Grid>
@@ -596,7 +596,7 @@
                             <Button Command="{Binding StopGenerationCommand}"
                                     Width="18" Height="18"
                                     Margin="10,0,0,0"
-                                    Content="&#xE711;" FontSize="9"
+                                    Content="&#xE711;" FontSize="{StaticResource TextXSmall}"
                                     Background="Transparent"
                                     BorderThickness="0" Cursor="Hand"
                                     Foreground="{DynamicResource MutedForegroundBrush}"
@@ -632,7 +632,7 @@
                         </Border.Style>
                         <TextBlock Text="{Binding ActiveStream.Text}"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   FontSize="13"
+                                   FontSize="{StaticResource TextBodyLarge}"
                                    TextWrapping="Wrap"/>
                     </Border>
                 </Grid>
@@ -676,7 +676,7 @@
                         </Style>
                     </Border.Style>
                     <TextBlock Text="{Binding StatusMessage}"
-                               FontSize="10"
+                               FontSize="{StaticResource TextCaption}"
                                FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
                                TextWrapping="Wrap"
@@ -726,7 +726,7 @@
                                             </Style>
                                         </Border.Style>
                                         <TextBlock FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="16"
+                                                   FontSize="{StaticResource TextTitle}"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"
                                                    IsHitTestVisible="False">
@@ -864,7 +864,7 @@
                                                 </Style>
                                             </Border.Style>
                                             <TextBlock FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="16"
+                                                       FontSize="{StaticResource TextTitle}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        IsHitTestVisible="False">
@@ -915,7 +915,7 @@
                                          UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0"
                                      Background="Transparent"
-                                     FontSize="13"
+                                     FontSize="{StaticResource TextBodyLarge}"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      VerticalAlignment="Center"
                                      KeyDown="InputBox_KeyDown"/>

@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListDialog"
+<Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListDialog"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -44,7 +44,7 @@
                 <!-- Optional status hint -->
                 <TextBlock Grid.Column="0"
                            Text="Select an invoice to load it into the wizard, or close to cancel."
-                           FontSize="12"
+                           FontSize="{StaticResource TextBody}"
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            VerticalAlignment="Center"/>
 

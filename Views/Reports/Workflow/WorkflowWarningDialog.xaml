@@ -45,19 +45,19 @@
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"
-                                   FontSize="11" VerticalAlignment="Center"
+                                   FontSize="{StaticResource TextBody}" VerticalAlignment="Center"
                                    Margin="0,0,6,0"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="WARNING"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     </StackPanel>
                     <TextBlock Text="Missing Invoice Detected"
-                               FontSize="22" FontWeight="Bold"
+                               FontSize="{StaticResource TextHeadline}" FontWeight="Bold"
                                Foreground="White"
                                Margin="0,4,0,0"/>
                     <TextBlock Text="Some delivered items have no matching tax invoice."
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,2,0,0"/>
                 </StackPanel>
@@ -80,9 +80,9 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="DELIVERED"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="20" FontWeight="Bold"
+                        <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
@@ -98,9 +98,9 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="INVOICED"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="20" FontWeight="Bold"
+                        <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding InvoicedQty, Mode=OneWay}"/>
@@ -116,9 +116,9 @@
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="MISSING"
-                                   FontSize="10" FontWeight="Bold"
+                                   FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        <TextBlock FontSize="20" FontWeight="Bold"
+                        <TextBlock FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,4,0,0">
                             <Run Text="{Binding UninvoicedDeliveredQty, Mode=OneWay}"/>
@@ -138,7 +138,7 @@
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
                     <TextBlock Text="UNINVOICED DELIVERY NOTES"
-                               FontSize="10" FontWeight="Bold"
+                               FontSize="{StaticResource TextCaption}" FontWeight="Bold"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,0,0,8"/>
 
@@ -166,19 +166,19 @@
                                             <StackPanel Grid.Column="0"
                                                         VerticalAlignment="Center">
                                                 <TextBlock Text="{Binding DeliveryNoteId, Mode=OneWay}"
-                                                           FontSize="13"
+                                                           FontSize="{StaticResource TextBodyLarge}"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource AccentBrush}"/>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,3,0,0">
                                                     <TextBlock Text="{Binding DeliveryNoteType, Mode=OneWay}"
-                                                               FontSize="10"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                FontWeight="SemiBold"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     <TextBlock Text="  ·  "
-                                                               FontSize="10"
+                                                               FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                                    <TextBlock FontSize="10"
+                                                    <TextBlock FontSize="{StaticResource TextCaption}"
                                                                Foreground="{DynamicResource MutedForegroundBrush}">
                                                         <Run Text="Delivered "/>
                                                         <Run Text="{Binding DeliveryDate,
@@ -194,7 +194,7 @@
                                                     Padding="10,4"
                                                     Margin="8,0,0,0"
                                                     VerticalAlignment="Center">
-                                                <TextBlock FontSize="12"
+                                                <TextBlock FontSize="{StaticResource TextBody}"
                                                            FontWeight="Bold"
                                                            Foreground="White">
                                                     <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
@@ -213,7 +213,7 @@
             <!-- ══ QUESTION ══ -->
             <TextBlock Grid.Row="3"
                        Text="What would you like to do?"
-                       FontSize="14"
+                       FontSize="{StaticResource TextSection}"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                        HorizontalAlignment="Center"
@@ -248,13 +248,13 @@
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,10">
                                     <StackPanel>
-                                        <TextBlock FontSize="12" FontWeight="Bold"
+                                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center">
                                             <Run Text="&#xE70F; " FontFamily="Segoe MDL2 Assets"/><Run Text="CREATE INVOICE"/>
                                         </TextBlock>
                                         <TextBlock Text="Fix missing invoice now"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
@@ -284,12 +284,12 @@
                                         Padding="12,10">
                                     <StackPanel>
                                         <TextBlock Text="→  SKIP &amp; CONTINUE"
-                                                   FontSize="12"
+                                                   FontSize="{StaticResource TextBody}"
                                                    FontWeight="Bold"
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Generate with warning"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
@@ -318,13 +318,13 @@
                                         CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,10">
                                     <StackPanel>
-                                        <TextBlock FontSize="12" FontWeight="Bold"
+                                        <TextBlock FontSize="{StaticResource TextBody}" FontWeight="Bold"
                                                    Foreground="White"
                                                    HorizontalAlignment="Center">
                                             <Run Text="&#xE711; " FontFamily="Segoe MDL2 Assets"/><Run Text="ABORT"/>
                                         </TextBlock>
                                         <TextBlock Text="Cancel generation"
-                                                   FontSize="10"
+                                                   FontSize="{StaticResource TextCaption}"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>

@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker.JobOrderPickerDialog"
+<Window x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker.JobOrderPickerDialog"
              TextOptions.TextFormattingMode="Ideal"
              TextOptions.TextRenderingMode="ClearType"
              TextOptions.TextHintingMode="Fixed"
@@ -45,10 +45,10 @@
 
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="Select Job Order"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="{StaticResource TextTitle}" FontWeight="Bold"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock Text="Choose a Job Order to create a Delivery Note from"
-                                   FontSize="11" Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   FontSize="{StaticResource TextBody}" Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Opacity="0.85" Margin="0,3,0,0"/>
                     </StackPanel>
 
@@ -64,7 +64,7 @@
                     Padding="20,14,20,8">
                 <Grid>
                     <TextBox x:Name="SearchBox"
-                             FontSize="13"
+                             FontSize="{StaticResource TextBodyLarge}"
                              Padding="10,8"
                              BorderThickness="1"
                              BorderBrush="{DynamicResource OutlineBrush}"
@@ -72,7 +72,7 @@
                              Foreground="{DynamicResource PrimaryForegroundBrush}"
                              TextChanged="OnSearchChanged"/>
                     <TextBlock Text="Search job order, customer, project, PI or delivery note…"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                Margin="14,0,0,0"
                                VerticalAlignment="Center"
                                IsHitTestVisible="False"
@@ -113,7 +113,7 @@
                     <TextBlock Grid.Column="0"
                                x:Name="SelectedLabel"
                                Text="No job order selected"
-                               FontSize="12"
+                               FontSize="{StaticResource TextBody}"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
