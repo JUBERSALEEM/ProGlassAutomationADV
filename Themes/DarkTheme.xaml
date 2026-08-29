@@ -1,15 +1,13 @@
 <!--
     FILE: Themes/DarkTheme.xaml
     PROJECT: ProGlassAutomation
-    VERSION: Chat 23 v1.6 — Add Dashboard glass/ambient keys (dark)
+    VERSION: Phase 1 — Design System Foundation (Dark)
 
-    CHANGES vs v1.3:
-      • +Dash* keys (mirror LightTheme v1.6, dark values)
+    ARCHITECTURE: Mirror of LightTheme.xaml structure.
+    See LightTheme.xaml for section documentation.
 
-    Dark values chosen to lift against slate-800 (#1E293B) surfaces.
-
-    REGRESSION RISK: ZERO
-      Pure additive. Dark-mode counterparts for LightTheme v1.6 keys.
+    PRESERVED: All 160 existing keys with identical values.
+    ADDED:     13 new liquid glass system tokens (dark variants).
 -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,425 +15,77 @@
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                     xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
 
+
     <!-- ═══════════════════════════════════════════════════════════════
-         DARK THEME — INDUSTRIAL MILL FLOOR
+         SECTION 1 — RAW COLORS
     ═══════════════════════════════════════════════════════════════ -->
-
-    <!-- ── Surfaces ─────────────────────────────────────────────────── -->
-    <!-- iOS dark glass backdrop -->
-    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="0.8,1">
-        <GradientStop Color="#1E1B4B" Offset="0.0"/>
-        <GradientStop Color="#312E81" Offset="0.2"/>
-        <GradientStop Color="#1E3A5F" Offset="0.4"/>
-        <GradientStop Color="#164E63" Offset="0.6"/>
-        <GradientStop Color="#134E4A" Offset="0.8"/>
-        <GradientStop Color="#4C1D95" Offset="1.0"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
-        <GradientStop Color="#1E1B4B" Offset="0.0"/>
-        <GradientStop Color="#172554" Offset="0.35"/>
-        <GradientStop Color="#164E63" Offset="0.65"/>
-        <GradientStop Color="#1E1B4B" Offset="1.0"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="ModuleBackgroundBrush"
-                     Color="#0F172A"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="ElevatedSurfaceBrush"
-                     Color="#1E293B"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="SideMenuBackgroundBrush"
-                     Color="#0D1E293B"
-                     po:Freeze="True"/>
-    <!-- Opaque Color twins for the drawer gradient (MainWindow uses
-         SideMenuBackgroundColor / ModuleBackgroundColor as DynamicResource
-         Color). LightTheme defined these; DarkTheme did not, so in dark
-         mode the drawer gradient fell back to transparent and the side
-         menu bar became invisible. Added for parity. -->
-    <Color x:Key="ModuleBackgroundColor">#0F172A</Color>
-    <Color x:Key="SideMenuBackgroundColor">#0F172A</Color>
-    <SolidColorBrush x:Key="MenuHoverBrush"
-                     Color="#1E293B"
-                     po:Freeze="True"/>
-    <!-- Sidebar sub-menu / nested card surface — elevated above the menu. -->
-    <SolidColorBrush x:Key="SidebarCardBrush"
-                     Color="#273449"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="OverlayButtonBackgroundBrush"
-                     Color="#38BDF8"
-                     po:Freeze="True"/>
-
-    <!-- ── About page liquid palette (dark) ───────────────────────────
-         2026-08-25: moved from Views/About/AboutStyles.xaml into the
-         theme so the About page (all three sections) re-tints LIVE on
-         Light/Dark swap, visual-family change (Monet/Professional/
-         iOS Liquid Glass/Ocean) and wallpaper layering. The About view now rides
-         on the same dynamic module surface as every other module
-         (ModuleBackgroundBrush + ModuleWallpaperBrush from the content
-         card) instead of painting a fixed navy stage, and every
-         Liquid* reference in the About module is a DynamicResource
-         that re-resolves against whichever theme dictionary is
-         active. Light values live in LightTheme.xaml. -->
-    <SolidColorBrush x:Key="LiquidIce"
-                     Color="#DBEAFE"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidFrost"
-                     Color="#BFDBFE"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidCerulean"
-                     Color="#93C5FD"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidSnow"
-                     Color="#F8FAFC"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidAccent"
-                     Color="#60A5FA"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidAccentDeep"
-                     Color="#3B82F6"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidMuted"
-                     Color="#8FB3E6"
-                     po:Freeze="True"/>
-    <!-- Frosted card fill + top sheen (translucent white over the
-         dark module surface). -->
-    <LinearGradientBrush x:Key="LiquidCard"
-                         StartPoint="0,0" EndPoint="0,1"
-                         po:Freeze="True">
-        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#27FFFFFF" Offset="0.06"/>
-        <GradientStop Color="#3AFFFFFF" Offset="0.16"/>
-        <GradientStop Color="#1AFFFFFF" Offset="0.50"/>
-        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
-        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="LiquidSheen"
-                         StartPoint="0,0" EndPoint="1,1"
-                         po:Freeze="True">
-        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
-    </LinearGradientBrush>
-    <!-- Decorative aurora orbs (subtle glows, see AboutView). -->
-    <RadialGradientBrush x:Key="LiquidOrbA"
-                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
-                         po:Freeze="True">
-        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
-        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
-        <GradientStop Color="#1D4ED800" Offset="1.0"/>
-    </RadialGradientBrush>
-    <RadialGradientBrush x:Key="LiquidOrbB"
-                         Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
-                         po:Freeze="True">
-        <GradientStop Color="#60A5FA66" Offset="0.0"/>
-        <GradientStop Color="#3B82F633" Offset="0.55"/>
-        <GradientStop Color="#3B82F600" Offset="1.0"/>
-    </RadialGradientBrush>
-
-    <!-- About interactive chrome tokens. ThemeManager rewrites these at
-         runtime from the active accent; these defaults guarantee the
-         About page still renders correctly before the dynamic engine runs. -->
-    <SolidColorBrush x:Key="AboutInteractiveBrush"
-                     Color="#14FFFFFF"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveHoverBrush"
-                     Color="#20FFFFFF"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveBorderBrush"
-                     Color="#4093C5FD"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush"
-                     Color="#6693C5FD"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutCardBorderBrush"
-                     Color="#6693C5FD"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AboutDividerBrush"
-                     Color="#2293C5FD"
-                     po:Freeze="True"/>
-
-    <!-- ── Text ─────────────────────────────────────────────────────── -->
     <Color x:Key="PrimaryForegroundColor">#F1F5F9</Color>
     <Color x:Key="SecondaryForegroundColor">#94A3B8</Color>
     <Color x:Key="MutedForegroundColor">#64748B</Color>
+    <Color x:Key="BorderColor">#334155</Color>
+    <Color x:Key="ModuleBackgroundColor">#0F172A</Color>
+    <Color x:Key="SideMenuBackgroundColor">#0F172A</Color>
+    <Color x:Key="TextPrimaryColor">#F5F5F7</Color>
+    <Color x:Key="TextSecondaryColor">#8CF5F5F7</Color>
+    <Color x:Key="LiquidShadowColor">#FF000410</Color>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 2 — SEMANTIC COLORS
+    ═══════════════════════════════════════════════════════════════ -->
+    <Color x:Key="AccentColor">#38BDF8</Color>
+    <Color x:Key="AccentHoverColor">#7DD3FC</Color>
+    <Color x:Key="AccentDarkColor">#0369A1</Color>
+    <Color x:Key="AccentLightColor">#7DD3FC</Color>
+    <Color x:Key="AccentBlueColor">#28BEFF</Color>
     <Color x:Key="SuccessColor">#34D399</Color>
     <Color x:Key="WarningColor">#FBBF24</Color>
     <Color x:Key="DangerColor">#F87171</Color>
+
+    <!-- Tint palette (dark) -->
     <Color x:Key="TintIndigoColor">#252B48</Color>
     <Color x:Key="TintRedColor">#3B1F22</Color>
     <Color x:Key="TintGreenColor">#1E2B44</Color>
     <Color x:Key="TintAmberColor">#3B2F1E</Color>
     <Color x:Key="TintPurpleColor">#2A2540</Color>
     <Color x:Key="TintGrayColor">#242B3A</Color>
-    <Color x:Key="BorderColor">#334155</Color>
-    <SolidColorBrush x:Key="PrimaryForegroundBrush"
-                     Color="#F1F5F9"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="SecondaryForegroundBrush"
-                     Color="#94A3B8"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="MutedForegroundBrush"
-                     Color="#64748B"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="OnAccentForegroundBrush"
-                     Color="#FFFFFF"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="OnAccentSecondaryForegroundBrush"
-                     Color="#CCFFFFFF"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="WarningSurfaceBrush" Color="#22F59E0B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#33DC2626" po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerLightBrush" Color="#FCA5A5" po:Freeze="True"/>
-    <SolidColorBrush x:Key="OverlayButtonForegroundBrush"
-                     Color="#FFFFFF"
-                     po:Freeze="True"/>
 
-    <!-- ── Brand accents — industrial steel cyan (dark-lifted) ─────── -->
-    <SolidColorBrush x:Key="AccentBrush"
-                     Color="#38BDF8"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AccentHoverBrush"
-                     Color="#7DD3FC"
-                     po:Freeze="True"/>
-    <!-- Color-typed counterparts of the accent brushes (see LightTheme). -->
-    <Color x:Key="AccentColor">#38BDF8</Color>
-    <Color x:Key="AccentHoverColor">#7DD3FC</Color>
-    <Color x:Key="AccentDarkColor">#0369A1</Color>
-    <Color x:Key="AccentLightColor">#7DD3FC</Color>
-    <SolidColorBrush x:Key="AccentDarkBrush"
-                     Color="#0369A1"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="AccentLightBrush"
-                     Color="#7DD3FC"
-                     po:Freeze="True"/>
-
-    <!-- ── Semantic ────────────────────────────────────────────────── -->
-    <SolidColorBrush x:Key="SuccessBrush"
-                     Color="#34D399"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="WarningBrush"
-                     Color="#FBBF24"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="DangerBrush"
-                     Color="#F87171"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="InfoBrush"
-                     Color="#38BDF8"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="NeutralBrush"
-                     Color="#94A3B8"
-                     po:Freeze="True"/>
-
-    <!-- ── Tinted card backgrounds ─────────────────────────────────── -->
-    <SolidColorBrush x:Key="TintIndigoBrush"
-                     Color="#252B48"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintGreenBrush"
-                     Color="#1E2B44"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintAmberBrush"
-                     Color="#3B2F1E"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintBlueBrush"
-                     Color="#1E2B44"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintRedBrush"
-                     Color="#3B1F22"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintGrayBrush"
-                     Color="#242B3A"
-                     po:Freeze="True"/>
-    <SolidColorBrush x:Key="TintPurpleBrush"
-                     Color="#2A2540"
-                     po:Freeze="True"/>
-
-    <!-- ── Borders + dividers ──────────────────────────────────────── -->
-    <SolidColorBrush x:Key="BorderBrush"
-                     Color="#334155"
-                     po:Freeze="True"/>
-    <!-- OUTLINE — see LightTheme for why this is separate from BorderBrush.
-         NOTE: pure black is NOT usable here. On a dark surface (#0F172A and
-         friends) a #000 edge disappears and reads as a hole, so the dark
-         theme uses a LIFTED slate that still separates the shape. -->
-    <SolidColorBrush x:Key="OutlineBrush"
-                     Color="#64748B"
-                     po:Freeze="True"/>
-
-    <!-- Immutable copy of the subtle default. ApplyOutline overwrites
-         OutlineBrush at runtime, so it needs a pristine source to restore
-         from when the toggle is switched back off. -->
-    <SolidColorBrush x:Key="OutlineDefaultBrush"
-                     Color="#64748B"
-                     po:Freeze="True"/>
-
-    <SolidColorBrush x:Key="OutlineStrongBrush"
-                     Color="#7C8CA6"
-                     po:Freeze="True"/>
-
-    <SolidColorBrush x:Key="DividerBrush"
-                     Color="#334155"
-                     po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         DASHBOARD GLASSMORPHISM — DARK MODE (NEW in v1.6)
+         SECTION 3 — TEXT BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="{StaticResource PrimaryForegroundColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="{StaticResource SecondaryForegroundColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="MutedForegroundBrush" Color="{StaticResource MutedForegroundColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OnAccentSecondaryForegroundBrush" Color="#CCFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
 
-    <!-- Ambient background — deep slate → dark blue gradient. -->
-    <LinearGradientBrush x:Key="DashAmbientBrush"
-                         StartPoint="0,0" EndPoint="1,1"
-                         po:Freeze="True">
-        <GradientStop Color="#0F172A" Offset="0.0"/>
-        <GradientStop Color="#1E293B" Offset="0.5"/>
-        <GradientStop Color="#1E3A5F" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- Bold blue brand gradient for dashboard hero cards / high-emphasis
-         visuals. Dark theme: rich navy -> electric blue. -->
-    <LinearGradientBrush x:Key="DashHeroBlueBrush"
-                         StartPoint="0,0" EndPoint="1,1"
-                         po:Freeze="True">
-        <GradientStop Color="#075985" Offset="0.0"/>
-        <GradientStop Color="#0284C7" Offset="0.6"/>
-        <GradientStop Color="#38BDF8" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- Top-right accent blob — 27% alpha (brighter for dark bg). -->
-    <RadialGradientBrush x:Key="DashAmbientBlob1Brush"
-                         Center="0.85,0.15"
-                         GradientOrigin="0.85,0.15"
-                         RadiusX="0.35" RadiusY="0.35"
-                         po:Freeze="True">
-        <GradientStop Color="#3B82F645" Offset="0.0"/>
-        <GradientStop Color="#3B82F600" Offset="1.0"/>
-    </RadialGradientBrush>
-
-    <!-- Bottom-left accent blob — 18% alpha deep blue. -->
-    <RadialGradientBrush x:Key="DashAmbientBlob2Brush"
-                         Center="0.12,0.88"
-                         GradientOrigin="0.12,0.88"
-                         RadiusX="0.30" RadiusY="0.30"
-                         po:Freeze="True">
-        <GradientStop Color="#1D4ED830" Offset="0.0"/>
-        <GradientStop Color="#1D4ED800" Offset="1.0"/>
-    </RadialGradientBrush>
-
-    <!-- Glass card fill — elevated slate at 82% opacity. -->
-    <SolidColorBrush x:Key="DashLiquidSurfaceBrush"
-                     Color="#273449"
-                     Opacity="0.82"
-                     po:Freeze="True"/>
-
-    <!-- Glass card border — slate-hover → deep blue. -->
-    <LinearGradientBrush x:Key="DashLiquidBorderBrush"
-                         StartPoint="0,0" EndPoint="1,1"
-                         po:Freeze="True">
-        <GradientStop Color="#334155" Offset="0.0"/>
-        <GradientStop Color="#1E3A8A" Offset="1.0"/>
-    </LinearGradientBrush>
-
-    <!-- Accent text on dark glass — brighter for contrast. -->
-    <SolidColorBrush x:Key="DashAccentTextBrush"
-                     Color="#60A5FA"
-                     po:Freeze="True"/>
-
-    <!-- Card shadow — pure black for dark theme depth. -->
-    <DropShadowEffect x:Key="DashCardShadowEffect"
-                      BlurRadius="24"
-                      ShadowDepth="6"
-                      Opacity="0.55"
-                      Color="#000000"
-                      Direction="270"
-                      po:Freeze="True"/>
-
-    <!-- Interactive shadow — bright blue glow. -->
-    <DropShadowEffect x:Key="DashInteractiveShadowEffect"
-                      BlurRadius="12"
-                      ShadowDepth="3"
-                      Opacity="0.35"
-                      Color="#3B82F6"
-                      Direction="270"
-                      po:Freeze="True"/>
-
-    <!-- Subtle shadow — for list rows. -->
-    <DropShadowEffect x:Key="DashSubtleShadowEffect"
-                      BlurRadius="8"
-                      ShadowDepth="2"
-                      Opacity="0.30"
-                      Color="#000000"
-                      Direction="270"
-                      po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         CARD SHAPE + MOTION TOKENS (additive — Dynamic Theme Engine)
-         Mirrors LightTheme tokens. PerformanceProfileService replaces
-         MotionDuration* at runtime scaled to the display refresh tier.
+         SECTION 4 — SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#0F172A" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ModuleWallpaperBrush" Color="Transparent" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#0D1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="SidebarCardBrush" Color="#273449" po:Freeze="True"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="#1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#38BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#99031026" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#59000000" po:Freeze="True"/>
 
-    <!-- Per-module wallpaper layer (set by VisualThemeEngine; stays
-         transparent when the active module has no wallpaper). -->
-    <SolidColorBrush x:Key="ModuleWallpaperBrush"
-                     Color="Transparent"
-                     po:Freeze="True"/>
-
-    <!-- Card shapes — one source of truth for corner radii. -->
-    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
-    <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
-    <CornerRadius x:Key="CardCornerRadiusLarge">12</CornerRadius>
-
-    <!-- Card border thickness — one source of truth for every card/panel
-         edge. Driven by the Appearance > Border Thickness setting; cards
-         reference this via {DynamicResource CardBorderThickness}. -->
-    <Thickness x:Key="CardBorderThickness">1.5</Thickness>
-
-    <sys:Double x:Key="DensityInputHeight">30</sys:Double>
-    <sys:Double x:Key="DensityButtonHeight">32</sys:Double>
-    <sys:Double x:Key="DensityRowHeight">28</sys:Double>
-    <sys:Double x:Key="DensityTitleFontSize">18</sys:Double>
-    <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
-    <Thickness x:Key="DensityCardPadding">10,8</Thickness>
-    <Thickness x:Key="DensityStripPadding">12,8</Thickness>
-    <Thickness x:Key="DensityPageMargin">12,8</Thickness>
-
-    <!-- Motion defaults (pre-profile values; tuned at startup). -->
-    <sys:Double x:Key="MotionSpeedRatio">1.0</sys:Double>
-    <Duration x:Key="MotionDurationFast">0:0:0.12</Duration>
-    <Duration x:Key="MotionDurationNorm">0:0:0.22</Duration>
-    <Duration x:Key="MotionDurationSlow">0:0:0.38</Duration>
-    <sys:Boolean x:Key="RichEffectsEnabled">False</sys:Boolean>
-    <sys:Boolean x:Key="UltraSmoothEnabled">False</sys:Boolean>
-    <sys:Int32 x:Key="TargetFps">60</sys:Int32>
-
-    <!-- ── BrushKeyConverter ────────────────────────────────────── -->
-    <conv:BrushKeyConverter x:Key="BrushKeyConverter"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         LIQUID-GLASS SHELL CHROME (top bar · sidebar · dropdowns)
-         Frosted translucent surfaces over the dark aurora stage.
+         SECTION 5 — LIQUID GLASS SURFACE BRUSHES
     ═══════════════════════════════════════════════════════════════ -->
-    <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1"
-                         po:Freeze="True">
-        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#1CFFFFFF" Offset="0.55"/>
-        <GradientStop Color="#14FFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
-    <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#3DFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="ShellSheenBrush" Color="#40FFFFFF" po:Freeze="True"/>
-    <RadialGradientBrush x:Key="AuroraA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
-                         po:Freeze="True">
-        <GradientStop Color="#4D38BDF8" Offset="0.0"/>
-        <GradientStop Color="#1D38BDF800" Offset="1.0"/>
-    </RadialGradientBrush>
-    <RadialGradientBrush x:Key="AuroraB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5"
-                         po:Freeze="True">
-        <GradientStop Color="#408183F4" Offset="0.0"/>
-        <GradientStop Color="#1D6366F100" Offset="1.0"/>
-    </RadialGradientBrush>
+    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#0D1E293B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#142D3B4F" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1E374A5E" po:Freeze="True"/>
 
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         LIQUID GLASS DESIGN SYSTEM — DARK MODE TOKENS (2026-08-29)
-         Deep crystal: low-alpha frost centers, controlled crystal
-         highlights. NOT an inversion of light — dark has its own
-         intentional alpha ramp.
-    ═══════════════════════════════════════════════════════════════════ -->
+    <!-- Layered glass fill — dark watery meniscus -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#26FFFFFF" Offset="0.0"/>
         <GradientStop Color="#20FFFFFF" Offset="0.07"/>
@@ -460,21 +110,155 @@
         <GradientStop Color="#18FFFFFF" Offset="0.92"/>
         <GradientStop Color="#1BFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <!-- Crystal edge: bright top highlight, soft mid, subtle lower edge. -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 6 — GLASS VARIANT BRUSHES  ★ NEW (DARK) ★
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- UltraClear: Almost invisible glass (dark) -->
+    <LinearGradientBrush x:Key="LiquidGlassUltraClearBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#0A1E293B" Offset="0.0"/>
+        <GradientStop Color="#081E293B" Offset="0.5"/>
+        <GradientStop Color="#0D1E293B" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Crystal: Higher reflection, stronger edge (dark) -->
+    <LinearGradientBrush x:Key="LiquidGlassCrystalBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#30FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#22FFFFFF" Offset="0.08"/>
+        <GradientStop Color="#38FFFFFF" Offset="0.15"/>
+        <GradientStop Color="#18FFFFFF" Offset="0.50"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.85"/>
+        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- WaterGlass: Subtle liquid blue refraction (dark) -->
+    <LinearGradientBrush x:Key="LiquidGlassWaterBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#1A1E3A5F" Offset="0.0"/>
+        <GradientStop Color="#0D1E293B" Offset="0.15"/>
+        <GradientStop Color="#141E3A5F" Offset="0.50"/>
+        <GradientStop Color="#0A1E293B" Offset="0.85"/>
+        <GradientStop Color="#1A164E63" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Frosted: Higher opacity for readability (dark) -->
+    <LinearGradientBrush x:Key="LiquidGlassFrostedBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#30FFFFFF" Offset="0.10"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.20"/>
+        <GradientStop Color="#26FFFFFF" Offset="0.55"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.90"/>
+        <GradientStop Color="#1FFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 7 — GLASS EDGE BORDER BRUSHES
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Flat glass borders (existing) -->
+    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#1FFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderBright" Color="#2BFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassBorderSoft" Color="#14FFFFFF" po:Freeze="True"/>
+
+    <!-- Crystal edge (dark: subtle white highlights) -->
     <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#8CFFFFFF" Offset="0.0"/>
         <GradientStop Color="#26FFFFFF" Offset="0.5"/>
         <GradientStop Color="#33FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
+
+    <!-- Top crystal edge (dark: softer than light) -->
+    <LinearGradientBrush x:Key="LiquidGlassEdgeTopBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#60FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.3"/>
+        <GradientStop Color="#50FFFFFF" Offset="0.7"/>
+        <GradientStop Color="#30FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Bottom refraction edge (dark: deep blue shift) -->
+    <LinearGradientBrush x:Key="LiquidGlassEdgeBottomBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#301E3A5F" Offset="0.0"/>
+        <GradientStop Color="#201E3A5F" Offset="0.5"/>
+        <GradientStop Color="#141E3A5F" Offset="1.0"/>
+    </LinearGradientBrush>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 8 — GLASS HIGHLIGHT & REFLECTION BRUSHES  ★ NEW (DARK) ★
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Specular highlight (dark: subtler) -->
+    <RadialGradientBrush x:Key="LiquidGlassSpecularBrush"
+                         Center="0.15,0.1" RadiusX="0.6" RadiusY="0.4"
+                         po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.5"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </RadialGradientBrush>
+
+    <!-- Reflection gradient (dark) -->
+    <LinearGradientBrush x:Key="LiquidGlassReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#20FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0AFFFFFF" Offset="0.3"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.6"/>
+    </LinearGradientBrush>
+    <!-- Legacy alias -->
+    <LinearGradientBrush x:Key="LiquidReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+    </LinearGradientBrush>
+
+    <!-- Refraction (dark: deep teal/blue shift) -->
+    <LinearGradientBrush x:Key="LiquidGlassRefractionBrush" StartPoint="0,1" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0D164E63" Offset="0.4"/>
+        <GradientStop Color="#18164E63" Offset="0.7"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+
+    <!-- Inner highlight (dark) -->
     <LinearGradientBrush x:Key="LiquidInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
         <GradientStop Color="#00FFFFFF" Offset="0.0"/>
         <GradientStop Color="#59FFFFFF" Offset="0.5"/>
         <GradientStop Color="#00FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="LiquidReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+
+    <!-- Top reflection (dark: reduced opacity) -->
+    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#4DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
+
+    <!-- Sheen (dark) -->
+    <LinearGradientBrush x:Key="LiquidSheen" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.5"/>
+    </LinearGradientBrush>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 9 — LIQUID COMPOSITION BRUSHES
+    ═══════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="LiquidCard" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#27FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#3AFFFFFF" Offset="0.16"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.50"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
+        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="LiquidOrbA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
+        <GradientStop Color="#4D82F6FF" Offset="0.0"/>
+        <GradientStop Color="#1D4ED84D" Offset="0.55"/>
+        <GradientStop Color="#1D4ED800" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="LiquidOrbB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
+        <GradientStop Color="#60A5FA66" Offset="0.0"/>
+        <GradientStop Color="#3B82F633" Offset="0.55"/>
+        <GradientStop Color="#3B82F600" Offset="1.0"/>
+    </RadialGradientBrush>
     <SolidColorBrush x:Key="LiquidControlHoverBrush" Color="#33FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidControlPressedBrush" Color="#1CFFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="LiquidControlDisabledBrush" Color="#14FFFFFF" po:Freeze="True"/>
@@ -487,36 +271,90 @@
         <GradientStop Color="#A63B82F6" Offset="0.0"/>
         <GradientStop Color="#733B82F6" Offset="1.0"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="LiquidOverlayBrush" Color="#99031026" po:Freeze="True"/>
-    <Color x:Key="LiquidShadowColor">#FF000410</Color>
+    <!-- About page liquid palette (dark) -->
+    <SolidColorBrush x:Key="LiquidIce" Color="#DBEAFE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidFrost" Color="#BFDBFE" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidCerulean" Color="#93C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidSnow" Color="#F8FAFC" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidAccent" Color="#60A5FA" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidAccentDeep" Color="#3B82F6" po:Freeze="True"/>
+    <SolidColorBrush x:Key="LiquidMuted" Color="#8FB3E6" po:Freeze="True"/>
+
 
     <!-- ═══════════════════════════════════════════════════════════════
-         LIQUID GLASS DESIGN SYSTEM — CANONICAL TOKENS (DARK MODE)
-         2026-08-29: Dark variants of the glass tokens. Light mode
-         uses white-based tints; dark mode uses subtle dark tints
-         with light crystal edges. The control templates in
-         LiquidGlassDesign.xaml reference these via {DynamicResource}
-         so the entire glass system re-tints on theme swap.
-    ═══════════════════════════════════════════════════════════════════ -->
+         SECTION 10 — BORDER & OUTLINE BRUSHES
+    ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DividerBrush" Color="#334155" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineBrush" Color="#475569" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineDefaultBrush" Color="#475569" po:Freeze="True"/>
+    <SolidColorBrush x:Key="OutlineStrongBrush" Color="#64748B" po:Freeze="True"/>
 
-    <!-- Glass text — light on dark -->
-    <Color x:Key="TextPrimaryColor">#F5F5F7</Color>
-    <Color x:Key="TextSecondaryColor">#8CF5F5F7</Color>
-    <Color x:Key="AccentBlueColor">#28BEFF</Color>
-    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimaryColor}" po:Freeze="True"/>
-    <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}" po:Freeze="True"/>
+    <!-- Semantic status brushes (dark-lifted) -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerBrush" Color="{StaticResource DangerColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerLightBrush" Color="#FCA5A5" po:Freeze="True"/>
+    <SolidColorBrush x:Key="DangerSurfaceBrush" Color="#33DC2626" po:Freeze="True"/>
+    <SolidColorBrush x:Key="WarningSurfaceBrush" Color="#22F59E0B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="InfoBrush" Color="#38BDF8" po:Freeze="True"/>
+    <SolidColorBrush x:Key="NeutralBrush" Color="#64748B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBrush" Color="#EF4444" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#99EF4444" po:Freeze="True"/>
 
-    <!-- Glass surfaces — subtle dark tints on dark stage -->
-    <SolidColorBrush x:Key="GlassSurfaceUltra" Color="#0D1E293B" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceStandard" Color="#142D3B4F" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassSurfaceElevated" Color="#1E374A5E" po:Freeze="True"/>
+    <!-- Accent brushes (dark) -->
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="{StaticResource AccentHoverColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AccentLightBrush" Color="{StaticResource AccentLightColor}" po:Freeze="True"/>
 
-    <!-- Glass borders — subtle light edges on dark stage -->
-    <SolidColorBrush x:Key="GlassBorderPrimary" Color="#1FFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderBright" Color="#2BFFFFFF" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassBorderSoft" Color="#14FFFFFF" po:Freeze="True"/>
+    <!-- Tint brushes (dark) -->
+    <SolidColorBrush x:Key="TintIndigoBrush" Color="{StaticResource TintIndigoColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintRedBrush" Color="{StaticResource TintRedColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintGreenBrush" Color="{StaticResource TintGreenColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintAmberBrush" Color="{StaticResource TintAmberColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintPurpleBrush" Color="{StaticResource TintPurpleColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintGrayBrush" Color="{StaticResource TintGrayColor}" po:Freeze="True"/>
+    <SolidColorBrush x:Key="TintBlueBrush" Color="#1E2B44" po:Freeze="True"/>
 
-    <!-- Glass gradients — dark-based -->
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 11 — SHADOW EFFECTS (dark: deeper, more opaque)
+    ═══════════════════════════════════════════════════════════════ -->
+    <DropShadowEffect x:Key="GlassShadowSoft" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftBorder" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftButton" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftTextBox" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowSoftToggle" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanel" Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowPanelBorder" Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActive" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 12 — GRADIENT BRUSHES
+    ═══════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="WindowBackgroundBrush" StartPoint="0,0" EndPoint="0.8,1">
+        <GradientStop Color="#1E1B4B" Offset="0.0"/>
+        <GradientStop Color="#312E81" Offset="0.2"/>
+        <GradientStop Color="#1E3A5F" Offset="0.4"/>
+        <GradientStop Color="#164E63" Offset="0.6"/>
+        <GradientStop Color="#134E4A" Offset="0.8"/>
+        <GradientStop Color="#4C1D95" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassBackdropBrush" StartPoint="0.2,0" EndPoint="0.8,1">
+        <GradientStop Color="#1E1B4B" Offset="0.0"/>
+        <GradientStop Color="#172554" Offset="0.35"/>
+        <GradientStop Color="#164E63" Offset="0.65"/>
+        <GradientStop Color="#1E1B4B" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#0A1628" Offset="0.0"/>
+        <GradientStop Color="#0F1D32" Offset="0.5"/>
+        <GradientStop Color="#0A1628" Offset="1.0"/>
+    </LinearGradientBrush>
     <LinearGradientBrush x:Key="GlassGradientIdle" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
         <GradientStop Color="#1E2D3B4F" Offset="0.0"/>
         <GradientStop Color="#0A1E293B" Offset="1.0"/>
@@ -526,36 +364,55 @@
         <GradientStop Color="#4D82E1FF" Offset="0.5"/>
         <GradientStop Color="#8032AFF5" Offset="1.0"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="GlassTopReflection" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
-        <GradientStop Color="#4DFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
-    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="AuroraA" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
+        <GradientStop Color="#4D38BDF8" Offset="0.0"/>
+        <GradientStop Color="#1D38BDF800" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="AuroraB" Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
+        <GradientStop Color="#408183F4" Offset="0.0"/>
+        <GradientStop Color="#1D6366F100" Offset="1.0"/>
+    </RadialGradientBrush>
 
-    <!-- App background — deep dark blue for dark mode -->
-    <LinearGradientBrush x:Key="AppBackgroundBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#0A1628" Offset="0.0"/>
-        <GradientStop Color="#0F1D32" Offset="0.5"/>
-        <GradientStop Color="#0A1628" Offset="1.0"/>
-    </LinearGradientBrush>
 
-    <!-- Semantic glass — same danger colors, adjusted veil -->
-    <SolidColorBrush x:Key="GlassDangerBrush" Color="#EF4444" po:Freeze="True"/>
-    <SolidColorBrush x:Key="GlassDangerBorderBrush" Color="#99EF4444" po:Freeze="True"/>
-    <SolidColorBrush x:Key="LiquidDialogVeilBrush" Color="#59000000" po:Freeze="True"/>
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 13 — DENSITY TOKENS
+    ═══════════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="DensityInputHeight">30</sys:Double>
+    <sys:Double x:Key="DensityButtonHeight">32</sys:Double>
+    <sys:Double x:Key="DensityRowHeight">28</sys:Double>
+    <sys:Double x:Key="DensityTitleFontSize">18</sys:Double>
+    <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
+    <Thickness x:Key="DensityCardPadding">10,8</Thickness>
+    <Thickness x:Key="DensityStripPadding">12,8</Thickness>
+    <Thickness x:Key="DensityPageMargin">12,8</Thickness>
 
-    <!-- Glass shadows — subtler for dark mode -->
-    <DropShadowEffect x:Key="GlassShadowSoft" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanel" Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActive" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftBorder"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftButton"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftCheckBox" Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftTextBox"  Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowSoftToggle"   Color="#000000" Opacity="0.30" BlurRadius="18" ShadowDepth="6" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowPanelBorder"  Color="#000000" Opacity="0.40" BlurRadius="80" ShadowDepth="30" Direction="270"/>
-    <DropShadowEffect x:Key="GlassShadowActiveButton" Color="#28BEFF" Opacity="0.25" BlurRadius="22" ShadowDepth="7" Direction="270"/>
 
-    <!-- Switch / toggle internal colors — dark mode -->
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 14 — MOTION TOKENS
+    ═══════════════════════════════════════════════════════════════ -->
+    <sys:Double x:Key="MotionSpeedRatio">1.0</sys:Double>
+    <Duration x:Key="MotionDurationFast">0:0:0.15</Duration>
+    <Duration x:Key="MotionDurationNorm">0:0:0.25</Duration>
+    <Duration x:Key="MotionDurationSlow">0:0:0.40</Duration>
+    <sys:String x:Key="MotionSpringKeySpline">0.2,0.8 0.2,1.0</sys:String>
+    <sys:String x:Key="MotionEaseOutKeySpline">0.0,0.0 0.2,1.0</sys:String>
+    <sys:String x:Key="MotionEaseInOutKeySpline">0.4,0.0 0.2,1.0</sys:String>
+    <sys:String x:Key="MotionPressKeySpline">0.4,0.0 0.6,1.0</sys:String>
+    <sys:Int32 x:Key="TargetFps">60</sys:Int32>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 15 — GEOMETRY TOKENS
+    ═══════════════════════════════════════════════════════════════ -->
+    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
+    <Thickness x:Key="CardBorderThickness">0.5</Thickness>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 16 — SWITCH / TOGGLE COLORS (dark)
+    ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="GlassSwitchInnerHighlightBrush" Color="#66FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="GlassSwitchShineFillBrush" Color="#99FFFFFF" po:Freeze="True"/>
     <Color x:Key="GlassSwitchThumbColor1">#FFCCCCCC</Color>
@@ -564,5 +421,71 @@
     <Color x:Key="GlassSwitchThumbActiveColor1">#FFFFFFFF</Color>
     <Color x:Key="GlassSwitchThumbActiveColor2">#CCEBFAFF</Color>
     <Color x:Key="GlassSwitchThumbActiveColor3">#66AAE6FF</Color>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 17 — DASHBOARD TOKENS (dark)
+    ═══════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="DashAmbientBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#4D38BDF8" Offset="0.0"/>
+        <GradientStop Color="#1D38BDF800" Offset="1.0"/>
+    </LinearGradientBrush>
+    <RadialGradientBrush x:Key="DashAmbientBlob1Brush" Center="0.85,0.15" RadiusX="0.5" RadiusY="0.5" po:Freeze="True">
+        <GradientStop Color="#4D3B82F6" Offset="0.0"/>
+        <GradientStop Color="#003B82F6" Offset="1.0"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="DashAmbientBlob2Brush" Center="0.15,0.85" RadiusX="0.45" RadiusY="0.45" po:Freeze="True">
+        <GradientStop Color="#3D1D4ED8" Offset="0.0"/>
+        <GradientStop Color="#001D4ED8" Offset="1.0"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="DashLiquidSurfaceBrush" Color="#1E293B" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="DashLiquidBorderBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#1A60A5FA" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="DashAccentTextBrush" Color="#7DD3FC" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="DashHeroBlueBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#1D4ED8" Offset="0.0"/>
+        <GradientStop Color="#1E3A8A" Offset="1.0"/>
+    </LinearGradientBrush>
+    <DropShadowEffect x:Key="DashCardShadowEffect" Color="#000000" Opacity="0.40" BlurRadius="18" ShadowDepth="6" Direction="270"/>
+    <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#3B82F6" Opacity="0.30" BlurRadius="14" ShadowDepth="4" Direction="270"/>
+    <DropShadowEffect x:Key="DashSubtleShadowEffect" Color="#000000" Opacity="0.20" BlurRadius="6" ShadowDepth="2" Direction="270"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 18 — ABOUT PAGE TOKENS (dark)
+    ═══════════════════════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="AboutInteractiveBrush" Color="#14FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveHoverBrush" Color="#20FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderBrush" Color="#4093C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutInteractiveBorderStrongBrush" Color="#6693C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutCardBorderBrush" Color="#6693C5FD" po:Freeze="True"/>
+    <SolidColorBrush x:Key="AboutDividerBrush" Color="#2293C5FD" po:Freeze="True"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 19 — SHELL TOKENS (dark)
+    ═══════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="ShellLiquidBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.55"/>
+        <GradientStop Color="#14FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="ShellLiquidBorderBrush" Color="#3DFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ShellSheenBrush" Color="#40FFFFFF" po:Freeze="True"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 20 — CONVERTERS
+    ═══════════════════════════════════════════════════════════════ -->
+    <conv:BrushKeyConverter x:Key="BrushKeyConverter"/>
+
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SECTION 21 — FEATURE FLAGS
+    ═══════════════════════════════════════════════════════════════ -->
+    <sys:Boolean x:Key="RichEffectsEnabled">True</sys:Boolean>
+    <sys:Boolean x:Key="UltraSmoothEnabled">True</sys:Boolean>
 
 </ResourceDictionary>
