@@ -51,6 +51,15 @@
                 <!-- Phase 8/9: shared dialog card/footer/title chrome. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DialogStyles.xaml"/>
 
+                <!-- Liquid Glass design system (2026-08-29): crystal card
+                     surface (Controls/LiquidGlassCard), glass button
+                     hierarchy, iPhone-style liquid switch, glass inputs,
+                     glass DataGrid, navigation capsule, dialog chrome.
+                     Every colour resolves via DynamicResource so
+                     Light/Dark and the Glass/Glassy families re-tint
+                     the whole system live. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/LiquidGlassStyles.xaml"/>
+
                 <!-- Modern rounded context-menu styles for every module's
                      right-click menu (Proforma / Job Order / Delivery Note /
                      Tax Invoice). -->

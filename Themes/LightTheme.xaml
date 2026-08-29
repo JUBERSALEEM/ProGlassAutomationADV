@@ -437,4 +437,55 @@
         <GradientStop Color="#008183F4" Offset="1.0"/>
     </RadialGradientBrush>
 
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID GLASS DESIGN SYSTEM — LIGHT MODE TOKENS (2026-08-29)
+         Clear water glass: near-transparent centers, bright crystal
+         edges, soft cool refraction. These are the BASE values used
+         by every family; VisualThemeEngine overrides them at runtime
+         for Glass/Glassy (accent-tinted) and removes them again on
+         family switch. All brushes frozen — zero runtime cost.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#D9FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#B3FFFFFF" Offset="0.45"/>
+        <GradientStop Color="#80FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#59FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#33FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#D6FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <!-- Crystal edge: bright top, soft sides, slightly deeper lower edge. -->
+    <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#FFFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#59B9D1EE" Offset="0.5"/>
+        <GradientStop Color="#73A9C4DE" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#B3FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#59FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassControlHoverBrush" Color="#99FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassControlPressedBrush" Color="#B3FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassControlDisabledBrush" Color="#59FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFocusBrush" Color="#B33B82F6" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="GlassSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#663B82F6" Offset="0.0"/>
+        <GradientStop Color="#403B82F6" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassPrimaryButtonBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#E8368CF5" Offset="0.0"/>
+        <GradientStop Color="#A62F7DE6" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassOverlayBrush" Color="#59061724" po:Freeze="True"/>
+    <Color x:Key="GlassShadowColor">#4D0B1B2E</Color>
 </ResourceDictionary>

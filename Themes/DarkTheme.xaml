@@ -407,4 +407,53 @@
         <GradientStop Color="#1D6366F100" Offset="1.0"/>
     </RadialGradientBrush>
 
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         LIQUID GLASS DESIGN SYSTEM — DARK MODE TOKENS (2026-08-29)
+         Deep crystal: low-alpha frost centers, controlled crystal
+         highlights. NOT an inversion of light — dark has its own
+         intentional alpha ramp.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#14FFFFFF" Offset="0.45"/>
+        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#14FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#1FFFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <!-- Crystal edge: bright top highlight, soft mid, subtle lower edge. -->
+    <LinearGradientBrush x:Key="GlassEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#8CFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#26FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#33FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassInnerHighlightBrush" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <GradientStop Color="#00FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#59FFFFFF" Offset="0.5"/>
+        <GradientStop Color="#00FFFFFF" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassReflectionBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
+        <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#00FFFFFF" Offset="0.45"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassControlHoverBrush" Color="#33FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassControlPressedBrush" Color="#1CFFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassControlDisabledBrush" Color="#14FFFFFF" po:Freeze="True"/>
+    <SolidColorBrush x:Key="GlassFocusBrush" Color="#9960A5FA" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="GlassSelectionBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#4D3B82F6" Offset="0.0"/>
+        <GradientStop Color="#333B82F6" Offset="1.0"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="GlassPrimaryButtonBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#A63B82F6" Offset="0.0"/>
+        <GradientStop Color="#733B82F6" Offset="1.0"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="GlassOverlayBrush" Color="#99031026" po:Freeze="True"/>
+    <Color x:Key="GlassShadowColor">#FF000410</Color>
 </ResourceDictionary>

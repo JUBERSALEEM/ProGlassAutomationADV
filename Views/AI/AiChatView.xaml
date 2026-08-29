@@ -66,7 +66,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="bd"
                                         Property="Background"
-                                        Value="#33FFFFFF"/>
+                                        Value="{DynamicResource GlassControlHoverBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -264,7 +264,7 @@
                         <Border Grid.Column="0"
                                 Width="38" Height="38"
                                 CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="#33FFFFFF"
+                                Background="{DynamicResource LiquidGlassSubtleBrush}"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="&#xE99A;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitleLarge}"

@@ -93,6 +93,19 @@ namespace ProGlassAutomation.Services.Theme
             "DashAmbientBlob1Brush", "DashAmbientBlob2Brush",
             "ShellGlassBrush", "SidebarCardBrush",
 
+            // Liquid Glass design system tokens (2026-08-29): the
+            // Glass/Glassy families write accent-tinted crystal values;
+            // every other family restores the theme-file defaults.
+            "LiquidGlassBrush", "LiquidGlassSubtleBrush",
+            "LiquidGlassStrongBrush",
+            "GlassEdgeBrush", "GlassInnerHighlightBrush",
+            "GlassReflectionBrush",
+            "GlassControlHoverBrush", "GlassControlPressedBrush",
+            "GlassControlDisabledBrush",
+            "GlassFocusBrush", "GlassSelectionBrush",
+            "GlassPrimaryButtonBrush", "GlassOverlayBrush",
+            "GlassShadowColor",
+
             // Glassy typography: the About page's own text palette
             // (GlassSnow / GlassCerulean / GlassMuted) is applied so
             // text auto-adapts when every card goes transparent.
@@ -738,6 +751,8 @@ namespace ProGlassAutomation.Services.Theme
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x4A, 0x5E, 0x7E)
                 : Color.FromRgb(0x9C, 0xB2, 0xD0));
+
+            ApplyLiquidGlassTokens(resources, dark);
         }
 
         // ── GLASSY — the About page's look, app-wide ─────────────────
@@ -890,6 +905,8 @@ namespace ProGlassAutomation.Services.Theme
             ApplyKeyline(resources, dark
                 ? Color.FromRgb(0x6E, 0x8C, 0xC4)
                 : Color.FromRgb(0x94, 0xB4, 0xDE));
+
+            ApplyLiquidGlassTokens(resources, dark);
         }
 
         /// <summary>
@@ -985,6 +1002,137 @@ namespace ProGlassAutomation.Services.Theme
         private static Brush FrozenSolid(Color color)
         {
             var brush = new SolidColorBrush(color);
+            brush.Freeze();
+            return brush;
+        }
+
+        // ── LIQUID GLASS DESIGN SYSTEM TOKENS (2026-08-29) ────────────
+        //
+        // The Glass/Glassy families publish the full crystal material
+        // here: edge, reflections, control states, selection, focus,
+        // primary glass — accent-tinted and per-mode. The
+        // LiquidGlassStyles.xaml dictionary consumes every token via
+        // DynamicResource, so one family switch re-tints the entire
+        // card/button/switch/input/grid/dialog system live.
+
+        /// <summary>
+        /// Writes the design-system tokens for the active glass
+        /// family. Center surfaces mirror the family's own ramp
+        /// (already written into ModuleBackgroundBrush /
+        /// MenuHoverBrush / ElevatedSurfaceBrush) so cards and
+        /// controls stay one material with the window stage.
+        /// </summary>
+        private static void ApplyLiquidGlassTokens(
+            ResourceDictionary resources, bool dark)
+        {
+            var accent = ThemeManager.AccentColor;
+
+            // Center surfaces — same material as the family's cards.
+            resources["LiquidGlassBrush"] =
+                resources["ModuleBackgroundBrush"];
+            resources["LiquidGlassSubtleBrush"] =
+                resources["MenuHoverBrush"];
+            resources["LiquidGlassStrongBrush"] =
+                resources["ElevatedSurfaceBrush"];
+
+            // Crystal edges + reflections.
+            resources["GlassEdgeBrush"] = CrystalEdge(accent, dark);
+            resources["GlassInnerHighlightBrush"] =
+                HorizontalSheen(dark ? (byte)0x59 : (byte)0xB3);
+            resources["GlassReflectionBrush"] =
+                DiagonalSheen(dark ? (byte)0x26 : (byte)0x59);
+
+            // Interaction states — white glass at state alphas.
+            resources["GlassControlHoverBrush"] =
+                SolidGlass(accent, dark ? 0.30 : 0.60);
+            resources["GlassControlPressedBrush"] =
+                SolidGlass(accent, dark ? 0.22 : 0.70);
+            resources["GlassControlDisabledBrush"] =
+                SolidGlass(accent, dark ? 0.14 : 0.35);
+
+            // Focus / selection / primary — accent-tinted crystal.
+            resources["GlassFocusBrush"] = FrozenSolid(Color.FromArgb(
+                dark ? (byte)0x99 : (byte)0xB3,
+                accent.R, accent.G, accent.B));
+            resources["GlassSelectionBrush"] =
+                AccentGlass(accent, dark ? (0x4D, 0x33) : (0x66, 0x40));
+            resources["GlassPrimaryButtonBrush"] =
+                AccentGlass(accent, dark ? (0xA6, 0x73) : (0xE8, 0xA6));
+
+            // Dialog veil + soft shadow tint.
+            resources["GlassOverlayBrush"] = FrozenSolid(dark
+                ? Color.FromArgb(0x99, 0x03, 0x10, 0x26)
+                : Color.FromArgb(0x59, 0x06, 0x17, 0x24));
+            resources["GlassShadowColor"] = dark
+                ? Color.FromArgb(0xFF, 0x00, 0x04, 0x10)
+                : Color.FromArgb(0x4D, 0x0B, 0x1B, 0x2E);
+        }
+
+        /// <summary>
+        /// Crystal edge gradient: bright white top → soft
+        /// accent-mixed mid → slightly deeper lower edge. Frozen.
+        /// </summary>
+        private static Brush CrystalEdge(Color accent, bool dark)
+        {
+            byte topA = dark ? (byte)0x8C : (byte)0xFF;
+            byte midA = dark ? (byte)0x26 : (byte)0x59;
+            byte botA = dark ? (byte)0x33 : (byte)0x73;
+
+            Color mid = ColorMath.Mix(
+                Color.FromRgb(0xFF, 0xFF, 0xFF), accent,
+                dark ? 0.25 : 0.18);
+            Color bot = ColorMath.Mix(
+                Color.FromRgb(0xFF, 0xFF, 0xFF), accent,
+                dark ? 0.15 : 0.10);
+
+            var brush = new LinearGradientBrush(
+                Color.FromArgb(topA, 0xFF, 0xFF, 0xFF),
+                Color.FromArgb(botA, bot.R, bot.G, bot.B),
+                new Point(0, 0), new Point(0, 1));
+            brush.GradientStops.Insert(1, new GradientStop(
+                Color.FromArgb(midA, mid.R, mid.G, mid.B), 0.5));
+            brush.Freeze();
+            return brush;
+        }
+
+        /// <summary>
+        /// Horizontal top-reflection line: transparent ends, glowing
+        /// white center. Frozen.
+        /// </summary>
+        private static Brush HorizontalSheen(byte centerAlpha)
+        {
+            var brush = new LinearGradientBrush(
+                Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                new Point(0, 0), new Point(1, 0));
+            brush.GradientStops.Insert(1, new GradientStop(
+                Color.FromArgb(centerAlpha, 0xFF, 0xFF, 0xFF), 0.5));
+            brush.Freeze();
+            return brush;
+        }
+
+        /// <summary>Diagonal specular sweep, fading out. Frozen.</summary>
+        private static Brush DiagonalSheen(byte alpha)
+        {
+            var brush = new LinearGradientBrush(
+                Color.FromArgb(alpha, 0xFF, 0xFF, 0xFF),
+                Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF),
+                new Point(0, 0), new Point(1, 1));
+            brush.Freeze();
+            return brush;
+        }
+
+        /// <summary>
+        /// Accent-tinted crystal glass (top-lit vertical gradient at
+        /// the given alphas) — selection and primary fills. Frozen.
+        /// </summary>
+        private static Brush AccentGlass(
+            Color accent, (int top, int bottom) alphas)
+        {
+            var brush = new LinearGradientBrush(
+                Color.FromArgb((byte)alphas.top, accent.R, accent.G, accent.B),
+                Color.FromArgb((byte)alphas.bottom, accent.R, accent.G, accent.B),
+                new Point(0, 0), new Point(0, 1));
             brush.Freeze();
             return brush;
         }

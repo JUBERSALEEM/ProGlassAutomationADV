@@ -99,6 +99,80 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
+        public void Liquid_glass_design_system_is_merged_and_tokens_are_defined_in_both_themes()
+        {
+            // The global liquid glass system (2026-08-29): one shared
+            // dictionary merged in App.xaml; every token it consumes is
+            // defined in BOTH theme files so Light/Dark switching and
+            // the Glass/Glassy family overrides always resolve.
+            string app = Read("App.xaml");
+            string light = LightTheme;
+            string dark = Read("Themes/DarkTheme.xaml");
+            string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
+
+            Assert.Contains("LiquidGlassStyles.xaml", app, StringComparison.Ordinal);
+            Assert.Contains("Controls/LiquidGlassCard", styles, StringComparison.Ordinal);
+
+            string[] tokens =
+            {
+                "LiquidGlassBrush", "LiquidGlassSubtleBrush", "LiquidGlassStrongBrush",
+                "GlassEdgeBrush", "GlassInnerHighlightBrush", "GlassReflectionBrush",
+                "GlassControlHoverBrush", "GlassControlPressedBrush", "GlassControlDisabledBrush",
+                "GlassFocusBrush", "GlassSelectionBrush", "GlassPrimaryButtonBrush",
+                "GlassOverlayBrush", "GlassShadowColor"
+            };
+            foreach (string token in tokens)
+            {
+                Assert.Contains("x:Key=\"" + token + "\"", light, StringComparison.Ordinal);
+                Assert.Contains("x:Key=\"" + token + "\"", dark, StringComparison.Ordinal);
+            }
+        }
+
+        [Fact]
+        public void Liquid_glass_styles_never_pin_theme_colours_with_static_resource()
+        {
+            // Dynamic switching depends on DynamicResource — the design
+            // system must never StaticResource the liquid glass tokens.
+            string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
+            // Style-key references (e.g. {StaticResource
+            // LiquidGlassDataGridColumnHeaderStyle}) are legitimate;
+            // the COLOUR/BRUSH tokens must never be static.
+            foreach (string token in new[]
+                     {
+                         "LiquidGlassBrush", "LiquidGlassSubtleBrush", "LiquidGlassStrongBrush",
+                         "GlassEdgeBrush", "GlassInnerHighlightBrush", "GlassReflectionBrush",
+                         "GlassControlHoverBrush", "GlassControlPressedBrush", "GlassControlDisabledBrush",
+                         "GlassFocusBrush", "GlassSelectionBrush", "GlassPrimaryButtonBrush",
+                         "GlassOverlayBrush", "GlassShadowColor"
+                     })
+            {
+                Assert.DoesNotContain("{StaticResource " + token + "}", styles, StringComparison.Ordinal);
+            }
+            Assert.Contains("{DynamicResource LiquidGlassBrush}", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource GlassEdgeBrush}", styles, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Engine_publishes_the_liquid_glass_tokens_for_glass_families()
+        {
+            string engine = Engine;
+            Assert.Contains("ApplyLiquidGlassTokens", engine, StringComparison.Ordinal);
+            Assert.Contains("\"GlassEdgeBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"GlassSelectionBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("\"GlassPrimaryButtonBrush\"", engine, StringComparison.Ordinal);
+            Assert.Contains("CrystalEdge", engine, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Liquid_glass_card_control_exposes_intensity_and_radius()
+        {
+            string control = Read("Controls/LiquidGlassCard.cs");
+            Assert.Contains("GlassIntensityProperty", control, StringComparison.Ordinal);
+            Assert.Contains("enum GlassSurface", control, StringComparison.Ordinal);
+            Assert.Contains("CornerRadiusProperty", control, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Dark_glass_ramp_untouched_by_the_light_pass()
         {
             // Dark deep-frost materials are the original About look;

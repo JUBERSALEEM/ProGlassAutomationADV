@@ -149,7 +149,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                Background="#22FFFFFF"
+                                Background="{DynamicResource LiquidGlassSubtleBrush}"
                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
@@ -630,9 +630,9 @@
                     </TextBlock>
                     <Border x:Name="BannerProgressTrack"
                             CornerRadius="4" Height="8"
-                            Background="#33FFFFFF">
+                            Background="{DynamicResource LiquidGlassSubtleBrush}">
                         <Border CornerRadius="4" HorizontalAlignment="Left"
-                                Background="White">
+                                Background="{DynamicResource AccentBrush}">
                             <Border.Width>
                                 <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                     <Binding Path="DeliveryProgressPercent"/>
