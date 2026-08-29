@@ -450,10 +450,10 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Bg"
                                 CornerRadius="14"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                                Effect="{DynamicResource ShadowSoft}"/>
                         <Border Height="10" CornerRadius="14,14,0,0" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
@@ -524,10 +524,10 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Track"
                                 CornerRadius="18"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                                Effect="{DynamicResource ShadowSoft}"/>
                         <!-- Top Glare -->
                         <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
@@ -560,7 +560,7 @@
                     <ControlTemplate.Triggers>
                         <!-- Active State -->
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Thumb" Property="Background">
                                 <Setter.Value>
                                     <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
@@ -573,22 +573,18 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X" To="26" Duration="0:0:0.35">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.4" Value="26" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X" To="0" Duration="0:0:0.35">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.4" Value="0" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
@@ -635,10 +631,10 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Track"
                                 CornerRadius="18"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                                Effect="{DynamicResource ShadowSoft}"/>
                         <Border Height="18" CornerRadius="18,18,0,0" VerticalAlignment="Top"
                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.65" Margin="1,1,1,0"/>
                         <Border CornerRadius="18" BorderThickness="0,2,0,0" BorderBrush="{DynamicResource GlassSwitchInnerHighlightBrush}" Opacity="0.8" Margin="1"/>
@@ -664,7 +660,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                            <Setter TargetName="Track" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Thumb" Property="Background">
                                 <Setter.Value>
                                     <RadialGradientBrush Center="0.3,0.25" RadiusX="0.8" RadiusY="0.8">
@@ -677,22 +673,18 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X" To="26" Duration="0:0:0.35">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.4" Value="26" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X" To="0" Duration="0:0:0.35">
-                                            <DoubleAnimation.EasingFunction>
-                                                <CubicEase EasingMode="EaseOut"/>
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="Thumb" Storyboard.TargetProperty="RenderTransform.X">
+                                            <SplineDoubleKeyFrame KeyTime="0:0:0.4" Value="0" KeySpline="0.2,0.8 0.2,1.0"/>
+                                        </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
@@ -734,10 +726,10 @@
                 <ControlTemplate TargetType="CheckBox">
                     <StackPanel Orientation="Horizontal">
                         <Border x:Name="Box" Width="20" Height="20" CornerRadius="6"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="1"
-                                Effect="{DynamicResource GlassShadowSoftBorder}"
+                                Effect="{DynamicResource ShadowSoft}"
                                 VerticalAlignment="Center">
                             <Grid>
                                 <Border Height="7" CornerRadius="6,6,0,0" VerticalAlignment="Top"
@@ -753,7 +745,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="Glyph" Property="Visibility" Value="Visible"/>
-                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassGradientActive}"/>
+                            <Setter TargetName="Box" Property="Background" Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Box" Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
@@ -772,7 +764,7 @@
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
@@ -780,7 +772,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                            Effect="{DynamicResource ShadowSoft}">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -802,7 +794,7 @@
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="PasswordBox">
@@ -810,7 +802,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                            Effect="{DynamicResource ShadowSoft}">
                         <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -826,9 +818,9 @@
 
     <!-- COMBOBOX / DROPDOWN -->
     <Style x:Key="LiquidGlassComboBox" TargetType="ComboBox">
-        <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientSoft}"/>
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="Template">
@@ -843,7 +835,7 @@
                                             Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="1"
-                                            Effect="{DynamicResource GlassShadowSoftBorder}">
+                                            Effect="{DynamicResource ShadowSoft}">
                                         <Border Height="10" CornerRadius="16,16,0,0" VerticalAlignment="Top"
                                                 Background="{DynamicResource GlassTopReflection}" Opacity="0.6" Margin="1,1,1,0"/>
                                     </Border>
@@ -868,9 +860,9 @@
                                     MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                     CornerRadius="16" Margin="0,6,0,0"
                                     Background="{DynamicResource GlassSurfaceElevated}"
-                                    BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                    BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                     BorderThickness="1"
-                                    Effect="{DynamicResource GlassShadowPanelBorder}">
+                                    Effect="{DynamicResource ShadowElevated}">
                                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                                     <ItemsPresenter/>
                                 </ScrollViewer>
@@ -890,18 +882,18 @@
     <!-- SLIDER (LIQUID TRACK) -->
     <Style x:Key="LiquidGlassSlider" TargetType="Slider">
         <Setter Property="Foreground" Value="{DynamicResource AccentBlueColor}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceStandard}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
         <Setter Property="Height" Value="24"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">
                     <Grid Height="24" VerticalAlignment="Center">
                         <Border x:Name="Track" Height="6" CornerRadius="3"
-                                Background="{DynamicResource GlassGradientIdle}"
-                                BorderBrush="{DynamicResource GlassBorderPrimary}"
+                                Background="{DynamicResource GlassSurfaceBrush}"
+                                BorderBrush="{DynamicResource GlassBorderGradientSoft}"
                                 BorderThickness="1" VerticalAlignment="Center"/>
                         <Border x:Name="Fill" Height="6" CornerRadius="3" HorizontalAlignment="Left"
-                                Background="{DynamicResource GlassGradientActive}" VerticalAlignment="Center"/>
+                                Background="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
                         <Thumb x:Name="Thumb" Width="18" Height="18">
                             <Thumb.Template>
                                 <ControlTemplate TargetType="Thumb">
@@ -909,7 +901,7 @@
                                             Background="{DynamicResource GlassSurfaceElevated}"
                                             BorderBrush="{DynamicResource GlassBorderBright}"
                                             BorderThickness="1"
-                                            Effect="{DynamicResource GlassShadowSoftBorder}"/>
+                                            Effect="{DynamicResource ShadowSoft}"/>
                                 </ControlTemplate>
                             </Thumb.Template>
                         </Thumb>
@@ -934,7 +926,7 @@
                                     <Thumb.Template>
                                         <ControlTemplate TargetType="Thumb">
                                             <Border CornerRadius="4"
-                                                    Background="{DynamicResource GlassBorderPrimary}"/>
+                                                    Background="{DynamicResource GlassBorderGradientSoft}"/>
                                         </ControlTemplate>
                                     </Thumb.Template>
                                 </Thumb>
