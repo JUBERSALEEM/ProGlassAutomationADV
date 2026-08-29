@@ -722,31 +722,20 @@ namespace ProGlassAutomation
             // during sign-in. Restored once MainWindow exists.
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            // 11) License check (Phase 3, slice 4 of RELEASE_AUDIT.md).
-            //     Commit 4 of the licensing refactor: the pre-login
-            //     modal is GONE. The app now always boots into the
-            //     main shell, regardless of license status. When
-            //     the license is missing / expired, the main
-            //     window shows a LicenseActivationView overlay
-            //     that blocks the content area but leaves the
-            //     shell (sidebar, top bar) usable. The user can
-            //     navigate to About / Settings to inspect the
-            //     status, but cannot do productive work until a
-            //     license is installed.
+            // 11) License check.
             //
-            //     The auto-trial (Commit 2) still fires inside
-            //     LicenseService.Initialize() on first launch, so
-            //     a customer with a real trial-key pair boots
-            //     into a working app without any user action. A
-            //     developer's machine with placeholder keys
-            //     lands on the activation overlay; the License
-            //     Generator tool + a real key pair fixes that.
+            //     Secure offline redesign: the app now expects a
+            //     vendor-signed offline activation response stored in
+            //     protected local state. On a fresh machine the shell
+            //     still boots, but the user must generate an activation
+            //     request and import the signed response through the
+            //     LicenseActivationView overlay before productive work
+            //     is allowed.
             //
-            //     LicenseService.Initialize() is still called so
-            //     the auto-trial path can run, and so the
-            //     LicenseStatusViewModel (used by the main
-            //     window's overlay trigger) has a current value
-            //     to bind against.
+            //     LicenseService.Initialize() is still called here so
+            //     the protected activation state is loaded and the
+            //     LicenseStatusViewModel (used by the main window's
+            //     overlay trigger) has a current value to bind against.
             // The license check is BEST-EFFORT: it must never block or crash
             // app startup. Licensing writes several trial-ledger anchors
             // (config / %ProgramData% / registry / DPAPI) on this path; any

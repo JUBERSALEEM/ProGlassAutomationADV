@@ -7,58 +7,53 @@ namespace ProGlassAutomation.Tests.Agent
     public sealed class LicenseGeneratorCompatibilitySourceTests
     {
         [Fact]
-        public void Generator_project_links_the_app_compatible_license_contract_instead_of_the_new_contract_library()
+        public void Generator_project_now_references_the_contract_library_instead_of_linking_legacy_app_license_sources()
         {
             string root = LocateProjectRoot();
             string csproj = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "ProGlassAutomation.LicenseGenerator.csproj"));
 
-            Assert.Contains("Services\\Licensing\\LicensePayload.cs", csproj);
-            Assert.Contains("Services\\Licensing\\LicenseSigner.cs", csproj);
-            Assert.DoesNotContain("Licensing\\ProGlass.Licensing.csproj", csproj);
-            Assert.DoesNotContain("System.Security.Cryptography.ProtectedData", csproj);
+            Assert.Contains("Licensing\\ProGlass.Licensing.csproj", csproj);
+            Assert.DoesNotContain("Services\\Licensing\\LicensePayload.cs", csproj);
+            Assert.DoesNotContain("Services\\Licensing\\LicenseSigner.cs", csproj);
         }
 
         [Fact]
-        public void Generator_core_emits_app_compatible_dot_lic_json_and_paste_key()
+        public void Generator_core_emits_signed_offline_activation_responses_not_base64_license_keys()
         {
             string root = LocateProjectRoot();
             string core = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "LicenseGeneratorCore.cs"));
 
-            Assert.Contains("LicenseSigner.SignToFile", core);
-            Assert.Contains("LicensePayload", core);
-            Assert.Contains("Convert.ToBase64String", core);
-            Assert.Contains("LicenseFileExtension = \".lic\"", core);
-            Assert.Contains("InspectText", core);
-            Assert.Contains("TryDecodeLicenseJson", core);
-            Assert.Contains("DefaultFeatures(LicenseEdition.Business)", core);
+            Assert.Contains("GenerateActivationResponse", core);
+            Assert.Contains("OfflineActivationService.SignResponseJson", core);
+            Assert.Contains("OfflineActivationService.VerifyResponse", core);
+            Assert.Contains("ActivationRequestExtension = \".pgrequest\"", core);
+            Assert.Contains("ActivationResponseExtension = \".lic\"", core);
+            Assert.DoesNotContain("Convert.ToBase64String", core);
+            Assert.DoesNotContain("TryDecodeLicenseJson", core);
         }
 
         [Fact]
-        public void Generator_has_an_embedded_app_compatible_signing_pair_and_the_app_trusts_its_public_half()
+        public void Generator_uses_public_trust_hints_only_and_external_key_material_for_signing()
         {
             string root = LocateProjectRoot();
             string keys = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "AppCompatibleIssuerKeys.cs"));
+            string keyMaterial = File.ReadAllText(Path.Combine(root,
+                "Tools", "LicenseGenerator", "IssuerKeyMaterial.cs"));
             string appKeys = File.ReadAllText(Path.Combine(root,
                 "Services", "Licensing", "LicensePublicKey.cs"));
-            string verifier = File.ReadAllText(Path.Combine(root,
-                "Services", "Licensing", "LicenseVerifier.cs"));
 
-            Assert.Contains("PublicKeyXml", keys);
-            Assert.Contains("PrivateKeyXml", keys);
-            Assert.Contains("LegacyPublicKeyXml", keys);
             Assert.Contains("TrustedPublicKeys", keys);
+            Assert.DoesNotContain("PrivateKeyXml =>", keys);
+            Assert.Contains("privateKeyXml", keyMaterial, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("Generate(string keyId, string purpose)", keyMaterial);
             Assert.Contains("GeneratorCompatiblePublicKeyXml", appKeys);
-            Assert.Contains("ProductionPublicKeys", appKeys);
-            Assert.Contains("TryVerifyWithAnyProductionKey", verifier);
-            Assert.Contains("LicensePublicKey.ProductionPublicKeys", verifier);
-            Assert.Contains("fingerprint(s)", verifier);
         }
 
         [Fact]
-        public void Generator_ui_is_now_explicitly_worded_as_app_compatible_save_file_or_paste_key_flow()
+        public void Generator_ui_is_worded_as_offline_request_response_flow()
         {
             string root = LocateProjectRoot();
             string xaml = File.ReadAllText(Path.Combine(root,
@@ -66,14 +61,14 @@ namespace ProGlassAutomation.Tests.Agent
             string code = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
 
-            Assert.Contains("GENERATE .LIC", xaml);
-            Assert.Contains("COPY PASTE KEY", xaml);
-            Assert.Contains("Portable (shared .lic, activation-limited)", xaml);
-            Assert.Contains("Machine-bound (customer fingerprint required)", xaml);
-            Assert.Contains("BuildRequest()", code);
-            Assert.Contains("LicenseGeneratorCore.GenerateLicense", code);
-            Assert.Contains("LicenseGeneratorCore.InspectFile", code);
-            Assert.Contains("RunSelfTest", code);
+            Assert.Contains("LOAD .PGKEY", xaml);
+            Assert.Contains("LOAD .PGREQUEST", xaml);
+            Assert.Contains("GENERATE RESPONSE", xaml);
+            Assert.Contains("COPY RESPONSE JSON", xaml);
+            Assert.Contains("GenerateActivationResponse", code);
+            Assert.Contains("ParseActivationRequestText", code);
+            Assert.Contains("IssuerKeyMaterial.LoadFromFile", code);
+            Assert.Contains("LicenseGeneratorCore.RunSelfTest", code);
         }
 
         private static string LocateProjectRoot()

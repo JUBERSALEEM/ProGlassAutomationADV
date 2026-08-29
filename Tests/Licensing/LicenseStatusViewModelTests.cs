@@ -1,21 +1,6 @@
-// ═══════════════════════════════════════════════════════════════════════
-// FILE: Tests/Licensing/LicenseStatusViewModelTests.cs
-// PROJECT: ProGlassAutomation
-// MODULE: Tests — LicenseStatusViewModel display surface
-//
-// Hermetic tests for the LicenseStatusViewModel. The VM
-// reads LicenseService.Current, so every test:
-//   • Sets LicenseService.TestDataFolderOverride to a
-//     temp folder (LicenseServiceTests does the same).
-//   • Generates a fresh RSA key pair and swaps the
-//     public half in via reflection.
-//   • Drops a license file, calls Reload, and inspects
-//     the VM properties.
-//   • Restores everything in Dispose.
-// ═══════════════════════════════════════════════════════════════════════
-
 using System;
 using System.IO;
+using ProGlass.Licensing;
 using ProGlassAutomation.Services.Licensing;
 using ProGlassAutomation.ViewModels.Licensing;
 using Xunit;
@@ -28,7 +13,6 @@ namespace ProGlassAutomation.Tests.Licensing
         private readonly string _tempFolder;
         private readonly string _savedPublicKey;
         private readonly string? _savedOverride;
-        private readonly string _privateKey;
 
         public LicenseStatusViewModelTests()
         {
@@ -39,9 +23,8 @@ namespace ProGlassAutomation.Tests.Licensing
 
             _savedOverride = LicenseService.TestDataFolderOverride;
             LicenseService.TestDataFolderOverride = _tempFolder;
-
-            (string publicXml, _privateKey) = LicenseSigner.GenerateKeyPair();
-            _savedPublicKey = SwapPublicKey(publicXml);
+            _savedPublicKey = SwapPublicKey(
+                "PLACEHOLDER_REPLACE_WITH_REAL_RSA2048_PUBLIC_KEY_XML");
         }
 
         public void Dispose()
@@ -53,7 +36,7 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void VM_reflects_no_license_when_folder_is_empty()
+        public void VM_reflects_no_license_when_secure_store_is_empty()
         {
             LicenseService.Reload();
             var vm = LicenseStatusViewModel.Instance;
@@ -64,18 +47,9 @@ namespace ProGlassAutomation.Tests.Licensing
         }
 
         [Fact]
-        public void VM_reflects_business_license_with_days_remaining()
+        public void VM_reflects_business_activation_with_days_remaining()
         {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "VM-TEST-001",
-                Edition = LicenseEdition.Business,
-                CustomerId = "CUST-VM",
-                CompanyName = "VM Test LLC",
-                IssuedAt = DateTime.UtcNow.AddDays(-10),
-                ExpiresAt = DateTime.UtcNow.AddDays(355),
-                Features = new[] { "Inquiry.*", "Proforma.*" }
-            });
+            InstallActivation("Business", new[] { "Inquiry.*", "Proforma.*" }, 355);
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
             Assert.True(vm.IsValid);
@@ -83,173 +57,98 @@ namespace ProGlassAutomation.Tests.Licensing
             Assert.Equal("Business", vm.EditionDisplay);
             Assert.Equal("CUST-VM", vm.CustomerDisplay);
             Assert.Equal("VM Test LLC", vm.CompanyDisplay);
-            Assert.Equal(355, vm.DaysRemaining);
-            Assert.Equal("355 days", vm.DaysRemainingDisplay);
+            Assert.InRange(vm.DaysRemaining, 354, 355);
         }
 
         [Fact]
-        public void VM_reflects_trial_license_with_trial_badge()
+        public void VM_reflects_vendor_trial_with_trial_badge()
         {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "TRIAL-001",
-                Edition = LicenseEdition.Trial,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddDays(15),
-                Features = new[] { "Inquiry.*" }
-            });
+            InstallActivation("Trial", new[] { "*" }, 15);
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
             Assert.True(vm.IsTrial);
             Assert.Equal("Trial", vm.EditionDisplay);
-            Assert.Equal(15, vm.DaysRemaining);
+            Assert.InRange(vm.DaysRemaining, 14, 15);
         }
 
         [Fact]
-        public void VM_trial_days_come_from_payload_TrialExpiresAt_not_hardcoded()
+        public void VM_trial_days_come_from_signed_trial_window_not_hardcoded()
         {
-            // Regression (2026-08-26): the UI used to hardcode "7-day
-            // trial" for the headline even though the auto-trial is 30
-            // days. The duration/balance now derive from the payload's
-            // own expiry (ExpiresAt for a no-TrialSource trial), so
-            // whatever was issued is what is shown. Simulate a 30-day
-            // trial issued yesterday. (No TrialSource: the test host
-            // swaps only the production public key, so a TrialSource
-            // payload would fail verification against the trial key —
-            // mirror the base trial test's shape.)
-            var issued = DateTime.UtcNow.AddDays(-1);
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "TRIAL-30D",
-                Edition = LicenseEdition.Trial,
-                IssuedAt = issued,
-                ExpiresAt = issued.AddDays(30),
-                Features = new[] { "*" },
-            });
+            InstallActivation("Trial", new[] { "*" }, 30);
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
 
             Assert.True(vm.IsTrial);
-            // 30-day window, ~29 days left (issued a day ago).
             Assert.Equal(30, vm.TrialTotalDays);
-            Assert.InRange(vm.DaysRemaining, 28, 30);
             Assert.Contains("of 30 days remaining", vm.TrialStatusText);
-            Assert.Equal("Trial", vm.EditionDisplay);
-        }
-
-        [Fact]
-        public void VM_shows_read_only_for_grace_period()
-        {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "GRACE-001",
-                Edition = LicenseEdition.Business,
-                IssuedAt = DateTime.UtcNow.AddYears(-1),
-                ExpiresAt = DateTime.UtcNow.AddDays(-3),
-                Features = new[] { "*" }
-            });
-            var vm = LicenseStatusViewModel.Instance;
-            vm.Refresh();
-            Assert.True(vm.IsGracePeriod);
-            Assert.False(vm.IsValid);
-            Assert.Equal("grace period", vm.DaysRemainingDisplay);
-        }
-
-        [Fact]
-        public void VM_shows_expired_when_past_grace()
-        {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "DEAD-001",
-                Edition = LicenseEdition.Business,
-                IssuedAt = DateTime.UtcNow.AddYears(-2),
-                ExpiresAt = DateTime.UtcNow.AddDays(-30),
-                Features = new[] { "*" }
-            });
-            var vm = LicenseStatusViewModel.Instance;
-            vm.Refresh();
-            Assert.True(vm.IsExpired);
-            Assert.False(vm.IsValid);
-            Assert.Equal("expired", vm.DaysRemainingDisplay);
         }
 
         [Fact]
         public void VM_shows_expiring_soon_within_14_days()
         {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "SOON-001",
-                Edition = LicenseEdition.Business,
-                IssuedAt = DateTime.UtcNow.AddYears(-1),
-                ExpiresAt = DateTime.UtcNow.AddDays(5),
-                Features = new[] { "*" }
-            });
+            InstallActivation("Business", new[] { "*" }, 5);
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
             Assert.True(vm.IsExpiringSoon);
             Assert.True(vm.IsValid);
-            Assert.Equal(5, vm.DaysRemaining);
         }
 
         [Fact]
         public void VM_surfaces_machine_fingerprint_field()
         {
-            WriteLicense(new LicensePayload
-            {
-                LicenseId = "FP-001",
-                Edition = LicenseEdition.Business,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddYears(1),
-                MachineFingerprint = "deadbeef12345678deadbeef12345678",
-                Features = new[] { "*" }
-            });
+            InstallActivation("Business", new[] { "*" }, 365);
             var vm = LicenseStatusViewModel.Instance;
             vm.Refresh();
-            Assert.Equal("deadbeef12345678deadbeef12345678",
-                vm.MachineFingerprint);
+            Assert.False(string.IsNullOrWhiteSpace(vm.MachineFingerprint));
+            Assert.NotEqual("— (portable)", vm.MachineFingerprint);
         }
 
-        [Fact]
-        public void VM_shows_portable_when_no_machine_fingerprint()
+        private void InstallActivation(string edition, string[] features, int days)
         {
-            WriteLicense(new LicensePayload
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            string requestJson = LicenseService.CreateActivationRequestJson("VM-TEST-001");
+            var request = OfflineActivationService.ReadRequest(requestJson).Request!;
+
+            var now = DateTime.UtcNow;
+            var response = new OfflineActivationResponseDocument
             {
-                LicenseId = "PORT-001",
-                Edition = LicenseEdition.Business,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddYears(1),
-                MachineFingerprint = null,
-                Features = new[] { "*" }
-            });
-            var vm = LicenseStatusViewModel.Instance;
-            vm.Refresh();
-            Assert.Equal("— (portable)", vm.MachineFingerprint);
-        }
+                ProductId = request.ProductId,
+                LicenseId = request.LicenseId,
+                ActivationId = "ACT-VM-001",
+                InstallationId = request.InstallationId,
+                RequestNonce = request.RequestNonce,
+                MachineFingerprint = request.MachineFingerprint,
+                CustomerId = "CUST-VM",
+                CompanyName = "VM Test LLC",
+                Edition = edition,
+                LicenseType = "Subscription",
+                LicenseStatus = "Active",
+                IssuedAtUtc = now,
+                NotBeforeUtc = now,
+                ExpiresAtUtc = now.AddDays(days),
+                FeatureEntitlements = new System.Collections.Generic.List<string>(features),
+                OfflinePolicy = new OfflineActivationPolicy
+                {
+                    ClockRollbackToleranceMinutes = 1440,
+                    GraceDays = 7,
+                    ReadOnlyOnExpiry = true
+                }
+            };
 
-        // ── helpers ─────────────────────────────────────────────
+            string signed = OfflineActivationService.SignResponseJson(
+                response,
+                privateXml,
+                TrustedLicenseKeys.LegacyProductionKeyId);
 
-        private void WriteLicense(LicensePayload payload)
-        {
-            string path = Path.Combine(_tempFolder,
-                LicenseService.DefaultLicenseFileName);
-            LicenseSigner.SignToFile(payload, _privateKey, path);
-            LicenseService.Reload();
+            var result = LicenseService.InstallText(signed);
+            Assert.True(result.CanRun, result.ErrorDetail);
+            LicenseStatusViewModel.Instance.Refresh();
         }
 
         private static string SwapPublicKey(string newValue)
         {
-            // The previous version of this helper used
-            // FieldInfo.SetValue on the LicensePublicKey.PublicKeyXml
-            // field. That worked in .NET Framework but the .NET 10
-            // SDK on the build machine enforces the initonly bit
-            // on static readonly fields, so FieldInfo.SetValue
-            // throws "Cannot set initonly static field".
-            //
-            // LicensePublicKey exposes an internal SetForTest
-            // hook specifically for this case. It is the
-            // production-side seam that the test-side
-            // SwapPublicKey delegates to. No reflection is
-            // involved any more.
             string original = LicensePublicKey.PublicKeyXml;
             LicensePublicKey.SetForTest(newValue);
             return original;

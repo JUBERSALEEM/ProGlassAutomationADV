@@ -7,7 +7,7 @@ namespace ProGlassAutomation.Tests.Agent
     public sealed class LicenseActivationAboutSourceTests
     {
         [Fact]
-        public void Paste_activation_shows_a_post_activation_success_dialog_before_closing_the_overlay()
+        public void Activation_success_shows_a_post_activation_dialog_before_closing_the_overlay()
         {
             string root = LocateProjectRoot();
             string code = File.ReadAllText(Path.Combine(root,
@@ -41,7 +41,7 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("ActivationModeDisplay", xaml);
             Assert.Contains("LicenseSourceDisplay", xaml);
             Assert.Contains("TrustedIssuerDisplay", xaml);
-            Assert.Contains("COPY LICENSE ID", xaml);
+            Assert.Contains("COPY ID", xaml);
             Assert.Contains("CopyLicenseIdButton_Click", code);
             Assert.Contains("HasPayloadDetails", vm);
             Assert.Contains("FeatureSummaryDisplay", vm);

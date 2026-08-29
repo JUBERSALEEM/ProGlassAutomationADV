@@ -38,15 +38,16 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void Startup_guards_radio_checked_events_until_the_window_is_fully_built()
+        public void Generator_window_uses_explicit_request_parsing_and_external_key_loading_instead_of_ui_ready_radio_guards()
         {
             string root = LocateProjectRoot();
             string code = File.ReadAllText(Path.Combine(root,
                 "Tools", "LicenseGenerator", "MainWindow.xaml.cs"));
 
-            Assert.Contains("private bool _uiReady;", code);
-            Assert.Contains("if (!_uiReady || FingerprintRow == null || SingleRadio == null || MultiRadio == null)", code);
-            Assert.Contains("_uiReady = true;", code);
+            Assert.Contains("IssuerKeyMaterial.LoadFromFile", code);
+            Assert.Contains("ParseActivationRequestText()", code);
+            Assert.Contains("SelectedComboText(", code);
+            Assert.DoesNotContain("private bool _uiReady;", code);
         }
 
         private static string LocateProjectRoot()
