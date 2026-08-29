@@ -1073,7 +1073,17 @@ namespace ProGlassAutomation.ViewModels.Inquiry
         public string ProformaNumber { get; private set; } = "";
         public string JobOrderNumber { get; private set; } = "";
         public bool IsConverted => !string.IsNullOrWhiteSpace(ProformaNumber);
-        public bool CanConvert => Status == InquiryStatuses.Confirmed && !IsConverted;
+        /// <summary>
+        /// A PI can be created from a Prepared or Confirmed inquiry.
+        /// The inquiry status is then automatically advanced based on
+        /// the PI lifecycle: PI created → Sent, PI confirmed → Confirmed,
+        /// PI rejected/cancelled → Cancelled. This removes the need for
+        /// the operator to manually mark the inquiry as Confirmed before
+        /// creating a PI — the PI itself IS the confirmation evidence.
+        /// </summary>
+        public bool CanConvert =>
+            (Status == InquiryStatuses.Prepared || Status == InquiryStatuses.Confirmed)
+            && !IsConverted;
         // Workflow affordances for the drawer (guarded by the same state
         // machine the workflow service enforces server-side).
         public bool CanPrepareWorkflow => Services.Inquiry.InquiryWorkflowService.CanTransition(Status, InquiryStatuses.Prepared);

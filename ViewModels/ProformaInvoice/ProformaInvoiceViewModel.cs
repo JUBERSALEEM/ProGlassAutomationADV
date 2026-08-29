@@ -380,6 +380,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = ws.StepNumber < _furthestStepReached;
 
+            // Persist step progress on every navigation so the wizard
+            // state survives an app close or a back-to-list round-trip.
+            // Fire-and-forget: the silent draft never blocks navigation
+            // and never shows dialogs. The PrintableInvoiceViewModel's
+            // SilentDraftSaveAsync already guards against empty data.
+            Step7VM.PrintableInvoice.FurthestStepReached = _furthestStepReached;
+            AsyncUtility.SafeFireAndForget(
+                () => Step7VM.PrintableInvoice.SilentDraftSaveAsync(),
+                $"PI AutoSave Step{stepNumber}");
+
             if (stepNumber == 4)
             {
                 if (Step5VM.TotalSpecGroups > Step4VM.CalculationSectionCount)
@@ -453,6 +463,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         private async Task ReturnToListAsync()
         {
+            // Sync the current wizard progress into the printable VM
+            // before the silent draft save so the snapshot captures
+            // the correct furthest-step-reached value.
+            Step7VM.PrintableInvoice.FurthestStepReached = _furthestStepReached;
             await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
             _pendingApprovalInvoiceId = null;
             IsListView = true;
@@ -486,9 +500,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step3VM.LoadCardsAsync()
             );
             await Step8VM.LoadAsync();
+
+            // Restore step-completion progress from the snapshot so the
+            // operator sees the same completed-step indicators they had
+            // when the invoice was last saved.
+            int restored = Step7VM.PrintableInvoice.FurthestStepReached;
+            _furthestStepReached = Math.Max(1, restored);
             CurrentStep = WizardSteps[0];
-            _furthestStepReached = 1;
-            foreach (var ws in WizardSteps) ws.IsCompleted = false;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = ws.StepNumber < _furthestStepReached;
             IsListView = false;
         }
 
@@ -533,9 +553,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             }
             finally { Step7VM.InvoiceMainSummary.EndBatchUpdate(); }
             await Step8VM.LoadAsync();
+
+            int restored = Step7VM.PrintableInvoice.FurthestStepReached;
+            _furthestStepReached = Math.Max(1, restored);
             CurrentStep = WizardSteps[0];
-            _furthestStepReached = 1;
-            foreach (var ws in WizardSteps) ws.IsCompleted = false;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = ws.StepNumber < _furthestStepReached;
             IsListView = false;
         }
 
@@ -629,8 +652,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public async Task StartFromInquiryAsync(Models.Inquiry.InquiryRecord inquiry)
         {
             if (inquiry == null) throw new ArgumentNullException(nameof(inquiry));
-            if (!string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Confirmed, StringComparison.OrdinalIgnoreCase))
-                throw new InvalidOperationException("Only a confirmed Inquiry is eligible for Proforma creation.");
+            // Allow PI creation from Prepared or Confirmed inquiries.
+            // The inquiry status is automatically advanced to "Sent"
+            // when the PI is created (via InquiryLinkSync), and to
+            // "Confirmed" when the PI is approved. This removes the
+            // manual confirmation step that was blocking the workflow.
+            if (!string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Confirmed, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(inquiry.Status, Models.Inquiry.InquiryStatuses.Prepared, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Only a Prepared or Confirmed Inquiry is eligible for Proforma creation.");
             if (inquiry.ProformaInvoiceId.HasValue ||
                 !string.IsNullOrWhiteSpace(inquiry.ProformaNumber))
             {

@@ -193,6 +193,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public PricingEstimatorViewModel? Step4Pricing { get; set; }
 
         /// <summary>
+        /// Furthest wizard step the operator reached. Set by the wizard
+        /// shell (ProformaInvoiceViewModel) before every save so the
+        /// snapshot can persist step-completion progress. Zero means
+        /// "not set" — the mapper treats it as step 1 on restore.
+        /// </summary>
+        public int FurthestStepReached { get; set; }
+
+        /// <summary>
         /// CHAT 15: Parameter order corrected.
         /// Was: (company, ProjectSpecsViewModel project, ClientProfileViewModel client, ...)
         /// Now: (company, ClientProfileViewModel client, ProjectSpecsViewModel project, ...)

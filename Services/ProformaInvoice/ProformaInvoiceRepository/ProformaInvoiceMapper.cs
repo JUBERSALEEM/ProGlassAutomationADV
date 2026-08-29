@@ -196,6 +196,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             var snap = new ProformaInvoiceSnapshot
             {
+                FurthestStepReached = printable?.FurthestStepReached ?? 0,
                 Company = new CompanySnapshot
                 {
                     CompanyName = company.CompanyName ?? "",
@@ -558,6 +559,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             if (snap == null) return;
 
             ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry.Clear();
+
+            // ── Wizard progress ─────────────────────────────────────────
+            // Restore the furthest step reached so the step-completion
+            // indicators and the operator's ability to jump directly to
+            // a previously visited step survive an app close or reload.
+            if (printable != null)
+                printable.FurthestStepReached = snap.FurthestStepReached;
 
             // ── Step 1: Company ────────────────────────────────────────
             if (snap.Company != null)

@@ -41,7 +41,16 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// </summary>
     public class ProformaInvoiceSnapshot
     {
-        public int SchemaVersion { get; set; } = 1;
+        public int SchemaVersion { get; set; } = 2;
+
+        /// <summary>
+        /// Furthest wizard step the operator reached before the last save.
+        /// Restored on load so the step-completion indicators (and the
+        /// operator's ability to jump directly to a previously visited
+        /// step) survive an app close or a back-to-list navigation.
+        /// Additive: old snapshots deserialise to 0 (step 1 only).
+        /// </summary>
+        public int FurthestStepReached { get; set; }
 
         // Step 1: Company
         public CompanySnapshot Company { get; set; } = new();
