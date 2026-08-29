@@ -63,6 +63,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// <summary>Distinct salesmen, "All" first.</summary>
         public ObservableCollection<string> SalesmanFilterOptions { get; } = new();
 
+        /// <summary>Distinct customers, "All" first.</summary>
+        public ObservableCollection<string> CustomerFilterOptions { get; } = new();
+
         // ── Filters ───────────────────────────────────────────────────────
 
         private string _companyFilter = AllFilter;
@@ -90,6 +93,38 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 ApplyFilters();
             }
         }
+
+        private string _customerFilter = AllFilter;
+        public string CustomerFilter
+        {
+            get => _customerFilter;
+            set
+            {
+                if (_customerFilter == value) return;
+                _customerFilter = value ?? AllFilter;
+                OnPropertyChanged();
+                ApplyFilters();
+            }
+        }
+
+        private string _dateRangeFilter = "All";
+        public string DateRangeFilter
+        {
+            get => _dateRangeFilter;
+            set
+            {
+                if (_dateRangeFilter == value) return;
+                _dateRangeFilter = value ?? "All";
+                OnPropertyChanged();
+                ApplyFilters();
+            }
+        }
+
+        /// <summary>Date range options.</summary>
+        public ObservableCollection<string> DateRangeOptions { get; } = new()
+        {
+            "All", "This Week", "This Month", "This Quarter", "This Year", "Last 30 Days", "Last 90 Days"
+        };
 
         private string _searchText = "";
         /// <summary>Free text over proforma ID, customer and project.</summary>
@@ -162,6 +197,21 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             }
         }
 
+        private decimal _overallMarginPercent;
+        public decimal OverallMarginPercent
+        {
+            get => _overallMarginPercent;
+            private set
+            {
+                if (_overallMarginPercent == value) return;
+                _overallMarginPercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OverallMarginDisplay));
+            }
+        }
+
+        public string OverallMarginDisplay => $"{OverallMarginPercent:0.1}%";
+
         /// <summary>True when the portfolio total is negative.</summary>
         public bool IsPortfolioLoss => TotalProfit < 0m;
 
@@ -222,6 +272,7 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             CompanyFilterOptions.Add(AllFilter);
             SalesmanFilterOptions.Add(AllFilter);
+            CustomerFilterOptions.Add(AllFilter);
 
             // ══════════════════════════════════════════════════════════
             //  LIVE UPDATES
@@ -478,11 +529,26 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                 SalesmanFilterOptions.Add(s);
             }
 
+            // Customer filter options
+            string customer = CustomerFilter;
+            CustomerFilterOptions.Clear();
+            CustomerFilterOptions.Add(AllFilter);
+            foreach (var cu in _allRows
+                         .Select(r => r.CustomerName)
+                         .Where(v => !string.IsNullOrWhiteSpace(v))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(v => v, StringComparer.OrdinalIgnoreCase))
+            {
+                CustomerFilterOptions.Add(cu);
+            }
+
             // Restore selections without re-triggering a filter pass.
             _companyFilter = CompanyFilterOptions.Contains(company) ? company : AllFilter;
             _salesmanFilter = SalesmanFilterOptions.Contains(salesman) ? salesman : AllFilter;
+            _customerFilter = CustomerFilterOptions.Contains(customer) ? customer : AllFilter;
             OnPropertyChanged(nameof(CompanyFilter));
             OnPropertyChanged(nameof(SalesmanFilter));
+            OnPropertyChanged(nameof(CustomerFilter));
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -503,6 +569,30 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             {
                 query = query.Where(r =>
                     string.Equals(r.Salesman, SalesmanFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (!string.Equals(CustomerFilter, AllFilter, StringComparison.OrdinalIgnoreCase))
+            {
+                query = query.Where(r =>
+                    string.Equals(r.CustomerName, CustomerFilter, StringComparison.OrdinalIgnoreCase));
+            }
+
+            // Date range filter
+            if (DateRangeFilter != "All")
+            {
+                var now = DateTime.Now;
+                DateTime cutoff = DateRangeFilter switch
+                {
+                    "This Week" => now.AddDays(-(int)now.DayOfWeek),
+                    "This Month" => new DateTime(now.Year, now.Month, 1),
+                    "This Quarter" => new DateTime(now.Year, ((now.Month - 1) / 3) * 3 + 1, 1),
+                    "This Year" => new DateTime(now.Year, 1, 1),
+                    "Last 30 Days" => now.AddDays(-30),
+                    "Last 90 Days" => now.AddDays(-90),
+                    _ => DateTime.MinValue
+                };
+                if (cutoff > DateTime.MinValue)
+                    query = query.Where(r => r.IssueDate >= cutoff);
             }
 
             string term = (SearchText ?? "").Trim();
@@ -535,6 +625,11 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             TotalCost = Math.Round(rows.Sum(r => r.TotalCost), 2);
             TotalProfit = Math.Round(rows.Sum(r => r.Profit), 2);
             LossCount = rows.Count(r => r.IsLoss);
+
+            // Overall profit margin: profit / net * 100 (same as Step 4/9 formula)
+            OverallMarginPercent = TotalNet > 0m
+                ? Math.Round(TotalProfit / TotalNet * 100m, 1)
+                : 0m;
 
             OnPropertyChanged(nameof(IsPortfolioLoss));
         }

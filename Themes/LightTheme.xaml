@@ -102,7 +102,17 @@
         <GradientStop Color="#4AFFFFFF" Offset="0.92"/>
         <GradientStop Color="#58FFFFFF" Offset="1.00"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#08FFFFFF" po:Freeze="True"/>
+    <LinearGradientBrush x:Key="SideMenuBackgroundBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <GradientStop Color="#80FFFFFF" Offset="0.00"/>
+        <GradientStop Color="#48FFFFFF" Offset="0.02"/>
+        <GradientStop Color="#60FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#50FFFFFF" Offset="0.12"/>
+        <GradientStop Color="#48FFFFFF" Offset="0.30"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.60"/>
+        <GradientStop Color="#3AFFFFFF" Offset="0.85"/>
+        <GradientStop Color="#40FFFFFF" Offset="0.95"/>
+        <GradientStop Color="#50FFFFFF" Offset="1.00"/>
+    </LinearGradientBrush>
     <SolidColorBrush x:Key="SidebarCardBrush" Color="#10FFFFFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="MenuHoverBrush" Color="#185FCDFF" po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#0369A1" po:Freeze="True"/>

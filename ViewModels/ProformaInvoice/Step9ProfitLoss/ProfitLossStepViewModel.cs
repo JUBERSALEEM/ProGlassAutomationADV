@@ -194,10 +194,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             ? "selling price"
             : "purchase price";
 
-        private decimal _wastagePercent = 10m;
+        private decimal _wastagePercent = 15m;
         /// <summary>
         /// Cutting wastage allowance applied to the required area before the
-        /// sheet count is rounded up. User-editable; 10% is the shop default.
+        /// sheet count is rounded up. User-editable; 15% is the shop default.
         /// </summary>
         public decimal WastagePercent
         {

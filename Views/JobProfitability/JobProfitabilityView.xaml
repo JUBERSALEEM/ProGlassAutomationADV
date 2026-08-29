@@ -129,15 +129,14 @@
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            Margin="0,0,0,16"/>
 
-                <Grid>
+                <!-- Row 1: Search + Company + Customer -->
+                <Grid Margin="0,0,0,12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="200"/>
                         <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="220"/>
-                        <ColumnDefinition Width="12"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
@@ -155,13 +154,38 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="4">
+                        <TextBlock Text="CUSTOMER" Style="{StaticResource JpLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding CustomerFilterOptions}"
+                                  SelectedItem="{Binding CustomerFilter}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Row 2: Salesman + Date Range + Refresh -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
                         <TextBlock Text="SALESMAN" Style="{StaticResource JpLabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SalesmanFilterOptions}"
                                   SelectedItem="{Binding SalesmanFilter}"
                                   Style="{StaticResource JpComboStyle}"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="DATE RANGE" Style="{StaticResource JpLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding DateRangeOptions}"
+                                  SelectedItem="{Binding DateRangeFilter}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4" VerticalAlignment="Bottom">
                         <Button Content="REFRESH"
                                 Tag="&#xE72C;"
                                 Command="{Binding RefreshCommand}"
@@ -177,6 +201,8 @@
         ══════════════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1" Margin="20,16,20,0">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="*"/>
@@ -230,8 +256,38 @@
                 </StackPanel>
             </Border>
 
+            <!-- Overall Profit Margin % -->
+            <Border Grid.Column="6">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="OVERALL PROFIT MARGIN" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding OverallMarginDisplay}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
+                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
             <!-- Loss-making job count -->
-            <Border Grid.Column="6" Style="{StaticResource JpTileStyle}">
+            <Border Grid.Column="8" Style="{StaticResource JpTileStyle}">
                 <StackPanel>
                     <TextBlock Text="LOSS-MAKING JOBS" Style="{StaticResource JpTileCaptionStyle}"/>
                     <TextBlock Text="{Binding LossCountDisplay}">

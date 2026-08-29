@@ -55,8 +55,9 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Column="0"
                 Margin="14,14,6,14"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                BorderThickness="1.5"
+                RenderOptions.EdgeMode="Aliased"
                 SnapsToDevicePixels="True">
             <Border.Effect>
                 <DropShadowEffect BlurRadius="16" ShadowDepth="2"
