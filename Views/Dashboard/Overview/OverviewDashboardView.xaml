@@ -30,7 +30,7 @@
                     <RowDefinition Height="Auto"/>
                     <!-- 2026-08-25: revenue trend + recent documents row
                          expanded 220 -> 320 so both cards breathe. -->
-                    <RowDefinition Height="320" MinHeight="240"/>
+                    <RowDefinition Height="*" MinHeight="280"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
@@ -106,7 +106,7 @@
                          sparkline. Reads as the page's hero number. -->
                     <Border Grid.Column="0"
                             Margin="0,0,18,0"
-                            MinHeight="168"
+                            
                             CornerRadius="{DynamicResource CardCornerRadius}"
                             ClipToBounds="True"
                             BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
@@ -181,7 +181,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,16" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="IN PRODUCTION"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -190,7 +190,7 @@
                                            Foreground="{DynamicResource InfoBrush}"/>
                             </StackPanel>
                         </Border>
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,16" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="OVERDUE"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>

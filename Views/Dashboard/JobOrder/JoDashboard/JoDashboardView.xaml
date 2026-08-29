@@ -32,7 +32,7 @@
                          ask was a wider DATA LIST. Chart keeps the wide
                          slot, the recent-jobs list column is widened from
                          1* to 1.2* and the row is taller (300 vs 220). -->
-                    <RowDefinition Height="300" MinHeight="240"/>
+                    <RowDefinition Height="*" MinHeight="260"/>
                 </Grid.RowDefinitions>
 
                 <!-- HERO STRIP -->
@@ -93,7 +93,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,18,0" MinHeight="168">
+                            Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Production pulse"

@@ -336,7 +336,7 @@
                          chart keeps the wide slot, recent invoices list
                          column widened (1* -> 1.2*); top customers and
                          ageing brackets stay an even pair below. -->
-                    <RowDefinition Height="300" MinHeight="240"/>
+                    <RowDefinition Height="*" MinHeight="260"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
@@ -426,7 +426,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,18,0" MinHeight="168">
+                            Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Collections pulse"
@@ -461,7 +461,7 @@
                     </Border>
 
                     <StackPanel Grid.Column="2">
-                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,16" Padding="16,12">
+                        <Border Style="{StaticResource SoftCardStyle}" Margin="0,0,0,18" Padding="16,12">
                             <StackPanel>
                                 <TextBlock Text="OVERDUE"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>

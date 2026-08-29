@@ -93,9 +93,9 @@
          (#FFFFFF light / #273449 dark) so one style serves both. -->
     <Style x:Key="DashCardStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource GlassSurfaceBrush}"/>
+                Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource GlassBorderSoft}"/>
+                Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="{StaticResource DashCardPadding}"/>
@@ -111,8 +111,8 @@
     <!-- Inner tile: sits inside a card, one step more elevated. -->
     <Style x:Key="DashTileStyle" TargetType="Border">
         <Setter Property="Background"
-                Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
+                Value="{DynamicResource GlassUltraClearBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderGradientCrystal}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
         <Setter Property="Padding" Value="12,10"/>
@@ -410,8 +410,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <DataTemplate x:Key="DashKpiTileTemplate">
         <Border Style="{StaticResource DashTileStyle}"
-                Margin="0,0,7,7"
-                Width="168">
+                Margin="6,6,6,6">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -593,8 +592,8 @@
     <!-- The reference's SectionBorderStyle. -->
     <Style x:Key="SoftCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -624,10 +623,10 @@
          softening the very numbers this dashboard exists to show. -->
     <Style x:Key="SoftTileStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
+        <Setter Property="Padding"         Value="16,14"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -645,8 +644,8 @@
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Background"   Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"      Value="10"/>
@@ -656,8 +655,8 @@
     <!-- Inner neutral tile (sales-team chips, list rows). -->
     <Style x:Key="SoftInsetStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource GlassUltraClearBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientSoft}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource GlassBorderGradientCrystal}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"    Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding"         Value="12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -864,7 +863,7 @@
          than being hardcoded per column as in the reference markup.
     ═══════════════════════════════════════════════════════════════ -->
     <DataTemplate x:Key="SoftKpiCardTemplate">
-        <Border Style="{StaticResource SoftTileStyle}" Margin="5,0,5,0">
+        <Border Style="{StaticResource SoftTileStyle}" Margin="6,6,6,6">
             <Grid>
                 <StackPanel Margin="0,0,48,0">
                     <TextBlock Text="{Binding Title}"
@@ -907,8 +906,7 @@
              the label + value + icon slot from colliding when the band is
              narrowed. -->
         <Border Style="{StaticResource SoftTileStyle}"
-                Margin="5,0,5,6"
-                MinHeight="82">
+                Margin="6,6,6,6">
             <Grid>
                 <StackPanel Margin="0,0,48,0">
                     <TextBlock Text="{Binding Label}"
@@ -977,8 +975,8 @@
     <DataTemplate x:Key="SoftFeedRowTemplate">
         <Border Background="{Binding TintColor,
                              Converter={StaticResource BrushKeyConverter}}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
+                BorderBrush="{DynamicResource GlassBorderGradientCrystal}"
+                BorderThickness="1.5"
                 CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="12,10"
                 Margin="0,0,0,8"

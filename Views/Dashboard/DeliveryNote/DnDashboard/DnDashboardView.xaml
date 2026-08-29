@@ -30,7 +30,7 @@
                     <!-- 2026-08-25 rev 2: balanced bento restored — chart
                          keeps the wide slot, the recent-deliveries list
                          column is widened (1* -> 1.2*), row is taller. -->
-                    <RowDefinition Height="300" MinHeight="240"/>
+                    <RowDefinition Height="*" MinHeight="260"/>
                 </Grid.RowDefinitions>
 
                 <Grid Grid.Row="0" Margin="0,0,0,20">
@@ -89,7 +89,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,18,0" MinHeight="168">
+                            Margin="0,0,18,0" >
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Dispatch pulse"
