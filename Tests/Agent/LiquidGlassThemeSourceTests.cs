@@ -43,6 +43,12 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("0.88, 0.58", Engine, StringComparison.Ordinal);
             Assert.Contains("0.20, 0.06", Engine, StringComparison.Ordinal); // dark
             Assert.Contains("0.32, 0.11", Engine, StringComparison.Ordinal); // dark
+
+            // 2026-08-29 watery upgrade: the light curve has a dip
+            // under the top edge and a meniscus band — the droplet's
+            // surface-tension light — instead of a linear fade.
+            Assert.Contains("dip = (byte)(topA * 0.86)", Engine, StringComparison.Ordinal);
+            Assert.Contains("meniscus = (byte)", Engine, StringComparison.Ordinal);
         }
 
         [Fact]
@@ -61,6 +67,11 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.DoesNotContain("WithAlpha(stageB", engine, StringComparison.Ordinal);
             Assert.Contains("0xD7, 0xE5, 0xF9", engine, StringComparison.Ordinal);
             Assert.Contains("0xAE, 0xCB, 0xF0", engine, StringComparison.Ordinal);
+
+            // Watery stage (2026-08-29): a third accent bloom and
+            // caustic light pools give the aurora layered water depth.
+            Assert.Contains("LiquidOrbC(dark, accent)", engine, StringComparison.Ordinal);
+            Assert.Contains("LiquidCaustic(dark, accent", engine, StringComparison.Ordinal);
 
             // 2026-08-29 completion sweep: the DWM chrome service that
             // used to veil the window surface is DELETED outright — no
@@ -411,6 +422,17 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.True(tintBlue >= 0, "TintBlueBrush write missing");
             Assert.True(guard < tintBlue,
                 "the Liquid Glass tint guard must come before the TintBlueBrush write");
+        }
+
+        [Fact]
+        public void Card_template_draws_the_watery_meniscus_line()
+        {
+            // The droplet's surface-tension band: a soft line hugging
+            // the rounded top of the card, between the crisp edge and
+            // the diagonal sweep.
+            string styles = Read("Themes/Styles/LiquidGlassStyles.xaml");
+            Assert.Contains("x:Name=\"Meniscus\"", styles, StringComparison.Ordinal);
+            Assert.Contains("{DynamicResource LiquidEdgeBrush}", styles, StringComparison.Ordinal);
         }
 
         [Fact]

@@ -90,7 +90,11 @@
                          StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
         <GradientStop Color="#2EFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#27FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#3AFFFFFF" Offset="0.16"/>
+        <GradientStop Color="#1AFFFFFF" Offset="0.50"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
+        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidSheen"
                          StartPoint="0,0" EndPoint="1,1"
@@ -416,16 +420,27 @@
     ═══════════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#26FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#14FFFFFF" Offset="0.45"/>
-        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#20FFFFFF" Offset="0.07"/>
+        <GradientStop Color="#30FFFFFF" Offset="0.16"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.45"/>
+        <GradientStop Color="#12FFFFFF" Offset="0.80"/>
+        <GradientStop Color="#0DFFFFFF" Offset="0.93"/>
+        <GradientStop Color="#11FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#14FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#0FFFFFFF" Offset="0.12"/>
+        <GradientStop Color="#1CFFFFFF" Offset="0.24"/>
+        <GradientStop Color="#0AFFFFFF" Offset="0.65"/>
+        <GradientStop Color="#0DFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#3DFFFFFF" Offset="0.0"/>
-        <GradientStop Color="#1FFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#38FFFFFF" Offset="0.07"/>
+        <GradientStop Color="#47FFFFFF" Offset="0.16"/>
+        <GradientStop Color="#1FFFFFFF" Offset="0.55"/>
+        <GradientStop Color="#18FFFFFF" Offset="0.92"/>
+        <GradientStop Color="#1BFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Crystal edge: bright top highlight, soft mid, subtle lower edge. -->
     <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">

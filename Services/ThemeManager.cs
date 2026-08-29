@@ -325,19 +325,45 @@ namespace ProGlassAutomation.Services
                 StartPoint = new Point(0, 0),
                 EndPoint = new Point(0, 1)
             };
+
+            // Watery meniscus ramp (2026-08-29): the same droplet light
+            // curve the engine's FrostBrush uses — dip under the top
+            // edge, bright surface-tension band, transparent center,
+            // light gathered at the bottom rim.
+            Color topTint = ColorMath.Tint(accent,
+                Color.FromRgb(255, 255, 255), dark ? 0.14 : 0.12);
+            Color deepTint = ColorMath.Tint(accentDeep,
+                Color.FromRgb(255, 255, 255), dark ? 0.08 : 0.05);
+
             if (dark)
             {
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.14), 0x34), 0.0));
+                    ColorMath.WithAlpha(topTint, 0x34), 0.00));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.WithAlpha(ColorMath.Tint(accentDeep, Color.FromRgb(255, 255, 255), 0.08), 0x16), 1.0));
+                    ColorMath.WithAlpha(topTint, 0x2C), 0.06));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint,
+                        Color.FromRgb(255, 255, 255), 0.05), 0x40), 0.16));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Mix(topTint, deepTint, 0.5), 0x20), 0.50));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(deepTint, 0x16), 0.93));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.WithAlpha(ColorMath.Mix(deepTint,
+                        Color.FromRgb(255, 255, 255), 0.06), 0x1B), 1.00));
             }
             else
             {
+                card.GradientStops.Add(new GradientStop(topTint, 0.00));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Tint(accent, Color.FromRgb(255, 255, 255), 0.12), 0.0));
+                    ColorMath.Mix(topTint, deepTint, 0.25), 0.06));
                 card.GradientStops.Add(new GradientStop(
-                    ColorMath.Tint(accentDeep, Color.FromRgb(255, 255, 255), 0.05), 1.0));
+                    ColorMath.Mix(topTint, Color.FromRgb(255, 255, 255), 0.08), 0.16));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.Mix(topTint, deepTint, 0.5), 0.50));
+                card.GradientStops.Add(new GradientStop(deepTint, 0.93));
+                card.GradientStops.Add(new GradientStop(
+                    ColorMath.Mix(deepTint, Color.FromRgb(255, 255, 255), 0.10), 1.00));
             }
             FreezeAndSetBrush(resources, "LiquidCard", card);
 

@@ -95,9 +95,15 @@
     <LinearGradientBrush x:Key="LiquidCard"
                          StartPoint="0,0" EndPoint="0,1"
                          po:Freeze="True">
+        <!-- Watery meniscus ramp: dip under the top edge, bright
+             surface-tension band, transparent center, bottom rim. -->
         <GradientStop Color="#DBFFFFFF" Offset="0.0"/>
+        <GradientStop Color="#C6FFFFFF" Offset="0.06"/>
+        <GradientStop Color="#F0FFFFFF" Offset="0.16"/>
         <GradientStop Color="#BDFFFFFF" Offset="0.45"/>
-        <GradientStop Color="#9EFFFFFF" Offset="1.0"/>
+        <GradientStop Color="#A8FFFFFF" Offset="0.75"/>
+        <GradientStop Color="#9EFFFFFF" Offset="0.93"/>
+        <GradientStop Color="#A8FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Top-light specular sheen: strong white highlight at the top
          corner fading out — the "water glass" catch-light. Previously
@@ -448,17 +454,30 @@
          runtime cost.
     ═══════════════════════════════════════════════════════════════════ -->
     <LinearGradientBrush x:Key="LiquidGlassBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
+        <!-- Watery meniscus ramp (2026-08-29): crisp top, dip, bright
+             surface-tension band, transparent center, bottom rim. -->
         <GradientStop Color="#D9FFFFFF" Offset="0.0"/>
+        <GradientStop Color="#C4FFFFFF" Offset="0.07"/>
+        <GradientStop Color="#F2FFFFFF" Offset="0.16"/>
         <GradientStop Color="#B3FFFFFF" Offset="0.45"/>
-        <GradientStop Color="#80FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#87FFFFFF" Offset="0.80"/>
+        <GradientStop Color="#80FFFFFF" Offset="0.93"/>
+        <GradientStop Color="#8CFFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassSubtleBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#59FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#33FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#4DFFFFFF" Offset="0.10"/>
+        <GradientStop Color="#6EFFFFFF" Offset="0.22"/>
+        <GradientStop Color="#33FFFFFF" Offset="0.60"/>
+        <GradientStop Color="#40FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="LiquidGlassStrongBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">
         <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
-        <GradientStop Color="#D6FFFFFF" Offset="1.0"/>
+        <GradientStop Color="#E6FFFFFF" Offset="0.07"/>
+        <GradientStop Color="#FAFFFFFF" Offset="0.16"/>
+        <GradientStop Color="#D6FFFFFF" Offset="0.50"/>
+        <GradientStop Color="#BFFFFFFF" Offset="0.90"/>
+        <GradientStop Color="#C9FFFFFF" Offset="1.0"/>
     </LinearGradientBrush>
     <!-- Crystal edge: bright top, soft sides, slightly deeper lower edge. -->
     <LinearGradientBrush x:Key="LiquidEdgeBrush" StartPoint="0,0" EndPoint="0,1" po:Freeze="True">

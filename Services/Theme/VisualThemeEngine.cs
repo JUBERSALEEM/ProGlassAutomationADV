@@ -909,9 +909,18 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadius"] = new CornerRadius(14);
             resources["CardCornerRadiusLarge"] = new CornerRadius(18);
             resources["ControlCornerRadius"] = new CornerRadius(10);
-            ApplyKeyline(resources, dark
+            // Watery keyline (2026-08-29): the hairline that outlines
+            // every card is tinted with the accent at a whisper, so
+            // edges catch the ambient colour like wet glass instead of
+            // sitting as a foreign grey.
+            Color keylineBase = dark
                 ? Color.FromRgb(0x6E, 0x8C, 0xC4)
-                : Color.FromRgb(0x94, 0xB4, 0xDE));
+                : Color.FromRgb(0x94, 0xB4, 0xDE);
+            Color tintedKeyline = ColorMath.Mix(
+                keylineBase, ColorMath.Tint(accent, keylineBase, 0.45), 0.35);
+            ApplyKeyline(resources, dark
+                ? ColorMath.Lighten(tintedKeyline, 0.06)
+                : ColorMath.Lighten(tintedKeyline, -0.04));
 
             // ── 7) LIQUID GLASS TOKENS — design-system controls ─────
             ApplyLiquidGlassTokens(resources, dark);
@@ -1097,8 +1106,14 @@ namespace ProGlassAutomation.Services.Theme
                 Color.FromArgb(topA, 0xFF, 0xFF, 0xFF),
                 Color.FromArgb(botA, bot.R, bot.G, bot.B),
                 new Point(0, 0), new Point(0, 1));
+            // Condensation nuance: right below the crisp top edge the
+            // light dips slightly, then the meniscus band swells at
+            // mid-edge before fading to the deeper lower edge — the
+            // curve of a droplet seen from the side.
             brush.GradientStops.Insert(1, new GradientStop(
-                Color.FromArgb(midA, mid.R, mid.G, mid.B), 0.5));
+                Color.FromArgb((byte)(topA * 0.78), 0xFF, 0xFF, 0xFF), 0.22));
+            brush.GradientStops.Insert(2, new GradientStop(
+                Color.FromArgb(midA, mid.R, mid.G, mid.B), 0.55));
             brush.Freeze();
             return brush;
         }
@@ -1338,6 +1353,25 @@ namespace ProGlassAutomation.Services.Theme
                 LiquidOrb(dark, orbA: false), null,
                 new EllipseGeometry(new Point(0.06, 0.94), 0.36, 0.36)));
 
+            // Orb C — small accent bloom, center-top: the third light
+            // source that gives water its layered depth.
+            stage.Children.Add(new GeometryDrawing(
+                LiquidOrbC(dark, accent), null,
+                new EllipseGeometry(new Point(0.36, 0.08), 0.30, 0.30)));
+
+            // Water caustics — three broad, nearly-invisible pools of
+            // light, like sun refracting through a lens of water.
+            // Static and frozen: depth with zero runtime cost.
+            stage.Children.Add(new GeometryDrawing(
+                LiquidCaustic(dark, accent, 0.060, 0.045),
+                null, new EllipseGeometry(new Point(0.62, 0.42), 0.42, 0.30)));
+            stage.Children.Add(new GeometryDrawing(
+                LiquidCaustic(dark, accent, 0.045, 0.035),
+                null, new EllipseGeometry(new Point(0.30, 0.72), 0.36, 0.26)));
+            stage.Children.Add(new GeometryDrawing(
+                LiquidCaustic(dark, accent, 0.040, 0.030),
+                null, new EllipseGeometry(new Point(0.78, 0.82), 0.30, 0.22)));
+
             stage.Freeze();
 
             // Deliberately NO Viewport / ViewportUnits here: with the
@@ -1400,9 +1434,68 @@ namespace ProGlassAutomation.Services.Theme
         }
 
         /// <summary>
+        /// Orb C — the third, smaller accent bloom anchored center-top
+        /// (2026-08-29 watery upgrade). Same shape language as the
+        /// About orbs, accent-tinted, kept deliberately soft so it
+        /// reads as refraction, not a spotlight.
+        /// </summary>
+        private static Brush LiquidOrbC(bool dark, Color accent)
+        {
+            var (a0, a1) = dark ? ((byte)0x38, (byte)0x14) : ((byte)0x5A, (byte)0x24);
+            var orb = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                RadiusX = 0.5,
+                RadiusY = 0.5,
+                GradientStops =
+                {
+                    new GradientStop(
+                        Color.FromArgb(a0, accent.R, accent.G, accent.B), 0.0),
+                    new GradientStop(
+                        Color.FromArgb(a1, accent.R, accent.G, accent.B), 0.55),
+                    new GradientStop(
+                        Color.FromArgb(0x00, accent.R, accent.G, accent.B), 1.0)
+                }
+            };
+            orb.Freeze();
+            return orb;
+        }
+
+        /// <summary>
+        /// One water-caustic light pool: a faint accent-tinted bloom
+        /// (no center — light only at the rim of the pool, like real
+        /// caustics) at a soft alpha. Frozen.
+        /// </summary>
+        private static Brush LiquidCaustic(
+            bool dark, Color accent, double innerAlpha, double edgeAlpha)
+        {
+            var pool = new RadialGradientBrush
+            {
+                Center = new Point(0.5, 0.5),
+                GradientOrigin = new Point(0.5, 0.5),
+                RadiusX = 0.5,
+                RadiusY = 0.5,
+                GradientStops =
+                {
+                    new GradientStop(
+                        Color.FromArgb(0x00, accent.R, accent.G, accent.B), 0.0),
+                    new GradientStop(
+                        Color.FromArgb((byte)Math.Round(innerAlpha * 255),
+                            accent.R, accent.G, accent.B), 0.55),
+                    new GradientStop(
+                        Color.FromArgb((byte)Math.Round(edgeAlpha * 255),
+                            accent.R, accent.G, accent.B), 1.0)
+                }
+            };
+            pool.Freeze();
+            return pool;
+        }
+
+        /// <summary>
         /// Core frost builder shared by every frosted surface: base
-        /// colour tinted toward the accent + diagonal alpha fade.
-        /// Flat average alpha when Gradient Surfaces is off.
+        /// colour tinted toward the accent, then the iOS liquid ramp
+        /// (top-lit meniscus curve). Flat average alpha when Gradient
+        /// Surfaces is off.
         /// </summary>
         private static Brush FrostBrush(
             Color accent, Color baseColor, bool dark,
@@ -1419,17 +1512,42 @@ namespace ProGlassAutomation.Services.Theme
 
             if (ThemeManager.UseGradients)
             {
-                // Vertical top-light fade: the denser alpha sits at the
-                // TOP of the card, which is what gives iOS materials
-                // their soft "lit from above" sheen. (Border has no
-                // Template property, so the crisp 1px specular overlay
-                // attempted earlier is impossible at the style level —
-                // this brush-level sheen delivers the same identity to
-                // every surface that consumes these keys.)
-                var gradient = new LinearGradientBrush(
-                    Color.FromArgb(topA, tinted.R, tinted.G, tinted.B),
-                    Color.FromArgb(bottomA, tinted.R, tinted.G, tinted.B),
-                    new Point(0, 0), new Point(0, 1));
+                // iOS LIQUID RAMP (2026-08-29 watery upgrade) — a real
+                // droplet's light curve, not a linear fade: crisp top
+                // edge → short dip → bright MENISCUS band (surface
+                // tension catches the light) → long transparent center
+                // → light gathering again at the bottom rim. Border has
+                // no Template property, so the curve is baked into the
+                // brush itself — every surface that consumes these keys
+                // gets the watery identity for free.
+                byte dip = (byte)(topA * 0.86);
+                byte meniscus = (byte)Math.Min(0xFA, topA * 0.98 + 0x12);
+                byte mid = (byte)(topA * 0.72 + bottomA * 0.28);
+                byte low = (byte)Math.Min(0xFF, bottomA * 1.05);
+                byte rim = (byte)Math.Min(0xF2, bottomA * 1.28 + 0x0A);
+
+                var gradient = new LinearGradientBrush
+                {
+                    StartPoint = new Point(0, 0),
+                    EndPoint = new Point(0, 1),
+                    GradientStops =
+                    {
+                        new GradientStop(
+                            Color.FromArgb(topA, tinted.R, tinted.G, tinted.B), 0.00),
+                        new GradientStop(
+                            Color.FromArgb(dip, tinted.R, tinted.G, tinted.B), 0.07),
+                        new GradientStop(
+                            Color.FromArgb(meniscus, tinted.R, tinted.G, tinted.B), 0.16),
+                        new GradientStop(
+                            Color.FromArgb(mid, tinted.R, tinted.G, tinted.B), 0.45),
+                        new GradientStop(
+                            Color.FromArgb(low, tinted.R, tinted.G, tinted.B), 0.80),
+                        new GradientStop(
+                            Color.FromArgb(bottomA, tinted.R, tinted.G, tinted.B), 0.93),
+                        new GradientStop(
+                            Color.FromArgb(rim, tinted.R, tinted.G, tinted.B), 1.00)
+                    }
+                };
                 gradient.Freeze();
                 return gradient;
             }

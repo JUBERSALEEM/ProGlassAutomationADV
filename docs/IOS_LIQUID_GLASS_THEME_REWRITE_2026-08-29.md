@@ -176,3 +176,60 @@ The log file (AppLogService output / `logs\` folder, plus
 `logs\crash-latest.txt` for unhandled exceptions) now names the exact
 resource or exception — paste those lines and the root cause is
 immediately identifiable.
+
+---
+
+## Watery glass upgrade — 2026-08-29
+
+The user asked for an even more watery, iOS-style liquid glass. The
+enhancement is a materials pass only — every family/theme contract,
+key name, ramp anchor and test pin stays intact. What changed:
+
+### The droplet light curve (every frosted surface)
+
+`FrostBrush` no longer draws a linear alpha fade. Every surface now gets
+a real droplet's light curve — crisp top edge → short dip (0.07) →
+bright MENISCUS band (0.16, the surface-tension highlight) → long
+transparent center → light gathering again at the bottom rim (1.00).
+Because the curve is baked into the brush, it reaches every consumer
+of the surface keys (module, cards, shell, dashboard, sidebar) with
+zero per-view markup. Gradient Surfaces OFF keeps the flat average
+(unchanged contract).
+
+### Window stage — more water
+
+- Third light source: a soft accent bloom (`LiquidOrbC`) at center-top,
+  between the two About orbs — layered refraction depth.
+- Three static water-caustic pools (`LiquidCaustic`) — light only at
+  the pool rims, like sun through a lens of water; frozen, zero cost.
+
+### Edges and outlines
+
+- `CrystalEdge` gets a condensation nuance (slight dip under the crisp
+  top edge, swelling mid band) matching the ramp.
+- The keyline that outlines every card is now tinted with the accent at
+  a whisper — edges catch ambient colour like wet glass instead of a
+  foreign grey.
+
+### Card template + theme tokens
+
+- `LiquidGlassCard` draws a visible MENISCUS LINE (soft band hugging
+  the rounded top, between the crisp edge and the diagonal sweep).
+- `LiquidGlassBrush` / Subtle / Strong in BOTH theme dictionaries now
+  carry the same watery stop curve (Light: white water glass; Dark:
+  deep frost), so other visual families also inherit the water look.
+- The About module's `LiquidCard` (ThemeManager.PublishAboutPalette)
+  builds the same meniscus ramp, accent-derived, per mode.
+
+### Tuning knobs (engine, FrostBrush)
+
+`dip = topA * 0.86`, `meniscus = topA * 0.98 + 0x12`,
+`mid = 0.72/0.28 blend`, `low = bottomA * 1.05`,
+`rim = bottomA * 1.28 + 0x0A` — raising `meniscus`/`rim` makes the
+water bands more pronounced; the offsets (0.07/0.16) move the bands.
+
+### Pins
+
+`LiquidGlassThemeSourceTests` now has 23 facts — the ramp dip/meniscus
+markers, Orb C + caustics, and the template meniscus line are all
+pinned so a future edit cannot flatten the water back out.

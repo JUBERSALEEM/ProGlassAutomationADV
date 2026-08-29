@@ -62,6 +62,17 @@
                                     VerticalAlignment="Top"
                                     Margin="10,1,10,0"
                                     Background="{DynamicResource LiquidInnerHighlightBrush}"/>
+                            <!-- meniscus line: the surface-tension band
+                                 where the top of the water catches the
+                                 light, hugging the rounded corners -->
+                            <Border x:Name="Meniscus"
+                                    Height="2"
+                                    VerticalAlignment="Top"
+                                    Margin="8,2,8,0"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource LiquidEdgeBrush}"
+                                    Opacity="0.45"
+                                    IsHitTestVisible="False"/>
                             <!-- diagonal specular sweep -->
                             <Border x:Name="Sweep"
                                     Background="{DynamicResource LiquidReflectionBrush}"
