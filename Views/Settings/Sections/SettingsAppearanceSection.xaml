@@ -86,7 +86,7 @@
                                 <TextBlock Style="{StaticResource SettingsTileTitleStyle}" Text="Visual Theme"/>
                             </StackPanel>
                             <TextBlock Style="{StaticResource SettingsTileCaptionStyle}"
-                                       Text="Normal, Monet, Professional, Glass, Glassy or Ocean — restyles the whole app instantly. Glassy is the About page's frosted look, app-wide."/>
+                                       Text="Normal, Monet, Professional, Glass, Glassy or Ocean — restyles the whole app instantly. Glass and Glassy are full iOS-style glass: the window gets real acrylic backdrop blur (Windows 10/11) and every card becomes a translucent frosted pane. Systems without blur support fall back to the frosted gradient stage automatically."/>
                             <ComboBox ItemsSource="{Binding VisualThemeOptions}"
                                       SelectedItem="{Binding SelectedVisualTheme}"
                                       HorizontalAlignment="Stretch"

@@ -15,12 +15,19 @@
 //   Professional  — premium corporate finish: cool slate gradient
 //                   window, crisp cooler surfaces, tighter radii,
 //                   restrained hover — visibly distinct from Normal.
-//   Glass         — frosted translucency over a cool stage.
+//   Glass         — frosted translucency over a cool stage; with
+//                   GlassChromeService (DWM acrylic) the whole window
+//                   becomes real iOS-style glass: the desktop blurs
+//                   through a translucent veil and every card is a
+//                   white-frost pane on top of it.
 //   Glassy        — the About page's look, applied app-wide: the whole
 //                   window becomes the About stage (diagonal navy/ice
 //                   gradient + the two soft light orbs) and every
 //                   surface turns into translucent frosted glass so the
 //                   stage — or the wallpaper — reads through everything.
+//                   With GlassChromeService active the stage itself is a
+//                   translucent veil over a blurred accent backdrop
+//                   (iOS-style material).
 //   Ocean         — deep teal corporate.
 //
 // SYSTEM-WIDE WALLPAPER (v3):
@@ -225,6 +232,11 @@ namespace ProGlassAutomation.Services.Theme
                 // over whatever the family/wallpaper just wrote.
                 ApplyFontPreference(resources, false);
 
+                // Window-level acrylic blur follows the family: Glass and
+                // Glassy get the DWM accent backdrop, everything else
+                // restores the normal window surface.
+                SyncGlassChrome();
+
                 AppLogService.Info(
                     $"Visual theme applied: {Current}",
                     new LogContext
@@ -331,6 +343,9 @@ namespace ProGlassAutomation.Services.Theme
 
                         // Global font colour preference still wins last.
                         ApplyFontPreference(resources, true);
+
+                        // Window chrome follows the family.
+                        SyncGlassChrome();
                         return;
                     }
                 }
@@ -351,6 +366,9 @@ namespace ProGlassAutomation.Services.Theme
                 // restore) runs after the wallpaper typography, so a
                 // user-chosen text palette always wins.
                 ApplyFontPreference(resources, systemWallpaperLayered);
+
+                // Window-level acrylic blur follows the family.
+                SyncGlassChrome();
             }
             catch (Exception ex)
             {
@@ -657,32 +675,49 @@ namespace ProGlassAutomation.Services.Theme
         private static void ApplyGlass(ResourceDictionary resources)
         {
             bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+            bool chrome = GlassChromeService.IsSupported;
 
-            // Cool glass stage gradient.
+            // Cool glass stage. With the DWM acrylic backdrop active the
+            // window surface becomes a translucent veil over the blurred
+            // desktop (real iOS glass); without it, keep the opaque
+            // gradient so the UI never loses contrast.
+            Color stageA = dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
+                                : Color.FromRgb(0xEE, 0xF4, 0xFB);
+            Color stageB = dark ? Color.FromRgb(0x12, 0x22, 0x44)
+                                : Color.FromRgb(0xE4, 0xED, 0xF9);
+            if (chrome)
+            {
+                stageA = ColorMath.WithAlpha(stageA, 0x3C);
+                stageB = ColorMath.WithAlpha(stageB, 0x52);
+            }
             var window = new LinearGradientBrush(
-                dark ? Color.FromRgb(0x0B, 0x14, 0x2A)
-                     : Color.FromRgb(0xEE, 0xF4, 0xFB),
-                dark ? Color.FromRgb(0x12, 0x22, 0x44)
-                     : Color.FromRgb(0xE4, 0xED, 0xF9),
-                new Point(0, 0), new Point(1, 1));
+                stageA, stageB, new Point(0, 0), new Point(1, 1));
             window.Freeze();
             resources["WindowBackgroundBrush"] = window;
 
             // Frosted surfaces — translucent and lightly accent-tinted so
-            // the stage gradient reads through each card (the glass look).
+            // the blurred backdrop + stage gradient reads through each
+            // card (the glass look). With chrome active the frost sits
+            // lighter (like Apple's thin materials); without it the
+            // higher alphas keep text contrast over the opaque stage.
             var accent = ThemeManager.AccentColor;
             resources["ModuleBackgroundBrush"] = GlassSurface(
                 resources, "ModuleBackgroundBrush", accent,
-                Colors.White, dark ? 0.86 : 0.78, dark);
+                Colors.White, dark ? (chrome ? 0.58 : 0.86)
+                                   : (chrome ? 0.62 : 0.78), dark);
             resources["ElevatedSurfaceBrush"] = GlassSurface(
                 resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, dark ? 0.92 : 0.84, dark);
+                Colors.White, dark ? (chrome ? 0.66 : 0.92)
+                                   : (chrome ? 0.70 : 0.84), dark);
             resources["SideMenuBackgroundBrush"] = GlassSurface(
                 resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, dark ? 0.94 : 0.86, dark);
+                Colors.White, dark ? (chrome ? 0.74 : 0.94)
+                                   : (chrome ? 0.78 : 0.86), dark);
             resources["MenuHoverBrush"] = GlassSurface(
                 resources, "MenuHoverBrush", accent,
-                Color.FromRgb(0xF3, 0xF4, 0xF6), dark ? 0.60 : 0.55, dark);
+                Color.FromRgb(0xF3, 0xF4, 0xF6),
+                dark ? (chrome ? 0.40 : 0.60)
+                     : (chrome ? 0.45 : 0.55), dark);
 
             // Softer radii suit the frosted material.
             resources["CardCornerRadius"] = new CornerRadius(14);
@@ -735,8 +770,15 @@ namespace ProGlassAutomation.Services.Theme
             // When a wallpaper is configured, Apply() overwrites this
             // brush with the image afterwards, exactly like every other
             // family — the glass surfaces then sit on the picture.
-            resources["WindowBackgroundBrush"] =
-                BuildGlassStageBrush(dark, accent);
+            //
+            // With the DWM acrylic backdrop active the stage base is a
+            // translucent veil (alpha ~0x40) so the blurred desktop
+            // shows through the whole window — the orbs keep their glow
+            // on top. Without it the stage stays opaque so Glassy still
+            // reads correctly on systems without backdrop blur.
+            resources["WindowBackgroundBrush"] = BuildGlassStageBrush(
+                dark, accent,
+                GlassChromeService.IsSupported ? (byte)0x40 : (byte)0xFF);
 
             // ── 2) CARD SURFACES — About-GlassCard transparency ───────
             // Main cards use the About page's exact dark GlassCard ramp
@@ -994,6 +1036,67 @@ namespace ProGlassAutomation.Services.Theme
             }
         }
 
+        // ── WINDOW-LEVEL ACRYLIC BLUR (iOS-style glass) ───────────────
+        //
+        // Glass and Glassy are the two frosted families. When the OS
+        // supports it, GlassChromeService applies the DWM accent policy
+        // (acrylic on Win10 1809+/Win11, blur-behind on Win10 1507+),
+        // and these families paint the window surface as a translucent
+        // veil instead of an opaque gradient — the blurred backdrop then
+        // reads through every translucent card, which is the actual
+        // iOS-glass material effect. Every other family restores the
+        // normal window surface. Runs inside Apply/ApplyModule so theme
+        // swaps, accent changes and module navigation all stay in sync.
+
+        /// <summary>
+        /// Turns the window acrylic backdrop on (Glass/Glassy) or off
+        /// (every other family), with an accent-derived DWM tint.
+        /// </summary>
+        private static void SyncGlassChrome()
+        {
+            try
+            {
+                if (Current == Glass || Current == Glassy)
+                {
+                    bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+                    Color accent = ThemeManager.AccentColor;
+
+                    // DWM tint: deep slate (dark) or icy white (light),
+                    // pulled a quarter of the way toward the accent so
+                    // the backdrop belongs to the user's colour.
+                    Color baseTint = dark
+                        ? Color.FromRgb(0x0B, 0x14, 0x2A)
+                        : Color.FromRgb(0xE9, 0xF2, 0xFD);
+                    Color tint = ColorMath.Mix(baseTint, accent, 0.28);
+
+                    GlassChromeService.Apply(
+                        ColorMath.WithAlpha(tint, 0xB0));
+                }
+                else
+                {
+                    GlassChromeService.Remove();
+                }
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Glass chrome sync failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Themes",
+                        Class = nameof(VisualThemeEngine)
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Re-runs the window chrome sync for the CURRENT family. Called
+        /// once by MainWindow after it attaches GlassChromeService (the
+        /// engine applied the family before the window existed).
+        /// </summary>
+        public static void ReapplyWindowChrome()
+            => SyncGlassChrome();
+
         /// <summary>Frozen SolidColorBrush helper for the font palette.</summary>
         private static void FrozenAndSet(
             ResourceDictionary resources, string key, Color color)
@@ -1017,7 +1120,8 @@ namespace ProGlassAutomation.Services.Theme
         /// re-applies on AccentChanged).
         /// </para>
         /// </summary>
-        private static Brush BuildGlassStageBrush(bool dark, Color accent)
+        private static Brush BuildGlassStageBrush(
+            bool dark, Color accent, byte alpha = 0xFF)
         {
             // Base stage: the About page's diagonal A → B → A gradient.
             Color baseA, baseB;
@@ -1037,6 +1141,11 @@ namespace ProGlassAutomation.Services.Theme
                 baseB = ColorMath.Tint(
                     accent, Color.FromRgb(0xC2, 0xD8, 0xF0), 0.42);
             }
+
+            // iOS-glass mode: the stage base becomes a translucent veil
+            // over the DWM acrylic backdrop (alpha < 0xFF).
+            baseA = ColorMath.WithAlpha(baseA, alpha);
+            baseB = ColorMath.WithAlpha(baseB, alpha);
 
             if (!ThemeManager.UseGradients)
             {

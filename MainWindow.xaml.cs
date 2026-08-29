@@ -14,6 +14,7 @@
 //   ✓ UiTreeHelper also patched centrally for other views
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -35,6 +36,14 @@ namespace ProGlassAutomation
         public MainWindow()
         {
             InitializeComponent();
+
+            // iOS-style glass chrome: attach the DWM acrylic backdrop
+            // service, then re-sync it with the visual theme family that
+            // startup already applied (the engine ran before this window
+            // existed). Glass/Glassy get the blur; everything else stays
+            // a normal opaque window.
+            GlassChromeService.Attach(this);
+            VisualThemeEngine.ReapplyWindowChrome();
 
             // Shutdown safety guard
             Closing += MainWindow_Closing;
