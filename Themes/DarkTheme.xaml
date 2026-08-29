@@ -44,7 +44,7 @@
                      Color="#1E293B"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="SideMenuBackgroundBrush"
-                     Color="#0F172A"
+                     Color="#0D1E293B"
                      po:Freeze="True"/>
     <!-- Opaque Color twins for the drawer gradient (MainWindow uses
          SideMenuBackgroundColor / ModuleBackgroundColor as DynamicResource

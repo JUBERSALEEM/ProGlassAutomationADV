@@ -152,7 +152,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="White" Opacity="0.92">
+                        <Border Grid.Column="0" Width="38" Height="38" CornerRadius="10" Background="{DynamicResource GlassSurfaceElevated}">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextTitle}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel Grid.Column="1" Margin="10,0,0,0" VerticalAlignment="Center">
@@ -455,7 +455,7 @@
                                     </TextBlock>
                                 </StackPanel>
                             </StackPanel>
-                            <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="White" Opacity="0.10" VerticalAlignment="Center" Margin="16,0,0,0">
+                            <Border Grid.Column="1" Width="120" Height="120" CornerRadius="16" Background="{DynamicResource GlassSurfaceUltra}" Opacity="1" VerticalAlignment="Center" Margin="16,0,0,0">
                                 <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="52" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </Grid>

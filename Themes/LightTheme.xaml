@@ -52,10 +52,10 @@
                      po:Freeze="True"/>
     <Color x:Key="ModuleBackgroundColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush"
-                     Color="#F8FAFC"
+                     Color="#1AFFFFFF"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="SideMenuBackgroundBrush"
-                     Color="#FFFFFF"
+                     Color="#0FFFFFFF"
                      po:Freeze="True"/>
     <Color x:Key="SideMenuBackgroundColor">#FFFFFF</Color>
     <SolidColorBrush x:Key="MenuHoverBrush"
@@ -261,7 +261,7 @@
                      Color="#FEF2F2"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="TintGrayBrush"
-                     Color="#F9FAFB"
+                     Color="#0FFFFFFF"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="TintPurpleBrush"
                      Color="#F5F3FF"

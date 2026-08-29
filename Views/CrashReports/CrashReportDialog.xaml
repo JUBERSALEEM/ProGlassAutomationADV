@@ -11,7 +11,7 @@
         Title="ProGlass Automation — Error"
         Width="560" Height="380"
         MinWidth="480" MinHeight="320"
-        Background="White"
+        Background="{DynamicResource GlassSurfaceElevated}"
         Foreground="{DynamicResource PrimaryForegroundBrush}"
         FontFamily="Segoe UI, Segoe UI Variable, Arial"
         WindowStartupLocation="CenterScreen"

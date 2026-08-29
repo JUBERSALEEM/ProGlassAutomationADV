@@ -104,8 +104,8 @@
         ═══════════════════════════════════════════════════════════════ -->
 
         <DropShadowEffect x:Key="CardShadow"
-                          BlurRadius="18" ShadowDepth="3"
-                          Opacity="0.08" Color="#0F172A" Direction="270"
+                          BlurRadius="4" ShadowDepth="1"
+                          Opacity="0.03" Color="#000000" Direction="270"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="LogoGlow"
@@ -712,10 +712,10 @@
              record · user card.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Height="60"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="0,0,0,1"
+                Height="48"
+                Background="{DynamicResource GlassSurfaceElevated}"
+                BorderBrush="{DynamicResource GlassBorderSoft}"
+                BorderThickness="0,0,0,0.5"
                 Panel.ZIndex="50"
                 SnapsToDevicePixels="True">
 
@@ -1039,13 +1039,7 @@
 
         <Grid Grid.Row="1">
 
-            <!-- ELEVATION CASTER (empty shadow-only Border) -->
-            <Border Margin="16"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
-                    Effect="{StaticResource CardShadow}"
-                    IsHitTestVisible="False"
-                    SnapsToDevicePixels="True"/>
+            <!-- ELEVATION CASTER — removed for edge-to-edge iOS glass -->
 
             <!-- CONTENT CARD — iOS glass: transparent, minimal margin -->
             <Border Background="Transparent"
