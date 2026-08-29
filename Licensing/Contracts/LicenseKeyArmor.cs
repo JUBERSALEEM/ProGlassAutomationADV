@@ -23,8 +23,11 @@
 //   • Decoding NEVER trusts the armor — every decoded document is still
 //     signature-verified by the existing VerifyAndValidate path. The armor
 //     is transport only, not a security boundary.
-//   • Raw (unarmored) JSON is also accepted by TryExtractJson so existing
-//     .proglasslicense files keep working verbatim.
+//   • TryExtractJson stays tolerant (raw JSON decodes for legacy
+//     callers), but the APP boundary (LicenseService.InstallKeyText /
+//     InstallKeyFile) accepts armored blocks ONLY via IsArmoredBlock —
+//     the customer-facing contract is "paste the key the generator
+//     produced".
 //
 // SECURITY NOTE
 // ─────────────
@@ -53,6 +56,21 @@ public static class LicenseKeyArmor
     public const string Prefix = "PGKEY1.";
 
     /// <summary>
+    /// True when the text is an armored key block — whitespace anywhere
+    /// tolerated, prefix required, payload non-empty. This is the check
+    /// the app uses to enforce "only keys produced by the generator".
+    /// </summary>
+    public static bool IsArmoredBlock(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        string compact = string.Concat(text.Where(c => !char.IsWhiteSpace(c)));
+        return compact.StartsWith(Prefix, StringComparison.Ordinal)
+            && compact.Length > Prefix.Length;
+    }
+
+    /// <summary>
     /// Wrap a signed license JSON document into a single-line key block.
     /// </summary>
     public static string Encode(string licenseJson)
@@ -70,8 +88,12 @@ public static class LicenseKeyArmor
     /// <summary>
     /// Extract the signed license JSON from pasted text. Accepts:
     ///   • an armored "PGKEY1.…" block (whitespace anywhere tolerated),
-    ///   • a raw JSON document (starts with '{').
-    /// Returns null when the text is neither. Never throws.
+    ///   • a raw JSON document (starts with '{') — kept at this level so
+    ///     legacy callers can still decode old .proglasslicense files.
+    /// The APP boundary is stricter: LicenseService.InstallKeyText
+    /// accepts armored blocks ONLY (see IsArmoredBlock), because the
+    /// customer-facing contract is "paste the key the generator
+    /// produced". Returns null when the text is neither. Never throws.
     /// </summary>
     public static string? TryExtractJson(string? text)
     {

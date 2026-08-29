@@ -24,6 +24,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Set in code (not XAML) so the Checked handler can never fire
+        // before the preview TextBlock exists.
+        Plan1YearRadio.IsChecked = true;
         Loaded += OnLoaded;
     }
 
@@ -45,6 +48,24 @@ public partial class MainWindow : Window
         if (Plan6MonthsRadio.IsChecked == true) return LicenseGeneratorCore.Plans[2];
         if (Plan2YearsRadio.IsChecked == true) return LicenseGeneratorCore.Plans[4];
         return LicenseGeneratorCore.Plans[3]; // 1 Year (also the default)
+    }
+
+    private void PlanRadio_Checked(object sender, RoutedEventArgs e)
+    {
+        if (KeyPreviewText == null) return;
+
+        LicenseGeneratorCore.LicensePlan plan = SelectedPlan();
+        string duration = plan.Days switch
+        {
+            7 => "seven days",
+            30 => "thirty days",
+            182 => "six months",
+            365 => "one year",
+            _ => "two years"
+        };
+        KeyPreviewText.Text =
+            plan.Name + " — the customer's key expires " + duration +
+            " from the moment it is generated.";
     }
 
     private void GenerateLicenseKeyButton_Click(object sender, RoutedEventArgs e)

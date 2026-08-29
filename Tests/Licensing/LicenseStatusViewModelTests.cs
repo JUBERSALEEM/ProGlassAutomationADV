@@ -159,7 +159,7 @@ namespace ProGlassAutomation.Tests.Licensing
             string signed = OfflineActivationService.SignResponseJson(
                 response,
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             var result = LicenseService.InstallText(signed);
             Assert.True(result.CanRun, result.ErrorDetail);
@@ -168,8 +168,8 @@ namespace ProGlassAutomation.Tests.Licensing
 
         private static string SwapPublicKey(string newValue)
         {
-            string original = LicensePublicKey.PublicKeyXml;
-            LicensePublicKey.SetForTest(newValue);
+            string original = LicensePublicKey.GeneratorCompatiblePublicKeyXml;
+            LicensePublicKey.SetGeneratorKeyForTest(newValue);
             return original;
         }
     }

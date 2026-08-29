@@ -10,6 +10,7 @@
 // error codes. They never touch WPF, a database, or app services.
 // ═══════════════════════════════════════════════════════════════════════
 
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Xunit;
@@ -252,6 +253,24 @@ public sealed class LicenseContractTests
         // The app only checks known features and does NOT crash on unknown ones.
         Assert.True(LicenseValidator.HasFeature(result.Document!, "PROFORMA_INVOICE"));
         Assert.False(LicenseValidator.HasFeature(result.Document!, "SOME_UNKNOWN"));
+    }
+
+    [Fact]
+    public void VerifyCanonical_rejects_pkcs1_v15_signatures()
+    {
+        // 2026-08-29 security cross-check: the contract accepts PSS ONLY.
+        // A v1.5 signature over the same canonical bytes must be
+        // rejected even with the correct public key — the legacy v1.5
+        // acceptance path was attack surface, not compatibility.
+        var (pub, priv) = LicenseCrypto.GenerateKeyPair();
+        byte[] canonical = Encoding.UTF8.GetBytes("ProGlass security cross-check");
+
+        using var rsa = RSA.Create(LicenseCrypto.KeySizeBits);
+        rsa.FromXmlString(priv);
+        byte[] v15 = rsa.SignData(canonical, LicenseCrypto.Hash, RSASignaturePadding.Pkcs1);
+
+        Assert.False(LicenseCrypto.VerifyCanonical(canonical, Convert.ToBase64String(v15), pub));
+        Assert.True(LicenseCrypto.VerifyCanonical(canonical, LicenseCrypto.SignCanonical(canonical, priv), pub));
     }
 
     // ── helper: re-sign a document with a private key ─────────────────

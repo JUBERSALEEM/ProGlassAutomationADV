@@ -66,19 +66,23 @@
                         <StackPanel>
                             <RadioButton x:Name="Plan7DaysRadio" GroupName="LicensePlan"
                                          Content="7 DAYS — short evaluation key"
+                                         Checked="PlanRadio_Checked"
                                          Margin="0,0,0,6"/>
                             <RadioButton x:Name="Plan30DaysRadio" GroupName="LicensePlan"
                                          Content="30 DAYS — monthly key"
+                                         Checked="PlanRadio_Checked"
                                          Margin="0,0,0,6"/>
                             <RadioButton x:Name="Plan6MonthsRadio" GroupName="LicensePlan"
                                          Content="6 MONTHS — half-year key"
+                                         Checked="PlanRadio_Checked"
                                          Margin="0,0,0,6"/>
                             <RadioButton x:Name="Plan1YearRadio" GroupName="LicensePlan"
                                          Content="1 YEAR — annual key"
-                                         IsChecked="True"
+                                         Checked="PlanRadio_Checked"
                                          Margin="0,0,0,6"/>
                             <RadioButton x:Name="Plan2YearsRadio" GroupName="LicensePlan"
-                                         Content="2 YEARS — two-year key"/>
+                                         Content="2 YEARS — two-year key"
+                                         Checked="PlanRadio_Checked"/>
                         </StackPanel>
 
                         <TextBlock x:Name="KeyPreviewText"

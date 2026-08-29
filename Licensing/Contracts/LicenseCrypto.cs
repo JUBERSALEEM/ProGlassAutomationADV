@@ -53,8 +53,11 @@ public static class LicenseCrypto
     }
 
     /// <summary>
-    /// Verify the canonical bytes against a public key XML. Accepts PSS
-    /// (current) and PKCS#1 v1.5 (for any older hand-rolled tooling).
+    /// Verify the canonical bytes against a public key XML. PSS ONLY —
+    /// the PKCS#1 v1.5 acceptance fallback was removed in the 2026-08-29
+    /// security cross-check: no shipped license uses v1.5, and keeping a
+    /// second verification path widens the acceptance surface for no
+    /// reason.
     /// </summary>
     public static bool VerifyCanonical(byte[] canonical, string signatureBase64, string publicKeyXml)
     {
@@ -67,8 +70,7 @@ public static class LicenseCrypto
             rsa.FromXmlString(publicKeyXml);
             byte[] sig = Convert.FromBase64String(signatureBase64);
 
-            return rsa.VerifyData(canonical, sig, Hash, RSASignaturePadding.Pss)
-                || rsa.VerifyData(canonical, sig, Hash, RSASignaturePadding.Pkcs1);
+            return rsa.VerifyData(canonical, sig, Hash, RSASignaturePadding.Pss);
         }
         catch (CryptographicException)
         {

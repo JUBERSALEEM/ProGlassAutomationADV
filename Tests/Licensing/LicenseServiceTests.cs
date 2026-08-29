@@ -149,7 +149,7 @@ namespace ProGlassAutomation.Tests.Licensing
             string signed = OfflineActivationService.SignResponseJson(
                 response,
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             var result = LicenseService.InstallText(signed);
 
@@ -192,7 +192,7 @@ namespace ProGlassAutomation.Tests.Licensing
             string signed = OfflineActivationService.SignResponseJson(
                 response,
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             var result = LicenseService.InstallText(signed);
             Assert.Equal(LicenseStatus.MachineMismatch, result.Status);
@@ -229,7 +229,7 @@ namespace ProGlassAutomation.Tests.Licensing
             string signed = OfflineActivationService.SignResponseJson(
                 response,
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             var result = LicenseService.InstallText(signed);
             Assert.Equal(LicenseStatus.Invalid, result.Status);
@@ -278,7 +278,7 @@ namespace ProGlassAutomation.Tests.Licensing
             string signed = OfflineActivationService.SignResponseJson(
                 response,
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
             string path = Path.Combine(_tempFolder, "response.lic");
             File.WriteAllText(path, signed);
 
@@ -303,7 +303,7 @@ namespace ProGlassAutomation.Tests.Licensing
                     Features = new() { "Inquiry.*", "Reports.*" }
                 },
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             Assert.True(gen.Success, gen.Message);
             Assert.False(string.IsNullOrWhiteSpace(gen.LicenseJson));
@@ -337,7 +337,7 @@ namespace ProGlassAutomation.Tests.Licensing
                     Features = new() { "Inquiry.*" }
                 },
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             Assert.True(gen.Success, gen.Message);
 
@@ -364,7 +364,7 @@ namespace ProGlassAutomation.Tests.Licensing
                     Features = new() { "Inquiry.*" }
                 },
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             Assert.True(gen.Success, gen.Message);
 
@@ -419,7 +419,7 @@ namespace ProGlassAutomation.Tests.Licensing
                     DeviceFingerprint = "SOME-OTHER-MACHINE-FP"
                 },
                 privateXml,
-                TrustedLicenseKeys.LegacyProductionKeyId);
+                TrustedLicenseKeys.ProductionKeyId);
 
             Assert.True(gen.Success, gen.Message);
 
@@ -435,6 +435,38 @@ namespace ProGlassAutomation.Tests.Licensing
             var result = LicenseService.InstallKeyText("not-a-license-key");
             Assert.Equal(LicenseStatus.Invalid, result.Status);
             Assert.Contains("not a license key", result.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+        }
+
+        [Fact]
+        public void InstallKeyText_rejects_raw_unarmored_license_json()
+        {
+            (string publicXml, string privateXml) = LicenseCrypto.GenerateKeyPair();
+            SwapPublicKey(publicXml);
+
+            var gen = ProGlass.Licensing.LicenseService.Create(
+                new LicenseRequest
+                {
+                    LicenseType = "Subscription",
+                    DaysValid = 365,
+                    Features = new() { "*" }
+                },
+                privateXml,
+                TrustedLicenseKeys.ProductionKeyId);
+
+            Assert.True(gen.Success, gen.Message);
+
+            // Raw signed JSON is NOT the generator's exchange format and
+            // must be refused at the app boundary — only the armored
+            // PGKEY1 block the generator produces is accepted, even
+            // though the signature on both is identical.
+            var raw = LicenseService.InstallKeyText(gen.LicenseJson!);
+            Assert.Equal(LicenseStatus.Invalid, raw.Status);
+            Assert.Contains("generator", raw.ErrorDetail, StringComparison.OrdinalIgnoreCase);
+            Assert.False(LicenseService.IsLicenseKeyActive);
+
+            var armored = LicenseService.InstallKeyText(LicenseKeyArmor.Encode(gen.LicenseJson!));
+            Assert.True(armored.CanRun, armored.ErrorDetail);
+            Assert.True(LicenseService.IsLicenseKeyActive);
         }
 
         [Fact]
@@ -529,8 +561,8 @@ namespace ProGlassAutomation.Tests.Licensing
 
         private static string SwapPublicKey(string newValue)
         {
-            string original = LicensePublicKey.PublicKeyXml;
-            LicensePublicKey.SetForTest(newValue);
+            string original = LicensePublicKey.GeneratorCompatiblePublicKeyXml;
+            LicensePublicKey.SetGeneratorKeyForTest(newValue);
             return original;
         }
     }

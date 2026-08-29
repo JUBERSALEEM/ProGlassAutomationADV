@@ -400,6 +400,22 @@ public static class LicenseService
             };
         }
 
+        // App boundary: armored generator keys ONLY. Raw license JSON is
+        // rejected even though the decoder below could read it — the
+        // customer-facing contract is "paste the key the generator
+        // produced" (2026-08-29 security cross-check).
+        if (!LicenseKeyArmor.IsArmoredBlock(keyText))
+        {
+            return new LicenseVerificationResult
+            {
+                Status = LicenseStatus.Invalid,
+                ErrorDetail =
+                    "Only license keys produced by the License Key Generator are accepted. " +
+                    "Paste the single-line block starting with \"" + LicenseKeyArmor.Prefix +
+                    "\" exactly as generated (raw license JSON is not accepted)."
+            };
+        }
+
         string? licenseJson = LicenseKeyArmor.TryExtractJson(keyText);
         if (string.IsNullOrWhiteSpace(licenseJson))
         {
@@ -466,9 +482,9 @@ public static class LicenseService
     }
 
     /// <summary>
-    /// Install a license key from a file (PGKEY1 block or raw
-    /// .proglasslicense JSON). Same verification path as
-    /// <see cref="InstallKeyText"/>.
+    /// Install a license key from a file. Only armored PGKEY1 blocks are
+    /// accepted (the same boundary as <see cref="InstallKeyText"/>); the
+    /// file content goes through the identical verify-before-store path.
     /// </summary>
     public static LicenseVerificationResult InstallKeyFile(string sourcePath)
     {

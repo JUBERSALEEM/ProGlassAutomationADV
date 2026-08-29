@@ -12,13 +12,20 @@ namespace ProGlassAutomation.Services.Licensing;
 public static class TrustedLicenseKeys
 {
     public const string ProductionKeyId = "production-key-2026";
-    public const string LegacyProductionKeyId = "legacy-production-key-2026";
 
+    /// <summary>
+    /// The app's trusted signing-key ring. Contains EXACTLY ONE key: the
+    /// public half of the generator's embedded production pair. The
+    /// legacy key id ("legacy-production-key-2026") was removed in the
+    /// 2026-08-29 security cross-check — its private half was never
+    /// recoverable, so it could never legitimately sign anything, and
+    /// dead trust in the ring is nothing but attack surface. Only keys
+    /// produced by the License Key Generator verify here.
+    /// </summary>
     public static IReadOnlyDictionary<string, string> All =>
         new Dictionary<string, string>(StringComparer.Ordinal)
         {
             [ProductionKeyId] = LicensePublicKey.GeneratorCompatiblePublicKeyXml,
-            [LegacyProductionKeyId] = LicensePublicKey.PublicKeyXml,
         };
 }
 
