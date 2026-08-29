@@ -505,8 +505,9 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="DashAccentTextBrush" Color="#1D4ED8" po:Freeze="True"/>
     <LinearGradientBrush x:Key="DashHeroBlueBrush" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-        <GradientStop Color="#2563EB" Offset="0.0"/>
-        <GradientStop Color="#1D4ED8" Offset="1.0"/>
+        <GradientStop Color="#305FCDFF" Offset="0.0"/>
+        <GradientStop Color="#203B82F6" Offset="0.5"/>
+        <GradientStop Color="#282563EB" Offset="1.0"/>
     </LinearGradientBrush>
     <DropShadowEffect x:Key="DashCardShadowEffect" Color="#1E3A5F" Opacity="0.06" BlurRadius="12" ShadowDepth="3" Direction="270"/>
     <DropShadowEffect x:Key="DashInteractiveShadowEffect" Color="#3B82F6" Opacity="0.12" BlurRadius="10" ShadowDepth="2" Direction="270"/>

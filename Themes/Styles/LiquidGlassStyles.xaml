@@ -25,7 +25,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type controls:LiquidGlassCard}">
                     <Border x:Name="Edge"
-                            Background="{DynamicResource GlassSurfaceBrush}"
+                            Background="{DynamicResource GlassUltraClearBrush}"
                             BorderBrush="{DynamicResource GlassBorderSoft}"
                             BorderThickness="1"
                             CornerRadius="{TemplateBinding CornerRadius}"
@@ -80,7 +80,7 @@
 
     <Style x:Key="LiquidGlassStrongCardStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="26"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="18"/>
@@ -117,7 +117,7 @@
                         </Grid.RenderTransform>
                         <Border x:Name="Bg"
                                 CornerRadius="18"
-                                Background="{DynamicResource GlassSurfaceBrush}"
+                                Background="{DynamicResource GlassUltraClearBrush}"
                                 BorderBrush="{DynamicResource GlassDangerBorderBrush}"
                                 BorderThickness="1"
                                 Effect="{DynamicResource ShadowSoft}"/>
@@ -176,12 +176,12 @@
         <Setter Property="Padding" Value="14,10"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
     </Style>
 
     <!-- ═══ DATA GRID — glass surfaces, reference materials ═══ -->
     <Style x:Key="LiquidGlassDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
         <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -267,7 +267,7 @@
     <!-- ═══ DIALOG CHROME ═══ -->
     <Style x:Key="LiquidGlassDialogCardStyle" TargetType="Border">
         <Setter Property="CornerRadius" Value="26"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderPrimary}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding" Value="24"/>

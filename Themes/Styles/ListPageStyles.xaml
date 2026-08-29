@@ -8,7 +8,7 @@
 
     <!-- Outer list card -->
     <Style x:Key="ModuleListShellStyle" TargetType="Border">
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0.5"/>
         <Setter Property="CornerRadius" Value="12"/>
@@ -66,7 +66,7 @@
         <Setter Property="Padding" Value="16,12"/>
         <Setter Property="BorderBrush" Value="{DynamicResource GlassBorderSoft}"/>
         <Setter Property="BorderThickness" Value="0,0,0,1"/>
-        <Setter Property="Background" Value="{DynamicResource GlassSurfaceElevated}"/>
+        <Setter Property="Background" Value="{DynamicResource GlassUltraClearBrush}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 

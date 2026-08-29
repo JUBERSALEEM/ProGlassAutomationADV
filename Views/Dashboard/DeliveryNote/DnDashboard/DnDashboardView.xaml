@@ -33,7 +33,7 @@
                     <RowDefinition Height="300" MinHeight="240"/>
                 </Grid.RowDefinitions>
 
-                <Grid Grid.Row="0" Margin="0,0,0,16">
+                <Grid Grid.Row="0" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -81,7 +81,7 @@
                     </Border>
                 </StackPanel>
 
-                <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid Grid.Row="2" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1.2*"/>
@@ -89,7 +89,7 @@
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,14,0" MinHeight="168">
+                            Margin="0,0,18,0" MinHeight="168">
                         <DockPanel>
                             <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Dispatch pulse"
@@ -109,7 +109,7 @@
                     </Border>
 
                     <Border Grid.Column="1" Style="{StaticResource SoftCardStyle}"
-                            Margin="0,0,14,0">
+                            Margin="0,0,18,0">
                         <StackPanel>
                             <TextBlock Text="Delivery mix"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
@@ -153,7 +153,7 @@
                         <ColumnDefinition Width="1.2*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,14,0">
+                    <Border Grid.Column="0" Style="{StaticResource SoftCardStyle}" Margin="0,0,18,0">
                         <DockPanel>
                             <Grid DockPanel.Dock="Top" Margin="0,0,0,8">
                                 <TextBlock Text="Status distribution"
