@@ -25,6 +25,7 @@ using ProGlassAutomation.ViewModels.Reports.JoReport;
 using ProGlassAutomation.ViewModels.Reports.PiReport;
 using ProGlassAutomation.ViewModels.Reports.StatementReport;
 using ProGlassAutomation.ViewModels.Reports.TaxInvoiceReport;
+using ProGlassAutomation.ViewModels.Reports.VatSubmission;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -41,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.Reports
         public DeliveryReportViewModel DeliveryReport { get; }
         public TaxInvoiceReportViewModel TaxInvoiceReport { get; }
         public StatementReportViewModel StatementReport { get; }
+        public VatSubmissionViewModel VatSubmission { get; }
 
         // ── Hub navigation ────────────────────────────────────────────────
         public class ReportNavItem
@@ -59,6 +61,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             new ReportNavItem{ Key="Delivery", Title="Delivery", Icon="\uE814", Subtitle="Dispatched / pending" },
             new ReportNavItem{ Key="TaxInvoice", Title="Tax Invoice", Icon="\uE8C7", Subtitle="Billed & overdue" },
             new ReportNavItem{ Key="Statement", Title="Statement", Icon="\uE9F7", Subtitle="Customer statements" },
+            new ReportNavItem{ Key="VatSubmission", Title="VAT Submission", Icon="\uE8C7", Subtitle="5% VAT for FTA" },
         };
 
         private string _activeKey = "Overview";
@@ -84,6 +87,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Delivery" => "Delivery Note Report",
             "TaxInvoice" => "Tax Invoice Report",
             "Statement" => "Statement Report",
+            "VatSubmission" => "VAT Submission Report",
             _ => "Reports Overview"
         };
 
@@ -94,6 +98,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             "Delivery" => DeliveryReport,
             "TaxInvoice" => TaxInvoiceReport,
             "Statement" => StatementReport,
+            "VatSubmission" => VatSubmission,
             _ => null
         };
 
@@ -125,6 +130,7 @@ namespace ProGlassAutomation.ViewModels.Reports
             DeliveryReport = new DeliveryReportViewModel(_reportingService);
             TaxInvoiceReport = new TaxInvoiceReportViewModel(_reportingService);
             StatementReport = new StatementReportViewModel(_reportingService);
+            VatSubmission = new VatSubmissionViewModel(_reportingService);
 
             // Route "open original document" requests from report sidebars to
             // the shell callbacks (MainViewModel wires OnOpenProforma/...).

@@ -105,17 +105,18 @@
 ## ✅ Phase 5: Integration
 
 ### Files to Modify:
-- [ ] `ViewModels/Reports/SalesReportViewModel.cs`
+- [x] `ViewModels/Reports/SalesReportViewModel.cs`
 
 ### Implementation Checklist:
-- [ ] Add VatSubmissionReport property
-- [ ] Instantiate in constructor
-- [ ] Add to NavItems
-- [ ] Add to ActiveViewModel switch
-- [ ] Add to CurrentReportTitle switch
-- [ ] Compile check (no errors)
+- [x] Add VatSubmission property
+- [x] Add using statement for VatSubmission namespace
+- [x] Instantiate in constructor
+- [x] Add to NavItems (Key="VatSubmission", Title="VAT Submission", Icon="\uE8C7", Subtitle="5% VAT for FTA")
+- [x] Add to ActiveViewModel switch
+- [x] Add to CurrentReportTitle switch ("VAT Submission Report")
+- [x] Compile check (no errors)
 
-**Status**: ⏳ Pending
+**Status**: ✅ COMPLETE
 
 ---
 
