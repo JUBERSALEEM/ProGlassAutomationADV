@@ -267,7 +267,7 @@ namespace ProGlassAutomation.Services.SampleData
                     if (App.Inquiries != null)
                     {
                         var inqResult = await App.Inquiries.QueryAsync(
-                            new ProGlassAutomation.Models.Inquiry.InquiryQuery { PageSize = 1000 });
+                            new ProGlassAutomation.Services.Inquiry.InquiryQuery { PageSize = 1000 });
                         foreach (var x in inqResult.Items)
                         {
                             await App.Inquiries.DeleteAsync(x.Id);
@@ -513,8 +513,7 @@ namespace ProGlassAutomation.Services.SampleData
                 foreach (var item in sg.ItemRows)
                 {
                     decimal sqm = ((decimal)item.W1 / 1000m) * ((decimal)item.H1 / 1000m) * item.Qty;
-                    item.Amount = Math.Round(sqm * item.Rate, 2);
-                    subtotal += item.Amount;
+                    subtotal += Math.Round(sqm * item.Rate, 2);
                 }
             }
 
@@ -553,7 +552,7 @@ namespace ProGlassAutomation.Services.SampleData
             snap.Production.Status = status;
             snap.Production.Priority = priority;
             snap.Production.DeliveryDate = delivery;
-            snap.Production.Notes = "Podium level delivery — use loading bay B2. " +
+            snap.Production.InternalNotes = "Podium level delivery — use loading bay B2. " +
                                      "Site contact: Mohammed Ali +971 55 123 4567. " +
                                      "Deliver in 2 batches: Batch 1 = Clear Tempered (Group 1), " +
                                      "Batch 2 = Tinted + Low-E (Groups 2 & 3).";
