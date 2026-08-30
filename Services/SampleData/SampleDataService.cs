@@ -266,8 +266,9 @@ namespace ProGlassAutomation.Services.SampleData
                 {
                     if (App.Inquiries != null)
                     {
-                        var allInq = await App.Inquiries.GetAllAsync();
-                        foreach (var x in allInq)
+                        var inqResult = await App.Inquiries.QueryAsync(
+                            new ProGlassAutomation.Models.Inquiry.InquiryQuery { PageSize = 1000 });
+                        foreach (var x in inqResult.Items)
                         {
                             await App.Inquiries.DeleteAsync(x.Id);
                             inq++;
@@ -649,7 +650,6 @@ namespace ProGlassAutomation.Services.SampleData
                 ProjectName = projectName,
                 CompanyName = companyName,
                 CompanyTrn = companyTrn,
-                CustomerTrn = customerTrn,
                 IssueDate = issue,
                 DueDate = due,
                 PaymentTerms = "Net 30",
