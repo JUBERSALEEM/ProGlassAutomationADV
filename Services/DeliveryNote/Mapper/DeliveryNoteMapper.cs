@@ -1,6 +1,7 @@
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
@@ -109,8 +110,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                         var row = rowGroup.First();
 
                         // Calculate weight per piece using glass dimensions and composition
-                        decimal weightPerPiece = CalculateWeightPerPiece(
-                            row.W1, row.H1, glassTypeCode, step4Pricing);
+                        decimal weightPerPiece = step4Pricing != null 
+                            ? CalculateWeightPerPiece(row.W1, row.H1, glassTypeCode, step4Pricing)
+                            : 0m;
 
                         var item = new DeliveryNoteItem
                         {
@@ -310,7 +312,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             int widthMm,
             int heightMm,
             string glassTypeCode,
-            Step4PricingSnapshot? step4Pricing)
+            Step4PricingSnapshot step4Pricing)
         {
             if (widthMm <= 0 || heightMm <= 0 || step4Pricing == null)
                 return 0m;
