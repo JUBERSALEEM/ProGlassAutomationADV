@@ -54,6 +54,7 @@
         xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
         xmlns:vmJobProfit="clr-namespace:ProGlassAutomation.ViewModels.JobProfitability"
         xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
+        xmlns:vmVatSubmission="clr-namespace:ProGlassAutomation.ViewModels.Reports.VatSubmission"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
@@ -75,6 +76,7 @@
         xmlns:viewsUsers="clr-namespace:ProGlassAutomation.Views.UserCenter"
         xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
+        xmlns:viewsVatSubmission="clr-namespace:ProGlassAutomation.Views.Reports.VatSubmission"
         Title="ProGlass Automation"
         Height="820" Width="1280"
         MinHeight="480" MinWidth="800"
@@ -176,6 +178,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmJobProfit:JobProfitabilityViewModel}">
             <viewsJobProfit:JobProfitabilityView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmVatSubmission:VatSubmissionViewModel}">
+            <viewsVatSubmission:VatSubmissionView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmDiagnostics:DiagnosticsViewModel}">
             <viewsDiagnostics:DiagnosticsView/>
