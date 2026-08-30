@@ -531,19 +531,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 if (masterDn.TotalBalanceQty <= 0)
                 {
                     AppLogService.Info($"[CreateDn] SCENARIO B: Fully delivered (TotalBalanceQty={masterDn.TotalBalanceQty})");
-                    // Job order fully delivered - open latest DN for viewing
-                    var latestDns = await App.DeliveryNotes
-                        .GetByJobOrderIdAsync(jobOrder.JobOrderId);
-                    var latest = latestDns
-                        .OrderByDescending(d => d.SequenceNumber)
-                        .FirstOrDefault();
-
-                    if (latest != null)
-                    {
-                        await DetailVM.LoadAsync(latest.Id);
-                        IsListView = false;
-                        await SafeLoadListAsync();
-                    }
+                    // Job order fully delivered - show message instead of opening old DN
+                    MessageBox.Show(
+                        $"All items for this job order have been fully delivered.\n\n" +
+                        $"Total Ordered: {masterDn.Items.Sum(i => i.OrderedQty)}\n" +
+                        $"Total Delivered: {masterDn.TotalDeliveredQty}\n" +
+                        $"Balance: {masterDn.TotalBalanceQty}\n\n" +
+                        $"To view delivery history, click the job order row to open the Master DN.",
+                        "Fully Delivered",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
                     return;
                 }
 

@@ -522,7 +522,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             OpenGroupCommand = new RelayCommand(param =>
             {
                 if (param is JobOrderGroupRowViewModel group)
-                    OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
+                {
+                    // Open Master DN (tracking view) instead of latest real DN
+                    // Master DN shows complete delivery picture for this job order
+                    OnRequestOpenMaster?.Invoke(group.JobOrderId);
+                }
             });
 
             OpenMasterCommand = new RelayCommand(param =>
