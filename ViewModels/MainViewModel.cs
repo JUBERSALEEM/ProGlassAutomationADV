@@ -983,19 +983,6 @@ namespace ProGlassAutomation.ViewModels
                     break;
                 case "VatSubmission":
                     CurrentViewModel = VatSubmissionVM;
-                    // Load filter options first, then load data
-                    // Use Dispatcher to ensure UI thread safety and avoid fire-and-forget
-                    System.Windows.Application.Current?.Dispatcher?.BeginInvoke(new Action(async () =>
-                    {
-                        try
-                        {
-                            await LoadVatSubmissionAsync();
-                        }
-                        catch (Exception ex)
-                        {
-                            Services.Logging.AppLogService.Error($"VAT load failed: {ex.Message}", ex);
-                        }
-                    }));
                     break;
                 case "Diagnostics":
                     CurrentViewModel = DiagnosticsVM;

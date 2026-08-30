@@ -21,8 +21,9 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             : base(service ?? new ReportingDataService())
         {
             InitCommands();
-            // Don't load in constructor - let navigation trigger it
-            // This prevents race conditions and unhandled exceptions
+            // Load filter options and data in constructor (same pattern as TaxInvoiceReportViewModel)
+            _ = LoadFilterOptionsAsync();
+            _ = LoadAsync();
         }
 
         private VatSubmissionSummary _summary = new();
