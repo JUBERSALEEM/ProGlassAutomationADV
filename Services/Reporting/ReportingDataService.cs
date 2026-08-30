@@ -29,6 +29,7 @@ using ProGlassAutomation.Services.JobOrder.Database;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.MasterData.Database;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Statement.Database;
 using ProGlassAutomation.Services.TaxInvoice.Database;
@@ -126,6 +127,11 @@ namespace ProGlassAutomation.Services.Reporting
         Task<List<string>> GetPiStatusOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetJoStatusOptionsAsync(CancellationToken ct = default);
         Task<List<string>> GetTiStatusOptionsAsync(CancellationToken ct = default);
+
+        // ── VAT Submission Report ─────────────────────────────────────
+        Task<VatSubmissionSummary> GetVatSubmissionSummaryAsync(ReportingFilter filter, CancellationToken ct = default);
+        Task<PagedResult<VatSubmissionRow>> GetVatSubmissionRowsAsync(ReportingFilter filter, CancellationToken ct = default);
+        Task<List<VatSubmissionRow>> GetAllVatSubmissionRowsAsync(ReportingFilter filter, CancellationToken ct = default);
     }
 
     public sealed class ReportingDataService : IReportingDataService
@@ -2194,6 +2200,148 @@ namespace ProGlassAutomation.Services.Reporting
                 return set.OrderBy(s => s).ToList();
             }
             catch { return new List<string>(); }
+        }
+
+        // ── VAT Submission Report ─────────────────────────────────────
+
+        public async Task<VatSubmissionSummary> GetVatSubmissionSummaryAsync(
+            ReportingFilter filter, 
+            CancellationToken ct = default)
+        {
+            var rows = await GetAllVatSubmissionRowsAsync(filter, ct);
+            
+            return new VatSubmissionSummary
+            {
+                TotalInvoices = rows.Count,
+                TotalSubtotal = rows.Sum(r => r.SubtotalBeforeVat),
+                TotalVatCollected = rows.Sum(r => r.VatAmount),
+                TotalGrandTotal = rows.Sum(r => r.GrandTotalVatInclusive),
+                
+                BySalesman = rows
+                    .GroupBy(r => r.Salesman)
+                    .Select(g => new SalesmanVatSummary
+                    {
+                        Salesman = g.Key,
+                        InvoiceCount = g.Count(),
+                        TotalVat = g.Sum(r => r.VatAmount),
+                        TotalRevenue = g.Sum(r => r.GrandTotalVatInclusive)
+                    })
+                    .OrderByDescending(s => s.TotalVat)
+                    .ToList(),
+                    
+                ByCompany = rows
+                    .GroupBy(r => r.CompanyName)
+                    .Select(g => new CompanyVatSummary
+                    {
+                        CompanyName = g.Key,
+                        InvoiceCount = g.Count(),
+                        TotalVat = g.Sum(r => r.VatAmount),
+                        TotalRevenue = g.Sum(r => r.GrandTotalVatInclusive)
+                    })
+                    .OrderByDescending(c => c.TotalVat)
+                    .ToList(),
+                    
+                ByProject = rows
+                    .GroupBy(r => new { r.ProjectName, r.CompanyName })
+                    .Select(g => new ProjectVatSummary
+                    {
+                        ProjectName = g.Key.ProjectName,
+                        CompanyName = g.Key.CompanyName,
+                        InvoiceCount = g.Count(),
+                        TotalVat = g.Sum(r => r.VatAmount),
+                        TotalRevenue = g.Sum(r => r.GrandTotalVatInclusive)
+                    })
+                    .OrderByDescending(p => p.TotalVat)
+                    .ToList()
+            };
+        }
+
+        public async Task<PagedResult<VatSubmissionRow>> GetVatSubmissionRowsAsync(
+            ReportingFilter filter, 
+            CancellationToken ct = default)
+        {
+            var allRows = await GetAllVatSubmissionRowsAsync(filter, ct);
+            
+            return new PagedResult<VatSubmissionRow>
+            {
+                Items = allRows
+                    .Skip((filter.Page - 1) * filter.PageSize)
+                    .Take(filter.PageSize)
+                    .ToList(),
+                TotalCount = allRows.Count,
+                Page = filter.Page,
+                PageSize = filter.PageSize
+            };
+        }
+
+        public async Task<List<VatSubmissionRow>> GetAllVatSubmissionRowsAsync(
+            ReportingFilter filter, 
+            CancellationToken ct = default)
+        {
+            try
+            {
+                var invoices = await ProformaInvoiceRepository.Instance.GetAllAsync();
+                if (invoices == null) return new List<VatSubmissionRow>();
+                
+                var query = invoices.AsQueryable();
+                
+                // Apply filters
+                if (filter.DateFrom.HasValue)
+                    query = query.Where(i => i.IssueDate >= filter.DateFrom.Value);
+                if (filter.DateTo.HasValue)
+                    query = query.Where(i => i.IssueDate <= filter.DateTo.Value);
+                if (!string.IsNullOrWhiteSpace(filter.Company))
+                    query = query.Where(i => Eq(i.CompanyName, filter.Company));
+                if (!string.IsNullOrWhiteSpace(filter.Customer))
+                    query = query.Where(i => Eq(i.CustomerName, filter.Customer));
+                if (!string.IsNullOrWhiteSpace(filter.Project))
+                    query = query.Where(i => Eq(i.ProjectName, filter.Project));
+                if (!string.IsNullOrWhiteSpace(filter.ProformaId))
+                    query = query.Where(i => ContainsCI(i.ProformaId, filter.ProformaId));
+                
+                ct.ThrowIfCancellationRequested();
+                
+                var result = new List<VatSubmissionRow>();
+                
+                foreach (var invoice in query)
+                {
+                    // Extract SalesRepresentative from snapshot
+                    var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
+                    var salesman = snap?.Client?.SalesRepresentative ?? "Unassigned";
+                    
+                    // Apply salesman filter if specified
+                    if (!string.IsNullOrWhiteSpace(filter.Salesman) && !Eq(salesman, filter.Salesman))
+                        continue;
+                    
+                    // Calculate SubtotalBeforeVat accurately: GrandTotal - VatAmount
+                    var subtotal = invoice.GrandTotalVatInclusive - invoice.VatAmount;
+                    
+                    result.Add(new VatSubmissionRow
+                    {
+                        Id = invoice.Id,
+                        ProformaId = invoice.ProformaId ?? "",
+                        CompanyName = invoice.CompanyName ?? "",
+                        CustomerName = invoice.CustomerName ?? "",
+                        ProjectName = invoice.ProjectName ?? "",
+                        Salesman = salesman,
+                        IssueDate = invoice.IssueDate,
+                        Status = invoice.Status ?? "",
+                        SubtotalBeforeVat = Math.Round(subtotal, 2),
+                        VatAmount = invoice.VatAmount,
+                        GrandTotalVatInclusive = invoice.GrandTotalVatInclusive
+                    });
+                }
+                
+                return result
+                    .OrderByDescending(r => r.IssueDate)
+                    .ThenBy(r => r.ProformaId)
+                    .ToList();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Warning($"VAT Submission data error: {ex.Message}");
+                return new List<VatSubmissionRow>();
+            }
         }
     }
 }

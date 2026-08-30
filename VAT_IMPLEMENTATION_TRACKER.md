@@ -40,21 +40,21 @@
 ## ✅ Phase 2: Service Layer
 
 ### Files to Modify:
-- [ ] `Services/Reporting/IReportingDataService.cs` (add 3 methods)
-- [ ] `Services/Reporting/ReportingDataService.cs` (implement 3 methods)
+- [x] `Services/Reporting/IReportingDataService.cs` → Interface is in `ReportingDataService.cs` (added 3 methods)
+- [x] `Services/Reporting/ReportingDataService.cs` (implemented 3 methods)
 
 ### Implementation Checklist:
-- [ ] Add interface methods
-- [ ] Implement GetVatSubmissionSummaryAsync
-- [ ] Implement GetVatSubmissionRowsAsync
-- [ ] Implement GetAllVatSubmissionRowsAsync
-- [ ] Handle filters (date, company, salesman, project, PI)
-- [ ] Handle pagination
-- [ ] Extract SalesRepresentative from snapshot
-- [ ] Calculate SubtotalBeforeVat accurately
-- [ ] Compile check (no errors)
+- [x] Add interface methods
+- [x] Implement GetVatSubmissionSummaryAsync
+- [x] Implement GetVatSubmissionRowsAsync
+- [x] Implement GetAllVatSubmissionRowsAsync
+- [x] Handle filters (date, company, salesman, project, PI)
+- [x] Handle pagination
+- [x] Extract SalesRepresentative from snapshot (using ProformaInvoiceMapper)
+- [x] Calculate SubtotalBeforeVat accurately (GrandTotal - VatAmount)
+- [x] Compile check (no errors)
 
-**Status**: ⏳ Pending
+**Status**: ✅ COMPLETE
 
 ---
 
