@@ -647,7 +647,7 @@ namespace ProGlassAutomation.Services.SampleData
             string status, DateTime issue, DateTime due)
         {
             // Build line items from delivered Spec Group 1 items
-            var items = new List<SavedTaxInvoice.TaxInvoiceItem>();
+            var items = new List<TaxInvoiceItem>();
             
             // Spec Group 1: Clear Tempered — Main Facade (10 items, all delivered)
             var sg1Data = new[]
@@ -670,7 +670,7 @@ namespace ProGlassAutomation.Services.SampleData
                 decimal totalSqm = sqm * qty;
                 decimal value = rate * totalSqm;
                 
-                items.Add(new SavedTaxInvoice.TaxInvoiceItem
+                items.Add(new TaxInvoiceItem
                 {
                     InvoiceNumber = num,
                     ProformaId = piId,
