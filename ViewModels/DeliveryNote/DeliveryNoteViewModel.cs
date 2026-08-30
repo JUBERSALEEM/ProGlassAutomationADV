@@ -466,19 +466,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             try
             {
+                // DEBUG: Log entry point
+                AppLogService.Info($"[CreateDn] Starting for JobOrder: {jobOrder.JobOrderId}");
+
                 try
                 {
                     await App.DeliveryNotes.UpdateMasterDnAsync(
                         jobOrder.JobOrderId, "");
+                    AppLogService.Debug("[CreateDn] Master DN updated");
                 }
-                catch (System.Exception ex) { ProGlassAutomation.Services.Logging.AppLogService.Debug("[DeliveryNoteViewModel] Master-DN clear during heal failed; display still works from heal: " + ex.Message); }
+                catch (System.Exception ex) { AppLogService.Debug("[CreateDn] Master-DN clear during heal failed: " + ex.Message); }
 
                 var masterDn = await App.DeliveryNotes
                     .GetMasterDnForJobOrderAsync(jobOrder.JobOrderId);
 
+                AppLogService.Info($"[CreateDn] MasterDN found: {masterDn != null}, TotalBalanceQty: {masterDn?.TotalBalanceQty ?? -1}");
+
                 // ── SCENARIO A: No Master DN — first delivery ─────────────
                 if (masterDn == null)
                 {
+                    AppLogService.Info("[CreateDn] SCENARIO A: No Master DN - creating first DN");
                     try
                     {
                         masterDn = await Services.DeliveryNote
@@ -505,6 +512,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 // ── SCENARIO B: Fully delivered ───────────────────────────
                 if (masterDn.TotalBalanceQty <= 0)
                 {
+                    AppLogService.Info($"[CreateDn] SCENARIO B: Fully delivered (TotalBalanceQty={masterDn.TotalBalanceQty})");
                     // Job order fully delivered - open latest DN for viewing
                     var latestDns = await App.DeliveryNotes
                         .GetByJobOrderIdAsync(jobOrder.JobOrderId);
@@ -522,6 +530,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 }
 
                 // ── SCENARIO C: Partial balance remaining ─────────────────
+                AppLogService.Info($"[CreateDn] SCENARIO C: Partial balance (TotalBalanceQty={masterDn.TotalBalanceQty})");
                 // Create DN directly with balance items (no popup)
                 await CreateDnFromMasterBalanceAsync(jobOrder, masterDn);
             }
@@ -745,11 +754,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             var items = new System.Collections.Generic.List<
                 Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem>();
 
+            AppLogService.Info($"[CreateDnFromBalance] Building items from Master DN. Total items in master: {masterDn.Items.Count}");
+
             foreach (var masterItem in masterDn.Items
                 .Where(i => i.BalanceQty > 0)
                 .OrderBy(i => i.SpecGroupNumber)
                 .ThenBy(i => i.SerialNumber))
             {
+                AppLogService.Debug($"[CreateDnFromBalance] Adding item: {masterItem.GlassRef}, Ordered={masterItem.OrderedQty}, PrevDelivered={masterItem.PreviouslyDeliveredQty}, Balance={masterItem.BalanceQty}");
                 items.Add(
                     new Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem
                     {
@@ -773,6 +785,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         Notes = ""
                     });
             }
+
+            AppLogService.Info($"[CreateDnFromBalance] Created {items.Count} items for new DN");
 
             if (items.Count == 0)
             {
