@@ -117,15 +117,6 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
 
         public const string AllFilter = "All";
 
-        private List<string> _companyOptions = new() { AllFilter };
-        public List<string> CompanyOptions { get => _companyOptions; private set { _companyOptions = value; OnPropertyChanged(); } }
-
-        private List<string> _salesmanOptions = new() { AllFilter };
-        public List<string> SalesmanOptions { get => _salesmanOptions; private set { _salesmanOptions = value; OnPropertyChanged(); } }
-
-        private List<string> _projectOptions = new() { AllFilter };
-        public List<string> ProjectOptions { get => _projectOptions; private set { _projectOptions = value; OnPropertyChanged(); } }
-
         protected override ReportingFilter BuildFilter()
         {
             var filter = base.BuildFilter();

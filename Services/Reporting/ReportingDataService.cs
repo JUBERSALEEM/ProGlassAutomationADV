@@ -2290,10 +2290,8 @@ namespace ProGlassAutomation.Services.Reporting
                     }
                 }
 
-                var invoices = await ProformaInvoiceRepository.Instance.GetAllAsync();
-                if (invoices == null) return new List<VatSubmissionRow>();
-                
-                var query = invoices.AsQueryable();
+                using var db = new ProformaInvoicesDbContext();
+                var query = db.ProformaInvoices.AsNoTracking().AsQueryable();
                 
                 // Apply filters
                 if (filter.DateFrom.HasValue)
@@ -2313,12 +2311,12 @@ namespace ProGlassAutomation.Services.Reporting
                 
                 // SECURITY: DoS protection - limit maximum records
                 const int MAX_RECORDS = 10000;
-                var invoiceList = query.ToList();
+                var invoiceList = await query.Take(MAX_RECORDS + 1).ToListAsync(ct);
                 
                 if (invoiceList.Count > MAX_RECORDS)
                 {
                     Services.Logging.AppLogService.Warning(
-                        $"VAT Submission: Dataset truncated from {invoiceList.Count} to {MAX_RECORDS} records. " +
+                        $"VAT Submission: Dataset truncated at {MAX_RECORDS} records. " +
                         "Consider using more restrictive filters.");
                     invoiceList = invoiceList.Take(MAX_RECORDS).ToList();
                 }
@@ -2400,7 +2398,7 @@ namespace ProGlassAutomation.Services.Reporting
                 }
                 
                 // AUDIT: Log access
-                Services.Logging.AppLogService.Information(
+                Services.Logging.AppLogService.Info(
                     $"VAT Submission: Retrieved {result.Count} invoices " +
                     $"(filtered from {invoiceList.Count}, {invalidCount} invalid)");
                 
