@@ -226,7 +226,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                 { 
                     PromptForLocation = true, 
                     OpenAfterSave = true, 
-                    SuggestedFileName = $"VAT_Submission_{DateTime.Now:yyyyMMdd}" 
+                    SuggestedFileName = $"VAT_Submission_{DateTime.Now:dd-MM-yyyy}" 
                 };
                 
                 ExportResult res;
@@ -253,37 +253,35 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
         // Export mappings - CSV/PDF (string values)
         private static readonly string[] VatHeaders = 
         {
-            "PI Number", "Company", "Customer", "Project", "Salesman",
-            "Issue Date", "Status", "Subtotal (ex-VAT)", "VAT (5%)", "Total (inc-VAT)"
+            "PI Number", "Date / Time", "Company", "Customer", "Project", "Salesman",
+            "Status", "Net Amount (ex-VAT)", "VAT (5%)"
         };
 
         private static readonly Func<VatSubmissionRow, string[]> VatMap = row => new string[]
         {
             row.ProformaId,
+            row.IssueDate.ToString("dd-MM-yyyy HH:mm"),
             row.CompanyName,
             row.CustomerName,
             row.ProjectName,
             row.Salesman,
-            row.IssueDateDisplay,
             row.Status,
             row.SubtotalBeforeVat.ToString("N2"),
-            row.VatAmount.ToString("N2"),
-            row.GrandTotalVatInclusive.ToString("N2")
+            row.VatAmount.ToString("N2")
         };
 
-        // Export mappings - Excel (native types for better formatting)
+        // Export mappings - Excel (same structure, native types for better formatting)
         private static readonly Func<VatSubmissionRow, string[]> VatMapExcel = row => new string[]
         {
             row.ProformaId,
+            row.IssueDate.ToString("dd-MM-yyyy HH:mm"),
             row.CompanyName,
             row.CustomerName,
             row.ProjectName,
             row.Salesman,
-            row.IssueDate.ToString("yyyy-MM-dd"),
             row.Status,
             row.SubtotalBeforeVat.ToString("N2"),
-            row.VatAmount.ToString("N2"),
-            row.GrandTotalVatInclusive.ToString("N2")
+            row.VatAmount.ToString("N2")
         };
     }
 }

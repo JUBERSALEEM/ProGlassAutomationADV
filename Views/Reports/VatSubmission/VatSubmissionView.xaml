@@ -49,57 +49,57 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Card 1: Total VAT Collected -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected across all invoices (respects active filters)">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL VAT" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalVatCollected, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="5% FTA rate" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Card 2: Total Revenue -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT">
+                        <!-- Card 1: Total Revenue (inc. VAT) — What customers paid -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT — what customers paid (respects active filters)">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                                 <TextBlock Text="TOTAL REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
                                 <TextBlock Text="{Binding Summary.TotalGrandTotal, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSubtotal, Mode=OneWay, StringFormat={}AED {0:N0} ex-VAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="Inc. VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <!-- Card 2: Total VAT Collected — What we owe FTA -->
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected — payable to UAE FTA">
+                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE913;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="VAT COLLECTED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalVatCollected, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="5% FTA rate" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Card 3: Total Invoices -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total invoice count in the selected period">
+                        <!-- Card 3: Net Revenue (ex. VAT) — What we keep -->
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Net revenue excluding VAT — what the business retains">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE838;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="INVOICES" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Proforma invoices" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="NET REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalSubtotal, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="Ex. VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <!-- Card 4: Active Salesmen -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Number of active salesmen contributing to VAT">
+                        <!-- Card 4: Invoice Count — Volume metric -->
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total finalized invoice count in the selected period">
                             <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
                                 <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                             <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="SALESMEN" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.ByCompany.Count, Mode=OneWay, StringFormat={}{0} companies}" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                                <TextBlock Text="INVOICES" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="{Binding Summary.BySalesman.Count, Mode=OneWay, StringFormat={}{0} salesmen}" Style="{StaticResource ModuleListKpiHintStyle}"/>
                             </StackPanel>
                         </StackPanel>
                     </Grid>
@@ -315,26 +315,24 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="0.9*"/>
+                                    <ColumnDefinition Width="110"/>
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="0.9*"/>
                                     <ColumnDefinition Width="0.7*"/>
                                     <ColumnDefinition Width="90"/>
-                                    <ColumnDefinition Width="80"/>
                                     <ColumnDefinition Width="1.0*"/>
                                     <ColumnDefinition Width="0.9*"/>
-                                    <ColumnDefinition Width="1.0*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="PI # / DATE" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="1" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="2" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="3" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="4" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
-                                <TextBlock Grid.Column="5" Text="STATUS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="6" Text="DATE" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
-                                <TextBlock Grid.Column="7" Text="SUBTOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
+                                <TextBlock Grid.Column="0" Text="PI NUMBER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="1" Text="DATE / TIME" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="5" Text="SALESMAN" Style="{StaticResource ReportHeaderTextStyle}"/>
+                                <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Center"/>
+                                <TextBlock Grid.Column="7" Text="NET AMOUNT" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                                 <TextBlock Grid.Column="8" Text="VAT (5%)" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
-                                <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ReportHeaderTextStyle}" HorizontalAlignment="Right"/>
                             </Grid>
                         </Border>
 
@@ -366,44 +364,43 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="0.9*"/>
+                                                <ColumnDefinition Width="110"/>
                                                 <ColumnDefinition Width="1.0*"/>
                                                 <ColumnDefinition Width="1.0*"/>
                                                 <ColumnDefinition Width="0.9*"/>
                                                 <ColumnDefinition Width="0.7*"/>
                                                 <ColumnDefinition Width="90"/>
-                                                <ColumnDefinition Width="80"/>
                                                 <ColumnDefinition Width="1.0*"/>
                                                 <ColumnDefinition Width="0.9*"/>
-                                                <ColumnDefinition Width="1.0*"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <!-- PI # + Date (stacked) -->
-                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,6,0">
-                                                <TextBlock Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" TextTrimming="CharacterEllipsis"/>
-                                            </StackPanel>
+                                            <!-- PI Number -->
+                                            <TextBlock Grid.Column="0" Text="{Binding ProformaId}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+
+                                            <!-- Date / Time -->
+                                            <TextBlock Grid.Column="1" Text="{Binding IssueDateDisplay}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
 
                                             <!-- Company -->
-                                            <TextBlock Grid.Column="1" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="2" Text="{Binding CompanyName}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Customer -->
-                                            <TextBlock Grid.Column="2" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="3" Text="{Binding CustomerName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Project -->
-                                            <TextBlock Grid.Column="3" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="4" Text="{Binding ProjectName}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Salesman -->
-                                            <TextBlock Grid.Column="4" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                                            <TextBlock Grid.Column="5" Text="{Binding Salesman}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
 
                                             <!-- Status Badge -->
-                                            <Border Grid.Column="5" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Border Grid.Column="6" CornerRadius="6" Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
                                                         <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Background" Value="{DynamicResource TintRedBrush}"/></DataTrigger>
-                                                            <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Confirmed"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
+                                                            <DataTrigger Binding="{Binding Status}" Value="Issued"><Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/></DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
                                                 </Border.Style>
@@ -413,26 +410,19 @@
                                                             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding Status}" Value="Approved"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="Sent"><Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/></DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="Rejected"><Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/></DataTrigger>
-                                                                <DataTrigger Binding="{Binding Status}" Value="Draft"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Confirmed"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
+                                                                <DataTrigger Binding="{Binding Status}" Value="Issued"><Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/></DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
                                             </Border>
 
-                                            <!-- Date -->
-                                            <TextBlock Grid.Column="6" Text="{Binding IssueDate, StringFormat={}{0:dd MMM}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource MutedForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-
-                                            <!-- Subtotal -->
+                                            <!-- Net Amount (ex-VAT) -->
                                             <TextBlock Grid.Column="7" Text="{Binding SubtotalBeforeVat, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 
-                                            <!-- VAT -->
-                                            <TextBlock Grid.Column="8" Text="{Binding VatAmount, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-
-                                            <!-- Total -->
-                                            <TextBlock Grid.Column="9" Text="{Binding GrandTotalVatInclusive, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            <!-- VAT Amount (focus column — last) -->
+                                            <TextBlock Grid.Column="8" Text="{Binding VatAmount, StringFormat={}AED {0:N2}}" FontSize="{StaticResource TextBody}" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

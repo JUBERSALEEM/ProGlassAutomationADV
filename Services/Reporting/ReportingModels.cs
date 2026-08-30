@@ -562,7 +562,7 @@ namespace ProGlassAutomation.Services.Reporting
         public decimal GrandTotalVatInclusive { get; set; }
         
         // Display Properties
-        public string IssueDateDisplay => IssueDate.ToString("dd-MMM-yyyy");
+        public string IssueDateDisplay => IssueDate.ToString("dd-MMM-yyyy HH:mm");
         public string SubtotalDisplay => $"AED {SubtotalBeforeVat:N2}";
         public string VatDisplay => $"AED {VatAmount:N2}";
         public string TotalDisplay => $"AED {GrandTotalVatInclusive:N2}";
