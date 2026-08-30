@@ -13,315 +13,337 @@
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Page Header -->
-        <StackPanel Grid.Row="0" Margin="16,14,16,12">
-            <TextBlock Text="VAT Submission Report" Style="{StaticResource ModulePageTitleStyle}" FontSize="{StaticResource TextTitleLarge}" FontWeight="Bold"/>
-            <TextBlock Text="5% VAT breakdown for UAE FTA compliance · By salesman, company, project · Export for tax filing." Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap" HorizontalAlignment="Left"/>
-        </StackPanel>
+        <!-- ══ 1 · HEADER BAR ═══════════════════════════════════════ -->
+        <Grid Grid.Row="0" Margin="24,18,24,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Main Shell Card -->
-        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="16,0,16,14">
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="VAT Submission" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <Border Margin="14,4,0,0" VerticalAlignment="Center"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="10,3" SnapsToDevicePixels="True">
+                        <TextBlock Text="5% UAE FTA" FontSize="{StaticResource TextCaption}" FontWeight="Bold"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    </Border>
+                </StackPanel>
+                <TextBlock Text="VAT breakdown by salesman, company, project · Export for tax filing compliance."
+                           Style="{StaticResource ModulePageSubtitleStyle}"/>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Margin="0,0,8,0" MinWidth="100"
+                        Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                        Command="{Binding RefreshCommand}"
+                        Content="REFRESH" Tag="↻"/>
+                <Button MinWidth="120"
+                        Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
+                        Command="{Binding ExportPdfCommand}"
+                        Content="EXPORT PDF" Tag="📄"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ══ 2 · KPI STRIP ═══════════════════════════════════════ -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListKpiStripStyle}" Margin="24,0,24,12">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <!-- KPI Strip -->
-                    <RowDefinition Height="Auto"/> <!-- Filter Bar -->
-                    <RowDefinition Height="Auto"/> <!-- View Mode Tabs -->
-                    <RowDefinition Height="*"/>    <!-- Data Grids -->
-                    <RowDefinition Height="Auto"/> <!-- Pagination Footer -->
-                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                <!-- ══════════════════════════════════════════════════════════
-                     1. KPI STRIP
-                ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Total VAT Collected -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total 5% VAT collected across all invoices">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintBlueBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL VAT COLLECTED" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalVatCollected, Mode=OneWay, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalInvoices, Mode=OneWay, StringFormat={}{0} invoices}" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Total Revenue -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Total revenue including VAT">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintGreenBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE71C;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="TOTAL REVENUE" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalGrandTotal, Mode=OneWay, StringFormat={}AED {0:N2}}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="{Binding Summary.TotalSubtotal, Mode=OneWay, StringFormat={}AED {0:N2} ex-VAT}" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Salesmen -->
-                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Number of active salesmen with VAT collections">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintIndigoBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource AccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="SALESMEN" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.BySalesman.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Active salesmen" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-
-                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
-
-                        <!-- Companies -->
-                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Number of active companies with VAT collections">
-                            <Border Width="38" Height="38" CornerRadius="{DynamicResource ControlCornerRadius}" Background="{DynamicResource TintAmberBrush}" VerticalAlignment="Center">
-                                <TextBlock Text="&#xE825;" FontFamily="Segoe MDL2 Assets" FontSize="{StaticResource TextSubhead}" Foreground="{DynamicResource WarningBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="COMPANIES" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                                <TextBlock Text="{Binding Summary.ByCompany.Count}" Style="{StaticResource ModuleListKpiValueStyle}"/>
-                                <TextBlock Text="Active companies" Style="{StaticResource ModuleListKpiHintStyle}"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- ══════════════════════════════════════════════════════════
-                     2. FILTER BAR
-                ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Date From -->
-                        <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                            <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <DatePicker SelectedDate="{Binding DateFrom, Mode=TwoWay}" 
-                                       Width="130"
-                                       Style="{StaticResource ModuleListFilterDatePickerStyle}"/>
-                        </StackPanel>
-
-                        <!-- Date To -->
-                        <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                            <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <DatePicker SelectedDate="{Binding DateTo, Mode=TwoWay}" 
-                                       Width="130"
-                                       Style="{StaticResource ModuleListFilterDatePickerStyle}"/>
-                        </StackPanel>
-
-                        <!-- Company Filter -->
-                        <StackPanel Grid.Column="2" Margin="0,0,12,0">
-                            <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding CompanyOptions}" 
-                                     SelectedItem="{Binding CompanyFilter, Mode=TwoWay}"
-                                     Width="160"
-                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
-                        </StackPanel>
-
-                        <!-- Salesman Filter -->
-                        <StackPanel Grid.Column="3" Margin="0,0,12,0">
-                            <TextBlock Text="SALESMAN" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding SalesmanOptions}" 
-                                     SelectedItem="{Binding SalesmanFilter, Mode=TwoWay}"
-                                     Width="160"
-                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
-                        </StackPanel>
-
-                        <!-- Project Filter -->
-                        <StackPanel Grid.Column="4" Margin="0,0,12,0">
-                            <TextBlock Text="PROJECT" Style="{StaticResource ModuleFieldLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding ProjectOptions}" 
-                                     SelectedItem="{Binding ProjectFilter, Mode=TwoWay}"
-                                     Width="160"
-                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
-                        </StackPanel>
-
-                        <!-- Spacer -->
-                        <StackPanel Grid.Column="5"/>
-
-                        <!-- Clear Filters Button -->
-                        <Button Grid.Column="6" 
-                               Command="{Binding ClearFilterCommand}"
-                               Content="Clear Filters"
-                               Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                               Margin="0,0,0,0"/>
-                    </Grid>
-                </Border>
-
-                <!-- ══════════════════════════════════════════════════════════
-                     3. VIEW MODE TABS
-                ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}" Padding="8">
-                    <StackPanel Orientation="Horizontal">
-                        <RadioButton Content="Detail View" 
-                                    IsChecked="{Binding IsDetailView, Mode=OneWay}"
-                                    Command="{Binding ChangeViewModeCommand}"
-                                    CommandParameter="Detail"
-                                    Margin="0,0,8,0"/>
-                        <RadioButton Content="By Salesman" 
-                                    IsChecked="{Binding IsSalesmanView, Mode=OneWay}"
-                                    Command="{Binding ChangeViewModeCommand}"
-                                    CommandParameter="BySalesman"
-                                    Margin="0,0,8,0"/>
-                        <RadioButton Content="By Company" 
-                                    IsChecked="{Binding IsCompanyView, Mode=OneWay}"
-                                    Command="{Binding ChangeViewModeCommand}"
-                                    CommandParameter="ByCompany"
-                                    Margin="0,0,8,0"/>
-                        <RadioButton Content="By Project" 
-                                    IsChecked="{Binding IsProjectView, Mode=OneWay}"
-                                    Command="{Binding ChangeViewModeCommand}"
-                                    CommandParameter="ByProject"/>
+                <!-- Total VAT Collected -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                            Background="{DynamicResource TintGreenBrush}">
+                        <TextBlock Text="💰" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource SuccessBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Total VAT Collected" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{Binding Summary.TotalVatCollected, StringFormat={}{0:N2} AED}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                        <TextBlock Text="5% VAT amount" Style="{StaticResource ModuleListKpiHintStyle}"/>
                     </StackPanel>
-                </Border>
+                </StackPanel>
+                <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                <!-- ══════════════════════════════════════════════════════════
-                     4. DATA GRIDS (4 views with visibility binding)
-                ══════════════════════════════════════════════════════════════ -->
-                <Grid Grid.Row="3">
-                    <!-- Loading State -->
-                    <loading:LoadingStateControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" 
-                                                Message="Loading VAT data…"/>
+                <!-- Total Revenue -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                            Background="{DynamicResource TintBlueBrush}">
+                        <TextBlock Text="📊" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Total Revenue" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{Binding Summary.TotalGrandTotal, StringFormat={}{0:N2} AED}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                        <TextBlock Text="Grand total incl. VAT" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                    <!-- Empty State -->
-                    <emptyState:EmptyStateControl Message="No VAT data available for the selected filters"
-                                                Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <!-- Total Invoices -->
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                            Background="{DynamicResource TintAmberBrush}">
+                        <TextBlock Text="📋" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource WarningBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Total Invoices" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{Binding Summary.TotalInvoices}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                        <TextBlock Text="Proforma invoices" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                    <!-- Detail View Grid -->
-                    <DataGrid ItemsSource="{Binding Rows}"
-                             Visibility="{Binding IsDetailView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource LiquidGlassDataGridStyle}"
-                             AutoGenerateColumns="False"
-                             IsReadOnly="True"
-                             CanUserAddRows="False"
-                             CanUserDeleteRows="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="PI Number" Binding="{Binding ProformaId}" Width="120"/>
-                            <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
-                            <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150"/>
-                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="150"/>
-                            <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="120"/>
-                            <DataGridTextColumn Header="Issue Date" Binding="{Binding IssueDateDisplay}" Width="100"/>
-                            <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
-                            <DataGridTextColumn Header="Subtotal (ex-VAT)" Binding="{Binding SubtotalDisplay}" Width="130"/>
-                            <DataGridTextColumn Header="VAT (5%)" Binding="{Binding VatDisplay}" Width="110"/>
-                            <DataGridTextColumn Header="Total (inc-VAT)" Binding="{Binding TotalDisplay}" Width="130"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- By Salesman Grid -->
-                    <DataGrid ItemsSource="{Binding SalesmanSummary}"
-                             Visibility="{Binding IsSalesmanView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource LiquidGlassDataGridStyle}"
-                             AutoGenerateColumns="False"
-                             IsReadOnly="True"
-                             CanUserAddRows="False"
-                             CanUserDeleteRows="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="200"/>
-                            <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                            <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                            <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- By Company Grid -->
-                    <DataGrid ItemsSource="{Binding CompanySummary}"
-                             Visibility="{Binding IsCompanyView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource LiquidGlassDataGridStyle}"
-                             AutoGenerateColumns="False"
-                             IsReadOnly="True"
-                             CanUserAddRows="False"
-                             CanUserDeleteRows="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="200"/>
-                            <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                            <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                            <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-
-                    <!-- By Project Grid -->
-                    <DataGrid ItemsSource="{Binding ProjectSummary}"
-                             Visibility="{Binding IsProjectView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource LiquidGlassDataGridStyle}"
-                             AutoGenerateColumns="False"
-                             IsReadOnly="True"
-                             CanUserAddRows="False"
-                             CanUserDeleteRows="False">
-                        <DataGrid.Columns>
-                            <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="180"/>
-                            <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
-                            <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                            <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                            <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                        </DataGrid.Columns>
-                    </DataGrid>
-                </Grid>
-
-                <!-- ══════════════════════════════════════════════════════════
-                     5. PAGINATION FOOTER
-                ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="4" Style="{StaticResource ReportTableHeaderStyle}">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Record Count -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
-                            <TextBlock Text="Showing " Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding Rows.Count, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}" FontWeight="Bold"/>
-                            <TextBlock Text=" of " Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                            <TextBlock Text="{Binding TotalCount, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}" FontWeight="Bold"/>
-                            <TextBlock Text=" records" Style="{StaticResource ModuleListKpiLabelStyle}"/>
-                        </StackPanel>
-
-                        <!-- Export Buttons -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0">
-                            <Button Content="CSV" 
-                                   Command="{Binding ExportCsvCommand}"
-                                   Style="{StaticResource ExportButtonStyle}"
-                                   Margin="0,0,8,0"
-                                   ToolTip="Export to CSV"/>
-                            <Button Content="Excel" 
-                                   Command="{Binding ExportExcelCommand}"
-                                   Style="{StaticResource ExportButtonStyle}"
-                                   Margin="0,0,8,0"
-                                   ToolTip="Export to Excel"/>
-                            <Button Content="PDF" 
-                                   Command="{Binding ExportPdfCommand}"
-                                   Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
-                                   ToolTip="Export to PDF"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                <!-- Average VAT per Invoice -->
+                <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                            Background="{DynamicResource TintRedBrush}">
+                        <TextBlock Text="📈" FontSize="{StaticResource TextBody}" FontWeight="Bold"
+                                   Foreground="{DynamicResource DangerBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Avg VAT/Invoice" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        <TextBlock Text="{Binding Summary.AverageVatPerInvoice, StringFormat={}{0:N2} AED}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                        <TextBlock Text="Per invoice average" Style="{StaticResource ModuleListKpiHintStyle}"/>
+                    </StackPanel>
+                </StackPanel>
             </Grid>
         </Border>
+
+        <!-- ══ 3 · FILTER BAR + VIEW MODE TABS ═════════════════════ -->
+        <Grid Grid.Row="2" Margin="24,0,24,12">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Filter Bar -->
+            <Border Grid.Row="0" Style="{StaticResource ModuleListFilterBarStyle}" Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="8"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <DatePicker Grid.Column="0" 
+                               SelectedDate="{Binding DateFrom, Mode=TwoWay}"
+                               Style="{StaticResource ModuleListFilterDatePickerStyle}"
+                               ToolTip="From date"/>
+                    <DatePicker Grid.Column="2" 
+                               SelectedDate="{Binding DateTo, Mode=TwoWay}"
+                               Style="{StaticResource ModuleListFilterDatePickerStyle}"
+                               ToolTip="To date"/>
+                    <ComboBox Grid.Column="4" 
+                             ItemsSource="{Binding CompanyOptions}"
+                             SelectedItem="{Binding CompanyFilter, Mode=TwoWay}"
+                             Style="{StaticResource ModuleListFilterComboStyle}"
+                             ToolTip="Filter by company"/>
+                    <ComboBox Grid.Column="6" 
+                             ItemsSource="{Binding SalesmanOptions}"
+                             SelectedItem="{Binding SalesmanFilter, Mode=TwoWay}"
+                             Style="{StaticResource ModuleListFilterComboStyle}"
+                             ToolTip="Filter by salesman"/>
+                    <ComboBox Grid.Column="8" 
+                             ItemsSource="{Binding ProjectOptions}"
+                             SelectedItem="{Binding ProjectFilter, Mode=TwoWay}"
+                             Style="{StaticResource ModuleListFilterComboStyle}"
+                             ToolTip="Filter by project"/>
+                    <Button Grid.Column="10" MinWidth="92" Margin="8,0,0,0"
+                            Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
+                            Command="{Binding ClearFilterCommand}"
+                            Content="RESET" Tag="↺"/>
+                </Grid>
+            </Border>
+
+            <!-- View Mode Tabs -->
+            <Border Grid.Row="1">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Button Grid.Column="0" Content="Detail View"
+                            Command="{Binding ChangeViewModeCommand}"
+                            CommandParameter="Detail"
+                            Style="{StaticResource ModuleListTabActiveStyle}"
+                            HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,4,0"/>
+                    <Button Grid.Column="1" Content="By Salesman"
+                            Command="{Binding ChangeViewModeCommand}"
+                            CommandParameter="BySalesman"
+                            Style="{StaticResource ModuleListTabInactiveStyle}"
+                            HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Margin="4,0,4,0"/>
+                    <Button Grid.Column="2" Content="By Company"
+                            Command="{Binding ChangeViewModeCommand}"
+                            CommandParameter="ByCompany"
+                            Style="{StaticResource ModuleListTabInactiveStyle}"
+                            HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Margin="4,0,4,0"/>
+                    <Button Grid.Column="3" Content="By Project"
+                            Command="{Binding ChangeViewModeCommand}"
+                            CommandParameter="ByProject"
+                            Style="{StaticResource ModuleListTabInactiveStyle}"
+                            HorizontalContentAlignment="Stretch"
+                            HorizontalAlignment="Stretch"
+                            Margin="4,0,0,0"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- ══ 4 · DATA GRIDS ═══════════════════════════════════════ -->
+        <Grid Grid.Row="3" Margin="24,0,24,12">
+            <!-- Loading State -->
+            <loading:LoadingStateControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                        Message="Loading VAT data…"/>
+
+            <!-- Empty State -->
+            <emptyState:EmptyStateControl Message="No VAT data available for the selected filters"
+                                        Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+            <!-- Detail View Grid -->
+            <DataGrid ItemsSource="{Binding Rows}"
+                     Visibility="{Binding IsDetailView, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Style="{StaticResource LiquidGlassDataGridStyle}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="PI Number" Binding="{Binding ProformaId}" Width="120"/>
+                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
+                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150"/>
+                    <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="150"/>
+                    <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="120"/>
+                    <DataGridTextColumn Header="Issue Date" Binding="{Binding IssueDateDisplay}" Width="100"/>
+                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
+                    <DataGridTextColumn Header="Subtotal (ex-VAT)" Binding="{Binding SubtotalDisplay}" Width="130"/>
+                    <DataGridTextColumn Header="VAT (5%)" Binding="{Binding VatDisplay}" Width="110"/>
+                    <DataGridTextColumn Header="Total (inc-VAT)" Binding="{Binding TotalDisplay}" Width="130"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- By Salesman Grid -->
+            <DataGrid ItemsSource="{Binding SalesmanSummary}"
+                     Visibility="{Binding IsSalesmanView, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Style="{StaticResource LiquidGlassDataGridStyle}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="200"/>
+                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
+                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
+                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- By Company Grid -->
+            <DataGrid ItemsSource="{Binding CompanySummary}"
+                     Visibility="{Binding IsCompanyView, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Style="{StaticResource LiquidGlassDataGridStyle}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="200"/>
+                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
+                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
+                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+
+            <!-- By Project Grid -->
+            <DataGrid ItemsSource="{Binding ProjectSummary}"
+                     Visibility="{Binding IsProjectView, Converter={StaticResource BoolToVisibilityConverter}}"
+                     Style="{StaticResource LiquidGlassDataGridStyle}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="180"/>
+                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
+                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
+                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
+                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+
+        <!-- ══ 5 · FOOTER ═══════════════════════════════════════════ -->
+        <Grid Grid.Row="4" Margin="24,0,24,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock FontSize="{StaticResource TextBody}"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           VerticalAlignment="Center">
+                    <Run Text="Showing "/>
+                    <Run Text="{Binding Rows.Count, Mode=OneWay}"/>
+                    <Run Text=" of "/>
+                    <Run Text="{Binding TotalCount, Mode=OneWay}"/>
+                    <Run Text=" records"/>
+                </TextBlock>
+            </StackPanel>
+            
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="CSV" 
+                       Command="{Binding ExportCsvCommand}"
+                       Style="{StaticResource ExportButtonStyle}"
+                       Margin="0,0,8,0"
+                       ToolTip="Export to CSV"/>
+                <Button Content="Excel" 
+                       Command="{Binding ExportExcelCommand}"
+                       Style="{StaticResource ExportButtonStyle}"
+                       Margin="0,0,8,0"
+                       ToolTip="Export to Excel"/>
+                <Button Content="PDF" 
+                       Command="{Binding ExportPdfCommand}"
+                       Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
+                       ToolTip="Export to PDF"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
