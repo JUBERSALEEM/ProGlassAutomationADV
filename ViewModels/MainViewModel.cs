@@ -983,7 +983,8 @@ namespace ProGlassAutomation.ViewModels
                     break;
                 case "VatSubmission":
                     CurrentViewModel = VatSubmissionVM;
-                    _ = VatSubmissionVM.LoadAsync();
+                    // Load filter options first, then load data
+                    _ = LoadVatSubmissionAsync();
                     break;
                 case "Diagnostics":
                     CurrentViewModel = DiagnosticsVM;
@@ -1019,6 +1020,21 @@ namespace ProGlassAutomation.ViewModels
                 _ => ""
             };
             ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(moduleKey, App.Config?.Appearance);
+        }
+
+        private async Task LoadVatSubmissionAsync()
+        {
+            try
+            {
+                // Load filter options first (companies, salesmen, projects)
+                await VatSubmissionVM.LoadFilterOptionsAsync();
+                // Then load the data
+                await VatSubmissionVM.LoadAsync();
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Error($"Failed to load VAT Submission: {ex.Message}", ex);
+            }
         }
 
         public void Dispose()

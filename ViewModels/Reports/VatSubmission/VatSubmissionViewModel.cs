@@ -20,8 +20,8 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             : base(service ?? new ReportingDataService())
         {
             InitCommands();
-            _ = LoadFilterOptionsAsync();
-            _ = LoadAsync();
+            // Don't load in constructor - let navigation trigger it
+            // This prevents race conditions and unhandled exceptions
         }
 
         private VatSubmissionSummary _summary = new();
@@ -134,7 +134,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             return filter;
         }
 
-        private async Task LoadFilterOptionsAsync()
+        public async Task LoadFilterOptionsAsync()
         {
             try
             {
@@ -150,6 +150,10 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Warning($"VAT filter options warning: {ex.Message}");
+                // Set default options on error
+                CompanyOptions = new List<string> { AllFilter };
+                SalesmanOptions = new List<string> { AllFilter };
+                ProjectOptions = new List<string> { AllFilter };
             }
         }
 

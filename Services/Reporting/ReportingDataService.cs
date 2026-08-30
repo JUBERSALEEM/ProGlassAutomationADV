@@ -2302,9 +2302,29 @@ namespace ProGlassAutomation.Services.Reporting
                 ct.ThrowIfCancellationRequested();
                 
                 var result = new List<VatSubmissionRow>();
+                var validationWarnings = new List<string>();
                 
                 foreach (var invoice in query)
                 {
+                    // CRITICAL: Data Validation
+                    if (invoice.VatAmount < 0)
+                    {
+                        validationWarnings.Add($"Negative VAT amount for PI {invoice.ProformaId}: {invoice.VatAmount}");
+                        continue; // Skip invalid data
+                    }
+                    
+                    if (invoice.GrandTotalVatInclusive < 0)
+                    {
+                        validationWarnings.Add($"Negative grand total for PI {invoice.ProformaId}: {invoice.GrandTotalVatInclusive}");
+                        continue; // Skip invalid data
+                    }
+                    
+                    if (invoice.IssueDate > DateTime.Now.AddDays(1))
+                    {
+                        validationWarnings.Add($"Future date for PI {invoice.ProformaId}: {invoice.IssueDate:yyyy-MM-dd}");
+                        // Allow but log warning
+                    }
+                    
                     // Extract SalesRepresentative from snapshot
                     var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
                     var salesman = snap?.Client?.SalesRepresentative ?? "Unassigned";
@@ -2313,9 +2333,23 @@ namespace ProGlassAutomation.Services.Reporting
                     if (!string.IsNullOrWhiteSpace(filter.Salesman) && !Eq(salesman, filter.Salesman))
                         continue;
                     
-                    // Calculate SubtotalBeforeVat accurately: GrandTotal - VatAmount
+                    // CRITICAL: Proper VAT Calculation with rounding
+                    // Method 1: Use stored values (most accurate)
                     var subtotal = invoice.GrandTotalVatInclusive - invoice.VatAmount;
                     
+                    // Method 2: Validate with back-calculation (Gross / 1.05)
+                    var calculatedSubtotal = Math.Round(invoice.GrandTotalVatInclusive / 1.05m, 2, MidpointRounding.AwayFromZero);
+                    var calculatedVat = Math.Round(invoice.GrandTotalVatInclusive - calculatedSubtotal, 2, MidpointRounding.AwayFromZero);
+                    
+                    // Check for significant discrepancies (allow 0.01 tolerance for rounding)
+                    if (Math.Abs(calculatedVat - invoice.VatAmount) > 0.01m)
+                    {
+                        validationWarnings.Add(
+                            $"VAT mismatch for PI {invoice.ProformaId}: " +
+                            $"Stored={invoice.VatAmount:N2}, Calculated={calculatedVat:N2}");
+                    }
+                    
+                    // Use stored values for accuracy (they were calculated at invoice creation)
                     result.Add(new VatSubmissionRow
                     {
                         Id = invoice.Id,
@@ -2326,10 +2360,18 @@ namespace ProGlassAutomation.Services.Reporting
                         Salesman = salesman,
                         IssueDate = invoice.IssueDate,
                         Status = invoice.Status ?? "",
-                        SubtotalBeforeVat = Math.Round(subtotal, 2),
-                        VatAmount = invoice.VatAmount,
-                        GrandTotalVatInclusive = invoice.GrandTotalVatInclusive
+                        SubtotalBeforeVat = Math.Round(subtotal, 2, MidpointRounding.AwayFromZero),
+                        VatAmount = Math.Round(invoice.VatAmount, 2, MidpointRounding.AwayFromZero),
+                        GrandTotalVatInclusive = Math.Round(invoice.GrandTotalVatInclusive, 2, MidpointRounding.AwayFromZero)
                     });
+                }
+                
+                // Log validation warnings
+                if (validationWarnings.Any())
+                {
+                    Services.Logging.AppLogService.Warning(
+                        $"VAT Submission: {validationWarnings.Count} validation warnings:\n" +
+                        string.Join("\n", validationWarnings.Take(10))); // Log first 10
                 }
                 
                 return result
@@ -2337,10 +2379,16 @@ namespace ProGlassAutomation.Services.Reporting
                     .ThenBy(r => r.ProformaId)
                     .ToList();
             }
+            catch (OperationCanceledException)
+            {
+                throw; // Re-throw cancellation
+            }
             catch (Exception ex)
             {
-                Services.Logging.AppLogService.Warning($"VAT Submission data error: {ex.Message}");
-                return new List<VatSubmissionRow>();
+                Services.Logging.AppLogService.Error($"VAT Submission data error: {ex.Message}", ex);
+                throw new InvalidOperationException(
+                    "Failed to load VAT data. Please check your database connection and try again.", 
+                    ex);
             }
         }
     }
