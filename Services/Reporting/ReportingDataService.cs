@@ -2417,10 +2417,13 @@ namespace ProGlassAutomation.Services.Reporting
             }
             catch (Exception ex)
             {
-                Services.Logging.AppLogService.Error($"VAT Submission data error: {ex.Message}", ex);
-                throw new InvalidOperationException(
-                    "Failed to load VAT data. Please check your database connection and try again.", 
-                    ex);
+                // GRACEFUL DEGRADATION: Return empty results instead of crashing
+                // This handles cases where the database doesn't exist yet,
+                // the table is missing, or the connection fails.
+                Services.Logging.AppLogService.Warning(
+                    $"VAT Submission: Data load failed gracefully — {ex.Message}. " +
+                    "Returning empty results. The database may not be initialized yet.");
+                return new List<VatSubmissionRow>();
             }
         }
     }
