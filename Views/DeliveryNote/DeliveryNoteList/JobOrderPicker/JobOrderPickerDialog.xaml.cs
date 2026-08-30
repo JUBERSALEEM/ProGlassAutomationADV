@@ -194,7 +194,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker
 
         private static void SetRowSelected(Border row)
         {
-            row.Background = (System.Windows.Media.Brush)Application.Current.FindResource("SurfaceBrush");
+            row.Background = (System.Windows.Media.Brush)Application.Current.FindResource("ElevatedSurfaceBrush");
             var accentColor = (System.Windows.Media.Color)Application.Current.FindResource("AccentColor");
             var accentLightColor = System.Windows.Media.Color.FromArgb(
                 180, accentColor.R, accentColor.G, accentColor.B);

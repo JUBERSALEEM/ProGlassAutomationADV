@@ -46,7 +46,7 @@
 
         <!-- ── Detail block ──────────────────────────────────── -->
         <Border Grid.Row="1" Margin="0,18,0,0" Padding="16,14"
-                Background="{DynamicResource SurfaceBrush}"
+                Background="{DynamicResource ElevatedSurfaceBrush}"
                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                 CornerRadius="6">
             <StackPanel>
