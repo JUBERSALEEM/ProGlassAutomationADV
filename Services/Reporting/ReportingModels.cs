@@ -538,4 +538,96 @@ namespace ProGlassAutomation.Services.Reporting
         public int InvoicesWithoutCost { get; set; }
         public List<string> MissingCostSources { get; set; } = new();
     }
+
+    // ── VAT Submission Report ─────────────────────────────────────────
+
+    /// <summary>
+    /// Single invoice row in the VAT Submission report — shows VAT breakdown
+    /// for UAE FTA compliance (5% VAT).
+    /// </summary>
+    public class VatSubmissionRow
+    {
+        public int Id { get; set; }
+        public string ProformaId { get; set; } = "";
+        public string CompanyName { get; set; } = "";
+        public string CustomerName { get; set; } = "";
+        public string ProjectName { get; set; } = "";
+        public string Salesman { get; set; } = "";
+        public DateTime IssueDate { get; set; }
+        public string Status { get; set; } = "";
+        
+        // Financial Data
+        public decimal SubtotalBeforeVat { get; set; }
+        public decimal VatAmount { get; set; }
+        public decimal GrandTotalVatInclusive { get; set; }
+        
+        // Display Properties
+        public string IssueDateDisplay => IssueDate.ToString("dd-MMM-yyyy");
+        public string SubtotalDisplay => $"AED {SubtotalBeforeVat:N2}";
+        public string VatDisplay => $"AED {VatAmount:N2}";
+        public string TotalDisplay => $"AED {GrandTotalVatInclusive:N2}";
+    }
+
+    /// <summary>
+    /// Summary statistics for VAT Submission report with grouped breakdowns
+    /// by salesman, company, and project.
+    /// </summary>
+    public class VatSubmissionSummary
+    {
+        public int TotalInvoices { get; set; }
+        public decimal TotalSubtotal { get; set; }
+        public decimal TotalVatCollected { get; set; }
+        public decimal TotalGrandTotal { get; set; }
+        
+        // Grouped Summaries
+        public List<SalesmanVatSummary> BySalesman { get; set; } = new();
+        public List<CompanyVatSummary> ByCompany { get; set; } = new();
+        public List<ProjectVatSummary> ByProject { get; set; } = new();
+    }
+
+    /// <summary>
+    /// VAT summary grouped by salesman — shows total VAT collected by each salesman.
+    /// </summary>
+    public class SalesmanVatSummary
+    {
+        public string Salesman { get; set; } = "";
+        public int InvoiceCount { get; set; }
+        public decimal TotalVat { get; set; }
+        public decimal TotalRevenue { get; set; }
+        
+        // Display Properties
+        public string TotalVatDisplay => $"AED {TotalVat:N2}";
+        public string TotalRevenueDisplay => $"AED {TotalRevenue:N2}";
+    }
+
+    /// <summary>
+    /// VAT summary grouped by company — shows total VAT collected from each company.
+    /// </summary>
+    public class CompanyVatSummary
+    {
+        public string CompanyName { get; set; } = "";
+        public int InvoiceCount { get; set; }
+        public decimal TotalVat { get; set; }
+        public decimal TotalRevenue { get; set; }
+        
+        // Display Properties
+        public string TotalVatDisplay => $"AED {TotalVat:N2}";
+        public string TotalRevenueDisplay => $"AED {TotalRevenue:N2}";
+    }
+
+    /// <summary>
+    /// VAT summary grouped by project — shows total VAT collected per project.
+    /// </summary>
+    public class ProjectVatSummary
+    {
+        public string ProjectName { get; set; } = "";
+        public string CompanyName { get; set; } = "";
+        public int InvoiceCount { get; set; }
+        public decimal TotalVat { get; set; }
+        public decimal TotalRevenue { get; set; }
+        
+        // Display Properties
+        public string TotalVatDisplay => $"AED {TotalVat:N2}";
+        public string TotalRevenueDisplay => $"AED {TotalRevenue:N2}";
+    }
 }
