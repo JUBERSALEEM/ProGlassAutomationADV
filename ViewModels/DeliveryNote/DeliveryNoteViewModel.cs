@@ -557,23 +557,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             if (existingDraft != null)
             {
-                var openDraft = MessageBox.Show(
-                    $"A Draft delivery note already exists:\n\n" +
-                    $"   📋  {existingDraft.DeliveryNoteId}\n" +
-                    $"   📦  {existingDraft.TotalOrderedQty} ordered  ·  " +
-                    $"{existingDraft.TotalBalanceQty} balance\n\n" +
-                    "Open the existing Draft?",
-                    "Draft Already Exists",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question);
-
-                if (openDraft == MessageBoxResult.Yes)
-                {
-                    await DetailVM.LoadAsync(existingDraft.Id);
-                    IsListView = false;
-                    await SafeLoadListAsync();
-                    return;
-                }
+                // Open existing draft directly — no popup
+                await DetailVM.LoadAsync(existingDraft.Id);
+                IsListView = false;
+                await SafeLoadListAsync();
+                return;
             }
 
             // Deserialize JO snapshot
