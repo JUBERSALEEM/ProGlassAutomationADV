@@ -260,10 +260,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="STATUS"/>
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
-                                          SelectedItem="{Binding Status}"
-                                          FontSize="13"
-                                          Height="36" MinHeight="36"
-                                          VerticalContentAlignment="Center"/>
+                                          SelectedItem="{Binding Status}"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="260"
@@ -274,11 +271,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="DRIVER NAME"/>
                                 <TextBox Text="{Binding DriverName,
-                                                UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13" Padding="8,8"
-                                         Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"/>
+                                                UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="260"
@@ -289,11 +282,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="VEHICLE NUMBER"/>
                                 <TextBox Text="{Binding VehicleNumber,
-                                                UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13" Padding="8,8"
-                                         Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"/>
+                                                UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="150" MaxWidth="220"
@@ -305,10 +294,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="FOC"/>
                                 <CheckBox IsChecked="{Binding IsFoc}"
-                                          Content="Free" FontSize="13"
-                                          Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                          VerticalAlignment="Center"
-                                          Height="36"/>
+                                          Content="Free"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="300"
@@ -319,11 +305,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="RECEIVER NAME"/>
                                 <TextBox Text="{Binding ReceiverName,
-                                                UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13" Padding="8,8"
-                                         Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"/>
+                                                UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
 
                             <StackPanel MinWidth="180" MaxWidth="300"
@@ -334,12 +316,7 @@
                                 <TextBlock Style="{StaticResource FieldLabelStyle}"
                                            Text="NOTES"/>
                                 <TextBox Text="{Binding Notes,
-                                                UpdateSourceTrigger=PropertyChanged}"
-                                         Style="{StaticResource ModernTextBoxStyle}"
-                                         FontSize="13" Padding="8,8"
-                                         Height="36" MinHeight="36"
-                                         VerticalContentAlignment="Center"
-                                         TextWrapping="NoWrap"/>
+                                                UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
                         </WrapPanel>
                     </Border>
