@@ -237,76 +237,318 @@
             <emptyState:EmptyStateControl Message="No VAT data available for the selected filters"
                                         Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-            <!-- Detail View Grid -->
-            <DataGrid ItemsSource="{Binding Rows}"
-                     Visibility="{Binding IsDetailView, Converter={StaticResource BoolToVisibilityConverter}}"
-                     Style="{StaticResource LiquidGlassDataGridStyle}"
-                     AutoGenerateColumns="False"
-                     IsReadOnly="True"
-                     CanUserAddRows="False"
-                     CanUserDeleteRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="PI Number" Binding="{Binding ProformaId}" Width="120"/>
-                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
-                    <DataGridTextColumn Header="Customer" Binding="{Binding CustomerName}" Width="150"/>
-                    <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="150"/>
-                    <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="120"/>
-                    <DataGridTextColumn Header="Issue Date" Binding="{Binding IssueDateDisplay}" Width="100"/>
-                    <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="100"/>
-                    <DataGridTextColumn Header="Subtotal (ex-VAT)" Binding="{Binding SubtotalDisplay}" Width="130"/>
-                    <DataGridTextColumn Header="VAT (5%)" Binding="{Binding VatDisplay}" Width="110"/>
-                    <DataGridTextColumn Header="Total (inc-VAT)" Binding="{Binding TotalDisplay}" Width="130"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <!-- ══ DETAIL VIEW ══ -->
+            <Border Visibility="{Binding IsDetailView, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-            <!-- By Salesman Grid -->
-            <DataGrid ItemsSource="{Binding SalesmanSummary}"
-                     Visibility="{Binding IsSalesmanView, Converter={StaticResource BoolToVisibilityConverter}}"
-                     Style="{StaticResource LiquidGlassDataGridStyle}"
-                     AutoGenerateColumns="False"
-                     IsReadOnly="True"
-                     CanUserAddRows="False"
-                     CanUserDeleteRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Salesman" Binding="{Binding Salesman}" Width="200"/>
-                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                </DataGrid.Columns>
-            </DataGrid>
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="12,12,0,0"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="130"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="130"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="PI NUMBER" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="3" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="4" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="5" Text="ISSUE DATE" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="7" Text="SUBTOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="8" Text="VAT (5%)" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="9" Text="TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
 
-            <!-- By Company Grid -->
-            <DataGrid ItemsSource="{Binding CompanySummary}"
-                     Visibility="{Binding IsCompanyView, Converter={StaticResource BoolToVisibilityConverter}}"
-                     Style="{StaticResource LiquidGlassDataGridStyle}"
-                     AutoGenerateColumns="False"
-                     IsReadOnly="True"
-                     CanUserAddRows="False"
-                     CanUserDeleteRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="200"/>
-                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                </DataGrid.Columns>
-            </DataGrid>
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1"
+                             ItemsSource="{Binding Rows}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
+                             AutoGenerateColumns="False"
+                             IsReadOnly="True"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"
+                             HeadersVisibility="None"
+                             BorderThickness="0"
+                             CornerRadius="0,0,12,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding ProformaId}" Width="120"/>
+                            <DataGridTextColumn Binding="{Binding CompanyName}" Width="150"/>
+                            <DataGridTextColumn Binding="{Binding CustomerName}" Width="150"/>
+                            <DataGridTextColumn Binding="{Binding ProjectName}" Width="150"/>
+                            <DataGridTextColumn Binding="{Binding Salesman}" Width="120"/>
+                            <DataGridTextColumn Binding="{Binding IssueDateDisplay}" Width="100"/>
+                            <DataGridTextColumn Binding="{Binding Status}" Width="100"/>
+                            <DataGridTextColumn Binding="{Binding SubtotalDisplay}" Width="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding VatDisplay}" Width="110">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalDisplay}" Width="130">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
 
-            <!-- By Project Grid -->
-            <DataGrid ItemsSource="{Binding ProjectSummary}"
-                     Visibility="{Binding IsProjectView, Converter={StaticResource BoolToVisibilityConverter}}"
-                     Style="{StaticResource LiquidGlassDataGridStyle}"
-                     AutoGenerateColumns="False"
-                     IsReadOnly="True"
-                     CanUserAddRows="False"
-                     CanUserDeleteRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Project" Binding="{Binding ProjectName}" Width="180"/>
-                    <DataGridTextColumn Header="Company" Binding="{Binding CompanyName}" Width="150"/>
-                    <DataGridTextColumn Header="Invoice Count" Binding="{Binding InvoiceCount}" Width="120"/>
-                    <DataGridTextColumn Header="Total VAT" Binding="{Binding TotalVatDisplay}" Width="150"/>
-                    <DataGridTextColumn Header="Total Revenue" Binding="{Binding TotalRevenueDisplay}" Width="150"/>
-                </DataGrid.Columns>
-            </DataGrid>
+            <!-- ══ BY SALESMAN VIEW ══ -->
+            <Border Visibility="{Binding IsSalesmanView, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="12,12,0,0"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="SALESMAN" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="INVOICES" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="TOTAL VAT" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="TOTAL REVENUE" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1"
+                             ItemsSource="{Binding SalesmanSummary}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
+                             AutoGenerateColumns="False"
+                             IsReadOnly="True"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"
+                             HeadersVisibility="None"
+                             BorderThickness="0"
+                             CornerRadius="0,0,12,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Salesman}" Width="200"/>
+                            <DataGridTextColumn Binding="{Binding InvoiceCount}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalVatDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalRevenueDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- ══ BY COMPANY VIEW ══ -->
+            <Border Visibility="{Binding IsCompanyView, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="12,12,0,0"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="INVOICES" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="2" Text="TOTAL VAT" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="3" Text="TOTAL REVENUE" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1"
+                             ItemsSource="{Binding CompanySummary}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
+                             AutoGenerateColumns="False"
+                             IsReadOnly="True"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"
+                             HeadersVisibility="None"
+                             BorderThickness="0"
+                             CornerRadius="0,0,12,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding CompanyName}" Width="200"/>
+                            <DataGridTextColumn Binding="{Binding InvoiceCount}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalVatDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalRevenueDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+
+            <!-- ══ BY PROJECT VIEW ══ -->
+            <Border Visibility="{Binding IsProjectView, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Header -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            CornerRadius="12,12,0,0"
+                            Padding="16,12"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="INVOICES" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" Text="TOTAL VAT" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Grid.Column="4" Text="TOTAL REVENUE" Style="{StaticResource ModuleListHeaderTextStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- DataGrid -->
+                    <DataGrid Grid.Row="1"
+                             ItemsSource="{Binding ProjectSummary}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
+                             AutoGenerateColumns="False"
+                             IsReadOnly="True"
+                             CanUserAddRows="False"
+                             CanUserDeleteRows="False"
+                             HeadersVisibility="None"
+                             BorderThickness="0"
+                             CornerRadius="0,0,12,12">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding ProjectName}" Width="180"/>
+                            <DataGridTextColumn Binding="{Binding CompanyName}" Width="150"/>
+                            <DataGridTextColumn Binding="{Binding InvoiceCount}" Width="120">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalVatDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding TotalRevenueDisplay}" Width="150">
+                                <DataGridTextColumn.ElementStyle>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Right"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </DataGridTextColumn.ElementStyle>
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
         </Grid>
 
         <!-- ══ 5 · FOOTER ═══════════════════════════════════════════ -->
