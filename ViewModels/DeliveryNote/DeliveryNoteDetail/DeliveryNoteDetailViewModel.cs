@@ -1178,7 +1178,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 _entity.Items = dedupedItems;
 
-                var rows = dedupedItems
+                // Filter out fully delivered items for non-Master DNs
+                // (items where BalanceQty=0 and PreviouslyDeliveredQty>0)
+                var displayItems = _entity.IsMasterDn
+                    ? dedupedItems
+                    : dedupedItems.Where(i => i.BalanceQty > 0 || i.PreviouslyDeliveredQty == 0).ToList();
+
+                var rows = displayItems
                     .Select(i => new DnItemRowViewModel(i))
                     .ToList();
 
