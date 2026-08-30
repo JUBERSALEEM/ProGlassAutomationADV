@@ -291,7 +291,7 @@
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
                              HeadersVisibility="None"
-                             BorderThickness="0"
+                             BorderThickness="0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding ProformaId}" Width="120"/>
                             <DataGridTextColumn Binding="{Binding CompanyName}" Width="150"/>
@@ -369,7 +369,7 @@
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
                              HeadersVisibility="None"
-                             BorderThickness="0"
+                             BorderThickness="0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Salesman}" Width="200"/>
                             <DataGridTextColumn Binding="{Binding InvoiceCount}" Width="120">
@@ -441,7 +441,7 @@
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
                              HeadersVisibility="None"
-                             BorderThickness="0"
+                             BorderThickness="0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding CompanyName}" Width="200"/>
                             <DataGridTextColumn Binding="{Binding InvoiceCount}" Width="120">
@@ -515,7 +515,7 @@
                              CanUserAddRows="False"
                              CanUserDeleteRows="False"
                              HeadersVisibility="None"
-                             BorderThickness="0"
+                             BorderThickness="0">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding ProjectName}" Width="180"/>
                             <DataGridTextColumn Binding="{Binding CompanyName}" Width="150"/>
