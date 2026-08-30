@@ -2325,9 +2325,11 @@ namespace ProGlassAutomation.Services.Reporting
                 var validationWarnings = new List<string>();
                 var invalidCount = 0;
                 
-                // PERFORMANCE: Batch process with parallel deserialization
-                var tasks = invoiceList.Select(async invoice =>
+                // SEQUENTIAL PROCESSING: Avoids thread pool starvation and UI freezing
+                foreach (var invoice in invoiceList)
                 {
+                    ct.ThrowIfCancellationRequested();
+                    
                     // CRITICAL: Data Validation using VatCalculator
                     var validation = VatCalculator.ValidateInvoice(
                         invoice.GrandTotalVatInclusive, 
@@ -2336,35 +2338,30 @@ namespace ProGlassAutomation.Services.Reporting
                     
                     if (!validation.IsValid)
                     {
-                        Interlocked.Increment(ref invalidCount);
-                        return null; // Skip invalid data
+                        invalidCount++;
+                        continue; // Skip invalid data
                     }
                     
                     if (validation.HasWarnings)
                     {
-                        lock (validationWarnings)
-                        {
-                            validationWarnings.AddRange(
-                                validation.Warnings.Select(w => $"PI {invoice.ProformaId}: {w}"));
-                        }
+                        validationWarnings.AddRange(
+                            validation.Warnings.Select(w => $"PI {invoice.ProformaId}: {w}"));
                     }
                     
-                    // Extract SalesRepresentative from snapshot
-                    var snap = await Task.Run(
-                        () => ProformaInvoiceMapper.DeserializeSnapshot(invoice), 
-                        ct);
+                    // Extract SalesRepresentative from snapshot (synchronous - fast enough)
+                    var snap = ProformaInvoiceMapper.DeserializeSnapshot(invoice);
                     var salesman = snap?.Client?.SalesRepresentative ?? "Unassigned";
                     
                     // Apply salesman filter if specified
                     if (!string.IsNullOrWhiteSpace(filter.Salesman) && !Eq(salesman, filter.Salesman))
-                        return null;
+                        continue;
                     
                     // CRITICAL: Use VatCalculator for accurate calculations
                     var subtotal = VatCalculator.CalculateSubtotal(
                         invoice.GrandTotalVatInclusive, 
                         invoice.VatAmount);
                     
-                    return new VatSubmissionRow
+                    result.Add(new VatSubmissionRow
                     {
                         Id = invoice.Id,
                         ProformaId = invoice.ProformaId ?? "",
@@ -2377,11 +2374,8 @@ namespace ProGlassAutomation.Services.Reporting
                         SubtotalBeforeVat = subtotal,
                         VatAmount = VatCalculator.Round(invoice.VatAmount),
                         GrandTotalVatInclusive = VatCalculator.Round(invoice.GrandTotalVatInclusive)
-                    };
-                });
-                
-                var results = await Task.WhenAll(tasks);
-                result = results.Where(r => r != null).Cast<VatSubmissionRow>().ToList();
+                    });
+                }
                 
                 // Log validation summary
                 if (invalidCount > 0)

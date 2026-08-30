@@ -151,6 +151,13 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
 
         public override async Task LoadAsync()
         {
+            // Ensure we're on UI thread for ObservableCollection updates
+            if (System.Windows.Application.Current?.Dispatcher?.CheckAccess() == false)
+            {
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => LoadAsync());
+                return;
+            }
+            
             CancelPrevious();
             var token = LoadToken;
             IsLoading = true; 
@@ -164,6 +171,7 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
                 
                 if (token.IsCancellationRequested) return;
                 
+                // These updates are now guaranteed to be on UI thread
                 Summary = summary;
                 Rows = new ObservableCollection<VatSubmissionRow>(paged.Items);
                 SalesmanSummary = new ObservableCollection<SalesmanVatSummary>(summary.BySalesman);
@@ -177,7 +185,8 @@ namespace ProGlassAutomation.ViewModels.Reports.VatSubmission
             catch (Exception ex) when (!(ex is OperationCanceledException))
             { 
                 HasError = true; 
-                ErrorMessage = ex.Message; 
+                ErrorMessage = ex.Message;
+                Services.Logging.AppLogService.Error($"VAT load error: {ex.Message}", ex);
             }
             finally { IsLoading = false; }
         }
