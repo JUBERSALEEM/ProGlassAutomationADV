@@ -166,7 +166,7 @@
                         <Button Grid.Column="6" 
                                Command="{Binding ClearFilterCommand}"
                                Content="Clear Filters"
-                               Style="{StaticResource ReportToolbarOutlinedButton}"
+                               Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                Margin="0,0,0,0"/>
                     </Grid>
                 </Border>
@@ -179,22 +179,18 @@
                         <RadioButton Content="Detail View" 
                                     IsChecked="{Binding IsDetailView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabActiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Salesman" 
                                     IsChecked="{Binding IsSalesmanView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabInactiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Company" 
                                     IsChecked="{Binding IsCompanyView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabInactiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Project" 
                                     IsChecked="{Binding IsProjectView, Mode=TwoWay}"
-                                    GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabInactiveStyle}"/>
+                                    GroupName="ViewMode"/>
                     </StackPanel>
                 </Border>
 
@@ -306,17 +302,17 @@
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0">
                             <Button Content="CSV" 
                                    Command="{Binding ExportCsvCommand}"
-                                   Style="{StaticResource ReportExportOutlinedButton}"
+                                   Style="{StaticResource ExportButtonStyle}"
                                    Margin="0,0,8,0"
                                    ToolTip="Export to CSV"/>
                             <Button Content="Excel" 
                                    Command="{Binding ExportExcelCommand}"
-                                   Style="{StaticResource ReportExportOutlinedButton}"
+                                   Style="{StaticResource ExportButtonStyle}"
                                    Margin="0,0,8,0"
                                    ToolTip="Export to Excel"/>
                             <Button Content="PDF" 
                                    Command="{Binding ExportPdfCommand}"
-                                   Style="{StaticResource ReportExportPrimaryButton}"
+                                   Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
                                    ToolTip="Export to PDF"/>
                         </StackPanel>
                     </Grid>
