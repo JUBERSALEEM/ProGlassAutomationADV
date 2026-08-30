@@ -1,21 +1,21 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/SampleData/SampleDataService.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Sample data seeding — first-run learning aid
+// MODULE: Sample data seeding — single comprehensive workflow demo
 //
-// Fills EVERY module with a small, internally consistent demo dataset so
-// a fresh install can be explored immediately:
-//   • Sheet Store   — 6 glass sheets (stock/used/prices)
-//   • Proforma      — 3 invoices (Approved / Sent / Draft) with full
-//                     snapshots (openable in the wizard & printable)
-//   • Job Order     — 2 jobs linked to the PIs (Released / InProduction)
-//   • Delivery Note — 2 DNs linked to the JOs (Delivered / Draft)
-//   • Tax Invoice   — 3 TIs (Paid / Issued / Overdue for aging views)
+// Creates ONE complete, realistic workflow that demonstrates the full
+// pipeline from Inquiry → Proforma Invoice → Job Order → Delivery Note
+// → Tax Invoice, all with the same data flowing through each stage.
+//
+//   • Inquiry          — 1 confirmed inquiry (all fields filled)
+//   • Proforma Invoice — 1 approved PI with 22 glass items across 3 spec groups
+//   • Job Order        — 1 released job order (from the PI)
+//   • Delivery Note    — 1 partial delivery (demonstrates balance workflow)
+//   • Tax Invoice      — 1 issued invoice (from the delivery)
 //
 // Rules:
 //   • Never overwrites real data: seeding is refused when the target
-//     tables already contain records (or the user picks "add anyway"
-//     with SAMPLE- prefixed ids — not implemented: refuse only).
+//     tables already contain records.
 //   • Uses the same repositories the app uses everywhere else.
 //   • Logs the operation to the audit trail.
 // ═══════════════════════════════════════════════════════════════════════
@@ -41,23 +41,15 @@ using ProGlassAutomation.Services.Database;
 
 namespace ProGlassAutomation.Services.SampleData
 {
-    /// <summary>Seeds a consistent demo dataset across all modules.</summary>
+    /// <summary>Seeds a single comprehensive demo workflow across all modules.</summary>
     public static class SampleDataService
     {
         /// <summary>Raised (UI thread) after a successful seed so open
         /// lists refresh instantly without a manual refresh.</summary>
-        /// <remarks>
-        /// Func&lt;Task&gt; rather than Action: every subscriber is an async
-        /// reload (the ViewModels assign `async () => await LoadAsync()`),
-        /// so the event must carry Task-returning delegates (CS0029).
-        /// Handlers are awaited one at a time; a failing handler is logged
-        /// and must not break the others.
-        /// </remarks>
         public static event Func<Task>? DataSeeded;
 
         /// <summary>
-        /// Invokes every DataSeeded handler sequentially. A throwing
-        /// handler is logged and never prevents the others from running.
+        /// Invokes every DataSeeded handler sequentially.
         /// </summary>
         private static async Task RaiseDataSeededAsync()
         {
@@ -71,8 +63,7 @@ namespace ProGlassAutomation.Services.SampleData
         }
 
         /// <summary>
-        /// Returns true when any business table already has data
-        /// (seeding would mix demo with real records — refuse).
+        /// Returns true when any business table already has data.
         /// </summary>
         public static async Task<bool> HasExistingDataAsync()
         {
@@ -92,12 +83,12 @@ namespace ProGlassAutomation.Services.SampleData
             }
             catch
             {
-                return true; // on any doubt, refuse
+                return true;
             }
             return false;
         }
 
-        /// <summary>Seeds the demo dataset. Returns a human summary.</summary>
+        /// <summary>Seeds a single comprehensive workflow. Returns a human summary.</summary>
         public static async Task<string> SeedAsync()
         {
             if (await HasExistingDataAsync())
@@ -108,118 +99,120 @@ namespace ProGlassAutomation.Services.SampleData
             var year = DateTime.Now.Year;
             var today = DateTime.Now.Date;
 
-            // ── 1. Sheet Store ────────────────────────────────────────
+            // ── Common data for the entire workflow ──────────────────
+            const string customerName = "Al Noor Glazing Contracting LLC";
+            const string customerTrn = "100987654300003";
+            const string projectName = "Al Zahia Tower — Podium Glazing";
+            const string projectRef = "AZT-POD-2026";
+            const string contractNo = "CTR-2026-042";
+            const string lpoNumber = "LPO-AN-2026-088";
+            const string siteLocation = "Al Zahia, Sharjah, UAE";
+            const string salesmanName = "Ahmed Rahman";
+            const string preparedBy = "Demo User";
+            const string companyName = "ProGlass Automation Demo";
+            const string companyTrn = "100234567800003";
+
+            string piId = $"PI-{year}-001";
+            string jobId = $"JOB-{year}-001";
+            string dnId = $"DN-{year}-001-01";
+            string tiId = $"INV-{year}-001";
+            string inqId = $"INQ-{year}-001";
+
+            // ── 1. Sheet Store (stock for the glass items) ───────────
             var sheets = new SheetStoreRepository();
-            await sheets.AddAsync(Sheet("Clear", 6, "Clear", 2440, 1830, "Guardian Glass", 95, 150, 40, 6));
-            await sheets.AddAsync(Sheet("Clear", 10, "Clear", 2440, 1830, "Guardian Glass", 140, 210, 25, 4));
-            await sheets.AddAsync(Sheet("Tinted", 6, "Bronze", 2440, 1830, "Al Gurg Glass", 110, 175, 30, 5));
-            await sheets.AddAsync(Sheet("Frosted", 5, "Frosted", 2200, 1650, "National Glass", 130, 200, 18, 2));
-            await sheets.AddAsync(Sheet("Low-E", 6, "Clear", 2440, 1830, "Saint-Gobain", 180, 260, 22, 3));
-            await sheets.AddAsync(Sheet("Mirror", 4, "Silver", 1830, 1220, "Al Gurg Glass", 90, 145, 15, 1));
+            await sheets.AddAsync(Sheet("Clear", 6, "Clear", 2440, 1830, "Guardian Glass", 95, 150, 80, 10));
+            await sheets.AddAsync(Sheet("Clear", 8, "Clear", 2440, 1830, "Guardian Glass", 120, 185, 60, 8));
+            await sheets.AddAsync(Sheet("Clear", 10, "Clear", 2440, 1830, "Guardian Glass", 140, 210, 50, 6));
+            await sheets.AddAsync(Sheet("Clear", 12, "Clear", 2440, 1830, "Guardian Glass", 165, 245, 40, 4));
+            await sheets.AddAsync(Sheet("Tinted", 6, "Bronze", 2440, 1830, "Al Gurg Glass", 110, 175, 55, 5));
+            await sheets.AddAsync(Sheet("Tinted", 8, "Grey", 2440, 1830, "Al Gurg Glass", 125, 195, 45, 3));
+            await sheets.AddAsync(Sheet("Low-E", 6, "Clear", 2440, 1830, "Saint-Gobain", 180, 260, 35, 2));
+            await sheets.AddAsync(Sheet("Frosted", 5, "Frosted", 2200, 1650, "National Glass", 130, 200, 30, 2));
 
-            // ── 2. Proforma Invoices (with full snapshots) ───────────
-            var pi1 = Pi($"PI-{year}-001", "Approved", today.AddDays(-20),
-                "Skyline Interiors LLC", "Marina Tower — Fit-Out", 12_450m);
-            var pi2 = Pi($"PI-{year}-002", "Sent", today.AddDays(-6),
-                "Desert Rose Contracting", "Palm Villa 17", 6_820m);
-            var pi3 = Pi($"PI-{year}-003", "Draft", today.AddDays(-1),
-                "Al Noor Glass Trading", "Showroom Partition Works", 3_140m);
-            await App.Invoices.InsertAsync(pi1);
-            await App.Invoices.InsertAsync(pi2);
-            await App.Invoices.InsertAsync(pi3);
-
-            // ── 2b. Customer Inquiry — where the PI demo starts ────────
-            //     The recorded Proforma Invoice walkthrough converts THIS
-            //     Confirmed inquiry into a fresh quotation (customer and
-            //     project pre-filled), so the chain the viewer watches
-            //     begins at the real start of the pipeline: Inquiry → PI.
-            //     Best-effort: if the inquiry store is unavailable the
-            //     rest of the demo data still seeds.
+            // ── 2. Inquiry (starting point of the workflow) ──────────
             try
             {
                 var demoInquiry = new ProGlassAutomation.Models.Inquiry.InquiryRecord
                 {
-                    InquiryNumber = $"INQ-{year}-001",
-                    InquiryReference = "Podium glazing quotation request",
-                    CustomerName = "Al Noor Glazing Contracting LLC",
+                    InquiryNumber = inqId,
+                    InquiryReference = "Podium facade glazing quotation",
+                    CustomerName = customerName,
                     CustomerLocation = "Sharjah, UAE",
-                    ProjectName = "Al Zahia Tower — Podium Glazing",
+                    ProjectName = projectName,
                     ProjectDescription =
-                        "Supply of clear tempered glass for the tower podium facade.",
-                    SalesmanName = "Demo Sales",
+                        "Supply and installation of clear tempered, tinted, and Low-E glass " +
+                        "for the tower podium facade. Includes 22 glass panels across 3 specification " +
+                        "groups: clear tempered for main facade, tinted for sun-exposed areas, " +
+                        "and Low-E for energy-efficient zones.",
+                    SalesmanName = salesmanName,
                     Status = ProGlassAutomation.Models.Inquiry.InquiryStatuses.Confirmed,
                     Priority = "High",
-                    InquiryValue = 42_000m,
-                    ReceivedAt = today.AddDays(-2),
-                    PreparedAt = today.AddDays(-1),
-                    Notes = "Seeded demo inquiry — convert to Proforma Invoice.",
+                    InquiryValue = 87_450m,
+                    ReceivedAt = today.AddDays(-14),
+                    PreparedAt = today.AddDays(-12),
+                    Notes = "Client confirmed. Proceed with proforma invoice preparation. " +
+                            "Site survey completed. Measurements verified by site engineer. " +
+                            "Delivery required in 2 batches — podium level access via loading bay.",
                 };
                 await App.Inquiries.CreateAsync(demoInquiry);
             }
             catch (Exception ex)
             {
-                AppLogService.Debug(
-                    "[SampleData] Demo inquiry seed skipped: " + ex.Message);
+                AppLogService.Debug("[SampleData] Demo inquiry seed skipped: " + ex.Message);
             }
 
-            // ── 3. Job Orders (real snapshots from the PIs) ───────────
-            var jo1 = BuildJob(pi1, $"JOB-{year}-001", "Released", "High", today.AddDays(6));
-            var jo2 = BuildJob(pi2, $"JOB-{year}-002", "InProduction", "High", today.AddDays(12));
-            await App.Jobs.InsertAsync(jo1.Entity);
-            await App.Jobs.InsertAsync(jo2.Entity);
+            // ── 3. Proforma Invoice (with 22 items in 3 spec groups) ─
+            var pi = BuildComprehensivePi(
+                piId, today.AddDays(-10),
+                customerName, customerTrn,
+                projectName, projectRef, contractNo, lpoNumber, siteLocation,
+                salesmanName, preparedBy, companyName, companyTrn);
+            await App.Invoices.InsertAsync(pi);
 
-            // ── 4. Delivery Notes (items + Prev/This/Balance) ─────────
-            await App.DeliveryNotes.InsertAsync(BuildDn(
-                jo1.Entity, jo1.Snapshot, $"DN-{year}-001-01", 1,
-                "Delivered", deliverAll: true, today.AddDays(-4),
-                "Salim Khan", "SHJ-48211", "Site storekeeper"));
-            await App.DeliveryNotes.InsertAsync(BuildDn(
-                jo2.Entity, jo2.Snapshot, $"DN-{year}-002-01", 1,
-                "Dispatching", deliverAll: false, today,
-                "", "", ""));
+            // ── 4. Job Order (from the PI) ───────────────────────────
+            var (jo, joSnap) = BuildJobOrder(pi, jobId, "Released", "High", today.AddDays(14));
+            await App.Jobs.InsertAsync(jo);
 
-            // ── 5. Tax Invoices ───────────────────────────────────────
-            await App.TaxInvoices.InsertAsync(Ti($"INV-{year}-001",
-                $"PI-{year}-001", $"DN-{year}-001-01",
-                "Skyline Interiors LLC", "Paid", 12_450m,
-                today.AddDays(-3), today.AddDays(27)));
-            await App.TaxInvoices.InsertAsync(Ti($"INV-{year}-002",
-                $"PI-{year}-002", "",
-                "Desert Rose Contracting", "Issued", 6_820m,
-                today.AddDays(-2), today.AddDays(28)));
-            await App.TaxInvoices.InsertAsync(Ti($"INV-{year}-003",
-                $"PI-{year}-001", "",
-                "Skyline Interiors LLC", "Overdue", 4_300m,
-                today.AddDays(-45), today.AddDays(-15)));
+            // ── 5. Delivery Note (partial delivery — 15 of 22 items) ─
+            var dn = BuildDeliveryNote(
+                jo, joSnap, dnId, 1,
+                "Dispatching", today,
+                "Salim Khan", "SHJ-48211", "Mohammed Ali (Site Storekeeper)");
+            await App.DeliveryNotes.InsertAsync(dn);
+
+            // ── 6. Tax Invoice (from the delivery) ───────────────────
+            var ti = BuildTaxInvoice(
+                tiId, piId, dnId,
+                customerName, customerTrn,
+                projectName, companyName, companyTrn,
+                "Issued", today, today.AddDays(30));
+            await App.TaxInvoices.InsertAsync(ti);
 
             AuditService.Log(AuditSections.Settings,
                 "Sample data loaded",
-                "6 sheets, 3 PIs, 2 JOs, 2 DNs, 3 TIs seeded for first-run exploration");
+                "1 complete workflow seeded: Inquiry → PI (22 items) → JO → DN → TI");
 
             await RaiseDataSeededAsync();
 
             return "Sample data loaded ✔\n\n" +
-                   "• Sheet Store: 6 glass sheets\n" +
-                   "• Proforma Invoices: 3 (Approved / Sent / Draft)\n" +
-                   "• Job Orders: 2 (Released / In Production)\n" +
-                   "• Delivery Notes: 2 (Delivered / Draft)\n" +
-                   "• Tax Invoices: 3 (Paid / Issued / Overdue)\n\n" +
-                   "Every document is linked (PI → JO → DN → TI) and " +
-                   "opens with full detail. Explore freely — or delete " +
-                   "records individually when done.";
+                   "ONE complete workflow demonstrating the full pipeline:\n\n" +
+                   $"  📋 Inquiry:        {inqId} (Confirmed)\n" +
+                   $"  📄 Proforma:       {piId} (Approved, 22 glass items)\n" +
+                   $"  🔧 Job Order:      {jobId} (Released)\n" +
+                   $"  🚚 Delivery Note:  {dnId} (Partial delivery)\n" +
+                   $"  💰 Tax Invoice:    {tiId} (Issued)\n\n" +
+                   "All documents are linked and share the same data.\n" +
+                   "Open any document to see the full detail.\n" +
+                   "The delivery note demonstrates partial delivery —\n" +
+                   "click 'CREATE DN' again to see the balance workflow.";
         }
 
         /// <summary>
-        /// Removes EVERY record across all business modules (sheets,
-        /// proformas, job orders, delivery notes — including Master DNs —
-        /// and tax invoices). Intended for wiping the demo dataset after
-        /// evaluation so users can start entering real data on a clean
-        /// database without deleting records one by one.
-        /// Caller MUST confirm with the user before invoking this.
+        /// Removes EVERY record across all business modules.
         /// </summary>
         public static async Task<string> ClearAllDataAsync()
         {
-            int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0;
+            int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0, inq = 0;
 
             try
             {
@@ -233,8 +226,7 @@ namespace ProGlassAutomation.Services.SampleData
                     }
                 }
 
-                // Delivery Notes — GetAllAsync excludes Master DNs,
-                // so Master DNs are cleared through their own query.
+                // Delivery Notes
                 if (App.DeliveryNotes != null)
                 {
                     foreach (var x in await App.DeliveryNotes.GetAllAsync())
@@ -269,11 +261,26 @@ namespace ProGlassAutomation.Services.SampleData
                     }
                 }
 
-                // Sheet Store
-                var sheets = new SheetStoreRepository();
-                foreach (var x in await sheets.GetAllAsync())
+                // Inquiries
+                try
                 {
-                    await sheets.DeleteAsync(x.Id);
+                    if (App.Inquiries != null)
+                    {
+                        var allInq = await App.Inquiries.GetAllAsync();
+                        foreach (var x in allInq)
+                        {
+                            await App.Inquiries.DeleteAsync(x.Id);
+                            inq++;
+                        }
+                    }
+                }
+                catch { /* inquiries optional */ }
+
+                // Sheet Store
+                var sheetRepo = new SheetStoreRepository();
+                foreach (var x in await sheetRepo.GetAllAsync())
+                {
+                    await sheetRepo.DeleteAsync(x.Id);
                     sh++;
                 }
             }
@@ -286,13 +293,12 @@ namespace ProGlassAutomation.Services.SampleData
 
             AuditService.Log(AuditSections.Settings,
                 "All data cleared",
-                $"Removed {sh} sheets, {pi} PIs, {jo} JOs, {dn} DNs, {ti} TIs");
+                $"Removed {sh} sheets, {pi} PIs, {jo} JOs, {dn} DNs, {ti} TIs, {inq} inquiries");
 
-            // Re-uses the seed event on purpose: every subscribed list
-            // reloads and shows the now-empty database immediately.
             await RaiseDataSeededAsync();
 
             return "All data cleared ✔\n\n" +
+                   $"• Inquiries: {inq} removed\n" +
                    $"• Sheet Store: {sh} sheet(s) removed\n" +
                    $"• Proforma Invoices: {pi} removed\n" +
                    $"• Job Orders: {jo} removed\n" +
@@ -303,8 +309,7 @@ namespace ProGlassAutomation.Services.SampleData
 
         /// <summary>
         /// Inserts company / client / project / salesman cards when those
-        /// tables are empty. Uses the DbContext directly so it does not
-        /// trip OperationGuard. Safe to call after a folder switch.
+        /// tables are empty.
         /// </summary>
         public static async Task SeedMasterProfilesAsync()
         {
@@ -332,19 +337,35 @@ namespace ProGlassAutomation.Services.SampleData
 
             if (!await db.Clients.AnyAsync())
             {
-                db.Clients.Add(Client("Demo Glass Contractor", now, 4));
-                db.Clients.Add(Client("Skyline Interiors LLC", now, 3));
-                db.Clients.Add(Client("Desert Rose Contracting", now, 2));
-                db.Clients.Add(Client("Al Noor Glass Trading", now, 1));
+                db.Clients.Add(new SavedClient
+                {
+                    CustomerName = "Al Noor Glazing Contracting LLC",
+                    CustomerTrn = "100987654300003",
+                    BillingAddress = "PO Box 45678, Sharjah, UAE",
+                    SalesRepresentative = "Ahmed Rahman",
+                    DocumentPreparedBy = "Demo User",
+                    ClientContactPhone = "+971 50 987 6543",
+                    UsageCount = 4,
+                    CreatedAt = now,
+                    LastUsedAt = now
+                });
                 added = true;
             }
 
             if (!await db.Projects.AnyAsync())
             {
-                db.Projects.Add(Project("Demo Tower Fit-Out", "Demo Glass Contractor", now, 4));
-                db.Projects.Add(Project("Marina Tower — Fit-Out", "Skyline Interiors LLC", now, 3));
-                db.Projects.Add(Project("Palm Villa 17", "Desert Rose Contracting", now, 2));
-                db.Projects.Add(Project("Showroom Partition Works", "Al Noor Glass Trading", now, 1));
+                db.Projects.Add(new SavedProject
+                {
+                    ProjectIdentifierName = "Al Zahia Tower — Podium Glazing",
+                    ProjectContractNo = "CTR-2026-042",
+                    ProjectReference = "AZT-POD-2026",
+                    SiteDeliveryLocation = "Al Zahia, Sharjah, UAE",
+                    LpoNumber = "LPO-AN-2026-088",
+                    CustomerName = "Al Noor Glazing Contracting LLC",
+                    UsageCount = 4,
+                    CreatedAt = now,
+                    LastUsedAt = now
+                });
                 added = true;
             }
 
@@ -352,7 +373,7 @@ namespace ProGlassAutomation.Services.SampleData
             {
                 db.Salesmen.Add(new SavedSalesman
                 {
-                    Name = "A. Rahman",
+                    Name = "Ahmed Rahman",
                     Department = "Sales",
                     UsageCount = 4,
                     CreatedAt = now,
@@ -364,33 +385,6 @@ namespace ProGlassAutomation.Services.SampleData
             if (added)
                 await SqliteResilience.SaveWithRetryAsync(_ => db.SaveChangesAsync());
         }
-
-        private static SavedClient Client(string name, DateTime now, int uses) => new()
-        {
-            CustomerName = name,
-            CustomerTrn = "100987654300003",
-            BillingAddress = "PO Box 12345, Sharjah, UAE",
-            SalesRepresentative = "A. Rahman",
-            DocumentPreparedBy = "Demo User",
-            ClientContactPhone = "+971 50 123 4567",
-            UsageCount = uses,
-            CreatedAt = now,
-            LastUsedAt = now
-        };
-
-        private static SavedProject Project(
-            string name, string customer, DateTime now, int uses) => new()
-        {
-            ProjectIdentifierName = name,
-            ProjectContractNo = "CTR-2026-11",
-            ProjectReference = name,
-            SiteDeliveryLocation = "Sharjah Industrial Area",
-            LpoNumber = "LPO-889",
-            CustomerName = customer,
-            UsageCount = uses,
-            CreatedAt = now,
-            LastUsedAt = now
-        };
 
         // ── builders ──────────────────────────────────────────────────
 
@@ -404,85 +398,144 @@ namespace ProGlassAutomation.Services.SampleData
             Stock = stock, Used = used
         };
 
-        private static SavedProformaInvoice Pi(string id, string status,
-            DateTime issue, string customer, string project, decimal total)
+        /// <summary>
+        /// Builds a comprehensive Proforma Invoice with 22 glass items
+        /// across 3 specification groups.
+        /// </summary>
+        private static SavedProformaInvoice BuildComprehensivePi(
+            string id, DateTime issue,
+            string customerName, string customerTrn,
+            string projectName, string projectRef, string contractNo,
+            string lpoNumber, string siteLocation,
+            string salesmanName, string preparedBy,
+            string companyName, string companyTrn)
         {
-            var materials = Math.Round(total / 1.05m, 2);
-            var vat = Math.Round(total - materials, 2);
-
             var snapshot = new ProformaInvoiceSnapshot
             {
                 Company = new CompanySnapshot
                 {
-                    CompanyName = "ProGlass Automation Demo",
-                    CompanyTrn = "100234567800003",
+                    CompanyName = companyName,
+                    CompanyTrn = companyTrn,
                     CompanyLocation = "Sharjah, UAE",
                     ProformaId = id,
                     IssueDate = issue,
-                    ValidUntil = issue.AddDays(7)
+                    ValidUntil = issue.AddDays(30)
                 },
                 Client = new ClientSnapshot
                 {
-                    CustomerName = customer,
-                    CustomerTrn = "100987654300003",
-                    BillingAddress = "PO Box 12345, Sharjah, UAE",
-                    SalesRepresentative = "A. Rahman",
-                    DocumentPreparedBy = "Demo User",
-                    ClientContactPhone = "+971 50 123 4567"
+                    CustomerName = customerName,
+                    CustomerTrn = customerTrn,
+                    BillingAddress = "PO Box 45678, Sharjah, UAE",
+                    SalesRepresentative = salesmanName,
+                    DocumentPreparedBy = preparedBy,
+                    ClientContactPhone = "+971 50 987 6543"
                 },
                 Project = new ProjectSnapshot
                 {
-                    ProjectIdentifierName = project,
-                    ProjectContractNo = "CTR-2026-11",
-                    SiteDeliveryLocation = "Sharjah Industrial Area",
-                    LpoNumber = "LPO-889"
+                    ProjectIdentifierName = projectName,
+                    ProjectContractNo = contractNo,
+                    ProjectReference = projectRef,
+                    SiteDeliveryLocation = siteLocation,
+                    LpoNumber = lpoNumber
                 },
                 SpecGroups =
                 {
+                    // ── Spec Group 1: Clear Tempered (10 items) ──────
                     new SpecGroupSnapshot
                     {
                         GroupNumber = 1,
-                        GroupName = "Spec Group 1",
+                        GroupName = "Clear Tempered — Main Facade",
                         SelectedGlassType = "SGU",
                         BaseRate = 150m,
                         ItemRows =
                         {
-                            new GlassItemRowSnapshot
-                            {
-                                SerialNumber = 1, GlassRef = "CLR-06",
-                                W1 = 1200, H1 = 900, W2 = 1200, H2 = 900,
-                                Qty = 12, Rate = 150m
-                            },
-                            new GlassItemRowSnapshot
-                            {
-                                SerialNumber = 2, GlassRef = "CLR-10",
-                                W1 = 2000, H1 = 1500, W2 = 2000, H2 = 1500,
-                                Qty = 6, Rate = 210m
-                            }
+                            new GlassItemRowSnapshot { SerialNumber = 1, GlassRef = "CT-06-1200x900", W1 = 1200, H1 = 900, W2 = 0, H2 = 0, Qty = 8, Rate = 150m },
+                            new GlassItemRowSnapshot { SerialNumber = 2, GlassRef = "CT-06-1500x1000", W1 = 1500, H1 = 1000, W2 = 0, H2 = 0, Qty = 6, Rate = 150m },
+                            new GlassItemRowSnapshot { SerialNumber = 3, GlassRef = "CT-08-1800x1200", W1 = 1800, H1 = 1200, W2 = 0, H2 = 0, Qty = 5, Rate = 185m },
+                            new GlassItemRowSnapshot { SerialNumber = 4, GlassRef = "CT-08-2000x1500", W1 = 2000, H1 = 1500, W2 = 0, H2 = 0, Qty = 4, Rate = 185m },
+                            new GlassItemRowSnapshot { SerialNumber = 5, GlassRef = "CT-10-2200x1400", W1 = 2200, H1 = 1400, W2 = 0, H2 = 0, Qty = 3, Rate = 210m },
+                            new GlassItemRowSnapshot { SerialNumber = 6, GlassRef = "CT-10-2400x1600", W1 = 2400, H1 = 1600, W2 = 0, H2 = 0, Qty = 3, Rate = 210m },
+                            new GlassItemRowSnapshot { SerialNumber = 7, GlassRef = "CT-12-1800x1200", W1 = 1800, H1 = 1200, W2 = 0, H2 = 0, Qty = 4, Rate = 245m },
+                            new GlassItemRowSnapshot { SerialNumber = 8, GlassRef = "CT-12-2000x1500", W1 = 2000, H1 = 1500, W2 = 0, H2 = 0, Qty = 2, Rate = 245m },
+                            new GlassItemRowSnapshot { SerialNumber = 9, GlassRef = "CT-06-1000x800", W1 = 1000, H1 = 800, W2 = 0, H2 = 0, Qty = 6, Rate = 150m },
+                            new GlassItemRowSnapshot { SerialNumber = 10, GlassRef = "CT-08-1600x1100", W1 = 1600, H1 = 1100, W2 = 0, H2 = 0, Qty = 4, Rate = 185m },
                         }
-                    }
+                    },
+                    // ── Spec Group 2: Tinted Glass (7 items) ─────────
+                    new SpecGroupSnapshot
+                    {
+                        GroupNumber = 2,
+                        GroupName = "Tinted — Sun-Exposed Areas",
+                        SelectedGlassType = "SGU",
+                        BaseRate = 175m,
+                        ItemRows =
+                        {
+                            new GlassItemRowSnapshot { SerialNumber = 1, GlassRef = "TT-06-1200x900", W1 = 1200, H1 = 900, W2 = 0, H2 = 0, Qty = 5, Rate = 175m },
+                            new GlassItemRowSnapshot { SerialNumber = 2, GlassRef = "TT-06-1500x1000", W1 = 1500, H1 = 1000, W2 = 0, H2 = 0, Qty = 4, Rate = 175m },
+                            new GlassItemRowSnapshot { SerialNumber = 3, GlassRef = "TT-08-1800x1200", W1 = 1800, H1 = 1200, W2 = 0, H2 = 0, Qty = 3, Rate = 195m },
+                            new GlassItemRowSnapshot { SerialNumber = 4, GlassRef = "TT-08-2000x1500", W1 = 2000, H1 = 1500, W2 = 0, H2 = 0, Qty = 2, Rate = 195m },
+                            new GlassItemRowSnapshot { SerialNumber = 5, GlassRef = "TT-06-1000x800", W1 = 1000, H1 = 800, W2 = 0, H2 = 0, Qty = 4, Rate = 175m },
+                            new GlassItemRowSnapshot { SerialNumber = 6, GlassRef = "TT-08-1600x1100", W1 = 1600, H1 = 1100, W2 = 0, H2 = 0, Qty = 3, Rate = 195m },
+                            new GlassItemRowSnapshot { SerialNumber = 7, GlassRef = "TT-06-1400x950", W1 = 1400, H1 = 950, W2 = 0, H2 = 0, Qty = 3, Rate = 175m },
+                        }
+                    },
+                    // ── Spec Group 3: Low-E Energy Efficient (5 items) ─
+                    new SpecGroupSnapshot
+                    {
+                        GroupNumber = 3,
+                        GroupName = "Low-E — Energy Efficient Zones",
+                        SelectedGlassType = "DGU",
+                        BaseRate = 260m,
+                        ItemRows =
+                        {
+                            new GlassItemRowSnapshot { SerialNumber = 1, GlassRef = "LE-06-1800x1200", W1 = 1800, H1 = 1200, W2 = 1800, H2 = 1200, Qty = 4, Rate = 260m },
+                            new GlassItemRowSnapshot { SerialNumber = 2, GlassRef = "LE-06-2000x1500", W1 = 2000, H1 = 1500, W2 = 2000, H2 = 1500, Qty = 3, Rate = 260m },
+                            new GlassItemRowSnapshot { SerialNumber = 3, GlassRef = "LE-06-2200x1400", W1 = 2200, H1 = 1400, W2 = 2200, H2 = 1400, Qty = 2, Rate = 260m },
+                            new GlassItemRowSnapshot { SerialNumber = 4, GlassRef = "LE-06-1600x1100", W1 = 1600, H1 = 1100, W2 = 1600, H2 = 1100, Qty = 3, Rate = 260m },
+                            new GlassItemRowSnapshot { SerialNumber = 5, GlassRef = "LE-06-2400x1600", W1 = 2400, H1 = 1600, W2 = 2400, H2 = 1600, Qty = 2, Rate = 260m },
+                        }
+                    },
                 },
                 Summary = new InvoiceSummarySnapshot
                 {
-                    DiscountType = "Percentage", DiscountValue = 0m,
-                    IsVatApplicable = true, VatPercent = 5m
+                    DiscountType = "Percentage",
+                    DiscountValue = 0m,
+                    IsVatApplicable = true,
+                    VatPercent = 5m
                 }
             };
+
+            // Calculate totals
+            decimal subtotal = 0;
+            foreach (var sg in snapshot.SpecGroups)
+            {
+                foreach (var item in sg.ItemRows)
+                {
+                    decimal sqm = ((decimal)item.W1 / 1000m) * ((decimal)item.H1 / 1000m) * item.Qty;
+                    item.Amount = Math.Round(sqm * item.Rate, 2);
+                    subtotal += item.Amount;
+                }
+            }
+
+            decimal discount = 0m;
+            decimal afterDiscount = subtotal - discount;
+            decimal vat = Math.Round(afterDiscount * 0.05m, 2);
+            decimal grandTotal = afterDiscount + vat;
 
             return new SavedProformaInvoice
             {
                 ProformaId = id,
-                CompanyName = "ProGlass Automation Demo",
-                CustomerName = customer,
-                ProjectName = project,
-                Status = status,
+                CompanyName = companyName,
+                CustomerName = customerName,
+                ProjectName = projectName,
+                Status = "Approved",
                 IssueDate = issue,
-                ValidUntil = issue.AddDays(7),
-                GlassMaterialsSubtotal = materials,
+                ValidUntil = issue.AddDays(30),
+                GlassMaterialsSubtotal = subtotal,
                 OtherChargesSubtotal = 0m,
-                DiscountAmount = 0m,
+                DiscountAmount = discount,
                 VatAmount = vat,
-                GrandTotalVatInclusive = total,
+                GrandTotalVatInclusive = grandTotal,
                 FullSnapshotJson = JsonSerializer.Serialize(snapshot),
                 CreatedAt = issue,
                 UpdatedAt = issue
@@ -490,7 +543,7 @@ namespace ProGlassAutomation.Services.SampleData
         }
 
         private static (SavedJobOrder Entity, Models.JobOrder.SavedJobOrder.JobOrderSnapshot Snapshot)
-            BuildJob(SavedProformaInvoice pi, string jobId, string status,
+            BuildJobOrder(SavedProformaInvoice pi, string jobId, string status,
                 string priority, DateTime? delivery)
         {
             var snap = JobOrderMapper.BuildFromProformaInvoice(pi);
@@ -499,6 +552,10 @@ namespace ProGlassAutomation.Services.SampleData
             snap.Production.Status = status;
             snap.Production.Priority = priority;
             snap.Production.DeliveryDate = delivery;
+            snap.Production.Notes = "Podium level delivery — use loading bay B2. " +
+                                     "Site contact: Mohammed Ali +971 55 123 4567. " +
+                                     "Deliver in 2 batches: Batch 1 = Clear Tempered (Group 1), " +
+                                     "Batch 2 = Tinted + Low-E (Groups 2 & 3).";
             var entity = JobOrderMapper.BuildEntityFromSnapshot(
                 snap, pi.GrandTotalVatInclusive);
             entity.Status = status;
@@ -507,49 +564,100 @@ namespace ProGlassAutomation.Services.SampleData
             return (entity, snap);
         }
 
-        private static SavedDeliveryNote BuildDn(
+        /// <summary>
+        /// Builds a delivery note with partial delivery.
+        /// Delivers all of Spec Group 1 (Clear Tempered — 10 items)
+        /// and nothing from Groups 2 & 3 (leaving balance for next DN).
+        /// </summary>
+        private static SavedDeliveryNote BuildDeliveryNote(
             SavedJobOrder job,
             Models.JobOrder.SavedJobOrder.JobOrderSnapshot snap,
-            string dnId, int seq, string status, bool deliverAll,
+            string dnId, int seq, string status,
             DateTime date, string driver, string vehicle, string receiver)
         {
             var dn = DeliveryNoteMapper.FromJobOrder(job, snap, dnId, seq);
             dn.Status = status;
             dn.DeliveryDate = date;
+            dn.DeliveryTime = date.ToString("HH:mm");
             dn.DriverName = driver;
             dn.VehicleNumber = vehicle;
             dn.ReceiverName = receiver;
+            dn.Notes = "Batch 1 of 2 — Clear Tempered panels only. " +
+                       "Tinted and Low-E to follow in Batch 2.";
+
+            // Deliver all items from Spec Group 1 (first 10 items)
+            // Leave Spec Groups 2 & 3 with 0 delivered (balance = ordered)
+            int itemIndex = 0;
             foreach (var item in dn.Items)
             {
-                if (deliverAll)
+                if (itemIndex < 10) // Spec Group 1: deliver all
                 {
                     item.DeliveredQty = item.OrderedQty;
                     item.BalanceQty = 0;
                 }
+                else // Spec Groups 2 & 3: deliver nothing (partial delivery demo)
+                {
+                    item.DeliveredQty = 0;
+                    item.BalanceQty = item.OrderedQty;
+                }
+                itemIndex++;
             }
+
             dn.TotalDeliveredQty = dn.Items.Sum(i => i.DeliveredQty);
             dn.TotalBalanceQty = dn.Items.Sum(i => i.BalanceQty);
             dn.TotalPreviouslyDeliveredQty = dn.Items.Sum(i => i.PreviouslyDeliveredQty);
+            dn.TotalOrderedQty = dn.Items.Sum(i => i.OrderedQty);
             DeliveryNoteMapper.RefreshSnapshot(dn);
             return dn;
         }
 
-        private static SavedTaxInvoice Ti(string num, string pi, string dn,
-            string customer, string status, decimal total,
-            DateTime issue, DateTime due) => new SavedTaxInvoice
+        private static SavedTaxInvoice BuildTaxInvoice(
+            string num, string piId, string dnId,
+            string customerName, string customerTrn,
+            string projectName, string companyName, string companyTrn,
+            string status, DateTime issue, DateTime due)
         {
-            InvoiceNumber = num,
-            ProformaId = pi,
-            DeliveryNoteReference = dn,
-            Status = status,
-            CustomerName = customer,
-            ProjectName = "Demo project",
-            CompanyName = "ProGlass Automation Demo",
-            CompanyTrn = "100234567800003",
-            IssueDate = issue,
-            DueDate = due,
-            PaymentTerms = "Net 30",
-            PaymentTermsDays = 30
-        };
+            // Calculate based on delivered items only
+            decimal deliveredSubtotal = 0;
+            // Spec Group 1 items (first 10) — all delivered
+            var sg1Items = new[]
+            {
+                (1200m * 900m / 1000000m * 8 * 150m),
+                (1500m * 1000m / 1000000m * 6 * 150m),
+                (1800m * 1200m / 1000000m * 5 * 185m),
+                (2000m * 1500m / 1000000m * 4 * 185m),
+                (2200m * 1400m / 1000000m * 3 * 210m),
+                (2400m * 1600m / 1000000m * 3 * 210m),
+                (1800m * 1200m / 1000000m * 4 * 245m),
+                (2000m * 1500m / 1000000m * 2 * 245m),
+                (1000m * 800m / 1000000m * 6 * 150m),
+                (1600m * 1100m / 1000000m * 4 * 185m),
+            };
+            deliveredSubtotal = (decimal)sg1Items.Sum();
+            deliveredSubtotal = Math.Round(deliveredSubtotal, 2);
+
+            decimal vat = Math.Round(deliveredSubtotal * 0.05m, 2);
+            decimal total = deliveredSubtotal + vat;
+
+            return new SavedTaxInvoice
+            {
+                InvoiceNumber = num,
+                ProformaId = piId,
+                DeliveryNoteReference = dnId,
+                Status = status,
+                CustomerName = customerName,
+                ProjectName = projectName,
+                CompanyName = companyName,
+                CompanyTrn = companyTrn,
+                CustomerTrn = customerTrn,
+                IssueDate = issue,
+                DueDate = due,
+                PaymentTerms = "Net 30",
+                PaymentTermsDays = 30,
+                Subtotal = deliveredSubtotal,
+                VatAmount = vat,
+                GrandTotal = total,
+            };
+        }
     }
 }
