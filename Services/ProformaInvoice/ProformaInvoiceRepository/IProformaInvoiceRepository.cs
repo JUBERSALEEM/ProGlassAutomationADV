@@ -79,6 +79,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         Task<List<ProformaSearchRow>> SearchAsync(
             string term, int take);
 
+        /// <summary>
+        /// PERF-9: list-page projection for the Saved Invoices screen.
+        ///
+        /// GetAllAsync materialises every column of every row, including
+        /// FullSnapshotJson — a complete invoice snapshot blob — and the
+        /// list was reading all of it just to show REF / COMPANY /
+        /// CUSTOMER / PROJECT / STATUS / TOTAL / DATE. This reads only the
+        /// scalar columns the list actually binds, with AsNoTracking.
+        ///
+        /// Deliberately a NEW method: GetAllAsync has many callers and
+        /// some genuinely need the snapshot, so changing it in place
+        /// would have been unsafe.
+        /// </summary>
+        Task<List<ProformaListRow>> GetListRowsAsync(
+            CancellationToken cancellationToken = default);
+
         Task DeleteAsync(int id);
 
         /// <summary>

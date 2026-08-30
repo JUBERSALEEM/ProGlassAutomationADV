@@ -555,7 +555,7 @@
                       VirtualizingPanel.IsVirtualizing="True"
                       VirtualizingPanel.VirtualizationMode="Recycling"
                       VirtualizingPanel.ScrollUnit="Pixel"
-                      ScrollViewer.CanContentScroll="False"
+                      ScrollViewer.CanContentScroll="True"
                       ScrollViewer.IsDeferredScrollingEnabled="False"
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Visibility="{Binding IsListVisible,

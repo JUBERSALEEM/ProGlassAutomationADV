@@ -74,61 +74,98 @@ namespace ProGlassAutomation.Services.Documents
             var jobPairs = jobs?.ToList()
                 ?? new List<(string JobOrderId, string SourceProformaId)>();
 
+            // PERF-11 (2026-08-30): the four reads below were previously
+            // strictly sequential — four full-table SQLite queries, each
+            // waiting for the previous one — on EVERY list page load.
+            // They are independent reads on separate repositories (each
+            // opens its own DbContext), so they now run concurrently and
+            // cut page-open latency from 4×query to ~1×query. Each task
+            // keeps its own try/catch so one failing table can never
+            // poison the other three.
+            Task<List<(string JobOrderId, string SourceProformaId)>>? jobsTask = null;
             if (jobs == null && App.Jobs != null)
             {
-                try
+                jobsTask = Task.Run(async () =>
                 {
-                    var rows = await App.Jobs.GetListRowsAsync();
-                    jobPairs = (rows ?? new List<JobOrderListRow>())
-                        .Select(r => (r.JobOrderId ?? "", r.SourceProformaId ?? ""))
-                        .ToList();
-                }
-                catch (Exception ex)
+                    try
+                    {
+                        var rows = await App.Jobs.GetListRowsAsync();
+                        return (rows ?? new List<JobOrderListRow>())
+                            .Select(r => (r.JobOrderId ?? "", r.SourceProformaId ?? ""))
+                            .ToList();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "Document progress: job list unavailable: " + ex.Message);
+                        return new List<(string, string)>();
+                    }
+                });
+            }
+
+            Task<List<DeliveryNoteListItem>>? mastersTask = null;
+            if (App.DeliveryNotes != null)
+            {
+                mastersTask = Task.Run(async () =>
                 {
-                    AppLogService.Warning(
-                        "Document progress: job list unavailable: " + ex.Message);
-                }
+                    try
+                    {
+                        return await App.DeliveryNotes.GetMasterDnsAsync()
+                            ?? new List<DeliveryNoteListItem>();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "Document progress: master DNs unavailable: " + ex.Message);
+                        return new List<DeliveryNoteListItem>();
+                    }
+                });
             }
 
-            List<DeliveryNoteListItem> masters = new();
-            List<DeliveryNoteListItem> dns = new();
-            List<TaxInvoiceListItem> tis = new();
-
-            try
+            Task<List<DeliveryNoteListItem>>? dnsTask = null;
+            if (App.DeliveryNotes != null)
             {
-                if (App.DeliveryNotes != null)
-                    masters = await App.DeliveryNotes.GetMasterDnsAsync()
-                              ?? new List<DeliveryNoteListItem>();
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Document progress: master DNs unavailable: " + ex.Message);
-            }
-
-            try
-            {
-                if (App.DeliveryNotes != null)
-                    dns = await App.DeliveryNotes.GetAllAsync()
-                          ?? new List<DeliveryNoteListItem>();
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Document progress: delivery notes unavailable: " + ex.Message);
+                dnsTask = Task.Run(async () =>
+                {
+                    try
+                    {
+                        return await App.DeliveryNotes.GetAllAsync()
+                            ?? new List<DeliveryNoteListItem>();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "Document progress: delivery notes unavailable: " + ex.Message);
+                        return new List<DeliveryNoteListItem>();
+                    }
+                });
             }
 
-            try
+            Task<List<TaxInvoiceListItem>>? tisTask = null;
+            if (App.TaxInvoices != null)
             {
-                if (App.TaxInvoices != null)
-                    tis = await App.TaxInvoices.GetAllAsync()
-                          ?? new List<TaxInvoiceListItem>();
+                tisTask = Task.Run(async () =>
+                {
+                    try
+                    {
+                        return await App.TaxInvoices.GetAllAsync()
+                            ?? new List<TaxInvoiceListItem>();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            "Document progress: tax invoices unavailable: " + ex.Message);
+                        return new List<TaxInvoiceListItem>();
+                    }
+                });
             }
-            catch (Exception ex)
-            {
-                AppLogService.Warning(
-                    "Document progress: tax invoices unavailable: " + ex.Message);
-            }
+
+            if (jobsTask != null)
+                jobPairs = await jobsTask;
+
+            var masters = mastersTask != null ? await mastersTask : new List<DeliveryNoteListItem>();
+            var dns = dnsTask != null ? await dnsTask : new List<DeliveryNoteListItem>();
+            var tis = tisTask != null ? await tisTask : new List<TaxInvoiceListItem>();
 
             return From(jobPairs, masters, dns, tis);
         }

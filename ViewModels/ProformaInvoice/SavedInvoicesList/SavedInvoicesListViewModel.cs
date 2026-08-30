@@ -395,7 +395,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             try
             {
-                var entities = await App.Invoices.GetAllAsync();
+                // PERF-9: list-page projection — GetAllAsync() dragged every
+                // FullSnapshotJson blob (whole invoice) into memory just to
+                // render one row per invoice. GetListRowsAsync() reads only
+                // the scalar columns this page binds.
+                var entities = await App.Invoices.GetListRowsAsync();
 
                 var progress = await DocumentProgressSnapshot.LoadAsync();
                 var confirmedWithAttachments = await LoadApprovalProofStateAsync(entities);
@@ -450,16 +454,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// Loads Step 8 confirmation proof state once for the current list.
         /// A PI is only shown as confirmed when it is stored Approved AND it
         /// has at least one attachment uploaded through Step 8.
+        ///
+        /// PERF-10: bounded concurrency. The old code started one
+        /// File.ReadAllTextAsync + JSON deserialize per invoice ALL AT ONCE
+        /// (Task.WhenAll over an unbounded projection). With hundreds of
+        /// invoices that thrashed the disk cache and stalled the page for
+        /// seconds. A fixed 8-way gate keeps the read pipeline saturated
+        /// without flooding the IO subsystem, and results only need
+        /// manifest.Count > 0, so the JSON is only touched for files that
+        /// exist (File.Exists probe is a single metadata call).
         /// </summary>
+        private static readonly SemaphoreSlim ManifestReadGate =
+            new(8, 8);
+
         private async Task<HashSet<string>> LoadApprovalProofStateAsync(
-            IEnumerable<SavedProformaInvoice> entities)
+            IEnumerable<ProformaListRow> entities)
         {
             var confirmed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             try
             {
                 var service = new ProformaAttachmentService();
-                var ids = (entities ?? Enumerable.Empty<SavedProformaInvoice>())
+                var ids = (entities ?? Enumerable.Empty<ProformaListRow>())
                     .Select(x => x.ProformaId)
                     .Where(x => !string.IsNullOrWhiteSpace(x))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -467,8 +483,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
                 var results = await Task.WhenAll(ids.Select(async id =>
                 {
-                    var manifest = await service.LoadManifestAsync(id!);
-                    return (Id: id!, HasProof: manifest.Count > 0);
+                    // Gate file IO concurrency — bounded, not unbounded.
+                    await ManifestReadGate.WaitAsync().ConfigureAwait(false);
+                    try
+                    {
+                        var manifest = await service.LoadManifestAsync(id!)
+                            .ConfigureAwait(false);
+                        return (Id: id!, HasProof: manifest.Count > 0);
+                    }
+                    finally
+                    {
+                        ManifestReadGate.Release();
+                    }
                 }));
 
                 foreach (var row in results)

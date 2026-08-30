@@ -30,8 +30,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace ProGlassAutomation.ViewModels.Shared
 {
@@ -42,6 +44,14 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         /// <summary>Hard cap on rendered results.</summary>
         public const int MaxResults = 25;
+
+        /// <summary>
+        /// PERF-13: idle time allowed between the last keystroke and the
+        /// actual query. Previously EVERY keystroke fired the full 7-module
+        /// search immediately; fast typists queued overlapping queries that
+        /// could land out of order and throw stale results onto the screen.
+        /// </summary>
+        private const int DebounceMs = 250;
 
         // Module filter labels — also the values shown in the ComboBox.
         public const string ModuleAll = "All Modules";
@@ -55,6 +65,23 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         /// <summary>Injected navigation callback (MainViewModel.Navigate).</summary>
         private readonly Action<string>? _navigate;
+
+        /// <summary>Debounce timer — one query burst per typing pause.</summary>
+        private readonly DispatcherTimer _debounceTimer;
+
+        /// <summary>
+        /// Search revision counter. Every keystroke bumps it; a search only
+        /// applies its results if it is still the newest request when it
+        /// finishes. Prevents out-of-order stale results.
+        /// </summary>
+        private int _searchGeneration;
+
+        /// <summary>
+        /// Set when a debounce fires while a search is still in flight —
+        /// the freshly-typed term is re-searched as soon as the current
+        /// search completes instead of being silently dropped.
+        /// </summary>
+        private bool _rerunOnIdle;
 
         /// <summary>Filter options for the module ComboBox.</summary>
         public ObservableCollection<string> ModuleOptions { get; } = new()
@@ -171,6 +198,12 @@ namespace ProGlassAutomation.ViewModels.Shared
         {
             _navigate = navigate;
 
+            _debounceTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(DebounceMs)
+            };
+            _debounceTimer.Tick += OnDebounceTick;
+
             SelectResultCommand = new RelayCommand(param =>
             {
                 if (param is GlobalSearchResult hit) OpenResult(hit);
@@ -205,9 +238,47 @@ namespace ProGlassAutomation.ViewModels.Shared
             OnPropertyChanged(nameof(SelectedResult));
         }
 
-        private async Task FireSearchAsync()
+        /// <summary>
+        /// Debounced entry point. Coalesces a typing burst into ONE query
+        /// after the user pauses (PERF-13), and invalidates any search that
+        /// is still in flight from an older keystroke.
+        /// </summary>
+        private Task FireSearchAsync()
         {
-            await SearchAsync().ConfigureAwait(true);
+            _debounceTimer.Stop();
+
+            string term = (SearchText ?? "").Trim();
+            if (term.Length < MinSearchLength)
+            {
+                // Bump the generation so an in-flight search cannot paint
+                // results that belong to the previous/cleared text.
+                Interlocked.Increment(ref _searchGeneration);
+                _rerunOnIdle = false;
+                Results.Clear();
+                IsOpen = false;
+                StatusMessage = $"Type at least {MinSearchLength} characters.";
+                OnPropertyChanged(nameof(HasNoResults));
+                return Task.CompletedTask;
+            }
+
+            _debounceTimer.Start();
+            return Task.CompletedTask;
+        }
+
+        private void OnDebounceTick(object? sender, EventArgs e)
+        {
+            _debounceTimer.Stop();
+
+            if (IsBusy)
+            {
+                // Current search still in flight — remember that a newer
+                // term is waiting instead of dropping it (the old code
+                // returned here and never searched the new text).
+                _rerunOnIdle = true;
+                return;
+            }
+
+            AsyncUtility.SafeFireAndForget(SearchCoreAsync, "GlobalSearch");
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -215,10 +286,12 @@ namespace ProGlassAutomation.ViewModels.Shared
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Runs the query across the selected modules. Never throws; a
-        /// module whose repository is unavailable is simply skipped.
+        /// Runs the query across the selected modules (debounced). Never
+        /// throws; a module whose repository is unavailable is skipped.
         /// </summary>
-        public async Task SearchAsync()
+        public Task SearchAsync() => FireSearchAsync();
+
+        private async Task SearchCoreAsync()
         {
             string term = (SearchText ?? "").Trim();
 
@@ -231,7 +304,15 @@ namespace ProGlassAutomation.ViewModels.Shared
                 return;
             }
 
-            if (IsBusy) return;
+            if (IsBusy)
+            {
+                _rerunOnIdle = true;
+                return;
+            }
+
+            // This search may only apply its results if it is still the
+            // latest request when it completes.
+            int generation = Interlocked.Increment(ref _searchGeneration);
             IsBusy = true;
 
             try
@@ -245,6 +326,11 @@ namespace ProGlassAutomation.ViewModels.Shared
                 if (Wants(ModuleTaxInvoices)) await AddTaxInvoicesAsync(hits, term);
                 if (Wants(ModuleCompanies)) await AddCompaniesAsync(hits, term);
                 if (Wants(ModuleClients)) await AddClientsAsync(hits, term);
+
+                // Stale results (user typed again while this ran) are
+                // discarded — the debounce fires a fresh search instead.
+                if (generation != Volatile.Read(ref _searchGeneration))
+                    return;
 
                 Results.Clear();
                 foreach (var hit in hits.Take(MaxResults)) Results.Add(hit);
@@ -266,6 +352,14 @@ namespace ProGlassAutomation.ViewModels.Shared
             finally
             {
                 IsBusy = false;
+
+                // A newer keystroke arrived while this search was running —
+                // re-run for the latest term instead of dropping it.
+                if (Volatile.Read(ref _rerunOnIdle) /* read */)
+                {
+                    Volatile.Write(ref _rerunOnIdle, false);
+                    _debounceTimer.Start();
+                }
             }
         }
 

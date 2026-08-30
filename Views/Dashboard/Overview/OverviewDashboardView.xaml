@@ -264,7 +264,7 @@
                                  no more "stuck" / no-scroll Recent documents. -->
                             <ScrollViewer VerticalScrollBarVisibility="Auto"
                                           HorizontalScrollBarVisibility="Disabled"
-                                          CanContentScroll="False"
+                                          CanContentScroll="True"
                                           PanningMode="VerticalOnly"
                                           MaxHeight="480"
                                           behaviors:SmoothScrollBehavior.IsEnabled="True"

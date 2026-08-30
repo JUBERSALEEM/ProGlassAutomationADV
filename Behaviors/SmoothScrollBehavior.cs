@@ -1,76 +1,80 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Behaviors/SmoothScrollBehavior.cs
 // PROJECT: ProGlassAutomation
-// PURPOSE: Buttery-smooth 60fps scroll behavior for ScrollViewer.
+// PURPOSE: Frame-stable, constant-FPS scroll tuning for ScrollViewer /
+//          virtualized lists.
 //
-// ARCHITECTURE:
-//   Uses CompositionTarget.Rendering frame loop (~60fps, or display
-//   refresh rate on 120/144 Hz monitors) to smoothly interpolate
-//   current offset toward target offset using adaptive exponential
-//   easing. No DoubleAnimation, no proxy DPs, no race conditions.
+// ARCHITECTURE (2026-08-30 senior perf rewrite):
+//   The previous version eased every wheel notch with a
+//   CompositionTarget.Rendering loop. On real screens that loop did a
+//   ScrollToVerticalOffset per frame (~60-144 fps); with CanContentScroll=
+//   False content (dashboards, Step 5 grid, wizard pages) every frame
+//   forced a full re-measure/re-layout/re-render of the ENTIRE non-
+//   virtualized subtree — that is the classic "smooth scroll is laggy"
+//   problem, and on virtualized pixel lists it made the panel re-realise
+//   containers continuously. The perceived "rubber-band" ease-out was
+//   also a large part of the laggy feel.
+//
+//   PERF-8 fix — no render loop at all:
+//     • VIRTUALIZED lists (IsVirtualizing=true + ScrollUnit=Pixel, the
+//       .NET 4.5 combo used by every list page) are handed back to the
+//       native WPF ScrollViewer. WPF already scrolls these by pixel on
+//       each wheel event without re-realising items between notches, and
+//       it does NOT do per-frame work while the wheel is idle. Our job is
+//       simply to get out of the way.
+//     • All other scrollers (page scroll viewports, dashboards, settings,
+//       dialogs, the Step 5 grid) scroll the full 120px per notch
+//       INSTANTLY — one ScrollToVerticalOffset per wheel event, zero
+//       animation clocks, zero continuous re-render. Scroll cost is
+//       proportional to actual input, not to display refresh rate.
+//
+//   This gives a Chrome/Linear-like pixel wheel feel with the lowest
+//   possible per-frame cost. If a buttery-eased feel is ever needed on a
+//   cheap, non-virtualized page, that should be done with a single
+//   DoubleAnimation on the ScrollViewer's templated offset (one clock,
+//   stops itself), never with a global Rendering loop.
 //
 // FEATURES:
-//   • Mouse wheel — smooth eased scroll with adaptive easing
-//   • Precision touchpad — respects native fine-grained delta
-//   • Keyboard — Arrow keys, PgUp/PgDn, Home, End
-//   • Accumulative — rapid wheel spins stack targets
-//   • Modifier passthrough — Shift/Ctrl+Wheel not intercepted
-//   • Zero snap-back, zero flicker, zero race conditions
-//   • DUAL MODE: pixel scroll (regular content) + item scroll (virtualized)
-//   • Frame-rate independent (works on 60/120/144 Hz displays)
-//   • Auto-cleanup via ConditionalWeakTable (leak-proof)
-//   • Skips redundant ScrollToVerticalOffset calls (perf)
-//
-// TUNING PRESETS (change constants at top):
-//   Snappy (Chrome-like)   : WheelNotchPixels=120, EasingFactor=0.35
-//   Buttery (macOS-like)   : WheelNotchPixels=100, EasingFactor=0.25
-//   Instant (VS Code-like) : WheelNotchPixels=140, EasingFactor=0.50
-//   Cinematic (slow)       : WheelNotchPixels=100, EasingFactor=0.18
+//   • Mouse wheel — 120 px per notch, immediate (no easing lag)
+//   • Precision touchpad — fine-grained delta honoured as-is
+//   • Virtualized pixel lists — delegated to the native scroller
+//   • Works attached to ScrollViewer OR ListBox/ListView/ItemsControl
+//     (previously attaching to a ListBox silently did nothing)
+//   • Auto-cleanup via ConditionalWeakTable + Unloaded (leak-proof)
+//   • No per-frame work while the wheel is idle
 //
 // USAGE:
 //   xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
 //   <ScrollViewer behaviors:SmoothScrollBehavior.IsEnabled="True" .../>
+//   <ListBox behaviors:SmoothScrollBehavior.IsEnabled="True" .../>
 //
 // SENIOR DEV NOTE:
 //   Do NOT nest scroll surfaces. If inner content is a virtualized list,
-//   set its CanContentScroll=False and let it grow inside this scroller.
-//   This matches how Notion, Linear, Google Sheets handle nested content.
+//   set CanContentScroll=True + VirtualizingStackPanel.ScrollUnit=Pixel
+//   so WPF keeps virtualization AND pixel scrolling.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace ProGlassAutomation.Behaviors
 {
     /// <summary>
-    /// Attached behavior providing smooth animated scrolling for ScrollViewer.
-    /// Frame-rate independent, GC-safe, zero-allocation per frame.
+    /// Attached behavior providing pixel-accurate mouse-wheel scrolling.
+    /// Zero-allocation per wheel event, virtualization-aware, no render loop.
     /// </summary>
     public static class SmoothScrollBehavior
     {
         // ═══════════════════════════════════════════════════════════════
-        //  TUNING CONSTANTS — Chrome/Linear-like snappy default
+        //  TUNING CONSTANTS — Chrome/Linear-like
         // ═══════════════════════════════════════════════════════════════
 
-        /// <summary>Pixels per mouse wheel notch for regular content.</summary>
+        /// <summary>Pixels per mouse wheel notch (matches Windows 120 delta).</summary>
         private const double WheelNotchPixels = 120.0;
-
-        /// <summary>Items per mouse wheel notch for virtualized lists.</summary>
-        private const double WheelNotchItems = 3.0;
-
-        /// <summary>
-        /// Base interpolation rate — % of remaining distance moved per frame.
-        /// 0.35 = snappy, 0.22 = smooth, 0.50 = near-instant.
-        /// </summary>
-        private const double EasingFactor = 0.35;
-
-        /// <summary>Distance below which animation snaps to target and stops.</summary>
-        private const double StopThreshold = 1.0;
 
         /// <summary>
         /// Delta magnitude below which input is treated as precision touchpad
@@ -78,46 +82,28 @@ namespace ProGlassAutomation.Behaviors
         /// </summary>
         private const double PrecisionThreshold = 60.0;
 
-        /// <summary>Page scroll = viewport height × this fraction (PgUp/PgDn).</summary>
-        private const double PageScrollFraction = 0.9;
-
-        /// <summary>
-        /// Adaptive easing boost — when distance is large, ease faster.
-        /// Prevents laggy feel on rapid wheel spins. 1.0 = disabled.
-        /// </summary>
-        private const double AdaptiveEasingBoost = 1.4;
-
-        /// <summary>Distance at which adaptive boost kicks in fully.</summary>
-        private const double AdaptiveBoostThreshold = 400.0;
-
-        /// <summary>Target frame time for 60fps reference (16.67ms).</summary>
-        private const double ReferenceFrameTimeMs = 16.667;
-
         // ═══════════════════════════════════════════════════════════════
         //  STATE — per ScrollViewer, GC-safe via ConditionalWeakTable
         // ═══════════════════════════════════════════════════════════════
 
         private sealed class ScrollState
         {
-            public double CurrentOffset;
-            public double TargetOffset;
-            public double LastScrolledOffset;
-            public bool IsAnimating;
-            public bool IsItemMode;
+            /// <summary>
+            /// True when the scroll viewer hosts a virtualized, pixel-scrolling
+            /// items panel — these are delegated to native WPF scrolling.
+            /// Refreshed on every wheel event (cheap visual-tree probe).
+            /// </summary>
+            public bool IsVirtualizedPixelList;
         }
 
         // ConditionalWeakTable auto-cleans state when ScrollViewer is GC'd.
-        // Prevents leaks even if Detach() is never called (unusual scenarios).
         private static readonly ConditionalWeakTable<ScrollViewer, ScrollState>
             _states = new();
 
-        // Weak-referenced list of active scrollers for the render loop.
-        // Rebuilt on Attach/Detach — small list, cheap iteration.
-        private static readonly System.Collections.Generic.List<WeakReference<ScrollViewer>>
-            _activeScrollers = new();
-
-        private static bool _renderingHooked;
-        private static TimeSpan _lastRenderTime = TimeSpan.Zero;
+        // ItemsControl → inner ScrollViewer, so a behavior attached to a
+        // ListBox/ListView can detach the exact scroller it attached to.
+        private static readonly ConditionalWeakTable<ItemsControl, ScrollViewer>
+            _itemsToScroller = new();
 
         // ═══════════════════════════════════════════════════════════════
         //  ATTACHED PROPERTY: IsEnabled
@@ -140,40 +126,121 @@ namespace ProGlassAutomation.Behaviors
             DependencyObject d,
             DependencyPropertyChangedEventArgs e)
         {
-            if (d is not ScrollViewer sv) return;
-
             if ((bool)e.NewValue)
-                Attach(sv);
+            {
+                // PERF-8: accept ScrollViewer AND ItemsControl. Feed-style
+                // list pages attach the behavior to the ListBox/ListView,
+                // not to its internal ScrollViewer; the old code dropped
+                // those silently (scroll never got tuned, behavior was inert).
+                switch (d)
+                {
+                    case ScrollViewer sv:
+                        Attach(sv);
+                        break;
+                    case ItemsControl ic:
+                        AttachItemsControl(ic);
+                        break;
+                }
+            }
             else
-                Detach(sv);
+            {
+                switch (d)
+                {
+                    case ScrollViewer sv:
+                        Detach(sv);
+                        break;
+                    case ItemsControl ic:
+                        DetachItemsControl(ic);
+                        break;
+                }
+            }
         }
 
         // ═══════════════════════════════════════════════════════════════
         //  ATTACH / DETACH
         // ═══════════════════════════════════════════════════════════════
 
+        private static void AttachItemsControl(ItemsControl ic)
+        {
+            // Inner ScrollViewer exists only after the control template has
+            // been applied, so resolve it on Loaded (before that the
+            // attached property is inert — same as the old ScrollViewer path).
+            ic.Loaded += OnItemsControlLoaded;
+            ic.Unloaded -= OnItemsControlUnloaded;
+            ic.Unloaded += OnItemsControlUnloaded;
+        }
+
+        private static void DetachItemsControl(ItemsControl ic)
+        {
+            ic.Loaded -= OnItemsControlLoaded;
+            ic.Unloaded -= OnItemsControlUnloaded;
+
+            if (_itemsToScroller.TryGetValue(ic, out var sv))
+            {
+                Detach(sv);
+                _itemsToScroller.Remove(ic);
+            }
+        }
+
+        private static void OnItemsControlLoaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is not ItemsControl ic) return;
+
+            // Template is applied by now; resolve its internal ScrollViewer.
+            var sv = FindDescendantScrollViewer(ic);
+            if (sv == null)
+            {
+                // Exotic hosting (ItemsControl inside another template) can
+                // fire Loaded before the template pass builds the scroller.
+                // Retry once on the next dispatcher pass; native scrolling
+                // remains active either way, so this is best-effort.
+                if (_itemsToScroller.TryGetValue(ic, out _)) return;
+                ic.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    var again = FindDescendantScrollViewer(ic);
+                    if (again == null || _states.TryGetValue(again, out _)) return;
+                    _itemsToScroller.AddOrUpdate(ic, again);
+                    Attach(again);
+                }));
+                return;
+            }
+
+            if (_states.TryGetValue(sv, out _)) return;
+
+            _itemsToScroller.AddOrUpdate(ic, sv);
+            Attach(sv);
+        }
+
+        private static void OnItemsControlUnloaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is not ItemsControl ic) return;
+
+            ic.Loaded -= OnItemsControlLoaded;
+            ic.Unloaded -= OnItemsControlUnloaded;
+
+            if (_itemsToScroller.TryGetValue(ic, out var sv))
+            {
+                Detach(sv);
+                _itemsToScroller.Remove(ic);
+            }
+        }
+
         private static void Attach(ScrollViewer sv)
         {
             if (_states.TryGetValue(sv, out _)) return;
 
-            var state = new ScrollState
+            _states.Add(sv, new ScrollState
             {
-                CurrentOffset = sv.VerticalOffset,
-                TargetOffset = sv.VerticalOffset,
-                LastScrolledOffset = sv.VerticalOffset,
-                IsAnimating = false,
-                IsItemMode = ResolveItemMode(sv)
-            };
-
-            _states.Add(sv, state);
-            _activeScrollers.Add(new WeakReference<ScrollViewer>(sv));
+                // Best-effort at attach; re-probed on every wheel event
+                // because the items panel is realized lazily.
+                IsVirtualizedPixelList = IsVirtualizedPixelList(sv)
+            });
 
             sv.PreviewMouseWheel += OnPreviewMouseWheel;
-            sv.PreviewKeyDown += OnPreviewKeyDown;
+            // Unloaded detach keeps long-lived windows (MainWindow content
+            // swaps DataTemplates) from accumulating handlers on dead views.
+            sv.Unloaded -= OnScrollViewerUnloaded;
             sv.Unloaded += OnScrollViewerUnloaded;
-
-            if (!sv.Focusable)
-                sv.Focusable = true;
         }
 
         private static void Detach(ScrollViewer sv)
@@ -181,26 +248,9 @@ namespace ProGlassAutomation.Behaviors
             if (!_states.TryGetValue(sv, out _)) return;
 
             sv.PreviewMouseWheel -= OnPreviewMouseWheel;
-            sv.PreviewKeyDown -= OnPreviewKeyDown;
             sv.Unloaded -= OnScrollViewerUnloaded;
 
             _states.Remove(sv);
-
-            // Purge dead + matching refs
-            for (int i = _activeScrollers.Count - 1; i >= 0; i--)
-            {
-                if (!_activeScrollers[i].TryGetTarget(out var target) ||
-                    ReferenceEquals(target, sv))
-                {
-                    _activeScrollers.RemoveAt(i);
-                }
-            }
-
-            if (_activeScrollers.Count == 0 && _renderingHooked)
-            {
-                CompositionTarget.Rendering -= OnRendering;
-                _renderingHooked = false;
-            }
         }
 
         private static void OnScrollViewerUnloaded(
@@ -214,64 +264,6 @@ namespace ProGlassAutomation.Behaviors
         //  MOUSE WHEEL HANDLER
         // ═══════════════════════════════════════════════════════════════
 
-
-        // ═══════════════════════════════════════════════════════════════
-        //  SCROLL MODE RESOLUTION — audit finding PERF-1
-        //
-        //  Originally this behaviour decided its mode purely from
-        //  ScrollViewer.CanContentScroll:
-        //
-        //      IsItemMode = sv.CanContentScroll
-        //
-        //  That forced an unhappy trade-off on every list screen. To get
-        //  smooth pixel scrolling the views set CanContentScroll="False",
-        //  and WPF responds by DISABLING UI VIRTUALIZATION entirely —
-        //  virtualization tracks logical items, and pixel scrolling has no
-        //  concept of an item. Every row of every list was therefore
-        //  realised up front. With 10,000 delivery notes that is 10,000
-        //  containers built before the screen can paint.
-        //
-        //  Since .NET 4.5 there is a third option that the original code
-        //  did not account for:
-        //
-        //      ScrollViewer.CanContentScroll   = True    (keeps virtualization)
-        //      VirtualizingPanel.ScrollUnit    = Pixel   (keeps smooth scroll)
-        //
-        //  In that configuration the ScrollViewer reports CanContentScroll
-        //  as True — so the old line selected ITEM mode and scrolled a
-        //  whole row per wheel notch — but the panel is actually scrolling
-        //  by pixel. The two disagreed, which is why simply flipping the
-        //  XAML in an earlier attempt made scrolling feel wrong and was
-        //  reverted.
-        //
-        //  ResolveItemMode asks the panel what unit is really in effect,
-        //  so a list can now have BOTH virtualization and smooth pixel
-        //  scrolling. Views that still use CanContentScroll="False" keep
-        //  behaving exactly as before.
-        // ═══════════════════════════════════════════════════════════════
-        private static bool ResolveItemMode(ScrollViewer sv)
-        {
-            // Pixel-based physical scrolling: never item mode.
-            if (!sv.CanContentScroll) return false;
-
-            // Logical scrolling is on. If the items panel has been told to
-            // scroll by pixel (the .NET 4.5 combination), honour that and
-            // stay in pixel mode.
-            try
-            {
-                if (VirtualizingPanel.GetScrollUnit(sv) == ScrollUnit.Pixel)
-                    return false;
-            }
-            catch (System.Exception ex)
-            {
-                // Attached property unavailable on this element — fall
-                // back to the classic interpretation.
-                ProGlassAutomation.Services.Logging.AppLogService.Debug("[SmoothScrollBehavior] ScrollUnit probe failed; staying in pixel mode: " + ex.Message);
-            }
-
-            return true;
-        }
-
         private static void OnPreviewMouseWheel(
             object sender, MouseWheelEventArgs e)
         {
@@ -281,221 +273,161 @@ namespace ProGlassAutomation.Behaviors
             // Passthrough for Ctrl+Wheel (zoom) / Shift+Wheel (horizontal)
             if (Keyboard.Modifiers != ModifierKeys.None) return;
 
+            state.IsVirtualizedPixelList = IsVirtualizedPixelList(sv);
+
+            // PERF-8: virtualized pixel lists scroll natively. The native
+            // path honours the wheel per event and — crucially — does not
+            // animate, so the panel never churns containers at frame rate.
+            if (state.IsVirtualizedPixelList)
+                return; // not handled → WPF ScrollViewer scrolls internally
+
+            double currentOffset = sv.VerticalOffset;
+            double maxOffset = sv.ScrollableHeight;
+
+            // Nested-scroll etiquette: at the top/bottom boundary the wheel
+            // must bubble to the OUTER scroller (this is what the dashboard
+            // SmartScrollBubblingBehavior relies on). The old code handled
+            // the event unconditionally, so a bounded inner scroller could
+            // swallow the wheel and leave nested pages feeling "stuck".
+            bool atTop = currentOffset <= 0.0;
+            bool atBottom = currentOffset >= maxOffset - 0.5;
+            bool scrollingUp = e.Delta > 0;
+            bool scrollingDown = e.Delta < 0;
+            if ((atTop && scrollingUp) || (atBottom && scrollingDown))
+                return; // not handled → bubbles to the outer scroll surface
+
+            double delta = Math.Abs(e.Delta) < PrecisionThreshold
+                ? e.Delta * 1.2                 // precision touchpad
+                : (e.Delta / 120.0) * WheelNotchPixels;
+
+            double newOffset = currentOffset - delta;
+
+            if (newOffset < 0) newOffset = 0;
+            else if (newOffset > maxOffset) newOffset = maxOffset;
+
+            // Single jump per wheel event — no animation clocks, no
+            // continuous re-render while the wheel is idle.
+            sv.ScrollToVerticalOffset(newOffset);
             e.Handled = true;
-
-            state.IsItemMode = ResolveItemMode(sv);
-
-            double notchSize = state.IsItemMode
-                ? WheelNotchItems
-                : WheelNotchPixels;
-
-            double delta;
-
-            if (Math.Abs(e.Delta) < PrecisionThreshold)
-            {
-                // Precision touchpad — small deltas, use as-is (scaled)
-                delta = state.IsItemMode
-                    ? e.Delta / 40.0
-                    : e.Delta * 1.2;
-            }
-            else
-            {
-                // Standard wheel — 120 units per notch
-                delta = (e.Delta / 120.0) * notchSize;
-            }
-
-            // If animation is idle, sync current with actual scroll position
-            if (!state.IsAnimating)
-            {
-                state.CurrentOffset = sv.VerticalOffset;
-                state.TargetOffset = sv.VerticalOffset;
-                state.LastScrolledOffset = sv.VerticalOffset;
-            }
-
-            state.TargetOffset -= delta;
-            state.TargetOffset = Clamp(
-                state.TargetOffset, 0, sv.ScrollableHeight);
-
-            StartAnimation(state);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        //  KEYBOARD HANDLER
+        //  VIRTUALIZATION PROBE
         // ═══════════════════════════════════════════════════════════════
 
-        private static void OnPreviewKeyDown(
-            object sender, KeyEventArgs e)
+        /// <summary>
+        /// True when the ScrollViewer hosts an ItemsControl whose items panel
+        /// virtualizes AND scrolls by pixel. With
+        /// CanContentScroll=True + VirtualizingPanel.ScrollUnit=Pixel
+        /// (the modern WPF combo) virtualization stays ON while WPF scrolls
+        /// by pixel — the best of both worlds, and it must never be driven
+        /// from an external render loop.
+        /// </summary>
+        private static bool IsVirtualizedPixelList(ScrollViewer sv)
         {
-            if (sender is not ScrollViewer sv) return;
-            if (!_states.TryGetValue(sv, out var state)) return;
+            var ic = FindHostingItemsControl(sv);
+            if (ic == null) return false;
 
-            // Never steal arrows / Home / End from an editable cell.
-            // Step 5 Excel nav (and any TextBox) lives inside this
-            // ScrollViewer; PreviewKeyDown tunnels here first.
-            if (e.OriginalSource is TextBoxBase or PasswordBox or ComboBox)
-                return;
-
-            state.IsItemMode = ResolveItemMode(sv);
-
-            double unitSize = state.IsItemMode ? 1.0 : WheelNotchPixels;
-            double pageSize = state.IsItemMode
-                ? Math.Max(1, sv.ViewportHeight * PageScrollFraction)
-                : sv.ViewportHeight * PageScrollFraction;
-
-            double delta;
-            switch (e.Key)
+            try
             {
-                case Key.Down: delta = unitSize; break;
-                case Key.Up: delta = -unitSize; break;
-                case Key.PageDown: delta = pageSize; break;
-                case Key.PageUp: delta = -pageSize; break;
-                case Key.Home: delta = -sv.ScrollableHeight; break;
-                case Key.End: delta = sv.ScrollableHeight; break;
-                default: return;
+                if (!VirtualizingPanel.GetIsVirtualizing(ic))
+                    return false;
+
+                if (VirtualizingPanel.GetScrollUnit(ic) != ScrollUnit.Pixel)
+                    return false;
+
+                // Belt-and-braces: the panel must actually be a virtualizing
+                // panel (ItemsPanel override could kill virtualization even
+                // when the flags say otherwise).
+                return FindDescendantVirtualizingPanel(ic) != null;
             }
-
-            e.Handled = true;
-
-            if (!state.IsAnimating)
+            catch (System.Exception)
             {
-                state.CurrentOffset = sv.VerticalOffset;
-                state.TargetOffset = sv.VerticalOffset;
-                state.LastScrolledOffset = sv.VerticalOffset;
-            }
-
-            state.TargetOffset += delta;
-            state.TargetOffset = Clamp(
-                state.TargetOffset, 0, sv.ScrollableHeight);
-
-            StartAnimation(state);
-        }
-
-        // ═══════════════════════════════════════════════════════════════
-        //  ANIMATION — hook single render loop for all active scrollers
-        // ═══════════════════════════════════════════════════════════════
-
-        private static void StartAnimation(ScrollState state)
-        {
-            state.IsAnimating = true;
-
-            if (!_renderingHooked)
-            {
-                _lastRenderTime = TimeSpan.Zero;
-                CompositionTarget.Rendering += OnRendering;
-                _renderingHooked = true;
-            }
-        }
-
-        private static void OnRendering(object? sender, EventArgs e)
-        {
-            // Frame-time delta for frame-rate independence
-            double frameFactor = 1.0;
-            if (e is RenderingEventArgs args)
-            {
-                if (_lastRenderTime != TimeSpan.Zero)
-                {
-                    double elapsedMs =
-                        (args.RenderingTime - _lastRenderTime).TotalMilliseconds;
-                    // Cap frame factor to avoid huge jumps on tab-switch/pause
-                    frameFactor = Clamp(
-                        elapsedMs / ReferenceFrameTimeMs, 0.5, 3.0);
-                }
-                _lastRenderTime = args.RenderingTime;
-            }
-
-            bool anyStillAnimating = false;
-            int deadRefs = 0;
-
-            for (int i = 0; i < _activeScrollers.Count; i++)
-            {
-                if (!_activeScrollers[i].TryGetTarget(out var sv))
-                {
-                    deadRefs++;
-                    continue;
-                }
-
-                if (!_states.TryGetValue(sv, out var state)) continue;
-                if (!state.IsAnimating) continue;
-
-                double distance = state.TargetOffset - state.CurrentOffset;
-                double absDistance = Math.Abs(distance);
-
-                if (absDistance < StopThreshold)
-                {
-                    // Snap to final position, stop animating
-                    state.CurrentOffset = state.TargetOffset;
-                    ScrollIfChanged(sv, state, state.CurrentOffset);
-                    state.IsAnimating = false;
-                    continue;
-                }
-
-                // Adaptive easing — boost when distance is large (rapid spin)
-                double adaptiveMultiplier = 1.0;
-                if (absDistance > AdaptiveBoostThreshold)
-                {
-                    adaptiveMultiplier = AdaptiveEasingBoost;
-                }
-                else if (absDistance > AdaptiveBoostThreshold * 0.5)
-                {
-                    // Smooth ramp between 1.0 and boost
-                    double t = (absDistance - AdaptiveBoostThreshold * 0.5)
-                             / (AdaptiveBoostThreshold * 0.5);
-                    adaptiveMultiplier = 1.0 + (AdaptiveEasingBoost - 1.0) * t;
-                }
-
-                // Frame-rate independent easing
-                double effectiveFactor = 1.0 - Math.Pow(
-                    1.0 - (EasingFactor * adaptiveMultiplier),
-                    frameFactor);
-                effectiveFactor = Clamp(effectiveFactor, 0.0, 1.0);
-
-                state.CurrentOffset += distance * effectiveFactor;
-                ScrollIfChanged(sv, state, state.CurrentOffset);
-                anyStillAnimating = true;
-            }
-
-            // Purge dead weak refs
-            if (deadRefs > 0)
-            {
-                for (int i = _activeScrollers.Count - 1; i >= 0; i--)
-                {
-                    if (!_activeScrollers[i].TryGetTarget(out _))
-                        _activeScrollers.RemoveAt(i);
-                }
-            }
-
-            if (!anyStillAnimating && _renderingHooked)
-            {
-                CompositionTarget.Rendering -= OnRendering;
-                _renderingHooked = false;
-                _lastRenderTime = TimeSpan.Zero;
+                // Attached property unavailable on this element — treat as
+                // non-virtualized; direct scroll is still correct.
+                return false;
             }
         }
 
         /// <summary>
-        /// Only calls ScrollToVerticalOffset if the pixel-rounded position
-        /// actually changed. Eliminates redundant layout invalidations that
-        /// occur when animation produces sub-pixel deltas.
+        /// Locates the ItemsControl whose scrolling this ScrollViewer serves.
+        /// Two shapes exist in the codebase:
+        ///   1. ListBox/ListView OWNS the scroller (behavior attached to the
+        ///      items control) → the ItemsControl is an ANCESTOR of the
+        ///      ScrollViewer.
+        ///   2. The ScrollViewer HOSTS an ItemsControl (dashboard feed, chat
+        ///      transcript) → it is a DESCENDANT of the ScrollViewer.
         /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void ScrollIfChanged(
-            ScrollViewer sv, ScrollState state, double offset)
+        private static ItemsControl? FindHostingItemsControl(ScrollViewer sv)
         {
-            // Round to nearest pixel — WPF renders at pixel boundaries anyway
-            double rounded = Math.Round(offset);
-            if (Math.Abs(rounded - state.LastScrolledOffset) < 0.5)
-                return;
+            // Case 1 — ancestor chain (ListBox internal ScrollViewer).
+            if (VisualTreeHelper.GetParent(sv) is DependencyObject parent)
+            {
+                while (parent != null)
+                {
+                    if (parent is ItemsControl ic)
+                        return ic;
+                    parent = VisualTreeHelper.GetParent(parent);
+                }
+            }
 
-            sv.ScrollToVerticalOffset(offset);
-            state.LastScrolledOffset = rounded;
+            // Case 2 — descendant (ScrollViewer wrapping an ItemsControl).
+            return FindDescendantItemsControl(sv);
         }
 
         // ═══════════════════════════════════════════════════════════════
-        //  UTILITY
+        //  VISUAL TREE HELPERS
         // ═══════════════════════════════════════════════════════════════
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static double Clamp(double value, double min, double max)
-            => value < min ? min : value > max ? max : value;
+        private static ScrollViewer? FindDescendantScrollViewer(DependencyObject parent)
+        {
+            if (parent == null) return null;
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is ScrollViewer sv)
+                    return sv;
+
+                var found = FindDescendantScrollViewer(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private static ItemsControl? FindDescendantItemsControl(DependencyObject parent)
+        {
+            if (parent == null) return null;
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is ItemsControl ic)
+                    return ic;
+
+                var found = FindDescendantItemsControl(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
+
+        private static VirtualizingStackPanel? FindDescendantVirtualizingPanel(DependencyObject parent)
+        {
+            if (parent == null) return null;
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is VirtualizingStackPanel vsp)
+                    return vsp;
+
+                var found = FindDescendantVirtualizingPanel(child);
+                if (found != null) return found;
+            }
+            return null;
+        }
     }
 }

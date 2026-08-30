@@ -218,15 +218,34 @@
          COMPACT ROW VARIANTS — one glass shape (corner radius from the
          theme), colours per role, top glare retained.
     ════════════════════════════════════════════════════════════════ -->
-    <!-- Compact row button — layered glass with spring animation -->
+    <!-- Compact row button — layered glass with spring animation.
+
+         PERF-7 (2026-08-30): the DropShadowEffect previously placed on
+         the ShadowHost was removed ON PURPOSE. Row buttons are
+         instantiated inside VIRTUALIZED list item templates (every list
+         page has 2-3 row buttons per visible row). WPF re-runs a pixel
+         shader for EVERY effect, on EVERY frame the element redraws, and
+         with VirtualizationMode=Recycling the ~60 visible effects are
+         torn down and re-created as the viewport scrolls — the single
+         biggest cause of scroll stutter on 1000+ row lists. A 26px-high
+         button does not need a 32px-radius blur; the 1px crystal border
+         + top glare already give it depth. Toolbar buttons keep their
+         shadow (few dozen on screen at most) via GlassPillButtonTemplate.
+    -->
     <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
         <Grid x:Name="RootGrid">
             <Grid.RenderTransform>
                 <ScaleTransform ScaleX="1" ScaleY="1" CenterX="0.5" CenterY="0.5"/>
             </Grid.RenderTransform>
+            <!-- L0: shadow-free elevation — subtle inner bottom edge keeps the
+                 pill readable on glass without a live pixel shader -->
             <Border x:Name="ShadowHost"
                     CornerRadius="{DynamicResource CardCornerRadius}"
-                    Effect="{DynamicResource ShadowSoft}"/>
+                    VerticalAlignment="Bottom"
+                    Height="1"
+                    Margin="8,0,8,0"
+                    Background="{DynamicResource DividerBrush}"
+                    Opacity="0.45"/>
             <Border x:Name="Bg"
                     Background="{TemplateBinding Background}"
                     BorderBrush="{TemplateBinding BorderBrush}"

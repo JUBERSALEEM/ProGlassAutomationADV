@@ -380,6 +380,34 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         }
 
         /// <summary>
+        /// PERF-9: list-page projection — see the interface contract.
+        /// Never touches FullSnapshotJson; the Saved Invoices list only
+        /// needs indexed scalars, and this keeps opening that page at a
+        /// constant cost per row instead of deserializing whole snapshots.
+        /// </summary>
+        public async Task<List<ProformaListRow>> GetListRowsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            using var db = new ProformaInvoicesDbContext();
+            return await db.ProformaInvoices
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new ProformaListRow
+                {
+                    Id = x.Id,
+                    ProformaId = x.ProformaId ?? "",
+                    CompanyName = x.CompanyName ?? "",
+                    CustomerName = x.CustomerName ?? "",
+                    ProjectName = x.ProjectName ?? "",
+                    Status = x.Status ?? "Draft",
+                    GrandTotalVatInclusive = x.GrandTotalVatInclusive,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt
+                })
+                .ToListAsync(cancellationToken);
+        }
+
+        /// <summary>
         /// PERF-2: see IProformaInvoiceRepository for why this exists
         /// alongside GetAllAsync rather than replacing it.
         /// </summary>

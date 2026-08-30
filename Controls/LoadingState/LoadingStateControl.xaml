@@ -8,7 +8,13 @@
 
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                 IsHitTestVisible="False">
-        <!-- Animated spinner: a rotating dashed ring -->
+        <!-- Animated spinner: a rotating dashed ring.
+             PERF-12: the RotateTransform is driven from code-behind and
+             runs ONLY while the control is actually visible. The old
+             EventTrigger Loaded storyboard ran forever on every list page
+             even when the spinner was hidden (Visibility collapsed) —
+             ~13 list pages each holding a permanently ticking animation
+             clock and invalidating the visual tree every frame. -->
         <Grid Width="28" Height="28" HorizontalAlignment="Center">
             <Ellipse Width="28" Height="28"
                      Stroke="{DynamicResource AccentBrush}"
@@ -20,19 +26,6 @@
                 <Ellipse.RenderTransform>
                     <RotateTransform x:Name="SpinnerRotate" Angle="0"/>
                 </Ellipse.RenderTransform>
-                <Ellipse.Triggers>
-                    <EventTrigger RoutedEvent="Loaded">
-                        <BeginStoryboard>
-                            <Storyboard RepeatBehavior="Forever">
-                                <DoubleAnimation
-                                    Storyboard.TargetName="SpinnerRotate"
-                                    Storyboard.TargetProperty="Angle"
-                                    From="0" To="360"
-                                    Duration="0:0:0.8"/>
-                            </Storyboard>
-                        </BeginStoryboard>
-                    </EventTrigger>
-                </Ellipse.Triggers>
             </Ellipse>
         </Grid>
         <TextBlock Text="{Binding Message, RelativeSource={RelativeSource AncestorType=UserControl}}"
