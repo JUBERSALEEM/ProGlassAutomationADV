@@ -118,45 +118,45 @@
 
                         <!-- Date From -->
                         <StackPanel Grid.Column="0" Margin="0,0,12,0">
-                            <TextBlock Text="From" Style="{StaticResource ModuleListFilterLabelStyle}"/>
+                            <TextBlock Text="FROM DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
                             <DatePicker SelectedDate="{Binding DateFrom, Mode=TwoWay}" 
                                        Width="130"
-                                       Style="{StaticResource ModuleListDatePickerStyle}"/>
+                                       Style="{StaticResource ModuleListFilterDatePickerStyle}"/>
                         </StackPanel>
 
                         <!-- Date To -->
                         <StackPanel Grid.Column="1" Margin="0,0,12,0">
-                            <TextBlock Text="To" Style="{StaticResource ModuleListFilterLabelStyle}"/>
+                            <TextBlock Text="TO DATE" Style="{StaticResource ModuleFieldLabelStyle}"/>
                             <DatePicker SelectedDate="{Binding DateTo, Mode=TwoWay}" 
                                        Width="130"
-                                       Style="{StaticResource ModuleListDatePickerStyle}"/>
+                                       Style="{StaticResource ModuleListFilterDatePickerStyle}"/>
                         </StackPanel>
 
                         <!-- Company Filter -->
                         <StackPanel Grid.Column="2" Margin="0,0,12,0">
-                            <TextBlock Text="Company" Style="{StaticResource ModuleListFilterLabelStyle}"/>
+                            <TextBlock Text="COMPANY" Style="{StaticResource ModuleFieldLabelStyle}"/>
                             <ComboBox ItemsSource="{Binding CompanyOptions}" 
                                      SelectedItem="{Binding CompanyFilter, Mode=TwoWay}"
                                      Width="160"
-                                     Style="{StaticResource ModuleListComboBoxStyle}"/>
+                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
                         </StackPanel>
 
                         <!-- Salesman Filter -->
                         <StackPanel Grid.Column="3" Margin="0,0,12,0">
-                            <TextBlock Text="Salesman" Style="{StaticResource ModuleListFilterLabelStyle}"/>
+                            <TextBlock Text="SALESMAN" Style="{StaticResource ModuleFieldLabelStyle}"/>
                             <ComboBox ItemsSource="{Binding SalesmanOptions}" 
                                      SelectedItem="{Binding SalesmanFilter, Mode=TwoWay}"
                                      Width="160"
-                                     Style="{StaticResource ModuleListComboBoxStyle}"/>
+                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
                         </StackPanel>
 
                         <!-- Project Filter -->
                         <StackPanel Grid.Column="4" Margin="0,0,12,0">
-                            <TextBlock Text="Project" Style="{StaticResource ModuleListFilterLabelStyle}"/>
+                            <TextBlock Text="PROJECT" Style="{StaticResource ModuleFieldLabelStyle}"/>
                             <ComboBox ItemsSource="{Binding ProjectOptions}" 
                                      SelectedItem="{Binding ProjectFilter, Mode=TwoWay}"
                                      Width="160"
-                                     Style="{StaticResource ModuleListComboBoxStyle}"/>
+                                     Style="{StaticResource ModuleListFilterComboStyle}"/>
                         </StackPanel>
 
                         <!-- Spacer -->
@@ -166,7 +166,7 @@
                         <Button Grid.Column="6" 
                                Command="{Binding ClearFilterCommand}"
                                Content="Clear Filters"
-                               Style="{StaticResource ModuleListClearButtonStyle}"
+                               Style="{StaticResource ReportToolbarOutlinedButton}"
                                Margin="0,0,0,0"/>
                     </Grid>
                 </Border>
@@ -179,22 +179,22 @@
                         <RadioButton Content="Detail View" 
                                     IsChecked="{Binding IsDetailView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabButtonStyle}"
+                                    Style="{StaticResource ModuleListTabActiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Salesman" 
                                     IsChecked="{Binding IsSalesmanView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabButtonStyle}"
+                                    Style="{StaticResource ModuleListTabInactiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Company" 
                                     IsChecked="{Binding IsCompanyView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabButtonStyle}"
+                                    Style="{StaticResource ModuleListTabInactiveStyle}"
                                     Margin="0,0,8,0"/>
                         <RadioButton Content="By Project" 
                                     IsChecked="{Binding IsProjectView, Mode=TwoWay}"
                                     GroupName="ViewMode"
-                                    Style="{StaticResource ModuleListTabButtonStyle}"/>
+                                    Style="{StaticResource ModuleListTabInactiveStyle}"/>
                     </StackPanel>
                 </Border>
 
@@ -203,8 +203,8 @@
                 ══════════════════════════════════════════════════════════════ -->
                 <Grid Grid.Row="3">
                     <!-- Loading State -->
-                    <loading:LoadingStateControl IsLoading="{Binding IsLoading}" 
-                                                Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <loading:LoadingStateControl Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}" 
+                                                Message="Loading VAT data…"/>
 
                     <!-- Empty State -->
                     <emptyState:EmptyStateControl Message="No VAT data available for the selected filters"
@@ -213,7 +213,7 @@
                     <!-- Detail View Grid -->
                     <DataGrid ItemsSource="{Binding Rows}"
                              Visibility="{Binding IsDetailView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource ModuleListDataGridStyle}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
                              AutoGenerateColumns="False"
                              IsReadOnly="True"
                              CanUserAddRows="False"
@@ -235,7 +235,7 @@
                     <!-- By Salesman Grid -->
                     <DataGrid ItemsSource="{Binding SalesmanSummary}"
                              Visibility="{Binding IsSalesmanView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource ModuleListDataGridStyle}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
                              AutoGenerateColumns="False"
                              IsReadOnly="True"
                              CanUserAddRows="False"
@@ -251,7 +251,7 @@
                     <!-- By Company Grid -->
                     <DataGrid ItemsSource="{Binding CompanySummary}"
                              Visibility="{Binding IsCompanyView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource ModuleListDataGridStyle}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
                              AutoGenerateColumns="False"
                              IsReadOnly="True"
                              CanUserAddRows="False"
@@ -267,7 +267,7 @@
                     <!-- By Project Grid -->
                     <DataGrid ItemsSource="{Binding ProjectSummary}"
                              Visibility="{Binding IsProjectView, Converter={StaticResource BoolToVisibilityConverter}}"
-                             Style="{StaticResource ModuleListDataGridStyle}"
+                             Style="{StaticResource LiquidGlassDataGridStyle}"
                              AutoGenerateColumns="False"
                              IsReadOnly="True"
                              CanUserAddRows="False"
@@ -285,7 +285,7 @@
                 <!-- ══════════════════════════════════════════════════════════
                      5. PAGINATION FOOTER
                 ══════════════════════════════════════════════════════════════ -->
-                <Border Grid.Row="4" Style="{StaticResource ModuleListPaginationStyle}">
+                <Border Grid.Row="4" Style="{StaticResource ReportTableHeaderStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -294,28 +294,30 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Record Count -->
-                        <TextBlock Grid.Column="0" 
-                                  Style="{StaticResource ModuleListPaginationLabelStyle}">
-                            <Run Text="Showing "/>
-                            <Run Text="{Binding Rows.Count, Mode=OneWay}"/>
-                            <Run Text=" of "/>
-                            <Run Text="{Binding TotalCount, Mode=OneWay}"/>
-                            <Run Text=" records"/>
-                        </TextBlock>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
+                            <TextBlock Text="Showing " Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                            <TextBlock Text="{Binding Rows.Count, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}" FontWeight="Bold"/>
+                            <TextBlock Text=" of " Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                            <TextBlock Text="{Binding TotalCount, Mode=OneWay}" Style="{StaticResource ModuleListKpiValueStyle}" FontWeight="Bold"/>
+                            <TextBlock Text=" records" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                        </StackPanel>
 
                         <!-- Export Buttons -->
-                        <StackPanel Grid.Column="2" Orientation="Horizontal">
-                            <Button Content="Export CSV" 
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="12,0">
+                            <Button Content="CSV" 
                                    Command="{Binding ExportCsvCommand}"
-                                   Style="{StaticResource ModuleListExportButtonStyle}"
-                                   Margin="0,0,8,0"/>
-                            <Button Content="Export Excel" 
+                                   Style="{StaticResource ReportExportOutlinedButton}"
+                                   Margin="0,0,8,0"
+                                   ToolTip="Export to CSV"/>
+                            <Button Content="Excel" 
                                    Command="{Binding ExportExcelCommand}"
-                                   Style="{StaticResource ModuleListExportButtonStyle}"
-                                   Margin="0,0,8,0"/>
-                            <Button Content="Export PDF" 
+                                   Style="{StaticResource ReportExportOutlinedButton}"
+                                   Margin="0,0,8,0"
+                                   ToolTip="Export to Excel"/>
+                            <Button Content="PDF" 
                                    Command="{Binding ExportPdfCommand}"
-                                   Style="{StaticResource ModuleListExportButtonStyle}"/>
+                                   Style="{StaticResource ReportExportPrimaryButton}"
+                                   ToolTip="Export to PDF"/>
                         </StackPanel>
                     </Grid>
                 </Border>
